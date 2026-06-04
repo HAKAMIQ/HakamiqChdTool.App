@@ -2,11 +2,16 @@
 
 Hakamiq CHD Tool is a Windows desktop application for CHD workflows built around MAME `chdman`.
 
-The project is designed for users who manage their own legally obtained disc images and want a queue-based Arabic/RTL desktop interface for conversion, verification, archive intake, and CHD extraction.
+The project is designed for users who manage their own legally obtained disc images and want a queue-based desktop interface for conversion, verification, archive intake, and CHD extraction.
 
 ## Status
 
-Current release target: **Windows x64 WPF desktop release candidate**.
+Current public release: **Windows x64 WPF desktop release**.
+
+The latest release is available from GitHub Releases in two packages:
+
+* `self-contained`: complete package for direct use.
+* `framework-dependent`: smaller package, requires .NET 8 Desktop Runtime before use.
 
 Before publishing a binary release, maintainers must run the official publish gate and smoke checklist on a real Windows machine:
 
@@ -16,20 +21,20 @@ Before publishing a binary release, maintainers must run the official publish ga
 
 ## Features
 
-- ISO / CUE / GDI to CHD workflows
-- CHD verification through `chdman verify`
-- CHD extraction / back-conversion workflows where supported by the application operation catalog
-- ZIP / RAR / 7Z intake where supported by the extraction layer
-- Queue-based processing with cancellation and per-item status
-- Optional locally configured Redump-assisted validation and naming flows
-- Embedded `chdman.exe` with optional external `chdman.exe` selection
-- Light, Dark, and HAKAMIQ themes
-- Arabic RTL-first WPF interface
-- Serilog file logging
+* ISO / CUE / GDI to CHD workflows
+* CHD verification through `chdman verify`
+* CHD extraction / back-conversion workflows where supported by the application operation catalog
+* ZIP / RAR / 7Z intake where supported by the extraction layer
+* Queue-based processing with cancellation and per-item status
+* Optional locally configured Redump-assisted validation and naming flows
+* Embedded `chdman.exe` with optional external `chdman.exe` selection
+* Light, Dark, and HAKAMIQ themes
+* Arabic and English interface text with RTL/LTR support
+* Serilog file logging
 
 ## Platform support
 
-Hakamiq CHD Tool is currently a WPF desktop application. WPF is Windows-only, so the official release artifact from this repository is Windows x64.
+Hakamiq CHD Tool is currently a WPF desktop application. WPF is Windows-only, so the official release artifacts from this repository target Windows x64.
 
 Windows x86 and native Windows ARM64 artifacts are not claimed for this snapshot because the bundled `chdman.exe` is a Windows x64 executable. macOS and Linux are not supported by this WPF codebase. Cross-platform migration work is intentionally not included in this WPF repository snapshot.
 
@@ -43,17 +48,18 @@ Detailed release guidance is maintained in `docs/RELEASE-SAFETY.md`.
 
 ## Requirements
 
-For the official Release publish profile in this repository:
+For release downloads:
 
-- Windows 10 build 17763 (1809) or later, Windows 11 recommended
-- x64 Windows
-- No separate .NET runtime installation is required for the official self-contained Release artifact
+* Windows 10 build 17763 (1809) or later; Windows 11 recommended.
+* x64 Windows.
+* `self-contained` package: includes the required runtime components.
+* `framework-dependent` package: requires .NET 8 Desktop Runtime before running the application.
 
 For development builds:
 
-- .NET 8 SDK
-- Windows desktop workload / WPF support
-- Visual Studio 2022/2026 or command-line `dotnet`
+* .NET 8 SDK
+* Windows desktop workload / WPF support
+* Visual Studio 2022 or command-line `dotnet`
 
 ## Build
 
@@ -93,7 +99,7 @@ For development-only verification without producing the final `Release` folder:
 
 Manual runtime checks are listed in:
 
-- `docs/SMOKE_TEST_CHECKLIST.md`
+* `docs/SMOKE_TEST_CHECKLIST.md`
 
 ## Legal use
 
@@ -115,9 +121,9 @@ This repository redistributes `chdman.exe` from the MAME project for user conven
 
 See:
 
-- `CHDMAN_NOTICE.md`
-- `MAME_COPYING.txt`
-- `MAME_GPL-2.0.txt`
+* `CHDMAN_NOTICE.md`
+* `MAME_COPYING.txt`
+* `MAME_GPL-2.0.txt`
 
 Hakamiq CHD Tool is not affiliated with, sponsored by, or endorsed by MAMEdev. MAME is a trademark of its respective owner.
 
