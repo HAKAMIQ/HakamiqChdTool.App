@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Models;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -18,8 +18,13 @@ public static class ArchivePreviewIntakePolicy
         return AllowsQueuedArchiveProcessing(classification, source);
     }
 
-    public static bool AllowsQueuedArchiveProcessing(QueueInputClassification classification, QueueIntakeSource source) =>
-        !classification.IsArchiveContainer || AllowsArchivePreview(source);
+    public static bool AllowsQueuedArchiveProcessing(QueueInputClassification classification, QueueIntakeSource source)
+    {
+        _ = classification;
+        _ = source;
+
+        return true;
+    }
 
     public static bool BlocksQueuedArchiveProcessing(string? path, QueueIntakeSource source) =>
         !AllowsQueuedArchiveProcessing(path, source);
