@@ -1,0 +1,40 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <Color x:Key="Fluent.Shadow.Ambient.Color">#1F000000</Color>
+    <Color x:Key="Fluent.Shadow.Key.Color">#24000000</Color>
+
+    <sys:Double x:Key="Fluent.Elevation.Shadow2.Blur">2</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow2.Depth">1</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow2.Opacity">0.12</sys:Double>
+
+    <sys:Double x:Key="Fluent.Elevation.Shadow4.Blur">4</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow4.Depth">2</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow4.Opacity">0.14</sys:Double>
+
+    <sys:Double x:Key="Fluent.Elevation.Shadow8.Blur">8</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow8.Depth">4</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow8.Opacity">0.14</sys:Double>
+
+    <sys:Double x:Key="Fluent.Elevation.Shadow16.Blur">16</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow16.Depth">8</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow16.Opacity">0.14</sys:Double>
+
+    <sys:Double x:Key="Fluent.Elevation.Shadow28.Blur">28</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow28.Depth">14</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow28.Opacity">0.14</sys:Double>
+
+    <sys:Double x:Key="Fluent.Elevation.Shadow64.Blur">64</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow64.Depth">32</sys:Double>
+    <sys:Double x:Key="Fluent.Elevation.Shadow64.Opacity">0.14</sys:Double>
+
+    <sys:Double x:Key="Elevation.Level.0">0</sys:Double>
+    <sys:Double x:Key="Elevation.Level.2">2</sys:Double>
+    <sys:Double x:Key="Elevation.Level.4">4</sys:Double>
+    <sys:Double x:Key="Elevation.Level.8">8</sys:Double>
+    <sys:Double x:Key="Elevation.Level.16">16</sys:Double>
+    <sys:Double x:Key="Elevation.Level.28">28</sys:Double>
+    <sys:Double x:Key="Elevation.Level.64">64</sys:Double>
+
+</ResourceDictionary>

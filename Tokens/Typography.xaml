@@ -1,0 +1,81 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <FontFamily x:Key="FontFamily.Display">Segoe UI Variable Display, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontFamily.Text">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontFamily.Small">Segoe UI Variable Small, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontFamily.Base">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontFamily.App">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontFamily.Numeric">Bahnschrift, Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontFamily.Mono">Cascadia Mono, Cascadia Code, Consolas, Courier New</FontFamily>
+    <FontFamily x:Key="FontFamily.Monospace">Cascadia Mono, Cascadia Code, Consolas, Courier New</FontFamily>
+    <FontFamily x:Key="FontFamily.Icon">Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI Symbol, Segoe UI Variable Text, Segoe UI</FontFamily>
+
+    <FontWeight x:Key="FontWeight.Regular">Regular</FontWeight>
+    <FontWeight x:Key="FontWeight.Medium">Medium</FontWeight>
+    <FontWeight x:Key="FontWeight.SemiBold">SemiBold</FontWeight>
+    <FontWeight x:Key="FontWeight.Bold">Bold</FontWeight>
+    <FontWeight x:Key="FontWeight.Black">Black</FontWeight>
+
+    <sys:Double x:Key="Fluent.Font.Caption2.Size">10</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Caption1.Size">12</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Body1.Size">14</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Body2.Size">16</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Subtitle2.Size">16</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Subtitle1.Size">20</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title3.Size">24</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title2.Size">28</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title1.Size">32</sys:Double>
+    <sys:Double x:Key="Fluent.Font.LargeTitle.Size">40</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Display.Size">68</sys:Double>
+
+    <sys:Double x:Key="Fluent.Font.Caption2.LineHeight">14</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Caption1.LineHeight">16</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Body1.LineHeight">20</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Body2.LineHeight">22</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Subtitle2.LineHeight">22</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Subtitle1.LineHeight">28</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title3.LineHeight">32</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title2.LineHeight">36</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title1.LineHeight">40</sys:Double>
+    <sys:Double x:Key="Fluent.Font.LargeTitle.LineHeight">52</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Display.LineHeight">92</sys:Double>
+
+    <sys:Double x:Key="FontSize.Caption2">10</sys:Double>
+    <sys:Double x:Key="FontSize.Caption">12</sys:Double>
+    <sys:Double x:Key="FontSize.CaptionSmall">12</sys:Double>
+    <sys:Double x:Key="FontSize.Caption1">12</sys:Double>
+    <sys:Double x:Key="FontSize.Micro">12</sys:Double>
+    <sys:Double x:Key="FontSize.BodySmall">12</sys:Double>
+    <sys:Double x:Key="FontSize.Body">14</sys:Double>
+    <sys:Double x:Key="FontSize.Body1">14</sys:Double>
+    <sys:Double x:Key="FontSize.BodyStrong">14</sys:Double>
+    <sys:Double x:Key="FontSize.Body2">16</sys:Double>
+    <sys:Double x:Key="FontSize.Subtitle">16</sys:Double>
+    <sys:Double x:Key="FontSize.Subtitle2">16</sys:Double>
+    <sys:Double x:Key="FontSize.HeaderTitle">16</sys:Double>
+    <sys:Double x:Key="FontSize.SectionTitle">16</sys:Double>
+    <sys:Double x:Key="FontSize.Title">20</sys:Double>
+    <sys:Double x:Key="FontSize.Subtitle1">20</sys:Double>
+    <sys:Double x:Key="FontSize.Title3">24</sys:Double>
+    <sys:Double x:Key="FontSize.TitleLarge">24</sys:Double>
+    <sys:Double x:Key="FontSize.Title2">28</sys:Double>
+    <sys:Double x:Key="FontSize.Title1">32</sys:Double>
+    <sys:Double x:Key="FontSize.LargeTitle">40</sys:Double>
+    <sys:Double x:Key="FontSize.Display">68</sys:Double>
+
+    <sys:Double x:Key="FontSize.IconSmall">12</sys:Double>
+    <sys:Double x:Key="FontSize.IconMedium">16</sys:Double>
+    <sys:Double x:Key="FontSize.IconLarge">20</sys:Double>
+    <sys:Double x:Key="FontSize.IconXLarge">24</sys:Double>
+    <sys:Double x:Key="FontSize.HeroIcon">28</sys:Double>
+
+    <sys:Double x:Key="Font.LineHeight.Caption">16</sys:Double>
+    <sys:Double x:Key="Font.LineHeight.Body">20</sys:Double>
+    <sys:Double x:Key="Font.LineHeight.Body2">22</sys:Double>
+    <sys:Double x:Key="Font.LineHeight.Subtitle">22</sys:Double>
+    <sys:Double x:Key="Font.LineHeight.Title">28</sys:Double>
+    <sys:Double x:Key="Font.LineHeight.ToolTip">16</sys:Double>
+
+</ResourceDictionary>

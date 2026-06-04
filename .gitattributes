@@ -1,0 +1,21 @@
+# Normalize source text
+* text=auto
+
+# Keep Windows scripts line endings friendly
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets
+*.png binary
+*.ico binary
+*.exe binary
+*.dll binary
+*.zip binary
+*.7z binary
+*.rar binary
+*.chd binary
+*.iso binary
+*.bin binary
+*.cue text
+*.gdi text

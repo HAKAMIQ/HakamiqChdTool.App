@@ -1,0 +1,45 @@
+<UserControl x:Class="HakamiqChdTool.App.Views.Main.ActionRailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mainViews="clr-namespace:HakamiqChdTool.App.Views.Main"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True"
+             Focusable="False">
+
+    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+          SnapsToDevicePixels="True"
+          ClipToBounds="True">
+        <ScrollViewer FlowDirection="{DynamicResource App.FlowDirection}"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      Focusable="False"
+                      Padding="{DynamicResource Inset.None}">
+
+            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Top"
+                  SnapsToDevicePixels="True">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <mainViews:OperationModePanel x:Name="ModePanel"
+                                              Grid.Row="0"
+                                              HorizontalAlignment="Stretch"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              OperationModeChanged="OnOperationModeChanged" />
+
+                <mainViews:ProcessingActionsPanel x:Name="ActionsPanel"
+                                                  Grid.Row="2"
+                                                  HorizontalAlignment="Stretch"
+                                                  FlowDirection="{DynamicResource App.FlowDirection}" />
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

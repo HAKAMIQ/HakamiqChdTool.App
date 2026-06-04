@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build, publish, and release gate
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Repository conventions
+        shell: pwsh
+        run: .\scripts\Verify-RepoConventions.ps1
+
+      - name: Restore Debug
+        run: dotnet restore .\HakamiqChdTool.App.csproj
+
+      - name: Build Debug
+        run: dotnet build .\HakamiqChdTool.App.csproj -c Debug --no-restore --nologo
+
+      - name: Restore Release win-x64
+        run: dotnet restore .\HakamiqChdTool.App.csproj -r win-x64
+
+      - name: Build Release win-x64
+        run: dotnet build .\HakamiqChdTool.App.csproj -c Release -r win-x64 --no-restore --nologo
+
+      - name: Publish end-user release gate
+        shell: pwsh
+        run: .\scripts\Publish-EndUserRelease.ps1
+
+      - name: Upload release output artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HakamiqChdTool-win-x64
+          path: Release/
+          if-no-files-found: error

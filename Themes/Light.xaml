@@ -1,0 +1,606 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="Fluent.White">#FFFFFFFF</Color>
+    <Color x:Key="Fluent.Black">#FF000000</Color>
+
+    <Color x:Key="Fluent.Grey.2">#FF050505</Color>
+    <Color x:Key="Fluent.Grey.4">#FF0A0A0A</Color>
+    <Color x:Key="Fluent.Grey.6">#FF0F0F0F</Color>
+    <Color x:Key="Fluent.Grey.8">#FF141414</Color>
+    <Color x:Key="Fluent.Grey.10">#FF1A1A1A</Color>
+    <Color x:Key="Fluent.Grey.12">#FF1F1F1F</Color>
+    <Color x:Key="Fluent.Grey.14">#FF242424</Color>
+    <Color x:Key="Fluent.Grey.16">#FF292929</Color>
+    <Color x:Key="Fluent.Grey.18">#FF2E2E2E</Color>
+    <Color x:Key="Fluent.Grey.20">#FF333333</Color>
+    <Color x:Key="Fluent.Grey.22">#FF383838</Color>
+    <Color x:Key="Fluent.Grey.24">#FF3D3D3D</Color>
+    <Color x:Key="Fluent.Grey.26">#FF424242</Color>
+    <Color x:Key="Fluent.Grey.28">#FF474747</Color>
+    <Color x:Key="Fluent.Grey.30">#FF4D4D4D</Color>
+    <Color x:Key="Fluent.Grey.32">#FF525252</Color>
+    <Color x:Key="Fluent.Grey.34">#FF575757</Color>
+    <Color x:Key="Fluent.Grey.36">#FF5C5C5C</Color>
+    <Color x:Key="Fluent.Grey.38">#FF616161</Color>
+    <Color x:Key="Fluent.Grey.40">#FF666666</Color>
+    <Color x:Key="Fluent.Grey.42">#FF6B6B6B</Color>
+    <Color x:Key="Fluent.Grey.44">#FF707070</Color>
+    <Color x:Key="Fluent.Grey.46">#FF757575</Color>
+    <Color x:Key="Fluent.Grey.48">#FF7A7A7A</Color>
+    <Color x:Key="Fluent.Grey.50">#FF808080</Color>
+    <Color x:Key="Fluent.Grey.52">#FF858585</Color>
+    <Color x:Key="Fluent.Grey.54">#FF8A8A8A</Color>
+    <Color x:Key="Fluent.Grey.56">#FF8F8F8F</Color>
+    <Color x:Key="Fluent.Grey.58">#FF949494</Color>
+    <Color x:Key="Fluent.Grey.60">#FF999999</Color>
+    <Color x:Key="Fluent.Grey.62">#FF9E9E9E</Color>
+    <Color x:Key="Fluent.Grey.64">#FFA3A3A3</Color>
+    <Color x:Key="Fluent.Grey.66">#FFA8A8A8</Color>
+    <Color x:Key="Fluent.Grey.68">#FFADADAD</Color>
+    <Color x:Key="Fluent.Grey.70">#FFB3B3B3</Color>
+    <Color x:Key="Fluent.Grey.72">#FFB8B8B8</Color>
+    <Color x:Key="Fluent.Grey.74">#FFBDBDBD</Color>
+    <Color x:Key="Fluent.Grey.76">#FFC2C2C2</Color>
+    <Color x:Key="Fluent.Grey.78">#FFC7C7C7</Color>
+    <Color x:Key="Fluent.Grey.80">#FFCCCCCC</Color>
+    <Color x:Key="Fluent.Grey.82">#FFD1D1D1</Color>
+    <Color x:Key="Fluent.Grey.84">#FFD6D6D6</Color>
+    <Color x:Key="Fluent.Grey.86">#FFDBDBDB</Color>
+    <Color x:Key="Fluent.Grey.88">#FFE0E0E0</Color>
+    <Color x:Key="Fluent.Grey.90">#FFE6E6E6</Color>
+    <Color x:Key="Fluent.Grey.92">#FFEBEBEB</Color>
+    <Color x:Key="Fluent.Grey.94">#FFF0F0F0</Color>
+    <Color x:Key="Fluent.Grey.96">#FFF5F5F5</Color>
+    <Color x:Key="Fluent.Grey.98">#FFFAFAFA</Color>
+
+    <Color x:Key="Fluent.Grey.White">#FFFFFFFF</Color>
+    <Color x:Key="Fluent.Grey2">#FFF8FAFC</Color>
+    <Color x:Key="Fluent.Grey4">#FFF2F5F8</Color>
+    <Color x:Key="Fluent.Grey6">#FFECEFF4</Color>
+    <Color x:Key="Fluent.Grey8">#FFE6EBF1</Color>
+    <Color x:Key="Fluent.Grey10">#FFE0E6EE</Color>
+    <Color x:Key="Fluent.Grey12">#FFD8E0EA</Color>
+    <Color x:Key="Fluent.Grey14">#FFD0D9E4</Color>
+    <Color x:Key="Fluent.Grey16">#FFC8D2DE</Color>
+    <Color x:Key="Fluent.Grey18">#FFC0CAD7</Color>
+    <Color x:Key="Fluent.Grey20">#FFB8C3D1</Color>
+    <Color x:Key="Fluent.Grey22">#FFAFBAC8</Color>
+    <Color x:Key="Fluent.Grey24">#FFA6B2C1</Color>
+    <Color x:Key="Fluent.Grey26">#FF9EA9B8</Color>
+    <Color x:Key="Fluent.Grey32">#FF8B97A6</Color>
+    <Color x:Key="Fluent.Grey38">#FF778392</Color>
+    <Color x:Key="Fluent.Grey44">#FF667181</Color>
+    <Color x:Key="Fluent.Grey50">#FF596475</Color>
+    <Color x:Key="Fluent.Grey56">#FF707070</Color>
+    <Color x:Key="Fluent.Grey62">#FF5C5C5C</Color>
+    <Color x:Key="Fluent.Grey68">#FF424242</Color>
+    <Color x:Key="Fluent.Grey74">#FF333333</Color>
+    <Color x:Key="Fluent.Grey80">#FF292929</Color>
+    <Color x:Key="Fluent.Grey82">#FF242424</Color>
+    <Color x:Key="Fluent.Grey84">#FF1F1F1F</Color>
+    <Color x:Key="Fluent.Grey88">#FF1A1A1A</Color>
+    <Color x:Key="Fluent.Grey90">#FF141414</Color>
+    <Color x:Key="Fluent.Grey92">#FF0F0F0F</Color>
+    <Color x:Key="Fluent.Grey94">#FF0A0A0A</Color>
+    <Color x:Key="Fluent.Grey.Black">#FF000000</Color>
+
+    <Color x:Key="Fluent.Brand.10">#FF061724</Color>
+    <Color x:Key="Fluent.Brand.20">#FF082338</Color>
+    <Color x:Key="Fluent.Brand.30">#FF0A2E4A</Color>
+    <Color x:Key="Fluent.Brand.40">#FF0C3B5E</Color>
+    <Color x:Key="Fluent.Brand.50">#FF0E4775</Color>
+    <Color x:Key="Fluent.Brand.60">#FF0F548C</Color>
+    <Color x:Key="Fluent.Brand.70">#FF115EA3</Color>
+    <Color x:Key="Fluent.Brand.80">#FF0F6CBD</Color>
+    <Color x:Key="Fluent.Brand.90">#FF2886DE</Color>
+    <Color x:Key="Fluent.Brand.100">#FF479EF5</Color>
+    <Color x:Key="Fluent.Brand.110">#FF62ABF5</Color>
+    <Color x:Key="Fluent.Brand.120">#FF77B7F7</Color>
+    <Color x:Key="Fluent.Brand.130">#FF96C6FA</Color>
+    <Color x:Key="Fluent.Brand.140">#FFB4D6FA</Color>
+    <Color x:Key="Fluent.Brand.150">#FFC8DEF7</Color>
+    <Color x:Key="Fluent.Brand.160">#FFDDEBFA</Color>
+
+    <Color x:Key="Fluent.Brand.Tint60">#FFDDEBFA</Color>
+    <Color x:Key="Fluent.Brand.Tint40">#FFA9CEF4</Color>
+    <Color x:Key="Fluent.Brand.Tint30">#FF96C6FA</Color>
+    <Color x:Key="Fluent.Brand.Tint20">#FF77B7F7</Color>
+    <Color x:Key="Fluent.Brand.Tint10">#FF2886DE</Color>
+    <Color x:Key="Fluent.Brand.Primary">#FF0F6CBD</Color>
+    <Color x:Key="Fluent.Brand.Shade10">#FF115EA3</Color>
+    <Color x:Key="Fluent.Brand.Shade20">#FF0F548C</Color>
+    <Color x:Key="Fluent.Brand.Shade30">#FF0C3B5E</Color>
+    <Color x:Key="Fluent.Brand.Shade40">#FF082338</Color>
+    <Color x:Key="Fluent.Brand.Shade50">#FF061724</Color>
+
+    <Color x:Key="Color.Fluent.Neutral.Background.1">#FFF8FAFC</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.1.Hover">#FFECEFF4</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.1.Pressed">#FFD2DBE6</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.1.Selected">#FFDDEBFA</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.2">#FFF2F5F8</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.2.Hover">#FFE6EBF1</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.2.Pressed">#FFC8D2DE</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.2.Selected">#FFD6E6F8</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.3">#FFECEFF4</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.3.Hover">#FFE0E6EE</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.3.Pressed">#FFC0CAD7</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.3.Selected">#FFD2DBE6</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.4">#FFE6EBF1</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.5">#FFE0E6EE</Color>
+    <Color x:Key="Color.Fluent.Neutral.Background.6">#FFD8E0EA</Color>
+    <Color x:Key="Color.Fluent.Neutral.Card.Background">#FFF8FAFC</Color>
+    <Color x:Key="Color.Fluent.Neutral.Card.Background.Hover">#FFFFFFFF</Color>
+    <Color x:Key="Color.Fluent.Neutral.Card.Background.Pressed">#FFECEFF4</Color>
+    <Color x:Key="Color.Fluent.Neutral.Card.Background.Selected">#FFDDEBFA</Color>
+
+    <Color x:Key="Color.Fluent.Neutral.Foreground.1">#FF20242A</Color>
+    <Color x:Key="Color.Fluent.Neutral.Foreground.2">#FF3C4653</Color>
+    <Color x:Key="Color.Fluent.Neutral.Foreground.3">#FF596575</Color>
+    <Color x:Key="Color.Fluent.Neutral.Foreground.4">#FF667181</Color>
+    <Color x:Key="Color.Fluent.Neutral.Foreground.Disabled">#FF9AA5B2</Color>
+    <Color x:Key="Color.Fluent.Neutral.Foreground.OnBrand">#FFFFFFFF</Color>
+
+    <Color x:Key="Color.Fluent.Neutral.Stroke.Accessible">#FF596575</Color>
+    <Color x:Key="Color.Fluent.Neutral.Stroke.1">#FFC4CCD7</Color>
+    <Color x:Key="Color.Fluent.Neutral.Stroke.1.Hover">#FFB7C1CE</Color>
+    <Color x:Key="Color.Fluent.Neutral.Stroke.1.Pressed">#FF9EA9B8</Color>
+    <Color x:Key="Color.Fluent.Neutral.Stroke.1.Selected">#FFA6B2C1</Color>
+    <Color x:Key="Color.Fluent.Neutral.Stroke.2">#FFD2DBE6</Color>
+    <Color x:Key="Color.Fluent.Neutral.Stroke.3">#FFE6EBF1</Color>
+    <Color x:Key="Color.Fluent.Neutral.Stroke.Subtle">#FFD2DBE6</Color>
+
+    <Color x:Key="Color.Fluent.Brand.Background">#FF0F6CBD</Color>
+    <Color x:Key="Color.Fluent.Brand.Background.Hover">#FF115EA3</Color>
+    <Color x:Key="Color.Fluent.Brand.Background.Pressed">#FF0C3B5E</Color>
+    <Color x:Key="Color.Fluent.Brand.Background.Selected">#FF0F548C</Color>
+    <Color x:Key="Color.Fluent.Brand.Background.2">#FFDDEBFA</Color>
+    <Color x:Key="Color.Fluent.Brand.Foreground.1">#FF0F6CBD</Color>
+    <Color x:Key="Color.Fluent.Brand.Foreground.2">#FF115EA3</Color>
+    <Color x:Key="Color.Fluent.Brand.Foreground.OnLight">#FF0F6CBD</Color>
+    <Color x:Key="Color.Fluent.Brand.Stroke.1">#FF0F6CBD</Color>
+    <Color x:Key="Color.Fluent.Brand.Stroke.2">#FFA9CEF4</Color>
+
+    <Color x:Key="Fluent.Status.Success.Background1">#FFEAF5EA</Color>
+    <Color x:Key="Fluent.Status.Success.Background2">#FF9FD89F</Color>
+    <Color x:Key="Fluent.Status.Success.Background3">#FF107C10</Color>
+    <Color x:Key="Fluent.Status.Success.Foreground1">#FF0E700E</Color>
+    <Color x:Key="Fluent.Status.Success.Foreground2">#FF094509</Color>
+    <Color x:Key="Fluent.Status.Success.Foreground3">#FF107C10</Color>
+    <Color x:Key="Fluent.Status.Success.Border1">#FF9FD89F</Color>
+    <Color x:Key="Fluent.Status.Success.Border2">#FF107C10</Color>
+
+    <Color x:Key="Fluent.Status.Warning.Background1">#FFFFF1E8</Color>
+    <Color x:Key="Fluent.Status.Warning.Background2">#FFFDCFB4</Color>
+    <Color x:Key="Fluent.Status.Warning.Background3">#FFF7630C</Color>
+    <Color x:Key="Fluent.Status.Warning.Foreground1">#FFBC4B09</Color>
+    <Color x:Key="Fluent.Status.Warning.Foreground2">#FF8A3707</Color>
+    <Color x:Key="Fluent.Status.Warning.Foreground3">#FFBC4B09</Color>
+    <Color x:Key="Fluent.Status.Warning.Border1">#FFFDCFB4</Color>
+    <Color x:Key="Fluent.Status.Warning.Border2">#FFF7630C</Color>
+
+    <Color x:Key="Fluent.Status.Danger.Background1">#FFFCEAEA</Color>
+    <Color x:Key="Fluent.Status.Danger.Background2">#FFF2B6B6</Color>
+    <Color x:Key="Fluent.Status.Danger.Background3">#FFC50F1F</Color>
+    <Color x:Key="Fluent.Status.Danger.Foreground1">#FFB10E1C</Color>
+    <Color x:Key="Fluent.Status.Danger.Foreground2">#FF6E0811</Color>
+    <Color x:Key="Fluent.Status.Danger.Foreground3">#FFC50F1F</Color>
+    <Color x:Key="Fluent.Status.Danger.Border1">#FFF2B6B6</Color>
+    <Color x:Key="Fluent.Status.Danger.Border2">#FFC50F1F</Color>
+
+    <Color x:Key="Color.Background">#FFE7EBF1</Color>
+    <Color x:Key="Color.Surface">#FFF2F5F8</Color>
+    <Color x:Key="Color.Card">#FFF8FAFC</Color>
+    <Color x:Key="Color.Text.Primary">#FF20242A</Color>
+    <Color x:Key="Color.Text.Secondary">#FF3C4653</Color>
+    <Color x:Key="Color.Text.Muted">#FF596575</Color>
+    <Color x:Key="Color.Text.Disabled">#FF9AA5B2</Color>
+    <Color x:Key="Color.Border">#FFC4CCD7</Color>
+    <Color x:Key="Color.Border.Default">#FFC4CCD7</Color>
+    <Color x:Key="Color.Border.Subtle">#FFD2DBE6</Color>
+    <Color x:Key="Color.HoverSurface">#FFE6EBF1</Color>
+    <Color x:Key="Color.PressedSurface">#FFD2DBE6</Color>
+
+    <Color x:Key="Color.Accent">#FF0F6CBD</Color>
+    <Color x:Key="Color.Accent.Hover">#FF115EA3</Color>
+    <Color x:Key="Color.Accent.Pressed">#FF0C3B5E</Color>
+    <Color x:Key="Color.Accent.Text">#FF0F6CBD</Color>
+    <Color x:Key="Color.Accent.Foreground">#FFFFFFFF</Color>
+    <Color x:Key="Color.Accent.Subtle">#FFDDEBFA</Color>
+    <Color x:Key="Color.Brand">#FF0F6CBD</Color>
+    <Color x:Key="Color.Selection">#FFDDEBFA</Color>
+    <Color x:Key="Color.CheckBox.Fill.Rest">#FF292929</Color>
+    <Color x:Key="Color.CheckBox.Fill.Hover">#FF3D3D3D</Color>
+    <Color x:Key="Color.CheckBox.Fill.Pressed">#FF1F1F1F</Color>
+    <Color x:Key="Color.CheckBox.Fill.Checked">#FF115EA3</Color>
+    <Color x:Key="Color.CheckBox.Fill.Checked.Hover">#FF0F6CBD</Color>
+    <Color x:Key="Color.CheckBox.Fill.Checked.Pressed">#FF0C3B5E</Color>
+    <Color x:Key="Color.CheckBox.Fill.Disabled">#FF141414</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Rest">#FF8B97A6</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Hover">#FF479EF5</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Pressed">#FF62ABF5</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Checked">#FF115EA3</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Checked.Hover">#FF0F6CBD</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Checked.Pressed">#FF0C3B5E</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Disabled">#FF667181</Color>
+    <Color x:Key="Color.CheckBox.Glyph.Checked">#FFFFFFFF</Color>
+    <Color x:Key="Color.CheckBox.Glyph.Disabled">#FF667181</Color>
+    <Color x:Key="Color.CheckBox.Focus">#FF479EF5</Color>
+
+    <Color x:Key="Color.Error">#FFC50F1F</Color>
+    <Color x:Key="Color.Error.Hover">#FFB10E1C</Color>
+    <Color x:Key="Color.Error.Pressed">#FF960B18</Color>
+
+    <Color x:Key="Color.Neutral.Background.Canvas">#FFE7EBF1</Color>
+    <Color x:Key="Color.Neutral.Background.Surface">#FFF2F5F8</Color>
+    <Color x:Key="Color.Neutral.Background.Card">#FFF8FAFC</Color>
+    <Color x:Key="Color.Neutral.Background.Elevated">#FFFBFCFE</Color>
+    <Color x:Key="Color.Neutral.Background.ControlRest">#FFF8FAFC</Color>
+    <Color x:Key="Color.Neutral.Background.ControlHover">#FFECEFF4</Color>
+    <Color x:Key="Color.Neutral.Background.ControlPressed">#FFD2DBE6</Color>
+    <Color x:Key="Color.Neutral.Stroke.Subtle">#FFD2DBE6</Color>
+    <Color x:Key="Color.Neutral.Stroke.Default">#FFC4CCD7</Color>
+    <Color x:Key="Color.Neutral.Stroke.Strong">#FF596575</Color>
+    <Color x:Key="Color.Neutral.Foreground.Primary">#FF20242A</Color>
+    <Color x:Key="Color.Neutral.Foreground.Secondary">#FF3C4653</Color>
+    <Color x:Key="Color.Neutral.Foreground.Muted">#FF596575</Color>
+    <Color x:Key="Color.Neutral.Foreground.Disabled">#FF9AA5B2</Color>
+    <Color x:Key="Color.Control.Fill.Rest">#FFF8FAFC</Color>
+
+    <Color x:Key="Color.Brand.Accent">#FF0F6CBD</Color>
+    <Color x:Key="Color.Brand.Accent.Hover">#FF115EA3</Color>
+    <Color x:Key="Color.Brand.Accent.Pressed">#FF0C3B5E</Color>
+    <Color x:Key="Color.Brand.Accent.Subtle">#FFDDEBFA</Color>
+    <Color x:Key="Color.Brand.Accent.Selected">#FFDDEBFA</Color>
+
+    <Color x:Key="Color.Status.Success">#FF0E700E</Color>
+    <Color x:Key="Color.Status.Warning">#FFBC4B09</Color>
+    <Color x:Key="Color.Status.Error">#FFC50F1F</Color>
+
+    <Color x:Key="Color.Background.Base">#FFE7EBF1</Color>
+    <Color x:Key="Color.Background.Subtle">#FFF2F5F8</Color>
+    <Color x:Key="Color.Background.Elevated">#FFFBFCFE</Color>
+    <Color x:Key="Color.SurfaceAlt">#FFF2F5F8</Color>
+    <Color x:Key="Color.Surface.Alt">#FFECEFF4</Color>
+    <Color x:Key="Color.Layer.Canvas">#FFE7EBF1</Color>
+    <Color x:Key="Color.Layer.Surface">#FFF2F5F8</Color>
+    <Color x:Key="Color.Layer.Card">#FFF8FAFC</Color>
+    <Color x:Key="Color.Layer.Elevated">#FFFBFCFE</Color>
+    <Color x:Key="Color.Border.Strong">#FF596575</Color>
+    <Color x:Key="Color.Foreground.OnAccent">#FFFFFFFF</Color>
+    <Color x:Key="Color.Accent.SelectedBackground">#FFDDEBFA</Color>
+    <Color x:Key="Color.Accent.SelectedBorder">#FF0F6CBD</Color>
+    <Color x:Key="Color.Accent.SelectedForeground">#FF0F6CBD</Color>
+    <Color x:Key="Color.Success">#FF0E700E</Color>
+    <Color x:Key="Color.Warning">#FFBC4B09</Color>
+    <Color x:Key="Color.Error.Foreground">#FFFFFFFF</Color>
+    <Color x:Key="Color.Transparent">#00FFFFFF</Color>
+
+    <Color x:Key="Color.Control.Fill.Hover">#FFECEFF4</Color>
+    <Color x:Key="Color.Control.Fill.Pressed">#FFD2DBE6</Color>
+    <Color x:Key="Color.Control.Fill.Disabled">#FFE6EBF1</Color>
+    <Color x:Key="Color.Control.Stroke.Default">#FFC4CCD7</Color>
+    <Color x:Key="Color.Control.Stroke.Strong">#FF596575</Color>
+    <Color x:Key="Color.Control.Stroke.Focus">#FF0F6CBD</Color>
+
+    <Color x:Key="Color.Focus.StrokeOuter">#FF000000</Color>
+    <Color x:Key="Color.Focus.StrokeInner">#FFFFFFFF</Color>
+    <Color x:Key="Color.Shadow">#FF000000</Color>
+    <Color x:Key="Color.Elevation.Shadow">#33000000</Color>
+
+    <Color x:Key="Color.PageBackground">#FFE7EBF1</Color>
+    <Color x:Key="Color.AppBackground">#FFE7EBF1</Color>
+    <Color x:Key="Color.AppForeground">#FF20242A</Color>
+    <Color x:Key="Color.SurfaceElevated">#FFFBFCFE</Color>
+    <Color x:Key="Color.CardBorder">#FFD2DBE6</Color>
+    <Color x:Key="Color.CardBorderStrong">#FFC4CCD7</Color>
+    <Color x:Key="Color.Divider">#FFD2DBE6</Color>
+    <Color x:Key="Color.PrimaryText">#FF20242A</Color>
+    <Color x:Key="Color.SecondaryText">#FF3C4653</Color>
+    <Color x:Key="Color.TertiaryText">#FF596575</Color>
+    <Color x:Key="Color.AccentForeground">#FFFFFFFF</Color>
+    <Color x:Key="Color.AccentSoft">#FFDDEBFA</Color>
+    <Color x:Key="Color.AccentBorder">#FFA9CEF4</Color>
+    <Color x:Key="Color.BrandAccent">#FF0F6CBD</Color>
+    <Color x:Key="Color.BrandChdTitle">#FF0F6CBD</Color>
+
+    <Color x:Key="Color.PipelineSuccessForeground">#FF0E700E</Color>
+    <Color x:Key="Color.SuccessSoft">#FFEAF5EA</Color>
+    <Color x:Key="Color.SuccessBorder">#FF9FD89F</Color>
+    <Color x:Key="Color.WarningSoft">#FFFFF1E8</Color>
+    <Color x:Key="Color.WarningBorder">#FFFDCFB4</Color>
+    <Color x:Key="Color.ErrorSoft">#FFFCEAEA</Color>
+    <Color x:Key="Color.ErrorBorder">#FFF2B6B6</Color>
+
+    <Color x:Key="Color.QueueHeader">#FFF2F5F8</Color>
+    <Color x:Key="Color.QueueRowHover">#FFECEFF4</Color>
+    <Color x:Key="Color.QueueRowSelected">#FFDDEBFA</Color>
+    <Color x:Key="Color.QueueRowSelectedForeground">#FF20242A</Color>
+    <Color x:Key="Color.QueueRowSeparator">#FFD2DBE6</Color>
+    <Color x:Key="Color.Progress.Track">#FFD2DBE6</Color>
+    <Color x:Key="Color.Progress.Fill">#FF0F6CBD</Color>
+    <Color x:Key="Color.QueueProgressTrack">#FFD2DBE6</Color>
+    <Color x:Key="Color.QueueProgressTrackBorder">#FFC4CCD7</Color>
+    <Color x:Key="Color.QueueProgressFill">#FF0F6CBD</Color>
+
+    <Color x:Key="Color.DropZone">#FFF8FAFC</Color>
+    <Color x:Key="Color.DropZoneBorder">#FFA9CEF4</Color>
+    <Color x:Key="Color.StatusBar">#FFF2F5F8</Color>
+    <Color x:Key="Color.SelectionBorder">#FFA9CEF4</Color>
+    <Color x:Key="Color.SubtleButton">#FFF8FAFC</Color>
+    <Color x:Key="Color.SubtleButtonBorder">#FFC4CCD7</Color>
+    <Color x:Key="Color.ButtonPrimary">#FF0F6CBD</Color>
+    <Color x:Key="Color.ButtonPrimaryForeground">#FFFFFFFF</Color>
+    <Color x:Key="Color.ButtonPrimaryHover">#FF115EA3</Color>
+    <Color x:Key="Color.ButtonPrimaryPressed">#FF0C3B5E</Color>
+    <Color x:Key="Color.ButtonSecondary">#FFF8FAFC</Color>
+    <Color x:Key="Color.ButtonSecondaryHover">#FFECEFF4</Color>
+    <Color x:Key="Color.ButtonSecondaryPressed">#FFD2DBE6</Color>
+    <Color x:Key="Color.ButtonSecondaryForeground">#FF20242A</Color>
+    <Color x:Key="Color.ButtonDanger">#FFC50F1F</Color>
+    <Color x:Key="Color.ButtonDangerForeground">#FFFFFFFF</Color>
+    <Color x:Key="Color.ButtonDangerHover">#FFB10E1C</Color>
+    <Color x:Key="Color.ButtonDangerPressed">#FF960B18</Color>
+
+    <Color x:Key="Color.InputBackground">#FFF8FAFC</Color>
+    <Color x:Key="Color.InputBorder">#FFC4CCD7</Color>
+    <Color x:Key="Color.InputForeground">#FF20242A</Color>
+    <Color x:Key="Color.InputDisabled">#FFE6EBF1</Color>
+
+    <Color x:Key="Color.Indicator.Stroke">#FF667181</Color>
+    <Color x:Key="Color.Indicator.Stroke.Hover">#FF0F6CBD</Color>
+    <Color x:Key="Color.Indicator.Stroke.Disabled">#FF9AA5B2</Color>
+
+    <Color x:Key="Color.TabSelected">#FFDDEBFA</Color>
+    <Color x:Key="Color.TabHover">#FFECEFF4</Color>
+    <Color x:Key="Color.SidebarSoft">#FFF2F5F8</Color>
+
+    <Color x:Key="Color.HeaderSoftBackground">#FFF8FAFC</Color>
+    <Color x:Key="Color.HeaderChromeForeground">#FF20242A</Color>
+    <Color x:Key="Color.HeaderChromeMutedForeground">#FF596575</Color>
+    <Color x:Key="Color.HeaderLogoPlateBackground">#FF3F4E61</Color>
+    <Color x:Key="Color.HeaderLogoPlateBorder">#FF6F8297</Color>
+    <Color x:Key="Color.HeaderChromeDivider">#FFD2DBE6</Color>
+    <Color x:Key="Color.TopNavHoverBackground">#FFECEFF4</Color>
+    <Color x:Key="Color.TopNavPressedBackground">#FFD2DBE6</Color>
+
+    <Color x:Key="Color.DashboardHubCardFace">#FFF8FAFC</Color>
+    <Color x:Key="Color.DashboardHubCardBorder">#FFD2DBE6</Color>
+    <Color x:Key="Color.DashboardHubIconForeground">#FF20242A</Color>
+    <Color x:Key="Color.DashboardHubLabelForeground">#FF3C4653</Color>
+    <Color x:Key="Color.DashboardNavAccentLine">#FF0F6CBD</Color>
+
+    <Color x:Key="Color.NeutralBadge">#FFECEFF4</Color>
+    <Color x:Key="Color.NeutralBadgeForeground">#FF3C4653</Color>
+    <Color x:Key="Color.ActiveBadge">#FFDDEBFA</Color>
+    <Color x:Key="Color.ActiveBadgeForeground">#FF0F6CBD</Color>
+    <Color x:Key="Color.SuccessBadge">#FFEAF5EA</Color>
+    <Color x:Key="Color.SuccessBadgeForeground">#FF0E700E</Color>
+    <Color x:Key="Color.WarningBadge">#FFFFF1E8</Color>
+    <Color x:Key="Color.WarningBadgeForeground">#FFBC4B09</Color>
+    <Color x:Key="Color.ErrorBadge">#FFFCEAEA</Color>
+    <Color x:Key="Color.ErrorBadgeForeground">#FFB10E1C</Color>
+
+    <Color x:Key="Color.ComboBoxPopupBackground">#FFF8FAFC</Color>
+    <Color x:Key="Color.ComboBoxPopupBorder">#FFC4CCD7</Color>
+    <Color x:Key="Color.ComboBoxItemHover">#FFECEFF4</Color>
+    <Color x:Key="Color.ComboBoxItemSelected">#FFDDEBFA</Color>
+    <Color x:Key="Color.SuccessPillBackground">#FFEAF5EA</Color>
+    <Color x:Key="Color.SuccessPillForeground">#FF0E700E</Color>
+
+    <Color x:Key="Color.GlassHeaderFill">#DDF8FAFC</Color>
+    <Color x:Key="Color.GlassHeaderBorder">#FFD2DBE6</Color>
+    <Color x:Key="Color.ScrollBarTrack">#FFE6EBF1</Color>
+    <Color x:Key="Color.ScrollBarThumb">#FF9EA9B8</Color>
+    <Color x:Key="Color.ScrollBarThumbHover">#FF8B97A6</Color>
+    <Color x:Key="Color.ScrollBarThumbPressed">#FF596575</Color>
+
+    <SolidColorBrush x:Key="Brush.Background" Color="{DynamicResource Color.Background}" />
+    <SolidColorBrush x:Key="Brush.Surface" Color="{DynamicResource Color.Surface}" />
+    <SolidColorBrush x:Key="Brush.Card" Color="{DynamicResource Color.Card}" />
+
+    <SolidColorBrush x:Key="Brush.Background.Base" Color="{DynamicResource Color.Background.Base}" />
+    <SolidColorBrush x:Key="Brush.Background.Subtle" Color="{DynamicResource Color.Background.Subtle}" />
+    <SolidColorBrush x:Key="Brush.Background.Elevated" Color="{DynamicResource Color.Background.Elevated}" />
+    <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="{DynamicResource Color.SurfaceAlt}" />
+    <SolidColorBrush x:Key="Brush.Surface.Alt" Color="{DynamicResource Color.Surface.Alt}" />
+    <SolidColorBrush x:Key="Brush.Layer.Canvas" Color="{DynamicResource Color.Layer.Canvas}" />
+    <SolidColorBrush x:Key="Brush.Layer.Surface" Color="{DynamicResource Color.Layer.Surface}" />
+    <SolidColorBrush x:Key="Brush.Layer.Card" Color="{DynamicResource Color.Layer.Card}" />
+    <SolidColorBrush x:Key="Brush.Layer.Elevated" Color="{DynamicResource Color.Layer.Elevated}" />
+
+    <SolidColorBrush x:Key="Brush.Text.Primary" Color="{DynamicResource Color.Text.Primary}" />
+    <SolidColorBrush x:Key="Brush.Text.Secondary" Color="{DynamicResource Color.Text.Secondary}" />
+    <SolidColorBrush x:Key="Brush.Text.Muted" Color="{DynamicResource Color.Text.Muted}" />
+    <SolidColorBrush x:Key="Brush.Text.Disabled" Color="{DynamicResource Color.Text.Disabled}" />
+
+    <SolidColorBrush x:Key="Brush.Border" Color="{DynamicResource Color.Border}" />
+    <SolidColorBrush x:Key="Brush.Border.Default" Color="{DynamicResource Color.Border.Default}" />
+    <SolidColorBrush x:Key="Brush.Border.Subtle" Color="{DynamicResource Color.Border.Subtle}" />
+    <SolidColorBrush x:Key="Brush.Border.Strong" Color="{DynamicResource Color.Border.Strong}" />
+
+    <SolidColorBrush x:Key="Brush.HoverSurface" Color="{DynamicResource Color.HoverSurface}" />
+    <SolidColorBrush x:Key="Brush.PressedSurface" Color="{DynamicResource Color.PressedSurface}" />
+
+    <SolidColorBrush x:Key="Brush.Accent" Color="{DynamicResource Color.Accent}" />
+    <SolidColorBrush x:Key="Brush.Accent.Hover" Color="{DynamicResource Color.Accent.Hover}" />
+    <SolidColorBrush x:Key="Brush.Accent.Pressed" Color="{DynamicResource Color.Accent.Pressed}" />
+    <SolidColorBrush x:Key="Brush.Accent.Text" Color="{DynamicResource Color.Accent.Text}" />
+    <SolidColorBrush x:Key="Brush.Accent.Foreground" Color="{DynamicResource Color.Accent.Foreground}" />
+    <SolidColorBrush x:Key="Brush.Foreground.OnAccent" Color="{DynamicResource Color.Foreground.OnAccent}" />
+    <SolidColorBrush x:Key="Brush.Accent.Subtle" Color="{DynamicResource Color.Accent.Subtle}" />
+
+    <SolidColorBrush x:Key="Brush.Accent.SelectedBackground" Color="{DynamicResource Color.Accent.SelectedBackground}" />
+    <SolidColorBrush x:Key="Brush.Accent.SelectedBorder" Color="{DynamicResource Color.Accent.SelectedBorder}" />
+    <SolidColorBrush x:Key="Brush.Accent.SelectedForeground" Color="{DynamicResource Color.Accent.SelectedForeground}" />
+
+    <SolidColorBrush x:Key="Brush.CheckBox.Fill.Rest" Color="{DynamicResource Color.CheckBox.Fill.Rest}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Fill.Hover" Color="{DynamicResource Color.CheckBox.Fill.Hover}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Fill.Pressed" Color="{DynamicResource Color.CheckBox.Fill.Pressed}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Fill.Checked" Color="{DynamicResource Color.CheckBox.Fill.Checked}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Fill.Checked.Hover" Color="{DynamicResource Color.CheckBox.Fill.Checked.Hover}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Fill.Checked.Pressed" Color="{DynamicResource Color.CheckBox.Fill.Checked.Pressed}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Fill.Disabled" Color="{DynamicResource Color.CheckBox.Fill.Disabled}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Stroke.Rest" Color="{DynamicResource Color.CheckBox.Stroke.Rest}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Stroke.Hover" Color="{DynamicResource Color.CheckBox.Stroke.Hover}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Stroke.Pressed" Color="{DynamicResource Color.CheckBox.Stroke.Pressed}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Stroke.Checked" Color="{DynamicResource Color.CheckBox.Stroke.Checked}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Stroke.Checked.Hover" Color="{DynamicResource Color.CheckBox.Stroke.Checked.Hover}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Stroke.Checked.Pressed" Color="{DynamicResource Color.CheckBox.Stroke.Checked.Pressed}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Stroke.Disabled" Color="{DynamicResource Color.CheckBox.Stroke.Disabled}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Glyph.Checked" Color="{DynamicResource Color.CheckBox.Glyph.Checked}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Glyph.Disabled" Color="{DynamicResource Color.CheckBox.Glyph.Disabled}" />
+    <SolidColorBrush x:Key="Brush.CheckBox.Focus" Color="{DynamicResource Color.CheckBox.Focus}" />
+
+    <SolidColorBrush x:Key="CheckBoxFillBrush" Color="{DynamicResource Color.CheckBox.Fill.Rest}" />
+    <SolidColorBrush x:Key="CheckBoxFillHoverBrush" Color="{DynamicResource Color.CheckBox.Fill.Hover}" />
+    <SolidColorBrush x:Key="CheckBoxFillPressedBrush" Color="{DynamicResource Color.CheckBox.Fill.Pressed}" />
+    <SolidColorBrush x:Key="CheckBoxFillCheckedBrush" Color="{DynamicResource Color.CheckBox.Fill.Checked}" />
+    <SolidColorBrush x:Key="CheckBoxFillCheckedHoverBrush" Color="{DynamicResource Color.CheckBox.Fill.Checked.Hover}" />
+    <SolidColorBrush x:Key="CheckBoxFillCheckedPressedBrush" Color="{DynamicResource Color.CheckBox.Fill.Checked.Pressed}" />
+    <SolidColorBrush x:Key="CheckBoxFillDisabledBrush" Color="{DynamicResource Color.CheckBox.Fill.Disabled}" />
+    <SolidColorBrush x:Key="CheckBoxBorderBrush" Color="{DynamicResource Color.CheckBox.Stroke.Rest}" />
+    <SolidColorBrush x:Key="CheckBoxBorderHoverBrush" Color="{DynamicResource Color.CheckBox.Stroke.Hover}" />
+    <SolidColorBrush x:Key="CheckBoxBorderPressedBrush" Color="{DynamicResource Color.CheckBox.Stroke.Pressed}" />
+    <SolidColorBrush x:Key="CheckBoxBorderCheckedBrush" Color="{DynamicResource Color.CheckBox.Stroke.Checked}" />
+    <SolidColorBrush x:Key="CheckBoxBorderCheckedHoverBrush" Color="{DynamicResource Color.CheckBox.Stroke.Checked.Hover}" />
+    <SolidColorBrush x:Key="CheckBoxBorderCheckedPressedBrush" Color="{DynamicResource Color.CheckBox.Stroke.Checked.Pressed}" />
+    <SolidColorBrush x:Key="CheckBoxBorderDisabledBrush" Color="{DynamicResource Color.CheckBox.Stroke.Disabled}" />
+    <SolidColorBrush x:Key="CheckBoxCheckGlyphBrush" Color="{DynamicResource Color.CheckBox.Glyph.Checked}" />
+    <SolidColorBrush x:Key="CheckBoxCheckGlyphDisabledBrush" Color="{DynamicResource Color.CheckBox.Glyph.Disabled}" />
+    <SolidColorBrush x:Key="CheckBoxFocusBrush" Color="{DynamicResource Color.CheckBox.Focus}" />
+
+    <SolidColorBrush x:Key="Brush.Success" Color="{DynamicResource Color.Success}" />
+    <SolidColorBrush x:Key="Brush.Warning" Color="{DynamicResource Color.Warning}" />
+    <SolidColorBrush x:Key="Brush.Error" Color="{DynamicResource Color.Error}" />
+    <SolidColorBrush x:Key="Brush.Error.Foreground" Color="{DynamicResource Color.Error.Foreground}" />
+    <SolidColorBrush x:Key="Brush.Brand" Color="{DynamicResource Color.Brand}" />
+    <SolidColorBrush x:Key="Brush.Transparent" Color="{DynamicResource Color.Transparent}" />
+
+    <SolidColorBrush x:Key="Brush.Control.Fill.Rest" Color="{DynamicResource Color.Control.Fill.Rest}" />
+    <SolidColorBrush x:Key="Brush.Control.Fill.Hover" Color="{DynamicResource Color.Control.Fill.Hover}" />
+    <SolidColorBrush x:Key="Brush.Control.Fill.Pressed" Color="{DynamicResource Color.Control.Fill.Pressed}" />
+    <SolidColorBrush x:Key="Brush.Control.Fill.Disabled" Color="{DynamicResource Color.Control.Fill.Disabled}" />
+    <SolidColorBrush x:Key="Brush.Control.Stroke.Default" Color="{DynamicResource Color.Control.Stroke.Default}" />
+    <SolidColorBrush x:Key="Brush.Control.Stroke.Strong" Color="{DynamicResource Color.Control.Stroke.Strong}" />
+    <SolidColorBrush x:Key="Brush.Control.Stroke.Focus" Color="{DynamicResource Color.Control.Stroke.Focus}" />
+
+    <SolidColorBrush x:Key="Brush.Focus.StrokeOuter" Color="{DynamicResource Color.Focus.StrokeOuter}" />
+    <SolidColorBrush x:Key="Brush.Focus.StrokeInner" Color="{DynamicResource Color.Focus.StrokeInner}" />
+    <SolidColorBrush x:Key="Brush.Elevation.Shadow" Color="{DynamicResource Color.Elevation.Shadow}" />
+
+    <SolidColorBrush x:Key="PageBackgroundBrush" Color="{DynamicResource Color.PageBackground}" />
+    <SolidColorBrush x:Key="AppBackgroundBrush" Color="{DynamicResource Color.AppBackground}" />
+    <SolidColorBrush x:Key="AppForegroundBrush" Color="{DynamicResource Color.AppForeground}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{DynamicResource Color.Surface}" />
+    <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="{DynamicResource Color.SurfaceElevated}" />
+    <SolidColorBrush x:Key="SurfaceAltBrush" Color="{DynamicResource Color.SurfaceAlt}" />
+    <SolidColorBrush x:Key="CardBorderBrush" Color="{DynamicResource Color.CardBorder}" />
+    <SolidColorBrush x:Key="CardBorderStrongBrush" Color="{DynamicResource Color.CardBorderStrong}" />
+    <SolidColorBrush x:Key="DividerBrush" Color="{DynamicResource Color.Divider}" />
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="{DynamicResource Color.PrimaryText}" />
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="{DynamicResource Color.SecondaryText}" />
+    <SolidColorBrush x:Key="TertiaryTextBrush" Color="{DynamicResource Color.TertiaryText}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource Color.Accent}" />
+    <SolidColorBrush x:Key="AccentForegroundBrush" Color="{DynamicResource Color.AccentForeground}" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="{DynamicResource Color.AccentSoft}" />
+    <SolidColorBrush x:Key="AccentBorderBrush" Color="{DynamicResource Color.AccentBorder}" />
+    <SolidColorBrush x:Key="BrandAccentBrush" Color="{DynamicResource Color.BrandAccent}" />
+    <SolidColorBrush x:Key="BrandChdTitleBrush" Color="{DynamicResource Color.BrandChdTitle}" />
+
+    <SolidColorBrush x:Key="PipelineSuccessForegroundBrush" Color="{DynamicResource Color.PipelineSuccessForeground}" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="{DynamicResource Color.Success}" />
+    <SolidColorBrush x:Key="SuccessSoftBrush" Color="{DynamicResource Color.SuccessSoft}" />
+    <SolidColorBrush x:Key="SuccessBorderBrush" Color="{DynamicResource Color.SuccessBorder}" />
+    <SolidColorBrush x:Key="WarningBrush" Color="{DynamicResource Color.Warning}" />
+    <SolidColorBrush x:Key="WarningSoftBrush" Color="{DynamicResource Color.WarningSoft}" />
+    <SolidColorBrush x:Key="WarningBorderBrush" Color="{DynamicResource Color.WarningBorder}" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="{DynamicResource Color.Error}" />
+    <SolidColorBrush x:Key="ErrorSoftBrush" Color="{DynamicResource Color.ErrorSoft}" />
+    <SolidColorBrush x:Key="ErrorBorderBrush" Color="{DynamicResource Color.ErrorBorder}" />
+
+    <SolidColorBrush x:Key="QueueHeaderBrush" Color="{DynamicResource Color.QueueHeader}" />
+    <SolidColorBrush x:Key="QueueRowHoverBrush" Color="{DynamicResource Color.QueueRowHover}" />
+    <SolidColorBrush x:Key="QueueRowSelectedBrush" Color="{DynamicResource Color.QueueRowSelected}" />
+    <SolidColorBrush x:Key="QueueRowSelectedForegroundBrush" Color="{DynamicResource Color.QueueRowSelectedForeground}" />
+    <SolidColorBrush x:Key="QueueRowSeparatorBrush" Color="{DynamicResource Color.QueueRowSeparator}" />
+    <SolidColorBrush x:Key="Brush.Progress.Track" Color="{DynamicResource Color.Progress.Track}" />
+    <SolidColorBrush x:Key="Brush.Progress.Fill" Color="{DynamicResource Color.Progress.Fill}" />
+    <SolidColorBrush x:Key="QueueProgressTrackBrush" Color="{DynamicResource Color.QueueProgressTrack}" />
+    <SolidColorBrush x:Key="QueueProgressTrackBorderBrush" Color="{DynamicResource Color.QueueProgressTrackBorder}" />
+    <SolidColorBrush x:Key="QueueProgressFillBrush" Color="{DynamicResource Color.QueueProgressFill}" />
+
+    <SolidColorBrush x:Key="DropZoneBrush" Color="{DynamicResource Color.DropZone}" />
+    <SolidColorBrush x:Key="DropZoneBorderBrush" Color="{DynamicResource Color.DropZoneBorder}" />
+    <SolidColorBrush x:Key="StatusBarBrush" Color="{DynamicResource Color.StatusBar}" />
+    <SolidColorBrush x:Key="SelectionBrush" Color="{DynamicResource Color.Selection}" />
+    <SolidColorBrush x:Key="SelectionBorderBrush" Color="{DynamicResource Color.SelectionBorder}" />
+    <SolidColorBrush x:Key="SubtleButtonBrush" Color="{DynamicResource Color.SubtleButton}" />
+    <SolidColorBrush x:Key="SubtleButtonBorderBrush" Color="{DynamicResource Color.SubtleButtonBorder}" />
+    <SolidColorBrush x:Key="ButtonPrimaryHoverBrush" Color="{DynamicResource Color.ButtonPrimaryHover}" />
+    <SolidColorBrush x:Key="ButtonPrimaryPressedBrush" Color="{DynamicResource Color.ButtonPrimaryPressed}" />
+    <SolidColorBrush x:Key="ButtonDangerHoverBrush" Color="{DynamicResource Color.ButtonDangerHover}" />
+    <SolidColorBrush x:Key="ButtonDangerPressedBrush" Color="{DynamicResource Color.ButtonDangerPressed}" />
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="{DynamicResource Color.InputBackground}" />
+    <SolidColorBrush x:Key="InputBorderBrush" Color="{DynamicResource Color.InputBorder}" />
+    <SolidColorBrush x:Key="InputForegroundBrush" Color="{DynamicResource Color.InputForeground}" />
+    <SolidColorBrush x:Key="InputDisabledBrush" Color="{DynamicResource Color.InputDisabled}" />
+
+    <SolidColorBrush x:Key="Brush.Indicator.Stroke" Color="{DynamicResource Color.Indicator.Stroke}" />
+    <SolidColorBrush x:Key="Brush.Indicator.Stroke.Hover" Color="{DynamicResource Color.Indicator.Stroke.Hover}" />
+    <SolidColorBrush x:Key="Brush.Indicator.Stroke.Disabled" Color="{DynamicResource Color.Indicator.Stroke.Disabled}" />
+
+    <SolidColorBrush x:Key="TabSelectedBrush" Color="{DynamicResource Color.TabSelected}" />
+    <SolidColorBrush x:Key="TabHoverBrush" Color="{DynamicResource Color.TabHover}" />
+    <SolidColorBrush x:Key="SidebarSoftBrush" Color="{DynamicResource Color.SidebarSoft}" />
+
+    <SolidColorBrush x:Key="HeaderSoftBackgroundBrush" Color="{DynamicResource Color.HeaderSoftBackground}" />
+    <SolidColorBrush x:Key="HeaderChromeForegroundBrush" Color="{DynamicResource Color.HeaderChromeForeground}" />
+    <SolidColorBrush x:Key="HeaderChromeMutedForegroundBrush" Color="{DynamicResource Color.HeaderChromeMutedForeground}" />
+    <SolidColorBrush x:Key="HeaderLogoPlateBackgroundBrush" Color="{DynamicResource Color.HeaderLogoPlateBackground}" />
+    <SolidColorBrush x:Key="HeaderLogoPlateBorderBrush" Color="{DynamicResource Color.HeaderLogoPlateBorder}" />
+    <SolidColorBrush x:Key="HeaderChromeDividerBrush" Color="{DynamicResource Color.HeaderChromeDivider}" />
+    <SolidColorBrush x:Key="TopNavHoverBackgroundBrush" Color="{DynamicResource Color.TopNavHoverBackground}" />
+    <SolidColorBrush x:Key="TopNavPressedBackgroundBrush" Color="{DynamicResource Color.TopNavPressedBackground}" />
+    <SolidColorBrush x:Key="DashboardHubCardFaceBrush" Color="{DynamicResource Color.DashboardHubCardFace}" />
+    <SolidColorBrush x:Key="DashboardHubCardBorderBrush" Color="{DynamicResource Color.DashboardHubCardBorder}" />
+    <SolidColorBrush x:Key="DashboardHubIconForegroundBrush" Color="{DynamicResource Color.DashboardHubIconForeground}" />
+    <SolidColorBrush x:Key="DashboardHubLabelForegroundBrush" Color="{DynamicResource Color.DashboardHubLabelForeground}" />
+    <SolidColorBrush x:Key="DashboardNavAccentLineBrush" Color="{DynamicResource Color.DashboardNavAccentLine}" />
+
+    <SolidColorBrush x:Key="NeutralBadgeBrush" Color="{DynamicResource Color.NeutralBadge}" />
+    <SolidColorBrush x:Key="NeutralBadgeForegroundBrush" Color="{DynamicResource Color.NeutralBadgeForeground}" />
+    <SolidColorBrush x:Key="ActiveBadgeBrush" Color="{DynamicResource Color.ActiveBadge}" />
+    <SolidColorBrush x:Key="ActiveBadgeForegroundBrush" Color="{DynamicResource Color.ActiveBadgeForeground}" />
+    <SolidColorBrush x:Key="SuccessBadgeBrush" Color="{DynamicResource Color.SuccessBadge}" />
+    <SolidColorBrush x:Key="SuccessBadgeForegroundBrush" Color="{DynamicResource Color.SuccessBadgeForeground}" />
+    <SolidColorBrush x:Key="WarningBadgeBrush" Color="{DynamicResource Color.WarningBadge}" />
+    <SolidColorBrush x:Key="WarningBadgeForegroundBrush" Color="{DynamicResource Color.WarningBadgeForeground}" />
+    <SolidColorBrush x:Key="ErrorBadgeBrush" Color="{DynamicResource Color.ErrorBadge}" />
+    <SolidColorBrush x:Key="ErrorBadgeForegroundBrush" Color="{DynamicResource Color.ErrorBadgeForeground}" />
+    <SolidColorBrush x:Key="ComboBoxPopupBackgroundBrush" Color="{DynamicResource Color.ComboBoxPopupBackground}" />
+    <SolidColorBrush x:Key="ComboBoxPopupBorderBrush" Color="{DynamicResource Color.ComboBoxPopupBorder}" />
+    <SolidColorBrush x:Key="ComboBoxItemHoverBrush" Color="{DynamicResource Color.ComboBoxItemHover}" />
+    <SolidColorBrush x:Key="ComboBoxItemSelectedBrush" Color="{DynamicResource Color.ComboBoxItemSelected}" />
+    <SolidColorBrush x:Key="SuccessPillBackgroundBrush" Color="{DynamicResource Color.SuccessPillBackground}" />
+    <SolidColorBrush x:Key="SuccessPillForegroundBrush" Color="{DynamicResource Color.SuccessPillForeground}" />
+
+    <SolidColorBrush x:Key="GlassHeaderFillBrush" Color="{DynamicResource Color.GlassHeaderFill}" />
+    <SolidColorBrush x:Key="GlassHeaderBorderBrush" Color="{DynamicResource Color.GlassHeaderBorder}" />
+    <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="{DynamicResource Color.ScrollBarTrack}" />
+    <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="{DynamicResource Color.ScrollBarThumb}" />
+    <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="{DynamicResource Color.ScrollBarThumbHover}" />
+    <SolidColorBrush x:Key="ScrollBarThumbPressedBrush" Color="{DynamicResource Color.ScrollBarThumbPressed}" />
+
+    <BitmapImage x:Key="HeaderLogoImage" UriSource="pack://application:,,,/Resources/HakamiqLogo.png" />
+
+    <SolidColorBrush x:Key="ButtonPrimaryBrush" Color="{DynamicResource Color.ButtonPrimary}" />
+    <SolidColorBrush x:Key="ButtonPrimaryForegroundBrush" Color="{DynamicResource Color.ButtonPrimaryForeground}" />
+    <SolidColorBrush x:Key="ButtonSecondaryBrush" Color="{DynamicResource Color.ButtonSecondary}" />
+    <SolidColorBrush x:Key="ButtonSecondaryHoverBrush" Color="{DynamicResource Color.ButtonSecondaryHover}" />
+    <SolidColorBrush x:Key="ButtonSecondaryPressedBrush" Color="{DynamicResource Color.ButtonSecondaryPressed}" />
+    <SolidColorBrush x:Key="ButtonSecondaryForegroundBrush" Color="{DynamicResource Color.ButtonSecondaryForeground}" />
+    <SolidColorBrush x:Key="ButtonDangerBrush" Color="{DynamicResource Color.ButtonDanger}" />
+    <SolidColorBrush x:Key="ButtonDangerForegroundBrush" Color="{DynamicResource Color.ButtonDangerForeground}" />
+
+</ResourceDictionary>

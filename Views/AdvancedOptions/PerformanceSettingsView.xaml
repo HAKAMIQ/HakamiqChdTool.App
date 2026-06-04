@@ -1,0 +1,434 @@
+﻿<UserControl x:Class="HakamiqChdTool.App.Views.AdvancedOptions.PerformanceSettingsView"
+             x:Name="PerformanceSettingsRoot"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Style/AdvancedOptionsWindowStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="PerformanceSettings.BaseTextBlock" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.RootCard" TargetType="{x:Type Border}">
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Stretch" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.SectionCard" TargetType="{x:Type Border}">
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.SettingRow" TargetType="{x:Type Border}">
+                <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
+                <Setter Property="Padding" Value="0,8,0,8" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.LastSettingRow"
+                   TargetType="{x:Type Border}"
+                   BasedOn="{StaticResource PerformanceSettings.SettingRow}">
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="Padding" Value="0,8,0,0" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.HeaderTextColumn" TargetType="{x:Type StackPanel}">
+                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.SectionAccent" TargetType="{x:Type Border}">
+                <Setter Property="Width" Value="{DynamicResource Space.4}" />
+                <Setter Property="Height" Value="24" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="Margin" Value="{DynamicResource Inset.0.2.0.0}" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.PageTitleText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource PerformanceSettings.BaseTextBlock}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.PageDescriptionText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource PerformanceSettings.BaseTextBlock}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.SectionTitleText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource PerformanceSettings.BaseTextBlock}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.RowTitleText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource PerformanceSettings.BaseTextBlock}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.RowDescriptionText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource PerformanceSettings.BaseTextBlock}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.ValueText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource PerformanceSettings.BaseTextBlock}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.WideValueSurface" TargetType="{x:Type Border}">
+                <Setter Property="Background" Value="{DynamicResource Brush.Accent.Subtle}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.InfoIcon" TargetType="{x:Type Path}">
+                <Setter Property="Width" Value="{DynamicResource Space.18}" />
+                <Setter Property="Height" Value="{DynamicResource Space.18}" />
+                <Setter Property="Stretch" Value="Uniform" />
+                <Setter Property="Fill" Value="{DynamicResource Brush.Accent.Text}" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="PerformanceSettings.ControlColumn" TargetType="{x:Type Grid}">
+                <Setter Property="Width" Value="248" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource PerformanceSettings.RootCard}">
+        <ScrollViewer FlowDirection="{DynamicResource App.FlowDirection}"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      Focusable="False">
+
+            <StackPanel x:Name="PerformancePanel"
+                        FlowDirection="{DynamicResource App.FlowDirection}"
+                        HorizontalAlignment="Stretch">
+
+                <Border Style="{StaticResource PerformanceSettings.SectionCard}">
+                    <Border Style="{StaticResource PerformanceSettings.WideValueSurface}">
+                        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                              Language="{DynamicResource App.XmlLanguage}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Viewbox Grid.Column="0"
+                                     Width="{DynamicResource Space.18}"
+                                     Height="{DynamicResource Space.18}"
+                                     VerticalAlignment="Center"
+                                     FlowDirection="LeftToRight"
+                                     Stretch="Uniform"
+                                     SnapsToDevicePixels="True">
+                                <Path Data="{StaticResource Icon.Info}"
+                                      Style="{StaticResource PerformanceSettings.InfoIcon}" />
+                            </Viewbox>
+
+                            <TextBlock x:Name="ProcessorSummaryText"
+                                       Grid.Column="2"
+                                       Text="{Binding ProcessorSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                       Style="{StaticResource PerformanceSettings.ValueText}"
+                                       TextWrapping="Wrap" />
+                        </Grid>
+                    </Border>
+                </Border>
+
+                <Border Margin="{DynamicResource Inset.0.10.0.0}"
+                        Style="{StaticResource PerformanceSettings.SectionCard}">
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          HorizontalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"
+                              FlowDirection="{DynamicResource App.FlowDirection}"
+                              HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource PerformanceSettings.SectionAccent}" />
+
+                            <StackPanel Grid.Column="2"
+                                        Style="{StaticResource PerformanceSettings.HeaderTextColumn}">
+                                <TextBlock Text="{DynamicResource LocPerformance_ChdmanOptionsSection}"
+                                           Style="{StaticResource PerformanceSettings.SectionTitleText}" />
+
+                                <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
+                                           Text="{DynamicResource LocPerformance_ChdmanOptionsDesc}"
+                                           Style="{StaticResource PerformanceSettings.RowDescriptionText}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="2"
+                                Style="{StaticResource PerformanceSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource PerformanceSettings.ControlColumn}">
+                                    <ComboBox x:Name="ProcessorCountComboBox"
+                                              ItemsSource="{Binding ProcessorOptions}"
+                                              SelectedItem="{Binding SelectedProcessorOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              ItemTemplate="{StaticResource AdvancedProcessorOptionLabelTemplate}"
+                                              IsEnabled="{Binding CanUsePerformanceProfiles}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Style="{StaticResource FluentComboBoxStyle}" />
+                                </Grid>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocPerformance_ProcessorCount}"
+                                               Style="{StaticResource PerformanceSettings.RowTitleText}" />
+
+                                    <TextBlock x:Name="ProcessorSelectionDescriptionText"
+                                               Grid.Row="2"
+                                               Text="{Binding ProcessorSelectionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource PerformanceSettings.RowDescriptionText}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="3"
+                                Style="{StaticResource PerformanceSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource PerformanceSettings.ControlColumn}">
+                                    <ComboBox x:Name="IsoCreateCommandOverrideComboBox"
+                                              ItemsSource="{Binding IsoCreateOverrideOptions}"
+                                              SelectedItem="{Binding SelectedIsoCreateOverride, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              ItemTemplate="{StaticResource AdvancedChoiceOptionLabelTemplate}"
+                                              IsEnabled="{Binding CanUsePerformanceProfiles}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Style="{StaticResource FluentComboBoxStyle}" />
+                                </Grid>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocPerformance_IsoCreateMode}"
+                                               Style="{StaticResource PerformanceSettings.RowTitleText}" />
+
+                                    <TextBlock x:Name="IsoCreateCommandOverrideDescriptionText"
+                                               Grid.Row="2"
+                                               Text="{Binding IsoCreateOverrideDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource PerformanceSettings.RowDescriptionText}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="4"
+                                Style="{StaticResource PerformanceSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource PerformanceSettings.ControlColumn}">
+                                    <ComboBox x:Name="CompressionPresetComboBox"
+                                              ItemsSource="{Binding CompressionPresetOptions}"
+                                              SelectedItem="{Binding SelectedCompressionPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              ItemTemplate="{StaticResource AdvancedChoiceOptionLabelTemplate}"
+                                              IsEnabled="{Binding CanUsePerformanceProfiles}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Style="{StaticResource FluentComboBoxStyle}" />
+                                </Grid>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocPerformance_CompressionPreset}"
+                                               Style="{StaticResource PerformanceSettings.RowTitleText}" />
+
+                                    <TextBlock x:Name="CompressionPresetDescriptionText"
+                                               Grid.Row="2"
+                                               Text="{Binding CompressionPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource PerformanceSettings.RowDescriptionText}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="5"
+                                Style="{StaticResource PerformanceSettings.LastSettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource PerformanceSettings.ControlColumn}">
+                                    <ComboBox x:Name="HunkPresetComboBox"
+                                              ItemsSource="{Binding HunkPresetOptions}"
+                                              SelectedItem="{Binding SelectedHunkPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              ItemTemplate="{StaticResource AdvancedChoiceOptionLabelTemplate}"
+                                              IsEnabled="{Binding CanUsePerformanceProfiles}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Style="{StaticResource FluentComboBoxStyle}" />
+                                </Grid>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocPerformance_HunkSize}"
+                                               Style="{StaticResource PerformanceSettings.RowTitleText}" />
+
+                                    <TextBlock x:Name="HunkPresetDescriptionText"
+                                               Grid.Row="2"
+                                               Text="{Binding HunkPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource PerformanceSettings.RowDescriptionText}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

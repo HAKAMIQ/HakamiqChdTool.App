@@ -1,0 +1,820 @@
+﻿<UserControl x:Class="HakamiqChdTool.App.Views.AdvancedOptions.RedumpSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Style/AdvancedOptionsWindowStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="ArabicSettings.RootCard" TargetType="{x:Type Border}">
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Stretch" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.SectionCard" TargetType="{x:Type Border}">
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.SettingRow" TargetType="{x:Type Border}">
+                <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
+                <Setter Property="Padding" Value="0,8,0,8" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.LastSettingRow"
+                   TargetType="{x:Type Border}"
+                   BasedOn="{StaticResource ArabicSettings.SettingRow}">
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="Padding" Value="0,8,0,0" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.HeaderTextColumn" TargetType="{x:Type StackPanel}">
+                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.SectionAccent" TargetType="{x:Type Border}">
+                <Setter Property="Width" Value="{DynamicResource Space.4}" />
+                <Setter Property="Height" Value="24" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="Margin" Value="{DynamicResource Inset.0.2.0.0}" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.PageDescriptionText" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.SectionTitleText" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.RowTitleText" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.RowDescriptionText" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.ValueText" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.ValueSurface" TargetType="{x:Type Border}">
+                <Setter Property="Width" Value="248" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
+                <Setter Property="Padding" Value="8" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.ControlColumn" TargetType="{x:Type Grid}">
+                <Setter Property="Width" Value="248" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="ArabicSettings.TechnicalTextBox"
+                   TargetType="{x:Type TextBox}"
+                   BasedOn="{StaticResource FluentTechnicalTextBoxStyle}">
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource ArabicSettings.RootCard}">
+        <ScrollViewer FlowDirection="{DynamicResource App.FlowDirection}"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      Focusable="False">
+
+            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                  HorizontalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        x:Name="IntegrityFeatureCard"
+                        Style="{StaticResource ArabicSettings.SectionCard}">
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          HorizontalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"
+                              FlowDirection="{DynamicResource App.FlowDirection}"
+                              HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource ArabicSettings.SectionAccent}" />
+
+                            <StackPanel Grid.Column="2"
+                                        Style="{StaticResource ArabicSettings.HeaderTextColumn}">
+                                <TextBlock Text="Redump"
+                                           Style="{StaticResource ArabicSettings.SectionTitleText}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="2"
+                                Style="{StaticResource ArabicSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_ShowInMainTitle}"
+                                               Style="{StaticResource ArabicSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_ShowInMainDesc}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                                </Grid>
+
+                                <CheckBox Grid.Column="2"
+                                          x:Name="EnableDeepIntegrityCheckCheckBox"
+                                          Width="{DynamicResource Space.24}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          IsChecked="{Binding EnableDeepIntegrityCheck, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEnabled="{Binding CanEnableDeepIntegrityCheck}"
+                                          FlowDirection="{DynamicResource App.FlowDirection}"
+                                          Style="{StaticResource FluentCheckBoxStyle}"
+                                          ToolTip="{DynamicResource LocRedumpSettings_ShowInMainTooltip}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="3"
+                                Style="{StaticResource ArabicSettings.LastSettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_SuggestNameTitle}"
+                                               Style="{StaticResource ArabicSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_SuggestNameDesc}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                                </Grid>
+
+                                <CheckBox Grid.Column="2"
+                                          x:Name="ApplyStandardNamingBasedOnHashCheckBox"
+                                          Width="{DynamicResource Space.24}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          IsChecked="{Binding ApplyStandardNamingBasedOnHash, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEnabled="{Binding CanEnableStandardNaming}"
+                                          FlowDirection="{DynamicResource App.FlowDirection}"
+                                          Style="{StaticResource FluentCheckBoxStyle}"
+                                          ToolTip="{DynamicResource LocRedumpSettings_SuggestNameTooltip}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2"
+                        Style="{StaticResource ArabicSettings.SectionCard}">
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          HorizontalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"
+                              FlowDirection="{DynamicResource App.FlowDirection}"
+                              HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource ArabicSettings.SectionAccent}" />
+
+                            <StackPanel Grid.Column="2"
+                                        Style="{StaticResource ArabicSettings.HeaderTextColumn}">
+                                <TextBlock Text="{DynamicResource LocRedumpSettings_ScopeSection}"
+                                           Style="{StaticResource ArabicSettings.SectionTitleText}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="2"
+                                Style="{StaticResource ArabicSettings.LastSettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_PlatformTitle}"
+                                               Style="{StaticResource ArabicSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_PlatformDesc}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                                </Grid>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource ArabicSettings.ControlColumn}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <ComboBox Grid.Row="0"
+                                              ItemsSource="{Binding RedumpPlatformOptions}"
+                                              SelectedItem="{Binding SelectedRedumpPlatformOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              DisplayMemberPath="Label"
+                                              IsEnabled="{Binding CanUseRedumpDatabaseImport}"
+                                              HorizontalAlignment="Stretch"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Style="{StaticResource FluentComboBoxStyle}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{Binding SelectedRedumpPlatformDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}"
+                                               HorizontalAlignment="Stretch" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="4"
+                        Style="{StaticResource ArabicSettings.SectionCard}">
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          HorizontalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"
+                              FlowDirection="{DynamicResource App.FlowDirection}"
+                              HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource ArabicSettings.SectionAccent}" />
+
+                            <StackPanel Grid.Column="2"
+                                        Style="{StaticResource ArabicSettings.HeaderTextColumn}">
+                                <TextBlock Text="{DynamicResource LocRedumpSettings_DownloadSection}"
+                                           Style="{StaticResource ArabicSettings.SectionTitleText}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="2"
+                                Style="{StaticResource ArabicSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_ArtifactTitle}"
+                                               Style="{StaticResource ArabicSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_ArtifactDesc}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                                </Grid>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource ArabicSettings.ControlColumn}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <ComboBox Grid.Row="0"
+                                              ItemsSource="{Binding RedumpArtifactOptions}"
+                                              SelectedItem="{Binding SelectedRedumpArtifactOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              DisplayMemberPath="Label"
+                                              IsEnabled="{Binding CanUseRedumpDatabaseImport}"
+                                              HorizontalAlignment="Stretch"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Style="{StaticResource FluentComboBoxStyle}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{Binding SelectedRedumpArtifactDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}"
+                                               HorizontalAlignment="Stretch" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="3"
+                                Style="{StaticResource ArabicSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_AutoSyncTitle}"
+                                               Style="{StaticResource ArabicSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_AutoSyncDesc}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                                </Grid>
+
+                                <CheckBox Grid.Column="2"
+                                          Width="{DynamicResource Space.24}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          IsChecked="{Binding EnableRedumpAutoSync, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEnabled="{Binding CanUseRedumpDatabaseImport}"
+                                          FlowDirection="{DynamicResource App.FlowDirection}"
+                                          Style="{StaticResource FluentCheckBoxStyle}"
+                                          ToolTip="{DynamicResource LocRedumpSettings_AutoSyncTooltip}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="4"
+                                Style="{StaticResource ArabicSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_DownloadUrlTitle}"
+                                               Style="{StaticResource ArabicSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_DownloadUrlDesc}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                                </Grid>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource ArabicSettings.ControlColumn}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Grid Grid.Row="0">
+                                        <TextBox x:Name="DatabaseDownloadUrlTextBox"
+                                                 Text="{Binding RedumpDatabaseDownloadUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                                                 IsEnabled="{Binding CanUseRedumpDatabaseImport}"
+                                                 Style="{StaticResource ArabicSettings.TechnicalTextBox}">
+                                            <TextBox.ToolTip>
+                                                <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                                    <TextBlock Text="{Binding RedumpDatabaseDownloadUrl}"
+                                                               FlowDirection="LeftToRight"
+                                                               TextAlignment="Left"
+                                                               Language="en-US"
+                                                               TextWrapping="NoWrap" />
+                                                </ToolTip>
+                                            </TextBox.ToolTip>
+                                        </TextBox>
+
+                                        <TextBlock Margin="{DynamicResource Inset.12.0.12.0}"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   IsHitTestVisible="False"
+                                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                                   TextAlignment="{DynamicResource AdvancedOptions.SettingsTextAlignment}"
+                                                   FontSize="{DynamicResource FontSize.CaptionSmall}"
+                                                   Foreground="{DynamicResource Brush.Text.Muted}"
+                                                   Text="{DynamicResource LocRedumpSettings_DownloadUrlPlaceholder}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=DatabaseDownloadUrlTextBox}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+
+                                    <Button Grid.Row="2"
+                                            x:Name="DownloadDatabaseButton"
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            MinWidth="{DynamicResource Space.120}"
+                                            HorizontalAlignment="Stretch"
+                                            Content="{DynamicResource LocRedumpSettings_DownloadButton}"
+                                            Click="DownloadDatabaseButton_Click"
+                                            IsEnabled="{Binding CanDownloadSelectedRedumpDatabase}"
+                                            ToolTip="{DynamicResource LocRedumpSettings_DownloadButtonTooltip}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <ProgressBar Grid.Row="5"
+                                     x:Name="DatabaseDownloadProgressBar"
+                                     Visibility="Collapsed"
+                                     Height="{DynamicResource Space.4}"
+                                     Maximum="100"
+                                     Style="{StaticResource FluentQueueCardProgressBar}" />
+
+                        <Border Grid.Row="6"
+                                Style="{StaticResource ArabicSettings.LastSettingRow}"
+                                Visibility="{Binding Visibility, ElementName=DatabaseDownloadStatusTextBlock}">
+                            <TextBlock x:Name="DatabaseDownloadStatusTextBlock"
+                                       Visibility="Collapsed"
+                                       Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="6"
+                        Style="{StaticResource ArabicSettings.SectionCard}">
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          HorizontalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"
+                              FlowDirection="{DynamicResource App.FlowDirection}"
+                              HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource ArabicSettings.SectionAccent}" />
+
+                            <StackPanel Grid.Column="2"
+                                        Style="{StaticResource ArabicSettings.HeaderTextColumn}">
+                                <TextBlock Text="{DynamicResource LocRedumpSettings_LocalImportSection}"
+                                           Style="{StaticResource ArabicSettings.SectionTitleText}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="2"
+                                Style="{StaticResource ArabicSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_LocalStatusTitle}"
+                                               Style="{StaticResource ArabicSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                                </Grid>
+
+                                <Border Grid.Column="2"
+                                        Style="{StaticResource ArabicSettings.ValueSurface}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0"
+                                                   x:Name="DatabaseStatusTextBlock"
+                                                   Text="{Binding DatabaseStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                                   Style="{StaticResource ArabicSettings.ValueText}"
+                                                   HorizontalAlignment="Stretch" />
+
+                                        <TextBlock Grid.Row="2"
+                                                   x:Name="DatabaseLastSyncedTextBlock"
+                                                   Text="{Binding DatabaseLastSyncedDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                                   Style="{StaticResource ArabicSettings.RowDescriptionText}"
+                                                   HorizontalAlignment="Stretch" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="3"
+                                Style="{StaticResource ArabicSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_DatFileTitle}"
+                                               Style="{StaticResource ArabicSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_DatFileDesc}"
+                                               Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                                </Grid>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource ArabicSettings.ControlColumn}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBox Grid.Row="0"
+                                             x:Name="RedumpSystemNameTextBox"
+                                             Text="{Binding RedumpSystemName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             IsEnabled="{Binding CanUseRedumpDatabaseImport}"
+                                             Style="{StaticResource ArabicSettings.TechnicalTextBox}"
+                                             ToolTip="{DynamicResource LocRedumpSettings_SystemNameTooltip}" />
+
+                                    <Grid Grid.Row="2"
+                                          FlowDirection="{DynamicResource App.FlowDirection}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBox Grid.Column="0"
+                                                 x:Name="RedumpDatPathTextBox"
+                                                 Text="{Binding RedumpDatXmlPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                                                 IsEnabled="{Binding CanUseRedumpDatabaseImport}"
+                                                 Style="{StaticResource ArabicSettings.TechnicalTextBox}">
+                                            <TextBox.ToolTip>
+                                                <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                                    <TextBlock Text="{Binding RedumpDatXmlPath}"
+                                                               FlowDirection="LeftToRight"
+                                                               TextAlignment="Left"
+                                                               Language="en-US"
+                                                               TextWrapping="NoWrap" />
+                                                </ToolTip>
+                                            </TextBox.ToolTip>
+                                        </TextBox>
+
+                                        <Button Grid.Column="2"
+                                                x:Name="BrowseRedumpDatButton"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Content="{DynamicResource LocRedumpSettings_BrowseDatButton}"
+                                                Command="{Binding BrowseRedumpDatCommand}"
+                                                IsEnabled="{Binding CanUseRedumpDatabaseImport}"
+                                                ToolTip="{DynamicResource LocRedumpSettings_BrowseDatTooltip}" />
+                                    </Grid>
+
+                                    <Button Grid.Row="4"
+                                            x:Name="ImportRedumpDatabaseButton"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            MinWidth="{DynamicResource Space.120}"
+                                            HorizontalAlignment="Stretch"
+                                            Content="{DynamicResource LocRedumpSettings_ImportButton}"
+                                            Click="ImportRedumpDatabaseButton_Click"
+                                            IsEnabled="{Binding CanUseRedumpDatabaseImport}"
+                                            ToolTip="{DynamicResource LocRedumpSettings_ImportButtonTooltip}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <ProgressBar Grid.Row="4"
+                                     x:Name="RedumpImportProgressBar"
+                                     Visibility="Collapsed"
+                                     Height="{DynamicResource Space.4}"
+                                     Maximum="100"
+                                     Style="{StaticResource FluentQueueCardProgressBar}" />
+
+                        <Border Grid.Row="5"
+                                Style="{StaticResource ArabicSettings.LastSettingRow}"
+                                Visibility="{Binding Visibility, ElementName=RedumpImportStatusTextBlock}">
+                            <TextBlock x:Name="RedumpImportStatusTextBlock"
+                                       Visibility="Collapsed"
+                                       Style="{StaticResource ArabicSettings.RowDescriptionText}" />
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Border>
+</UserControl>

@@ -1,0 +1,213 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="Fluent.Text.Base" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextTrimming" Value="None" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.SingleLineBase"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Base}">
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Caption2"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.SingleLineBase}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Caption2.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Caption2.LineHeight}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Caption1"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.SingleLineBase}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Caption1.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Caption1.LineHeight}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Muted}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Caption1.Strong"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Caption1}">
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Body1"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Base}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Body1.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Body1.LineHeight}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Body1.Strong"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Body1}">
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Body2"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Base}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Body2.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Body2.LineHeight}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Body2.Strong"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Body2}">
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Subtitle2"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.SingleLineBase}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Subtitle2.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Subtitle2.LineHeight}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Subtitle1"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.SingleLineBase}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Subtitle1.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Subtitle1.LineHeight}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Title3"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.SingleLineBase}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Title3.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Title3.LineHeight}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Title2"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.SingleLineBase}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Title2.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Title2.LineHeight}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Title1"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.SingleLineBase}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Title1.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Title1.LineHeight}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.LargeTitle"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.SingleLineBase}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.LargeTitle.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.LargeTitle.LineHeight}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Display"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.SingleLineBase}">
+        <Setter Property="FontSize" Value="{DynamicResource Fluent.Font.Display.Size}" />
+        <Setter Property="LineHeight" Value="{DynamicResource Fluent.Font.Display.LineHeight}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Mixed"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Caption1}">
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+    </Style>
+
+    <Style x:Key="Fluent.Text.Technical"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Caption1}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Monospace}" />
+        <Setter Property="FlowDirection" Value="LeftToRight" />
+        <Setter Property="TextAlignment" Value="Left" />
+        <Setter Property="Language" Value="en-US" />
+    </Style>
+
+    <Style x:Key="WindowTitleTextStyle"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Subtitle1}" />
+
+    <Style x:Key="DisplayTitleTextStyle"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Title2}" />
+
+    <Style x:Key="BodySecondaryTextStyle"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Body1}">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+    </Style>
+
+    <Style x:Key="CaptionPrimaryTextStyle"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Caption1.Strong}" />
+
+    <Style x:Key="CaptionSecondaryTextStyle"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Caption1}">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+    </Style>
+
+    <Style x:Key="Text.Title"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource WindowTitleTextStyle}" />
+
+    <Style x:Key="Text.BodyStrong"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Body1.Strong}" />
+
+    <Style x:Key="Text.Body"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Body1}">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+    </Style>
+
+    <Style x:Key="Text.Caption"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Caption1}" />
+
+    <Style x:Key="Text.Subtitle"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Subtitle1}" />
+
+    <Style x:Key="Text.SectionHeader"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Subtitle2}" />
+
+    <Style x:Key="Text.Heading"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Title2}" />
+
+    <Style x:Key="Text.PageTitle"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Title1}" />
+
+    <Style x:Key="Text.HeroTitle"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.LargeTitle}" />
+
+    <Style x:Key="Text.Technical"
+           TargetType="{x:Type TextBlock}"
+           BasedOn="{StaticResource Fluent.Text.Technical}" />
+
+</ResourceDictionary>

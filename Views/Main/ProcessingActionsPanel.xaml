@@ -1,0 +1,217 @@
+<UserControl x:Class="HakamiqChdTool.App.Views.Main.ProcessingActionsPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True">
+
+    <UserControl.Resources>
+        <Style x:Key="ProcessingActionsPanelText"
+               TargetType="{x:Type TextBlock}">
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+            <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+            <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="ToolTipService.ShowDuration" Value="{DynamicResource ToolTip.ShowDuration.Long}" />
+        </Style>
+
+        <Style x:Key="ProcessingActionsPanelHeaderTitleText"
+               TargetType="{x:Type TextBlock}"
+               BasedOn="{StaticResource ProcessingActionsPanelText}">
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
+            <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="TextWrapping" Value="NoWrap" />
+        </Style>
+
+        <Style x:Key="ProcessingActionsPanelActionChipText"
+               TargetType="{x:Type TextBlock}"
+               BasedOn="{StaticResource ProcessingActionsPanelText}">
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+            <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="TextWrapping" Value="NoWrap" />
+        </Style>
+
+        <Style x:Key="ProcessingActionsPanelActionChip"
+               TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
+            <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+            <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+            <Setter Property="Margin" Value="{DynamicResource Inset.None}" />
+            <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+            <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+            <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+            <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource Radius.Card}"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+
+                            <Grid FlowDirection="{TemplateBinding FlowDirection}"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  SnapsToDevicePixels="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0"
+                                        Width="{DynamicResource Space.3}"
+                                        Height="{DynamicResource Space.18}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Background="{DynamicResource Brush.Accent}"
+                                        CornerRadius="{DynamicResource Radius.AccentLine}"
+                                        IsHitTestVisible="False"
+                                        SnapsToDevicePixels="True" />
+
+                                <TextBlock Grid.Column="2"
+                                           Text="{TemplateBinding Content}"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           Style="{StaticResource ProcessingActionsPanelActionChipText}" />
+
+                                <Viewbox Grid.Column="4"
+                                         Width="{DynamicResource Space.20}"
+                                         Height="{DynamicResource Space.20}"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         FlowDirection="LeftToRight"
+                                         Stretch="Uniform">
+                                    <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Fill="{TemplateBinding Foreground}"
+                                          Stretch="Uniform" />
+                                </Viewbox>
+                            </Grid>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="IsPressed" Value="False" />
+                                    <Condition Property="IsEnabled" Value="True" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Strong}" />
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                            </MultiTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
+                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                                <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ProcessingActionsPanelBadge"
+               TargetType="{x:Type Border}">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Padding" Value="{DynamicResource Inset.8.4}" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+            <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+          SnapsToDevicePixels="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Style="{StaticResource FluentActionCard}"
+                Padding="{DynamicResource Inset.14.All}"
+                HorizontalAlignment="Stretch"
+                FlowDirection="{DynamicResource App.FlowDirection}"
+                Visibility="{Binding IsRedumpFeatureVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                  SnapsToDevicePixels="True">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0"
+                      FlowDirection="{DynamicResource App.FlowDirection}"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Center"
+                      MinWidth="0"
+                      SnapsToDevicePixels="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="2"
+                               Text="{DynamicResource LocRedump_Tool_Title}"
+                               ToolTip="{DynamicResource LocRedump_Tool_Subtitle}"
+                               Style="{StaticResource ProcessingActionsPanelHeaderTitleText}" TextAlignment="Center" />
+                </Grid>
+
+                <Button Grid.Row="2"
+                        Command="{Binding VerifySelectedRedumpToolbarCommand}"
+                        Tag="{StaticResource Icon.DatabaseSearch}"
+                        Content="{DynamicResource LocRedump_Tool_VerifySelected}"
+                        ToolTip="{DynamicResource LocRedump_Tool_VerifySelectedTooltip}"
+                        ToolTipService.ShowOnDisabled="True"
+                        Style="{StaticResource ProcessingActionsPanelActionChip}" />
+
+                <Button Grid.Row="4"
+                        Command="{Binding VerifyAllRedumpToolbarCommand}"
+                        Tag="{StaticResource Icon.Operation.Verify}"
+                        Content="{DynamicResource LocRedump_Tool_VerifyAll}"
+                        ToolTip="{DynamicResource LocRedump_Tool_VerifyAllTooltip}"
+                        ToolTipService.ShowOnDisabled="True"
+                        Style="{StaticResource ProcessingActionsPanelActionChip}" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

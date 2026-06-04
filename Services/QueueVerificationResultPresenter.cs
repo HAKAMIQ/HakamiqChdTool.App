@@ -1,0 +1,170 @@
+﻿using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
+using System;
+using System.IO;
+
+namespace HakamiqChdTool.App.Services;
+
+public sealed record QueueVerificationResultPresentation(
+    string Title,
+    string Message);
+
+public static class QueueVerificationResultPresenter
+{
+    public static string BuildOperationLogDisplay(bool hasLogPath, string logPathDisplay)
+    {
+        return hasLogPath
+            ? ArabicUi.Format("LocQueue_OperationLogDisplay", logPathDisplay)
+            : string.Empty;
+    }
+
+    public static bool IsVerificationReport(
+        string requestedAction,
+        string finalResult,
+        IntegrityValidationState integrityState)
+    {
+        return string.Equals(requestedAction, TaskActionCodes.VerifyChd, StringComparison.Ordinal)
+            || string.Equals(finalResult, TaskFinalResultCodes.FailedVerify, StringComparison.Ordinal)
+            || integrityState != IntegrityValidationState.None;
+    }
+
+    public static string BuildOperationReportTitle(bool isVerificationReport)
+    {
+        return ArabicUi.Get(isVerificationReport
+            ? "LocQueue_VerificationReportTitle"
+            : "LocQueue_OperationReportTitle");
+    }
+
+    public static string BuildOperationReportMessage(
+        bool isVerificationReport,
+        string? integrityStatusMessage,
+        string queueRowDisplayDetailArabic,
+        string operationLogDisplay)
+    {
+        string primary = ResolvePrimaryDetail(
+            isVerificationReport,
+            integrityStatusMessage,
+            queueRowDisplayDetailArabic);
+
+        if (!isVerificationReport && !string.IsNullOrWhiteSpace(operationLogDisplay))
+        {
+            return string.IsNullOrWhiteSpace(primary)
+                ? operationLogDisplay
+                : primary + Environment.NewLine + operationLogDisplay;
+        }
+
+        return primary;
+    }
+
+    public static bool HasVerificationResult(
+        bool isVerificationReport,
+        string? logPath)
+    {
+        return isVerificationReport || IsVerificationLogPath(logPath);
+    }
+
+    public static string BuildVerificationResultBadgeText(
+        IntegrityValidationState integrityState,
+        string finalResult,
+        bool isVerificationReport,
+        string? logPath)
+    {
+        if (integrityState == IntegrityValidationState.Verified)
+        {
+            return ArabicUi.Get("LocQueue_VerificationBadgeRedumpMatched");
+        }
+
+        if (integrityState is IntegrityValidationState.Failed or IntegrityValidationState.Error)
+        {
+            return ArabicUi.Get("LocQueue_VerificationBadgeMismatch");
+        }
+
+        if (string.Equals(finalResult, TaskFinalResultCodes.FailedVerify, StringComparison.Ordinal)
+            || integrityState == IntegrityValidationState.Unsupported)
+        {
+            return ArabicUi.Get("LocQueue_VerificationBadgeInvalid");
+        }
+
+        if (isVerificationReport || IsVerificationLogPath(logPath))
+        {
+            return ArabicUi.Get("LocQueue_VerificationBadgeInternallyValid");
+        }
+
+        return string.Empty;
+    }
+
+    public static QueueVerificationResultPresentation BuildVerificationResultPresentation(
+        string? fileName,
+        string fileTitleDisplay,
+        string verificationResultBadgeText,
+        IntegrityValidationState integrityState,
+        string? integrityStatusMessage,
+        string queueRowDisplayDetailArabic)
+    {
+        string status = string.IsNullOrWhiteSpace(verificationResultBadgeText)
+            ? queueRowDisplayDetailArabic
+            : verificationResultBadgeText;
+
+        string fileDisplay = string.IsNullOrWhiteSpace(fileName)
+            ? fileTitleDisplay
+            : fileName.Trim();
+
+        string scope = BuildVerificationScopeText(integrityState);
+        string detail = ResolvePrimaryDetail(
+            isVerificationReport: true,
+            integrityStatusMessage,
+            queueRowDisplayDetailArabic);
+
+        string message = string.Join(
+            Environment.NewLine + Environment.NewLine,
+            ArabicUi.Format("LocQueue_VerificationResultFileLine", fileDisplay),
+            ArabicUi.Format("LocQueue_VerificationResultStatusLine", status),
+            scope,
+            detail,
+            ArabicUi.Get("LocQueue_VerificationResultPlayableCaveat"));
+
+        return new QueueVerificationResultPresentation(
+            ArabicUi.Get("LocQueue_VerificationResultDialogTitle"),
+            message);
+    }
+
+    private static string ResolvePrimaryDetail(
+        bool isVerificationReport,
+        string? integrityStatusMessage,
+        string queueRowDisplayDetailArabic)
+    {
+        if (isVerificationReport
+            && !string.IsNullOrWhiteSpace(integrityStatusMessage)
+            && !string.Equals(integrityStatusMessage, "-", StringComparison.Ordinal))
+        {
+            return integrityStatusMessage;
+        }
+
+        return queueRowDisplayDetailArabic;
+    }
+
+    private static string BuildVerificationScopeText(IntegrityValidationState integrityState)
+    {
+        return integrityState switch
+        {
+            IntegrityValidationState.Verified => ArabicUi.Get("LocQueue_VerificationResultScopeRedumpMatched"),
+            IntegrityValidationState.Failed or IntegrityValidationState.Error => ArabicUi.Get("LocQueue_VerificationResultScopeMismatch"),
+            IntegrityValidationState.NoDat or IntegrityValidationState.NoDirectRedump => ArabicUi.Get("LocQueue_VerificationResultScopeNoDat"),
+            IntegrityValidationState.Unsupported => ArabicUi.Get("LocQueue_VerificationResultScopeUnsupported"),
+            _ => ArabicUi.Get("LocQueue_VerificationResultScopeInternalOnly")
+        };
+    }
+
+    private static bool IsVerificationLogPath(string? logPath)
+    {
+        if (string.IsNullOrWhiteSpace(logPath))
+        {
+            return false;
+        }
+
+        string fileName = Path.GetFileName(logPath.Trim());
+        return fileName.StartsWith("verify_", StringComparison.OrdinalIgnoreCase)
+            || fileName.StartsWith("info_", StringComparison.OrdinalIgnoreCase);
+    }
+}

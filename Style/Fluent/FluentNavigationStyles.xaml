@@ -1,0 +1,336 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore">
+
+    <Style x:Key="FluentHeaderThemeComboBox"
+           TargetType="{x:Type ComboBox}"
+           BasedOn="{StaticResource FluentComboBoxStyle}">
+        <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Control.MinWidth}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+    </Style>
+
+    <Style x:Key="FluentSideNavButton" TargetType="{x:Type RadioButton}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.4}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            Padding="{TemplateBinding Padding}"
+                            Language="{TemplateBinding Language}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <Grid FlowDirection="{TemplateBinding FlowDirection}"
+                              Language="{TemplateBinding Language}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border x:Name="SelectionIndicator"
+                                    Grid.Column="0"
+                                    Width="{DynamicResource Space.3}"
+                                    Height="{DynamicResource Space.18}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Background="{DynamicResource Brush.Accent}"
+                                    CornerRadius="{DynamicResource Radius.AccentLine}"
+                                    Opacity="{DynamicResource Opacity.Hidden}"
+                                    SnapsToDevicePixels="True" />
+
+                            <Viewbox Grid.Column="2"
+                                     Width="{DynamicResource Space.20}"
+                                     Height="{DynamicResource Space.20}"
+                                     VerticalAlignment="Center"
+                                     FlowDirection="LeftToRight"
+                                     Stretch="Uniform">
+                                <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Fill="{TemplateBinding Foreground}"
+                                      Stretch="Uniform" />
+                            </Viewbox>
+
+                            <ContentPresenter Grid.Column="4"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"
+                                              FlowDirection="{TemplateBinding FlowDirection}"
+                                              Language="{TemplateBinding Language}"
+                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsChecked" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                        </MultiTrigger>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                            <Setter TargetName="Root" Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+                            <Setter TargetName="SelectionIndicator" Property="Opacity" Value="1" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                            <Setter TargetName="Root" Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+                            <Setter TargetName="SelectionIndicator" Property="Opacity" Value="{DynamicResource Opacity.Hidden}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FluentOperationModeChip" TargetType="{x:Type RadioButton}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.8}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Card}"
+                            Padding="{TemplateBinding Padding}"
+                            Language="{TemplateBinding Language}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <Grid FlowDirection="{TemplateBinding FlowDirection}"
+                              Language="{TemplateBinding Language}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border x:Name="SelectionIndicator"
+                                    Grid.Column="0"
+                                    Width="{DynamicResource Space.3}"
+                                    Height="{DynamicResource Space.18}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Background="{DynamicResource Brush.Accent}"
+                                    CornerRadius="{DynamicResource Radius.AccentLine}"
+                                    Opacity="{DynamicResource Opacity.Hidden}"
+                                    SnapsToDevicePixels="True" />
+
+                            <Viewbox Grid.Column="2"
+                                     Width="{DynamicResource Space.20}"
+                                     Height="{DynamicResource Space.20}"
+                                     VerticalAlignment="Center"
+                                     FlowDirection="LeftToRight"
+                                     Stretch="Uniform">
+                                <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Fill="{TemplateBinding Foreground}"
+                                      Stretch="Uniform" />
+                            </Viewbox>
+
+                            <ContentPresenter Grid.Column="4"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"
+                                              FlowDirection="{TemplateBinding FlowDirection}"
+                                              Language="{TemplateBinding Language}"
+                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsChecked" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Strong}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                        </MultiTrigger>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                            <Setter TargetName="SelectionIndicator" Property="Opacity" Value="1" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+                            <Setter TargetName="SelectionIndicator" Property="Opacity" Value="{DynamicResource Opacity.Hidden}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FluentHeaderThemeContextMenu" TargetType="{x:Type ContextMenu}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Elevated}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.4.All}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContextMenu}">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Card}"
+                            Padding="{TemplateBinding Padding}"
+                            Language="{TemplateBinding Language}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <ScrollViewer CanContentScroll="False"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto"
+                                      PanningMode="VerticalOnly"
+                                      Focusable="False">
+                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" />
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FluentHeaderThemeMenuItem" TargetType="{x:Type MenuItem}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Control.MinWidth}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type MenuItem}">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            Padding="{TemplateBinding Padding}"
+                            Language="{TemplateBinding Language}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <Grid FlowDirection="{TemplateBinding FlowDirection}"
+                              Language="{TemplateBinding Language}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.24}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Viewbox x:Name="CheckmarkHost"
+                                     Grid.Column="0"
+                                     Width="{DynamicResource Space.12}"
+                                     Height="{DynamicResource Space.12}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     FlowDirection="LeftToRight"
+                                     Stretch="Uniform"
+                                     Opacity="{DynamicResource Opacity.Hidden}">
+                                <Path Data="{StaticResource Icon.Checkmark}"
+                                      Fill="{DynamicResource Brush.Accent}"
+                                      Stretch="Uniform" />
+                            </Viewbox>
+
+                            <ContentPresenter Grid.Column="1"
+                                              ContentSource="Header"
+                                              RecognizesAccessKey="True"
+                                              VerticalAlignment="Center"
+                                              FlowDirection="{TemplateBinding FlowDirection}"
+                                              Language="{TemplateBinding Language}"
+                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                        </Trigger>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                            <Setter TargetName="CheckmarkHost" Property="Opacity" Value="1" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter TargetName="Root" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                            <Setter TargetName="CheckmarkHost" Property="Opacity" Value="{DynamicResource Opacity.Hidden}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

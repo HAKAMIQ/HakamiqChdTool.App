@@ -1,0 +1,133 @@
+# Build output
+bin/
+obj/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+publish/
+publish-cli/
+artifacts/
+TestResults/
+.coverage/
+coverage/
+*.nupkg
+*.snupkg
+
+# Visual Studio / Rider / local user files
+.vs/
+.vscode/.ropeproject/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+_ReSharper*/
+*.DotSettings.user
+
+# Logs, diagnostics, crash reports
+*.log
+logs/
+crash-reports/
+*.dmp
+*.mdmp
+*.etl
+
+# Temporary / backup / scratch files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+testwrite*
+testroot.tmp
+**/testwrite
+
+# Runtime extraction / local app data mirrors
+runtime-tools/
+RuntimeTools/
+portable/
+config.json
+
+# Disc images and large user data - never commit copyrighted/user media
+*.iso
+*.cue
+*.gdi
+*.chd
+*.cso
+*.pbp
+*.rvz
+*.wua
+*.bin
+*.img
+*.mdf
+*.nrg
+*.zip
+*.rar
+*.7z
+!MAME_GPL-2.0.txt
+!MAME_COPYING.txt
+
+# P0 repo hygiene: this is a C# WPF project; reject Visual Basic sources and
+# stray editor/sed leftovers. *.user, *.tmp, *.bak are already declared above
+# and intentionally not duplicated here.
+*.vb
+sed*
+*.lnk
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+RedumpDB.sqlite
+_backups/
+
+*.dat
+# XML is intentionally NOT globally ignored — App.config, NuGet config.xml,
+# resource manifests, and ResX-adjacent files are legitimate XML in this repo.
+# Only block XML that ships inside Redump / Datfiles import folders.
+Redump/**/*.xml
+redump/**/*.xml
+Datfiles/**/*.xml
+datfiles/**/*.xml
+*.sbi
+*.lsd
+*.key
+*.dkey
+*.keys
+
+# Legal release safety (from LEGAL.md §6 — entries added on top of the
+# existing rules above; deliberate duplicates inside this block are harmless
+# to git and kept here for documentation continuity with LEGAL.md).
+*.rom
+*.raw
+_release/
+*.bak_*
+*~
+**/_backups/
+
+# Downloaded verification databases / cuesheets / keys / subchannels must
+# never be committed, even if a user creates these folders by name.
+Redump/
+redump/
+Datfiles/
+datfiles/
+DiscKeys/
+disc-keys/
+Subchannels/
+subchannels/
+
+# Independent migration work - keep out of the WPF source repository
+AvaloniaPort/
+docs/Avalonia_*.md
+docs/SOURCE_CLEAN_AUDIT.md
+
+# Signing/licensing private material must never be committed
+*.pfx
+*.p12
+*.pem
+*.cer
+*.crt
+*.private.json
+premium-license.json
+premium-license.txt
+license-private*
+private-key*

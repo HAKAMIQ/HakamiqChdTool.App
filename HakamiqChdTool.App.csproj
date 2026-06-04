@@ -1,0 +1,219 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<AssemblyName>HakamiqChdTool</AssemblyName>
+		<RootNamespace>HakamiqChdTool.App</RootNamespace>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>Resources\HakamiqLogo.ico</ApplicationIcon>
+		<Version>1.0.0</Version>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<InformationalVersion>1.0.0</InformationalVersion>
+		<Product>Hakamiq CHD Tool</Product>
+		<Company>Hakamiq</Company>
+		<Description>إدارة وتحويل صور الأقراص بصيغة CHD عبر chdman</Description>
+		<NoWarn>$(NoWarn);NU1900</NoWarn>
+		<PackageIcon>HakamiqLogo.png</PackageIcon>
+		<NeutralLanguage>ar-SA</NeutralLanguage>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<SelfContained>true</SelfContained>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<PublishSingleFile>false</PublishSingleFile>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<PublishTrimmed>false</PublishTrimmed>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<SatelliteResourceLanguages>ar-SA</SatelliteResourceLanguages>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Adapters\**" />
+		<Compile Remove="HakamiqChdTool.UiPorts\**" />
+		<Compile Remove="Controls\**" />
+		<Compile Remove="Tools\HakamiqLicenseGenerator\**" />
+		<EmbeddedResource Remove="Adapters\**" />
+		<EmbeddedResource Remove="HakamiqChdTool.UiPorts\**" />
+		<EmbeddedResource Remove="Controls\**" />
+		<EmbeddedResource Remove="Tools\HakamiqLicenseGenerator\**" />
+		<None Remove="Adapters\**" />
+		<None Remove="HakamiqChdTool.UiPorts\**" />
+		<None Remove="Controls\**" />
+		<None Remove="Tools\HakamiqLicenseGenerator\**" />
+		<Content Remove="HakamiqChdTool.UiPorts\**" />
+		<Content Remove="Tools\HakamiqLicenseGenerator\**" />
+		<Page Remove="Adapters\**" />
+		<Page Remove="HakamiqChdTool.UiPorts\**" />
+		<Page Remove="Controls\**" />
+		<Page Remove="Tools\HakamiqLicenseGenerator\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Remove="Views\AdvancedOptions\GeneralSettingsView.xaml" />
+		<Page Remove="Views\AdvancedOptions\PathsSettingsView.xaml" />
+		<Page Remove="Views\AdvancedOptions\RedumpSettingsView.xaml" />
+		<Page Remove="Views\AdvancedOptions\ProcessingSettingsView.xaml" />
+		<Page Remove="Views\AdvancedOptions\PerformanceSettingsView.xaml" />
+		<Compile Remove="Views\AdvancedOptions\GeneralSettingsView.xaml.cs" />
+		<Compile Remove="Views\AdvancedOptions\PathsSettingsView.xaml.cs" />
+		<Compile Remove="Views\AdvancedOptions\RedumpSettingsView.xaml.cs" />
+		<Compile Remove="Views\AdvancedOptions\ProcessingSettingsView.xaml.cs" />
+		<Compile Remove="Views\AdvancedOptions\PerformanceSettingsView.xaml.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Include="Views\AdvancedOptions\GeneralSettingsView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Include="Views\AdvancedOptions\PathsSettingsView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Include="Views\AdvancedOptions\RedumpSettingsView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Include="Views\AdvancedOptions\ProcessingSettingsView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Page Include="Views\AdvancedOptions\PerformanceSettingsView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Include="Views\AdvancedOptions\GeneralSettingsView.xaml.cs">
+			<DependentUpon>GeneralSettingsView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Include="Views\AdvancedOptions\PathsSettingsView.xaml.cs">
+			<DependentUpon>PathsSettingsView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Include="Views\AdvancedOptions\RedumpSettingsView.xaml.cs">
+			<DependentUpon>RedumpSettingsView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Include="Views\AdvancedOptions\ProcessingSettingsView.xaml.cs">
+			<DependentUpon>ProcessingSettingsView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+		<Compile Include="Views\AdvancedOptions\PerformanceSettingsView.xaml.cs">
+			<DependentUpon>PerformanceSettingsView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Tools\chdman.exe">
+			<LogicalName>HakamiqChdTool.App.Tools.chdman.exe</LogicalName>
+		</EmbeddedResource>
+
+		<Resource Include="Resources\HakamiqLogo.png">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Assets\hakamiq_icon.png" />
+		<Resource Include="Assets\hakamiq_icon_small.png" />
+		<Resource Include="Assets\hakamiq_icon_white.png" />
+		<Resource Include="Assets\hakamiq_theme_brand.png" />
+		<Resource Include="Resources\HakamiqLogo.ico">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
+
+		<None Include="Resources\HakamiqLogo.png" Pack="true" PackagePath="\" Visible="false" />
+
+		<Content Include="README.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="LICENSE">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="LEGAL.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="THIRD_PARTY_NOTICES.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="CHDMAN_NOTICE.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="SEVENZIP_NOTICE.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+<Content Include="CHANGELOG.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="MAME_COPYING.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="MAME_GPL-2.0.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\7zip\7z.exe" Condition="Exists('Tools\7zip\7z.exe')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+
+		<Content Include="Tools\7zip\7z.dll" Condition="Exists('Tools\7zip\7z.dll')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+
+		<Content Include="Tools\7zip\License.txt" Condition="Exists('Tools\7zip\License.txt')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="gong-wpf-dragdrop" Version="4.0.0" />
+		<PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
+		<PackageReference Include="Humanizer.Core" Version="3.0.10" />
+		<PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+		<PackageReference Include="Velopack" Version="0.0.1298" />
+		<PackageReference Include="SharpCompress" Version="0.48.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+		<PackageReference Include="Serilog" Version="4.3.1" />
+		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+		<PackageReference Include="LTRData.DiscUtils.Iso9660" Version="1.0.77" />
+		<PackageReference Include="System.Management" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Tokens\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="HakamiqChdTool.UiPorts\HakamiqChdTool.UiPorts.csproj" />
+	</ItemGroup>
+
+</Project>
