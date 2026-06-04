@@ -8,7 +8,7 @@ public sealed class SevenZipArchiveInspector
     private const long MaxDescriptorPreviewChars = 4L * 1024L * 1024L;
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext<SevenZipArchiveInspector>();
-    private static readonly TimeSpan PreviewTimeout = TimeSpan.FromSeconds(12);
+    private static readonly TimeSpan PreviewTimeout = TimeSpan.FromMinutes(2);
 
     private readonly SevenZipToolService _toolService = SevenZipToolService.Instance;
 

@@ -30,30 +30,11 @@ public partial class MainWindow
         return dialog.ShowDialog() == true;
     }
 
-    private StorageAdvisorDialogResult ShowStorageAdvisorDialog(StorageAdvisorResult result)
+    private static StorageAdvisorDialogResult ShowStorageAdvisorDialog(StorageAdvisorResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        StorageAdvisorPresentation presentation = StorageAdvisorPresenter.Present(result);
-        if (!presentation.ShouldShowDialog || _settings.SuppressStorageAdvisorDialog)
-        {
-            return StorageAdvisorDialogResult.ContinueRecommended;
-        }
-
-        var dialog = new StorageAdvisorDialog(presentation)
-        {
-            Owner = this
-        };
-
-        _ = dialog.ShowDialog();
-
-        if (dialog.DoNotShowAgain && !_settings.SuppressStorageAdvisorDialog)
-        {
-            _settings.SuppressStorageAdvisorDialog = true;
-            PersistSettings();
-        }
-
-        return dialog.AdvisorResult;
+        return StorageAdvisorDialogResult.ContinueRecommended;
     }
 
     private void ShowNoticeDialog(string title, string message)
@@ -228,26 +209,26 @@ public partial class MainWindow
         && System.IO.File.Exists(path)
         && string.Equals(System.IO.Path.GetExtension(path), ".chd", StringComparison.OrdinalIgnoreCase);
 
-    private static bool IsTerminalFinalResult(string? finalResult)
+   private static bool IsTerminalFinalResult(string? finalResult)
+{
+    if (string.IsNullOrWhiteSpace(finalResult)
+        || string.Equals(finalResult, TaskFinalResultCodes.None, StringComparison.Ordinal))
     {
-        if (string.IsNullOrWhiteSpace(finalResult)
-            || string.Equals(finalResult, TaskFinalResultCodes.None, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        return string.Equals(finalResult, TaskFinalResultCodes.Healthy, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.Moved, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.Extracted, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.SkippedExists, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.Failed, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.FailedConvert, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.FailedVerify, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.FailedExtract, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.Cancelled, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.PasswordRequired, StringComparison.Ordinal)
-            || string.Equals(finalResult, TaskFinalResultCodes.Unsupported, StringComparison.Ordinal);
+        return false;
     }
+
+    return string.Equals(finalResult, TaskFinalResultCodes.Healthy, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.Moved, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.Extracted, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.SkippedExists, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.Failed, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.FailedConvert, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.FailedVerify, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.FailedExtract, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.Cancelled, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.PasswordRequired, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.Unsupported, StringComparison.Ordinal);
+}
 
     private QueueOperationMode GetSelectedQueueOperationMode()
     {

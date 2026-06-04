@@ -14,6 +14,8 @@ namespace HakamiqChdTool.App.Core.Workflow;
 
 internal static class WorkflowPathUtilities
 {
+    private const int ArchiveExtractionFolderNameMaxLength = 24;
+    private const int ArchiveExtractionSessionIdLength = 16;
     private const string ChdMediaDetectedReasonKey = "LocStatus_DetectedMediaArabic";
     private const string ChdMediaRawReasonKey = "LocWorkflow_RawMetadataConflictReason";
     private const string ChdContainerOnlyReasonKey = "LocPlatformDetect_ChdContainerOnly";
@@ -254,10 +256,10 @@ internal static class WorkflowPathUtilities
     public static string BuildArchiveExtractionDirectory(string originalArchivePath)
     {
         string runtimeRoot = AppPaths.CombineProcessTemp("TempExtraction");
-        string archiveName = SanitizePathSegment(Path.GetFileNameWithoutExtension(originalArchivePath));
-        string sessionId = Guid.NewGuid().ToString("N");
+        string archiveName = BuildShortArchiveExtractionFolderName(originalArchivePath);
+        string sessionId = Guid.NewGuid().ToString("N")[..ArchiveExtractionSessionIdLength];
 
-        return Path.Combine(runtimeRoot, sessionId, archiveName);
+        return Path.Combine(runtimeRoot, sessionId + "_" + archiveName);
     }
 
     public static void CopyMatchingSbiIfExists(string workingInputPath, string outputChdPath)
@@ -294,6 +296,27 @@ internal static class WorkflowPathUtilities
 
         return string.IsNullOrWhiteSpace(value) ? "Item" : value;
     }
+
+    private static string BuildShortArchiveExtractionFolderName(string originalArchivePath)
+    {
+        string archiveName = SanitizePathSegment(Path.GetFileNameWithoutExtension(originalArchivePath))
+            .Replace(' ', '_');
+
+        while (archiveName.Contains("__", StringComparison.Ordinal))
+        {
+            archiveName = archiveName.Replace("__", "_", StringComparison.Ordinal);
+        }
+
+        archiveName = archiveName.Trim('_', '.', ' ');
+
+        if (archiveName.Length > ArchiveExtractionFolderNameMaxLength)
+        {
+            archiveName = archiveName[..ArchiveExtractionFolderNameMaxLength].Trim('_', '.', ' ');
+        }
+
+        return string.IsNullOrWhiteSpace(archiveName) ? "archive" : archiveName;
+    }
+
 
     public static bool PathsEqual(string left, string right) =>
         string.Equals(Path.GetFullPath(left), Path.GetFullPath(right), StringComparison.OrdinalIgnoreCase);

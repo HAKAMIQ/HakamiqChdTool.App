@@ -8,6 +8,8 @@ namespace HakamiqChdTool.App.Core.Workflow;
 
 internal static class WorkflowOutputPathContract
 {
+    private const int PendingWorkspaceDiagnosticStemLimit = 24;
+    private const int PendingWorkspaceGuidLength = 12;
     private const string InvalidOutputPathKey = "LocConversion_InvalidOutputPath";
     private const string OutputDirectoryMissingKey = "LocConversion_OutputDirectoryMissing";
     private const string CustomOutputRequiredKey = "LocAdv_ErrorCustomOutputRequired";
@@ -151,7 +153,7 @@ internal static class WorkflowOutputPathContract
 
         TryMarkPendingWorkspaceTreeHidden(jobDirectory, workspaceRoot);
 
-        string fileName = BuildSafeFileName(Path.GetFileNameWithoutExtension(workingInputPath), outputExtension);
+        string fileName = BuildExternalToolSafePendingFileName(outputExtension);
 
         return ValidatePendingWorkspacePath(Path.Combine(jobDirectory, fileName), jobDirectory);
     }
@@ -266,13 +268,28 @@ internal static class WorkflowOutputPathContract
     {
         string stem = SanitizePendingOutputFileStemForIsolation(Path.GetFileNameWithoutExtension(workingInputPath));
 
+        if (stem.Length > PendingWorkspaceDiagnosticStemLimit)
+        {
+            stem = stem[..PendingWorkspaceDiagnosticStemLimit].Trim('_', '.', ' ');
+        }
+
+        if (string.IsNullOrWhiteSpace(stem))
+        {
+            stem = "output";
+        }
+
+        string shortGuid = Guid.NewGuid().ToString("N")[..PendingWorkspaceGuidLength];
+
         return PendingWorkspacePathPolicy.OperationFolderPrefix
             + DateTime.UtcNow.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture)
             + "_"
             + stem
             + "_"
-            + Guid.NewGuid().ToString("N");
+            + shortGuid;
     }
+
+    private static string BuildExternalToolSafePendingFileName(string outputExtension) =>
+        "output" + NormalizeOutputExtension(outputExtension);
 
     private static string ValidatePendingWorkspacePath(string candidatePath, string requiredRoot)
     {
