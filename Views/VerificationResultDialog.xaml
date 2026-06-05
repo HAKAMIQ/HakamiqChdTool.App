@@ -22,6 +22,7 @@
 
     <Window.Resources>
         <ResourceDictionary>
+			<Thickness x:Key="VerificationResultMetricRowMargin">0,3,0,3</Thickness>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Resources/Style/AdvancedOptionsWindowStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -221,8 +222,8 @@
                                 <ItemsControl ItemsSource="{Binding ChdLogicalReport.Metrics}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid Margin="0,3,0,3"
-                                                  FlowDirection="{DynamicResource App.FlowDirection}">
+											<Grid Margin="{StaticResource VerificationResultMetricRowMargin}"
+      FlowDirection="{DynamicResource App.FlowDirection}">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="8" />
