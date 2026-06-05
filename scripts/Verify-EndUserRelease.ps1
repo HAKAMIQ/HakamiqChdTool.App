@@ -261,6 +261,7 @@ function Assert-NoDirectoriesByNamePattern {
 function Assert-RequiredReleaseFiles {
     foreach ($required in @(
         "HakamiqChdTool.exe",
+        "Tools\chd_reader_tool.exe",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
@@ -277,6 +278,7 @@ function Assert-RequiredReleaseFiles {
 
     foreach ($required in @(
         "HakamiqChdTool.exe",
+        "Tools\chd_reader_tool.exe",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
@@ -376,6 +378,7 @@ function Assert-OnlyApprovedToolFiles {
     }
 
     $approved = @(
+        "chd_reader_tool.exe",
         "7zip\7z.exe",
         "7zip\7z.dll",
         "7zip\license.txt"
