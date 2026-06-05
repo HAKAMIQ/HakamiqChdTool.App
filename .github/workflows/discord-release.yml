@@ -3,9 +3,11 @@ name: Notify Discord on Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   notify-discord:
+    name: Send Discord release notification
     runs-on: ubuntu-latest
 
     steps:
@@ -22,17 +24,27 @@ jobs:
           import os
           import urllib.request
 
-          webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
+          webhook_url = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
+          if not webhook_url:
+              raise SystemExit("DISCORD_WEBHOOK_URL secret is missing.")
+
+          repo_name = os.environ["REPO_NAME"]
+          release_name = os.environ.get("RELEASE_NAME") or "اختبار إشعار Discord"
+          release_tag = os.environ.get("RELEASE_TAG") or "manual-test"
+          release_url = os.environ.get("RELEASE_URL") or f"https://github.com/{repo_name}/releases"
 
           payload = {
               "username": "HAKAMIQ Release Bot",
               "content": (
                   "🚀 **تم إطلاق إصدار جديد**\n\n"
-                  f"**المشروع:** {os.environ['REPO_NAME']}\n"
-                  f"**الإصدار:** {os.environ['RELEASE_NAME']}\n"
-                  f"**الوسم:** {os.environ['RELEASE_TAG']}\n\n"
-                  f"🔗 **رابط التحميل والتفاصيل:**\n{os.environ['RELEASE_URL']}"
-              )
+                  f"**المشروع:** {repo_name}\n"
+                  f"**الإصدار:** {release_name}\n"
+                  f"**الوسم:** {release_tag}\n\n"
+                  f"🔗 **رابط التحميل والتفاصيل:**\n{release_url}"
+              ),
+              "allowed_mentions": {
+                  "parse": []
+              }
           }
 
           data = json.dumps(payload).encode("utf-8")
