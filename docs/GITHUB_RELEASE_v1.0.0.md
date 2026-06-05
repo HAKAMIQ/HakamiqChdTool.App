@@ -23,7 +23,7 @@ This release does not include games, ROMs, BIOS files, disc images, Redump datab
 
 See:
 
-- `CHDMAN_NOTICE.md`
-- `MAME_COPYING.txt`
-- `MAME_GPL-2.0.txt`
-- `THIRD_PARTY_NOTICES.txt`
+- `docs/legal/CHDMAN_NOTICE.md`
+- `docs/legal/MAME_COPYING.txt`
+- `docs/legal/MAME_GPL-2.0.txt`
+- `docs/legal/THIRD_PARTY_NOTICES.txt`

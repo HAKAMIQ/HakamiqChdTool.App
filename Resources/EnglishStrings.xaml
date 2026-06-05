@@ -1257,7 +1257,7 @@ Path:
     <sys:String x:Key="LocQueue_VerificationResultScopeMismatch">Verification or database matching failed. The file may be modified, incomplete, or not matching the canonical release.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoDat">No suitable DAT/Redump database entry was available for this file, so the app cannot tell whether it is modified or canonical.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">This file type does not currently support a deep matching report in the app.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">Note: verification does not guarantee that the game boots in an emulator. Playability requires testing in the appropriate emulator.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">Note: this result covers the CHD file structure and integrity only. It does not measure emulator compatibility or emulator settings.</sys:String>
 
 	<sys:String x:Key="LocStorageAdvisor_Title">Storage and performance advisory</sys:String>
 	<sys:String x:Key="LocStorageAdvisor_Subtitle">Smart analysis of source, output, and temporary workspace paths before the operation starts.</sys:String>
@@ -1403,6 +1403,19 @@ Path:
     <sys:String x:Key="LocLicensing_DiscordSupportUnavailable">The Discord link is not configured.</sys:String>
     <sys:String x:Key="LocLicensing_OpenDiscordSupportFailed">Could not open Discord.</sys:String>
     <sys:String x:Key="LocLicensing_DiscordSupportOpened">Discord opened.</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_Title">Logical CHD report</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_CompressedSize">Compressed size: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_LogicalSize">Logical size: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_StorageSaved">Estimated storage saved: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_HunkSize">Hunk size: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_TotalHunks">Total hunks: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_DecodedCache">Decoded read cache: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_CompressedSizeLabel">Compressed size</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_LogicalSizeLabel">Logical size</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_StorageSavedLabel">Estimated storage saved</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_HunkSizeLabel">Hunk size</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_TotalHunksLabel">Total hunks</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_DecodedCacheLabel">Decoded read cache</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">Elapsed: {0}, Written: {1}, Speed: {2}, Remaining: {3}</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateFormat">{0}/s</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateCalculating">measuring speed</sys:String>

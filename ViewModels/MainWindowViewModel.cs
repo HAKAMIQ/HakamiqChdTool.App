@@ -81,8 +81,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             () => _session.OpenExplorerForSelectedQueueItem(SelectedTask),
             () => _session.CanOpenExplorerTarget(SelectedTask));
 
-        OpenOperationLogCommand = new RelayCommand<TaskQueueItemViewModel?>(
-            item => _session.OpenOperationLogForQueueItem(item ?? SelectedTask),
+        OpenOperationLogCommand = new AsyncRelayCommand<TaskQueueItemViewModel?>(
+            item => _session.OpenOperationLogForQueueItemAsync(item ?? SelectedTask),
             item => _session.CanOpenOperationLogTarget(item ?? SelectedTask));
 
         StartProcessingCommand = new AsyncRelayCommand(
@@ -197,7 +197,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     public IList QueueItems { get; }
 
     public IRelayCommand OpenOutputFolderCommand { get; }
-    public IRelayCommand<TaskQueueItemViewModel?> OpenOperationLogCommand { get; }
+    public IAsyncRelayCommand<TaskQueueItemViewModel?> OpenOperationLogCommand { get; }
     public IAsyncRelayCommand StartProcessingCommand { get; }
     public IAsyncRelayCommand ProcessSelectedToolbarCommand { get; }
     public IAsyncRelayCommand VerifySelectedRedumpToolbarCommand { get; }

@@ -2,13 +2,18 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace HakamiqChdTool.App.Services;
 
 public sealed record QueueVerificationResultPresentation(
     string Title,
-    string Message);
+    string Message,
+    ChdLogicalProbeReportPresentation? ChdLogicalReport)
+{
+    public bool HasChdLogicalReport => ChdLogicalReport?.HasMetrics == true;
+}
 
 public static class QueueVerificationResultPresenter
 {
@@ -100,7 +105,8 @@ public static class QueueVerificationResultPresenter
         string verificationResultBadgeText,
         IntegrityValidationState integrityState,
         string? integrityStatusMessage,
-        string queueRowDisplayDetailArabic)
+        string queueRowDisplayDetailArabic,
+        ChdLogicalProbeReportPresentation? chdLogicalReport)
     {
         string status = string.IsNullOrWhiteSpace(verificationResultBadgeText)
             ? queueRowDisplayDetailArabic
@@ -116,17 +122,37 @@ public static class QueueVerificationResultPresenter
             integrityStatusMessage,
             queueRowDisplayDetailArabic);
 
-        string message = string.Join(
-            Environment.NewLine + Environment.NewLine,
-            ArabicUi.Format("LocQueue_VerificationResultFileLine", fileDisplay),
-            ArabicUi.Format("LocQueue_VerificationResultStatusLine", status),
+        string message = BuildVerificationResultMessage(
+            fileDisplay,
+            status,
             scope,
-            detail,
-            ArabicUi.Get("LocQueue_VerificationResultPlayableCaveat"));
+            detail);
 
         return new QueueVerificationResultPresentation(
             ArabicUi.Get("LocQueue_VerificationResultDialogTitle"),
-            message);
+            message,
+            chdLogicalReport);
+    }
+
+
+    private static string BuildVerificationResultMessage(
+        string fileDisplay,
+        string status,
+        string scope,
+        string detail)
+    {
+        var sections = new List<string>
+        {
+            ArabicUi.Format("LocQueue_VerificationResultFileLine", fileDisplay),
+            ArabicUi.Format("LocQueue_VerificationResultStatusLine", status),
+            scope,
+            detail
+        };
+
+
+        sections.Add(ArabicUi.Get("LocQueue_VerificationResultPlayableCaveat"));
+
+        return string.Join(Environment.NewLine + Environment.NewLine, sections);
     }
 
     private static string ResolvePrimaryDetail(

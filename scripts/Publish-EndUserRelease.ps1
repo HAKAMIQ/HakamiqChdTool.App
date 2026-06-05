@@ -193,12 +193,12 @@ function Assert-NoUnsupportedMameTools {
 function Invoke-ReleaseComplianceChecks {
     foreach ($required in @(
         "LICENSE",
-        "LEGAL.md",
-        "THIRD_PARTY_NOTICES.txt",
-        "CHDMAN_NOTICE.md",
-        "MAME_COPYING.txt",
-        "MAME_GPL-2.0.txt",
-        "SEVENZIP_NOTICE.md",
+        "docs\legal\LEGAL.md",
+        "docs\legal\THIRD_PARTY_NOTICES.txt",
+        "docs\legal\CHDMAN_NOTICE.md",
+        "docs\legal\MAME_COPYING.txt",
+        "docs\legal\MAME_GPL-2.0.txt",
+        "docs\legal\SEVENZIP_NOTICE.md",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
@@ -328,19 +328,20 @@ try {
 
     foreach ($doc in @(
         "LICENSE",
-        "LEGAL.md",
-        "THIRD_PARTY_NOTICES.txt",
-        "CHDMAN_NOTICE.md",
-        "MAME_COPYING.txt",
-        "MAME_GPL-2.0.txt",
-        "SEVENZIP_NOTICE.md",
+        "docs\legal\LEGAL.md",
+        "docs\legal\THIRD_PARTY_NOTICES.txt",
+        "docs\legal\CHDMAN_NOTICE.md",
+        "docs\legal\MAME_COPYING.txt",
+        "docs\legal\MAME_GPL-2.0.txt",
+        "docs\legal\SEVENZIP_NOTICE.md",
         "README.md",
-        "CHANGELOG.md"
+        "docs\release-notes\CHANGELOG.md"
     )) {
         $sourcePath = Join-Path $ProjectRoot $doc
         if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {
-            Copy-Item -LiteralPath $sourcePath -Destination $OutputPath -Force
-            Write-Host "[INFO] Copied $doc" -ForegroundColor Cyan
+            $destinationName = Split-Path -Path $doc -Leaf
+            Copy-Item -LiteralPath $sourcePath -Destination (Join-Path $OutputPath $destinationName) -Force
+            Write-Host "[INFO] Copied $destinationName" -ForegroundColor Cyan
         }
     }
 

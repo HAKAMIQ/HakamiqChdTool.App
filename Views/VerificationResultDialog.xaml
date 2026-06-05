@@ -1,4 +1,4 @@
-<Window x:Class="HakamiqChdTool.App.Views.VerificationResultDialog"
+﻿<Window x:Class="HakamiqChdTool.App.Views.VerificationResultDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
@@ -23,7 +23,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Style/AdvancedOptionsWindowStyles.xaml" />
+                <ResourceDictionary Source="../Resources/Style/AdvancedOptionsWindowStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="VerificationResultDialog.RootFrame"
@@ -93,6 +93,56 @@
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
                 <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
             </Style>
+
+            <Style x:Key="VerificationResultDialog.ReportCard"
+                   TargetType="{x:Type Border}">
+                <Setter Property="Margin" Value="0,14,0,0" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Medium}" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="UseLayoutRounding" Value="True" />
+            </Style>
+
+            <Style x:Key="VerificationResultDialog.ReportTitleText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
+
+            <Style x:Key="VerificationResultDialog.ReportLabelText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="VerificationResultDialog.ReportValueText"
+                   TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Numeric}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="FlowDirection" Value="LeftToRight" />
+                <Setter Property="Language" Value="en-US" />
+                <Setter Property="TextAlignment" Value="Left" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -158,8 +208,41 @@
                 <ScrollViewer MaxHeight="420"
                               VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled">
-                    <TextBlock Text="{Binding Message}"
-                               Style="{StaticResource VerificationResultDialog.BodyText}" />
+                    <StackPanel>
+                        <TextBlock Text="{Binding Message}"
+                                   Style="{StaticResource VerificationResultDialog.BodyText}" />
+
+                        <Border Style="{StaticResource VerificationResultDialog.ReportCard}"
+                                Visibility="{Binding HasChdLogicalReport, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel FlowDirection="{DynamicResource App.FlowDirection}">
+                                <TextBlock Text="{Binding ChdLogicalReport.Title}"
+                                           Style="{StaticResource VerificationResultDialog.ReportTitleText}" />
+
+                                <ItemsControl ItemsSource="{Binding ChdLogicalReport.Metrics}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,3,0,3"
+                                                  FlowDirection="{DynamicResource App.FlowDirection}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="8" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Label}"
+                                                           Style="{StaticResource VerificationResultDialog.ReportLabelText}" />
+
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding Value}"
+                                                           Style="{StaticResource VerificationResultDialog.ReportValueText}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </ScrollViewer>
             </Border>
 

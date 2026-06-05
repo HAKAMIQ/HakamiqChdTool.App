@@ -103,10 +103,10 @@ In the official release package, `chdman` is embedded in the application and pre
 
 See:
 
-* `CHDMAN_NOTICE.md`
-* `MAME_COPYING.txt`
-* `MAME_GPL-2.0.txt`
-* `THIRD_PARTY_NOTICES.txt`
+* `docs/legal/CHDMAN_NOTICE.md`
+* `docs/legal/MAME_COPYING.txt`
+* `docs/legal/MAME_GPL-2.0.txt`
+* `docs/legal/THIRD_PARTY_NOTICES.txt`
 
 Hakamiq CHD Tool is not affiliated with, sponsored by, or endorsed by MAMEdev. MAME is a trademark of its respective owner.
 
@@ -116,4 +116,4 @@ MAME/chdman are provided without warranty under their upstream license terms.
 
 Original Hakamiq CHD Tool source code in this repository is licensed under the MIT License. See [`LICENSE`](LICENSE).
 
-Third-party components are distributed under their respective licenses. See [`THIRD_PARTY_NOTICES.txt`](THIRD_PARTY_NOTICES.txt).
+Third-party components are distributed under their respective licenses. See [`docs/legal/THIRD_PARTY_NOTICES.txt`](docs/legal/THIRD_PARTY_NOTICES.txt).

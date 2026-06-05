@@ -459,9 +459,9 @@ function Test-NoDropShadowEffectInXaml {
 
 function Test-ThemeResourceParity {
     $themeFiles = @(
-        Join-Path $root 'Themes\Light.xaml'
-        Join-Path $root 'Themes\Dark.xaml'
-        Join-Path $root 'Themes\Hakamiq.xaml'
+        Join-Path $root 'Resources\Themes\Light.xaml'
+        Join-Path $root 'Resources\Themes\Dark.xaml'
+        Join-Path $root 'Resources\Themes\Hakamiq.xaml'
     )
 
     foreach ($themeFile in $themeFiles) {
@@ -497,14 +497,14 @@ function Test-LocalizationResourceParity {
 
 function Test-NoDeadThemeTokenPalettes {
     $deadPaletteFiles = @(
-        Join-Path $root 'Tokens\Light.xaml'
-        Join-Path $root 'Tokens\Dark.xaml'
-        Join-Path $root 'Tokens\Hakamiq.xaml'
+        Join-Path $root 'Resources\Tokens\Light.xaml'
+        Join-Path $root 'Resources\Tokens\Dark.xaml'
+        Join-Path $root 'Resources\Tokens\Hakamiq.xaml'
     )
 
     foreach ($file in $deadPaletteFiles) {
         if (Test-Path $file) {
-            Add-Failure "Dead theme token palette dictionary is not allowed: $file. Use Themes/Light.xaml, Themes/Dark.xaml, and Themes/Hakamiq.xaml as the live swappable theme palettes."
+            Add-Failure "Dead theme token palette dictionary is not allowed: $file. Use Resources/Themes/Light.xaml, Resources/Themes/Dark.xaml, and Resources/Themes/Hakamiq.xaml as the live swappable theme palettes."
         }
     }
 }

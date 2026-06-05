@@ -36,21 +36,16 @@
 
 	<ItemGroup>
 		<Compile Remove="Adapters\**" />
-		<Compile Remove="HakamiqChdTool.UiPorts\**" />
 		<Compile Remove="Controls\**" />
 		<Compile Remove="Tools\HakamiqLicenseGenerator\**" />
 		<EmbeddedResource Remove="Adapters\**" />
-		<EmbeddedResource Remove="HakamiqChdTool.UiPorts\**" />
 		<EmbeddedResource Remove="Controls\**" />
 		<EmbeddedResource Remove="Tools\HakamiqLicenseGenerator\**" />
 		<None Remove="Adapters\**" />
-		<None Remove="HakamiqChdTool.UiPorts\**" />
 		<None Remove="Controls\**" />
 		<None Remove="Tools\HakamiqLicenseGenerator\**" />
-		<Content Remove="HakamiqChdTool.UiPorts\**" />
 		<Content Remove="Tools\HakamiqLicenseGenerator\**" />
 		<Page Remove="Adapters\**" />
-		<Page Remove="HakamiqChdTool.UiPorts\**" />
 		<Page Remove="Controls\**" />
 		<Page Remove="Tools\HakamiqLicenseGenerator\**" />
 	</ItemGroup>
@@ -119,10 +114,6 @@
 		<Resource Include="Resources\HakamiqLogo.png">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Resource>
-		<Resource Include="Assets\hakamiq_icon.png" />
-		<Resource Include="Assets\hakamiq_icon_small.png" />
-		<Resource Include="Assets\hakamiq_icon_white.png" />
-		<Resource Include="Assets\hakamiq_theme_brand.png" />
 		<Resource Include="Resources\HakamiqLogo.ico">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Resource>
@@ -139,38 +130,51 @@
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
 
-		<Content Include="LEGAL.md">
+		<Content Include="docs\legal\LEGAL.md">
+			<TargetPath>LEGAL.md</TargetPath>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
 
-		<Content Include="THIRD_PARTY_NOTICES.txt">
+		<Content Include="docs\legal\THIRD_PARTY_NOTICES.txt">
+			<TargetPath>THIRD_PARTY_NOTICES.txt</TargetPath>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
 
-		<Content Include="CHDMAN_NOTICE.md">
+		<Content Include="docs\legal\CHDMAN_NOTICE.md">
+			<TargetPath>CHDMAN_NOTICE.md</TargetPath>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
 
-		<Content Include="SEVENZIP_NOTICE.md">
+		<Content Include="docs\legal\SEVENZIP_NOTICE.md">
+			<TargetPath>SEVENZIP_NOTICE.md</TargetPath>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
-<Content Include="CHANGELOG.md">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</Content>
-
-		<Content Include="MAME_COPYING.txt">
+		<Content Include="docs\release-notes\CHANGELOG.md">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
 
-		<Content Include="MAME_GPL-2.0.txt">
+		<Content Include="docs\legal\MAME_COPYING.txt">
+			<TargetPath>MAME_COPYING.txt</TargetPath>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="docs\legal\MAME_GPL-2.0.txt">
+			<TargetPath>MAME_GPL-2.0.txt</TargetPath>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+
+		<Content Include="Tools\chd_reader_tool.exe" Condition="Exists('Tools\chd_reader_tool.exe')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 
 		<Content Include="Tools\7zip\7z.exe" Condition="Exists('Tools\7zip\7z.exe')">
@@ -204,16 +208,10 @@
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
 		<PackageReference Include="LTRData.DiscUtils.Iso9660" Version="1.0.77" />
+		<PackageReference Include="LTRData.DiscUtils.Udf" Version="1.0.77" />
 		<PackageReference Include="System.Management" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Tokens\" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="HakamiqChdTool.UiPorts\HakamiqChdTool.UiPorts.csproj" />
-	</ItemGroup>
 
 </Project>

@@ -116,8 +116,6 @@ Subchannels/
 subchannels/
 
 # Independent migration work - keep out of the WPF source repository
-AvaloniaPort/
-docs/Avalonia_*.md
 docs/SOURCE_CLEAN_AUDIT.md
 
 # Signing/licensing private material must never be committed

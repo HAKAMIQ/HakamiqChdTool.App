@@ -1356,7 +1356,7 @@
     <sys:String x:Key="LocQueue_VerificationResultScopeMismatch">فشل التطابق أو الفحص. قد يكون الملف معدلًا، ناقص بيانات، أو غير مطابق للنسخة القياسية.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoDat">لم يتم العثور على قاعدة DAT/Redump مناسبة لهذا الملف، لذلك لا يمكن الحكم هل هو معدل أو مطابق للنسخة الأصلية.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">هذا النوع لا يدعم تقرير مطابقة عميق داخل البرنامج حاليًا.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">ملاحظة: الفحص لا يضمن أن اللعبة تعمل داخل المحاكي. تشغيل اللعبة يحتاج اختبارًا فعليًا في المحاكي المناسب.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">ملاحظة: هذه النتيجة تخص سلامة ملف CHD وبنيته فقط، ولا تقيس توافق اللعبة مع المحاكي أو إعداداته.</sys:String>
 
 	<sys:String x:Key="LocStorageAdvisor_Title">تنبيه إعدادات التخزين والأداء</sys:String>
 	<sys:String x:Key="LocStorageAdvisor_Subtitle">تحليل ذكي لمسارات المصدر والإخراج والعمل المؤقت قبل بدء العملية.</sys:String>
@@ -1501,6 +1501,19 @@
     <sys:String x:Key="LocLicensing_DiscordSupportUnavailable">رابط Discord غير مضبوط.</sys:String>
     <sys:String x:Key="LocLicensing_OpenDiscordSupportFailed">تعذر فتح Discord.</sys:String>
     <sys:String x:Key="LocLicensing_DiscordSupportOpened">تم فتح Discord.</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_Title">تقرير CHD المنطقي</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_CompressedSize">الحجم المضغوط: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_LogicalSize">الحجم المنطقي: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_StorageSaved">نسبة التوفير: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_HunkSize">حجم Hunk: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_TotalHunks">عدد Hunks: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_DecodedCache">ذاكرة القراءة المؤقتة: {0}</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_CompressedSizeLabel">الحجم المضغوط</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_LogicalSizeLabel">الحجم المنطقي</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_StorageSavedLabel">نسبة التوفير</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_HunkSizeLabel">حجم Hunk</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_TotalHunksLabel">عدد Hunks</sys:String>
+    <sys:String x:Key="LocChdLogicalReport_DecodedCacheLabel">ذاكرة القراءة المؤقتة</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">الوقت: {0}، تمت كتابة: {1}، السرعة: {2}، المتبقي: {3}</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateFormat">{0}/ث</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateCalculating">جار قياس السرعة</sys:String>

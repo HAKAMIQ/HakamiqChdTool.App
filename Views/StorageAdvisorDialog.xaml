@@ -24,7 +24,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Style/AdvancedOptionsWindowStyles.xaml" />
+                <ResourceDictionary Source="/Resources/Style/AdvancedOptionsWindowStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Thickness x:Key="Inset.0.14.0.6">0,14,0,6</Thickness>
