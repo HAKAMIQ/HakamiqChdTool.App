@@ -134,9 +134,9 @@ public partial class MainWindow
         {
             try
             {
-                ChdLogicalProbeResult probe = await new ChdLogicalProbeService()
-                    .ProbeAsync(outputPath, _windowLifetimeCts.Token)
-                    .ConfigureAwait(true);
+                ChdLogicalProbeResult probe = await ChdLogicalProbeReportService
+    .ProbeAsync(outputPath, _windowLifetimeCts.Token)
+    .ConfigureAwait(true);
 
                 ChdLogicalProbeReportPresentation? report = ChdLogicalProbeReportFormatter.BuildPresentation(probe);
                 if (report?.HasMetrics == true)
