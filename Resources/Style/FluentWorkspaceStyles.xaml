@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentBaseStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentButtonStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentCardStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentQueueStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentNavigationStyles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

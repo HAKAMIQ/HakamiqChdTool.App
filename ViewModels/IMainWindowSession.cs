@@ -50,7 +50,7 @@ public interface IMainWindowSession
 
     void OpenExplorerForSelectedQueueItem(TaskQueueItemViewModel? item);
 
-    void OpenOperationLogForQueueItem(TaskQueueItemViewModel? item);
+    Task OpenOperationLogForQueueItemAsync(TaskQueueItemViewModel? item);
 
     bool CanOpenOperationLogTarget(TaskQueueItemViewModel? item);
 

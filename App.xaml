@@ -9,26 +9,26 @@
                 <ResourceDictionary Source="pack://application:,,,/Resources/AppConverters.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/ArabicStrings.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Tokens/Spacing.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Tokens/Radius.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Tokens/Typography.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Tokens/Elevation.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Tokens/Spacing.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Tokens/Radius.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Tokens/Typography.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Tokens/Elevation.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Themes/Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Light.xaml" />
 
                 <ResourceDictionary Source="pack://application:,,,/Resources/FluentSystemIcons.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Style/FluentScrollBarStyles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Style/FluentComboBoxStyles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Themes/Controls/CardStyles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Themes/Controls/ButtonStyles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Themes/Controls/TextStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentScrollBarStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentComboBoxStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/CardStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/ButtonStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/TextStyles.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Style/FluentWorkspaceStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentWorkspaceStyles.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Themes/Fluent/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Fluent/Controls.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Style/FluentInputCheckStyles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Style/QueueItemTemplate.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentInputCheckStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/QueueItemTemplate.xaml" />
 
             </ResourceDictionary.MergedDictionaries>
 

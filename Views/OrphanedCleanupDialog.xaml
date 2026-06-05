@@ -23,7 +23,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Style/AdvancedOptionsWindowStyles.xaml" />
+                <ResourceDictionary Source="../Resources/Style/AdvancedOptionsWindowStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="OrphanedCleanupDialog.RootFrame"

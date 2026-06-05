@@ -1,9 +1,8 @@
-﻿using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Views;
-using HakamiqChdTool.UiPorts.Dispatching;
-using HakamiqChdTool.UiPorts.Resources;
+using HakamiqChdTool.App.Services.WpfShell;
 using Serilog;
 using System;
 using System.Globalization;
