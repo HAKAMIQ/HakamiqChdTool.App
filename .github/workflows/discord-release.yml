@@ -1,0 +1,50 @@
+name: Notify Discord on Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Discord release notification
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          REPO_NAME: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
+
+          payload = {
+              "username": "HAKAMIQ Release Bot",
+              "content": (
+                  "🚀 **تم إطلاق إصدار جديد**\n\n"
+                  f"**المشروع:** {os.environ['REPO_NAME']}\n"
+                  f"**الإصدار:** {os.environ['RELEASE_NAME']}\n"
+                  f"**الوسم:** {os.environ['RELEASE_TAG']}\n\n"
+                  f"🔗 **رابط التحميل والتفاصيل:**\n{os.environ['RELEASE_URL']}"
+              )
+          }
+
+          data = json.dumps(payload).encode("utf-8")
+
+          request = urllib.request.Request(
+              webhook_url,
+              data=data,
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+
+          with urllib.request.urlopen(request) as response:
+              if response.status not in (200, 204):
+                  raise SystemExit(f"Discord webhook failed: {response.status}")
+          PY
