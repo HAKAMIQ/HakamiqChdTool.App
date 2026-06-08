@@ -1,9 +1,12 @@
-name: Notify Discord on Release
+﻿name: Notify Discord on Release
 
 on:
   release:
     types: [published]
-  workflow_dispatch:
+
+concurrency:
+  group: discord-release-${{ github.event.release.id }}
+  cancel-in-progress: true
 
 jobs:
   notify-discord:
@@ -14,6 +17,7 @@ jobs:
       - name: Send Discord release notification
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_RELEASE_ROLE_ID: ${{ secrets.DISCORD_RELEASE_ROLE_ID }}
           RELEASE_NAME: ${{ github.event.release.name }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_URL: ${{ github.event.release.html_url }}
@@ -23,19 +27,27 @@ jobs:
           import json
           import os
           import urllib.request
+          import urllib.error
 
           webhook_url = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
           if not webhook_url:
               raise SystemExit("DISCORD_WEBHOOK_URL secret is missing.")
 
+          if webhook_url.endswith("/github"):
+              raise SystemExit("DISCORD_WEBHOOK_URL must not end with /github when using GitHub Actions.")
+
           repo_name = os.environ["REPO_NAME"]
-          release_name = os.environ.get("RELEASE_NAME") or "اختبار إشعار Discord"
-          release_tag = os.environ.get("RELEASE_TAG") or "manual-test"
+          release_name = os.environ.get("RELEASE_NAME") or "New release"
+          release_tag = os.environ.get("RELEASE_TAG") or ""
           release_url = os.environ.get("RELEASE_URL") or f"https://github.com/{repo_name}/releases"
+          role_id = os.environ.get("DISCORD_RELEASE_ROLE_ID", "").strip()
+
+          mention_line = f"<@&{role_id}>\n" if role_id else ""
 
           payload = {
               "username": "HAKAMIQ Release Bot",
               "content": (
+                  mention_line +
                   "🚀 **تم إطلاق إصدار جديد**\n\n"
                   f"**المشروع:** {repo_name}\n"
                   f"**الإصدار:** {release_name}\n"
@@ -43,20 +55,29 @@ jobs:
                   f"🔗 **رابط التحميل والتفاصيل:**\n{release_url}"
               ),
               "allowed_mentions": {
-                  "parse": []
+                  "parse": [],
+                  "roles": [role_id] if role_id else []
               }
           }
 
-          data = json.dumps(payload).encode("utf-8")
+          data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
 
           request = urllib.request.Request(
-              webhook_url,
+              webhook_url + "?wait=true",
               data=data,
-              headers={"Content-Type": "application/json"},
+              headers={
+                  "Content-Type": "application/json; charset=utf-8",
+                  "User-Agent": "HAKAMIQ-GitHub-Release-Notifier/1.0"
+              },
               method="POST",
           )
 
-          with urllib.request.urlopen(request) as response:
-              if response.status not in (200, 204):
-                  raise SystemExit(f"Discord webhook failed: {response.status}")
+          try:
+              with urllib.request.urlopen(request) as response:
+                  print(f"Discord response status: {response.status}")
+                  if response.status not in (200, 204):
+                      raise SystemExit(f"Discord webhook failed: {response.status}")
+          except urllib.error.HTTPError as error:
+              body = error.read().decode("utf-8", errors="replace")
+              raise SystemExit(f"Discord webhook HTTP error {error.code}: {body}")
           PY
