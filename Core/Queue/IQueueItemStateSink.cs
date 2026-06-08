@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Services.Conversion;
 
 namespace HakamiqChdTool.App.Core.Queue;
 
@@ -27,6 +28,8 @@ public interface IQueueItemStateSink
     void AddCleanupDeletedBytes(long deltaBytes);
 
     void RecordPostConversionArtifacts(PostConversionArtifactResult result);
+
+    void RecordConversionPerformanceReport(ConversionPerformanceReport report);
 
     void ReportWorkingPathPromotion(string newWorkingPath, string newRequestedAction);
 

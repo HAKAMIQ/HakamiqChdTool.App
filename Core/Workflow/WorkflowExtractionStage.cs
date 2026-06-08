@@ -253,7 +253,9 @@ internal sealed class WorkflowExtractionStage(
                 expectedOutputBytes: infoResult.LogicalBytes,
                 allowOverwriteOutput: !settings.SkipExistingOutput,
                 performanceProgress: extractionPerformanceProgress,
-                enableDiskSpaceGuard: settings.EnableDiskSpaceGuard).ConfigureAwait(false);
+                enableDiskSpaceGuard: settings.EnableDiskSpaceGuard,
+                performanceMode: settings.PerformanceMode,
+                priorityMode: settings.ChdmanPriorityMode).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -359,7 +361,8 @@ internal sealed class WorkflowExtractionStage(
                     chdPath,
                     progress: null,
                     onProcessStarted: null,
-                    cancellationToken: cancellationToken).ConfigureAwait(false);
+                    cancellationToken: cancellationToken,
+                    priorityMode: settings.ChdmanPriorityMode).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {

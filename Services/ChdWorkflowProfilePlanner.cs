@@ -1,5 +1,7 @@
-﻿using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
+using HakamiqChdTool.App.Services.PlayStation.BluRayAnalysis;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -493,6 +495,8 @@ public static class ChdWorkflowProfilePlanner
         }
 
         isPlayStation = platformName.Contains("PlayStation 1", StringComparison.OrdinalIgnoreCase)
+            || platformName.Contains("PlayStation 2", StringComparison.OrdinalIgnoreCase)
+            || platformName.Contains("PlayStation 3", StringComparison.OrdinalIgnoreCase)
             || platformName.Contains("Sony PlayStation", StringComparison.OrdinalIgnoreCase);
 
         return isPlayStation
@@ -508,13 +512,14 @@ public static class ChdWorkflowProfilePlanner
     }
 
     private static bool ShouldBlockIsoChdConversion(
+        string inputPath,
         IsoChdmanCreateDiagnostics diagnostics,
         out string messageKey)
     {
         messageKey = string.Empty;
 
         if (diagnostics.FileLengthBytes > DiscMediaKindResolver.SafeDvdIsoUpperBoundBytes
-)
+            && !HasBluRayOrPs3IsoEvidence(inputPath))
         {
             messageKey = NonChdRecommendedCompressionMessageKey;
             return true;
@@ -522,6 +527,22 @@ public static class ChdWorkflowProfilePlanner
 
         return false;
     }
+
+    private static bool HasBluRayOrPs3IsoEvidence(string inputPath)
+    {
+        try
+        {
+            var analyzer = new BluRayIsoAnalysisService();
+            return analyzer.TryAnalyze(inputPath, out BluRayIsoAnalysisResult? result, BluRayAnalysisProfile.Quick)
+                && result is not null
+                && result.LooksLikeBluRayStyleIso;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException or InvalidDataException or OperationCanceledException or OverflowException)
+        {
+            return false;
+        }
+    }
+
     private static bool ContainsAny(string source, params string[] values)
     {
         foreach (string value in values)
@@ -584,7 +605,7 @@ public static class ChdWorkflowProfilePlanner
             return ChdWorkflowProfilePlan.Unsupported(failureMessage, containerKind);
         }
         IsoChdmanCreateDiagnostics diagnostics = IsoChdmanCreateCommandResolver.ResolveCreateCompressionCommandWithDiagnostics(inputPath, isoCreateCommandOverride);
-        if (ShouldBlockIsoChdConversion(diagnostics, out string blockMessageKey))
+        if (ShouldBlockIsoChdConversion(inputPath, diagnostics, out string blockMessageKey))
         {
             return ChdWorkflowProfilePlan.Unsupported(blockMessageKey, containerKind);
         }

@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -77,7 +78,8 @@ public static class ChdmanCliRunner
         string? exclusiveFileAccessPath = null,
         TimeSpan? maxExecutionTime = null,
         string? monitoredOutputPath = null,
-        IProgress<PerformanceSample>? performanceProgress = null)
+        IProgress<PerformanceSample>? performanceProgress = null,
+        ChdmanProcessPriorityMode priorityMode = ChdmanProcessPriorityMode.Quiet)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(executablePath);
         ArgumentNullException.ThrowIfNull(arguments);
@@ -117,7 +119,8 @@ public static class ChdmanCliRunner
                         onProcessStarted,
                         effectiveToken,
                         monitoredOutputPath,
-                        performanceProgress)
+                        performanceProgress,
+                        priorityMode)
                     .ConfigureAwait(false);
 
                 return new Result

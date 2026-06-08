@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HakamiqChdTool.App.Services.Conversion;
 
 namespace HakamiqChdTool.App.Core.Session;
 
@@ -22,4 +23,5 @@ public sealed record SessionRunMetrics(
     int M3uSkippedExistingCount,
     int PostProcessingFailureCount,
     double AvgCompressionPercent,
+    IReadOnlyList<ConversionPerformanceReport> ConversionReports,
     IReadOnlyList<SessionRunFailedItem> FailedItems);

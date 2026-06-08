@@ -45,13 +45,15 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
     private RedumpCatalogChoiceOption? _selectedRedumpPlatformOption;
     private RedumpCatalogChoiceOption? _selectedRedumpArtifactOption;
     private AdvancedProcessorOption? _selectedProcessorOption;
+    private AdvancedProcessorOption? _selectedConcurrentConversionOption;
+    private AdvancedChoiceOption? _selectedPerformanceMode;
+    private AdvancedChoiceOption? _selectedPriorityMode;
     private AdvancedChoiceOption? _selectedCompressionPreset;
     private AdvancedChoiceOption? _selectedHunkPreset;
     private AdvancedChoiceOption? _selectedIsoCreateOverride;
     private bool _useCustomPendingWorkspace;
     private bool _showStorageAdvisorDialog = true;
     private string _pendingWorkspaceCustomRoot = string.Empty;
-    private bool _canUsePerformanceProfiles = true;
     private bool _canUsePostProcessingAutomation = true;
     private bool _canUseRedumpDeepIntegrity = true;
     private bool _canUseRedumpDatabaseImport = true;
@@ -61,6 +63,22 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
     public IReadOnlyList<string> ThemeOptions { get; } = new[] { "Light", "Dark", "Hakamiq" };
 
     public ObservableCollection<AdvancedProcessorOption> ProcessorOptions { get; } = new();
+
+    public ObservableCollection<AdvancedProcessorOption> ConcurrentConversionOptions { get; } = new();
+
+    public ObservableCollection<AdvancedChoiceOption> PerformanceModeOptions { get; } = new()
+    {
+        new("Safe", ArabicUi.Get("LocAdv_PerformanceModeSafeLabel"), ArabicUi.Get("LocAdv_PerformanceModeSafeDescription")),
+        new("Balanced", ArabicUi.Get("LocAdv_PerformanceModeBalancedLabel"), ArabicUi.Get("LocAdv_PerformanceModeBalancedDescription")),
+        new("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription")),
+        new("Manual", ArabicUi.Get("LocAdv_PerformanceModeManualLabel"), ArabicUi.Get("LocAdv_PerformanceModeManualDescription"))
+    };
+
+    public ObservableCollection<AdvancedChoiceOption> PriorityModeOptions { get; } = new()
+    {
+        new("Quiet", ArabicUi.Get("LocAdv_ProcessPriorityQuietLabel"), ArabicUi.Get("LocAdv_ProcessPriorityQuietDescription")),
+        new("Normal", ArabicUi.Get("LocAdv_ProcessPriorityNormalLabel"), ArabicUi.Get("LocAdv_ProcessPriorityNormalDescription"))
+    };
 
     public ObservableCollection<RedumpCatalogChoiceOption> RedumpPlatformOptions { get; } = new();
 
@@ -92,9 +110,13 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
     public AdvancedOptionsViewModel()
     {
         LoadProcessorChoices();
+        LoadConcurrentConversionChoices();
         LoadRedumpCatalogChoices();
 
         _selectedProcessorOption = ProcessorOptions.FirstOrDefault();
+        _selectedConcurrentConversionOption = ConcurrentConversionOptions.FirstOrDefault();
+        _selectedPerformanceMode = PerformanceModeOptions.FirstOrDefault();
+        _selectedPriorityMode = PriorityModeOptions.FirstOrDefault();
         _selectedCompressionPreset = CompressionPresetOptions.FirstOrDefault();
         _selectedHunkPreset = HunkPresetOptions.FirstOrDefault();
         _selectedIsoCreateOverride = IsoCreateOverrideOptions.FirstOrDefault();
@@ -327,11 +349,6 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
             bool normalized = value && CanUseRedumpDeepIntegrity;
             if (SetProperty(ref _enableDeepIntegrityCheck, normalized))
             {
-                if (!normalized)
-                {
-                    ApplyStandardNamingBasedOnHash = false;
-                }
-
                 OnPropertyChanged(nameof(CanEnableStandardNaming));
                 OnPropertyChanged(nameof(CanSave));
             }
@@ -343,7 +360,7 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
         get => _applyStandardNamingBasedOnHash;
         set
         {
-            bool normalized = CanEnableStandardNaming && value;
+            bool normalized = CanUseStandardNamingSuggestion && value;
             SetProperty(ref _applyStandardNamingBasedOnHash, normalized);
         }
     }
@@ -419,11 +436,6 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
         {
             if (SetProperty(ref _isDatabaseAvailable, value))
             {
-                if (!value)
-                {
-                    ApplyStandardNamingBasedOnHash = false;
-                }
-
                 OnPropertyChanged(nameof(CanEnableDeepIntegrityCheck));
                 OnPropertyChanged(nameof(CanEnableStandardNaming));
                 OnPropertyChanged(nameof(IntegrityFeatureOpacity));
@@ -459,28 +471,7 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
 
     public double IntegrityFeatureOpacity => IsDatabaseAvailable ? 1.0 : 0.55;
 
-    public bool CanEnableStandardNaming =>
-        CanUseStandardNamingSuggestion
-        && CanUseRedumpDeepIntegrity
-        && IsDatabaseAvailable
-        && EnableDeepIntegrityCheck;
-
-    public bool CanUsePerformanceProfiles
-    {
-        get => _canUsePerformanceProfiles;
-        set
-        {
-            if (SetProperty(ref _canUsePerformanceProfiles, value))
-            {
-                if (!value)
-                {
-                    ApplyDefaultEngineSettings();
-                }
-
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
+    public bool CanEnableStandardNaming => CanUseStandardNamingSuggestion;
 
     public bool CanUsePostProcessingAutomation
     {
@@ -584,6 +575,12 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
 
     public string ProcessorHint => ArabicUi.Get("LocAdv_ProcessorHint");
 
+    public string ConcurrentConversionDescription => BuildConcurrentConversionDescription();
+
+    public string PerformanceModeDescription => SelectedPerformanceMode?.Description ?? string.Empty;
+
+    public string PriorityModeDescription => SelectedPriorityMode?.Description ?? string.Empty;
+
     public string CompressionPresetDescription => SelectedCompressionPreset?.Description ?? string.Empty;
 
     public string HunkPresetDescription => SelectedHunkPreset?.Description ?? string.Empty;
@@ -639,6 +636,47 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
             {
                 ValidateProperty(SelectedProcessorValueValidationProxy, nameof(SelectedProcessorValueValidationProxy));
                 OnPropertyChanged(nameof(ProcessorSelectionDescription));
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
+    }
+
+
+    public AdvancedProcessorOption? SelectedConcurrentConversionOption
+    {
+        get => _selectedConcurrentConversionOption;
+        set
+        {
+            if (SetProperty(ref _selectedConcurrentConversionOption, value))
+            {
+                ValidateProperty(SelectedConcurrentConversionValueValidationProxy, nameof(SelectedConcurrentConversionValueValidationProxy));
+                OnPropertyChanged(nameof(ConcurrentConversionDescription));
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
+    }
+
+    public AdvancedChoiceOption? SelectedPerformanceMode
+    {
+        get => _selectedPerformanceMode;
+        set
+        {
+            if (SetProperty(ref _selectedPerformanceMode, value))
+            {
+                OnPropertyChanged(nameof(PerformanceModeDescription));
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
+    }
+
+    public AdvancedChoiceOption? SelectedPriorityMode
+    {
+        get => _selectedPriorityMode;
+        set
+        {
+            if (SetProperty(ref _selectedPriorityMode, value))
+            {
+                OnPropertyChanged(nameof(PriorityModeDescription));
                 OnPropertyChanged(nameof(CanSave));
             }
         }
@@ -736,6 +774,9 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
     [CustomValidation(typeof(AdvancedOptionsViewModel), nameof(ValidateSelectedProcessorValue))]
     public int SelectedProcessorValueValidationProxy => SelectedProcessorOption?.Value ?? 0;
 
+    [CustomValidation(typeof(AdvancedOptionsViewModel), nameof(ValidateSelectedConcurrentConversionValue))]
+    public int SelectedConcurrentConversionValueValidationProxy => SelectedConcurrentConversionOption?.Value ?? AppSettings.DefaultMaxConcurrentConversions;
+
     private void NotifySaveStateChanged()
     {
         OnPropertyChanged(nameof(HasPendingChanges));
@@ -782,6 +823,20 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
                 ? iso
                 : IsoCreateCommandOverride.Auto;
 
+        ConversionPerformanceMode performanceMode = Enum.TryParse<ConversionPerformanceMode>(
+            SelectedPerformanceMode?.Key,
+            true,
+            out var performance)
+                ? performance
+                : ConversionPerformanceMode.Safe;
+
+        ChdmanProcessPriorityMode priorityMode = Enum.TryParse<ChdmanProcessPriorityMode>(
+            SelectedPriorityMode?.Key,
+            true,
+            out var priority)
+                ? priority
+                : ChdmanProcessPriorityMode.Quiet;
+
         bool useCustomPendingWorkspace = UseCustomPendingWorkspace;
         PendingWorkspaceMode pendingWorkspaceMode = useCustomPendingWorkspace
             ? PendingWorkspaceMode.Custom
@@ -821,6 +876,9 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
             && EnableRedumpAutoSync == snapshot.EnableRedumpAutoSync
             && StringEquals(_redumpLastSyncedUtc ?? string.Empty, snapshot.RedumpLastSyncedUtc)
             && (SelectedProcessorOption?.Value ?? 0) == snapshot.MaxProcessorCount
+            && (SelectedConcurrentConversionOption?.Value ?? AppSettings.DefaultMaxConcurrentConversions) == AppSettings.NormalizeMaxConcurrentConversions(snapshot.MaxConcurrentConversions)
+            && performanceMode == snapshot.PerformanceMode
+            && priorityMode == snapshot.ChdmanPriorityMode
             && StringEquals(compressionCodecs, snapshot.CompressionCodecs)
             && hunkSizeBytes == snapshot.HunkSizeBytes
             && isoCreateOverride == snapshot.IsoCreateCommandOverride;
@@ -917,79 +975,4 @@ public sealed partial class AdvancedOptionsViewModel : ObservableValidator
                && !string.IsNullOrWhiteSpace(uri.Host)
                && string.IsNullOrEmpty(uri.UserInfo);
     }
-}
-
-public sealed class RedumpCatalogChoiceOption
-{
-    public RedumpCatalogChoiceOption(
-        string key,
-        string labelKey,
-        string descriptionKey,
-        string? url = null,
-        bool isLegalAdvancedArtifact = false,
-        string? technicalDescription = null)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(key);
-        ArgumentException.ThrowIfNullOrWhiteSpace(labelKey);
-        ArgumentException.ThrowIfNullOrWhiteSpace(descriptionKey);
-
-        Key = key.Trim();
-        LabelKey = labelKey.Trim();
-        DescriptionKey = descriptionKey.Trim();
-        Url = string.IsNullOrWhiteSpace(url) ? null : url.Trim();
-        IsLegalAdvancedArtifact = isLegalAdvancedArtifact;
-        TechnicalDescription = string.IsNullOrWhiteSpace(technicalDescription) ? null : technicalDescription.Trim();
-    }
-
-    public string Key { get; }
-
-    public string LabelKey { get; }
-
-    public string DescriptionKey { get; }
-
-    public string Label => ArabicUi.Get(LabelKey);
-
-    public string Description => string.IsNullOrWhiteSpace(TechnicalDescription)
-        ? ArabicUi.Get(DescriptionKey)
-        : TechnicalDescription;
-
-    public string? Url { get; }
-
-    public bool IsLegalAdvancedArtifact { get; }
-
-    private string? TechnicalDescription { get; }
-
-    public static RedumpCatalogChoiceOption FromCatalogOption(RedumpCatalogOption option)
-    {
-        ArgumentNullException.ThrowIfNull(option);
-
-        return new RedumpCatalogChoiceOption(
-            option.Key,
-            option.LabelKey,
-            option.DescriptionKey,
-            option.Url,
-            option.IsLegalAdvancedArtifact,
-            option.TechnicalDescription);
-    }
-
-    public override string ToString()
-    {
-        return Label;
-    }
-}
-
-public sealed class AdvancedProcessorOption(int value, string label)
-{
-    public int Value { get; } = value;
-
-    public string Label { get; } = label;
-}
-
-public sealed class AdvancedChoiceOption(string key, string label, string description)
-{
-    public string Key { get; } = key;
-
-    public string Label { get; } = label;
-
-    public string Description { get; } = description;
 }

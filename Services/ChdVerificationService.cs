@@ -1,7 +1,9 @@
+using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -27,8 +29,10 @@ public sealed class ChdVerificationService
         string chdFilePath,
         IProgress<int>? progress = null,
         Action<int>? onProcessStarted = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        ChdmanProcessPriorityMode priorityMode = ChdmanProcessPriorityMode.Quiet)
     {
+        var stopwatch = Stopwatch.StartNew();
         string safeInputName = BuildSafeInputName(chdFilePath);
         string logsDirectory = BuildLogsDirectory();
         string logPath = Path.Combine(logsDirectory, $"verify_{DateTime.Now:yyyyMMdd_HHmmss}_{safeInputName}.log");
@@ -220,7 +224,8 @@ public sealed class ChdVerificationService
                     progress,
                     onProcessStarted,
                     cancellationToken,
-                    exclusiveFileAccessPath: resolvedChdPath)
+                    exclusiveFileAccessPath: resolvedChdPath,
+                    priorityMode: priorityMode)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -238,7 +243,8 @@ public sealed class ChdVerificationService
                     error: string.Empty,
                     message: CancelledMessageKey,
                     logPath: logPath,
-                    exception: null)
+                    exception: null,
+                    duration: stopwatch.Elapsed)
                 .ConfigureAwait(false);
         }
         catch (Exception ex) when (IsToolStartException(ex))
@@ -256,7 +262,8 @@ public sealed class ChdVerificationService
                     error: ToolStartFailedMessageKey,
                     message: ToolStartFailedMessageKey,
                     logPath: logPath,
-                    exception: ex)
+                    exception: ex,
+                    duration: stopwatch.Elapsed)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -274,7 +281,8 @@ public sealed class ChdVerificationService
                     error: ToolExecutionFailedMessageKey,
                     message: ToolExecutionFailedMessageKey,
                     logPath: logPath,
-                    exception: ex)
+                    exception: ex,
+                    duration: stopwatch.Elapsed)
                 .ConfigureAwait(false);
         }
 
@@ -293,7 +301,8 @@ public sealed class ChdVerificationService
                     error: run.StandardError,
                     message: CancelledMessageKey,
                     logPath: logPath,
-                    exception: null)
+                    exception: null,
+                    duration: stopwatch.Elapsed)
                 .ConfigureAwait(false);
         }
 
@@ -316,7 +325,8 @@ public sealed class ChdVerificationService
                     error: error,
                     message: ValidMessageKey,
                     logPath: logPath,
-                    exception: null)
+                    exception: null,
+                    duration: stopwatch.Elapsed)
                 .ConfigureAwait(false);
         }
 
@@ -337,7 +347,8 @@ public sealed class ChdVerificationService
                 error: error,
                 message: InvalidMessageKey,
                 logPath: logPath,
-                exception: null)
+                exception: null,
+                duration: stopwatch.Elapsed)
             .ConfigureAwait(false);
     }
 
@@ -352,7 +363,8 @@ public sealed class ChdVerificationService
         string error,
         string message,
         string logPath,
-        Exception? exception)
+        Exception? exception,
+        TimeSpan duration = default)
     {
         await WriteVerificationLogAsync(
                 logPath,
@@ -375,7 +387,8 @@ public sealed class ChdVerificationService
             Output = output,
             Error = error,
             Message = message,
-            LogPath = logPath
+            LogPath = logPath,
+            Duration = duration
         };
     }
 

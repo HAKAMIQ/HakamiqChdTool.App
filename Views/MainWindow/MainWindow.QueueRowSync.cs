@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Core.Queue;
+﻿using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
@@ -258,7 +258,7 @@ public partial class MainWindow
         if (item.UsesQuickProfile ||
             !_settings.EnableDeepIntegrityCheck ||
             !_settings.ApplyStandardNamingBasedOnHash ||
-            !_featureAccessService.CanUseFeature(PremiumFeature.StandardNamingSuggestion))
+            !_appFeatureService.IsEnabled(AppFeature.StandardNamingSuggestion))
         {
             return Task.CompletedTask;
         }

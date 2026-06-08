@@ -1,4 +1,4 @@
-<Window x:Class="HakamiqChdTool.App.Views.StorageAdvisorDialog"
+﻿<Window x:Class="HakamiqChdTool.App.Views.StorageAdvisorDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
@@ -244,7 +244,7 @@
                                 <TextBlock Text="{DynamicResource LocStorageAdvisor_SummaryTitle}"
                                            Style="{StaticResource StorageAdvisor.SectionTitleText}" />
                                 <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
-                                           Text="{DynamicResource LocStorageAdvisor_PremiumSummary}"
+                                           Text="{DynamicResource LocStorageAdvisor_Summary}"
                                            Style="{StaticResource StorageAdvisor.BodyText}" />
                                 <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
                                            Text="{DynamicResource LocStorageAdvisor_SafetyNote}"

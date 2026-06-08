@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Models;
+﻿using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -15,9 +15,9 @@ public interface IAppSessionUiPort
 
     bool IsQueueInteractionLocked { get; }
 
-    bool CanUsePremiumFeature(PremiumFeature feature);
+    bool CanUseAppFeature(AppFeature feature);
 
-    bool RequirePremiumFeature(PremiumFeature feature);
+    bool RequireAppFeature(AppFeature feature);
 
     QueueExecutionProfile GetSelectedInputExecutionProfile();
 

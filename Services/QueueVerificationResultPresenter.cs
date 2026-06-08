@@ -85,6 +85,16 @@ public static class QueueVerificationResultPresenter
             return ArabicUi.Get("LocQueue_VerificationBadgeMismatch");
         }
 
+        if (integrityState == IntegrityValidationState.NoRedumpMatch)
+        {
+            return ArabicUi.Get("LocDeepHash_StatusModified");
+        }
+
+        if (integrityState is IntegrityValidationState.NoDat or IntegrityValidationState.NoDirectRedump)
+        {
+            return ArabicUi.Get("LocDeepHash_StatusNoDatabase");
+        }
+
         if (string.Equals(finalResult, TaskFinalResultCodes.FailedVerify, StringComparison.Ordinal)
             || integrityState == IntegrityValidationState.Unsupported)
         {
@@ -176,6 +186,7 @@ public static class QueueVerificationResultPresenter
         {
             IntegrityValidationState.Verified => ArabicUi.Get("LocQueue_VerificationResultScopeRedumpMatched"),
             IntegrityValidationState.Failed or IntegrityValidationState.Error => ArabicUi.Get("LocQueue_VerificationResultScopeMismatch"),
+            IntegrityValidationState.NoRedumpMatch => ArabicUi.Get("LocQueue_VerificationResultScopeNoRedumpMatch"),
             IntegrityValidationState.NoDat or IntegrityValidationState.NoDirectRedump => ArabicUi.Get("LocQueue_VerificationResultScopeNoDat"),
             IntegrityValidationState.Unsupported => ArabicUi.Get("LocQueue_VerificationResultScopeUnsupported"),
             _ => ArabicUi.Get("LocQueue_VerificationResultScopeInternalOnly")

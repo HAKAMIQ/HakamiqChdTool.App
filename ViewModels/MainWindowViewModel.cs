@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using HakamiqChdTool.App.Coordination;
 using HakamiqChdTool.App.Localization;
@@ -45,20 +45,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string queueActivityCardMessage = string.Empty;
 
-    [ObservableProperty]
-    private string licenseEditionText = string.Empty;
-
-    [ObservableProperty]
-    private string licenseManagementButtonText = string.Empty;
-
-    [ObservableProperty]
-    private string licenseDetailText = string.Empty;
-
-    [ObservableProperty]
-    private string licenseIdText = string.Empty;
-
-    [ObservableProperty]
-    private bool isLicenseIdVisible;
 
     public MainWindowViewModel(
         IMainWindowSession session,
@@ -159,13 +145,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             () => _session.OpenAbout(),
             () => !_session.IsQueueInteractionLocked);
 
-        OpenFeatureAccessInfoCommand = new RelayCommand(
-            () => _session.OpenFeatureAccessInfo(),
-            () => !_session.IsQueueInteractionLocked);
-
-        RefreshFeatureAccessCommand = new RelayCommand(
-            () => _session.RefreshFeatureAccess(),
-            () => !_session.IsQueueInteractionLocked);
 
         RetryQueueItemCommand = new RelayCommand<TaskQueueItemViewModel?>(
             item => _session.RetryQueueItem(item),
@@ -215,8 +194,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     public IAsyncRelayCommand ScanFolderQuickExtractCommand { get; }
     public IRelayCommand OpenAdvancedOptionsCommand { get; }
     public IRelayCommand OpenAboutCommand { get; }
-    public IRelayCommand OpenFeatureAccessInfoCommand { get; }
-    public IRelayCommand RefreshFeatureAccessCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> RetryQueueItemCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> RemoveQueueItemCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> CancelQueueJobCommand { get; }
@@ -258,21 +235,11 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         CancelQueueJobCommand.NotifyCanExecuteChanged();
         OpenAdvancedOptionsCommand.NotifyCanExecuteChanged();
         OpenAboutCommand.NotifyCanExecuteChanged();
-        OpenFeatureAccessInfoCommand.NotifyCanExecuteChanged();
-        RefreshFeatureAccessCommand.NotifyCanExecuteChanged();
         SelectFilesCommand.NotifyCanExecuteChanged();
         CancelAddingFilesCommand.NotifyCanExecuteChanged();
         ClearQueueCommand.NotifyCanExecuteChanged();
     }
 
-    public void RefreshFeatureAccessDisplay()
-    {
-        LicenseEditionText = string.Empty;
-        LicenseManagementButtonText = string.Empty;
-        LicenseDetailText = string.Empty;
-        LicenseIdText = string.Empty;
-        IsLicenseIdVisible = false;
-    }
 
     internal void AttachQueueContextCommands(QueueContextMenuViewModel queueContext)
     {

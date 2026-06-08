@@ -203,7 +203,11 @@ public sealed partial class TaskQueueItemViewModel
         {
             TaskFinalResultCodes.Healthy or TaskFinalResultCodes.Moved or TaskFinalResultCodes.Extracted =>
                 (ResolveBrush("SuccessBadgeBrush", 46, 46, 46), ResolveBrush("SuccessBadgeForegroundBrush", 207, 207, 207)),
-            TaskFinalResultCodes.Failed or TaskFinalResultCodes.FailedConvert or TaskFinalResultCodes.FailedExtract or TaskFinalResultCodes.FailedVerify =>
+            TaskFinalResultCodes.Failed
+                or TaskFinalResultCodes.FailedConvert
+                or TaskFinalResultCodes.FailedExtract
+                or TaskFinalResultCodes.FailedVerify
+                or TaskFinalResultCodes.SourceUnreadable =>
                 (ResolveBrush("ErrorBadgeBrush", 253, 238, 238), ResolveBrush("ErrorBadgeForegroundBrush", 196, 43, 28)),
             TaskFinalResultCodes.PasswordRequired =>
                 (ResolveBrush("WarningBadgeBrush", 255, 244, 229), ResolveBrush("WarningBadgeForegroundBrush", 161, 92, 0)),

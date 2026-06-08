@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -9,6 +9,7 @@ internal static class DiscMediaKindResolver
     private const string DiscProbePspStructureReasonKey = "LocDiscProbe_PspStructure";
     private const string DiscProbePs2SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs2Boot2";
     private const string DiscProbePs1SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs1Hint";
+    private const string DiscProbePs3BluRayStructureReasonKey = "LocDiscProbe_Ps3BluRayStructure";
 
     public static DiscMediaKind ResolveIsoMediaKind(
         string path,
@@ -115,7 +116,7 @@ internal static class DiscMediaKindResolver
         }
 
         if (string.Equals(reason, DiscProbePspStructureReasonKey, StringComparison.Ordinal)
-)
+            || string.Equals(reason, DiscProbePs3BluRayStructureReasonKey, StringComparison.Ordinal))
         {
             return DiscMediaKind.DvdRom;
         }

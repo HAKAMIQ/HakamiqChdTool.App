@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Localization;
+﻿using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using System;
 using System.Collections.Generic;
@@ -129,7 +129,6 @@ public static class AboutInfoFactory
         string resourceKey = key switch
         {
             "website" => "LocAbout_Link_Website",
-            "store" => "LocAbout_Link_Store",
             "github" => "LocAbout_Link_GitHub",
             "youtube" => "LocAbout_Link_YouTube",
             "telegram" => "LocAbout_Link_Telegram",

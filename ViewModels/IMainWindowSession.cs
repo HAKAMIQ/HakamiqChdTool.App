@@ -1,5 +1,5 @@
 ﻿using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Services.Licensing;
+using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,9 +25,9 @@ public interface IMainWindowSession
 
     AppSettings GetSettings();
 
-    IFeatureAccessService FeatureAccess { get; }
+    IAppFeatureService AppFeatures { get; }
 
-    bool RequirePremiumFeature(PremiumFeature feature);
+    bool RequireAppFeature(AppFeature feature);
 
     (bool IsCompliant, string SuggestedStandardName) AnalyzeNamingForPath(string sourcePath);
 
@@ -80,7 +80,4 @@ public interface IMainWindowSession
 
     void OpenAbout();
 
-    void OpenFeatureAccessInfo();
-
-    void RefreshFeatureAccess();
 }

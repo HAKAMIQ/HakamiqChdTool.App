@@ -106,11 +106,6 @@ internal sealed class MainWindowStartupCoordinator
         return Task.Run(
             async () =>
             {
-                await SetFooterStatusResourceAsync(
-                        "LocRedumpAutoSync_StartedFooter",
-                        cancellationToken)
-                    .ConfigureAwait(false);
-
                 RedumpAutoSyncStartupResult result = await _redumpAutoSync
                     .TrySyncAsync(_settings, cancellationToken)
                     .ConfigureAwait(false);
@@ -136,10 +131,9 @@ internal sealed class MainWindowStartupCoordinator
                 }
                 else
                 {
-                    await SetFooterStatusResourceAsync(
-                            "LocRedumpAutoSync_FailedFooter",
-                            cancellationToken)
-                        .ConfigureAwait(false);
+                    Log.Debug(
+                        "Redump startup auto-sync did not complete. MessageKey={MessageKey}",
+                        result.MessageKey);
                 }
             },
             cancellationToken);

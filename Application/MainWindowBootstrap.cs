@@ -1,7 +1,7 @@
-using HakamiqChdTool.App.Core.Workflow;
+﻿using HakamiqChdTool.App.Core.Workflow;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Licensing;
+using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.PostProcessing;
 using HakamiqChdTool.App.Services.WpfShell;
 using Serilog;
@@ -21,8 +21,7 @@ internal sealed class MainWindowBootstrap
         IChdWorkflowOrchestrator workflowOrchestrator,
         IExternalLinkService externalLinkService,
         PostConversionArtifactService postConversionArtifacts,
-        ILicenseService licenseService,
-        IFeatureAccessService featureAccessService,
+        IAppFeatureService appFeatureService,
         OrphanedWorkItemScanner orphanedScanner,
         OrphanedWorkItemCleanupService orphanedCleanup,
         IWindowActivationService windowActivationService)
@@ -35,8 +34,7 @@ internal sealed class MainWindowBootstrap
         ArgumentNullException.ThrowIfNull(workflowOrchestrator);
         ArgumentNullException.ThrowIfNull(externalLinkService);
         ArgumentNullException.ThrowIfNull(postConversionArtifacts);
-        ArgumentNullException.ThrowIfNull(licenseService);
-        ArgumentNullException.ThrowIfNull(featureAccessService);
+        ArgumentNullException.ThrowIfNull(appFeatureService);
         ArgumentNullException.ThrowIfNull(orphanedScanner);
         ArgumentNullException.ThrowIfNull(orphanedCleanup);
         ArgumentNullException.ThrowIfNull(windowActivationService);
@@ -49,8 +47,7 @@ internal sealed class MainWindowBootstrap
         WorkflowOrchestrator = workflowOrchestrator;
         ExternalLinkService = externalLinkService;
         PostConversionArtifacts = postConversionArtifacts;
-        LicenseService = licenseService;
-        FeatureAccessService = featureAccessService;
+        AppFeatureService = appFeatureService;
         OrphanedScanner = orphanedScanner;
         OrphanedCleanup = orphanedCleanup;
         WindowActivationService = windowActivationService;
@@ -72,9 +69,8 @@ internal sealed class MainWindowBootstrap
 
     public PostConversionArtifactService PostConversionArtifacts { get; }
 
-    public ILicenseService LicenseService { get; }
 
-    public IFeatureAccessService FeatureAccessService { get; }
+    public IAppFeatureService AppFeatureService { get; }
 
     public OrphanedWorkItemScanner OrphanedScanner { get; }
 
@@ -111,8 +107,7 @@ internal sealed class MainWindowBootstrap
         PostConversionArtifactService postConversionArtifacts = new();
         IChdWorkflowOrchestrator workflowOrchestrator = CreateWorkflowOrchestrator(postConversionArtifacts);
         IExternalLinkService externalLinkService = new ExternalLinkService();
-        ILicenseService licenseService = new LicenseService();
-        IFeatureAccessService featureAccessService = new FeatureAccessService(licenseService);
+        IAppFeatureService appFeatureService = new AppFeatureService();
         OrphanedWorkItemScanner orphanedScanner = new(settings);
         OrphanedWorkItemCleanupService orphanedCleanup = new(settings);
         IWindowActivationService windowActivationService = new WpfWindowActivationService();
@@ -126,8 +121,7 @@ internal sealed class MainWindowBootstrap
             workflowOrchestrator,
             externalLinkService,
             postConversionArtifacts,
-            licenseService,
-            featureAccessService,
+            appFeatureService,
             orphanedScanner,
             orphanedCleanup,
             windowActivationService);

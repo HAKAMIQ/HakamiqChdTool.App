@@ -131,7 +131,12 @@ public sealed partial class TaskQueueItemViewModel
             {
                 TaskFinalResultCodes.Healthy or TaskFinalResultCodes.Moved or TaskFinalResultCodes.Extracted => "\uE73E",
                 TaskFinalResultCodes.SkippedExists => "\uE7E8",
-                TaskFinalResultCodes.Failed or TaskFinalResultCodes.FailedConvert or TaskFinalResultCodes.FailedVerify or TaskFinalResultCodes.FailedExtract or TaskFinalResultCodes.Cancelled => "\uE711",
+                TaskFinalResultCodes.Failed
+                    or TaskFinalResultCodes.FailedConvert
+                    or TaskFinalResultCodes.FailedVerify
+                    or TaskFinalResultCodes.FailedExtract
+                    or TaskFinalResultCodes.SourceUnreadable
+                    or TaskFinalResultCodes.Cancelled => "\uE711",
                 TaskFinalResultCodes.PasswordRequired => "\uE7BA",
                 TaskFinalResultCodes.Unsupported => "\uE711",
                 _ => "\uE946"
@@ -145,7 +150,7 @@ public sealed partial class TaskQueueItemViewModel
         IntegrityValidationState.Validating => "\uE895",
         IntegrityValidationState.Verified => "\uE73E",
         IntegrityValidationState.Failed or IntegrityValidationState.Error => "\uE711",
-        IntegrityValidationState.NoDat => "\uE946",
+        IntegrityValidationState.NoDat or IntegrityValidationState.NoRedumpMatch => "\uE946",
         IntegrityValidationState.Unsupported => "\uE711",
         IntegrityValidationState.NoDirectRedump => "\uE946",
         _ => "\u2014"
@@ -155,7 +160,7 @@ public sealed partial class TaskQueueItemViewModel
     {
         IntegrityValidationState.Verified => ResolveBrush("SuccessBadgeForegroundBrush", 207, 207, 207),
         IntegrityValidationState.Failed or IntegrityValidationState.Error => ResolveBrush("ErrorBadgeForegroundBrush", 196, 43, 28),
-        IntegrityValidationState.NoDat => ResolveBrush("WarningBadgeForegroundBrush", 161, 92, 0),
+        IntegrityValidationState.NoDat or IntegrityValidationState.NoRedumpMatch => ResolveBrush("WarningBadgeForegroundBrush", 161, 92, 0),
         IntegrityValidationState.Unsupported => ResolveBrush("SecondaryTextBrush", 107, 114, 128),
         IntegrityValidationState.NoDirectRedump => ResolveBrush("WarningBadgeForegroundBrush", 161, 92, 0),
         IntegrityValidationState.Validating => ResolveBrush("AccentBrush", 0, 120, 212),
@@ -244,7 +249,11 @@ public sealed partial class TaskQueueItemViewModel
             TaskFinalResultCodes.SkippedExists or TaskFinalResultCodes.Unsupported => TaskQueueStateCodes.Skipped,
             TaskFinalResultCodes.Cancelled => TaskQueueStateCodes.Cancelled,
             TaskFinalResultCodes.PasswordRequired => TaskQueueStateCodes.PasswordRequired,
-            TaskFinalResultCodes.Failed or TaskFinalResultCodes.FailedConvert or TaskFinalResultCodes.FailedVerify or TaskFinalResultCodes.FailedExtract => TaskQueueStateCodes.Failed,
+            TaskFinalResultCodes.Failed
+                or TaskFinalResultCodes.FailedConvert
+                or TaskFinalResultCodes.FailedVerify
+                or TaskFinalResultCodes.FailedExtract
+                or TaskFinalResultCodes.SourceUnreadable => TaskQueueStateCodes.Failed,
             _ => NormalizeQueueStateCode(_currentState)
         };
     }
@@ -262,6 +271,7 @@ public sealed partial class TaskQueueItemViewModel
             TaskFinalResultCodes.Cancelled => ArabicUi.Get("LocStatus_UserCancelled"),
             TaskFinalResultCodes.PasswordRequired => ArabicUi.Get("LocState_PasswordRequired"),
             TaskFinalResultCodes.Unsupported => ArabicUi.Get("LocStatus_FileTypeUnsupportedStage"),
+            TaskFinalResultCodes.SourceUnreadable => ArabicUi.Get("LocStatus_SourceUnreadableBlocked"),
             TaskFinalResultCodes.Failed
                 or TaskFinalResultCodes.FailedConvert
                 or TaskFinalResultCodes.FailedVerify
@@ -313,6 +323,8 @@ public sealed partial class TaskQueueItemViewModel
             TaskFinalResultCodes.Healthy or TaskFinalResultCodes.Moved => BuildSuccessfulCompletionDetail(),
             TaskFinalResultCodes.Extracted => ArabicUi.Get("LocStatus_ExtractionCompletedSuccess"),
             TaskFinalResultCodes.Cancelled => ArabicUi.Get("LocStatus_UserCancelled"),
+            TaskFinalResultCodes.SourceUnreadable =>
+                string.IsNullOrWhiteSpace(StatusDetail) ? ArabicUi.Get("LocStatus_SourceUnreadableBlocked") : ArabicUi.QueueCardArabicOnly(ChdmanOutputParser.StripPercentTokensForNarrative(StatusDetail)),
             TaskFinalResultCodes.Failed or TaskFinalResultCodes.FailedConvert or TaskFinalResultCodes.FailedVerify or TaskFinalResultCodes.FailedExtract =>
                 string.IsNullOrWhiteSpace(StatusDetail) ? ArabicUi.Get("LocRowPhase_Failed") : ArabicUi.QueueCardArabicOnly(ChdmanOutputParser.StripPercentTokensForNarrative(StatusDetail)),
             TaskFinalResultCodes.PasswordRequired =>

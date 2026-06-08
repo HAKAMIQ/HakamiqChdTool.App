@@ -1,5 +1,6 @@
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.Power;
 using Serilog;
 
 namespace HakamiqChdTool.App.Core.Workflow;
@@ -14,19 +15,23 @@ internal sealed class WorkflowVerificationStage
 
     private readonly ChdInfoService _chdInfo;
     private readonly ChdVerificationService _verify;
+    private readonly IConversionPowerGuard _powerGuard;
     private readonly ILogger _log;
 
     public WorkflowVerificationStage(
         ChdInfoService chdInfo,
         ChdVerificationService verify,
+        IConversionPowerGuard powerGuard,
         ILogger log)
     {
         ArgumentNullException.ThrowIfNull(chdInfo);
         ArgumentNullException.ThrowIfNull(verify);
+        ArgumentNullException.ThrowIfNull(powerGuard);
         ArgumentNullException.ThrowIfNull(log);
 
         _chdInfo = chdInfo;
         _verify = verify;
+        _powerGuard = powerGuard;
         _log = log;
     }
 
@@ -105,12 +110,22 @@ internal sealed class WorkflowVerificationStage
             WorkflowPathUtilities.RaiseProgress(request, p);
         });
 
-        ChdVerificationResult verificationResult = await _verify.VerifyAsync(
-            verifyChdmanPath,
-            chdPath,
-            verifyProgress,
-            onProcessStarted: null,
-            cancellationToken: cancellationToken).ConfigureAwait(false);
+        ChdVerificationResult verificationResult;
+        _powerGuard.BeginCriticalConversionSession();
+        try
+        {
+            verificationResult = await _verify.VerifyAsync(
+                verifyChdmanPath,
+                chdPath,
+                verifyProgress,
+                onProcessStarted: null,
+                cancellationToken: cancellationToken,
+                priorityMode: ctx.Settings.ChdmanPriorityMode).ConfigureAwait(false);
+        }
+        finally
+        {
+            _powerGuard.EndCriticalConversionSession();
+        }
 
         if (!string.IsNullOrWhiteSpace(verificationResult.LogPath))
         {

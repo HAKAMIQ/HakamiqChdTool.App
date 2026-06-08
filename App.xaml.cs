@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Core.Queue;
+﻿using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
@@ -83,8 +83,8 @@ public partial class App : WpfApplication
             bootstrap.WorkflowOrchestrator,
             () => Settings,
             () => bootstrap.ChdmanPathResolver.ResolvePath(Settings),
-            maxConcurrentItems: 1,
-            canUsePremiumFeature: bootstrap.FeatureAccessService.CanUseFeature);
+            maxConcurrentItems: AppSettings.NormalizeMaxConcurrentConversions(Settings.MaxConcurrentConversions),
+            canUseAppFeature: bootstrap.AppFeatureService.IsEnabled);
     }
 
     protected override void OnExit(WpfExitEventArgs e)

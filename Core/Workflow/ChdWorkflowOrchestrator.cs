@@ -41,12 +41,13 @@ public sealed partial class ChdWorkflowOrchestrator : IChdWorkflowOrchestrator
         CleanupService cleanup = new();
 
         WorkflowPostProcessingStage postProcessingStage = new(postConversionArtifacts, log);
+        var powerGuard = CreatePowerGuard(log);
 
         _inputPreparation = new WorkflowInputPreparationService(archive, log);
         _preflightStage = new WorkflowPreflightStage(log);
-        _conversionStage = new WorkflowConversionStage(conversion, verify, postProcessingStage, log);
+        _conversionStage = CreateConversionStage(conversion, verify, postProcessingStage, powerGuard, log);
         _extractionStage = new WorkflowExtractionStage(chdInfo, conversion, verify, log);
-        _verificationStage = new WorkflowVerificationStage(chdInfo, verify, log);
+        _verificationStage = new WorkflowVerificationStage(chdInfo, verify, powerGuard, log);
         _cleanupStage = new WorkflowCleanupStage(cleanup, log);
     }
 

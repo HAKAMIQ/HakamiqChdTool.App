@@ -8,6 +8,8 @@ The project is designed for users who manage their own legally obtained disc ima
 
 Current public release: **Windows x64 WPF desktop release**.
 
+This is a single public build. It does not include product activation, license keys, store gates, or paid feature restrictions.
+
 The latest release is available from GitHub Releases in two packages:
 
 * `self-contained`: complete package for direct use.

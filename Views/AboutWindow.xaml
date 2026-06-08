@@ -130,6 +130,7 @@
 
             <Style x:Key="About.GeneralText"
                    TargetType="{x:Type TextBlock}">
+                <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
                 <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
                 <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
@@ -331,7 +332,7 @@
 
                             <TextBlock Margin="{DynamicResource Inset.6.0.0.0}"
                                        Text="{Binding VersionLabel, Mode=OneWay}"
-                                       d:Text="1.0.0"
+                                       d:Text="v1.0.3"
                                        FontFamily="{DynamicResource FontFamily.Text}"
                                        FontSize="{DynamicResource FontSize.Caption}"
                                        FontWeight="{DynamicResource FontWeight.SemiBold}"
@@ -464,7 +465,7 @@
                                     MinHeight="38"
                                     Margin="{DynamicResource Inset.6.All}"
                                     Padding="{DynamicResource Inset.12.0.12.0}"
-                                    ToolTip="Discord"
+                                    ToolTip="{DynamicResource LocAbout_DiscordTooltip}"
                                     Tag="https://discord.gg/bside"
                                     Click="ContributorDiscordButton_Click"
                                     Focusable="True"
@@ -504,7 +505,7 @@
                                     MinHeight="38"
                                     Margin="{DynamicResource Inset.6.All}"
                                     Padding="{DynamicResource Inset.12.0.12.0}"
-                                    ToolTip="Discord"
+                                    ToolTip="{DynamicResource LocAbout_DiscordTooltip}"
                                     Tag="https://discord.gg/xEV5wutKXM"
                                     Click="ContributorDiscordButton_Click"
                                     Focusable="True"

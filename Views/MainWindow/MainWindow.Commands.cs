@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Localization;
+﻿using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
@@ -38,7 +38,7 @@ public partial class MainWindow
             return;
         }
 
-        if (!RequirePremiumFeature(PremiumFeature.RedumpDeepIntegrity))
+        if (!RequireAppFeature(AppFeature.RedumpDeepIntegrity))
         {
             return;
         }
@@ -69,7 +69,7 @@ public partial class MainWindow
         if (item is null
             || IsQueueInteractionLocked
             || !_settings.EnableDeepIntegrityCheck
-            || !_featureAccessService.CanUseFeature(PremiumFeature.RedumpDeepIntegrity))
+            || !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity))
         {
             return false;
         }
@@ -87,7 +87,7 @@ public partial class MainWindow
             return;
         }
 
-        if (!RequirePremiumFeature(PremiumFeature.RedumpDeepIntegrity))
+        if (!RequireAppFeature(AppFeature.RedumpDeepIntegrity))
         {
             return;
         }
@@ -120,7 +120,7 @@ public partial class MainWindow
     {
         return !IsQueueInteractionLocked
             && _settings.EnableDeepIntegrityCheck
-            && _featureAccessService.CanUseFeature(PremiumFeature.RedumpDeepIntegrity)
+            && _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity)
             && _queueView.Count > 0;
     }
 
@@ -131,7 +131,7 @@ public partial class MainWindow
             return;
         }
 
-        if (!RequirePremiumFeature(PremiumFeature.RedumpDeepIntegrity))
+        if (!RequireAppFeature(AppFeature.RedumpDeepIntegrity))
         {
             return;
         }
@@ -246,7 +246,7 @@ public partial class MainWindow
         if (item is null
             || IsQueueInteractionLocked
             || !item.CanApplyRedumpSuggestedName
-            || !_featureAccessService.CanUseFeature(PremiumFeature.StandardNamingSuggestion))
+            || !_appFeatureService.IsEnabled(AppFeature.StandardNamingSuggestion))
         {
             return false;
         }
@@ -262,7 +262,7 @@ public partial class MainWindow
             return;
         }
 
-        if (!RequirePremiumFeature(PremiumFeature.RedumpDeepIntegrity))
+        if (!RequireAppFeature(AppFeature.RedumpDeepIntegrity))
         {
             return;
         }
@@ -298,7 +298,7 @@ public partial class MainWindow
     public async Task ApplyRedumpSuggestedNameAsync(TaskQueueItemViewModel? item)
     {
         item ??= TasksDataGrid.SelectedItem as TaskQueueItemViewModel;
-        if (!RequirePremiumFeature(PremiumFeature.StandardNamingSuggestion))
+        if (!RequireAppFeature(AppFeature.StandardNamingSuggestion))
         {
             return;
         }

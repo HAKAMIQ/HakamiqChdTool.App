@@ -1,4 +1,5 @@
-using HakamiqChdTool.App.Localization;
+﻿using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,33 @@ public sealed partial class AdvancedOptionsViewModel
         {
             ProcessorOptions.Add(new AdvancedProcessorOption(value, value.ToString()));
         }
+    }
+
+
+    private void LoadConcurrentConversionChoices()
+    {
+        ConcurrentConversionOptions.Clear();
+
+        for (int value = AppSettings.DefaultMaxConcurrentConversions; value <= AppSettings.MaxConcurrentConversionsUpperBound; value++)
+        {
+            ConcurrentConversionOptions.Add(new AdvancedProcessorOption(value, value.ToString()));
+        }
+    }
+
+    private string BuildConcurrentConversionDescription()
+    {
+        int selected = AppSettings.NormalizeMaxConcurrentConversions(
+            SelectedConcurrentConversionOption?.Value ?? AppSettings.DefaultMaxConcurrentConversions);
+
+        string resourceKey = selected switch
+        {
+            1 => "LocAdv_ConcurrentConversionsSingle",
+            2 => "LocAdv_ConcurrentConversionsBalanced",
+            3 => "LocAdv_ConcurrentConversionsHeavy",
+            _ => "LocAdv_ConcurrentConversionsMaximum"
+        };
+
+        return ArabicUi.Get(resourceKey);
     }
 
     private static IEnumerable<int> BuildProcessorValues(int logicalCount)
@@ -75,6 +103,26 @@ public sealed partial class AdvancedOptionsViewModel
         }
 
         return CompressionPresetOptions.FirstOrDefault(x => x.Key == "default");
+    }
+
+    private AdvancedChoiceOption? ResolvePerformanceMode(ConversionPerformanceMode performanceMode)
+    {
+        string key = Enum.IsDefined(performanceMode)
+            ? performanceMode.ToString()
+            : nameof(ConversionPerformanceMode.Safe);
+
+        return PerformanceModeOptions.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase))
+            ?? PerformanceModeOptions.FirstOrDefault(x => x.Key == nameof(ConversionPerformanceMode.Safe));
+    }
+
+    private AdvancedChoiceOption? ResolvePriorityMode(ChdmanProcessPriorityMode priorityMode)
+    {
+        string key = Enum.IsDefined(priorityMode)
+            ? priorityMode.ToString()
+            : nameof(ChdmanProcessPriorityMode.Quiet);
+
+        return PriorityModeOptions.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase))
+            ?? PriorityModeOptions.FirstOrDefault(x => x.Key == nameof(ChdmanProcessPriorityMode.Quiet));
     }
 
     private AdvancedChoiceOption? ResolveHunkPreset(int hunkSizeBytes) => hunkSizeBytes switch

@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Localization;
+﻿using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
@@ -11,7 +11,7 @@ public partial class MainWindow
 {
     internal void OpenAdvancedOptionsDialog(string? initialTabKey = null)
     {
-        var dialog = new AdvancedOptionsWindow(_settings, _featureAccessService)
+        var dialog = new AdvancedOptionsWindow(_settings, _appFeatureService)
         {
             Owner = this
         };
@@ -30,7 +30,8 @@ public partial class MainWindow
             bool languageChanged = !string.Equals(previousLanguage, requestedLanguage, StringComparison.OrdinalIgnoreCase);
 
             _settings.CopyFrom(settings);
-            _featureAccessService.ApplyFreeFeatureRestrictions(_settings);
+            _queue.UpdateMaxConcurrentItems(_settings.MaxConcurrentConversions);
+            _appFeatureService.ApplyFeatureAvailability(_settings);
             _settings.UiLanguage = requestedLanguage;
 
             if (languageChanged)

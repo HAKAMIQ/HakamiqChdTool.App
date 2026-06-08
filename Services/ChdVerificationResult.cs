@@ -20,4 +20,5 @@ public sealed class ChdVerificationResult
     public string Error { get; init; } = string.Empty;
     public string Message { get; init; } = string.Empty;
     public string LogPath { get; init; } = string.Empty;
+    public TimeSpan Duration { get; init; }
 }

@@ -1,4 +1,4 @@
-<UserControl x:Class="HakamiqChdTool.App.Views.AdvancedOptions.PerformanceSettingsView"
+﻿<UserControl x:Class="HakamiqChdTool.App.Views.AdvancedOptions.PerformanceSettingsView"
              x:Name="PerformanceSettingsRoot"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -222,6 +222,9 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0"
@@ -259,11 +262,53 @@
 
                                 <Grid Grid.Column="2"
                                       Style="{StaticResource PerformanceSettings.ControlColumn}">
+                                    <ComboBox x:Name="PerformanceModeComboBox"
+                                              ItemsSource="{Binding PerformanceModeOptions}"
+                                              SelectedItem="{Binding SelectedPerformanceMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              ItemTemplate="{StaticResource AdvancedChoiceOptionLabelTemplate}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Style="{StaticResource FluentComboBoxStyle}" />
+                                </Grid>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocPerformance_PerformanceMode}"
+                                               Style="{StaticResource PerformanceSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{Binding PerformanceModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource PerformanceSettings.RowDescriptionText}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="3"
+                                Style="{StaticResource PerformanceSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource PerformanceSettings.ControlColumn}">
                                     <ComboBox x:Name="ProcessorCountComboBox"
                                               ItemsSource="{Binding ProcessorOptions}"
                                               SelectedItem="{Binding SelectedProcessorOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               ItemTemplate="{StaticResource AdvancedProcessorOptionLabelTemplate}"
-                                              IsEnabled="{Binding CanUsePerformanceProfiles}"
                                               HorizontalAlignment="Stretch"
                                               VerticalAlignment="Center"
                                               FlowDirection="{DynamicResource App.FlowDirection}"
@@ -292,7 +337,94 @@
                             </Grid>
                         </Border>
 
-                        <Border Grid.Row="3"
+                        <Border Grid.Row="4"
+                                Style="{StaticResource PerformanceSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource PerformanceSettings.ControlColumn}">
+                                    <ComboBox x:Name="ConcurrentConversionCountComboBox"
+                                              ItemsSource="{Binding ConcurrentConversionOptions}"
+                                              SelectedItem="{Binding SelectedConcurrentConversionOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              ItemTemplate="{StaticResource AdvancedProcessorOptionLabelTemplate}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Style="{StaticResource FluentComboBoxStyle}" />
+                                </Grid>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocPerformance_ConcurrentConversions}"
+                                               Style="{StaticResource PerformanceSettings.RowTitleText}" />
+
+                                    <TextBlock x:Name="ConcurrentConversionDescriptionText"
+                                               Grid.Row="2"
+                                               Text="{Binding ConcurrentConversionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource PerformanceSettings.RowDescriptionText}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="5"
+                                Style="{StaticResource PerformanceSettings.SettingRow}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource PerformanceSettings.ControlColumn}">
+                                    <ComboBox x:Name="PriorityModeComboBox"
+                                              ItemsSource="{Binding PriorityModeOptions}"
+                                              SelectedItem="{Binding SelectedPriorityMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              ItemTemplate="{StaticResource AdvancedChoiceOptionLabelTemplate}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"
+                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Style="{StaticResource FluentComboBoxStyle}" />
+                                </Grid>
+
+                                <Grid Grid.Column="0"
+                                      MinWidth="0"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocPerformance_ProcessPriority}"
+                                               Style="{StaticResource PerformanceSettings.RowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{Binding PriorityModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource PerformanceSettings.RowDescriptionText}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="6"
                                 Style="{StaticResource PerformanceSettings.SettingRow}">
                             <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                                   HorizontalAlignment="Stretch">
@@ -308,7 +440,6 @@
                                               ItemsSource="{Binding IsoCreateOverrideOptions}"
                                               SelectedItem="{Binding SelectedIsoCreateOverride, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               ItemTemplate="{StaticResource AdvancedChoiceOptionLabelTemplate}"
-                                              IsEnabled="{Binding CanUsePerformanceProfiles}"
                                               HorizontalAlignment="Stretch"
                                               VerticalAlignment="Center"
                                               FlowDirection="{DynamicResource App.FlowDirection}"
@@ -337,7 +468,7 @@
                             </Grid>
                         </Border>
 
-                        <Border Grid.Row="4"
+                        <Border Grid.Row="7"
                                 Style="{StaticResource PerformanceSettings.SettingRow}">
                             <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                                   HorizontalAlignment="Stretch">
@@ -353,7 +484,6 @@
                                               ItemsSource="{Binding CompressionPresetOptions}"
                                               SelectedItem="{Binding SelectedCompressionPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               ItemTemplate="{StaticResource AdvancedChoiceOptionLabelTemplate}"
-                                              IsEnabled="{Binding CanUsePerformanceProfiles}"
                                               HorizontalAlignment="Stretch"
                                               VerticalAlignment="Center"
                                               FlowDirection="{DynamicResource App.FlowDirection}"
@@ -382,7 +512,7 @@
                             </Grid>
                         </Border>
 
-                        <Border Grid.Row="5"
+                        <Border Grid.Row="8"
                                 Style="{StaticResource PerformanceSettings.LastSettingRow}">
                             <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                                   HorizontalAlignment="Stretch">
@@ -398,7 +528,6 @@
                                               ItemsSource="{Binding HunkPresetOptions}"
                                               SelectedItem="{Binding SelectedHunkPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               ItemTemplate="{StaticResource AdvancedChoiceOptionLabelTemplate}"
-                                              IsEnabled="{Binding CanUsePerformanceProfiles}"
                                               HorizontalAlignment="Stretch"
                                               VerticalAlignment="Center"
                                               FlowDirection="{DynamicResource App.FlowDirection}"

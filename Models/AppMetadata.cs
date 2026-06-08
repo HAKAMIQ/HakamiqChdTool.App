@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 
 namespace HakamiqChdTool.App.Models;
@@ -21,8 +21,6 @@ public sealed class AppMetadata
 
     public string WebsiteUrl { get; init; } = string.Empty;
 
-    public string StorePageUrl { get; init; } = string.Empty;
-
     public string DiscordUrl { get; init; } = string.Empty;
 
     public Collection<AboutLinkInfo> Links { get; init; } = [];
@@ -32,7 +30,6 @@ public sealed class AppMetadata
         return new AppMetadata
         {
             WebsiteUrl = ValidatePublicUrl(WebsiteUrlValue),
-            StorePageUrl = string.Empty,
             DiscordUrl = ValidatePublicUrl(DiscordUrlValue),
             Links =
             [

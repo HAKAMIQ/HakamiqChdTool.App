@@ -1,7 +1,7 @@
-using HakamiqChdTool.App.Localization;
+﻿using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Licensing;
+using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
 using Microsoft.Win32;
 using Serilog;
@@ -65,7 +65,7 @@ public partial class AdvancedOptionsWindow : Window
     private static readonly ILogger Logger = Log.ForContext<AdvancedOptionsWindow>();
 
     private readonly AppSettings _currentSettings;
-    private readonly IFeatureAccessService _featureAccessService;
+    private readonly IAppFeatureService _appFeatureService;
     private readonly RedumpGitHubSyncManager _syncManager = new();
     private readonly CancellationTokenSource _windowLifetimeCts = new();
     private readonly ToolTipEventHandler _toolTipOpeningHandler;
@@ -82,10 +82,10 @@ public partial class AdvancedOptionsWindow : Window
 
     public event EventHandler<AdvancedOptionsAppliedEventArgs>? SettingsApplied;
 
-    public AdvancedOptionsWindow(AppSettings currentSettings, IFeatureAccessService featureAccessService)
+    public AdvancedOptionsWindow(AppSettings currentSettings, IAppFeatureService appFeatureService)
     {
         ArgumentNullException.ThrowIfNull(currentSettings);
-        ArgumentNullException.ThrowIfNull(featureAccessService);
+        ArgumentNullException.ThrowIfNull(appFeatureService);
 
         InitializeComponent();
         AppLanguageService.ApplyToWindow(this);
@@ -94,11 +94,11 @@ public partial class AdvancedOptionsWindow : Window
         RedumpPanel.ImportRedumpDatabaseRequested += ImportRedumpDatabaseButton_Click;
 
         _currentSettings = currentSettings;
-        _featureAccessService = featureAccessService;
+        _appFeatureService = appFeatureService;
         ResultSettings = currentSettings.Clone();
 
         ViewModel = new AdvancedOptionsViewModel();
-        ApplyFeatureAccessToViewModel();
+        ApplyFeatureAvailabilityToViewModel();
         DataContext = ViewModel;
 
         Loaded += AdvancedOptionsWindow_Loaded;
@@ -108,7 +108,7 @@ public partial class AdvancedOptionsWindow : Window
         AddHandler(ToolTipService.ToolTipOpeningEvent, _toolTipOpeningHandler, true);
 
         ViewModel.Load(ResultSettings);
-        ApplyPremiumRestrictionsToViewModel(showDialog: false);
+        EnforceFeatureAvailabilityOnViewModel(showDialog: false);
         ResultSettings = _currentSettings.Clone();
         ViewModel.IsDatabaseAvailable = false;
         ViewModel.DatabaseStatusText = ResolveUiText(DatabaseInitialStatusKey);
@@ -376,7 +376,7 @@ public partial class AdvancedOptionsWindow : Window
         string previousLanguage = AppLanguageService.Instance.CurrentLanguageName;
 
         AppSettings pendingSettings = ViewModel.BuildResultSettings(_currentSettings);
-        if (!TryValidatePremiumFeatureChanges(pendingSettings))
+        if (!TryValidateAppFeatureChanges(pendingSettings))
         {
             return false;
         }
@@ -474,7 +474,7 @@ public partial class AdvancedOptionsWindow : Window
     }
     private void ImportRedumpDatabaseButton_Click(object sender, RoutedEventArgs e)
     {
-        if (!RequirePremiumFeature(PremiumFeature.RedumpDatabaseImport))
+        if (!RequireAppFeature(AppFeature.RedumpDatabaseImport))
         {
             return;
         }
@@ -587,7 +587,7 @@ public partial class AdvancedOptionsWindow : Window
 
     private void DownloadDatabaseButton_Click(object sender, RoutedEventArgs e)
     {
-        if (!RequirePremiumFeature(PremiumFeature.RedumpDatabaseImport))
+        if (!RequireAppFeature(AppFeature.RedumpDatabaseImport))
         {
             return;
         }
@@ -789,49 +789,42 @@ public partial class AdvancedOptionsWindow : Window
         _ = dialog.ShowDialog();
     }
 
-    private bool TryValidatePremiumFeatureChanges(AppSettings pendingSettings)
+    private bool TryValidateAppFeatureChanges(AppSettings pendingSettings)
     {
         ArgumentNullException.ThrowIfNull(pendingSettings);
 
         if (pendingSettings.EnableDeepIntegrityCheck
-            && !RequirePremiumFeature(PremiumFeature.RedumpDeepIntegrity))
+            && !RequireAppFeature(AppFeature.RedumpDeepIntegrity))
         {
-            ApplyPremiumRestrictionsToViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
             return false;
         }
 
         if (pendingSettings.ApplyStandardNamingBasedOnHash
-            && !RequirePremiumFeature(PremiumFeature.StandardNamingSuggestion))
+            && !RequireAppFeature(AppFeature.StandardNamingSuggestion))
         {
-            ApplyPremiumRestrictionsToViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
             return false;
         }
 
         if (pendingSettings.EnableRedumpAutoSync
-            && !RequirePremiumFeature(PremiumFeature.RedumpDatabaseImport))
+            && !RequireAppFeature(AppFeature.RedumpDatabaseImport))
         {
-            ApplyPremiumRestrictionsToViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
             return false;
         }
 
         if (!pendingSettings.SuppressStorageAdvisorDialog
-            && !RequirePremiumFeature(PremiumFeature.StorageAdvisor))
+            && !RequireAppFeature(AppFeature.StorageAdvisor))
         {
-            ApplyPremiumRestrictionsToViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
             return false;
         }
 
         if (RequiresPostProcessingAutomation(pendingSettings)
-            && !RequirePremiumFeature(PremiumFeature.PostProcessingAutomation))
+            && !RequireAppFeature(AppFeature.PostProcessingAutomation))
         {
-            ApplyPremiumRestrictionsToViewModel(showDialog: false);
-            return false;
-        }
-
-        if (RequiresPerformanceProfiles(pendingSettings)
-            && !RequirePremiumFeature(PremiumFeature.PerformanceProfiles))
-        {
-            ApplyPremiumRestrictionsToViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
             return false;
         }
 
@@ -843,63 +836,51 @@ public partial class AdvancedOptionsWindow : Window
         || settings.EnableAutoM3uGeneration
         || settings.OverwriteExistingM3uPlaylists;
 
-    private static bool RequiresPerformanceProfiles(AppSettings settings) =>
-        settings.MaxProcessorCount != 0
-        || !string.Equals(settings.CompressionCodecs, "preset:default", StringComparison.Ordinal)
-        || settings.HunkSizeBytes != 0
-        || settings.IsoCreateCommandOverride != IsoCreateCommandOverride.Auto;
-
-    private void ApplyPremiumRestrictionsToViewModel(bool showDialog)
+    private void EnforceFeatureAvailabilityOnViewModel(bool showDialog)
     {
-        ApplyFeatureAccessToViewModel();
+        ApplyFeatureAvailabilityToViewModel();
 
-        if (!_featureAccessService.CanUseFeature(PremiumFeature.RedumpDeepIntegrity))
+        if (!_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity))
         {
             ViewModel.EnableDeepIntegrityCheck = false;
         }
 
-        if (!_featureAccessService.CanUseFeature(PremiumFeature.StandardNamingSuggestion))
+        if (!_appFeatureService.IsEnabled(AppFeature.StandardNamingSuggestion))
         {
             ViewModel.ApplyStandardNamingBasedOnHash = false;
         }
 
-        if (!_featureAccessService.CanUseFeature(PremiumFeature.RedumpDatabaseImport))
+        if (!_appFeatureService.IsEnabled(AppFeature.RedumpDatabaseImport))
         {
             ViewModel.EnableRedumpAutoSync = false;
         }
 
-        if (!_featureAccessService.CanUseFeature(PremiumFeature.StorageAdvisor))
+        if (!_appFeatureService.IsEnabled(AppFeature.StorageAdvisor))
         {
             ViewModel.ShowStorageAdvisorDialog = false;
         }
 
-        if (!_featureAccessService.CanUseFeature(PremiumFeature.PostProcessingAutomation))
+        if (!_appFeatureService.IsEnabled(AppFeature.PostProcessingAutomation))
         {
             ViewModel.CopyMatchingSbi = false;
             ViewModel.EnableAutoM3uGeneration = false;
             ViewModel.OverwriteExistingM3uPlaylists = false;
         }
 
-        if (!_featureAccessService.CanUseFeature(PremiumFeature.PerformanceProfiles))
-        {
-            ViewModel.ApplyDefaultEngineSettings();
-        }
-
         _ = showDialog;
     }
 
-    private void ApplyFeatureAccessToViewModel()
+    private void ApplyFeatureAvailabilityToViewModel()
     {
-        ViewModel.CanUsePerformanceProfiles = _featureAccessService.CanUseFeature(PremiumFeature.PerformanceProfiles);
-        ViewModel.CanUsePostProcessingAutomation = _featureAccessService.CanUseFeature(PremiumFeature.PostProcessingAutomation);
-        ViewModel.CanUseRedumpDeepIntegrity = _featureAccessService.CanUseFeature(PremiumFeature.RedumpDeepIntegrity);
-        ViewModel.CanUseRedumpDatabaseImport = _featureAccessService.CanUseFeature(PremiumFeature.RedumpDatabaseImport);
-        ViewModel.CanUseStandardNamingSuggestion = _featureAccessService.CanUseFeature(PremiumFeature.StandardNamingSuggestion);
-        ViewModel.CanUseStorageAdvisor = _featureAccessService.CanUseFeature(PremiumFeature.StorageAdvisor);
+        ViewModel.CanUsePostProcessingAutomation = _appFeatureService.IsEnabled(AppFeature.PostProcessingAutomation);
+        ViewModel.CanUseRedumpDeepIntegrity = _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity);
+        ViewModel.CanUseRedumpDatabaseImport = _appFeatureService.IsEnabled(AppFeature.RedumpDatabaseImport);
+        ViewModel.CanUseStandardNamingSuggestion = _appFeatureService.IsEnabled(AppFeature.StandardNamingSuggestion);
+        ViewModel.CanUseStorageAdvisor = _appFeatureService.IsEnabled(AppFeature.StorageAdvisor);
     }
 
-    private bool RequirePremiumFeature(PremiumFeature feature) =>
-        _featureAccessService.CanUseFeature(feature);
+    private bool RequireAppFeature(AppFeature feature) =>
+        _appFeatureService.IsEnabled(feature);
 
 
     private static string ResolveKeyOrText(string? value)

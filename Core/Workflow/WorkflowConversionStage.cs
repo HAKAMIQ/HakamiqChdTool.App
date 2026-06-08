@@ -2,6 +2,8 @@
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.BinCueRescue;
+using HakamiqChdTool.App.Services.Conversion;
+using HakamiqChdTool.App.Services.Storage;
 using Serilog;
 using System;
 using System.IO;
@@ -14,23 +16,32 @@ internal sealed class WorkflowConversionStage(
     ChdConversionService conversion,
     ChdVerificationService verify,
     WorkflowPostProcessingStage postProcessingStage,
+    ConversionSessionGuard sessionGuard,
+    StorageTopologyService storageTopology,
+    ConversionSafetyPolicy safetyPolicy,
+    ConversionPerformanceReportFactory performanceReportFactory,
     ILogger log)
 {
     private const string CancelledDetailKey = "LocOperation_Cancelled";
     private const string BinCueRescueFailedDetailKey = "LocBinCueRescue_PrepareFailed";
-    private const string BinCueRescueRequiresPremiumDetailKey = "LocLicensing_BinCueRescueRequiresPremium";
     private const string ConversionFinalizingStageKey = "LocConversion_Finalizing";
     private const string VerifyingCreatedChdStageKey = "LocConversion_VerifyingCreatedChd";
     private const string SavingCreatedChdStageKey = "LocConversion_SavingCreatedChd";
     private const string ArchiveConversionSuccessDetailKey = "LocConversion_ArchiveSuccess";
     private const string ConversionSuccessDetailKey = "LocConversion_Success";
     private const string FinalOutputExistsDetailKey = "LocStatus_FinalOutputExists";
+    private const string DeepHashSafetyStageKey = "LocConversionSafety_DeepHashChecking";
+    private const string StorageTemperatureAbortKey = "LocStorageTemperature_Abort";
 
     private static readonly TimeSpan ConversionPulseInterval = TimeSpan.FromMilliseconds(750);
 
     private readonly ChdConversionService _conversion = conversion ?? throw new ArgumentNullException(nameof(conversion));
     private readonly ChdVerificationService _verify = verify ?? throw new ArgumentNullException(nameof(verify));
     private readonly WorkflowPostProcessingStage _postProcessingStage = postProcessingStage ?? throw new ArgumentNullException(nameof(postProcessingStage));
+    private readonly ConversionSessionGuard _sessionGuard = sessionGuard ?? throw new ArgumentNullException(nameof(sessionGuard));
+    private readonly StorageTopologyService _storageTopology = storageTopology ?? throw new ArgumentNullException(nameof(storageTopology));
+    private readonly ConversionSafetyPolicy _safetyPolicy = safetyPolicy ?? throw new ArgumentNullException(nameof(safetyPolicy));
+    private readonly ConversionPerformanceReportFactory _performanceReportFactory = performanceReportFactory ?? throw new ArgumentNullException(nameof(performanceReportFactory));
     private readonly ILogger _log = log ?? throw new ArgumentNullException(nameof(log));
 
     public async Task<WorkflowExecutionResult> ExecuteAsync(
@@ -56,24 +67,6 @@ internal sealed class WorkflowConversionStage(
 
             if (IsBinCueRescueInput(inputPath))
             {
-                if (!ctx.CanUsePremiumFeature(PremiumFeature.AdvancedSafetyChecks))
-                {
-                    sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, BinCueRescueRequiresPremiumDetailKey);
-                    sink.ReportProgress(100, indeterminate: false);
-                    WorkflowPathUtilities.RaiseProgress(request, 100);
-
-                    _log.Information(
-                        "BIN/CUE rescue conversion blocked because the required premium feature is not licensed. Input={Input} Feature={Feature}",
-                        inputPath,
-                        PremiumFeature.AdvancedSafetyChecks);
-
-                    return WorkflowResultBuilder.Failure(
-                        QueueItemFailureKind.Unsupported,
-                        BinCueRescueRequiresPremiumDetailKey,
-                        null,
-                        null);
-                }
-
                 cueRescueWorkflowAdapter = new CueRescueWorkflowAdapter();
                 CueRescueWorkflowPrepareResult cueRescue = cueRescueWorkflowAdapter.TryPrepare(
                     inputPath,
@@ -162,8 +155,16 @@ internal sealed class WorkflowConversionStage(
             }
             catch (Exception ex) when (IsExpectedConversionStageException(ex))
             {
-                string detail = RuntimeDiagnosticFormatter.SummarizeException(ex);
-                sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, detail);
+                bool sourceReadFailure = IsSourceReadFailureException(ex);
+                string detail = sourceReadFailure
+                    ? ConversionSafetyPolicy.InputReadFailureMessageKey
+                    : RuntimeDiagnosticFormatter.SummarizeException(ex);
+
+                QueueItemFailureKind failureKind = sourceReadFailure
+                    ? QueueItemFailureKind.SourceUnreadable
+                    : QueueItemFailureKind.Unsupported;
+
+                sink.ReportTerminalFailure(failureKind, detail);
                 sink.ReportProgress(100, indeterminate: false);
                 WorkflowPathUtilities.RaiseProgress(request, 100);
 
@@ -172,7 +173,7 @@ internal sealed class WorkflowConversionStage(
                     "CHD profile planning rejected conversion input. Input={Input}",
                     inputPath);
 
-                return WorkflowResultBuilder.Failure(QueueItemFailureKind.Unsupported, detail, null, null);
+                return WorkflowResultBuilder.Failure(failureKind, detail, null, null);
             }
 
             if (!createPlan.IsSupported)
@@ -186,6 +187,39 @@ internal sealed class WorkflowConversionStage(
                     createPlan.FailureMessage,
                     null,
                     null);
+            }
+
+            bool hadInputReadWarning = false;
+            if (settings.EnableDeepIntegrityCheck)
+            {
+                sink.ReportStage(QueueItemStage.ReadingFile, DeepHashSafetyStageKey);
+                sink.ReportProgress(Math.Max(5, startingPercent), indeterminate: true);
+                WorkflowPathUtilities.RaiseProgress(request, Math.Max(5, startingPercent));
+
+                DeepHashAnalysisResult deepHashSafetyResult = await _safetyPolicy
+                    .RunDeepHashInputReadCheckAsync(conversionInputPath, cancellationToken)
+                    .ConfigureAwait(false);
+
+                ConversionSafetyDecision safetyDecision = _safetyPolicy.EvaluateDeepHashResult(deepHashSafetyResult);
+                hadInputReadWarning = safetyDecision.HadInputReadWarning;
+
+                if (!safetyDecision.CanStartConversion)
+                {
+                    sink.ReportTerminalFailure(QueueItemFailureKind.SourceUnreadable, safetyDecision.UserMessageKey);
+                    sink.ReportProgress(100, indeterminate: false);
+                    WorkflowPathUtilities.RaiseProgress(request, 100);
+
+                    _log.Warning(
+                        "Conversion blocked before chdman by deep hash safety policy. Input={Input}; FailureCode={FailureCode}",
+                        conversionInputPath,
+                        safetyDecision.FailureCode);
+
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.SourceUnreadable,
+                        safetyDecision.UserMessageKey,
+                        null,
+                        null);
+                }
             }
 
             double initialProgress = Math.Max(5, startingPercent);
@@ -271,6 +305,25 @@ internal sealed class WorkflowConversionStage(
                     lastLogPath);
             }
 
+            StorageTopologySnapshot topology = _storageTopology.Analyze(
+                conversionInputPath,
+                pendingOutputPath,
+                finalOutputPath);
+
+            if (_safetyPolicy.ShouldWarnSameSourceAndOutputVolume(topology))
+            {
+                sink.ReportStage(QueueItemStage.ReadingFile, ConversionSafetyPolicy.SameDiskWarningMessageKey);
+
+                _log.Warning(
+                    "Storage topology warning before conversion. Source and final output are on the same volume. Source={Source}; Pending={Pending}; Final={Final}; SourceRoot={SourceRoot}; PendingRoot={PendingRoot}; FinalRoot={FinalRoot}",
+                    conversionInputPath,
+                    pendingOutputPath,
+                    finalOutputPath,
+                    topology.SourceRoot,
+                    topology.PendingRoot,
+                    topology.FinalOutputRoot);
+            }
+
             bool runPostConversionVerify = request.Verify && settings.VerifyAfterConversion;
 
             double conversionStartPercent = Math.Clamp(Math.Max(startingPercent, 20), 20, 88);
@@ -293,10 +346,11 @@ internal sealed class WorkflowConversionStage(
                 suspiciousFirstWindow: TimeSpan.FromSeconds(10));
 
             using var conversionProgressCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            using var conversionSafetyCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             void ReportConversionProgress(double percent)
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || conversionSafetyCts.IsCancellationRequested)
                 {
                     return;
                 }
@@ -319,10 +373,50 @@ internal sealed class WorkflowConversionStage(
 
             runtimeProgress.ReportCurrent();
 
+            StorageDeviceIdentity monitoredDevice = topology.SourceIsExternal
+                ? topology.SourceDevice
+                : topology.OutputIsExternal
+                    ? topology.OutputDevice
+                    : topology.SourceDevice;
+
+            await using ConversionSessionScope conversionSession = _sessionGuard.BeginCriticalConversionSession(
+                monitoredDevice,
+                SelectTemperaturePolicy(monitoredDevice),
+                ReportSessionNotification,
+                cancellationToken);
+
+            void ReportSessionNotification(ConversionSessionNotification notification)
+            {
+                try
+                {
+                    if (cancellationToken.IsCancellationRequested || string.IsNullOrWhiteSpace(notification.MessageKey))
+                    {
+                        return;
+                    }
+
+                    sink.ReportStage(QueueItemStage.Converting, notification.MessageKey);
+
+                    if (notification.Severity == StorageHealthSeverity.Abort
+                        && !conversionSafetyCts.IsCancellationRequested)
+                    {
+                        _log.Warning(
+                            "Storage temperature abort requested. Device={Device}; Temperature={Temperature}",
+                            monitoredDevice.DisplayName,
+                            notification.CurrentTemperatureCelsius);
+
+                        conversionSafetyCts.Cancel();
+                    }
+                }
+                catch (Exception ex) when (IsNonFatalPostProcessingException(ex))
+                {
+                    _log.Debug(ex, "Storage temperature notification could not be reported to the queue sink.");
+                }
+            }
+
             bool conversionFinalizingNotified = false;
             var convertProgress = new Progress<int>(value =>
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || conversionSafetyCts.IsCancellationRequested)
                 {
                     return;
                 }
@@ -357,13 +451,14 @@ internal sealed class WorkflowConversionStage(
 
             var conversionPerformanceProgress = new Progress<PerformanceSample>(sample =>
             {
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    runtimeProgress.ReportPerformance(sample);
-                }
+                    if (!cancellationToken.IsCancellationRequested && !conversionSafetyCts.IsCancellationRequested)
+                    {
+                        runtimeProgress.ReportPerformance(sample);
+                    }
             });
 
             ChdConversionResult conversionResult;
+            TimeSpan verifyDuration = TimeSpan.Zero;
             try
             {
                 try
@@ -379,11 +474,13 @@ internal sealed class WorkflowConversionStage(
                         settings.HunkSizeBytes,
                         convertProgress,
                         onProcessStarted: null,
-                        cancellationToken: cancellationToken,
+                        cancellationToken: conversionSafetyCts.Token,
                         performanceProgress: conversionPerformanceProgress,
                         isoCreateCommandOverride: settings.IsoCreateCommandOverride,
                         allowOverwriteOutput: !settings.SkipExistingOutput,
-                        enableDiskSpaceGuard: settings.EnableDiskSpaceGuard).ConfigureAwait(false);
+                        enableDiskSpaceGuard: settings.EnableDiskSpaceGuard,
+                        performanceMode: settings.PerformanceMode,
+                        priorityMode: settings.ChdmanPriorityMode).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
@@ -392,12 +489,31 @@ internal sealed class WorkflowConversionStage(
                     sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, CancelledDetailKey);
                     return WorkflowExecutionResult.Cancelled(CancelledDetailKey, pendingOutputPath, lastLogPath);
                 }
+                catch (OperationCanceledException) when (conversionSafetyCts.IsCancellationRequested)
+                {
+                    CleanupPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                    sink.ReportTerminalFailure(QueueItemFailureKind.FailedConvert, StorageTemperatureAbortKey);
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.FailedConvert,
+                        StorageTemperatureAbortKey,
+                        pendingOutputPath,
+                        lastLogPath);
+                }
                 catch (Exception ex) when (IsExpectedConversionStageException(ex))
                 {
                     CleanupPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
 
-                    string detail = RuntimeDiagnosticFormatter.SummarizeException(ex);
-                    sink.ReportTerminalFailure(QueueItemFailureKind.FailedConvert, detail);
+                    bool sourceReadFailure = IsSourceReadFailureException(ex);
+                    string detail = sourceReadFailure
+                        ? ConversionSafetyPolicy.ChdmanInputReadWarningMessageKey
+                        : RuntimeDiagnosticFormatter.SummarizeException(ex);
+                    QueueItemFailureKind failureKind = sourceReadFailure
+                        ? QueueItemFailureKind.SourceUnreadable
+                        : QueueItemFailureKind.FailedConvert;
+
+                    hadInputReadWarning = hadInputReadWarning || sourceReadFailure;
+                    sink.ReportTerminalFailure(failureKind, detail);
 
                     _log.Warning(
                         ex,
@@ -405,13 +521,25 @@ internal sealed class WorkflowConversionStage(
                         inputPath,
                         pendingOutputPath);
 
-                    return WorkflowResultBuilder.Failure(QueueItemFailureKind.FailedConvert, detail, pendingOutputPath, lastLogPath);
+                    return WorkflowResultBuilder.Failure(failureKind, detail, pendingOutputPath, lastLogPath);
                 }
             }
             finally
             {
                 conversionProgressCts.Cancel();
                 await conversionPulseTask.ConfigureAwait(false);
+            }
+
+            if (conversionResult.WasCancelled && conversionSafetyCts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+            {
+                CleanupPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                sink.ReportTerminalFailure(QueueItemFailureKind.FailedConvert, StorageTemperatureAbortKey);
+                return WorkflowResultBuilder.Failure(
+                    QueueItemFailureKind.FailedConvert,
+                    StorageTemperatureAbortKey,
+                    conversionResult.OutputPath,
+                    conversionResult.LogPath);
             }
 
             if (conversionResult.WasCancelled || cancellationToken.IsCancellationRequested)
@@ -429,11 +557,31 @@ internal sealed class WorkflowConversionStage(
             {
                 CleanupPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
 
-                sink.ReportTerminalFailure(QueueItemFailureKind.FailedConvert, conversionResult.Message);
+                bool chdmanInputReadFailure = _safetyPolicy.LooksLikeChdmanInputReadFailure(conversionResult);
+                string failureMessage = chdmanInputReadFailure
+                    ? ConversionSafetyPolicy.ChdmanInputReadWarningMessageKey
+                    : conversionResult.Message;
+
+                if (chdmanInputReadFailure)
+                {
+                    hadInputReadWarning = true;
+                    _log.Warning(
+                        "chdman output indicates an input read problem. Input={Input}; Pending={Pending}; ExitCode={ExitCode}; LogPath={LogPath}",
+                        inputPath,
+                        pendingOutputPath,
+                        conversionResult.ExitCode,
+                        conversionResult.LogPath);
+                }
+
+                QueueItemFailureKind failureKind = chdmanInputReadFailure
+                    ? QueueItemFailureKind.SourceUnreadable
+                    : QueueItemFailureKind.FailedConvert;
+
+                sink.ReportTerminalFailure(failureKind, failureMessage);
 
                 return WorkflowResultBuilder.Failure(
-                    QueueItemFailureKind.FailedConvert,
-                    conversionResult.Message,
+                    failureKind,
+                    failureMessage,
                     pendingOutputPath,
                     lastLogPath);
             }
@@ -459,7 +607,7 @@ internal sealed class WorkflowConversionStage(
 
                 var verifyProgress = new Progress<int>(value =>
                 {
-                    if (cancellationToken.IsCancellationRequested)
+                    if (cancellationToken.IsCancellationRequested || conversionSafetyCts.IsCancellationRequested)
                     {
                         return;
                     }
@@ -477,7 +625,8 @@ internal sealed class WorkflowConversionStage(
                         pendingOutputPath,
                         verifyProgress,
                         onProcessStarted: null,
-                        cancellationToken: cancellationToken).ConfigureAwait(false);
+                        cancellationToken: conversionSafetyCts.Token,
+                        priorityMode: settings.ChdmanPriorityMode).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
@@ -485,6 +634,17 @@ internal sealed class WorkflowConversionStage(
 
                     sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, CancelledDetailKey);
                     return WorkflowExecutionResult.Cancelled(CancelledDetailKey, pendingOutputPath, lastLogPath);
+                }
+                catch (OperationCanceledException) when (conversionSafetyCts.IsCancellationRequested)
+                {
+                    CleanupPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                    sink.ReportTerminalFailure(QueueItemFailureKind.FailedVerify, StorageTemperatureAbortKey);
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.FailedVerify,
+                        StorageTemperatureAbortKey,
+                        pendingOutputPath,
+                        lastLogPath);
                 }
                 catch (Exception ex) when (IsExpectedConversionStageException(ex))
                 {
@@ -504,6 +664,18 @@ internal sealed class WorkflowConversionStage(
                         detail,
                         pendingOutputPath,
                         lastLogPath);
+                }
+
+                if (verificationResult.WasCancelled && conversionSafetyCts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+                {
+                    CleanupPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                    sink.ReportTerminalFailure(QueueItemFailureKind.FailedVerify, StorageTemperatureAbortKey);
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.FailedVerify,
+                        StorageTemperatureAbortKey,
+                        pendingOutputPath,
+                        verificationResult.LogPath);
                 }
 
                 if (verificationResult.WasCancelled || cancellationToken.IsCancellationRequested)
@@ -529,6 +701,8 @@ internal sealed class WorkflowConversionStage(
                         pendingOutputPath,
                         lastLogPath);
                 }
+
+                verifyDuration = verificationResult.Duration;
             }
 
             WorkflowProgressContract.ReportFinalizing(
@@ -586,9 +760,42 @@ internal sealed class WorkflowConversionStage(
             sink.RecordPostConversionArtifacts(postProcessingResult);
 
             sink.AttachArtifact(QueueItemArtifactKind.OutputFile, finalOutputPath);
-            sink.RecordInputOutputBytes(
-                WorkflowPathUtilities.TryGetFileSize(inputPath),
-                WorkflowPathUtilities.TryGetFileSize(finalOutputPath));
+            long inputBytes = WorkflowPathUtilities.TryGetFileSize(inputPath);
+            long outputBytes = WorkflowPathUtilities.TryGetFileSize(finalOutputPath);
+            sink.RecordInputOutputBytes(inputBytes, outputBytes);
+
+            ConversionPerformanceReport performanceReport = _performanceReportFactory.Create(
+                inputBytes,
+                outputBytes,
+                conversionResult,
+                verifyDuration,
+                topology,
+                conversionSession.PowerGuardEnabled,
+                conversionSession.TemperatureAvailable,
+                conversionSession.TemperatureCapability,
+                conversionSession.MaxTemperatureCelsius,
+                hadInputReadWarning);
+
+            sink.RecordConversionPerformanceReport(performanceReport);
+
+            _log.Information(
+                "Conversion performance report. InputBytes={InputBytes}; OutputBytes={OutputBytes}; CompressionRatio={CompressionRatio}; ChdmanDuration={ChdmanDuration}; VerifyDuration={VerifyDuration}; NumProcessors={NumProcessors}; Compression={Compression}; HunkSize={HunkSize}; SourceAndOutputSameVolume={SourceAndOutputSameVolume}; SourceExternal={SourceExternal}; OutputExternal={OutputExternal}; PowerGuardEnabled={PowerGuardEnabled}; TemperatureAvailable={TemperatureAvailable}; TemperatureCapability={TemperatureCapability}; MaxTemperature={MaxTemperature}; Explanation={Explanation}",
+                performanceReport.InputBytes,
+                performanceReport.OutputBytes,
+                performanceReport.CompressionRatio,
+                performanceReport.ChdmanDuration,
+                performanceReport.VerifyDuration,
+                performanceReport.NumProcessors,
+                performanceReport.CompressionCodecs,
+                performanceReport.HunkSizeBytes,
+                performanceReport.SourceAndOutputSameVolume,
+                performanceReport.SourceIsExternal,
+                performanceReport.OutputIsExternal,
+                performanceReport.PowerGuardEnabled,
+                performanceReport.TemperatureAvailable,
+                performanceReport.TemperatureCapability,
+                performanceReport.MaxTemperatureCelsius,
+                performanceReport.CompressionExplanationKey);
 
             string successDetail = request.IsArchive
                 ? ArchiveConversionSuccessDetailKey
@@ -664,6 +871,13 @@ internal sealed class WorkflowConversionStage(
     private static bool IsBinCueRescueInput(string path) =>
         string.Equals(Path.GetExtension(path), ".bin", StringComparison.OrdinalIgnoreCase);
 
+    private static StorageTemperaturePolicy SelectTemperaturePolicy(StorageDeviceIdentity device)
+    {
+        return device.DeviceKind == StorageDeviceKind.Ssd
+            ? DefaultStorageTemperaturePolicies.ExternalSsd
+            : DefaultStorageTemperaturePolicies.ExternalHdd;
+    }
+
     private static bool IsExpectedConversionStageException(Exception ex) =>
         ex is InvalidDataException
         or InvalidOperationException
@@ -672,6 +886,19 @@ internal sealed class WorkflowConversionStage(
         or UnauthorizedAccessException
         or ArgumentException
         or System.Security.SecurityException;
+
+    private static bool IsSourceReadFailureException(Exception ex)
+    {
+        for (Exception? current = ex; current is not null; current = current.InnerException)
+        {
+            if (current is IOException or UnauthorizedAccessException)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private static bool IsNonFatalPostProcessingException(Exception ex) =>
         ex is not OperationCanceledException;

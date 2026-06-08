@@ -1,5 +1,6 @@
 using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Services.Conversion;
 using System;
 using System.Text;
 
@@ -39,6 +40,12 @@ public static class LocalizedSessionRunSummaryFormatter
         builder.AppendLine(ArabicUi.Get(MainWindowMessages.SessionM3uSkippedExisting) + metrics.M3uSkippedExistingCount);
         builder.AppendLine(ArabicUi.Get(MainWindowMessages.SessionPostProcessingWarnings) + metrics.PostProcessingFailureCount);
 
+        if (metrics.ConversionReports.Count > 0)
+        {
+            builder.AppendLine();
+            builder.AppendLine(ConversionPerformanceReportFormatter.FormatArabic(metrics.ConversionReports[0]));
+        }
+
         if (metrics.FailedItems.Count > 0)
         {
             builder.AppendLine();
@@ -65,5 +72,21 @@ public static class LocalizedSessionRunSummaryFormatter
         string.IsNullOrWhiteSpace(fileName) ? "-" : fileName.Trim();
 
     private static string FormatStatusDetailDisplay(string? statusDetail) =>
-        string.IsNullOrWhiteSpace(statusDetail) ? "-" : ArabicUi.ResolveDisplayString(statusDetail.Trim());
+        string.IsNullOrWhiteSpace(statusDetail)
+            ? "-"
+            : FormatResolvedStatusDetail(statusDetail.Trim());
+
+    private static string FormatResolvedStatusDetail(string statusDetail)
+    {
+        string resolved = ArabicUi.ResolveDisplayString(statusDetail);
+        if (string.Equals(statusDetail, ConversionSafetyPolicy.InputReadFailureMessageKey, StringComparison.Ordinal)
+            || string.Equals(statusDetail, ConversionSafetyPolicy.ChdmanInputReadWarningMessageKey, StringComparison.Ordinal))
+        {
+            return resolved
+                + Environment.NewLine
+                + ArabicUi.Get("LocConversionSafety_PreviousVerifyNotSourceProof");
+        }
+
+        return resolved;
+    }
 }

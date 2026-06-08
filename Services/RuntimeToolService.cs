@@ -57,7 +57,7 @@ public sealed class RuntimeToolService
 
         Version? version = Assembly.GetExecutingAssembly().GetName().Version;
         _versionFolder = version is null
-            ? "1.0.0"
+            ? "unknown"
             : $"{version.Major}.{version.Minor}.{version.Build}";
 
         _sessionId = Guid.NewGuid().ToString("N");

@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -36,7 +37,8 @@ public static class ChdmanProcessRunner
         Action<int>? onProcessStarted,
         CancellationToken cancellationToken,
         string? monitoredOutputPath = null,
-        IProgress<PerformanceSample>? performanceProgress = null)
+        IProgress<PerformanceSample>? performanceProgress = null,
+        ChdmanProcessPriorityMode priorityMode = ChdmanProcessPriorityMode.Quiet)
     {
         ArgumentNullException.ThrowIfNull(arguments);
 
@@ -121,7 +123,7 @@ public static class ChdmanProcessRunner
             int processId = SafeProcessId(process);
 
             TryNotifyProcessStarted(onProcessStarted, processId);
-            TrySetChdmanPriorityBelowNormal(processId);
+            TrySetChdmanPriority(processId, priorityMode);
             TryReportProgress(progress, 0);
 
             performanceCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -813,9 +815,16 @@ public static class ChdmanProcessRunner
         }
     }
 
-    private static void TrySetChdmanPriorityBelowNormal(int processId)
+    private static void TrySetChdmanPriority(
+        int processId,
+        ChdmanProcessPriorityMode priorityMode)
     {
         if (processId <= 0)
+        {
+            return;
+        }
+
+        if (priorityMode == ChdmanProcessPriorityMode.Normal)
         {
             return;
         }

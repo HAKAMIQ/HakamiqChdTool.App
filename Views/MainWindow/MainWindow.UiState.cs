@@ -603,6 +603,7 @@ public partial class MainWindow
             PostProcessingFailureCount: row.PostProcessingFailureCount,
             InputBytes: row.InputBytes,
             OutputBytes: row.OutputBytes,
+            ConversionPerformanceReport: row.ConversionPerformanceReport,
             FileName: NormalizeSummaryText(row.FileName),
             StatusDetail: NormalizeSummaryText(row.StatusDetail));
     }
