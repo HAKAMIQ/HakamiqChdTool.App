@@ -327,7 +327,7 @@ public partial class MainWindow
             return;
         }
 
-        if (!RequirePremiumFeature(PremiumFeature.AdvancedQueue))
+        if (!RequireAppFeature(AppFeature.AdvancedQueue))
         {
             return;
         }

@@ -44,13 +44,9 @@ public partial class MainWindowViewModel
         private int _lastAcceptedCount = -1;
         private int _lastScannedCount = -1;
         private string _lastPhaseKey = string.Empty;
-        private bool _lastFreeLimitReached;
         private bool _lastSkippedCorruptArchives;
         private bool _lastSkippedUnsupportedOrDuplicate;
 
-        public bool IsFreeLimited { get; init; }
-
-        public int FreeLimit { get; init; }
 
         public int AcceptedCount { get; set; }
 
@@ -62,7 +58,6 @@ public partial class MainWindowViewModel
 
         public string PhaseKey { get; set; } = "LocQueueAdd_ScanningFiles";
 
-        public bool FreeLimitReached { get; set; }
 
         public bool SkippedCorruptArchives { get; set; }
 
@@ -79,7 +74,6 @@ public partial class MainWindowViewModel
             bool changed = AcceptedCount != _lastAcceptedCount
                 || ScannedCount != _lastScannedCount
                 || !string.Equals(PhaseKey, _lastPhaseKey, StringComparison.Ordinal)
-                || FreeLimitReached != _lastFreeLimitReached
                 || SkippedCorruptArchives != _lastSkippedCorruptArchives
                 || SkippedUnsupportedOrDuplicate != _lastSkippedUnsupportedOrDuplicate;
 
@@ -92,7 +86,6 @@ public partial class MainWindowViewModel
             _lastAcceptedCount = AcceptedCount;
             _lastScannedCount = ScannedCount;
             _lastPhaseKey = PhaseKey;
-            _lastFreeLimitReached = FreeLimitReached;
             _lastSkippedCorruptArchives = SkippedCorruptArchives;
             _lastSkippedUnsupportedOrDuplicate = SkippedUnsupportedOrDuplicate;
         }
@@ -281,26 +274,12 @@ public partial class MainWindowViewModel
 
     private static string BuildIntakeAddedText(QueueAddProgressState progress)
     {
-        if (progress.IsFreeLimited)
-        {
-            return ArabicUi.Format(
-                "LocQueueAdd_AddedAllowedFilesFormat",
-                progress.AcceptedCount,
-                progress.FreeLimit);
-        }
-
         return ArabicUi.Format("LocQueueAdd_AddedFilesInProgressFormat", progress.AcceptedCount);
     }
 
     private static string BuildIntakeWarningText(QueueAddProgressState progress)
     {
         var lines = new List<string>();
-
-        if (progress.FreeLimitReached)
-        {
-            lines.Add(ArabicUi.Get("LocQueueAdd_FreeLimitReached"));
-            lines.Add(ArabicUi.Get("LocQueueAdd_PremiumUnlimitedFilesHint"));
-        }
 
         if (progress.SkippedCorruptArchives)
         {

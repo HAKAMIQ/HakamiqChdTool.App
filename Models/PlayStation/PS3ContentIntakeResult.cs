@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
 using System.Collections.Generic;
 
 namespace HakamiqChdTool.App.Models.PlayStation;
@@ -16,4 +17,7 @@ public sealed record PS3ContentIntakeResult(
     bool IsProbablyEncrypted,
     bool CanConvertToChd,
     string RecommendedPipeline,
-    IReadOnlyList<string> Warnings);
+    IReadOnlyList<string> Warnings)
+{
+    public BluRayIsoAnalysisResult? BluRayAnalysis { get; init; }
+}

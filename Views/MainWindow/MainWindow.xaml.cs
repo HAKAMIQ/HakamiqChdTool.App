@@ -1,10 +1,10 @@
-using HakamiqChdTool.App.Coordination;
+﻿using HakamiqChdTool.App.Coordination;
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Licensing;
+using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.PostProcessing;
 using HakamiqChdTool.App.Services.WpfShell;
 using HakamiqChdTool.App.ViewModels;
@@ -42,8 +42,7 @@ public partial class MainWindow : Window
     private readonly ChdmanPathResolver _chdmanPathResolver;
     private readonly IExternalLinkService _externalLinkService;
     private readonly PostConversionArtifactService _postConversionArtifacts;
-    private readonly ILicenseService _licenseService;
-    private readonly IFeatureAccessService _featureAccessService;
+    private readonly IAppFeatureService _appFeatureService;
     private readonly OrphanedWorkItemScanner _orphanedScanner;
     private readonly OrphanedWorkItemCleanupService _orphanedCleanup;
     private readonly IWindowActivationService _windowActivationService;
@@ -113,15 +112,14 @@ public partial class MainWindow : Window
         _chdmanPathResolver = bootstrap.ChdmanPathResolver;
         _externalLinkService = bootstrap.ExternalLinkService;
         _postConversionArtifacts = bootstrap.PostConversionArtifacts;
-        _licenseService = bootstrap.LicenseService;
-        _featureAccessService = bootstrap.FeatureAccessService;
+        _appFeatureService = bootstrap.AppFeatureService;
         _orphanedScanner = bootstrap.OrphanedScanner;
         _orphanedCleanup = bootstrap.OrphanedCleanup;
         _windowActivationService = bootstrap.WindowActivationService;
         _uiDispatcher = new WpfUiDispatcher(Dispatcher);
         _resourceTextProvider = new WpfResourceTextProvider();
 
-        _featureAccessService.ApplyFreeFeatureRestrictions(_settings);
+        _appFeatureService.ApplyFeatureAvailability(_settings);
 
         _startupCoordinator = new MainWindowStartupCoordinator(
             this,
@@ -209,7 +207,7 @@ public partial class MainWindow : Window
 
         _viewModel.IsRedumpFeatureVisible =
             _settings.EnableDeepIntegrityCheck
-            && _featureAccessService.CanUseFeature(PremiumFeature.RedumpDeepIntegrity);
+            && _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity);
         DataContext = _viewModel;
 
         _taskbarSessionProgress = new TaskbarSessionProgressViewModel();
@@ -234,7 +232,6 @@ public partial class MainWindow : Window
         Loaded += MainWindow_Loaded;
         ThemeService.Instance.ThemeChanged += ThemeService_ThemeChanged;
 
-        _viewModel.RefreshFeatureAccessDisplay();
         SyncThemeSelectorFromService();
         UpdateUiState();
         UpdateHeaderModeText();

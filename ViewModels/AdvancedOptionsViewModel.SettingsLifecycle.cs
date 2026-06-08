@@ -43,6 +43,11 @@ public sealed partial class AdvancedOptionsViewModel
         _redumpLastSyncedUtc = NormalizeStoredTimestamp(settings.RedumpLastSyncedUtc);
         OnPropertyChanged(nameof(DatabaseLastSyncedDisplay));
         SelectedProcessorOption = ProcessorOptions.FirstOrDefault(x => x.Value == settings.MaxProcessorCount) ?? ProcessorOptions.FirstOrDefault();
+        int maxConcurrentConversions = AppSettings.NormalizeMaxConcurrentConversions(settings.MaxConcurrentConversions);
+        SelectedConcurrentConversionOption = ConcurrentConversionOptions.FirstOrDefault(x => x.Value == maxConcurrentConversions)
+            ?? ConcurrentConversionOptions.FirstOrDefault();
+        SelectedPerformanceMode = ResolvePerformanceMode(settings.PerformanceMode);
+        SelectedPriorityMode = ResolvePriorityMode(settings.ChdmanPriorityMode);
         SelectedCompressionPreset = ResolveCompressionPreset(settings.CompressionCodecs);
         SelectedHunkPreset = ResolveHunkPreset(settings.HunkSizeBytes);
         SelectedIsoCreateOverride = ResolveIsoCreateOverride(settings.IsoCreateCommandOverride);
@@ -100,6 +105,14 @@ public sealed partial class AdvancedOptionsViewModel
         result.EnableRedumpAutoSync = EnableRedumpAutoSync;
         result.RedumpLastSyncedUtc = _redumpLastSyncedUtc ?? string.Empty;
         result.MaxProcessorCount = SelectedProcessorOption?.Value ?? 0;
+        result.MaxConcurrentConversions = AppSettings.NormalizeMaxConcurrentConversions(
+            SelectedConcurrentConversionOption?.Value ?? AppSettings.DefaultMaxConcurrentConversions);
+        result.PerformanceMode = Enum.TryParse<ConversionPerformanceMode>(SelectedPerformanceMode?.Key, true, out var performance)
+            ? performance
+            : ConversionPerformanceMode.Safe;
+        result.ChdmanPriorityMode = Enum.TryParse<ChdmanProcessPriorityMode>(SelectedPriorityMode?.Key, true, out var priority)
+            ? priority
+            : ChdmanProcessPriorityMode.Quiet;
         result.CompressionCodecs = SelectedCompressionPreset?.Key switch
         {
             "fast" => "preset:fast",
@@ -125,6 +138,10 @@ public sealed partial class AdvancedOptionsViewModel
     public void ApplyDefaultEngineSettings()
     {
         SelectedProcessorOption = ProcessorOptions.FirstOrDefault(x => x.Value == 0) ?? ProcessorOptions.FirstOrDefault();
+        SelectedConcurrentConversionOption = ConcurrentConversionOptions.FirstOrDefault(x => x.Value == AppSettings.DefaultMaxConcurrentConversions)
+            ?? ConcurrentConversionOptions.FirstOrDefault();
+        SelectedPerformanceMode = PerformanceModeOptions.FirstOrDefault(x => x.Key == nameof(ConversionPerformanceMode.Safe)) ?? PerformanceModeOptions.FirstOrDefault();
+        SelectedPriorityMode = PriorityModeOptions.FirstOrDefault(x => x.Key == nameof(ChdmanProcessPriorityMode.Quiet)) ?? PriorityModeOptions.FirstOrDefault();
         SelectedCompressionPreset = CompressionPresetOptions.FirstOrDefault(x => x.Key == "default") ?? CompressionPresetOptions.FirstOrDefault();
         SelectedHunkPreset = HunkPresetOptions.FirstOrDefault(x => x.Key == "default") ?? HunkPresetOptions.FirstOrDefault();
         SelectedIsoCreateOverride = IsoCreateOverrideOptions.FirstOrDefault(x => x.Key == nameof(IsoCreateCommandOverride.Auto)) ?? IsoCreateOverrideOptions.FirstOrDefault();

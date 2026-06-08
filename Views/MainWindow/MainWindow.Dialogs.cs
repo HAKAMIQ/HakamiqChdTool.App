@@ -1,7 +1,7 @@
-using HakamiqChdTool.App.Localization;
+﻿using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Licensing;
+using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.StorageAdvisor;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
@@ -55,8 +55,8 @@ public partial class MainWindow
         _ = dialog.ShowDialog();
     }
 
-    private bool RequirePremiumFeature(PremiumFeature feature) =>
-        _featureAccessService.CanUseFeature(feature);
+    private bool RequireAppFeature(AppFeature feature) =>
+        _appFeatureService.IsEnabled(feature);
 
     private bool ShowCloseWhileProcessingConfirmationDialog()
     {
@@ -225,6 +225,7 @@ public partial class MainWindow
         || string.Equals(finalResult, TaskFinalResultCodes.FailedConvert, StringComparison.Ordinal)
         || string.Equals(finalResult, TaskFinalResultCodes.FailedVerify, StringComparison.Ordinal)
         || string.Equals(finalResult, TaskFinalResultCodes.FailedExtract, StringComparison.Ordinal)
+        || string.Equals(finalResult, TaskFinalResultCodes.SourceUnreadable, StringComparison.Ordinal)
         || string.Equals(finalResult, TaskFinalResultCodes.Cancelled, StringComparison.Ordinal)
         || string.Equals(finalResult, TaskFinalResultCodes.PasswordRequired, StringComparison.Ordinal)
         || string.Equals(finalResult, TaskFinalResultCodes.Unsupported, StringComparison.Ordinal);

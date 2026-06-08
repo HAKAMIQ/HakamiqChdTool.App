@@ -42,6 +42,7 @@ public static class TaskQueueIntentMap
             QueueItemFailureKind.FailedVerify => TaskQueueStateCodes.Failed,
             QueueItemFailureKind.FailedExtract => TaskQueueStateCodes.Failed,
             QueueItemFailureKind.Unsupported => TaskQueueStateCodes.Skipped,
+            QueueItemFailureKind.SourceUnreadable => TaskQueueStateCodes.Failed,
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown QueueItemFailureKind value."),
         };
     }
@@ -69,6 +70,7 @@ public static class TaskQueueIntentMap
             QueueItemFailureKind.FailedVerify => TaskFinalResultCodes.FailedVerify,
             QueueItemFailureKind.FailedExtract => TaskFinalResultCodes.FailedExtract,
             QueueItemFailureKind.Unsupported => TaskFinalResultCodes.Unsupported,
+            QueueItemFailureKind.SourceUnreadable => TaskFinalResultCodes.SourceUnreadable,
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown QueueItemFailureKind value."),
         };
     }

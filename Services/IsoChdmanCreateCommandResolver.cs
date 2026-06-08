@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
 using System.IO;
@@ -26,6 +26,7 @@ public static class IsoChdmanCreateCommandResolver
     private const string DiscProbePspStructureReasonKey = "LocDiscProbe_PspStructure";
     private const string DiscProbePs2SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs2Boot2";
     private const string DiscProbePs1SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs1Hint";
+    private const string DiscProbePs3BluRayStructureReasonKey = "LocDiscProbe_Ps3BluRayStructure";
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext(typeof(IsoChdmanCreateCommandResolver));
 
@@ -160,7 +161,8 @@ public static class IsoChdmanCreateCommandResolver
         }
 
         if (string.Equals(reason, DiscProbePs2SystemCnfReasonKey, StringComparison.Ordinal)
-            || string.Equals(reason, DiscProbePspStructureReasonKey, StringComparison.Ordinal))
+            || string.Equals(reason, DiscProbePspStructureReasonKey, StringComparison.Ordinal)
+            || string.Equals(reason, DiscProbePs3BluRayStructureReasonKey, StringComparison.Ordinal))
         {
             return DiscMediaKind.DvdRom;
         }

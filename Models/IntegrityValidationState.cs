@@ -9,5 +9,6 @@ public enum IntegrityValidationState
     NoDat = 4,
     Unsupported = 5,
     Error = 6,
-    NoDirectRedump = 7
+    NoDirectRedump = 7,
+    NoRedumpMatch = 8
 }

@@ -6,6 +6,7 @@ using HakamiqChdTool.App.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace HakamiqChdTool.App.ViewModels;
 
@@ -21,7 +22,7 @@ public sealed partial class AboutWindowViewModel : ObservableObject
         _externalLinkService = externalLinkService;
         WindowTitle = info.WindowTitle;
         ProductName = info.ProductName;
-        VersionLabel = info.VersionLabel;
+        VersionLabel = ResolveVersionLabel(info.VersionLabel);
         Tagline = info.Tagline;
         Description = info.Description;
         DeveloperLine = info.DeveloperLine;
@@ -87,6 +88,62 @@ public sealed partial class AboutWindowViewModel : ObservableObject
         }
     }
 
+    private static string ResolveVersionLabel(string fallbackVersionLabel)
+    {
+        Assembly assembly = typeof(AboutWindowViewModel).Assembly;
+
+        string? informationalVersion = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion;
+
+        string? normalizedVersion = NormalizeVersionLabel(informationalVersion);
+
+        if (!string.IsNullOrWhiteSpace(normalizedVersion))
+        {
+            return normalizedVersion;
+        }
+
+        Version? assemblyVersion = assembly.GetName().Version;
+
+        if (assemblyVersion is not null &&
+            assemblyVersion.Major >= 0 &&
+            assemblyVersion.Minor >= 0 &&
+            assemblyVersion.Build >= 0)
+        {
+            return $"v{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
+        }
+
+        normalizedVersion = NormalizeVersionLabel(fallbackVersionLabel);
+
+        return string.IsNullOrWhiteSpace(normalizedVersion)
+            ? "v1.0.0"
+            : normalizedVersion;
+    }
+
+    private static string? NormalizeVersionLabel(string? versionLabel)
+    {
+        if (string.IsNullOrWhiteSpace(versionLabel))
+        {
+            return null;
+        }
+
+        string cleaned = versionLabel.Trim();
+
+        int buildMetadataIndex = cleaned.IndexOf('+', StringComparison.Ordinal);
+        if (buildMetadataIndex >= 0)
+        {
+            cleaned = cleaned[..buildMetadataIndex].Trim();
+        }
+
+        if (cleaned.Length == 0)
+        {
+            return null;
+        }
+
+        return cleaned.StartsWith("v", StringComparison.OrdinalIgnoreCase)
+            ? cleaned
+            : $"v{cleaned}";
+    }
 
     private static ObservableCollection<AboutCreditInfo> CreateCreditsCollection(
         IEnumerable<AboutCreditInfo>? credits)

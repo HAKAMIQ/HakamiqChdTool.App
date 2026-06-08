@@ -8,6 +8,7 @@ public static class TaskFinalResultCodes
     public const string FailedConvert = "FailedConvert";
     public const string FailedVerify = "FailedVerify";
     public const string FailedExtract = "FailedExtract";
+    public const string SourceUnreadable = "SourceUnreadable";
     public const string PasswordRequired = "PasswordRequired";
     public const string Cancelled = "Cancelled";
     public const string SkippedExists = "SkippedExists";

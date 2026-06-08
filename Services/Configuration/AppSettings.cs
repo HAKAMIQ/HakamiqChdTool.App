@@ -5,6 +5,10 @@ namespace HakamiqChdTool.App.Models;
 
 public sealed class AppSettings
 {
+    public const int DefaultMaxConcurrentConversions = 1;
+
+    public const int MaxConcurrentConversionsUpperBound = 4;
+
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? ExtensionData { get; set; }
 
@@ -78,17 +82,21 @@ public sealed class AppSettings
 
     public bool HasSeenAdministratorWarning { get; set; } = false;
 
-    public string StorePageUrl { get; set; } = string.Empty;
-
     public string DiscordSupportUrl { get; set; } = string.Empty;
 
     public int MaxProcessorCount { get; set; } = 0;
+
+    public int MaxConcurrentConversions { get; set; } = DefaultMaxConcurrentConversions;
 
     public bool EnableAutoResourceLimiter { get; set; } = true;
 
     public int ReservedLogicalCores { get; set; } = 2;
 
     public bool EnableStressMode { get; set; } = false;
+
+    public ConversionPerformanceMode PerformanceMode { get; set; } = ConversionPerformanceMode.Safe;
+
+    public ChdmanProcessPriorityMode ChdmanPriorityMode { get; set; } = ChdmanProcessPriorityMode.Quiet;
 
     public string CompressionCodecs { get; set; } = "preset:default";
 
@@ -103,11 +111,19 @@ public sealed class AppSettings
         ArgumentNullException.ThrowIfNull(settings);
 
         settings.MaxProcessorCount = 0;
+        settings.MaxConcurrentConversions = DefaultMaxConcurrentConversions;
         settings.EnableAutoResourceLimiter = true;
         settings.ReservedLogicalCores = 2;
+        settings.PerformanceMode = ConversionPerformanceMode.Safe;
+        settings.ChdmanPriorityMode = ChdmanProcessPriorityMode.Quiet;
         settings.CompressionCodecs = "preset:default";
         settings.HunkSizeBytes = 0;
         settings.IsoCreateCommandOverride = IsoCreateCommandOverride.Auto;
+    }
+
+    public static int NormalizeMaxConcurrentConversions(int value)
+    {
+        return Math.Clamp(value, DefaultMaxConcurrentConversions, MaxConcurrentConversionsUpperBound);
     }
 
     public void CopyFrom(AppSettings other)
@@ -149,12 +165,14 @@ public sealed class AppSettings
         ExternalChdmanPath = other.ExternalChdmanPath;
         PortableMode = other.PortableMode;
         HasSeenAdministratorWarning = other.HasSeenAdministratorWarning;
-        StorePageUrl = other.StorePageUrl;
         DiscordSupportUrl = other.DiscordSupportUrl;
         MaxProcessorCount = other.MaxProcessorCount;
+        MaxConcurrentConversions = NormalizeMaxConcurrentConversions(other.MaxConcurrentConversions);
         EnableAutoResourceLimiter = other.EnableAutoResourceLimiter;
         ReservedLogicalCores = other.ReservedLogicalCores;
         EnableStressMode = other.EnableStressMode;
+        PerformanceMode = other.PerformanceMode;
+        ChdmanPriorityMode = other.ChdmanPriorityMode;
         CompressionCodecs = other.CompressionCodecs;
         HunkSizeBytes = other.HunkSizeBytes;
         IsoCreateCommandOverride = other.IsoCreateCommandOverride;
@@ -202,12 +220,14 @@ public sealed class AppSettings
             ExternalChdmanPath = ExternalChdmanPath,
             PortableMode = PortableMode,
             HasSeenAdministratorWarning = HasSeenAdministratorWarning,
-            StorePageUrl = StorePageUrl,
             DiscordSupportUrl = DiscordSupportUrl,
             MaxProcessorCount = MaxProcessorCount,
+            MaxConcurrentConversions = NormalizeMaxConcurrentConversions(MaxConcurrentConversions),
             EnableAutoResourceLimiter = EnableAutoResourceLimiter,
             ReservedLogicalCores = ReservedLogicalCores,
             EnableStressMode = EnableStressMode,
+            PerformanceMode = PerformanceMode,
+            ChdmanPriorityMode = ChdmanPriorityMode,
             CompressionCodecs = CompressionCodecs,
             HunkSizeBytes = HunkSizeBytes,
             IsoCreateCommandOverride = IsoCreateCommandOverride,

@@ -2,6 +2,8 @@ using DiscUtils;
 using DiscUtils.Iso9660;
 using DiscUtils.Udf;
 using HakamiqChdTool.App.Models.PlayStation;
+using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
+using HakamiqChdTool.App.Services.PlayStation.BluRayAnalysis;
 using System.Collections.Generic;
 using System.IO;
 
@@ -13,19 +15,25 @@ public sealed class PS3IsoLayoutReader
 
     private readonly PS3ParamSfoReader _paramSfoReader;
     private readonly PS3DiscSfbReader _discSfbReader;
+    private readonly BluRayIsoAnalysisService _bluRayAnalysisService;
 
     public PS3IsoLayoutReader()
-        : this(new PS3ParamSfoReader(), new PS3DiscSfbReader())
+        : this(new PS3ParamSfoReader(), new PS3DiscSfbReader(), new BluRayIsoAnalysisService())
     {
     }
 
-    public PS3IsoLayoutReader(PS3ParamSfoReader paramSfoReader, PS3DiscSfbReader discSfbReader)
+    public PS3IsoLayoutReader(
+        PS3ParamSfoReader paramSfoReader,
+        PS3DiscSfbReader discSfbReader,
+        BluRayIsoAnalysisService bluRayAnalysisService)
     {
         ArgumentNullException.ThrowIfNull(paramSfoReader);
         ArgumentNullException.ThrowIfNull(discSfbReader);
+        ArgumentNullException.ThrowIfNull(bluRayAnalysisService);
 
         _paramSfoReader = paramSfoReader;
         _discSfbReader = discSfbReader;
+        _bluRayAnalysisService = bluRayAnalysisService;
     }
 
     public PS3ContentIntakeResult Analyze(string path)
@@ -40,24 +48,30 @@ public sealed class PS3IsoLayoutReader
         }
 
         bool hasDkey = HasAdjacentDkey(path);
+        BluRayIsoAnalysisResult? rawAnalysis = AnalyzeRawIso(path);
 
         if (TryAnalyzeIso9660(path, out PS3ContentIntakeResult? iso9660Result)
             && iso9660Result is not null)
         {
-            return iso9660Result;
+            return EnrichWithRawAnalysis(iso9660Result, rawAnalysis);
         }
 
         if (TryAnalyzeUdf(path, out PS3ContentIntakeResult? udfResult)
             && udfResult is not null)
         {
-            return udfResult;
+            return EnrichWithRawAnalysis(udfResult, rawAnalysis);
+        }
+
+        if (rawAnalysis is not null && rawAnalysis.LooksLikeBluRayStyleIso)
+        {
+            return BuildRawDetectedResult(path, rawAnalysis, hasDkey);
         }
 
         warnings.Add(hasDkey
             ? "The ISO file system could not be read. A matching .dkey file exists, but decryption is outside this intake step."
             : "The ISO file system could not be read. The image may be encrypted or incomplete.");
 
-        return BuildUnreadable(path, isProbablyEncrypted: true, warnings);
+        return BuildUnreadable(path, isProbablyEncrypted: true, warnings) with { BluRayAnalysis = rawAnalysis };
     }
 
     private bool TryAnalyzeIso9660(string path, out PS3ContentIntakeResult? result)
@@ -180,6 +194,117 @@ public sealed class PS3IsoLayoutReader
                 ? "ISO -> chdman createdvd -> CHD"
                 : "Unsupported or incomplete PS3 ISO",
             Warnings: warnings);
+    }
+
+    private BluRayIsoAnalysisResult? AnalyzeRawIso(string path)
+    {
+        return _bluRayAnalysisService.TryAnalyze(path, out BluRayIsoAnalysisResult? result, BluRayAnalysisProfile.Quick)
+            ? result
+            : null;
+    }
+
+    private static PS3ContentIntakeResult EnrichWithRawAnalysis(
+        PS3ContentIntakeResult result,
+        BluRayIsoAnalysisResult? rawAnalysis)
+    {
+        if (rawAnalysis is null)
+        {
+            return result;
+        }
+
+        bool canConvertFromRaw = CanConvertRawPs3Iso(rawAnalysis);
+        var warnings = new List<string>(result.Warnings);
+
+        if (rawAnalysis.Metadata.LooksLikePs3Disc && !result.HasPs3GameFolder)
+        {
+            AddWarningOnce(warnings, "PS3 disc markers were detected by the raw Blu-ray/PS3 analyzer.");
+        }
+
+        if (rawAnalysis.Metadata.HasUdfAnchor && !rawAnalysis.Metadata.LooksLikePs3Disc)
+        {
+            AddWarningOnce(warnings, "Blu-ray/UDF structure was detected, but PS3 game markers were not found.");
+        }
+
+        return result with
+        {
+            TitleId = FirstNonEmpty(result.TitleId, rawAnalysis.Metadata.PreferredTitleId),
+            TitleName = FirstNonEmpty(result.TitleName, rawAnalysis.Metadata.Title),
+            DiscId = FirstNonEmpty(result.DiscId, rawAnalysis.Metadata.SfbTitleId, rawAnalysis.Metadata.DiscTitleId),
+            HasPs3GameFolder = result.HasPs3GameFolder || rawAnalysis.Metadata.LooksLikePs3Disc,
+            HasParamSfo = result.HasParamSfo || rawAnalysis.Metadata.HasParamSfo,
+            HasEbootBin = result.HasEbootBin || rawAnalysis.Metadata.HasEbootBin,
+            HasPs3DiscSfb = result.HasPs3DiscSfb || rawAnalysis.Metadata.HasPs3DiscSfb,
+            IsProbablyEncrypted = result.IsProbablyEncrypted && !canConvertFromRaw,
+            CanConvertToChd = result.CanConvertToChd || canConvertFromRaw,
+            RecommendedPipeline = result.CanConvertToChd || canConvertFromRaw
+                ? "ISO -> chdman createdvd -> CHD"
+                : result.RecommendedPipeline,
+            Warnings = warnings,
+            BluRayAnalysis = rawAnalysis
+        };
+    }
+
+    private static PS3ContentIntakeResult BuildRawDetectedResult(
+        string path,
+        BluRayIsoAnalysisResult rawAnalysis,
+        bool hasDkey)
+    {
+        bool canConvert = CanConvertRawPs3Iso(rawAnalysis);
+        var warnings = new List<string>();
+
+        if (rawAnalysis.Metadata.LooksLikePs3Disc)
+        {
+            warnings.Add("The ISO file system could not be mounted, but raw PS3/Blu-ray disc markers were detected.");
+        }
+        else
+        {
+            warnings.Add("Blu-ray/UDF structure was detected, but PS3 game markers were not found.");
+        }
+
+        if (!canConvert)
+        {
+            warnings.Add(hasDkey
+                ? "A matching .dkey file exists, but decryption is outside this intake step."
+                : "Required PS3 game markers are incomplete. The image may be encrypted, incomplete, or not a PS3 game disc.");
+        }
+
+        return new PS3ContentIntakeResult(
+            InputFormat: PS3InputFormat.Iso,
+            ContentKind: rawAnalysis.Metadata.LooksLikePs3Disc
+                ? PS3ContentKind.DiscGame
+                : PS3ContentKind.Unknown,
+            SourcePath: path,
+            TitleId: FirstNonEmpty(rawAnalysis.Metadata.PreferredTitleId),
+            TitleName: FirstNonEmpty(rawAnalysis.Metadata.Title),
+            DiscId: FirstNonEmpty(rawAnalysis.Metadata.SfbTitleId, rawAnalysis.Metadata.DiscTitleId),
+            HasPs3GameFolder: rawAnalysis.Metadata.LooksLikePs3Disc,
+            HasParamSfo: rawAnalysis.Metadata.HasParamSfo,
+            HasEbootBin: rawAnalysis.Metadata.HasEbootBin,
+            HasPs3DiscSfb: rawAnalysis.Metadata.HasPs3DiscSfb,
+            IsProbablyEncrypted: !canConvert,
+            CanConvertToChd: canConvert,
+            RecommendedPipeline: canConvert
+                ? "ISO -> chdman createdvd -> CHD"
+                : "Encrypted, incomplete, or non-PS3 Blu-ray ISO",
+            Warnings: warnings)
+        {
+            BluRayAnalysis = rawAnalysis
+        };
+    }
+
+    private static bool CanConvertRawPs3Iso(BluRayIsoAnalysisResult rawAnalysis)
+    {
+        return rawAnalysis.Metadata.HasMinimumRequiredStructure
+            && rawAnalysis.Metadata.HasParamSfo
+            && rawAnalysis.Metadata.HasEbootBin;
+    }
+
+    private static void AddWarningOnce(ICollection<string> warnings, string warning)
+    {
+        if (!warnings.Contains(warning))
+        {
+            warnings.Add(warning);
+        }
     }
 
     private static PS3ContentIntakeResult BuildUnreadable(

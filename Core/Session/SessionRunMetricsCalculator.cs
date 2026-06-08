@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Services.Conversion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,13 @@ public static class SessionRunMetricsCalculator
             .DefaultIfEmpty(0)
             .Average();
 
+        ConversionPerformanceReport[] conversionReports =
+        [
+            .. targetItems
+                .Where(t => t.IsCompleted && t.ConversionPerformanceReport is not null)
+                .Select(t => t.ConversionPerformanceReport!)
+        ];
+
         SessionRunFailedItem[] failedItems =
         [
             .. targetItems
@@ -62,6 +70,7 @@ public static class SessionRunMetricsCalculator
             sessionArtifacts.M3uSkippedExistingCount,
             postProcessingFailureCount,
             avgCompression,
+            conversionReports,
             failedItems);
     }
 

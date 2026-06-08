@@ -2,6 +2,7 @@
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -54,7 +55,9 @@ public sealed class ChdConversionService
         bool computeInputSha1 = false,
         long? expectedOutputBytes = null,
         bool allowOverwriteOutput = false,
-        bool enableDiskSpaceGuard = true)
+        bool enableDiskSpaceGuard = true,
+        ConversionPerformanceMode performanceMode = ConversionPerformanceMode.Safe,
+        ChdmanProcessPriorityMode priorityMode = ChdmanProcessPriorityMode.Quiet)
     {
         if (string.IsNullOrWhiteSpace(chdmanPath))
         {
@@ -230,7 +233,8 @@ public sealed class ChdConversionService
         int normalizedProcessorLimit = ProcessorTopologyService.ResolveChdmanProcessorCount(
             maxProcessorCount,
             enableAutoResourceLimiter,
-            reservedLogicalCores);
+            reservedLogicalCores,
+            performanceMode);
         int passedProcessorLimit = isExtractCommand ? 0 : normalizedProcessorLimit;
 
         if (passedProcessorLimit > 0)
@@ -257,7 +261,7 @@ public sealed class ChdConversionService
         string displayCommandLine = ChdmanCliRunner.FormatCommandLineForDisplay(chdmanPath, arguments);
 
         Log.Information(
-            "CHD conversion starting. Input={InputPath}, Output={OutputPath}, Command={Command}, RequestedProcessors={RequestedProcessors}, PassedProcessors={PassedProcessors}, AutoLimiter={AutoLimiter}, ReservedLogicalCores={ReservedLogicalCores}, AvailableLogicalProcessors={AvailableLogicalProcessors}",
+            "CHD conversion starting. Input={InputPath}, Output={OutputPath}, Command={Command}, RequestedProcessors={RequestedProcessors}, PassedProcessors={PassedProcessors}, AutoLimiter={AutoLimiter}, ReservedLogicalCores={ReservedLogicalCores}, AvailableLogicalProcessors={AvailableLogicalProcessors}, PerformanceMode={PerformanceMode}, PriorityMode={PriorityMode}",
             resolvedInputPath,
             resolvedOutputPath,
             command,
@@ -265,11 +269,14 @@ public sealed class ChdConversionService
             passedProcessorLimit,
             enableAutoResourceLimiter,
             reservedLogicalCores,
-            availableLogicalProcessors);
+            availableLogicalProcessors,
+            performanceMode,
+            priorityMode);
         Log.Information("CHDMAN CMD: {Args}", displayCommandLine);
 
         ChdmanCliRunner.Result run;
         string? resultMessageKeyOverride = null;
+        var chdmanStopwatch = Stopwatch.StartNew();
         try
         {
             run = await ChdmanCliRunner.ExecuteAsync(
@@ -281,10 +288,12 @@ public sealed class ChdConversionService
                 cancellationToken: cancellationToken,
                 exclusiveFileAccessPath: resolvedInputPath,
                 monitoredOutputPath: resolvedOutputPath,
-                performanceProgress: performanceProgress);
+                performanceProgress: performanceProgress,
+                priorityMode: priorityMode);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            chdmanStopwatch.Stop();
             TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "operation cancelled before result was returned");
             Log.Debug("CHD conversion cancelled. Input: {InputPath}", inputPath);
 
@@ -297,7 +306,11 @@ public sealed class ChdConversionService
                 OutputPath = outputPath,
                 CommandLine = displayCommandLine,
                 Message = UserCancelledMessageKey,
-                LogPath = logPath
+                LogPath = logPath,
+                ChdmanDuration = chdmanStopwatch.Elapsed,
+                NumProcessors = passedProcessorLimit,
+                CompressionCodecs = string.IsNullOrWhiteSpace(resolvedCompression) ? "default" : resolvedCompression,
+                HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null
             };
         }
         catch (Exception ex)
@@ -337,10 +350,12 @@ public sealed class ChdConversionService
                         cancellationToken: cancellationToken,
                         exclusiveFileAccessPath: resolvedInputPath,
                         monitoredOutputPath: resolvedOutputPath,
-                        performanceProgress: performanceProgress).ConfigureAwait(false);
+                        performanceProgress: performanceProgress,
+                        priorityMode: priorityMode).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
+                    chdmanStopwatch.Stop();
                     TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "createcd hunk-size retry cancelled");
                     Log.Debug("CHD conversion cancelled during createcd hunk-size retry. Input: {InputPath}", inputPath);
 
@@ -355,7 +370,11 @@ public sealed class ChdConversionService
                         Output = run.StandardOutput,
                         Error = run.StandardError,
                         Message = UserCancelledMessageKey,
-                        LogPath = logPath
+                        LogPath = logPath,
+                        ChdmanDuration = chdmanStopwatch.Elapsed,
+                        NumProcessors = passedProcessorLimit,
+                        CompressionCodecs = string.IsNullOrWhiteSpace(resolvedCompression) ? "default" : resolvedCompression,
+                        HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null
                     };
                 }
             }
@@ -376,6 +395,7 @@ public sealed class ChdConversionService
 
         if (run.WasCancelled)
         {
+            chdmanStopwatch.Stop();
             TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "cancelled");
             Log.Debug("CHD conversion cancelled. Input: {InputPath}", inputPath);
 
@@ -390,7 +410,11 @@ public sealed class ChdConversionService
                 Output = run.StandardOutput,
                 Error = run.StandardError,
                 Message = UserCancelledMessageKey,
-                LogPath = logPath
+                LogPath = logPath,
+                ChdmanDuration = chdmanStopwatch.Elapsed,
+                NumProcessors = passedProcessorLimit,
+                CompressionCodecs = string.IsNullOrWhiteSpace(resolvedCompression) ? "default" : resolvedCompression,
+                HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null
             };
         }
 
@@ -420,10 +444,12 @@ public sealed class ChdConversionService
                     cancellationToken: cancellationToken,
                     exclusiveFileAccessPath: resolvedInputPath,
                     monitoredOutputPath: resolvedOutputPath,
-                    performanceProgress: performanceProgress).ConfigureAwait(false);
+                    performanceProgress: performanceProgress,
+                    priorityMode: priorityMode).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
+                chdmanStopwatch.Stop();
                 TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "extractcd splitbin retry cancelled");
                 Log.Debug("CHD conversion cancelled during extractcd splitbin retry. Input: {InputPath}", inputPath);
 
@@ -438,13 +464,18 @@ public sealed class ChdConversionService
                     Output = run.StandardOutput,
                     Error = run.StandardError,
                     Message = UserCancelledMessageKey,
-                    LogPath = logPath
+                    LogPath = logPath,
+                    ChdmanDuration = chdmanStopwatch.Elapsed,
+                    NumProcessors = passedProcessorLimit,
+                    CompressionCodecs = string.IsNullOrWhiteSpace(resolvedCompression) ? "default" : resolvedCompression,
+                    HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null
                 };
             }
         }
 
         if (run.WasCancelled)
         {
+            chdmanStopwatch.Stop();
             TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "cancelled");
             Log.Debug("CHD conversion cancelled. Input: {InputPath}", inputPath);
 
@@ -459,9 +490,15 @@ public sealed class ChdConversionService
                 Output = run.StandardOutput,
                 Error = run.StandardError,
                 Message = UserCancelledMessageKey,
-                LogPath = logPath
+                LogPath = logPath,
+                ChdmanDuration = chdmanStopwatch.Elapsed,
+                NumProcessors = passedProcessorLimit,
+                CompressionCodecs = string.IsNullOrWhiteSpace(resolvedCompression) ? "default" : resolvedCompression,
+                HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null
             };
         }
+
+        chdmanStopwatch.Stop();
 
         string output = run.StandardOutput;
         string error = run.StandardError;
@@ -511,6 +548,9 @@ public sealed class ChdConversionService
         logBuilder.AppendLine($"AutoResourceLimiter: {enableAutoResourceLimiter}");
         logBuilder.AppendLine($"ReservedLogicalCores: {reservedLogicalCores}");
         logBuilder.AppendLine($"PassedProcessors: {(passedProcessorLimit > 0 ? passedProcessorLimit.ToString() : "default")}");
+        logBuilder.AppendLine($"PerformanceMode: {performanceMode}");
+        logBuilder.AppendLine($"PriorityMode: {priorityMode}");
+        logBuilder.AppendLine($"ChdmanDuration: {chdmanStopwatch.Elapsed}");
         logBuilder.AppendLine($"DiskPreflightMessageKey: {diskPreflightMessageKey}");
         logBuilder.AppendLine($"DiskPreflightOperationKey: {diskPreflightOperationKey}");
         if (inputSha1 is not null)
@@ -549,7 +589,11 @@ public sealed class ChdConversionService
             Message = success
                 ? (isExtractCommand ? ExtractionSuccessMessageKey : ConversionSuccessMessageKey)
                 : resultMessageKeyOverride ?? (isExtractCommand ? ExtractionFailedMessageKey : ConversionFailedMessageKey),
-            LogPath = logPath
+            LogPath = logPath,
+            ChdmanDuration = chdmanStopwatch.Elapsed,
+            NumProcessors = passedProcessorLimit,
+            CompressionCodecs = string.IsNullOrWhiteSpace(resolvedCompression) ? "default" : resolvedCompression,
+            HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null
         };
     }
 

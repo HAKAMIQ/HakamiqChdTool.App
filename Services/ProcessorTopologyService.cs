@@ -1,6 +1,7 @@
 using Serilog;
 using System.Management;
 using System.Runtime.InteropServices;
+using HakamiqChdTool.App.Models;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -31,7 +32,8 @@ public static class ProcessorTopologyService
     public static int ResolveChdmanProcessorCount(
         int maxProcessorCount,
         bool enableAutoResourceLimiter,
-        int reservedLogicalCores)
+        int reservedLogicalCores,
+        ConversionPerformanceMode performanceMode = ConversionPerformanceMode.Safe)
     {
         if (maxProcessorCount <= 0 && !enableAutoResourceLimiter)
         {
@@ -45,7 +47,35 @@ public static class ProcessorTopologyService
             return Math.Clamp(maxProcessorCount, 1, availableLogical);
         }
 
-        return ResolveSafeAutoProcessorCount(availableLogical, reservedLogicalCores);
+        return performanceMode switch
+        {
+            ConversionPerformanceMode.Fast => ResolveFastAutoProcessorCount(availableLogical),
+            ConversionPerformanceMode.Balanced => ResolveBalancedAutoProcessorCount(availableLogical, reservedLogicalCores),
+            _ => ResolveSafeAutoProcessorCount(availableLogical, reservedLogicalCores)
+        };
+    }
+
+    private static int ResolveBalancedAutoProcessorCount(
+        int availableLogical,
+        int configuredReservedLogicalCores)
+    {
+        int normalizedAvailable = Math.Max(1, availableLogical);
+        int reserve = Math.Clamp(
+            configuredReservedLogicalCores > 0 ? configuredReservedLogicalCores : 1,
+            0,
+            Math.Max(0, normalizedAvailable - 1));
+
+        int reserveAwareLimit = Math.Max(1, normalizedAvailable - reserve);
+        int threeQuarterLimit = Math.Max(1, (int)Math.Ceiling(normalizedAvailable * 0.75d));
+        int balancedLimit = Math.Min(reserveAwareLimit, threeQuarterLimit);
+
+        return Math.Clamp(balancedLimit, 1, normalizedAvailable);
+    }
+
+    private static int ResolveFastAutoProcessorCount(int availableLogical)
+    {
+        int normalizedAvailable = Math.Max(1, availableLogical);
+        return Math.Clamp(Math.Max(1, normalizedAvailable - 1), 1, normalizedAvailable);
     }
 
     private static int ResolveSafeAutoProcessorCount(

@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Localization;
+﻿using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using System;
@@ -40,7 +40,6 @@ public partial class MainWindow
         ApplyThemeFromSettings();
         SyncThemeSelectorFromService();
         SyncFeatureVisibility();
-        _viewModel.RefreshFeatureAccessDisplay();
         UpdateSidebarWorkflowSummary();
     }
 
@@ -66,7 +65,7 @@ public partial class MainWindow
     {
         _viewModel.IsRedumpFeatureVisible =
             _settings.EnableDeepIntegrityCheck
-            && _featureAccessService.CanUseFeature(PremiumFeature.RedumpDeepIntegrity);
+            && _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity);
         _viewModel.NotifyQueueCommandsCanExecuteChanged();
     }
 
@@ -114,7 +113,7 @@ public partial class MainWindow
         MainFooterStatusStrip.ToolTip = settingsLine;
     }
 
-    private void RefreshFeatureAccessFromUi()
+    private void RefreshFeatureVisibilityFromUi()
     {
         SyncFeatureVisibility();
         UpdateHeaderModeText();

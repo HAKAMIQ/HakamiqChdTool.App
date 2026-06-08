@@ -1,5 +1,31 @@
 # Changelog
 
+## v1.0.3 — 2026-06-06
+
+### Added
+
+- Integrated Hakamiq.BluRayAnalyzer as an internal PS3 / Blu-ray ISO analysis layer.
+- Added raw ISO detection support for PS3 and Blu-ray/UDF media.
+- Added metadata checks for PS3 disc markers such as `PS3_DISC.SFB`, `PARAM.SFO`, and `EBOOT.BIN`.
+
+### Changed
+
+- Kept `HakamiqChdTool.App` as the fixed source/package folder name while advancing assembly metadata to `v1.0.3`.
+- Preserved the existing queue, workflow, Redump, 7-Zip, and `chdman` runtime behavior from v102.
+
+## v1.0.2 — 2026-06-06
+
+### Changed
+
+- Converted the application to one unified public version for all users.
+- Removed Free/Premium/licensing runtime gates and related product activation flow.
+- Kept third-party legal notices for MIT, MAME/chdman, and 7-Zip.
+- Aligned application version metadata with the GitHub release tag.
+
+### Fixed
+
+- Redump standard-name suggestion setting can be enabled or disabled from Advanced Options without requiring the local Redump database to be available first.
+
 ## GitHub source package cleanup — 2026-06-04
 
 ### Changed

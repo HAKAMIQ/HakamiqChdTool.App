@@ -129,10 +129,6 @@ internal sealed class AppSessionCoordinator : IAppSessionCoordinator, IDisposabl
             return;
         }
 
-        if (!TryValidatePremiumRequirements([selected]))
-        {
-            return;
-        }
 
         if (ShouldRunStorageAdvisorForProcessingItem(selected)
             && !_ui.ConfirmStorageAdvisorBeforeProcessing([selected], processedSelectionOnly: true))
@@ -551,10 +547,6 @@ internal sealed class AppSessionCoordinator : IAppSessionCoordinator, IDisposabl
             return;
         }
 
-        if (!TryValidatePremiumRequirements(queuedVms))
-        {
-            return;
-        }
 
         TaskQueueItemViewModel[] storageAdvisorItems =
         [
@@ -641,53 +633,6 @@ internal sealed class AppSessionCoordinator : IAppSessionCoordinator, IDisposabl
             EndSession();
         }
     }
-
-    private bool TryValidatePremiumRequirements(IReadOnlyList<TaskQueueItemViewModel> items)
-    {
-        ArgumentNullException.ThrowIfNull(items);
-
-        bool requiresBinCueRescue = items.Any(static item => IsBinCueRescueConversionItem(item));
-        if (!requiresBinCueRescue)
-        {
-            return true;
-        }
-
-        return _ui.RequirePremiumFeature(PremiumFeature.AdvancedSafetyChecks);
-    }
-
-    private static bool IsBinCueRescueConversionItem(TaskQueueItemViewModel? item)
-    {
-        if (item is null || string.IsNullOrWhiteSpace(item.SourcePath))
-        {
-            return false;
-        }
-
-        if (!string.Equals(item.RequestedAction, TaskActionCodes.ConvertToChd, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        try
-        {
-            return string.Equals(
-                Path.GetExtension(item.SourcePath.Trim()),
-                ".bin",
-                StringComparison.OrdinalIgnoreCase);
-        }
-        catch (Exception ex) when (IsExpectedBinCueRescuePathFailure(ex))
-        {
-            return false;
-        }
-    }
-
-    private static bool IsExpectedBinCueRescuePathFailure(Exception ex) =>
-        ex is IOException
-        or UnauthorizedAccessException
-        or ArgumentException
-        or NotSupportedException
-        or PathTooLongException
-        or InvalidOperationException
-        or System.Security.SecurityException;
 
     private bool TryBeginSession(out CancellationToken token)
     {

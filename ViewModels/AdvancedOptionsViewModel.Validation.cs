@@ -1,4 +1,5 @@
-using HakamiqChdTool.App.Localization;
+﻿using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -20,6 +21,7 @@ public sealed partial class AdvancedOptionsViewModel
         ValidateProperty(ExternalChdmanPathValidationProxy, nameof(ExternalChdmanPathValidationProxy));
         ValidateProperty(RedumpDatabaseDownloadUrlValidationProxy, nameof(RedumpDatabaseDownloadUrlValidationProxy));
         ValidateProperty(SelectedProcessorValueValidationProxy, nameof(SelectedProcessorValueValidationProxy));
+        ValidateProperty(SelectedConcurrentConversionValueValidationProxy, nameof(SelectedConcurrentConversionValueValidationProxy));
     }
 
     public string? GetFirstErrorMessage()
@@ -44,7 +46,8 @@ public sealed partial class AdvancedOptionsViewModel
             nameof(RedumpDatXmlPathValidationProxy),
             nameof(ExternalChdmanPathValidationProxy),
             nameof(RedumpDatabaseDownloadUrlValidationProxy),
-            nameof(SelectedProcessorValueValidationProxy)
+            nameof(SelectedProcessorValueValidationProxy),
+            nameof(SelectedConcurrentConversionValueValidationProxy)
         ];
 
         foreach (string propertyName in propertyNames)
@@ -186,6 +189,23 @@ public sealed partial class AdvancedOptionsViewModel
         return vm.SelectedProcessorOption is null
             ? Error("LocAdv_ErrorProcessorRequired", nameof(SelectedProcessorOption))
             : ValidationResult.Success;
+    }
+
+
+    public static ValidationResult? ValidateSelectedConcurrentConversionValue(int _, ValidationContext context)
+    {
+        if (context.ObjectInstance is not AdvancedOptionsViewModel vm)
+        {
+            return Error("LocAdv_ErrorConcurrentConversionsValidationFailed");
+        }
+
+        int selected = vm.SelectedConcurrentConversionOption?.Value ?? 0;
+        bool ok = selected >= AppSettings.DefaultMaxConcurrentConversions
+            && selected <= AppSettings.MaxConcurrentConversionsUpperBound;
+
+        return ok
+            ? ValidationResult.Success
+            : Error("LocAdv_ErrorConcurrentConversionsRequired", nameof(SelectedConcurrentConversionOption));
     }
 
     private static ValidationResult Error(string key, params string[] memberNames)

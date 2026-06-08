@@ -1,3 +1,5 @@
+using HakamiqChdTool.App.Services.Conversion;
+
 namespace HakamiqChdTool.App.Core.Session;
 
 public sealed record SessionRunSummaryItem(
@@ -13,5 +15,6 @@ public sealed record SessionRunSummaryItem(
     int PostProcessingFailureCount,
     long InputBytes,
     long OutputBytes,
+    ConversionPerformanceReport? ConversionPerformanceReport,
     string FileName,
     string StatusDetail);

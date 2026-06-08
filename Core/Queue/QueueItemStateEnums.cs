@@ -25,7 +25,8 @@ public enum QueueItemFailureKind
     FailedConvert = 3,
     FailedVerify = 4,
     FailedExtract = 5,
-    Unsupported = 6
+    Unsupported = 6,
+    SourceUnreadable = 7
 }
 
 public enum QueueItemArtifactKind

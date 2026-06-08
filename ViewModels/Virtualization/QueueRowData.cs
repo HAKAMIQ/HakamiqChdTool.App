@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Services.Conversion;
 using System;
 
 namespace HakamiqChdTool.App.ViewModels.Virtualization;
@@ -47,6 +48,7 @@ public sealed class QueueRowData
     public long CleanupDeletedBytes { get; set; }
     public int SbiCopiedCount { get; set; }
     public int PostProcessingFailureCount { get; set; }
+    public ConversionPerformanceReport? ConversionPerformanceReport { get; set; }
 
     public IntegrityValidationState IntegrityState { get; set; } = IntegrityValidationState.None;
     public string IntegrityMessage { get; set; } = "-";
@@ -66,6 +68,6 @@ public sealed class QueueRowData
         SourcePath = string.IsNullOrWhiteSpace(SourcePath) ? OriginalPath : SourcePath,
         FileName = FileName,
         DetectedPlatform = DetectedPlatform,
-        RequestedAction = RequestedAction,
+            RequestedAction = RequestedAction,
     };
 }

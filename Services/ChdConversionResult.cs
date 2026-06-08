@@ -12,4 +12,8 @@ public sealed class ChdConversionResult
     public string Error { get; init; } = string.Empty;
     public string Message { get; init; } = string.Empty;
     public string LogPath { get; init; } = string.Empty;
+    public TimeSpan ChdmanDuration { get; init; }
+    public int NumProcessors { get; init; }
+    public string CompressionCodecs { get; init; } = string.Empty;
+    public int? HunkSizeBytes { get; init; }
 }

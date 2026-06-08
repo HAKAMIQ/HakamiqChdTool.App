@@ -130,31 +130,6 @@ public partial class MainWindowViewModel
                 () => _session.IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly,
                 DispatcherPriority.Normal);
 
-            bool hasUnlimitedBatch = _session.FeatureAccess.CanUseFeature(PremiumFeature.UnlimitedBatch);
-            int freeBatchLimit = _session.FeatureAccess.FreeBatchLimit;
-            int acceptedLimit = hasUnlimitedBatch ? int.MaxValue : freeBatchLimit;
-
-            if (acceptedLimit <= 0)
-            {
-                await dispatcher.InvokeAsync(() =>
-                {
-                    string footer = ArabicUi.Get("LocQueueAdd_FreeLimitReached") + " "
-                        + ArabicUi.Get("LocQueueAdd_PremiumUnlimitedFilesHint");
-                    _session.SetFooterStatus(footer);
-                    _session.UpdateUiState();
-                }, DispatcherPriority.Background);
-
-                await EndIntakeOperationAsync(dispatcher, intakeUiVersion).ConfigureAwait(false);
-                intakeUiEnded = true;
-                await ShowIntakeResultAsync(
-                    dispatcher,
-                    actualAddedDelta: 0,
-                    skippedCorruptArchives: false,
-                    skippedUnsupportedOrDuplicate: true,
-                    wasCancelled: false).ConfigureAwait(false);
-                return Array.Empty<Guid>();
-            }
-
             HashSet<string> existingPaths = await dispatcher.InvokeAsync(
                 () => BuildExistingPathSet(_session.QueueRows),
                 DispatcherPriority.Background);
@@ -174,8 +149,6 @@ public partial class MainWindowViewModel
 
             var progress = new QueueAddProgressState
             {
-                IsFreeLimited = !hasUnlimitedBatch,
-                FreeLimit = freeBatchLimit,
                 TotalCount = Math.Max(rawList.Count, 1),
                 HasKnownTotal = directoryCount == 0
             };
@@ -186,11 +159,6 @@ public partial class MainWindowViewModel
             {
                 intakeToken.ThrowIfCancellationRequested();
 
-                if (!hasUnlimitedBatch && preparedCandidates.Count >= acceptedLimit)
-                {
-                    progress.FreeLimitReached = true;
-                    break;
-                }
 
                 progress.ScannedCount++;
                 progress.TotalCount = Math.Max(progress.TotalCount, progress.ScannedCount);
@@ -264,18 +232,8 @@ public partial class MainWindowViewModel
                 progress.PhaseKey = "LocQueueAdd_ScanningFiles";
                 await UpdateQueueAddProgressAsync(dispatcher, intakeUiVersion, progress, force: prepared.Candidates.Count > 0).ConfigureAwait(false);
 
-                if (!hasUnlimitedBatch && preparedCandidates.Count >= acceptedLimit)
-                {
-                    progress.FreeLimitReached = true;
-                    break;
-                }
             }
 
-            if (!hasUnlimitedBatch && preparedCandidates.Count >= acceptedLimit)
-            {
-                progress.FreeLimitReached = true;
-                await UpdateQueueAddProgressAsync(dispatcher, intakeUiVersion, progress, force: true).ConfigureAwait(false);
-            }
 
             if (preparedCandidates.Count == 0)
             {

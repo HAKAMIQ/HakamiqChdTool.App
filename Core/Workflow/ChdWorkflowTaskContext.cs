@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Core.Queue;
+﻿using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Models;
 using System;
 
@@ -51,7 +51,7 @@ public sealed class ChdWorkflowTaskContext
         }
     }
 
-    public Func<PremiumFeature, bool> CanUsePremiumFeature { get; init; } = static _ => false;
+    public Func<AppFeature, bool> CanUseAppFeature { get; init; } = static feature => Enum.IsDefined(feature);
 
     public ChdWorkflowMode Mode { get; init; } = ChdWorkflowMode.ProcessQueueItem;
 

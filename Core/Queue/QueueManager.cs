@@ -15,7 +15,7 @@ namespace HakamiqChdTool.App.Core.Queue;
 
 public sealed class QueueManager : IQueueManager
 {
-    private const int DefaultMaxConcurrentItems = 1;
+    private const int DefaultMaxConcurrentItems = AppSettings.DefaultMaxConcurrentConversions;
 
     private const string StatusPending = TaskQueueStateCodes.Pending;
     private const string StatusRunning = TaskQueueStateCodes.Processing;
@@ -38,10 +38,13 @@ public sealed class QueueManager : IQueueManager
     private readonly IChdWorkflowOrchestrator _orchestrator;
     private readonly Func<AppSettings> _getSettings;
     private readonly Func<string> _getChdmanPath;
-    private readonly Func<PremiumFeature, bool> _canUsePremiumFeature;
+    private readonly Func<AppFeature, bool> _canUseAppFeature;
     private readonly ConcurrentQueue<ChdQueueItem> _workQueue = new();
     private readonly SemaphoreSlim _signal = new(0, int.MaxValue);
-    private readonly SemaphoreSlim _processConcurrency;
+    private readonly object _processConcurrencyGate = new();
+    private SemaphoreSlim _processConcurrency;
+    private int _maxConcurrentItems;
+    private int? _pendingMaxConcurrentItems;
     private readonly object _itemsLock = new();
     private readonly List<ChdQueueItem> _items = [];
     private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _itemTokens = new();
@@ -74,19 +77,55 @@ public sealed class QueueManager : IQueueManager
         Func<AppSettings> getSettings,
         Func<string> getChdmanPath,
         int maxConcurrentItems = DefaultMaxConcurrentItems,
-        Func<PremiumFeature, bool>? canUsePremiumFeature = null)
+        Func<AppFeature, bool>? canUseAppFeature = null)
     {
         ArgumentNullException.ThrowIfNull(orchestrator);
         ArgumentNullException.ThrowIfNull(getSettings);
         ArgumentNullException.ThrowIfNull(getChdmanPath);
 
-        int concurrency = Math.Max(1, maxConcurrentItems);
+        int concurrency = AppSettings.NormalizeMaxConcurrentConversions(maxConcurrentItems);
 
         _orchestrator = orchestrator;
         _getSettings = getSettings;
         _getChdmanPath = getChdmanPath;
-        _canUsePremiumFeature = canUsePremiumFeature ?? (static _ => false);
+        _canUseAppFeature = canUseAppFeature ?? (static feature => Enum.IsDefined(feature));
+        _maxConcurrentItems = concurrency;
         _processConcurrency = new SemaphoreSlim(concurrency, concurrency);
+    }
+
+    public void UpdateMaxConcurrentItems(int maxConcurrentItems)
+    {
+        if (Volatile.Read(ref _disposed) != 0)
+        {
+            Logger.Warning("Queue concurrency update ignored because queue manager has already been disposed.");
+            return;
+        }
+
+        int normalized = AppSettings.NormalizeMaxConcurrentConversions(maxConcurrentItems);
+
+        lock (_processConcurrencyGate)
+        {
+            if (normalized == _maxConcurrentItems)
+            {
+                _pendingMaxConcurrentItems = null;
+                return;
+            }
+
+            if (HasActiveOrReservedConcurrencySlotUnsafe())
+            {
+                _pendingMaxConcurrentItems = normalized;
+
+                Logger.Warning(
+                    "Queue concurrency update deferred until queued work becomes idle. RequestedMaxConcurrentItems={RequestedMaxConcurrentItems} CurrentMaxConcurrentItems={CurrentMaxConcurrentItems} RunningCount={RunningCount}",
+                    normalized,
+                    _maxConcurrentItems,
+                    _runningItems.Count);
+
+                return;
+            }
+
+            ApplyMaxConcurrentItemsUnsafe(normalized);
+        }
     }
 
     public QueueManager(
@@ -97,8 +136,8 @@ public sealed class QueueManager : IQueueManager
         Func<Guid, IQueueItemStateSink?> resolveSink,
         Action onUiRefresh,
         int maxConcurrentItems = DefaultMaxConcurrentItems,
-        Func<PremiumFeature, bool>? canUsePremiumFeature = null)
-        : this(orchestrator, getSettings, getChdmanPath, maxConcurrentItems, canUsePremiumFeature)
+        Func<AppFeature, bool>? canUseAppFeature = null)
+        : this(orchestrator, getSettings, getChdmanPath, maxConcurrentItems, canUseAppFeature)
     {
         ConfigurePresentationBindings(resolveSnapshot, resolveSink, onUiRefresh);
     }
@@ -453,6 +492,38 @@ public sealed class QueueManager : IQueueManager
     {
         ObserveCompletedRunningTask(itemId, completedTask);
         _runningItems.TryRemove(itemId, out _);
+        TryApplyPendingMaxConcurrentItemsIfIdle();
+    }
+
+    private void TryApplyPendingMaxConcurrentItemsIfIdle()
+    {
+        lock (_processConcurrencyGate)
+        {
+            if (_pendingMaxConcurrentItems is not int pending)
+            {
+                return;
+            }
+
+            if (HasActiveOrReservedConcurrencySlotUnsafe())
+            {
+                return;
+            }
+
+            ApplyMaxConcurrentItemsUnsafe(pending);
+        }
+    }
+
+    private bool HasActiveOrReservedConcurrencySlotUnsafe()
+    {
+        return !_runningItems.IsEmpty || _processConcurrency.CurrentCount != _maxConcurrentItems;
+    }
+
+    private void ApplyMaxConcurrentItemsUnsafe(int maxConcurrentItems)
+    {
+        int normalized = AppSettings.NormalizeMaxConcurrentConversions(maxConcurrentItems);
+        _processConcurrency = new SemaphoreSlim(normalized, normalized);
+        _maxConcurrentItems = normalized;
+        _pendingMaxConcurrentItems = null;
     }
 
     private void PruneCompletedRunningItemTracking()
@@ -494,13 +565,19 @@ public sealed class QueueManager : IQueueManager
         CancellationToken itemToken,
         CancellationToken shutdownToken)
     {
+        SemaphoreSlim processConcurrency;
         bool gateEntered = false;
+
+        lock (_processConcurrencyGate)
+        {
+            processConcurrency = _processConcurrency;
+        }
 
         try
         {
             using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(itemToken, shutdownToken);
 
-            await _processConcurrency.WaitAsync(linkedCts.Token).ConfigureAwait(false);
+            await processConcurrency.WaitAsync(linkedCts.Token).ConfigureAwait(false);
             gateEntered = true;
 
             await ProcessQueuedItemAsync(item, linkedCts.Token).ConfigureAwait(false);
@@ -532,7 +609,7 @@ public sealed class QueueManager : IQueueManager
             {
                 try
                 {
-                    _processConcurrency.Release();
+                    processConcurrency.Release();
                 }
                 catch (ObjectDisposedException ex)
                 {
@@ -753,7 +830,7 @@ public sealed class QueueManager : IQueueManager
                     Sink = sink,
                     Settings = settings,
                     GetChdmanPath = _getChdmanPath,
-                    CanUsePremiumFeature = _canUsePremiumFeature,
+                    CanUseAppFeature = _canUseAppFeature,
                     Mode = workflowMode,
                     OnUiRefresh = _onUiRefresh
                 }

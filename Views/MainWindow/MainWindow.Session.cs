@@ -2,7 +2,7 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Licensing;
+using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.M3u;
 using HakamiqChdTool.App.Services.StorageAdvisor;
 using HakamiqChdTool.App.ViewModels;
@@ -47,10 +47,10 @@ public partial class MainWindow
 
         public AppSettings GetSettings() => _w._settings;
 
-        public IFeatureAccessService FeatureAccess => _w._featureAccessService;
+        public IAppFeatureService AppFeatures => _w._appFeatureService;
 
-        public bool RequirePremiumFeature(PremiumFeature feature) =>
-            _w.RequirePremiumFeature(feature);
+        public bool RequireAppFeature(AppFeature feature) =>
+            _w.RequireAppFeature(feature);
 
         public QueueRowStore QueueRows => _w._queueRowStore;
 
@@ -63,7 +63,7 @@ public partial class MainWindow
 
             AppSettings settings = _w._settings;
             if (!settings.EnableDeepIntegrityCheck
-                || !_w._featureAccessService.CanUseFeature(PremiumFeature.StandardNamingSuggestion))
+                || !_w._appFeatureService.IsEnabled(AppFeature.StandardNamingSuggestion))
             {
                 return (true, string.Empty);
             }
@@ -170,11 +170,6 @@ public partial class MainWindow
         public void OpenAbout() =>
             _w.OpenAboutDialog();
 
-        public void OpenFeatureAccessInfo() =>
-            _w.RefreshFeatureAccessFromUi();
-
-        public void RefreshFeatureAccess() =>
-            _w.RefreshFeatureAccessFromUi();
     }
 
     private sealed class UiPortAdapter : IAppSessionUiPort
@@ -193,11 +188,11 @@ public partial class MainWindow
 
         public bool IsQueueInteractionLocked => _w.IsQueueInteractionLocked;
 
-        public bool CanUsePremiumFeature(PremiumFeature feature) =>
-            _w._featureAccessService.CanUseFeature(feature);
+        public bool CanUseAppFeature(AppFeature feature) =>
+            _w._appFeatureService.IsEnabled(feature);
 
-        public bool RequirePremiumFeature(PremiumFeature feature) =>
-            _w.RequirePremiumFeature(feature);
+        public bool RequireAppFeature(AppFeature feature) =>
+            _w.RequireAppFeature(feature);
 
         public QueueExecutionProfile GetSelectedInputExecutionProfile() =>
             _w.GetSelectedInputExecutionProfileFromUi();

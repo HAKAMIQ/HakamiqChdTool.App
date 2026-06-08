@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Localization;
+﻿using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
@@ -33,7 +33,7 @@ public partial class MainWindow
         CancellationToken cancellationToken = _windowLifetimeCts.Token;
 
         if (!_settings.EnableDeepIntegrityCheck
-            || !_featureAccessService.CanUseFeature(PremiumFeature.RedumpDeepIntegrity))
+            || !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity))
         {
             await InvokeOnUiIfAvailableAsync(() =>
             {

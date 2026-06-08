@@ -199,7 +199,7 @@
 							<StackPanel Grid.Column="2"
                                         Style="{StaticResource PathsSettings.HeaderTextColumn}">
 								<TextBlock Style="{StaticResource PathsSettings.TitleText}"
-                                           Text="{DynamicResource LocPaths_ChdmanSection}" />
+                                           Text="{DynamicResource LocPaths_ChdmanSection}" HorizontalAlignment="Left" TextAlignment="Right" />
 							</StackPanel>
 						</Grid>
 
@@ -368,7 +368,7 @@
 							<StackPanel Grid.Column="2"
                                         Style="{StaticResource PathsSettings.HeaderTextColumn}">
 								<TextBlock Style="{StaticResource PathsSettings.TitleText}"
-                                           Text="{DynamicResource LocPaths_SaveAndTempSection}" />
+                                           Text="{DynamicResource LocPaths_SaveAndTempSection}" HorizontalAlignment="Left" TextAlignment="Right" />
 							</StackPanel>
 						</Grid>
 
@@ -629,7 +629,7 @@
 							<StackPanel Grid.Column="2"
                                         Style="{StaticResource PathsSettings.HeaderTextColumn}">
 								<TextBlock Style="{StaticResource PathsSettings.TitleText}"
-                                           Text="{DynamicResource LocPaths_OrganizeSection}" />
+                                           Text="{DynamicResource LocPaths_OrganizeSection}" HorizontalAlignment="Left" TextAlignment="Right" />
 							</StackPanel>
 						</Grid>
 

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<AssemblyName>HakamiqChdTool</AssemblyName>
@@ -10,10 +10,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Resources\HakamiqLogo.ico</ApplicationIcon>
-		<Version>1.0.0</Version>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<FileVersion>1.0.0.0</FileVersion>
-		<InformationalVersion>1.0.0</InformationalVersion>
+		<Version>1.0.4</Version>
+		<AssemblyVersion>1.0.4.0</AssemblyVersion>
+		<FileVersion>1.0.4.0</FileVersion>
+		<InformationalVersion>v1.0.4</InformationalVersion>
 		<Product>Hakamiq CHD Tool</Product>
 		<Company>Hakamiq</Company>
 		<Description>إدارة وتحويل صور الأقراص بصيغة CHD عبر chdman</Description>
@@ -37,17 +37,12 @@
 	<ItemGroup>
 		<Compile Remove="Adapters\**" />
 		<Compile Remove="Controls\**" />
-		<Compile Remove="Tools\HakamiqLicenseGenerator\**" />
 		<EmbeddedResource Remove="Adapters\**" />
 		<EmbeddedResource Remove="Controls\**" />
-		<EmbeddedResource Remove="Tools\HakamiqLicenseGenerator\**" />
 		<None Remove="Adapters\**" />
 		<None Remove="Controls\**" />
-		<None Remove="Tools\HakamiqLicenseGenerator\**" />
-		<Content Remove="Tools\HakamiqLicenseGenerator\**" />
 		<Page Remove="Adapters\**" />
 		<Page Remove="Controls\**" />
-		<Page Remove="Tools\HakamiqLicenseGenerator\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -215,3 +210,4 @@
 
 
 </Project>
+

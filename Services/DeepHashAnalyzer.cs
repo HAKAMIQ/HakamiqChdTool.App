@@ -18,7 +18,15 @@ public sealed record DeepHashAnalysisResult(
     string MatchedSystemName = "",
     string MatchedGameName = "",
     int MatchedFileCount = 0,
-    int HashedFileCount = 0);
+    int HashedFileCount = 0,
+    string FailureCode = "")
+{
+    public bool IsFatalInputReadFailure =>
+        string.Equals(
+            FailureCode,
+            DeepHashAnalyzer.InputReadCrcOrIoFailureCode,
+            StringComparison.Ordinal);
+}
 
 public sealed record DeepHashFileDigest(
     string Path,
@@ -41,7 +49,10 @@ public static class DeepHashAnalyzer
 {
     private const int BufferSize = 1024 * 1024;
 
+    public const string InputReadCrcOrIoFailureCode = "InputReadCrcOrIoFailure";
+
     private const string StatusErrorKey = "LocDeepHash_StatusError";
+    private const string StatusInputReadFailureKey = "LocDeepHash_StatusInputReadFailure";
     private const string StatusRequiresRawImageKey = "LocDeepHash_StatusRequiresRawImage";
     private const string StatusUnsupportedDirectKey = "LocDeepHash_StatusUnsupportedDirect";
     private const string StatusUnsupportedKey = "LocDeepHash_StatusUnsupported";
@@ -61,6 +72,7 @@ public static class DeepHashAnalyzer
     private const string TipNoTrackFilesKey = "LocDeepHash_TipNoTrackFiles";
     private const string TipResolveFailedKey = "LocDeepHash_TipResolveFailed";
     private const string TipHashFailedKey = "LocDeepHash_TipHashFailed";
+    private const string TipInputReadCrcOrIoFailureKey = "LocDeepHash_TipInputReadCrcOrIoFailure";
     private const string TipNoDatabaseKey = "LocDeepHash_TipNoDatabase";
     private const string TipConflictingMatchesKey = "LocDeepHash_TipConflictingMatches";
     private const string TipVerifiedHeaderKey = "LocDeepHash_TipVerifiedHeader";
@@ -138,7 +150,12 @@ public static class DeepHashAnalyzer
         {
             filesToHash = ResolveFilesToHash(fullPath);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        catch (Exception ex) when (IsInputReadFailureException(ex))
+        {
+            Log.Warning(ex, "DeepHashAnalyzer: input read failed while resolving hash files. Path={Path}; FailureCode={FailureCode}", fullPath, InputReadCrcOrIoFailureCode);
+            return InputReadFailure();
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException)
         {
             Log.Debug(ex, "DeepHashAnalyzer: failed to resolve files to hash. Path={Path}", fullPath);
             return Error(TipResolveFailedKey);
@@ -160,7 +177,12 @@ public static class DeepHashAnalyzer
         {
             throw;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or CryptographicException or ArgumentException or NotSupportedException)
+        catch (Exception ex) when (IsInputReadFailureException(ex))
+        {
+            Log.Warning(ex, "DeepHashAnalyzer: input read failed while hashing. Path={Path}; FailureCode={FailureCode}", fullPath, InputReadCrcOrIoFailureCode);
+            return InputReadFailure();
+        }
+        catch (Exception ex) when (ex is CryptographicException or ArgumentException or NotSupportedException)
         {
             Log.Debug(ex, "DeepHashAnalyzer: hashing failed. Path={Path}", fullPath);
             return Error(TipHashFailedKey);
@@ -208,7 +230,7 @@ public static class DeepHashAnalyzer
         }
 
         return Result(
-            IntegrityValidationState.Failed,
+            IntegrityValidationState.NoRedumpMatch,
             StatusModifiedKey,
             TipNoRedumpMatchKey,
             hashedFiles: hashed);
@@ -250,6 +272,13 @@ public static class DeepHashAnalyzer
     private static DeepHashAnalysisResult Error(string detailKey) =>
         Result(IntegrityValidationState.Error, StatusErrorKey, detailKey);
 
+    private static DeepHashAnalysisResult InputReadFailure() =>
+        Result(
+            IntegrityValidationState.Error,
+            StatusInputReadFailureKey,
+            TipInputReadCrcOrIoFailureKey,
+            failureCode: InputReadCrcOrIoFailureCode);
+
     private static DeepHashAnalysisResult Result(
         IntegrityValidationState state,
         string statusKey,
@@ -262,7 +291,8 @@ public static class DeepHashAnalyzer
         string matchedSystemName = "",
         string matchedGameName = "",
         int? matchedFileCount = null,
-        int? hashedFileCount = null)
+        int? hashedFileCount = null,
+        string failureCode = "")
     {
         IReadOnlyList<DeepHashFileDigest> resolvedHashedFiles = hashedFiles ?? [];
         IReadOnlyList<DeepHashMatch> resolvedMatches = matches ?? [];
@@ -279,7 +309,8 @@ public static class DeepHashAnalyzer
             matchedSystemName,
             matchedGameName,
             matchedFileCount ?? resolvedMatches.Count,
-            hashedFileCount ?? resolvedHashedFiles.Count);
+            hashedFileCount ?? resolvedHashedFiles.Count,
+            failureCode);
     }
 
     private static List<DeepHashFileDigest> HashAllFiles(
@@ -602,4 +633,7 @@ public static class DeepHashAnalyzer
 
         return -1;
     }
+
+    private static bool IsInputReadFailureException(Exception ex) =>
+        ex is IOException or UnauthorizedAccessException;
 }

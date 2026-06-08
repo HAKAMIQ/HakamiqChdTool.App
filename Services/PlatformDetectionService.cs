@@ -1,4 +1,6 @@
-﻿using DiscUtils.Iso9660;
+using DiscUtils.Iso9660;
+using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
+using HakamiqChdTool.App.Services.PlayStation.BluRayAnalysis;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -35,6 +37,7 @@ public static class PlatformDetectionService
     private const string PspStructureReasonKey = "LocDiscProbe_PspStructure";
     private const string Ps2SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs2Boot2";
     private const string Ps1SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs1Hint";
+    private const string Ps3BluRayStructureReasonKey = "LocDiscProbe_Ps3BluRayStructure";
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext(typeof(PlatformDetectionService));
 
@@ -246,6 +249,11 @@ public static class PlatformDetectionService
 
             if (!LooksLikeIso9660Volume(isoPath))
             {
+                if (TryDetectPs3BluRayIso(isoPath, out PlatformDetectionResult ps3BluRayRawDetection))
+                {
+                    return ps3BluRayRawDetection;
+                }
+
                 Logger.Information(
                     "Platform detection found no ISO9660 descriptor; using non-ISO fallback. Path={Path}",
                     isoPath);
@@ -289,6 +297,11 @@ public static class PlatformDetectionService
                 }
             }
 
+            if (TryDetectPs3BluRayIso(isoPath, out PlatformDetectionResult ps3Detection))
+            {
+                return ps3Detection;
+            }
+
             if (IsApproximately(fileSize, GameCubeDiscSize, 150L * 1024L * 1024L))
             {
                 return PlatformDetectionResult.Create("Nintendo GameCube", string.Empty, 90, GameCubeSizeReasonKey);
@@ -315,6 +328,34 @@ public static class PlatformDetectionService
         {
             Logger.Debug(ex, "Platform detection could not read ISO; using fallback. Path={Path}", isoPath);
             return DetectFromIsoFallbackWithSafeSize(isoPath, string.Empty);
+        }
+    }
+
+    private static bool TryDetectPs3BluRayIso(string isoPath, out PlatformDetectionResult detection)
+    {
+        detection = PlatformDetectionResult.Create(string.Empty, string.Empty, 10, WeakGuessReasonKey);
+
+        try
+        {
+            var analyzer = new BluRayIsoAnalysisService();
+            if (!analyzer.TryAnalyze(isoPath, out BluRayIsoAnalysisResult? result, BluRayAnalysisProfile.Quick)
+                || result is null
+                || !result.LooksLikePs3Disc)
+            {
+                return false;
+            }
+
+            detection = PlatformDetectionResult.Create(
+                "PlayStation 3",
+                result.Metadata.Title,
+                result.Metadata.HasMinimumRequiredStructure ? 96 : 88,
+                Ps3BluRayStructureReasonKey);
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedReadException(ex) || IsExpectedPathException(ex) || ex is InvalidDataException or OperationCanceledException or OverflowException)
+        {
+            Logger.Debug(ex, "Platform detection could not complete PS3/Blu-ray raw ISO probe. Path={Path}", isoPath);
+            return false;
         }
     }
 
@@ -456,6 +497,24 @@ public static class PlatformDetectionService
         if (Has("playstation 4", "ps4"))
         {
             return PlatformDetectionResult.Create("PlayStation 4", string.Empty, 68, PathHintReasonKey);
+        }
+
+        if (Has(
+            "playstation 3",
+            "ps3",
+            "sony 3",
+            "sony three",
+            "سوني 3",
+            "سوني ٣",
+            "سوني٣",
+            "بلايستيشن 3",
+            "بلايستيشن ٣",
+            "بلايستيشن٣",
+            "بلاي ستيشن 3",
+            "بلاي ستيشن ٣",
+            "بلاي ستيشن٣"))
+        {
+            return PlatformDetectionResult.Create("PlayStation 3", string.Empty, 68, PathHintReasonKey);
         }
 
         if (Has("playstation vita", "ps vita", "psvita"))

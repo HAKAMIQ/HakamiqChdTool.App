@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Services.Conversion;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using System;
 
@@ -37,6 +38,7 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
             row.CleanupDeletedBytes = 0;
             row.SbiCopiedCount = 0;
             row.PostProcessingFailureCount = 0;
+            row.ConversionPerformanceReport = null;
         });
     }
 
@@ -208,6 +210,16 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         {
             row.SbiCopiedCount += Math.Max(0, result.SbiCopiedCount);
             row.PostProcessingFailureCount += Math.Max(0, result.FailedArtifactCount);
+        });
+    }
+
+    public void RecordConversionPerformanceReport(ConversionPerformanceReport report)
+    {
+        ArgumentNullException.ThrowIfNull(report);
+
+        MutateNonTerminal(row =>
+        {
+            row.ConversionPerformanceReport = report;
         });
     }
 
