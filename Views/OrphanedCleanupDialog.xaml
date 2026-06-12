@@ -3,6 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="{DynamicResource LocOrphanedCleanup_PromptTitle}"
+        Width="620"
+        MinWidth="560"
+        MaxHeight="620"
+        SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="None"
@@ -11,9 +15,6 @@
         FlowDirection="{DynamicResource App.FlowDirection}"
         Language="{DynamicResource App.XmlLanguage}"
         Icon="pack://application:,,,/Resources/HakamiqLogo.ico"
-        Width="640"
-        MinWidth="600"
-        SizeToContent="Height"
         Background="{DynamicResource Brush.Layer.Canvas}"
         Foreground="{DynamicResource Brush.Text.Primary}"
         FontFamily="{DynamicResource FontFamily.Text}"
@@ -23,7 +24,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Resources/Style/AdvancedOptionsWindowStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/OptionsWindowStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="OrphanedCleanupDialog.RootFrame"
@@ -41,7 +42,7 @@
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
+                <Setter Property="Padding" Value="14,10" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -49,7 +50,7 @@
             <Style x:Key="OrphanedCleanupDialog.ContentHost"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.14.All}" />
+                <Setter Property="Padding" Value="12" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -59,8 +60,21 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="UseLayoutRounding" Value="True" />
+            </Style>
+
+            <Style x:Key="OrphanedCleanupDialog.MetricCard"
+                   TargetType="{x:Type Border}">
+                <Setter Property="MinHeight" Value="62" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.14.All}" />
+                <Setter Property="Padding" Value="10" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -71,8 +85,8 @@
                 <Setter Property="Background" Value="{DynamicResource WarningSoftBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource WarningBorderBrush}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.14.All}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
+                <Setter Property="Padding" Value="12" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -81,7 +95,7 @@
             <Style x:Key="OrphanedCleanupDialog.SectionAccent"
                    TargetType="{x:Type Border}">
                 <Setter Property="Width" Value="{DynamicResource Space.4}" />
-                <Setter Property="Height" Value="{DynamicResource Space.24}" />
+                <Setter Property="Height" Value="{DynamicResource Space.22}" />
                 <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
                 <Setter Property="VerticalAlignment" Value="Top" />
@@ -93,7 +107,7 @@
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
                 <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
                 <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="TextWrapping" Value="Wrap" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -102,7 +116,7 @@
             <Style x:Key="OrphanedCleanupDialog.TitleText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource OrphanedCleanupDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.SectionTitle}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
                 <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="TextWrapping" Value="NoWrap" />
@@ -126,6 +140,8 @@
                 <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
                 <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="None" />
             </Style>
 
             <Style x:Key="OrphanedCleanupDialog.MetricLabelText"
@@ -154,9 +170,9 @@
                 <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
                 <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="FlowDirection" Value="LeftToRight" />
-                <Setter Property="Language" Value="en-US" />
-                <Setter Property="TextAlignment" Value="Left" />
+                <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
+                <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -166,7 +182,7 @@
     </Window.Resources>
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="{DynamicResource Space.0}"
+        <shell:WindowChrome CaptionHeight="{DynamicResource Space.40}"
                             CornerRadius="{DynamicResource Radius.Dialog}"
                             GlassFrameThickness="{DynamicResource Inset.None}"
                             ResizeBorderThickness="{DynamicResource Inset.None}"
@@ -174,7 +190,11 @@
     </shell:WindowChrome.WindowChrome>
 
     <Border Style="{StaticResource OrphanedCleanupDialog.RootFrame}">
-        <Grid ClipToBounds="True">
+        <Grid ClipToBounds="True"
+              FlowDirection="{DynamicResource App.FlowDirection}"
+              Language="{DynamicResource App.XmlLanguage}"
+              SnapsToDevicePixels="True">
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -185,7 +205,11 @@
                     Style="{StaticResource OrphanedCleanupDialog.HeaderFooter}"
                     BorderThickness="{DynamicResource Inset.0.0.0.1}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}">
+
+                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True">
+
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
@@ -198,17 +222,24 @@
                             Style="{StaticResource OrphanedCleanupDialog.SectionAccent}" />
 
                     <StackPanel Grid.Column="2"
-                                FlowDirection="{DynamicResource App.FlowDirection}">
+                                FlowDirection="{DynamicResource App.FlowDirection}"
+                                Language="{DynamicResource App.XmlLanguage}"
+                                VerticalAlignment="Center">
+
                         <TextBlock Text="{DynamicResource LocOrphanedCleanup_PromptTitle}"
+                                   ToolTip="{DynamicResource LocOrphanedCleanup_PromptTitle}"
                                    Style="{StaticResource OrphanedCleanupDialog.TitleText}" />
+
                         <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
                                    Text="{DynamicResource LocOrphanedCleanup_DialogDescription}"
+                                   ToolTip="{DynamicResource LocOrphanedCleanup_DialogDescription}"
                                    Style="{StaticResource OrphanedCleanupDialog.BodyText}"
                                    TextWrapping="NoWrap"
                                    TextTrimming="CharacterEllipsis" />
                     </StackPanel>
 
-                    <Button Grid.Column="4"
+                    <Button x:Name="CloseButton"
+                            Grid.Column="4"
                             Width="{DynamicResource Space.32}"
                             Height="{DynamicResource Space.32}"
                             MinWidth="{DynamicResource Space.32}"
@@ -216,152 +247,216 @@
                             VerticalAlignment="Center"
                             Style="{StaticResource HeaderIconButtonStyle}"
                             ToolTip="{DynamicResource LocCommon_Close}"
-                            Click="SkipButton_Click">
-                        <TextBlock Text="×"
-                                   FlowDirection="LeftToRight"
-                                   Language="en-US"
-                                   TextAlignment="Center"
-                                   FontSize="{DynamicResource FontSize.BodyStrong}"
-                                   FontWeight="{DynamicResource FontWeight.SemiBold}" />
+                            AutomationProperties.Name="{DynamicResource LocCommon_Close}"
+                            Click="SkipButton_Click"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+
+                        <Viewbox Width="{DynamicResource Space.12}"
+                                 Height="{DynamicResource Space.12}"
+                                 FlowDirection="LeftToRight"
+                                 Stretch="Uniform">
+
+                            <Path Data="{StaticResource Icon.Close}"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  Stretch="Uniform"
+                                  SnapsToDevicePixels="True" />
+                        </Viewbox>
                     </Button>
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1"
-                    Style="{StaticResource OrphanedCleanupDialog.ContentHost}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="{DynamicResource Grid.Space.12}" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="{DynamicResource Grid.Space.12}" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+            <ScrollViewer Grid.Row="1"
+                          MaxHeight="410"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto"
+                          CanContentScroll="False"
+                          PanningMode="VerticalOnly"
+                          Focusable="False"
+                          Background="{DynamicResource Brush.Transparent}"
+                          SnapsToDevicePixels="True">
 
-                    <Border Grid.Row="0"
-                            Style="{StaticResource OrphanedCleanupDialog.WarningCard}">
-                        <Grid FlowDirection="{DynamicResource App.FlowDirection}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource OrphanedCleanupDialog.ContentHost}">
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}"
+                          SnapsToDevicePixels="True">
 
-                            <TextBlock Grid.Column="0"
-                                       Text="⚠"
-                                       FontSize="{DynamicResource FontSize.Subtitle}"
-                                       Foreground="{DynamicResource Brush.Warning}"
-                                       FlowDirection="LeftToRight"
-                                       Language="en-US"
-                                       VerticalAlignment="Top" />
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="{DynamicResource Grid.Space.10}" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="{DynamicResource Grid.Space.10}" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="{DynamicResource LocOrphanedCleanup_WarningTitle}"
-                                           Style="{StaticResource OrphanedCleanupDialog.SectionTitleText}" />
-                                <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
-                                           Text="{Binding SummaryText}"
-                                           Style="{StaticResource OrphanedCleanupDialog.BodyText}" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                        <Border Grid.Row="0"
+                                Style="{StaticResource OrphanedCleanupDialog.WarningCard}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  Language="{DynamicResource App.XmlLanguage}"
+                                  SnapsToDevicePixels="True">
 
-                    <Border Grid.Row="2"
-                            Style="{StaticResource OrphanedCleanupDialog.Card}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="{DynamicResource Grid.Space.10}" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="{DynamicResource Grid.Space.10}" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0"
-                                       Text="{DynamicResource LocOrphanedCleanup_ScanSummaryTitle}"
-                                       Style="{StaticResource OrphanedCleanupDialog.SectionTitleText}" />
-
-                            <Grid Grid.Row="2"
-                                  FlowDirection="{DynamicResource App.FlowDirection}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0"
-                                        Style="{StaticResource OrphanedCleanupDialog.Card}"
-                                        Padding="{DynamicResource Inset.12.All}">
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource LocOrphanedCleanup_ItemsLabel}"
-                                                   Style="{StaticResource OrphanedCleanupDialog.MetricLabelText}" />
-                                        <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
-                                                   Text="{Binding ItemCountText}"
-                                                   Style="{StaticResource OrphanedCleanupDialog.MetricValueText}" />
-                                    </StackPanel>
-                                </Border>
+                                <TextBlock Grid.Column="0"
+                                           Text="⚠"
+                                           FontSize="{DynamicResource FontSize.BodyStrong}"
+                                           Foreground="{DynamicResource Brush.Warning}"
+                                           FlowDirection="LeftToRight"
+                                           Language="en-US"
+                                           TextAlignment="Center"
+                                           VerticalAlignment="Top"
+                                           SnapsToDevicePixels="True" />
 
-                                <Border Grid.Column="2"
-                                        Style="{StaticResource OrphanedCleanupDialog.Card}"
-                                        Padding="{DynamicResource Inset.12.All}">
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource LocOrphanedCleanup_FilesLabel}"
-                                                   Style="{StaticResource OrphanedCleanupDialog.MetricLabelText}" />
-                                        <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
-                                                   Text="{Binding FileCountText}"
-                                                   Style="{StaticResource OrphanedCleanupDialog.MetricValueText}" />
-                                    </StackPanel>
-                                </Border>
+                                <StackPanel Grid.Column="2"
+                                            FlowDirection="{DynamicResource App.FlowDirection}"
+                                            Language="{DynamicResource App.XmlLanguage}">
 
-                                <Border Grid.Column="4"
-                                        Style="{StaticResource OrphanedCleanupDialog.Card}"
-                                        Padding="{DynamicResource Inset.12.All}">
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource LocOrphanedCleanup_SizeLabel}"
-                                                   Style="{StaticResource OrphanedCleanupDialog.MetricLabelText}" />
-                                        <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
-                                                   Text="{Binding ReclaimableSizeText}"
-                                                   Style="{StaticResource OrphanedCleanupDialog.MetricValueText}" />
-                                    </StackPanel>
-                                </Border>
+                                    <TextBlock Text="{DynamicResource LocOrphanedCleanup_WarningTitle}"
+                                               ToolTip="{DynamicResource LocOrphanedCleanup_WarningTitle}"
+                                               Style="{StaticResource OrphanedCleanupDialog.SectionTitleText}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
+                                               Text="{Binding SummaryText, Mode=OneWay}"
+                                               ToolTip="{Binding SummaryText, Mode=OneWay}"
+                                               Style="{StaticResource OrphanedCleanupDialog.BodyText}" />
+                                </StackPanel>
                             </Grid>
+                        </Border>
 
-                            <StackPanel Grid.Row="4">
-                                <TextBlock Text="{DynamicResource LocOrphanedCleanup_TempRootLabel}"
-                                           Style="{StaticResource OrphanedCleanupDialog.MetricLabelText}" />
+                        <Border Grid.Row="2"
+                                Style="{StaticResource OrphanedCleanupDialog.Card}">
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  Language="{DynamicResource App.XmlLanguage}"
+                                  SnapsToDevicePixels="True">
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="{DynamicResource LocOrphanedCleanup_ScanSummaryTitle}"
+                                           ToolTip="{DynamicResource LocOrphanedCleanup_ScanSummaryTitle}"
+                                           Style="{StaticResource OrphanedCleanupDialog.SectionTitleText}" />
+
+                                <Grid Grid.Row="2"
+                                      FlowDirection="{DynamicResource App.FlowDirection}"
+                                      Language="{DynamicResource App.XmlLanguage}"
+                                      SnapsToDevicePixels="True">
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0"
+                                            Style="{StaticResource OrphanedCleanupDialog.MetricCard}">
+                                        <StackPanel>
+                                            <TextBlock Text="{DynamicResource LocOrphanedCleanup_ItemsLabel}"
+                                                       ToolTip="{DynamicResource LocOrphanedCleanup_ItemsLabel}"
+                                                       Style="{StaticResource OrphanedCleanupDialog.MetricLabelText}" />
+
+                                            <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
+                                                       Text="{Binding ItemCountText, Mode=OneWay}"
+                                                       ToolTip="{Binding ItemCountText, Mode=OneWay}"
+                                                       Style="{StaticResource OrphanedCleanupDialog.MetricValueText}" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="2"
+                                            Style="{StaticResource OrphanedCleanupDialog.MetricCard}">
+                                        <StackPanel>
+                                            <TextBlock Text="{DynamicResource LocOrphanedCleanup_FilesLabel}"
+                                                       ToolTip="{DynamicResource LocOrphanedCleanup_FilesLabel}"
+                                                       Style="{StaticResource OrphanedCleanupDialog.MetricLabelText}" />
+
+                                            <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
+                                                       Text="{Binding FileCountText, Mode=OneWay}"
+                                                       ToolTip="{Binding FileCountText, Mode=OneWay}"
+                                                       Style="{StaticResource OrphanedCleanupDialog.MetricValueText}" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="4"
+                                            Style="{StaticResource OrphanedCleanupDialog.MetricCard}">
+                                        <StackPanel>
+                                            <TextBlock Text="{DynamicResource LocOrphanedCleanup_SizeLabel}"
+                                                       ToolTip="{DynamicResource LocOrphanedCleanup_SizeLabel}"
+                                                       Style="{StaticResource OrphanedCleanupDialog.MetricLabelText}" />
+
+                                            <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
+                                                       Text="{Binding ReclaimableSizeText, Mode=OneWay}"
+                                                       ToolTip="{Binding ReclaimableSizeText, Mode=OneWay}"
+                                                       Style="{StaticResource OrphanedCleanupDialog.MetricValueText}" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <StackPanel Grid.Row="4"
+                                            FlowDirection="{DynamicResource App.FlowDirection}"
+                                            Language="{DynamicResource App.XmlLanguage}">
+
+                                    <TextBlock Text="{DynamicResource LocOrphanedCleanup_TempRootLabel}"
+                                               ToolTip="{DynamicResource LocOrphanedCleanup_TempRootLabel}"
+                                               Style="{StaticResource OrphanedCleanupDialog.MetricLabelText}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
+                                               Text="{Binding ProcessTempRootText, Mode=OneWay}"
+                                               ToolTip="{Binding ProcessTempRootText, Mode=OneWay}"
+                                               Style="{StaticResource OrphanedCleanupDialog.TechnicalText}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="4"
+                                Style="{StaticResource OrphanedCleanupDialog.Card}">
+                            <StackPanel FlowDirection="{DynamicResource App.FlowDirection}"
+                                        Language="{DynamicResource App.XmlLanguage}">
+
+                                <TextBlock Text="{DynamicResource LocOrphanedCleanup_SafetyTitle}"
+                                           ToolTip="{DynamicResource LocOrphanedCleanup_SafetyTitle}"
+                                           Style="{StaticResource OrphanedCleanupDialog.SectionTitleText}" />
+
+                                <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
+                                           Text="{DynamicResource LocOrphanedCleanup_SafetyTempOnly}"
+                                           ToolTip="{DynamicResource LocOrphanedCleanup_SafetyTempOnly}"
+                                           Style="{StaticResource OrphanedCleanupDialog.BodyText}" />
+
                                 <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
-                                           Text="{Binding ProcessTempRootText}"
-                                           Style="{StaticResource OrphanedCleanupDialog.TechnicalText}" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                                           Text="{DynamicResource LocOrphanedCleanup_SafetyNoSourceOutput}"
+                                           ToolTip="{DynamicResource LocOrphanedCleanup_SafetyNoSourceOutput}"
+                                           Style="{StaticResource OrphanedCleanupDialog.BodyText}" />
 
-                    <Border Grid.Row="4"
-                            Style="{StaticResource OrphanedCleanupDialog.Card}">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource LocOrphanedCleanup_SafetyTitle}"
-                                       Style="{StaticResource OrphanedCleanupDialog.SectionTitleText}" />
-                            <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
-                                       Text="{DynamicResource LocOrphanedCleanup_SafetyTempOnly}"
-                                       Style="{StaticResource OrphanedCleanupDialog.BodyText}" />
-                            <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
-                                       Text="{DynamicResource LocOrphanedCleanup_SafetyNoSourceOutput}"
-                                       Style="{StaticResource OrphanedCleanupDialog.BodyText}" />
-                            <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
-                                       Text="{DynamicResource LocOrphanedCleanup_SafetyManualConfirm}"
-                                       Style="{StaticResource OrphanedCleanupDialog.BodyText}" />
-                        </StackPanel>
-                    </Border>
-                </Grid>
-            </Border>
+                                <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
+                                           Text="{DynamicResource LocOrphanedCleanup_SafetyManualConfirm}"
+                                           ToolTip="{DynamicResource LocOrphanedCleanup_SafetyManualConfirm}"
+                                           Style="{StaticResource OrphanedCleanupDialog.BodyText}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+            </ScrollViewer>
 
             <Border Grid.Row="2"
                     Style="{StaticResource OrphanedCleanupDialog.HeaderFooter}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}">
+
+                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True">
+
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="Auto" />
@@ -369,20 +464,29 @@
 
                     <TextBlock Grid.Column="0"
                                Text="{DynamicResource LocOrphanedCleanup_FooterHint}"
+                               ToolTip="{DynamicResource LocOrphanedCleanup_FooterHint}"
                                Style="{StaticResource OrphanedCleanupDialog.BodyText}"
                                VerticalAlignment="Center"
+                               TextWrapping="NoWrap"
                                TextTrimming="CharacterEllipsis" />
 
-                    <Button Grid.Column="1"
+                    <Button x:Name="LaterButton"
+                            Grid.Column="2"
                             MinWidth="{DynamicResource Space.112}"
-                            Style="{StaticResource SecondaryButtonStyle}"
                             Content="{DynamicResource LocOrphanedCleanup_LaterButton}"
+                            ToolTip="{DynamicResource LocOrphanedCleanup_LaterButton}"
+                            AutomationProperties.Name="{DynamicResource LocOrphanedCleanup_LaterButton}"
+                            IsCancel="True"
+                            Style="{StaticResource SecondaryButtonStyle}"
                             Click="SkipButton_Click" />
 
-                    <Button Grid.Column="3"
+                    <Button x:Name="CleanNowButton"
+                            Grid.Column="4"
                             MinWidth="{DynamicResource Space.112}"
-                            Style="{StaticResource DangerButtonStyle}"
                             Content="{DynamicResource LocOrphanedCleanup_CleanNowButton}"
+                            ToolTip="{DynamicResource LocOrphanedCleanup_CleanNowButton}"
+                            AutomationProperties.Name="{DynamicResource LocOrphanedCleanup_CleanNowButton}"
+                            Style="{StaticResource DangerButtonStyle}"
                             Click="CleanButton_Click" />
                 </Grid>
             </Border>

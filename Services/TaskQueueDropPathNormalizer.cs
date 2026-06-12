@@ -1,3 +1,5 @@
+using HakamiqChdTool.App.Core.Workflow.Paths;
+using HakamiqChdTool.App.Core.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

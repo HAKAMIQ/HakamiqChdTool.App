@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Models;
 using System;
 using System.Globalization;
 using System.Windows;
@@ -19,7 +19,7 @@ public static class ArabicUi
             return string.Empty;
         }
 
-        if (Application.Current?.TryFindResource(resourceKey) is string s)
+        if (System.Windows.Application.Current?.TryFindResource(resourceKey) is string s)
         {
             return s;
         }
@@ -38,7 +38,7 @@ public static class ArabicUi
 
         string t = detail.Trim();
 
-        if (Application.Current?.TryFindResource(t) is string fromResource)
+        if (System.Windows.Application.Current?.TryFindResource(t) is string fromResource)
         {
             return fromResource;
         }
@@ -98,7 +98,7 @@ public static class ArabicUi
 
         string t = english.Trim();
 
-        if (Application.Current?.TryFindResource(t) is string fromDict)
+        if (System.Windows.Application.Current?.TryFindResource(t) is string fromDict)
         {
             return LegacyStatusLineLocalizer.StripEmbeddedTechnicalSuffix(fromDict);
         }
@@ -138,7 +138,7 @@ public static class ArabicUi
 
         string t = keyOrText.Trim();
 
-        if (Application.Current?.TryFindResource(t) is string s)
+        if (System.Windows.Application.Current?.TryFindResource(t) is string s)
         {
             return s;
         }
@@ -175,7 +175,7 @@ public static class ArabicUi
 
         string t = keyOrText.Trim();
 
-        if (Application.Current?.TryFindResource(t) is string s)
+        if (System.Windows.Application.Current?.TryFindResource(t) is string s)
         {
             return s;
         }
@@ -294,7 +294,7 @@ public static class ArabicUi
 
         string msg = statusMessage.Trim();
 
-        if (msg.StartsWith("Loc", StringComparison.Ordinal) && Application.Current?.TryFindResource(msg) is string fromKey)
+        if (msg.StartsWith("Loc", StringComparison.Ordinal) && System.Windows.Application.Current?.TryFindResource(msg) is string fromKey)
         {
             return IsolateForCurrentLanguage(fromKey);
         }
@@ -427,7 +427,7 @@ public static class ArabicUi
 
     private static bool IsCurrentUiRightToLeft()
     {
-        if (Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
+        if (System.Windows.Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
         {
             return flowDirection == FlowDirection.RightToLeft;
         }

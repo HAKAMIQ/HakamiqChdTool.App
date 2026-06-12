@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using System.Threading.Tasks;
@@ -62,7 +62,7 @@ public interface IMainWindowSession
 
     bool CanRunRedumpIntegrityForAnyQueueItem();
 
-    void ShowRedumpDetails(TaskQueueItemViewModel? item);
+    Task ShowRedumpDetails(TaskQueueItemViewModel? item);
 
     Task ApplyRedumpSuggestedNameAsync(TaskQueueItemViewModel? item);
 
@@ -76,7 +76,7 @@ public interface IMainWindowSession
 
     void CancelQueueJob(TaskQueueItemViewModel? item);
 
-    void OpenAdvancedOptions();
+    void OpenOptions();
 
     void OpenAbout();
 

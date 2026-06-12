@@ -60,7 +60,7 @@ public sealed partial class TaskQueueItemViewModel
         OnPropertyChanged(nameof(CurrentState));
         OnPropertyChanged(nameof(FinalResult));
         OnPropertyChanged(nameof(StateIconGlyph));
-        RefreshPipelinePresentation();
+        RefreshPipelineView();
         NotifyUiCardLayoutProperties();
 
         if (modeChanged)
@@ -75,7 +75,7 @@ public sealed partial class TaskQueueItemViewModel
         ApplySinkFlowFields(row);
     }
 
-    public void SetIntegrityPresentation(
+    public void SetIntegrityView(
         IntegrityValidationState state,
         string statusMessage,
         string detailTooltip)
@@ -99,9 +99,9 @@ public sealed partial class TaskQueueItemViewModel
         OnPropertyChanged(nameof(ProgressRegionPhaseIsolated));
     }
 
-    public void ResetIntegrityPresentation()
+    public void ResetIntegrityView()
     {
-        SetIntegrityPresentation(IntegrityValidationState.None, "-", string.Empty);
+        SetIntegrityView(IntegrityValidationState.None, "-", string.Empty);
     }
 
     public void InitializeFromPath(string path, string requestedAction, string detectedPlatform)
@@ -148,15 +148,15 @@ public sealed partial class TaskQueueItemViewModel
         ProgressValue = 0;
         IsProgressActive = false;
         IsIndeterminate = false;
-        ClearRuntimeProgressPresentation();
+        ClearRuntimeProgressView();
         InputBytes = 0;
         OutputBytes = 0;
         CleanupDeletedBytes = 0;
         SbiCopiedCount = 0;
         PostProcessingFailureCount = 0;
         UpdateResultBadgeBrushes();
-        ResetIntegrityPresentation();
-        RefreshPipelinePresentation();
+        ResetIntegrityView();
+        RefreshPipelineView();
     }
 
     public void ApplyCanonicalNaming(
@@ -189,7 +189,7 @@ public sealed partial class TaskQueueItemViewModel
         ProgressText = FormatPercentStatic(0);
         IsProgressActive = false;
         IsIndeterminate = false;
-        ClearRuntimeProgressPresentation();
+        ClearRuntimeProgressView();
         InputBytes = 0;
         OutputBytes = 0;
         CleanupDeletedBytes = 0;
@@ -209,11 +209,11 @@ public sealed partial class TaskQueueItemViewModel
         FinalResult = TaskFinalResultCodes.None;
         ResetProgress();
         UpdateResultBadgeBrushes();
-        RefreshPipelinePresentation();
+        RefreshPipelineView();
         NotifyMetadataStripChanged();
     }
 
-    private void ClearRuntimeProgressPresentation()
+    private void ClearRuntimeProgressView()
     {
         RuntimeProgressKind = QueueRuntimeProgressKind.None;
         RuntimeProgressPrimaryMessageKey = string.Empty;
@@ -252,7 +252,7 @@ public sealed partial class TaskQueueItemViewModel
     private void SeedFromRow(QueueRowData row)
     {
         ApplySinkFlowFields(row);
-        SetIntegrityPresentation(row.IntegrityState, row.IntegrityMessage, string.Empty);
+        SetIntegrityView(row.IntegrityState, row.IntegrityMessage, string.Empty);
         IsNamingCompliant = row.IsNamingCompliant;
         SuggestedStandardName = row.SuggestedStandardName;
         IntakeAdvisory = row.IntakeAdvisory;

@@ -7,13 +7,22 @@ namespace HakamiqChdTool.App.Services;
 
 public sealed class TwoWayChdConversionEngine(
     ChdConversionService conversion,
-    ChdVerificationService verification)
+    ChdVerificationService verification,
+    ISafeRecompressPipeline safeRecompressPipeline)
 {
     private readonly ChdConversionService _conversion = conversion ?? throw new ArgumentNullException(nameof(conversion));
     private readonly ChdVerificationService _verification = verification ?? throw new ArgumentNullException(nameof(verification));
+    private readonly ISafeRecompressPipeline _safeRecompressPipeline = safeRecompressPipeline ?? throw new ArgumentNullException(nameof(safeRecompressPipeline));
 
     public TwoWayChdConversionEngine()
-        : this(new ChdConversionService(), new ChdVerificationService())
+        : this(new ChdConversionService(), new ChdVerificationService(), new SafeRecompressPipeline())
+    {
+    }
+
+    public TwoWayChdConversionEngine(
+        ChdConversionService conversion,
+        ChdVerificationService verification)
+        : this(conversion, verification, new SafeRecompressPipeline())
     {
     }
 
@@ -56,7 +65,8 @@ public sealed class TwoWayChdConversionEngine(
         string outputCuePath,
         IProgress<int>? progress = null,
         IProgress<PerformanceSample>? performanceProgress = null,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default,
+        bool extractionMetadataDecisionConfirmed = false) =>
         _conversion.ConvertToChdAsync(
             chdmanPath,
             chdPath,
@@ -65,7 +75,8 @@ public sealed class TwoWayChdConversionEngine(
             cancellationToken: cancellationToken,
             extractionKind: ChdmanExtractionKind.ExtractCd,
             performanceProgress: performanceProgress,
-            computeInputSha1: true);
+            computeInputSha1: true,
+            extractionMetadataDecisionConfirmed: extractionMetadataDecisionConfirmed);
 
     public Task<ChdConversionResult> ExtractDvdAsync(
         string chdmanPath,
@@ -73,7 +84,8 @@ public sealed class TwoWayChdConversionEngine(
         string outputIsoPath,
         IProgress<int>? progress = null,
         IProgress<PerformanceSample>? performanceProgress = null,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default,
+        bool extractionMetadataDecisionConfirmed = false) =>
         _conversion.ConvertToChdAsync(
             chdmanPath,
             chdPath,
@@ -82,7 +94,14 @@ public sealed class TwoWayChdConversionEngine(
             cancellationToken: cancellationToken,
             extractionKind: ChdmanExtractionKind.ExtractDvd,
             performanceProgress: performanceProgress,
-            computeInputSha1: true);
+            computeInputSha1: true,
+            extractionMetadataDecisionConfirmed: extractionMetadataDecisionConfirmed);
+
+
+    public Task<SafeChdRecompressResult> RecompressChdSafelyAsync(
+        SafeChdRecompressRequest request,
+        CancellationToken cancellationToken = default) =>
+        _safeRecompressPipeline.RecompressAsync(request, cancellationToken);
 
     public Task<ChdVerificationResult> VerifyChdAsync(
         string chdmanPath,

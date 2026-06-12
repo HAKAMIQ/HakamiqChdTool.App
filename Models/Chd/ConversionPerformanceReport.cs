@@ -1,0 +1,38 @@
+using System;
+
+namespace HakamiqChdTool.App.Models.Chd;
+
+public sealed record ConversionPerformanceReport(
+    long InputBytes,
+    long OutputBytes,
+    double CompressionRatio,
+    long SavedBytes,
+    TimeSpan ChdmanDuration,
+    TimeSpan VerifyDuration,
+    double AverageOutputMBps,
+    int NumProcessors,
+    string CompressionCodecs,
+    string RequestedCompressionPreset,
+    string ResolvedCompressionCodecs,
+    string EffectiveCompressionCodecs,
+    bool EffectiveCompressionSameAsMameDefault,
+    string? CompressionTruthNoteKey,
+    int? HunkSizeBytes,
+    string RequestedProfile,
+    string ResolvedCommand,
+    string ResolvedCompression,
+    int? ResolvedHunkSize,
+    string EffectiveCompression,
+    int? EffectiveHunkSize,
+    bool SameAsMameDefault,
+    string CompatibilityNotes,
+    string ChdmanVersion,
+    bool SourceAndOutputSameVolume,
+    bool SourceIsExternal,
+    bool OutputIsExternal,
+    bool PowerGuardEnabled,
+    bool TemperatureAvailable,
+    string TemperatureCapability,
+    int? MaxTemperatureCelsius,
+    bool HadInputReadWarning,
+    string? CompressionExplanationKey);

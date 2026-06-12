@@ -12,5 +12,15 @@ public sealed record BluRayCompressionEstimate(
     double IncompressibleSamplePercent,
     double CompressibleSamplePercent)
 {
-    public static BluRayCompressionEstimate Empty { get; } = new(0, 0, 0, 0, BluRayCompressionRating.Unknown, string.Empty, 0, 0, 0, 0);
+    public static BluRayCompressionEstimate Empty { get; } = new(
+        0,
+        0,
+        0,
+        0,
+        BluRayCompressionRating.Unknown,
+        string.Empty,
+        0,
+        0,
+        0,
+        0);
 }

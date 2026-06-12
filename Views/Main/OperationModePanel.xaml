@@ -13,7 +13,7 @@
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
             <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
             <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-            <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+            <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="MinWidth" Value="0" />
@@ -69,38 +69,23 @@
                                 CornerRadius="{DynamicResource Radius.Card}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
-
                             <Grid FlowDirection="{TemplateBinding FlowDirection}"
                                   Language="{TemplateBinding Language}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
                                   SnapsToDevicePixels="True">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <Border x:Name="SelectionBar"
-                                        Grid.Column="0"
-                                        Width="{DynamicResource Space.3}"
-                                        Height="{DynamicResource Space.18}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Background="{DynamicResource Brush.Accent}"
-                                        CornerRadius="{DynamicResource Radius.AccentLine}"
-                                        IsHitTestVisible="False"
-                                        Opacity="{DynamicResource Opacity.Hidden}"
-                                        SnapsToDevicePixels="True" />
-
-                                <TextBlock Grid.Column="2"
+                                <TextBlock Grid.Column="0"
                                            Text="{TemplateBinding Content}"
                                            Foreground="{TemplateBinding Foreground}"
                                            Style="{StaticResource OperationModePanelModeChipText}" />
 
-                                <Viewbox Grid.Column="4"
+                                <Viewbox Grid.Column="2"
                                          Width="{DynamicResource Space.20}"
                                          Height="{DynamicResource Space.20}"
                                          HorizontalAlignment="Center"
@@ -120,16 +105,25 @@
                                     <Condition Property="IsMouseOver" Value="True" />
                                     <Condition Property="IsChecked" Value="False" />
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Strong}" />
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Control.Stroke.Strong}" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.Text.Primary}" />
                             </MultiTrigger>
 
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
-                                <Setter TargetName="SelectionBar" Property="Opacity" Value="1" />
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.Text.Primary}" />
                             </Trigger>
 
                             <MultiTrigger>
@@ -137,16 +131,24 @@
                                     <Condition Property="IsMouseOver" Value="True" />
                                     <Condition Property="IsChecked" Value="True" />
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.Text.Primary}" />
                             </MultiTrigger>
 
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
-                                <Setter TargetName="SelectionBar" Property="Opacity" Value="{DynamicResource Opacity.Hidden}" />
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
-                                <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Disabled}" />
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Control.Stroke.Default}" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.Text.Disabled}" />
+                                <Setter Property="Cursor"
+                                        Value="{x:Static input:Cursors.Arrow}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -192,7 +194,8 @@
                 <TextBlock Grid.Column="2"
                            Text="{DynamicResource LocUi_Card_Mode_Title}"
                            ToolTip="{DynamicResource LocUi_Card_Mode_Title}"
-                           Style="{StaticResource OperationModePanelHeaderTitleText}" TextAlignment="Center" />
+                           TextAlignment="Center"
+                           Style="{StaticResource OperationModePanelHeaderTitleText}" />
             </Grid>
 
             <RadioButton x:Name="ModeConvertRadio"

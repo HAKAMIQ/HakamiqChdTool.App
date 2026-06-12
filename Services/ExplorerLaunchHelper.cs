@@ -1,4 +1,4 @@
-﻿using Microsoft.CSharp.RuntimeBinder;
+using Microsoft.CSharp.RuntimeBinder;
 using Serilog;
 using System;
 using System.Collections;

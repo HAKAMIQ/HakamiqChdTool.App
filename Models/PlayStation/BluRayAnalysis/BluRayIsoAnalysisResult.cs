@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
 
 public sealed record BluRayIsoAnalysisResult(

@@ -1,4 +1,4 @@
-﻿Hakamiq CHD Tool — Third Party Notices
+Hakamiq CHD Tool — Third Party Notices
 
 This application uses third-party components. Each component is distributed under its own license.
 

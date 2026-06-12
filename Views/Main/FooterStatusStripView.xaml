@@ -6,111 +6,110 @@
              SnapsToDevicePixels="True"
              UseLayoutRounding="True">
 
-    <UserControl.Resources>
-        <Thickness x:Key="Footer.Root.Padding">12,6,12,6</Thickness>
-        <Thickness x:Key="Footer.Chip.Padding">10,4,10,4</Thickness>
-        <Thickness x:Key="Footer.Hairline">1</Thickness>
+	<UserControl.Resources>
+		<Thickness x:Key="Footer.Root.Padding">12,6,12,6</Thickness>
+		<Thickness x:Key="Footer.Chip.Padding">10,4,10,4</Thickness>
+		<Thickness x:Key="Footer.Hairline">1</Thickness>
 
-        <CornerRadius x:Key="Footer.Chip.Radius">8</CornerRadius>
-        <CornerRadius x:Key="Footer.Dot.Radius">4</CornerRadius>
+		<CornerRadius x:Key="Footer.Chip.Radius">8</CornerRadius>
+		<CornerRadius x:Key="Footer.Dot.Radius">4</CornerRadius>
 
-        <Style x:Key="FooterTextBase"
+		<Style x:Key="FooterTextBase"
                TargetType="{x:Type TextBlock}">
-            <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
-            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-            <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-            <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
-            <Setter Property="TextWrapping" Value="NoWrap" />
-            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-        </Style>
+			<Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
+			<Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+			<Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+			<Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+			<Setter Property="TextWrapping" Value="NoWrap" />
+			<Setter Property="TextTrimming" Value="CharacterEllipsis" />
+			<Setter Property="SnapsToDevicePixels" Value="True" />
+		</Style>
 
-        <Style x:Key="FooterStateText"
+		<Style x:Key="FooterStateText"
                TargetType="{x:Type TextBlock}"
                BasedOn="{StaticResource FooterTextBase}">
-            <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-        </Style>
+			<Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+			<Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+		</Style>
 
-        <Style x:Key="FooterMessageText"
+		<Style x:Key="FooterMessageText"
                TargetType="{x:Type TextBlock}"
                BasedOn="{StaticResource FooterTextBase}">
-            <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Medium}" />
-            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-        </Style>
+			<Setter Property="FontWeight" Value="{DynamicResource FontWeight.Medium}" />
+			<Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+		</Style>
 
-        <Style x:Key="FooterTechnicalText"
+		<Style x:Key="FooterTechnicalText"
                TargetType="{x:Type TextBlock}"
                BasedOn="{StaticResource FooterTextBase}">
-            <Setter Property="FlowDirection" Value="LeftToRight" />
-            <Setter Property="Language" Value="en-US" />
-            <Setter Property="TextAlignment" Value="Left" />
-            <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Numeric}" />
-            <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.Text}" />
-        </Style>
+			<Setter Property="FlowDirection" Value="LeftToRight" />
+			<Setter Property="Language" Value="en-US" />
+			<Setter Property="TextAlignment" Value="Left" />
+			<Setter Property="FontFamily" Value="{DynamicResource FontFamily.Numeric}" />
+			<Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+			<Setter Property="Foreground" Value="{DynamicResource Brush.Accent.Text}" />
+		</Style>
 
-        <Style x:Key="FooterChipSurface"
+		<Style x:Key="FooterChipSurface"
                TargetType="{x:Type Border}">
-            <Setter Property="Padding" Value="{StaticResource Footer.Chip.Padding}" />
-            <Setter Property="CornerRadius" Value="{StaticResource Footer.Chip.Radius}" />
-            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-            <Setter Property="BorderThickness" Value="{StaticResource Footer.Hairline}" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-        </Style>
+			<Setter Property="Padding" Value="{StaticResource Footer.Chip.Padding}" />
+			<Setter Property="CornerRadius" Value="{StaticResource Footer.Chip.Radius}" />
+			<Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+			<Setter Property="BorderThickness" Value="{StaticResource Footer.Hairline}" />
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="SnapsToDevicePixels" Value="True" />
+		</Style>
 
-        <Style x:Key="FooterProgressSurface"
+		<Style x:Key="FooterProgressSurface"
                TargetType="{x:Type Border}"
                BasedOn="{StaticResource FooterChipSurface}">
-            <Setter Property="MinWidth" Value="260" />
-        </Style>
-    </UserControl.Resources>
+			<Setter Property="MinWidth" Value="260" />
+		</Style>
+	</UserControl.Resources>
 
-    <Border x:Name="MainFooterStatusStrip"
+	<Border x:Name="MainFooterStatusStrip"
             Style="{StaticResource FluentFooterSessionCapsule}"
             Padding="{StaticResource Footer.Root.Padding}"
             SnapsToDevicePixels="True">
-
-        <Grid VerticalAlignment="Center"
+		<Grid VerticalAlignment="Center"
               FlowDirection="{DynamicResource App.FlowDirection}"
               SnapsToDevicePixels="True">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
 
-            <Grid x:Name="FooterStatsPanel"
+			<Grid x:Name="FooterStatsPanel"
                   Grid.Column="0"
                   Width="0"
                   Height="0"
                   Visibility="Collapsed">
-                <TextBlock x:Name="FooterWaitingCountText" Text="0" />
-                <TextBlock x:Name="FooterActiveCountText" Text="0" />
-                <TextBlock x:Name="FooterCompletedCountText" Text="0" />
-                <TextBlock x:Name="FooterFailedCountText" Text="0" />
-                <TextBlock x:Name="FooterSkippedCountText" Text="0" />
-            </Grid>
+				<TextBlock x:Name="FooterWaitingCountText" Text="0" />
+				<TextBlock x:Name="FooterActiveCountText" Text="0" />
+				<TextBlock x:Name="FooterCompletedCountText" Text="0" />
+				<TextBlock x:Name="FooterFailedCountText" Text="0" />
+				<TextBlock x:Name="FooterSkippedCountText" Text="0" />
+			</Grid>
 
-            <Border Grid.Column="0"
+			<Border Grid.Column="0"
                     MinWidth="108"
                     Style="{StaticResource FooterChipSurface}">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+				<Grid FlowDirection="{DynamicResource App.FlowDirection}"
                       VerticalAlignment="Center"
                       SnapsToDevicePixels="True">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
 
-                    <Border x:Name="FooterStateDot"
+					<Border x:Name="FooterStateDot"
                             Grid.Column="0"
                             Width="8"
                             Height="8"
@@ -120,15 +119,15 @@
                             Background="{DynamicResource Brush.Accent.Text}"
                             SnapsToDevicePixels="True" />
 
-                    <TextBlock x:Name="FooterStateText"
+					<TextBlock x:Name="FooterStateText"
                                Grid.Column="2"
                                HorizontalAlignment="Stretch"
                                Style="{StaticResource FooterStateText}"
                                Text="{DynamicResource LocFooter_StateReady}" />
-                </Grid>
-            </Border>
+				</Grid>
+			</Border>
 
-            <TextBlock x:Name="FooterQueueSummaryText"
+			<TextBlock x:Name="FooterQueueSummaryText"
                        Grid.Column="2"
                        MinWidth="0"
                        VerticalAlignment="Center"
@@ -136,41 +135,41 @@
                        Style="{StaticResource FooterMessageText}"
                        Text="{DynamicResource LocFooter_IdleNoTasks}" />
 
-            <Grid Grid.Column="4"
+			<Grid Grid.Column="4"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Center"
                   FlowDirection="{DynamicResource App.FlowDirection}"
                   SnapsToDevicePixels="True">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0"
+				<Border Grid.Column="0"
                         Style="{StaticResource FooterProgressSurface}"
                         Visibility="{Binding Visibility, ElementName=FooterProgressStrip}">
-                    <Grid x:Name="FooterProgressStrip"
+					<Grid x:Name="FooterProgressStrip"
                           VerticalAlignment="Center"
                           FlowDirection="{DynamicResource App.FlowDirection}"
                           Visibility="Collapsed"
                           SnapsToDevicePixels="True">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
 
-                        <TextBlock x:Name="FooterSessionPhaseText"
+						<TextBlock x:Name="FooterSessionPhaseText"
                                    Grid.Column="0"
                                    MaxWidth="{DynamicResource Footer.Phase.MaxWidth}"
                                    VerticalAlignment="Center"
                                    Style="{StaticResource FooterStateText}"
                                    TextTrimming="CharacterEllipsis" />
 
-                        <ProgressBar x:Name="QueueProgressBar"
+						<ProgressBar x:Name="QueueProgressBar"
                                      Grid.Column="2"
                                      Width="{DynamicResource Footer.Progress.Width}"
                                      Minimum="{DynamicResource Progress.Minimum}"
@@ -178,22 +177,22 @@
                                      VerticalAlignment="Center"
                                      Style="{StaticResource FluentQueueCardProgressBar}" />
 
-                        <TextBlock x:Name="QueueProgressText"
+						<TextBlock x:Name="QueueProgressText"
                                    Grid.Column="4"
                                    VerticalAlignment="Center"
                                    Style="{StaticResource FooterTechnicalText}"
                                    Text="&#x200E;0%" />
-                    </Grid>
-                </Border>
+					</Grid>
+				</Border>
 
-                <TextBlock x:Name="StatusBarSettingsText"
+				<TextBlock x:Name="StatusBarSettingsText"
                            Grid.Column="2"
                            MaxWidth="{DynamicResource Footer.Settings.MaxWidth}"
                            VerticalAlignment="Center"
                            Style="{StaticResource FooterMessageText}"
                            TextTrimming="CharacterEllipsis"
                            Visibility="Collapsed" />
-            </Grid>
-        </Grid>
-    </Border>
+			</Grid>
+		</Grid>
+	</Border>
 </UserControl>

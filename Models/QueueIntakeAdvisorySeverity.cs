@@ -1,4 +1,4 @@
-﻿namespace HakamiqChdTool.App.Models;
+namespace HakamiqChdTool.App.Models;
 
 public enum QueueIntakeAdvisorySeverity
 {

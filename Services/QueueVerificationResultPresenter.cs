@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using System;
@@ -7,10 +7,10 @@ using System.IO;
 
 namespace HakamiqChdTool.App.Services;
 
-public sealed record QueueVerificationResultPresentation(
+public sealed record QueueVerifyView(
     string Title,
     string Message,
-    ChdLogicalProbeReportPresentation? ChdLogicalReport)
+    ChdProbeReportView? ChdLogicalReport)
 {
     public bool HasChdLogicalReport => ChdLogicalReport?.HasMetrics == true;
 }
@@ -109,14 +109,14 @@ public static class QueueVerificationResultPresenter
         return string.Empty;
     }
 
-    public static QueueVerificationResultPresentation BuildVerificationResultPresentation(
+    public static QueueVerifyView BuildVerifyView(
         string? fileName,
         string fileTitleDisplay,
         string verificationResultBadgeText,
         IntegrityValidationState integrityState,
         string? integrityStatusMessage,
         string queueRowDisplayDetailArabic,
-        ChdLogicalProbeReportPresentation? chdLogicalReport)
+        ChdProbeReportView? chdLogicalReport)
     {
         string status = string.IsNullOrWhiteSpace(verificationResultBadgeText)
             ? queueRowDisplayDetailArabic
@@ -138,7 +138,7 @@ public static class QueueVerificationResultPresenter
             scope,
             detail);
 
-        return new QueueVerificationResultPresentation(
+        return new QueueVerifyView(
             ArabicUi.Get("LocQueue_VerificationResultDialogTitle"),
             message,
             chdLogicalReport);

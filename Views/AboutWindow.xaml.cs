@@ -1,11 +1,12 @@
-using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.ViewModels;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Input;
+
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.ViewModels;
 
 namespace HakamiqChdTool.App.Views;
 
@@ -19,7 +20,9 @@ public partial class AboutWindow : Window
         ArgumentNullException.ThrowIfNull(viewModel);
 
         InitializeComponent();
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
         AppLanguageService.ApplyToWindow(this);
+
         DataContext = viewModel;
     }
 
@@ -33,10 +36,10 @@ public partial class AboutWindow : Window
         try
         {
             DragMove();
+            e.Handled = true;
         }
         catch (InvalidOperationException)
         {
-            // DragMove can fail if the mouse state changes before WPF starts the drag operation.
         }
     }
 
@@ -52,22 +55,7 @@ public partial class AboutWindow : Window
             return;
         }
 
-        try
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = inviteUri.AbsoluteUri,
-                UseShellExecute = true
-            });
-        }
-        catch (InvalidOperationException)
-        {
-            // The system could not start the default browser.
-        }
-        catch (Win32Exception)
-        {
-            // The shell could not open the invite URL.
-        }
+        TryOpenExternalUri(inviteUri);
     }
 
     private static bool TryCreateAllowedDiscordInviteUri(
@@ -76,29 +64,51 @@ public partial class AboutWindow : Window
     {
         inviteUri = null;
 
-        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? parsedUri))
+        if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out Uri? parsedUri))
         {
             return false;
         }
 
-        if (!string.Equals(parsedUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        if (!StringComparer.OrdinalIgnoreCase.Equals(parsedUri.Scheme, Uri.UriSchemeHttps))
         {
             return false;
         }
 
-        if (!string.Equals(parsedUri.Host, "discord.gg", StringComparison.OrdinalIgnoreCase))
+        if (!StringComparer.OrdinalIgnoreCase.Equals(parsedUri.Host, "discord.gg"))
         {
             return false;
         }
 
-        if (!string.Equals(parsedUri.AbsoluteUri, QuantularityDiscordInviteUrl, StringComparison.OrdinalIgnoreCase) &&
-            !string.Equals(parsedUri.AbsoluteUri, MohammedDiscordInviteUrl, StringComparison.OrdinalIgnoreCase))
+        string absoluteUri = parsedUri.AbsoluteUri;
+
+        if (!StringComparer.OrdinalIgnoreCase.Equals(absoluteUri, QuantularityDiscordInviteUrl) &&
+            !StringComparer.OrdinalIgnoreCase.Equals(absoluteUri, MohammedDiscordInviteUrl))
         {
             return false;
         }
 
         inviteUri = parsedUri;
         return true;
+    }
+
+    private static void TryOpenExternalUri(Uri uri)
+    {
+        ArgumentNullException.ThrowIfNull(uri);
+
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = uri.AbsoluteUri,
+                UseShellExecute = true
+            });
+        }
+        catch (InvalidOperationException)
+        {
+        }
+        catch (Win32Exception)
+        {
+        }
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)

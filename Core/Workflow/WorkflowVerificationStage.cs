@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Power;

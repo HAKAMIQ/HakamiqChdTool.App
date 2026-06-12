@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace HakamiqChdTool.App.Models;
@@ -71,6 +71,8 @@ public sealed class AppSettings
     public string RedumpDatabaseDownloadUrl { get; set; } = string.Empty;
 
     public string RedumpLastSyncedUtc { get; set; } = string.Empty;
+
+    public string RedumpAutoSyncBackoffUntilUtc { get; set; } = string.Empty;
 
     public bool EnableRedumpAutoSync { get; set; } = false;
 
@@ -160,6 +162,7 @@ public sealed class AppSettings
         ApplyStandardNamingBasedOnHash = other.ApplyStandardNamingBasedOnHash;
         RedumpDatabaseDownloadUrl = other.RedumpDatabaseDownloadUrl;
         RedumpLastSyncedUtc = other.RedumpLastSyncedUtc;
+        RedumpAutoSyncBackoffUntilUtc = other.RedumpAutoSyncBackoffUntilUtc;
         EnableRedumpAutoSync = other.EnableRedumpAutoSync;
         UseBundledChdman = other.UseBundledChdman;
         ExternalChdmanPath = other.ExternalChdmanPath;
@@ -215,6 +218,7 @@ public sealed class AppSettings
             ApplyStandardNamingBasedOnHash = ApplyStandardNamingBasedOnHash,
             RedumpDatabaseDownloadUrl = RedumpDatabaseDownloadUrl,
             RedumpLastSyncedUtc = RedumpLastSyncedUtc,
+            RedumpAutoSyncBackoffUntilUtc = RedumpAutoSyncBackoffUntilUtc,
             EnableRedumpAutoSync = EnableRedumpAutoSync,
             UseBundledChdman = UseBundledChdman,
             ExternalChdmanPath = ExternalChdmanPath,

@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HakamiqChdTool.App.Services.ConsoleMedia;
 
 namespace HakamiqChdTool.App.Services.BinCueRescue;
 
@@ -149,6 +150,16 @@ internal static class MultiBinDiscAssembler
         if (trackPlans.Count > 1)
         {
             warnings.Add(BinCueRescueWarningCode.MultipleOrderedBinTracksAssumed);
+        }
+
+        ConsoleDiscIdentityResult identity = ConsoleDiscIdentityService.Shared.Detect(selectedBin.FullName);
+        if (!identity.IsIdentified)
+        {
+            refusals.Add(BinCueRescueRefusalReason.UnsupportedPlatform);
+        }
+        else if (!identity.HasOperationalEvidence)
+        {
+            refusals.Add(BinCueRescueRefusalReason.PathHintOnly);
         }
 
         if (refusals.Count > 0)

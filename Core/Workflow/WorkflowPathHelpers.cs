@@ -1,4 +1,4 @@
-using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Core.Input;
 
 namespace HakamiqChdTool.App.Core.Workflow;
 

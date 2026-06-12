@@ -1,7 +1,9 @@
-﻿using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Input;
+using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
@@ -38,14 +40,16 @@ public partial class MainWindow
         return FilePathExclusiveGate.NormalizePathForExclusiveLock(raw);
     }
 
-    private bool CanQueueItemRunPipelineForSelectedMode(TaskQueueItemViewModel item) =>
-        _queueRowStore.GetById(item.QueueItemId) is { } row
-        && IsRowQueuedForProcessingForSelectedMode(row);
+    private bool CanQueueItemRunPipelineForSelectedMode(TaskQueueItemViewModel item)
+    {
+        return _queueRowStore.GetById(item.QueueItemId) is { } row &&
+            IsRowQueuedForProcessingForSelectedMode(row);
+    }
 
     private static bool CanQueueItemRunPipeline(TaskQueueItemViewModel item)
     {
-        if (string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal)
-            || string.Equals(item.RequestedAction, TaskActionCodes.Unsupported, StringComparison.Ordinal))
+        if (string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal) ||
+            string.Equals(item.RequestedAction, TaskActionCodes.Unsupported, StringComparison.Ordinal))
         {
             return false;
         }
@@ -64,8 +68,10 @@ public partial class MainWindow
         return CanQueueItemConvertToChd(item);
     }
 
-    private static string QueueModeFromRequestedAction(string? requestedAction) =>
-        QueueOperationModeResolver.QueueModeFromRequestedAction(requestedAction);
+    private static string QueueModeFromRequestedAction(string? requestedAction)
+    {
+        return QueueModeResolver.QueueModeFromRequestedAction(requestedAction);
+    }
 
     private static bool CanQueueItemConvertToChd(TaskQueueItemViewModel item)
     {
@@ -85,13 +91,8 @@ public partial class MainWindow
 
     private static bool IsQueueInputPathAvailable(string? path)
     {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return false;
-        }
-
-        return File.Exists(path)
-;
+        return !string.IsNullOrWhiteSpace(path) &&
+            File.Exists(path);
     }
 
     private static bool CanProcessIsoCueGdiPredicate(TaskQueueItemViewModel? item)
@@ -112,8 +113,8 @@ public partial class MainWindow
             return false;
         }
 
-        return QueueInputClassifier.IsConvertibleDiscImagePath(path)
-            && string.Equals(item.RequestedAction, TaskActionCodes.ConvertToChd, StringComparison.Ordinal);
+        return QueueInputClassifier.IsConvertibleDiscImagePath(path) &&
+            string.Equals(item.RequestedAction, TaskActionCodes.ConvertToChd, StringComparison.Ordinal);
     }
 
     private static bool CanProcessArchivePredicate(TaskQueueItemViewModel? item)
@@ -124,15 +125,15 @@ public partial class MainWindow
         }
 
         string path = item.SourcePath;
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        if (!IsQueueInputPathAvailable(path))
         {
             return false;
         }
 
-        return QueueInputClassifier.IsArchiveContainerPath(path)
-            && (string.Equals(item.RequestedAction, TaskActionCodes.StageArchiveForConversion, StringComparison.Ordinal)
-                || string.Equals(item.RequestedAction, TaskActionCodes.ExtractArchiveThenProcess, StringComparison.Ordinal)
-                || string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal));
+        return QueueInputClassifier.IsArchiveContainerPath(path) &&
+            (string.Equals(item.RequestedAction, TaskActionCodes.StageArchiveForConversion, StringComparison.Ordinal) ||
+                string.Equals(item.RequestedAction, TaskActionCodes.ExtractArchiveThenProcess, StringComparison.Ordinal) ||
+                string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal));
     }
 
     private static bool CanProcessChdExtractPredicate(TaskQueueItemViewModel? item)
@@ -143,14 +144,14 @@ public partial class MainWindow
         }
 
         string path = item.SourcePath;
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        if (!IsQueueInputPathAvailable(path))
         {
             return false;
         }
 
-        return string.Equals(item.RequestedAction, TaskActionCodes.ExtractFromChd, StringComparison.Ordinal)
-            || string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal)
-            || string.Equals(item.RequestedAction, TaskActionCodes.VerifyChd, StringComparison.Ordinal);
+        return string.Equals(item.RequestedAction, TaskActionCodes.ExtractFromChd, StringComparison.Ordinal) ||
+            string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal) ||
+            string.Equals(item.RequestedAction, TaskActionCodes.VerifyChd, StringComparison.Ordinal);
     }
 
     private static bool CanQueueItemVerifyChd(TaskQueueItemViewModel? item)
@@ -161,18 +162,20 @@ public partial class MainWindow
         }
 
         string path = item.SourcePath;
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        if (!IsQueueInputPathAvailable(path))
         {
             return false;
         }
 
-        return string.Equals(item.RequestedAction, TaskActionCodes.VerifyChd, StringComparison.Ordinal)
-            || string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal)
-            || string.Equals(item.RequestedAction, TaskActionCodes.ExtractFromChd, StringComparison.Ordinal);
+        return string.Equals(item.RequestedAction, TaskActionCodes.VerifyChd, StringComparison.Ordinal) ||
+            string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal) ||
+            string.Equals(item.RequestedAction, TaskActionCodes.ExtractFromChd, StringComparison.Ordinal);
     }
 
-    private bool CanQueueItemIntegrityCheck(TaskQueueItemViewModel? item) =>
-        item is not null && ResolveQueueItemProbePath(item) is not null;
+    private bool CanQueueItemIntegrityCheck(TaskQueueItemViewModel? item)
+    {
+        return item is not null && ResolveQueueItemProbePath(item) is not null;
+    }
 
     private static bool ArchiveNamingRuleValidatorApplies(string path)
     {
@@ -185,7 +188,9 @@ public partial class MainWindow
         return classification.IsChdImage || classification.IsArchiveContainer;
     }
 
-    private static bool TryGetQueueItemSourceTarget(TaskQueueItemViewModel? item, out string? targetPath)
+    private static bool TryGetQueueItemSourceTarget(
+        TaskQueueItemViewModel? item,
+        out string? targetPath)
     {
         targetPath = null;
 
@@ -209,11 +214,15 @@ public partial class MainWindow
         return false;
     }
 
-    private static bool TryGetQueueItemOutputTarget(TaskQueueItemViewModel? item, out string? targetPath)
+    private static bool TryGetQueueItemOutputTarget(
+        TaskQueueItemViewModel? item,
+        out string? targetPath)
     {
         targetPath = null;
 
-        if (item is null || string.IsNullOrWhiteSpace(item.OutputPath) || !File.Exists(item.OutputPath))
+        if (item is null ||
+            string.IsNullOrWhiteSpace(item.OutputPath) ||
+            !File.Exists(item.OutputPath))
         {
             return false;
         }
@@ -222,24 +231,34 @@ public partial class MainWindow
         return true;
     }
 
-    private static bool IsCompletedSuccessfulQueueItem(TaskQueueItemViewModel item) =>
-        IsCompletedSuccessfulFinalResult(item.FinalResult);
+    private static bool IsCompletedSuccessfulQueueItem(TaskQueueItemViewModel item)
+    {
+        return IsCompletedSuccessfulFinalResult(item.FinalResult);
+    }
 
-    private static bool IsCompletedSuccessfulRow(QueueRowData row) =>
-        IsCompletedSuccessfulFinalResult(row.FinalResult);
+    private static bool IsCompletedSuccessfulRow(QueueRowData row)
+    {
+        return IsCompletedSuccessfulFinalResult(row.FinalResult);
+    }
 
-    private static bool IsCompletedSuccessfulFinalResult(string finalResult) =>
-        finalResult is TaskFinalResultCodes.Healthy
+    private static bool IsCompletedSuccessfulFinalResult(string finalResult)
+    {
+        return finalResult is TaskFinalResultCodes.Healthy
             or TaskFinalResultCodes.Moved
             or TaskFinalResultCodes.Extracted;
+    }
 
-    private static bool IsRowQueuedForProcessing(QueueRowData row) =>
-        QueueOperationModeResolver.IsRequestedActionRunnable(row)
-        && ProcessingStateMapper.Map(row.CurrentState, null) == ProcessingState.Queued;
+    private static bool IsRowQueuedForProcessing(QueueRowData row)
+    {
+        return QueueModeResolver.IsRequestedActionRunnable(row) &&
+            ProcessingStateMapper.Map(row.CurrentState, null) == ProcessingState.Queued;
+    }
 
-    private bool IsRowQueuedForProcessingForSelectedMode(QueueRowData row) =>
-        QueueOperationModeResolver.IsWaitingRowRunnableForMode(row, GetSelectedQueueOperationMode())
-        && ProcessingStateMapper.Map(row.CurrentState, null) == ProcessingState.Queued;
+    private bool IsRowQueuedForProcessingForSelectedMode(QueueRowData row)
+    {
+        return QueueModeResolver.IsWaitingRowRunnableForMode(row, GetSelectedQueueOperationMode()) &&
+            ProcessingStateMapper.Map(row.CurrentState, null) == ProcessingState.Queued;
+    }
 
     private int CountQueuedRowsForSelectedOperationMode()
     {
@@ -256,6 +275,8 @@ public partial class MainWindow
         return count;
     }
 
-    internal static bool IsRowQueuedForProcessingStatic(QueueRowData row) =>
-        IsRowQueuedForProcessing(row);
+    internal static bool IsRowQueuedForProcessingStatic(QueueRowData row)
+    {
+        return IsRowQueuedForProcessing(row);
+    }
 }

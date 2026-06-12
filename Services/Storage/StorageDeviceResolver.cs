@@ -8,9 +8,12 @@ namespace HakamiqChdTool.App.Services.Storage;
 
 internal enum StorageDeviceKind
 {
-    Unknown,
-    Hdd,
-    Ssd
+    Unknown = 0,
+    Hdd = 1,
+    SataSsd = 2,
+    NvmeSsd = 3,
+    Removable = 4,
+    Network = 5
 }
 
 internal sealed record StorageDeviceIdentity(
@@ -76,7 +79,7 @@ internal sealed class StorageDeviceResolver
             volumeRoot,
             physical.PhysicalDrivePath,
             external,
-            ResolveDeviceKind(physical),
+            ResolveDeviceKind(driveType, physical),
             string.IsNullOrWhiteSpace(physical.Model) ? displayName : $"{physical.Model} ({volumeRoot.TrimEnd('\\')})");
     }
 
@@ -185,15 +188,37 @@ internal sealed class StorageDeviceResolver
         return suffix.All(char.IsDigit) ? suffix : null;
     }
 
-    private static StorageDeviceKind ResolveDeviceKind(PhysicalDriveResolution physical)
+    private static StorageDeviceKind ResolveDeviceKind(
+        DriveType driveType,
+        PhysicalDriveResolution physical)
     {
+        if (driveType == DriveType.Network)
+        {
+            return StorageDeviceKind.Network;
+        }
+
+        if (driveType == DriveType.Removable)
+        {
+            return StorageDeviceKind.Removable;
+        }
+
+        string interfaceType = physical.InterfaceType?.Trim() ?? string.Empty;
         string mediaType = physical.MediaType?.Trim() ?? string.Empty;
+        string model = physical.Model?.Trim() ?? string.Empty;
+
+        if (interfaceType.Contains("NVMe", StringComparison.OrdinalIgnoreCase)
+            || model.Contains("NVMe", StringComparison.OrdinalIgnoreCase))
+        {
+            return StorageDeviceKind.NvmeSsd;
+        }
+
         if (string.Equals(mediaType, "4", StringComparison.OrdinalIgnoreCase)
             || mediaType.Contains("SSD", StringComparison.OrdinalIgnoreCase)
             || mediaType.Contains("Solid", StringComparison.OrdinalIgnoreCase)
-            || mediaType.Contains("SCM", StringComparison.OrdinalIgnoreCase))
+            || mediaType.Contains("SCM", StringComparison.OrdinalIgnoreCase)
+            || model.Contains("SSD", StringComparison.OrdinalIgnoreCase))
         {
-            return StorageDeviceKind.Ssd;
+            return StorageDeviceKind.SataSsd;
         }
 
         if (string.Equals(mediaType, "3", StringComparison.OrdinalIgnoreCase)
@@ -202,13 +227,6 @@ internal sealed class StorageDeviceResolver
             || mediaType.Contains("Rotational", StringComparison.OrdinalIgnoreCase))
         {
             return StorageDeviceKind.Hdd;
-        }
-
-        string model = physical.Model?.Trim() ?? string.Empty;
-        if (model.Contains("SSD", StringComparison.OrdinalIgnoreCase)
-            || model.Contains("NVMe", StringComparison.OrdinalIgnoreCase))
-        {
-            return StorageDeviceKind.Ssd;
         }
 
         return StorageDeviceKind.Unknown;

@@ -1,40 +1,33 @@
-﻿using Microsoft.Win32.SafeHandles;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using HakamiqChdTool.App.Services.Storage;
 
 namespace HakamiqChdTool.App.Services.StorageAdvisor;
 
 internal sealed class StoragePathAnalyzer
 {
-    private const uint FileShareRead = 0x00000001;
-    private const uint FileShareWrite = 0x00000002;
-    private const uint FileShareDelete = 0x00000004;
-    private const uint OpenExisting = 3;
-
-    private const uint IoctlStorageQueryProperty = 0x002D1400;
-
-    private const int StorageDeviceProperty = 0;
-    private const int StorageDeviceSeekPenaltyProperty = 7;
-    private const int PropertyStandardQuery = 0;
-
-    private const int StorageDeviceDescriptorBusTypeOffset = 28;
-    private const int DeviceSeekPenaltyIncursSeekPenaltyOffset = 8;
-
-    private const int BusTypeNvme = 17;
-
     private readonly bool _rejectReparsePoints;
+    private readonly StorageDeviceResolver _deviceResolver;
 
     public StoragePathAnalyzer()
-        : this(rejectReparsePoints: true)
+        : this(rejectReparsePoints: true, new StorageDeviceResolver())
     {
     }
 
     internal StoragePathAnalyzer(bool rejectReparsePoints)
+        : this(rejectReparsePoints, new StorageDeviceResolver())
+    {
+    }
+
+    internal StoragePathAnalyzer(
+        bool rejectReparsePoints,
+        StorageDeviceResolver deviceResolver)
     {
         _rejectReparsePoints = rejectReparsePoints;
+        _deviceResolver = deviceResolver ?? throw new ArgumentNullException(nameof(deviceResolver));
     }
 
     public StoragePathAnalysis Analyze(
@@ -69,7 +62,8 @@ internal sealed class StoragePathAnalyzer
             && HasReparsePointInExistingPathFromVolumeRoot(fullPath);
 
         StorageVolumeIdentity volume = ResolveVolumeIdentity(fullPath);
-        StorageDeviceKind deviceKind = ResolveDeviceKind(volume.RootPath);
+        StorageDeviceIdentity device = _deviceResolver.Resolve(fullPath);
+        StorageDeviceKind deviceKind = device.DeviceKind;
 
         bool isWritableCandidate = !isRoot
             && !isReparsePoint
@@ -205,158 +199,6 @@ internal sealed class StoragePathAnalyzer
             volumeLabel,
             fileSystem,
             serial);
-    }
-
-    private static StorageDeviceKind ResolveDeviceKind(string rootPath)
-    {
-        if (string.IsNullOrWhiteSpace(rootPath))
-        {
-            return StorageDeviceKind.Unknown;
-        }
-
-        DriveType driveType;
-        try
-        {
-            DriveInfo drive = new(rootPath);
-            driveType = drive.DriveType;
-        }
-        catch (Exception ex) when (IsStorageQueryFailure(ex))
-        {
-            return StorageDeviceKind.Unknown;
-        }
-
-        if (driveType == DriveType.Network)
-        {
-            return StorageDeviceKind.Network;
-        }
-
-        if (driveType == DriveType.Removable)
-        {
-            return StorageDeviceKind.Removable;
-        }
-
-        if (driveType != DriveType.Fixed)
-        {
-            return StorageDeviceKind.Unknown;
-        }
-
-        WindowsStorageProbeResult probe = TryProbeWindowsStorage(rootPath);
-
-        if (probe.BusType == BusTypeNvme)
-        {
-            return StorageDeviceKind.NvmeSsd;
-        }
-
-        if (probe.IncursSeekPenalty == true)
-        {
-            return StorageDeviceKind.Hdd;
-        }
-
-        if (probe.IncursSeekPenalty == false)
-        {
-            return StorageDeviceKind.SataSsd;
-        }
-
-        return StorageDeviceKind.Unknown;
-    }
-
-    private static WindowsStorageProbeResult TryProbeWindowsStorage(string rootPath)
-    {
-        if (!OperatingSystem.IsWindows())
-        {
-            return WindowsStorageProbeResult.Unknown;
-        }
-
-        string? root = Path.GetPathRoot(rootPath);
-        if (string.IsNullOrWhiteSpace(root))
-        {
-            return WindowsStorageProbeResult.Unknown;
-        }
-
-        string volumePath = @"\\.\" + root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-        try
-        {
-            using SafeFileHandle handle = CreateFileW(
-                volumePath,
-                0,
-                FileShareRead | FileShareWrite | FileShareDelete,
-                IntPtr.Zero,
-                OpenExisting,
-                0,
-                IntPtr.Zero);
-
-            if (handle.IsInvalid)
-            {
-                return WindowsStorageProbeResult.Unknown;
-            }
-
-            int? busType = QueryStorageDeviceBusType(handle);
-            bool? incursSeekPenalty = QueryStorageSeekPenalty(handle);
-
-            return new WindowsStorageProbeResult(busType, incursSeekPenalty);
-        }
-        catch (Exception ex) when (IsStorageQueryFailure(ex))
-        {
-            return WindowsStorageProbeResult.Unknown;
-        }
-    }
-
-    private static int? QueryStorageDeviceBusType(SafeFileHandle handle)
-    {
-        byte[] output = QueryStorageProperty(handle, StorageDeviceProperty, 512);
-        if (output.Length < StorageDeviceDescriptorBusTypeOffset + sizeof(int))
-        {
-            return null;
-        }
-
-        return BitConverter.ToInt32(output, StorageDeviceDescriptorBusTypeOffset);
-    }
-
-    private static bool? QueryStorageSeekPenalty(SafeFileHandle handle)
-    {
-        byte[] output = QueryStorageProperty(handle, StorageDeviceSeekPenaltyProperty, 64);
-        if (output.Length <= DeviceSeekPenaltyIncursSeekPenaltyOffset)
-        {
-            return null;
-        }
-
-        return output[DeviceSeekPenaltyIncursSeekPenaltyOffset] != 0;
-    }
-
-    private static byte[] QueryStorageProperty(
-        SafeFileHandle handle,
-        int propertyId,
-        int outputLength)
-    {
-        byte[] query = new byte[12];
-        BitConverter.GetBytes(propertyId).CopyTo(query, 0);
-        BitConverter.GetBytes(PropertyStandardQuery).CopyTo(query, 4);
-
-        byte[] output = new byte[outputLength];
-
-        bool success = DeviceIoControl(
-            handle,
-            IoctlStorageQueryProperty,
-            query,
-            query.Length,
-            output,
-            output.Length,
-            out int bytesReturned,
-            IntPtr.Zero);
-
-        if (!success || bytesReturned <= 0)
-        {
-            return Array.Empty<byte>();
-        }
-
-        if (bytesReturned >= output.Length)
-        {
-            return output;
-        }
-
-        Array.Resize(ref output, bytesReturned);
-        return output;
     }
 
     private static bool IsRootPath(string path)
@@ -554,42 +396,6 @@ internal sealed class StoragePathAnalyzer
             or InvalidOperationException
             or System.Security.SecurityException;
     }
-
-    private readonly struct WindowsStorageProbeResult
-    {
-        public WindowsStorageProbeResult(int? busType, bool? incursSeekPenalty)
-        {
-            BusType = busType;
-            IncursSeekPenalty = incursSeekPenalty;
-        }
-
-        public int? BusType { get; }
-
-        public bool? IncursSeekPenalty { get; }
-
-        public static WindowsStorageProbeResult Unknown { get; } = new(null, null);
-    }
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    private static extern SafeFileHandle CreateFileW(
-        string lpFileName,
-        uint dwDesiredAccess,
-        uint dwShareMode,
-        IntPtr lpSecurityAttributes,
-        uint dwCreationDisposition,
-        uint dwFlagsAndAttributes,
-        IntPtr hTemplateFile);
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern bool DeviceIoControl(
-        SafeFileHandle hDevice,
-        uint dwIoControlCode,
-        byte[] lpInBuffer,
-        int nInBufferSize,
-        byte[] lpOutBuffer,
-        int nOutBufferSize,
-        out int lpBytesReturned,
-        IntPtr lpOverlapped);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern bool GetVolumeInformationW(

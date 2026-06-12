@@ -1,4 +1,6 @@
-﻿using HakamiqChdTool.App.Coordination;
+using HakamiqChdTool.App.Ui.Queue;
+using HakamiqChdTool.App.QueueRun;
+using HakamiqChdTool.App.Startup;
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
@@ -6,7 +8,7 @@ using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.PostProcessing;
-using HakamiqChdTool.App.Services.WpfShell;
+using HakamiqChdTool.App.Ui.Shell;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using Hardcodet.Wpf.TaskbarNotification;
@@ -58,12 +60,12 @@ public partial class MainWindow : Window
     private readonly HashSet<string> _loggedExecutionSignatures = new(StringComparer.Ordinal);
     private readonly Queue<string> _executionLogLines = new();
     private readonly TaskbarSessionProgressViewModel _taskbarSessionProgress;
-    private readonly QueueUiAggregateTracker _queueUiAggregates = new();
+    private readonly QueueUiTracker _queueUiAggregates = new();
     private readonly CancellationTokenSource _windowLifetimeCts = new();
     private readonly MainWindowStartupCoordinator _startupCoordinator;
 
-    private IAppSessionCoordinator _coordinator = null!;
-    private IAppSessionUiPort _uiPort = null!;
+    private IQueueRunCoordinator _coordinator = null!;
+    private IQueueRunUiPort _uiPort = null!;
     private bool _queueViewportUpdateQueued;
     private DataGridRowsPresenter? _queueRowsPresenterCache;
     private int _blockingBackgroundOps;
@@ -104,6 +106,7 @@ public partial class MainWindow : Window
         ArgumentNullException.ThrowIfNull(queueManager);
 
         InitializeComponent();
+        WindowBackdrop.ApplyMainWindow(this);
 
         _settingsService = bootstrap.SettingsService;
         _settings = bootstrap.Settings;
@@ -116,8 +119,8 @@ public partial class MainWindow : Window
         _orphanedScanner = bootstrap.OrphanedScanner;
         _orphanedCleanup = bootstrap.OrphanedCleanup;
         _windowActivationService = bootstrap.WindowActivationService;
-        _uiDispatcher = new WpfUiDispatcher(Dispatcher);
-        _resourceTextProvider = new WpfResourceTextProvider();
+        _uiDispatcher = new UiDispatcher(Dispatcher);
+        _resourceTextProvider = new ResourceTextProvider();
 
         _appFeatureService.ApplyFeatureAvailability(_settings);
 
@@ -190,7 +193,7 @@ public partial class MainWindow : Window
         _viewport.VmReleased += OnVmReleased;
 
         _queue = queueManager;
-        _queue.ConfigurePresentationBindings(
+        _queue.ConfigureUiBindings(
             id => _queueRowStore.GetById(id)?.ToSnapshot(),
             id => _sinkIndex.TryGetValue(id, out TaskQueueStateAdapter? sink) ? sink : null,
             RequestUiStateRefresh);
@@ -198,7 +201,7 @@ public partial class MainWindow : Window
         _queue.ItemUpdated += OnQueueItemUpdated;
         _queueController = new QueueController(_queue);
         _uiPort = new UiPortAdapter(this);
-        _coordinator = new AppSessionCoordinator(_queueController, _uiPort);
+        _coordinator = new QueueRunCoordinator(_queueController, _uiPort);
 
         _viewModel = new MainWindowViewModel(
             new SessionAdapter(this),

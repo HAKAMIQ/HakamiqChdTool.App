@@ -12,7 +12,7 @@ public sealed class PS3ConversionPlanner
         {
             return new PS3ConversionPlan(
                 CanProceed: true,
-                Pipeline: "ISO -> chdman createdvd -> CHD",
+                Pipeline: PS3ContentIntakeMessages.PipelineIsoToChd,
                 RequiresTemporaryIso: false);
         }
 
@@ -20,7 +20,7 @@ public sealed class PS3ConversionPlanner
         {
             return new PS3ConversionPlan(
                 CanProceed: true,
-                Pipeline: "Folder -> temporary ISO -> chdman createdvd -> CHD",
+                Pipeline: PS3ContentIntakeMessages.PipelineFolderToChd,
                 RequiresTemporaryIso: true);
         }
 
@@ -28,13 +28,13 @@ public sealed class PS3ConversionPlanner
         {
             return new PS3ConversionPlan(
                 CanProceed: false,
-                Pipeline: "PKG is installable content, not a disc image",
+                Pipeline: PS3ContentIntakeMessages.PipelinePkgNotDiscImage,
                 RequiresTemporaryIso: false);
         }
 
         return new PS3ConversionPlan(
             CanProceed: false,
-            Pipeline: "Unsupported or incomplete PS3 source",
+            Pipeline: PS3ContentIntakeMessages.PipelineUnsupportedSource,
             RequiresTemporaryIso: false);
     }
 }

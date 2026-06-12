@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace HakamiqChdTool.App.Localization;
 
-public sealed record DeepHashAnalysisPresentation(
+public sealed record DeepHashAnalysisView(
     string StatusMessage,
     string DetailTooltip);
 
@@ -29,13 +29,13 @@ public static class DeepHashAnalysisPresenter
     private const string ByteCountKey = "LocDeepHash_ByteCount";
     private const string ByteSizeKey = "LocDeepHash_ByteSize";
 
-    public static DeepHashAnalysisPresentation Format(DeepHashAnalysisResult result)
+    public static DeepHashAnalysisView Format(DeepHashAnalysisResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
 
         string status = T(result.StatusMessageKey);
         string detail = BuildDetailTooltip(result);
-        return new DeepHashAnalysisPresentation(status, detail);
+        return new DeepHashAnalysisView(status, detail);
     }
 
     private static string BuildDetailTooltip(DeepHashAnalysisResult result)

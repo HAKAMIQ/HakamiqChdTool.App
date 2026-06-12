@@ -27,9 +27,13 @@ internal sealed class StorageHealthPolicy
 
         if (!reading.IsAvailable || reading.CurrentCelsius is not int current)
         {
+            string messageKey = reading.Capability == StorageTemperatureCapability.AccessDenied
+                ? "LocStorageTemperature_AccessDenied"
+                : "LocStorageTemperature_Unavailable";
+
             return new StorageHealthDecision(
                 StorageHealthSeverity.Unavailable,
-                "LocStorageTemperature_Unavailable",
+                messageKey,
                 null);
         }
 

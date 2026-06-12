@@ -29,7 +29,7 @@
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
             <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
             <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-            <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+            <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="TextWrapping" Value="Wrap" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -60,7 +60,7 @@
                BasedOn="{StaticResource MainHeaderGeneralText}">
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+            <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
             <Setter Property="TextWrapping" Value="NoWrap" />
             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         </Style>
@@ -230,7 +230,6 @@
             BorderBrush="{DynamicResource Brush.Transparent}"
             BorderThickness="{DynamicResource Inset.None}"
             SnapsToDevicePixels="True">
-
         <Grid FlowDirection="{DynamicResource App.FlowDirection}"
               SnapsToDevicePixels="True">
             <Grid.RowDefinitions>
@@ -243,7 +242,6 @@
                   VerticalAlignment="Stretch"
                   FlowDirection="{DynamicResource App.FlowDirection}"
                   SnapsToDevicePixels="True">
-
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
@@ -293,7 +291,6 @@
                       VerticalAlignment="Center"
                       FlowDirection="{DynamicResource App.FlowDirection}"
                       SnapsToDevicePixels="True">
-
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
@@ -302,7 +299,7 @@
 
                     <Button x:Name="HeaderSettingsButton"
                             Grid.Column="0"
-                            Command="{Binding OpenAdvancedOptionsCommand}"
+                            Command="{Binding OpenOptionsCommand}"
                             Style="{StaticResource MainHeaderGhostButton}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
                         <TextBlock Text="{DynamicResource LocUi_Header_Settings}"
@@ -329,18 +326,15 @@
                             VerticalAlignment="Center"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True"
                             SnapsToDevicePixels="True">
-
                     <Button x:Name="CaptionMinimizeButton"
                             ToolTip="{DynamicResource LocUi_Header_Minimize}"
                             Click="ForwardMinimizeRequested"
                             Style="{StaticResource MainHeaderCaptionBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
-
                         <Viewbox Width="{DynamicResource Space.12}"
                                  Height="{DynamicResource Space.12}"
                                  Stretch="Uniform"
                                  FlowDirection="LeftToRight">
-
                             <Path Data="{StaticResource Icon.Minimize}"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
                                   Stretch="Uniform" />
@@ -352,12 +346,10 @@
                             Click="ForwardMaximizeRestoreRequested"
                             Style="{StaticResource MainHeaderCaptionBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
-
                         <Viewbox Width="{DynamicResource Space.12}"
                                  Height="{DynamicResource Space.12}"
                                  Stretch="Uniform"
                                  FlowDirection="LeftToRight">
-
                             <Path x:Name="CaptionMaximizeRestorePath"
                                   Data="{StaticResource Icon.Maximize}"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
@@ -370,12 +362,10 @@
                             Click="ForwardCloseRequested"
                             Style="{StaticResource MainHeaderCaptionCloseBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
-
                         <Viewbox Width="{DynamicResource Space.12}"
                                  Height="{DynamicResource Space.12}"
                                  Stretch="Uniform"
                                  FlowDirection="LeftToRight">
-
                             <Path Data="{StaticResource Icon.Close}"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
                                   Stretch="Uniform" />

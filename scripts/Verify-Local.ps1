@@ -124,7 +124,7 @@ try {
     Write-Host '  2) Launch app in Dark theme.'
     Write-Host '  3) Launch app in Hakamiq theme.'
     Write-Host '  4) Open MainWindow.'
-    Write-Host '  5) Open AdvancedOptionsWindow.'
+    Write-Host '  5) Open OptionsWindow.'
     Write-Host '  6) Open AboutWindow.'
     Write-Host '  7) Switch Arabic and English once, then restart.'
     Write-Host '  8) Confirm no XAML parse errors.'

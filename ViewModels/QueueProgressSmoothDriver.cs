@@ -43,7 +43,7 @@ public sealed class QueueProgressSmoothDriver : IDisposable
 
     public void Dispose()
     {
-        Dispatcher? dispatcher = _timer?.Dispatcher ?? Application.Current?.Dispatcher;
+        Dispatcher? dispatcher = _timer?.Dispatcher ?? System.Windows.Application.Current?.Dispatcher;
         if (dispatcher is null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
         {
             DisposeCore();
@@ -103,7 +103,7 @@ public sealed class QueueProgressSmoothDriver : IDisposable
             return;
         }
 
-        Dispatcher? dispatcher = Application.Current?.Dispatcher;
+        Dispatcher? dispatcher = System.Windows.Application.Current?.Dispatcher;
         if (dispatcher is null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
         {
             return;
@@ -184,7 +184,7 @@ public sealed class QueueProgressSmoothDriver : IDisposable
 
     private static void RunOnUiDispatcher(Action<double> action, double value)
     {
-        Dispatcher? dispatcher = Application.Current?.Dispatcher;
+        Dispatcher? dispatcher = System.Windows.Application.Current?.Dispatcher;
         if (dispatcher is null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
         {
             return;

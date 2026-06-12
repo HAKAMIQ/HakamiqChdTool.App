@@ -1,12 +1,13 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Style x:Key="Fluent.Text.Base" TargetType="{x:Type TextBlock}">
+    <Style x:Key="Fluent.Text.Base"
+           TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource App.DefaultTextAlignment}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="TextTrimming" Value="None" />
@@ -131,7 +132,7 @@
            TargetType="{x:Type TextBlock}"
            BasedOn="{StaticResource Fluent.Text.Caption1}">
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource App.DefaultTextAlignment}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
     </Style>
 
@@ -139,18 +140,18 @@
            TargetType="{x:Type TextBlock}"
            BasedOn="{StaticResource Fluent.Text.Caption1}">
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Monospace}" />
-        <Setter Property="FlowDirection" Value="LeftToRight" />
-        <Setter Property="TextAlignment" Value="Left" />
-        <Setter Property="Language" Value="en-US" />
+        <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
+        <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
     </Style>
 
     <Style x:Key="WindowTitleTextStyle"
            TargetType="{x:Type TextBlock}"
-           BasedOn="{StaticResource Fluent.Text.Subtitle1}" />
+           BasedOn="{StaticResource Fluent.Text.Subtitle2}" />
 
     <Style x:Key="DisplayTitleTextStyle"
            TargetType="{x:Type TextBlock}"
-           BasedOn="{StaticResource Fluent.Text.Title2}" />
+           BasedOn="{StaticResource Fluent.Text.Title3}" />
 
     <Style x:Key="BodySecondaryTextStyle"
            TargetType="{x:Type TextBlock}"
@@ -188,7 +189,7 @@
 
     <Style x:Key="Text.Subtitle"
            TargetType="{x:Type TextBlock}"
-           BasedOn="{StaticResource Fluent.Text.Subtitle1}" />
+           BasedOn="{StaticResource Fluent.Text.Subtitle2}" />
 
     <Style x:Key="Text.SectionHeader"
            TargetType="{x:Type TextBlock}"
@@ -196,15 +197,15 @@
 
     <Style x:Key="Text.Heading"
            TargetType="{x:Type TextBlock}"
-           BasedOn="{StaticResource Fluent.Text.Title2}" />
+           BasedOn="{StaticResource Fluent.Text.Title3}" />
 
     <Style x:Key="Text.PageTitle"
            TargetType="{x:Type TextBlock}"
-           BasedOn="{StaticResource Fluent.Text.Title1}" />
+           BasedOn="{StaticResource Fluent.Text.Title2}" />
 
     <Style x:Key="Text.HeroTitle"
            TargetType="{x:Type TextBlock}"
-           BasedOn="{StaticResource Fluent.Text.LargeTitle}" />
+           BasedOn="{StaticResource Fluent.Text.Title2}" />
 
     <Style x:Key="Text.Technical"
            TargetType="{x:Type TextBlock}"

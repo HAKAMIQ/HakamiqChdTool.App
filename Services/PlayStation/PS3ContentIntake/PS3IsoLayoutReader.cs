@@ -43,7 +43,7 @@ public sealed class PS3IsoLayoutReader
         var warnings = new List<string>();
         if (!File.Exists(path))
         {
-            warnings.Add("The selected ISO file was not found.");
+            warnings.Add(PS3ContentIntakeMessages.WarningIsoMissing);
             return BuildUnreadable(path, isProbablyEncrypted: false, warnings);
         }
 
@@ -68,8 +68,8 @@ public sealed class PS3IsoLayoutReader
         }
 
         warnings.Add(hasDkey
-            ? "The ISO file system could not be read. A matching .dkey file exists, but decryption is outside this intake step."
-            : "The ISO file system could not be read. The image may be encrypted or incomplete.");
+            ? PS3ContentIntakeMessages.WarningIsoUnreadableDkey
+            : PS3ContentIntakeMessages.WarningIsoUnreadableEncryptedOrIncomplete);
 
         return BuildUnreadable(path, isProbablyEncrypted: true, warnings) with { BluRayAnalysis = rawAnalysis };
     }
@@ -131,22 +131,22 @@ public sealed class PS3IsoLayoutReader
 
         if (!hasPs3Game)
         {
-            warnings.Add("The ISO does not contain a PS3_GAME directory.");
+            warnings.Add(PS3ContentIntakeMessages.WarningIsoNoPs3Game);
         }
 
         if (hasPs3Game && !hasParam)
         {
-            warnings.Add("PARAM.SFO was not found inside the ISO.");
+            warnings.Add(PS3ContentIntakeMessages.WarningIsoParamMissing);
         }
 
         if (hasPs3Game && !hasEboot)
         {
-            warnings.Add("EBOOT.BIN was not found inside the ISO.");
+            warnings.Add(PS3ContentIntakeMessages.WarningIsoEbootMissing);
         }
 
         if (hasPs3Game && !hasDiscSfb)
         {
-            warnings.Add("PS3_DISC.SFB was not found in the ISO.");
+            warnings.Add(PS3ContentIntakeMessages.WarningIsoDiscSfbMissing);
         }
 
         PS3ContentIdentity identity = PS3ContentIdentity.Empty;
@@ -191,8 +191,8 @@ public sealed class PS3IsoLayoutReader
             IsProbablyEncrypted: false,
             CanConvertToChd: canConvert,
             RecommendedPipeline: canConvert
-                ? "ISO -> chdman createdvd -> CHD"
-                : "Unsupported or incomplete PS3 ISO",
+                ? PS3ContentIntakeMessages.PipelineIsoToChd
+                : PS3ContentIntakeMessages.PipelineUnsupportedIso,
             Warnings: warnings);
     }
 
@@ -217,12 +217,12 @@ public sealed class PS3IsoLayoutReader
 
         if (rawAnalysis.Metadata.LooksLikePs3Disc && !result.HasPs3GameFolder)
         {
-            AddWarningOnce(warnings, "PS3 disc markers were detected by the raw Blu-ray/PS3 analyzer.");
+            AddWarningOnce(warnings, PS3ContentIntakeMessages.WarningRawPs3MarkersDetected);
         }
 
         if (rawAnalysis.Metadata.HasUdfAnchor && !rawAnalysis.Metadata.LooksLikePs3Disc)
         {
-            AddWarningOnce(warnings, "Blu-ray/UDF structure was detected, but PS3 game markers were not found.");
+            AddWarningOnce(warnings, PS3ContentIntakeMessages.WarningRawBluRayWithoutPs3);
         }
 
         return result with
@@ -237,7 +237,7 @@ public sealed class PS3IsoLayoutReader
             IsProbablyEncrypted = result.IsProbablyEncrypted && !canConvertFromRaw,
             CanConvertToChd = result.CanConvertToChd || canConvertFromRaw,
             RecommendedPipeline = result.CanConvertToChd || canConvertFromRaw
-                ? "ISO -> chdman createdvd -> CHD"
+                ? PS3ContentIntakeMessages.PipelineIsoToChd
                 : result.RecommendedPipeline,
             Warnings = warnings,
             BluRayAnalysis = rawAnalysis
@@ -254,18 +254,18 @@ public sealed class PS3IsoLayoutReader
 
         if (rawAnalysis.Metadata.LooksLikePs3Disc)
         {
-            warnings.Add("The ISO file system could not be mounted, but raw PS3/Blu-ray disc markers were detected.");
+            warnings.Add(PS3ContentIntakeMessages.WarningIsoMountedRawPs3);
         }
         else
         {
-            warnings.Add("Blu-ray/UDF structure was detected, but PS3 game markers were not found.");
+            warnings.Add(PS3ContentIntakeMessages.WarningRawBluRayWithoutPs3);
         }
 
         if (!canConvert)
         {
             warnings.Add(hasDkey
-                ? "A matching .dkey file exists, but decryption is outside this intake step."
-                : "Required PS3 game markers are incomplete. The image may be encrypted, incomplete, or not a PS3 game disc.");
+                ? PS3ContentIntakeMessages.WarningDkeyDecryptionOutOfScope
+                : PS3ContentIntakeMessages.WarningPs3MarkersIncomplete);
         }
 
         return new PS3ContentIntakeResult(
@@ -284,8 +284,8 @@ public sealed class PS3IsoLayoutReader
             IsProbablyEncrypted: !canConvert,
             CanConvertToChd: canConvert,
             RecommendedPipeline: canConvert
-                ? "ISO -> chdman createdvd -> CHD"
-                : "Encrypted, incomplete, or non-PS3 Blu-ray ISO",
+                ? PS3ContentIntakeMessages.PipelineIsoToChd
+                : PS3ContentIntakeMessages.PipelineEncryptedIncompleteOrNonPs3Iso,
             Warnings: warnings)
         {
             BluRayAnalysis = rawAnalysis
@@ -324,8 +324,8 @@ public sealed class PS3IsoLayoutReader
             IsProbablyEncrypted: isProbablyEncrypted,
             CanConvertToChd: false,
             RecommendedPipeline: isProbablyEncrypted
-                ? "Encrypted or unreadable ISO; user-owned keys are required before conversion"
-                : "Unsupported or incomplete PS3 ISO",
+                ? PS3ContentIntakeMessages.PipelineEncryptedUnreadableIso
+                : PS3ContentIntakeMessages.PipelineUnsupportedIso,
             Warnings: warnings);
 
     private static bool TryOpenFile(DiscFileSystem fileSystem, string path, out Stream? stream)

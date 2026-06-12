@@ -1,4 +1,6 @@
-﻿using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Core.Input;
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Services.MediaInputPolicy;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -19,8 +21,13 @@ internal static class QueueOperationCapabilityService
             TaskActionCodes.RestoreDiscImageFromChd
         ]);
 
-    public static IReadOnlyList<string> GetSupportedOperationCodes(string? path) =>
-        GetSupportedOperationCodes(QueueInputClassifier.Classify(path));
+    public static IReadOnlyList<string> GetSupportedOperationCodes(string? path)
+    {
+        MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(path);
+        return mediaDecision.IsBlocked
+            ? NoOperations
+            : GetSupportedOperationCodes(QueueInputClassifier.Classify(mediaDecision.EffectivePath));
+    }
 
     public static IReadOnlyList<string> GetSupportedOperationCodes(QueueInputClassification classification) =>
         classification.Role switch

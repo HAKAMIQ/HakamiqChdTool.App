@@ -98,7 +98,7 @@ public static class BidiText
 
     private static bool IsCurrentUiRightToLeft()
     {
-        if (Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
+        if (System.Windows.Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
         {
             return flowDirection == FlowDirection.RightToLeft;
         }

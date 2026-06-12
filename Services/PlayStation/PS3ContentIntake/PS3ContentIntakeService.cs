@@ -46,7 +46,7 @@ public sealed class PS3ContentIntakeService
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            return BuildUnsupported(string.Empty, "No source path was provided.");
+            return BuildUnsupported(string.Empty, PS3ContentIntakeMessages.WarningNoSourcePath);
         }
 
         string fullPath;
@@ -56,7 +56,7 @@ public sealed class PS3ContentIntakeService
         }
         catch (Exception ex) when (IsExpectedAnalysisException(ex))
         {
-            return BuildUnsupported(path, "The source path is not valid.");
+            return BuildUnsupported(path, PS3ContentIntakeMessages.WarningSourcePathInvalid);
         }
 
         try
@@ -67,12 +67,12 @@ public sealed class PS3ContentIntakeService
                 PS3InputFormat.Iso => _isoLayoutReader.Analyze(fullPath),
                 PS3InputFormat.Pkg => _pkgInspector.Analyze(fullPath),
                 PS3InputFormat.Chd => AnalyzeChd(fullPath),
-                _ => BuildUnsupported(fullPath, "The selected source is not a supported PS3 input format.")
+                _ => BuildUnsupported(fullPath, PS3ContentIntakeMessages.WarningUnsupportedInputFormat)
             };
         }
         catch (Exception ex) when (IsExpectedAnalysisException(ex))
         {
-            return BuildUnsupported(fullPath, "The selected source could not be analyzed safely.");
+            return BuildUnsupported(fullPath, PS3ContentIntakeMessages.WarningAnalyzeUnsafe);
         }
     }
 
@@ -95,11 +95,11 @@ public sealed class PS3ContentIntakeService
 
         if (!exists)
         {
-            warnings.Add("The selected CHD file was not found.");
+            warnings.Add(PS3ContentIntakeMessages.WarningChdMissing);
         }
         else
         {
-            warnings.Add("CHD input is recognized as an existing container. Use the CHD logical probe for geometry and compression details.");
+            warnings.Add(PS3ContentIntakeMessages.WarningChdExistingContainer);
         }
 
         return new PS3ContentIntakeResult(
@@ -116,8 +116,8 @@ public sealed class PS3ContentIntakeService
             IsProbablyEncrypted: false,
             CanConvertToChd: false,
             RecommendedPipeline: exists
-                ? "CHD logical probe -> final report"
-                : "Unsupported or missing CHD source",
+                ? PS3ContentIntakeMessages.PipelineChdLogicalReport
+                : PS3ContentIntakeMessages.PipelineUnsupportedChd,
             Warnings: warnings);
     }
 
@@ -134,7 +134,7 @@ public sealed class PS3ContentIntakeService
         HasPs3DiscSfb: false,
         IsProbablyEncrypted: false,
         CanConvertToChd: false,
-        RecommendedPipeline: "Unsupported or incomplete PS3 source",
+        RecommendedPipeline: PS3ContentIntakeMessages.PipelineUnsupportedSource,
         Warnings: [warning]);
 
     private static bool SafeFileExists(string path)

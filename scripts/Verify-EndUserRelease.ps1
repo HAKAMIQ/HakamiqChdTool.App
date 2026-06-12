@@ -1,6 +1,7 @@
 #Requires -Version 5.1
 [CmdletBinding()]
 param(
+    [Alias("OutputPath")]
     [string] $Output = ".\Release"
 )
 
@@ -148,6 +149,65 @@ function Assert-DirectoryDoesNotExist {
     }
 }
 
+function Assert-RootIsClean {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $OutputPath
+    )
+
+    $approvedRootDirectories = @(
+        "Tools",
+        "docs",
+        "runtimes"
+    )
+
+    $forbiddenRootNames = @(
+        "README.md",
+        "LICENSE",
+        "LEGAL.md",
+        "THIRD_PARTY_NOTICES.txt",
+        "CHDMAN_NOTICE.md",
+        "SEVENZIP_NOTICE.md",
+        "MAME_COPYING.txt",
+        "MAME_GPL-2.0.txt",
+        "SECURITY.md",
+        "CHANGELOG.md"
+    )
+
+    $approvedRootFiles = @(
+        "HakamiqChdTool.exe",
+        "HakamiqChdTool.dll",
+        "HakamiqChdTool.deps.json",
+        "HakamiqChdTool.runtimeconfig.json",
+        "release-manifest.json"
+    )
+
+    $rootFiles = Get-ChildItem -LiteralPath $OutputPath -File -Force -ErrorAction Stop
+    foreach ($file in $rootFiles) {
+        if ($forbiddenRootNames -contains $file.Name) {
+            throw "Documentation/legal file must not be in release root: $($file.Name). Move it under docs or docs/legal."
+        }
+
+        $isApprovedRootFile = $approvedRootFiles -contains $file.Name
+        $isDependencyDll = $file.Extension.Equals(".dll", [System.StringComparison]::OrdinalIgnoreCase)
+
+        if (-not ($isApprovedRootFile -or $isDependencyDll)) {
+            throw "Root release file is not approved: $($file.Name). Keep only .NET publish dependencies in root and move documentation/legal files under docs."
+        }
+
+        if ($file.Extension.Equals(".pdb", [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Debug symbol file must not be shipped: $($file.Name)"
+        }
+    }
+
+    $rootDirectories = Get-ChildItem -LiteralPath $OutputPath -Directory -Force -ErrorAction Stop
+    foreach ($directory in $rootDirectories) {
+        if ($approvedRootDirectories -notcontains $directory.Name) {
+            throw "Root release directory is not approved: $($directory.Name)."
+        }
+    }
+}
+
 function Assert-NoDirectoriesByName {
     param(
         [Parameter(Mandatory = $true)]
@@ -261,34 +321,48 @@ function Assert-NoDirectoriesByNamePattern {
 function Assert-RequiredReleaseFiles {
     foreach ($required in @(
         "HakamiqChdTool.exe",
+        "HakamiqChdTool.dll",
+        "HakamiqChdTool.deps.json",
+        "HakamiqChdTool.runtimeconfig.json",
+        "release-manifest.json",
         "Tools\chd_reader_tool.exe",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
-        "LICENSE",
-        "LEGAL.md",
-        "THIRD_PARTY_NOTICES.txt",
-        "CHDMAN_NOTICE.md",
-        "MAME_COPYING.txt",
-        "MAME_GPL-2.0.txt",
-        "SEVENZIP_NOTICE.md"
+        "docs\README.md",
+        "docs\CHANGELOG.md",
+        "docs\SECURITY.md",
+        "docs\legal\LICENSE",
+        "docs\legal\LEGAL.md",
+        "docs\legal\THIRD_PARTY_NOTICES.txt",
+        "docs\legal\CHDMAN_NOTICE.md",
+        "docs\legal\MAME_COPYING.txt",
+        "docs\legal\MAME_GPL-2.0.txt",
+        "docs\legal\SEVENZIP_NOTICE.md"
     )) {
         Assert-FileExists $required
     }
 
     foreach ($required in @(
         "HakamiqChdTool.exe",
+        "HakamiqChdTool.dll",
+        "HakamiqChdTool.deps.json",
+        "HakamiqChdTool.runtimeconfig.json",
+        "release-manifest.json",
         "Tools\chd_reader_tool.exe",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
-        "LICENSE",
-        "LEGAL.md",
-        "THIRD_PARTY_NOTICES.txt",
-        "CHDMAN_NOTICE.md",
-        "MAME_COPYING.txt",
-        "MAME_GPL-2.0.txt",
-        "SEVENZIP_NOTICE.md"
+        "docs\README.md",
+        "docs\CHANGELOG.md",
+        "docs\SECURITY.md",
+        "docs\legal\LICENSE",
+        "docs\legal\LEGAL.md",
+        "docs\legal\THIRD_PARTY_NOTICES.txt",
+        "docs\legal\CHDMAN_NOTICE.md",
+        "docs\legal\MAME_COPYING.txt",
+        "docs\legal\MAME_GPL-2.0.txt",
+        "docs\legal\SEVENZIP_NOTICE.md"
     )) {
         Assert-FileIsNotEmpty $required
     }
@@ -431,7 +505,7 @@ function Assert-NoStandaloneChdmanExecutable {
 
     if ($matches) {
         foreach ($match in $matches) {
-            Write-Err "Standalone chdman.exe must not be included in end-user release because chdman is embedded and extracted at runtime: $($match.FullName)"
+            Write-Err "Standalone chdman.exe must not be included in the end-user release because it is embedded and extracted at runtime: $($match.FullName)"
         }
 
         throw "Standalone chdman.exe detected in end-user release."
@@ -633,6 +707,7 @@ if (-not (Test-Path -LiteralPath $OutputPath -PathType Container)) {
 Write-Info "Verifying end-user release output: $OutputPath"
 
 Assert-RequiredReleaseFiles
+Assert-RootIsClean -OutputPath $OutputPath
 Assert-NoDeveloperArtifacts
 Assert-NoUnsupportedMameTools
 Assert-NoStandaloneChdmanExecutable

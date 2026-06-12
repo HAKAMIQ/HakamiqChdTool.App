@@ -1,6 +1,8 @@
+using HakamiqChdTool.App.Models;
 using DiscUtils.Iso9660;
 using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
 using HakamiqChdTool.App.Services.PlayStation.BluRayAnalysis;
+using HakamiqChdTool.App.Services.ConsoleMedia;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -141,6 +143,21 @@ public static class PlatformDetectionService
         if (extension == ".iso")
         {
             return PlatformCandidateFilter.Apply(fullPath, DetectFromIso(fullPath));
+        }
+
+        if (extension == ".bin")
+        {
+            ConsoleDiscIdentityResult consoleIdentity = ConsoleDiscIdentityService.Shared.Detect(fullPath);
+            if (consoleIdentity.IsIdentified)
+            {
+                return PlatformCandidateFilter.Apply(
+                    fullPath,
+                    PlatformDetectionResult.Create(
+                        consoleIdentity.PlatformName,
+                        string.Empty,
+                        consoleIdentity.Confidence,
+                        consoleIdentity.ReasonKey));
+            }
         }
 
         if (DiscRawSerialProbe.TryDetectPlatform(fullPath, out PlatformDetectionResult rawSerialDetection))

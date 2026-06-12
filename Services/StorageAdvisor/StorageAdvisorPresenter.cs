@@ -1,7 +1,8 @@
-﻿using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Localization;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using HakamiqChdTool.App.Services.Storage;
 
 namespace HakamiqChdTool.App.Services.StorageAdvisor;
 
@@ -16,17 +17,17 @@ internal static class StorageAdvisorPresenter
     private const string WarningSeverityKey = "LocStorageAdvisor_Severity_Warning";
     private const string BlockingSeverityKey = "LocStorageAdvisor_Severity_Blocking";
 
-    public static StorageAdvisorPresentation Present(StorageAdvisorResult result)
+    public static StorageAdvisorView Present(StorageAdvisorResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        List<StorageAdvisorPathPresentation> paths = [];
+        List<StoragePathView> paths = [];
 
         AddPath(paths, result.Source);
         AddPath(paths, result.OutputDirectory);
         AddPath(paths, result.PendingWorkspaceRoot);
 
-        List<StorageAdvisorMessagePresentation> messages = [];
+        List<StorageMessageView> messages = [];
 
         foreach (StorageAdvisorIssue issue in result.Issues)
         {
@@ -38,7 +39,7 @@ internal static class StorageAdvisorPresenter
             messages.Add(PresentRecommendation(recommendation));
         }
 
-        return new StorageAdvisorPresentation(
+        return new StorageAdvisorView(
             result.OperationKind,
             result.ShouldShowDialog,
             result.HasBlockingIssue,
@@ -48,7 +49,7 @@ internal static class StorageAdvisorPresenter
     }
 
     private static void AddPath(
-        List<StorageAdvisorPathPresentation> paths,
+        List<StoragePathView> paths,
         StoragePathAnalysis? analysis)
     {
         if (analysis is null)
@@ -56,7 +57,7 @@ internal static class StorageAdvisorPresenter
             return;
         }
 
-        paths.Add(new StorageAdvisorPathPresentation(
+        paths.Add(new StoragePathView(
             analysis.Role,
             ResolveRoleLabel(analysis.Role),
             ResolveDeviceKindText(analysis.DeviceKind),
@@ -66,11 +67,11 @@ internal static class StorageAdvisorPresenter
             analysis.HasKnownVolume ? analysis.Volume.FileSystem : string.Empty));
     }
 
-    private static StorageAdvisorMessagePresentation PresentIssue(StorageAdvisorIssue issue)
+    private static StorageMessageView PresentIssue(StorageAdvisorIssue issue)
     {
         ArgumentNullException.ThrowIfNull(issue);
 
-        return new StorageAdvisorMessagePresentation(
+        return new StorageMessageView(
             issue.Severity,
             issue.MessageCode,
             ResolveSeverityText(issue.Severity),
@@ -79,12 +80,12 @@ internal static class StorageAdvisorPresenter
             issue.RelatedPathRole);
     }
 
-    private static StorageAdvisorMessagePresentation PresentRecommendation(
+    private static StorageMessageView PresentRecommendation(
         StorageAdvisorRecommendation recommendation)
     {
         ArgumentNullException.ThrowIfNull(recommendation);
 
-        return new StorageAdvisorMessagePresentation(
+        return new StorageMessageView(
             recommendation.Severity,
             recommendation.MessageCode,
             ResolveSeverityText(recommendation.Severity),
@@ -167,44 +168,44 @@ internal static class StorageAdvisorPresenter
         return ArabicUi.ResolveDisplayString(key);
     }
 
-    private static ReadOnlyCollection<StorageAdvisorPathPresentation> ToReadOnlyPathList(
-        List<StorageAdvisorPathPresentation> source)
+    private static ReadOnlyCollection<StoragePathView> ToReadOnlyPathList(
+        List<StoragePathView> source)
     {
-        List<StorageAdvisorPathPresentation> items = new(source.Count);
+        List<StoragePathView> items = new(source.Count);
 
-        foreach (StorageAdvisorPathPresentation item in source)
+        foreach (StoragePathView item in source)
         {
             ArgumentNullException.ThrowIfNull(item);
             items.Add(item);
         }
 
-        return new ReadOnlyCollection<StorageAdvisorPathPresentation>(items);
+        return new ReadOnlyCollection<StoragePathView>(items);
     }
 
-    private static ReadOnlyCollection<StorageAdvisorMessagePresentation> ToReadOnlyMessageList(
-        List<StorageAdvisorMessagePresentation> source)
+    private static ReadOnlyCollection<StorageMessageView> ToReadOnlyMessageList(
+        List<StorageMessageView> source)
     {
-        List<StorageAdvisorMessagePresentation> items = new(source.Count);
+        List<StorageMessageView> items = new(source.Count);
 
-        foreach (StorageAdvisorMessagePresentation item in source)
+        foreach (StorageMessageView item in source)
         {
             ArgumentNullException.ThrowIfNull(item);
             items.Add(item);
         }
 
-        return new ReadOnlyCollection<StorageAdvisorMessagePresentation>(items);
+        return new ReadOnlyCollection<StorageMessageView>(items);
     }
 }
 
-internal sealed record StorageAdvisorPresentation(
+internal sealed record StorageAdvisorView(
     StorageAdvisorOperationKind OperationKind,
     bool ShouldShowDialog,
     bool HasBlockingIssue,
     bool HasWarningOrHigher,
-    IReadOnlyList<StorageAdvisorPathPresentation> Paths,
-    IReadOnlyList<StorageAdvisorMessagePresentation> Messages);
+    IReadOnlyList<StoragePathView> Paths,
+    IReadOnlyList<StorageMessageView> Messages);
 
-internal sealed record StorageAdvisorPathPresentation(
+internal sealed record StoragePathView(
     StoragePathRole Role,
     string RoleLabel,
     string DeviceKindText,
@@ -213,7 +214,7 @@ internal sealed record StorageAdvisorPathPresentation(
     string TechnicalVolumeRoot,
     string TechnicalFileSystem);
 
-internal sealed record StorageAdvisorMessagePresentation(
+internal sealed record StorageMessageView(
     StorageAdvisorSeverity Severity,
     StorageAdvisorMessageCode MessageCode,
     string SeverityText,

@@ -31,6 +31,8 @@ internal sealed class WorkflowExtractionStage(
     private readonly ChdConversionService _conversion = conversion ?? throw new ArgumentNullException(nameof(conversion));
     private readonly ChdVerificationService _verify = verify ?? throw new ArgumentNullException(nameof(verify));
     private readonly ILogger _log = log ?? throw new ArgumentNullException(nameof(log));
+    private readonly IMetadataAwareChdExtractionPolicy _extractionPolicy = new MetadataAwareChdExtractionPolicy();
+    private readonly IRestoreTargetPolicy _restoreTargetPolicy = new RestoreTargetPolicy();
 
     public async Task<WorkflowExecutionResult> ExecuteAsync(
         ChdTaskRequest request,
@@ -82,22 +84,38 @@ internal sealed class WorkflowExtractionStage(
             ctx.Snapshot.OriginalPath,
             chdPath);
 
-        ChdWorkflowProfilePlan extractPlan = ChdWorkflowProfilePlanner.PlanExtractionFromChdMediaType(
-            infoResult.MediaType,
-            chdPath,
-            detection);
+        PlatformDetectionResult extractionContextDetection = PlatformDetectionResult.Create(
+            currentDetectedPlatform,
+            detection.ConfidenceLabel,
+            detection.ConfidenceScore,
+            detection.Reason);
 
-        if (!extractPlan.IsSupported
-            || extractPlan.ExtractionKind == ChdmanExtractionKind.None
-            || string.IsNullOrWhiteSpace(extractPlan.OutputExtension))
+        MetadataAwareChdExtractionDecision extractionDecision = _extractionPolicy.Resolve(
+            new MetadataAwareChdExtractionRequest(
+                infoResult.MediaType,
+                chdPath,
+                ctx.Snapshot.OriginalPath,
+                extractionContextDetection,
+                infoResult.LogicalBytes));
+
+        if (!extractionDecision.IsSupported
+            || extractionDecision.ExtractionKind == ChdmanExtractionKind.None
+            || string.IsNullOrWhiteSpace(extractionDecision.OutputExtension))
         {
-            string unknownMediaTypeDetail = string.IsNullOrWhiteSpace(extractPlan.FailureMessage)
+            string unknownMediaTypeDetail = string.IsNullOrWhiteSpace(extractionDecision.FailureMessageKey)
                 ? ChdWorkflowProfilePlanner.UnknownChdExtractionMessageKey
-                : extractPlan.FailureMessage;
+                : extractionDecision.FailureMessageKey;
 
             sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, unknownMediaTypeDetail);
             sink.ReportProgress(100, indeterminate: false);
             WorkflowPathUtilities.RaiseProgress(request, 100);
+
+            _log.Warning(
+                "CHD extraction blocked by MetadataAwareChdExtractionPolicy. SourcePath={SourcePath}; MediaType={MediaType}; MetadataKind={MetadataKind}; ReasonCode={ReasonCode}",
+                chdPath,
+                infoResult.MediaType,
+                extractionDecision.MetadataKind,
+                extractionDecision.ReasonCode);
 
             return WorkflowResultBuilder.Failure(
                 QueueItemFailureKind.Unsupported,
@@ -106,8 +124,8 @@ internal sealed class WorkflowExtractionStage(
                 lastLogPath);
         }
 
-        ChdmanExtractionKind extractKind = extractPlan.ExtractionKind;
-        string outExt = extractPlan.OutputExtension;
+        ChdmanExtractionKind extractKind = extractionDecision.ExtractionKind;
+        string outExt = extractionDecision.OutputExtension;
 
         string finalOutputPath = WorkflowPathUtilities.BuildFinalExtractOutputPath(
             currentDetectedPlatform,
@@ -139,6 +157,12 @@ internal sealed class WorkflowExtractionStage(
 
         sink.AttachArtifact(QueueItemArtifactKind.OutputFile, finalOutputPath);
         WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
+
+        if (cancellationToken.IsCancellationRequested)
+        {
+            sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, CancelledDetailKey);
+            return WorkflowExecutionResult.Cancelled(CancelledDetailKey, finalOutputPath, lastLogPath);
+        }
 
         if (settings.SkipExistingOutput && File.Exists(finalOutputPath))
         {
@@ -186,25 +210,54 @@ internal sealed class WorkflowExtractionStage(
                 lastLogPath);
         }
 
-        sink.ReportStage(QueueItemStage.Extracting, extractPlan.StatusLine);
+        RestoreTargetDecision restoreTarget = _restoreTargetPolicy.Resolve(
+            new RestoreTargetRequest(
+                extractionDecision,
+                pendingOutputPath,
+                finalOutputPath));
+
+        string extractionStageLine = string.IsNullOrWhiteSpace(extractionDecision.WarningMessageKey)
+            ? extractionDecision.StatusLine
+            : extractionDecision.WarningMessageKey;
+
+        if (extractionDecision.IsLegacyWrongProfile)
+        {
+            _log.Warning(
+                "Wrong-profile / Legacy CHD detected. SourcePath={SourcePath}; MediaType={MediaType}; Platform={Platform}; ReasonCode={ReasonCode}; Recommendation=Extract to ISO then rebuild using createdvd profile.",
+                chdPath,
+                infoResult.MediaType,
+                currentDetectedPlatform,
+                extractionDecision.ReasonCode);
+        }
+
+        sink.ReportStage(QueueItemStage.Extracting, extractionStageLine);
         sink.ReportProgress(14, indeterminate: false);
         WorkflowPathUtilities.RaiseProgress(request, 14);
 
         var runtimeProgress = new WorkflowChdmanRuntimeProgressReporter(
             sink,
-            extractPlan.StatusLine,
+            extractionStageLine,
             infoResult.LogicalBytes ?? 0L);
 
         runtimeProgress.ReportCurrent();
 
         bool extractionFinalizingNotified = false;
-        var extractProgress = new Progress<int>(value =>
+        int lastExtractionPercent = 0;
+
+        void ReportReliableExtractionPercent(int value)
         {
             if (cancellationToken.IsCancellationRequested)
             {
                 return;
             }
 
+            value = Math.Clamp(value, 0, 100);
+            if (value < lastExtractionPercent)
+            {
+                return;
+            }
+
+            lastExtractionPercent = value;
             runtimeProgress.ReportPercent(value);
 
             if (value >= 100 && !extractionFinalizingNotified)
@@ -223,13 +276,28 @@ internal sealed class WorkflowExtractionStage(
             double p = WorkflowPathUtilities.MapProgressRange(value, 14, 96);
             sink.ReportProgress(p, indeterminate: false);
             WorkflowPathUtilities.RaiseProgress(request, p);
-        });
+        }
+
+        var extractProgress = new Progress<int>(ReportReliableExtractionPercent);
 
         var extractionPerformanceProgress = new Progress<PerformanceSample>(sample =>
         {
-            if (!cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
             {
-                runtimeProgress.ReportPerformance(sample);
+                return;
+            }
+
+            runtimeProgress.ReportPerformance(sample);
+
+            long logicalBytes = infoResult.LogicalBytes ?? 0L;
+            if (logicalBytes > 0 && sample.OutputBytes > 0)
+            {
+                int derivedPercent = (int)Math.Clamp(
+                    Math.Round(sample.OutputBytes * 100d / logicalBytes, MidpointRounding.AwayFromZero),
+                    0d,
+                    100d);
+
+                ReportReliableExtractionPercent(derivedPercent);
             }
         });
 
@@ -239,7 +307,7 @@ internal sealed class WorkflowExtractionStage(
             conversionResult = await _conversion.ConvertToChdAsync(
                 ctx.GetChdmanPath(),
                 chdPath,
-                pendingOutputPath,
+                restoreTarget.ChdmanOutputPath,
                 settings.MaxProcessorCount,
                 settings.EnableAutoResourceLimiter,
                 settings.ReservedLogicalCores,
@@ -255,7 +323,11 @@ internal sealed class WorkflowExtractionStage(
                 performanceProgress: extractionPerformanceProgress,
                 enableDiskSpaceGuard: settings.EnableDiskSpaceGuard,
                 performanceMode: settings.PerformanceMode,
-                priorityMode: settings.ChdmanPriorityMode).ConfigureAwait(false);
+                priorityMode: settings.ChdmanPriorityMode,
+                extractionMetadataDecisionConfirmed: true,
+                extractCdCueOutputPath: restoreTarget.ExtractCdCueOutputPath,
+                extractCdBinOutputPath: restoreTarget.ExtractCdBinOutputPath,
+                verifyExtractCdCueBinContract: restoreTarget.VerifyExtractCdCueBinContract).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -325,7 +397,7 @@ internal sealed class WorkflowExtractionStage(
             cancellationToken);
 
         if (!WorkflowPathUtilities.TryFinalizeExtractedDiscImageOutput(
-                extractKind,
+                restoreTarget.FinalizationKind,
                 pendingOutputPath,
                 finalOutputPath,
                 out string finalizeFailureMessageKey))
@@ -419,7 +491,9 @@ internal sealed class WorkflowExtractionStage(
             WorkflowPathUtilities.TryGetFileSize(chdPath),
             WorkflowPathUtilities.TryGetFileSize(finalOutputPath));
 
-        string extractedDetail = BuildExtractionSuccessDetail(extractKind);
+        string extractedDetail = string.IsNullOrWhiteSpace(restoreTarget.SuccessMessageKey)
+            ? BuildExtractionSuccessDetail(restoreTarget.SuccessKind)
+            : restoreTarget.SuccessMessageKey;
 
         sink.ReportTerminalSuccess(QueueItemTerminalOutcome.Extracted, extractedDetail);
         sink.ReportProgress(100, indeterminate: false);

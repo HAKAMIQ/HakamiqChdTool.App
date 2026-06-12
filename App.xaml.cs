@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Startup;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
@@ -23,7 +24,9 @@ public partial class App : WpfApplication
     private const string ApplicationTitleKey = "LocUi_WindowTitle";
     private const string AdministratorWarningBodyKey = "LocApp_AdministratorWarningBody";
 
-    private static int _dispatcherFatalUiCount;
+    private const string SingleInstanceMutexName = @"Local\HakamiqChdTool.App.SingleInstance";
+
+    private Mutex? _singleInstanceMutex;
 
     private bool _globalExceptionHandlersRegistered;
 
@@ -39,6 +42,15 @@ public partial class App : WpfApplication
     {
         AppPaths.SetPortableMode(AppPaths.DetectPortableModePreference());
         AppLogger.Initialize();
+
+        if (!TryAcquireSingleInstanceMutex())
+        {
+            Log.Information("Another Hakamiq CHD Tool instance is already running. Exiting duplicate instance.");
+            AppLogger.Shutdown();
+            Shutdown(0);
+            return;
+        }
+
         RegisterGlobalExceptionHandlers();
 
         SettingsService = new AppSettingsService();
@@ -64,6 +76,55 @@ public partial class App : WpfApplication
 #if DEBUG
         Log.Debug("Startup diagnostics (Debug build).");
 #endif
+    }
+
+    private bool TryAcquireSingleInstanceMutex()
+    {
+        try
+        {
+            _singleInstanceMutex = new Mutex(
+                initiallyOwned: true,
+                name: SingleInstanceMutexName,
+                createdNew: out bool createdNew);
+
+            if (!createdNew)
+            {
+                _singleInstanceMutex.Dispose();
+                _singleInstanceMutex = null;
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException or System.Security.SecurityException or ApplicationException)
+        {
+            Log.Warning(ex, "Could not create the single-instance mutex. Continuing startup to avoid a false launch block.");
+            return true;
+        }
+    }
+
+    private void ReleaseSingleInstanceMutex()
+    {
+        Mutex? mutex = _singleInstanceMutex;
+        _singleInstanceMutex = null;
+
+        if (mutex is null)
+        {
+            return;
+        }
+
+        try
+        {
+            mutex.ReleaseMutex();
+        }
+        catch (ApplicationException ex)
+        {
+            Log.Debug(ex, "Single-instance mutex release skipped because the current thread does not own it.");
+        }
+        finally
+        {
+            mutex.Dispose();
+        }
     }
 
     internal MainWindowBootstrap CreateMainWindowBootstrap()
@@ -109,6 +170,8 @@ public partial class App : WpfApplication
         {
             Log.Debug(ex, "Settings flush on application exit failed.");
         }
+
+        ReleaseSingleInstanceMutex();
 
         Log.Information("Application exit. Code: {ExitCode}", e.ApplicationExitCode);
         AppLogger.Shutdown();
@@ -222,11 +285,12 @@ public partial class App : WpfApplication
 
     private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        e.Handled = true;
-
         Exception ex = e.Exception;
+
         if (DiagnosticLogPolicy.IsExpectedCancellation(ex))
         {
+            e.Handled = true;
+
             try
             {
                 Log.Debug("Handled expected dispatcher cancellation exception.");
@@ -240,51 +304,79 @@ public partial class App : WpfApplication
 
         try
         {
-            Log.Error(ex, "Unhandled dispatcher exception.");
+            if (IsUiConstructionFault(ex))
+            {
+                Log.Error(ex, "Fatal UI construction exception. The application will shut down safely.");
+            }
+            else
+            {
+                Log.Error(ex, "Fatal dispatcher exception. The application will shut down safely.");
+            }
+
             TryAppendCrashReport(ex);
         }
         catch
         {
         }
 
-        if (Interlocked.Increment(ref _dispatcherFatalUiCount) != 1)
-        {
-            return;
-        }
+        e.Handled = true;
+        RequestFatalShutdown();
+    }
 
+    private static void RequestFatalShutdown()
+    {
         try
         {
             Dispatcher? dispatcher = WpfApplication.Current?.Dispatcher;
-            if (dispatcher is null || dispatcher.HasShutdownStarted)
+            if (dispatcher is null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
             {
+                Environment.Exit(1);
                 return;
             }
 
-            _ = dispatcher.BeginInvoke(
-                DispatcherPriority.ApplicationIdle,
+            dispatcher.BeginInvoke(
+                DispatcherPriority.Send,
                 new Action(() =>
                 {
                     try
                     {
-                        ShowApplicationNotice(
-                            ResolveUiText(ApplicationTitleKey),
-                            RuntimeDiagnosticFormatter.BuildCrashDialogMessage(ex));
+                        WpfApplication.Current?.Shutdown(1);
                     }
-                    catch (Exception dialogException)
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            Log.Error(dialogException, "Failed to show error dialog.");
-                        }
-                        catch
-                        {
-                        }
+                        Log.Debug(ex, "Fatal dispatcher shutdown failed; forcing process exit.");
+                        Environment.Exit(1);
                     }
                 }));
         }
         catch
         {
+            Environment.Exit(1);
         }
+    }
+
+    private static bool IsUiConstructionFault(Exception ex)
+    {
+        for (Exception? current = ex; current is not null; current = current.InnerException)
+        {
+            string typeName = current.GetType().FullName ?? current.GetType().Name;
+            if (typeName.Contains("XamlParseException", StringComparison.Ordinal)
+                || typeName.Contains("XamlObjectWriterException", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            string stack = current.StackTrace ?? string.Empty;
+            if (stack.Contains("InitializeComponent", StringComparison.Ordinal)
+                || stack.Contains("System.Windows.Application.LoadComponent", StringComparison.Ordinal)
+                || stack.Contains("System.Windows.Markup.WpfXamlLoader", StringComparison.Ordinal)
+                || stack.Contains("System.Xaml.XamlObjectWriter", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void OnCurrentDomainUnhandledException(object? sender, UnhandledExceptionEventArgs e)

@@ -43,6 +43,7 @@
     <sys:Double x:Key="Space.20">20</sys:Double>
     <sys:Double x:Key="Space.22">22</sys:Double>
     <sys:Double x:Key="Space.24">24</sys:Double>
+    <sys:Double x:Key="Space.26">26</sys:Double>
     <sys:Double x:Key="Space.28">28</sys:Double>
     <sys:Double x:Key="Space.32">32</sys:Double>
     <sys:Double x:Key="Space.36">36</sys:Double>
@@ -125,6 +126,7 @@
     <Thickness x:Key="Inset.ScrollBarTrack.Horizontal">0,2,0,2</Thickness>
 
     <Thickness x:Key="Inset.0.0.0.1">0,0,0,1</Thickness>
+    <Thickness x:Key="Inset.1.0.1.1">1,0,1,1</Thickness>
     <Thickness x:Key="Inset.0.0.0.4">0,0,0,4</Thickness>
     <Thickness x:Key="Inset.0.0.0.5">0,0,0,5</Thickness>
     <Thickness x:Key="Inset.0.0.0.6">0,0,0,6</Thickness>
@@ -140,12 +142,14 @@
     <Thickness x:Key="Inset.0.0.14.0">0,0,14,0</Thickness>
     <Thickness x:Key="Inset.0.0.16.0">0,0,16,0</Thickness>
     <Thickness x:Key="Inset.0.0.12.12">0,0,12,12</Thickness>
+
     <Thickness x:Key="Inset.0.1.0.0">0,1,0,0</Thickness>
     <Thickness x:Key="Inset.0.2.0.0">0,2,0,0</Thickness>
     <Thickness x:Key="Inset.0.4.0.0">0,4,0,0</Thickness>
-    <Thickness x:Key="Inset.0.5.0.0">0,5,0,0</Thickness>
+    <Thickness x:Key="Inset.0.4.0.6">0,4,0,6</Thickness>
     <Thickness x:Key="Inset.0.4.0.12">0,4,0,12</Thickness>
     <Thickness x:Key="Inset.0.4.0.16">0,4,0,16</Thickness>
+    <Thickness x:Key="Inset.0.5.0.0">0,5,0,0</Thickness>
     <Thickness x:Key="Inset.0.6.0.0">0,6,0,0</Thickness>
     <Thickness x:Key="Inset.0.6.0.8">0,6,0,8</Thickness>
     <Thickness x:Key="Inset.0.8.0.0">0,8,0,0</Thickness>
@@ -165,6 +169,9 @@
     <Thickness x:Key="Inset.0.16.16.16">0,16,16,16</Thickness>
     <Thickness x:Key="Inset.0.16.20.16">0,16,20,16</Thickness>
     <Thickness x:Key="Inset.0.18.0.12">0,18,0,12</Thickness>
+
+    <Thickness x:Key="Inset.0.1">0,1</Thickness>
+    <Thickness x:Key="Inset.6.0">6,0</Thickness>
     <Thickness x:Key="Inset.6.0.0.0">6,0,0,0</Thickness>
     <Thickness x:Key="Inset.8.0.0.0">8,0,0,0</Thickness>
     <Thickness x:Key="Inset.10.0.0.0">10,0,0,0</Thickness>
@@ -182,6 +189,7 @@
     <Thickness x:Key="Inset.16.0.16.0">16,0,16,0</Thickness>
     <Thickness x:Key="Inset.18.0.0.0">18,0,0,0</Thickness>
     <Thickness x:Key="Inset.34.0">34,0</Thickness>
+
     <Thickness x:Key="Inset.7.3">7,3</Thickness>
     <Thickness x:Key="Inset.4.2">4,2</Thickness>
     <Thickness x:Key="Inset.8.4">8,4</Thickness>
@@ -202,6 +210,7 @@
     <Thickness x:Key="Inset.18.14">18,14</Thickness>
     <Thickness x:Key="Inset.20.12">20,12</Thickness>
     <Thickness x:Key="Inset.20.16">20,16</Thickness>
+
     <Thickness x:Key="Inset.10.8.10.8">10,8,10,8</Thickness>
     <Thickness x:Key="Inset.10.8.10.10">10,8,10,10</Thickness>
     <Thickness x:Key="Inset.12.12.10.12">12,12,10,12</Thickness>
@@ -222,7 +231,7 @@
     <GridLength x:Key="Layout.NavRail.GridWidth">188</GridLength>
     <sys:Double x:Key="Layout.ActionPanel.Width">292</sys:Double>
     <GridLength x:Key="Layout.ActionPanel.GridWidth">292</GridLength>
-    <GridLength x:Key="Grid.AdvancedOptionsSidebar.Width">208</GridLength>
+    <GridLength x:Key="Grid.OptionsSidebar.Width">208</GridLength>
     <sys:Double x:Key="Grid.Settings.ActionColumn.Width">320</sys:Double>
     <sys:Double x:Key="Layout.Queue.MinHeight">300</sys:Double>
     <sys:Double x:Key="Layout.DropHint.MaxWidth">360</sys:Double>
@@ -239,10 +248,10 @@
     <sys:Double x:Key="Window.About.Height">400</sys:Double>
     <sys:Double x:Key="Window.About.MinWidth">520</sys:Double>
     <sys:Double x:Key="Window.About.MinHeight">360</sys:Double>
-    <sys:Double x:Key="Window.Advanced.Width">1000</sys:Double>
-    <sys:Double x:Key="Window.Advanced.Height">760</sys:Double>
-    <sys:Double x:Key="Window.Advanced.MinWidth">960</sys:Double>
-    <sys:Double x:Key="Window.Advanced.MinHeight">720</sys:Double>
+    <sys:Double x:Key="Window.Options.Width">1000</sys:Double>
+    <sys:Double x:Key="Window.Options.Height">760</sys:Double>
+    <sys:Double x:Key="Window.Options.MinWidth">960</sys:Double>
+    <sys:Double x:Key="Window.Options.MinHeight">720</sys:Double>
     <sys:Double x:Key="Window.Rename.Width">560</sys:Double>
     <sys:Double x:Key="Window.Rename.MinWidth">520</sys:Double>
     <sys:Double x:Key="Window.Rename.MaxWidth">760</sys:Double>

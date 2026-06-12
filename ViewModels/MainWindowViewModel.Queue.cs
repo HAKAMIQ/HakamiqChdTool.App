@@ -1,8 +1,10 @@
-﻿using CommunityToolkit.Mvvm.Input;
+using HakamiqChdTool.App.Ui.Queue;
+using CommunityToolkit.Mvvm.Input;
 using HakamiqChdTool.App.Core.Input;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.MediaInputPolicy;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using HakamiqChdTool.App.Views;
 using Serilog;
@@ -23,7 +25,7 @@ public partial class MainWindowViewModel
     private static readonly IInputResolver InputResolverStatic = new Core.Input.InputResolver();
     private static readonly ArchiveContentPreviewService ArchivePreviewService = new();
 
-    private readonly record struct QueuePlatformPresentation(string PlatformName, string Reason);
+    private readonly record struct QueuePlatformView(string PlatformName, string Reason);
 
     private readonly record struct PreparedQueueCandidate(
         string Path,
@@ -36,6 +38,7 @@ public partial class MainWindowViewModel
         int AcceptedArchives,
         IReadOnlyList<string> RejectedArchiveMessageKeys,
         bool SkippedCorruptArchives = false,
+        bool SkippedUnsupportedInputs = false,
         bool WasCancelled = false);
 
     public async Task IngestPathsAsync(
@@ -171,7 +174,17 @@ public partial class MainWindowViewModel
                     continue;
                 }
 
-                QueueInputClassification classification = QueueInputClassifier.Classify(discoveredPath);
+                MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(discoveredPath);
+                if (mediaDecision.IsBlocked)
+                {
+                    unsupportedFileCount++;
+                    progress.SkippedUnsupportedOrDuplicate = true;
+
+                    continue;
+                }
+
+                string effectiveDiscoveredPath = mediaDecision.EffectivePath;
+                QueueInputClassification classification = QueueInputClassifier.Classify(effectiveDiscoveredPath);
                 if (!classification.IsSupported)
                 {
                     unsupportedFileCount++;
@@ -180,7 +193,7 @@ public partial class MainWindowViewModel
                     continue;
                 }
 
-                string normalizedPath = NormalizePathForAdvisoryKey(discoveredPath);
+                string normalizedPath = NormalizePathForAdvisoryKey(effectiveDiscoveredPath);
                 if (existingPaths.Contains(normalizedPath) || !seenImportedPaths.Add(normalizedPath))
                 {
                     duplicateFileCount++;
@@ -197,7 +210,7 @@ public partial class MainWindowViewModel
 
                 PreparedQueueBatchResult prepared = await Task.Run(
                     () => PrepareQueueBatch(
-                        [discoveredPath],
+                        [effectiveDiscoveredPath],
                         executionProfile,
                         intakeSource,
                         intakeToken,
@@ -222,6 +235,7 @@ public partial class MainWindowViewModel
                 acceptedArchiveTotal += prepared.AcceptedArchives;
                 rejectedArchiveMessageKeys.AddRange(prepared.RejectedArchiveMessageKeys);
                 progress.SkippedCorruptArchives |= prepared.SkippedCorruptArchives;
+                progress.SkippedUnsupportedOrDuplicate |= prepared.SkippedUnsupportedInputs;
 
                 foreach (PreparedQueueCandidate candidate in prepared.Candidates)
                 {
@@ -571,21 +585,21 @@ public partial class MainWindowViewModel
         RegexOptions.CultureInvariant)]
     private static partial Regex SiblingSeparatorRegex();
 
-    private static QueuePlatformPresentation BuildQueuePlatformPresentation(string path)
+    private static QueuePlatformView BuildQueuePlatformView(string path)
     {
         try
         {
             PlatformDetectionResult detection = PlatformDetectionService.Detect(path);
             if (PlatformDetectionService.IsActionablePlatformName(detection.PlatformName))
             {
-                return new QueuePlatformPresentation(detection.PlatformName, detection.Reason);
+                return new QueuePlatformView(detection.PlatformName, detection.Reason);
             }
         }
         catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
         {
         }
 
-        return new QueuePlatformPresentation("Unknown Platform", string.Empty);
+        return new QueuePlatformView("Unknown Platform", string.Empty);
     }
 
     private static bool IsExistingQueueInputPath(string? path)
@@ -640,7 +654,7 @@ public partial class MainWindowViewModel
 
     private static string ResolveRequestedAction(string path, QueueExecutionProfile executionProfile)
     {
-        return QueueOperationModeResolver.ResolveInitialRequestedAction(path, executionProfile);
+        return QueueModeResolver.ResolveInitialRequestedAction(path, executionProfile);
     }
 
     private QueueRowData BuildRowFromPath(
@@ -691,7 +705,7 @@ public partial class MainWindowViewModel
             StatusDetail = initialDetail,
             IsNamingCompliant = isCompliant,
             SuggestedStandardName = suggestedName,
-            IsVisibleInCurrentOperationMode = QueueOperationModeResolver.IsPathVisibleForExecutionProfile(path, executionProfile)
+            IsVisibleInCurrentOperationMode = QueueModeResolver.IsPathVisibleForExecutionProfile(path, executionProfile)
         };
     }
 

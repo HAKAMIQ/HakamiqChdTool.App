@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using System;

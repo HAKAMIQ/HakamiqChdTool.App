@@ -1,0 +1,199 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/Style/Queue/QueueItemBaseStyles.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QueueWorkspaceSharedStyles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <DataTemplate x:Key="QueueItemActionsFieldsTemplate">
+        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+              Language="{DynamicResource App.XmlLanguage}"
+              SnapsToDevicePixels="True"
+              UseLayoutRounding="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Margin="{DynamicResource Inset.0.8.0.0}"
+                    Visibility="{Binding UiShowRunningActionsRow, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True"
+                      UseLayoutRounding="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0"
+                          MinWidth="0"
+                          FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.CaptionSmall}"
+                                   FontWeight="{DynamicResource FontWeight.SemiBold}"
+                                   Foreground="{DynamicResource Brush.Text.Secondary}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   Text="{Binding ProgressRegionPhaseIsolated, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}"
+                                   TextTrimming="CharacterEllipsis"
+                                   TextWrapping="NoWrap"
+                                   ToolTip="{Binding ProgressRegionPhaseIsolated}"
+                                   SnapsToDevicePixels="True" />
+
+                        <Grid Grid.Row="1"
+                              Margin="{DynamicResource Inset.0.2.0.0}"
+                              FlowDirection="{DynamicResource App.FlowDirection}"
+                              Language="{DynamicResource App.XmlLanguage}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       MaxHeight="{DynamicResource Space.48}"
+                                       Style="{StaticResource FluentQueueCollapsibleDetailText}"
+                                       Text="{Binding QueueRowDisplayDetailArabic, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                       ToolTip="{Binding QueueRowExtendedTooltip}" />
+
+                            <TextBlock Grid.Column="2"
+                                       Width="{DynamicResource Space.0}"
+                                       Visibility="Collapsed"
+                                       Style="{StaticResource FluentQueueActivityDotsText}"
+                                       ToolTip="{Binding QueueRowExtendedTooltip}" />
+                        </Grid>
+                    </Grid>
+
+                    <Grid Grid.Column="2"
+                          VerticalAlignment="Center"
+                          FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding}"
+                                Content="{DynamicResource LocUi_QueueRowOpen}"
+                                Style="{StaticResource FluentQueueRowSubtleActionButton}"
+                                ToolTip="{DynamicResource LocCtx_OpenPath}" />
+
+                        <Button Grid.Column="2"
+                                Command="{Binding DataContext.CancelQueueJobCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding}"
+                                Content="{DynamicResource LocUi_QueueRowCancel}"
+                                Style="{StaticResource FluentQueueRowSubtleActionButton}"
+                                ToolTip="{DynamicResource LocCtx_CancelJob}" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Margin="{DynamicResource Inset.0.8.0.0}"
+                    Visibility="{Binding UiShowTerminalActionsRow, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True"
+                      UseLayoutRounding="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               MaxHeight="{DynamicResource Space.48}"
+                               Style="{StaticResource FluentQueueCollapsibleDetailText}"
+                               Text="{Binding QueueRowDisplayDetailArabic, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                               ToolTip="{Binding QueueRowExtendedTooltip}" />
+
+                    <Grid Grid.Column="2"
+                          VerticalAlignment="Center"
+                          FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding}"
+                                Content="{DynamicResource LocUi_QueueRowOpen}"
+                                Style="{StaticResource FluentQueueRowSubtleActionButton}"
+                                ToolTip="{DynamicResource LocCtx_OpenPath}" />
+
+                        <Border Grid.Column="2"
+                                Style="{StaticResource FluentQueueMetaPillBorder}"
+                                Visibility="{Binding HasVerificationResult, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Style="{StaticResource FluentQueueMetaPillText}"
+                                       FlowDirection="{DynamicResource App.FlowDirection}"
+                                       Language="{DynamicResource App.XmlLanguage}"
+                                       TextAlignment="{DynamicResource App.DefaultTextAlignment}"
+                                       Text="{Binding VerificationResultBadgeText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}" />
+                        </Border>
+
+                        <Button Grid.Column="4"
+                                Command="{Binding DataContext.OpenOperationLogCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding}"
+                                Content="{DynamicResource LocQueue_VerificationResultButton}"
+                                ToolTip="{DynamicResource LocQueue_VerificationResultTooltip}">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}"
+                                       BasedOn="{StaticResource FluentQueueRowSubtleActionButton}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasVerificationResult}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <Button Grid.Column="6"
+                                Command="{Binding DataContext.RetryQueueItemCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding}"
+                                Content="{DynamicResource LocCtx_Retry}">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}"
+                                       BasedOn="{StaticResource FluentQueueRowSubtleActionButton}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding QueueRowDisplayState}" Value="Failed">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </DataTemplate>
+
+</ResourceDictionary>

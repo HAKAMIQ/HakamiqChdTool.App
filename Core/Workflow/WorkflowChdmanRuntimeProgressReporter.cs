@@ -1,6 +1,5 @@
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Services;
 using System;
 using System.Diagnostics;
 

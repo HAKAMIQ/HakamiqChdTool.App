@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
@@ -9,16 +9,29 @@ namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
-    internal void OpenAdvancedOptionsDialog(string? initialTabKey = null)
+    internal void OpenOptionsDialog(string? initialTabKey = null)
     {
-        var dialog = new AdvancedOptionsWindow(_settings, _appFeatureService)
+        OptionsWindow dialog;
+        try
         {
-            Owner = this
-        };
+            dialog = new OptionsWindow(_settings, _appFeatureService)
+            {
+                Owner = this
+            };
 
-        if (!string.IsNullOrWhiteSpace(initialTabKey))
+            if (!string.IsNullOrWhiteSpace(initialTabKey))
+            {
+                dialog.SelectTab(initialTabKey);
+            }
+        }
+        catch (Exception ex)
         {
-            dialog.SelectTab(initialTabKey);
+            global::Serilog.Log.Error(ex, "Options window construction failed.");
+            SetFooterStatus(MainWindowMessages.StartupRuntimeErrorBody(RuntimeDiagnosticFormatter.SummarizeException(ex)));
+            ShowNoticeDialog(
+                MainWindowMessages.StartupRuntimeErrorTitle,
+                MainWindowMessages.StartupRuntimeErrorBody(RuntimeDiagnosticFormatter.SummarizeException(ex)));
+            return;
         }
 
         bool appliedDuringDialog = false;
@@ -46,7 +59,7 @@ public partial class MainWindow
 
                 ApplicationRestartContext restartContext = ApplicationRestartService.CreateRestartContext(
                     this,
-                    ApplicationRestartContext.AdvancedOptionsWindowName,
+                    ApplicationRestartContext.OptionsWindowName,
                     dialog.ActiveTabKey);
 
                 _ = ApplicationRestartService.TryRestartCurrentApplication(restartContext);
@@ -62,7 +75,7 @@ public partial class MainWindow
             appliedDuringDialog = true;
         }
 
-        void Dialog_SettingsApplied(object? sender, AdvancedOptionsAppliedEventArgs e)
+        void Dialog_SettingsApplied(object? sender, OptionsAppliedEventArgs e)
         {
             ApplySettings(e.Settings);
         }

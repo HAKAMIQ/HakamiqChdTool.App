@@ -1,18 +1,26 @@
-using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.Services;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Services;
 
 namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
-    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         Loaded -= MainWindow_Loaded;
+        _ = HandleMainWindowLoadedAsync();
+    }
 
-        if (_shutdownStarted || _shutdownCompleted || _windowLifetimeCts.IsCancellationRequested)
+    private async Task HandleMainWindowLoadedAsync()
+    {
+        if (_shutdownStarted ||
+            _shutdownCompleted ||
+            _windowLifetimeCts.IsCancellationRequested)
         {
             return;
         }
@@ -20,7 +28,9 @@ public partial class MainWindow
         ApplicationRestartContext? restartContext = ApplicationRestartService.ConsumeRestartContext();
         if (restartContext is not null)
         {
-            ApplicationRestartService.TryRestoreMainWindowBounds(this, restartContext);
+            ApplicationRestartService.TryRestoreMainWindowBounds(
+                this,
+                restartContext);
         }
 
         try
@@ -39,7 +49,8 @@ public partial class MainWindow
         {
             ShowNoticeDialog(
                 MainWindowMessages.StartupRuntimeErrorTitle,
-                MainWindowMessages.StartupRuntimeErrorBody(RuntimeDiagnosticFormatter.SummarizeException(ex)));
+                MainWindowMessages.StartupRuntimeErrorBody(
+                    RuntimeDiagnosticFormatter.SummarizeException(ex)));
 
             Close();
         }
@@ -47,29 +58,40 @@ public partial class MainWindow
 
     private void QueueRestartContextWindowRestore(ApplicationRestartContext? restartContext)
     {
-        if (restartContext is null
-            || !string.Equals(
+        if (restartContext is null ||
+            !string.Equals(
                 restartContext.ReopenWindow,
-                ApplicationRestartContext.AdvancedOptionsWindowName,
+                ApplicationRestartContext.OptionsWindowName,
                 StringComparison.Ordinal))
         {
             return;
         }
 
-        _ = Dispatcher.BeginInvoke(
-            new Action(() =>
-            {
-                if (_shutdownStarted
-                    || _shutdownCompleted
-                    || _windowLifetimeCts.IsCancellationRequested
-                    || Dispatcher.HasShutdownStarted
-                    || Dispatcher.HasShutdownFinished)
-                {
-                    return;
-                }
+        if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        {
+            return;
+        }
 
-                OpenAdvancedOptionsDialog(restartContext.AdvancedOptionsTabKey);
-            }),
-            DispatcherPriority.ContextIdle);
+        try
+        {
+            _ = Dispatcher.BeginInvoke(
+                new Action(() =>
+                {
+                    if (_shutdownStarted ||
+                        _shutdownCompleted ||
+                        _windowLifetimeCts.IsCancellationRequested ||
+                        Dispatcher.HasShutdownStarted ||
+                        Dispatcher.HasShutdownFinished)
+                    {
+                        return;
+                    }
+
+                    OpenOptionsDialog(restartContext.OptionsTabKey);
+                }),
+                DispatcherPriority.ContextIdle);
+        }
+        catch (InvalidOperationException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        {
+        }
     }
 }

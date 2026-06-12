@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Input;
+
+using HakamiqChdTool.App.Localization;
 
 namespace HakamiqChdTool.App.Views;
 
@@ -12,6 +14,8 @@ public partial class RedumpNoticeDialog : Window
         ArgumentException.ThrowIfNullOrWhiteSpace(message);
 
         InitializeComponent();
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
+        AppLanguageService.ApplyToWindow(this);
 
         DataContext = new RedumpNoticeDialogViewModel(
             title.Trim(),
@@ -20,7 +24,7 @@ public partial class RedumpNoticeDialog : Window
 
     private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.LeftButton != MouseButtonState.Pressed)
+        if (e.ChangedButton != MouseButton.Left || e.ButtonState != MouseButtonState.Pressed)
         {
             return;
         }
@@ -28,6 +32,7 @@ public partial class RedumpNoticeDialog : Window
         try
         {
             DragMove();
+            e.Handled = true;
         }
         catch (InvalidOperationException)
         {
@@ -36,8 +41,19 @@ public partial class RedumpNoticeDialog : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        DialogResult = true;
-        Close();
+        CloseAsConfirmed();
+    }
+
+    private void CloseAsConfirmed()
+    {
+        try
+        {
+            DialogResult = true;
+        }
+        catch (InvalidOperationException)
+        {
+            Close();
+        }
     }
 
     private sealed record RedumpNoticeDialogViewModel(

@@ -1,4 +1,4 @@
-﻿namespace HakamiqChdTool.App.Core.Workflow;
+namespace HakamiqChdTool.App.Core.Workflow;
 
 internal sealed record WorkflowPreparedInput(
     string SourcePath,

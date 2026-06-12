@@ -2,23 +2,16 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore">
 
-    <Style x:Key="FluentFocusVisualStyle" TargetType="{x:Type Control}">
+    <Style x:Key="FluentFocusVisualStyle"
+           TargetType="{x:Type Control}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Control}">
-                    <Grid Margin="{DynamicResource Inset.2.All}"
-                          SnapsToDevicePixels="True"
-                          UseLayoutRounding="True">
-                        <Border BorderBrush="{DynamicResource Brush.Focus.StrokeOuter}"
-                                BorderThickness="{DynamicResource Inset.1.All}"
-                                CornerRadius="{DynamicResource Radius.Control}"
-                                SnapsToDevicePixels="True" />
-                        <Border Margin="{DynamicResource Inset.1.All}"
-                                BorderBrush="{DynamicResource Brush.Focus.StrokeInner}"
-                                BorderThickness="{DynamicResource Inset.1.All}"
-                                CornerRadius="{DynamicResource Radius.Control}"
-                                SnapsToDevicePixels="True" />
-                    </Grid>
+                    <Border Margin="{DynamicResource Inset.1.All}"
+                            BorderBrush="{DynamicResource Brush.Control.Stroke.Focus}"
+                            BorderThickness="{DynamicResource Inset.1.All}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            SnapsToDevicePixels="True" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -29,13 +22,14 @@
     <SolidColorBrush x:Key="FluentButton.Danger.PressedBrush" Color="#FF960B18" />
     <SolidColorBrush x:Key="FluentButton.Danger.ForegroundBrush" Color="#FFFFFFFF" />
 
-    <Style x:Key="FluentButtonBaseStyle" TargetType="{x:Type Button}">
+    <Style x:Key="FluentButtonBaseStyle"
+           TargetType="{x:Type Button}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
-        <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.16.8}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.80}" />
+        <Setter Property="Padding" Value="12,5" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
@@ -82,7 +76,7 @@
                         </Trigger>
 
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Focus.StrokeOuter}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
@@ -152,8 +146,8 @@
     <Style x:Key="SubtleButtonStyle"
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource FluentButtonBaseStyle}">
-        <Setter Property="MinWidth" Value="{DynamicResource Space.80}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.72}" />
+        <Setter Property="Padding" Value="10,5" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
@@ -256,7 +250,7 @@
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource FluentButtonBaseStyle}">
         <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
-        <Setter Property="MinWidth" Value="{DynamicResource Space.80}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.64}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.8.4}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.Text}" />
@@ -340,7 +334,7 @@
                         </Trigger>
 
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Focus.StrokeOuter}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
@@ -358,10 +352,10 @@
     <Style x:Key="HeaderIconButtonStyle"
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource FluentButtonBaseStyle}">
-        <Setter Property="Width" Value="{DynamicResource Space.40}" />
-        <Setter Property="Height" Value="{DynamicResource Space.40}" />
-        <Setter Property="MinWidth" Value="{DynamicResource Space.40}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
+        <Setter Property="Width" Value="{DynamicResource Space.32}" />
+        <Setter Property="Height" Value="{DynamicResource Space.32}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.32}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
@@ -375,7 +369,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Control}"
+                            CornerRadius="{DynamicResource Radius.HeaderButton}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True"
                             UseLayoutRounding="True">
@@ -424,6 +418,7 @@
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="FlowDirection" Value="LeftToRight" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">

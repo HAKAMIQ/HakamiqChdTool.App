@@ -1,7 +1,6 @@
-﻿using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.BinCueRescue;
 using HakamiqChdTool.App.Services.Conversion;
 using HakamiqChdTool.App.Services.Storage;
 using Serilog;
@@ -56,7 +55,7 @@ internal sealed class WorkflowConversionStage(
         ArgumentNullException.ThrowIfNull(ctx);
         ArgumentException.ThrowIfNullOrWhiteSpace(inputPath);
 
-        CueRescueWorkflowAdapter? cueRescueWorkflowAdapter = null;
+        HakamiqChdTool.App.Services.BinCueRescue.CueRescueWorkflowAdapter? cueRescueWorkflowAdapter = null;
 
         try
         {
@@ -64,169 +63,6 @@ internal sealed class WorkflowConversionStage(
             IQueueItemStateSink sink = ctx.Sink;
 
             string conversionInputPath = inputPath;
-
-            if (IsBinCueRescueInput(inputPath))
-            {
-                cueRescueWorkflowAdapter = new CueRescueWorkflowAdapter();
-                CueRescueWorkflowPrepareResult cueRescue = cueRescueWorkflowAdapter.TryPrepare(
-                    inputPath,
-                    AppPaths.ProcessTempRoot,
-                    cancellationToken);
-
-                if (cueRescue.IsFailed)
-                {
-                    string detail = string.IsNullOrWhiteSpace(cueRescue.Detail)
-                        ? BinCueRescueFailedDetailKey
-                        : cueRescue.Detail;
-
-                    sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, detail);
-                    sink.ReportProgress(100, indeterminate: false);
-                    WorkflowPathUtilities.RaiseProgress(request, 100);
-
-                    _log.Warning(
-                        "BIN/CUE rescue preparation rejected conversion input. Input={Input} Detail={Detail}",
-                        inputPath,
-                        detail);
-
-                    return WorkflowResultBuilder.Failure(QueueItemFailureKind.Unsupported, detail, null, null);
-                }
-
-                if (cueRescue.Applied && !string.IsNullOrWhiteSpace(cueRescue.EffectiveInputPath))
-                {
-                    conversionInputPath = cueRescue.EffectiveInputPath;
-                }
-            }
-
-            if (string.Equals(Path.GetExtension(conversionInputPath), ".cue", StringComparison.OrdinalIgnoreCase))
-            {
-                if (!WorkflowPathUtilities.TryNormalizeCuePrimaryBinReference(
-                        conversionInputPath,
-                        out string cueReferenceFailureKey))
-                {
-                    sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, cueReferenceFailureKey);
-                    sink.ReportProgress(100, indeterminate: false);
-                    WorkflowPathUtilities.RaiseProgress(request, 100);
-
-                    _log.Warning(
-                        "CUE/BIN reference preflight rejected conversion input before chdman. Input={Input}; Detail={Detail}",
-                        conversionInputPath,
-                        cueReferenceFailureKey);
-
-                    return WorkflowResultBuilder.Failure(
-                        QueueItemFailureKind.Unsupported,
-                        cueReferenceFailureKey,
-                        null,
-                        null);
-                }
-
-                FileIntegrityProbe.ProbeResult cueIntegrity = FileIntegrityProbe.Analyze(conversionInputPath);
-                if (!cueIntegrity.LooksOk)
-                {
-                    sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, cueIntegrity.SummaryKey);
-                    sink.ReportProgress(100, indeterminate: false);
-                    WorkflowPathUtilities.RaiseProgress(request, 100);
-
-                    _log.Warning(
-                        "CUE/BIN dependency preflight rejected conversion input. Input={Input}; Summary={Summary}; Detail={Detail}",
-                        conversionInputPath,
-                        cueIntegrity.SummaryKey,
-                        cueIntegrity.DetailKey);
-
-                    return WorkflowResultBuilder.Failure(
-                        QueueItemFailureKind.Unsupported,
-                        cueIntegrity.SummaryKey,
-                        null,
-                        null);
-                }
-            }
-
-            ChdWorkflowProfilePlan createPlan;
-            try
-            {
-                createPlan = ChdWorkflowProfilePlanner.PlanCreateFromSource(
-                    conversionInputPath,
-                    settings.IsoCreateCommandOverride,
-                    ChdMediaContainerKind.DirectFile);
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, CancelledDetailKey);
-                return WorkflowExecutionResult.Cancelled(CancelledDetailKey);
-            }
-            catch (Exception ex) when (IsExpectedConversionStageException(ex))
-            {
-                bool sourceReadFailure = IsSourceReadFailureException(ex);
-                string detail = sourceReadFailure
-                    ? ConversionSafetyPolicy.InputReadFailureMessageKey
-                    : RuntimeDiagnosticFormatter.SummarizeException(ex);
-
-                QueueItemFailureKind failureKind = sourceReadFailure
-                    ? QueueItemFailureKind.SourceUnreadable
-                    : QueueItemFailureKind.Unsupported;
-
-                sink.ReportTerminalFailure(failureKind, detail);
-                sink.ReportProgress(100, indeterminate: false);
-                WorkflowPathUtilities.RaiseProgress(request, 100);
-
-                _log.Warning(
-                    ex,
-                    "CHD profile planning rejected conversion input. Input={Input}",
-                    inputPath);
-
-                return WorkflowResultBuilder.Failure(failureKind, detail, null, null);
-            }
-
-            if (!createPlan.IsSupported)
-            {
-                sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, createPlan.FailureMessage);
-                sink.ReportProgress(100, indeterminate: false);
-                WorkflowPathUtilities.RaiseProgress(request, 100);
-
-                return WorkflowResultBuilder.Failure(
-                    QueueItemFailureKind.Unsupported,
-                    createPlan.FailureMessage,
-                    null,
-                    null);
-            }
-
-            bool hadInputReadWarning = false;
-            if (settings.EnableDeepIntegrityCheck)
-            {
-                sink.ReportStage(QueueItemStage.ReadingFile, DeepHashSafetyStageKey);
-                sink.ReportProgress(Math.Max(5, startingPercent), indeterminate: true);
-                WorkflowPathUtilities.RaiseProgress(request, Math.Max(5, startingPercent));
-
-                DeepHashAnalysisResult deepHashSafetyResult = await _safetyPolicy
-                    .RunDeepHashInputReadCheckAsync(conversionInputPath, cancellationToken)
-                    .ConfigureAwait(false);
-
-                ConversionSafetyDecision safetyDecision = _safetyPolicy.EvaluateDeepHashResult(deepHashSafetyResult);
-                hadInputReadWarning = safetyDecision.HadInputReadWarning;
-
-                if (!safetyDecision.CanStartConversion)
-                {
-                    sink.ReportTerminalFailure(QueueItemFailureKind.SourceUnreadable, safetyDecision.UserMessageKey);
-                    sink.ReportProgress(100, indeterminate: false);
-                    WorkflowPathUtilities.RaiseProgress(request, 100);
-
-                    _log.Warning(
-                        "Conversion blocked before chdman by deep hash safety policy. Input={Input}; FailureCode={FailureCode}",
-                        conversionInputPath,
-                        safetyDecision.FailureCode);
-
-                    return WorkflowResultBuilder.Failure(
-                        QueueItemFailureKind.SourceUnreadable,
-                        safetyDecision.UserMessageKey,
-                        null,
-                        null);
-                }
-            }
-
-            double initialProgress = Math.Max(5, startingPercent);
-            sink.ReportStage(QueueItemStage.ReadingFile, createPlan.StatusLine);
-            sink.ReportProgress(initialProgress, indeterminate: false);
-            WorkflowPathUtilities.RaiseProgress(request, initialProgress);
-
             string finalOutputPath = WorkflowPathUtilities.BuildFinalChdOutputPath(
                 detectedPlatform,
                 ctx.Snapshot.OriginalPath,
@@ -257,6 +93,14 @@ internal sealed class WorkflowConversionStage(
             sink.AttachArtifact(QueueItemArtifactKind.OutputFile, finalOutputPath);
 
             string? lastLogPath = null;
+            string? pendingOutputPath = null;
+            bool allowConstrainedAbsoluteCueReference = false;
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, CancelledDetailKey);
+                return WorkflowExecutionResult.Cancelled(CancelledDetailKey, finalOutputPath, lastLogPath);
+            }
 
             if (settings.SkipExistingOutput && File.Exists(finalOutputPath))
             {
@@ -271,38 +115,269 @@ internal sealed class WorkflowConversionStage(
                     lastLogPath);
             }
 
-            string pendingOutputPath;
+            if (IsBinCueRescueInput(inputPath))
+            {
+                try
+                {
+                    pendingOutputPath = WorkflowPathUtilities.BuildPendingOutputPath(
+                        finalOutputPath,
+                        inputPath,
+                        ".chd",
+                        outputRoot,
+                        settings);
+
+                    WorkflowPendingOutputCleaner.MarkPendingRootHidden(pendingOutputPath);
+                    WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
+                }
+                catch (Exception ex) when (IsExpectedConversionStageException(ex))
+                {
+                    string detail = RuntimeDiagnosticFormatter.SummarizeException(ex);
+                    sink.ReportTerminalFailure(QueueItemFailureKind.FailedConvert, detail);
+
+                    WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
+                    WorkflowPathUtilities.TryCleanupEmptyFinalOutputDirectory(finalOutputPath);
+
+                    _log.Warning(
+                        ex,
+                        "Failed to prepare BIN/CUE pending workspace before temporary CUE generation. Input={Input} FinalOutputPath={FinalOutputPath}",
+                        inputPath,
+                        finalOutputPath);
+
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.FailedConvert,
+                        detail,
+                        finalOutputPath,
+                        lastLogPath);
+                }
+
+                string? operationWorkspaceDirectory = Path.GetDirectoryName(pendingOutputPath);
+                if (string.IsNullOrWhiteSpace(operationWorkspaceDirectory))
+                {
+                    TryCleanupPreparedPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                    sink.ReportTerminalFailure(QueueItemFailureKind.FailedConvert, BinCueRescueFailedDetailKey);
+                    sink.ReportProgress(100, indeterminate: false);
+                    WorkflowPathUtilities.RaiseProgress(request, 100);
+
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.FailedConvert,
+                        BinCueRescueFailedDetailKey,
+                        pendingOutputPath,
+                        lastLogPath);
+                }
+
+                cueRescueWorkflowAdapter = new HakamiqChdTool.App.Services.BinCueRescue.CueRescueWorkflowAdapter();
+                HakamiqChdTool.App.Services.BinCueRescue.CueRescueWorkflowPrepareResult cueRescue = cueRescueWorkflowAdapter.TryPrepare(
+                    inputPath,
+                    operationWorkspaceDirectory,
+                    cancellationToken,
+                    HakamiqChdTool.App.Services.DiscLayout.DiscLayoutTrustMode.StrictEvidence,
+                    allowConstrainedAbsoluteBinFallback: true);
+
+                if (cueRescue.IsFailed)
+                {
+                    string detail = string.IsNullOrWhiteSpace(cueRescue.Detail)
+                        ? BinCueRescueFailedDetailKey
+                        : cueRescue.Detail;
+
+                    TryCleanupPreparedPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                    sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, detail);
+                    sink.ReportProgress(100, indeterminate: false);
+                    WorkflowPathUtilities.RaiseProgress(request, 100);
+
+                    _log.Warning(
+                        "BIN/CUE rescue preparation rejected conversion input. Input={Input} Detail={Detail}",
+                        inputPath,
+                        detail);
+
+                    return WorkflowResultBuilder.Failure(QueueItemFailureKind.Unsupported, detail, pendingOutputPath, lastLogPath);
+                }
+
+                if (cueRescue.Applied && !string.IsNullOrWhiteSpace(cueRescue.EffectiveInputPath))
+                {
+                    conversionInputPath = cueRescue.EffectiveInputPath;
+                    allowConstrainedAbsoluteCueReference = !string.IsNullOrWhiteSpace(cueRescue.TempDirectoryToCleanup);
+                }
+            }
+
+            if (string.Equals(Path.GetExtension(conversionInputPath), ".cue", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!WorkflowPathUtilities.TryNormalizeCuePrimaryBinReference(
+                        conversionInputPath,
+                        allowConstrainedAbsoluteCueReference,
+                        out string cueReferenceFailureKey))
+                {
+                    sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, cueReferenceFailureKey);
+                    sink.ReportProgress(100, indeterminate: false);
+                    WorkflowPathUtilities.RaiseProgress(request, 100);
+
+                    _log.Warning(
+                        "CUE/BIN reference preflight rejected conversion input before chdman. Input={Input}; Detail={Detail}",
+                        conversionInputPath,
+                        cueReferenceFailureKey);
+
+                    TryCleanupPreparedPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.Unsupported,
+                        cueReferenceFailureKey,
+                        pendingOutputPath,
+                        lastLogPath);
+                }
+
+                FileIntegrityProbe.ProbeResult cueIntegrity = FileIntegrityProbe.Analyze(conversionInputPath);
+                if (!cueIntegrity.LooksOk)
+                {
+                    sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, cueIntegrity.SummaryKey);
+                    sink.ReportProgress(100, indeterminate: false);
+                    WorkflowPathUtilities.RaiseProgress(request, 100);
+
+                    _log.Warning(
+                        "CUE/BIN dependency preflight rejected conversion input. Input={Input}; Summary={Summary}; Detail={Detail}",
+                        conversionInputPath,
+                        cueIntegrity.SummaryKey,
+                        cueIntegrity.DetailKey);
+
+                    TryCleanupPreparedPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.Unsupported,
+                        cueIntegrity.SummaryKey,
+                        pendingOutputPath,
+                        lastLogPath);
+                }
+            }
+
+            ChdWorkflowProfilePlan createPlan;
             try
             {
-                pendingOutputPath = WorkflowPathUtilities.BuildPendingOutputPath(
-                    finalOutputPath,
-                    inputPath,
-                    ".chd",
-                    outputRoot,
-                    settings);
+                createPlan = ChdWorkflowProfilePlanner.PlanCreateFromSource(
+                    conversionInputPath,
+                    settings.IsoCreateCommandOverride,
+                    ChdMediaContainerKind.DirectFile);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                TryCleanupPreparedPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
 
-                WorkflowPendingOutputCleaner.MarkPendingRootHidden(pendingOutputPath);
-                WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
+                sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, CancelledDetailKey);
+                return WorkflowExecutionResult.Cancelled(CancelledDetailKey, pendingOutputPath, lastLogPath);
             }
             catch (Exception ex) when (IsExpectedConversionStageException(ex))
             {
-                string detail = RuntimeDiagnosticFormatter.SummarizeException(ex);
-                sink.ReportTerminalFailure(QueueItemFailureKind.FailedConvert, detail);
+                bool sourceReadFailure = IsSourceReadFailureException(ex);
+                string detail = sourceReadFailure
+                    ? ConversionSafetyPolicy.InputReadFailureMessageKey
+                    : RuntimeDiagnosticFormatter.SummarizeException(ex);
 
-                WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
-                WorkflowPathUtilities.TryCleanupEmptyFinalOutputDirectory(finalOutputPath);
+                QueueItemFailureKind failureKind = sourceReadFailure
+                    ? QueueItemFailureKind.SourceUnreadable
+                    : QueueItemFailureKind.Unsupported;
+
+                sink.ReportTerminalFailure(failureKind, detail);
+                sink.ReportProgress(100, indeterminate: false);
+                WorkflowPathUtilities.RaiseProgress(request, 100);
 
                 _log.Warning(
                     ex,
-                    "Failed to prepare pending CHD output path. Input={Input} FinalOutputPath={FinalOutputPath}",
-                    inputPath,
-                    finalOutputPath);
+                    "CHD profile planning rejected conversion input. Input={Input}",
+                    inputPath);
+
+                TryCleanupPreparedPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                return WorkflowResultBuilder.Failure(failureKind, detail, pendingOutputPath, lastLogPath);
+            }
+
+            if (!createPlan.IsSupported)
+            {
+                sink.ReportTerminalFailure(QueueItemFailureKind.Unsupported, createPlan.FailureMessage);
+                sink.ReportProgress(100, indeterminate: false);
+                WorkflowPathUtilities.RaiseProgress(request, 100);
+
+                TryCleanupPreparedPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
 
                 return WorkflowResultBuilder.Failure(
-                    QueueItemFailureKind.FailedConvert,
-                    detail,
-                    finalOutputPath,
+                    QueueItemFailureKind.Unsupported,
+                    createPlan.FailureMessage,
+                    pendingOutputPath,
                     lastLogPath);
+            }
+
+            bool hadInputReadWarning = false;
+            if (settings.EnableDeepIntegrityCheck)
+            {
+                sink.ReportStage(QueueItemStage.ReadingFile, DeepHashSafetyStageKey);
+                sink.ReportProgress(Math.Max(5, startingPercent), indeterminate: true);
+                WorkflowPathUtilities.RaiseProgress(request, Math.Max(5, startingPercent));
+
+                DeepHashAnalysisResult deepHashSafetyResult = await _safetyPolicy
+                    .RunDeepHashInputReadCheckAsync(conversionInputPath, cancellationToken)
+                    .ConfigureAwait(false);
+
+                ConversionSafetyDecision safetyDecision = _safetyPolicy.EvaluateDeepHashResult(deepHashSafetyResult);
+                hadInputReadWarning = safetyDecision.HadInputReadWarning;
+
+                if (!safetyDecision.CanStartConversion)
+                {
+                    sink.ReportTerminalFailure(QueueItemFailureKind.SourceUnreadable, safetyDecision.UserMessageKey);
+                    sink.ReportProgress(100, indeterminate: false);
+                    WorkflowPathUtilities.RaiseProgress(request, 100);
+
+                    _log.Warning(
+                        "Conversion blocked before chdman by deep hash safety policy. Input={Input}; FailureCode={FailureCode}",
+                        conversionInputPath,
+                        safetyDecision.FailureCode);
+
+                    TryCleanupPreparedPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
+
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.SourceUnreadable,
+                        safetyDecision.UserMessageKey,
+                        pendingOutputPath,
+                        lastLogPath);
+                }
+            }
+
+            double initialProgress = Math.Max(5, startingPercent);
+            sink.ReportStage(QueueItemStage.ReadingFile, createPlan.StatusLine);
+            sink.ReportProgress(initialProgress, indeterminate: false);
+            WorkflowPathUtilities.RaiseProgress(request, initialProgress);
+
+            if (string.IsNullOrWhiteSpace(pendingOutputPath))
+            {
+                try
+                {
+                    pendingOutputPath = WorkflowPathUtilities.BuildPendingOutputPath(
+                        finalOutputPath,
+                        inputPath,
+                        ".chd",
+                        outputRoot,
+                        settings);
+
+                    WorkflowPendingOutputCleaner.MarkPendingRootHidden(pendingOutputPath);
+                    WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
+                }
+                catch (Exception ex) when (IsExpectedConversionStageException(ex))
+                {
+                    string detail = RuntimeDiagnosticFormatter.SummarizeException(ex);
+                    sink.ReportTerminalFailure(QueueItemFailureKind.FailedConvert, detail);
+
+                    WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
+                    WorkflowPathUtilities.TryCleanupEmptyFinalOutputDirectory(finalOutputPath);
+
+                    _log.Warning(
+                        ex,
+                        "Failed to prepare pending CHD output path. Input={Input} FinalOutputPath={FinalOutputPath}",
+                        inputPath,
+                        finalOutputPath);
+
+                    return WorkflowResultBuilder.Failure(
+                        QueueItemFailureKind.FailedConvert,
+                        detail,
+                        finalOutputPath,
+                        lastLogPath);
+                }
             }
 
             StorageTopologySnapshot topology = _storageTopology.Analyze(
@@ -737,9 +812,11 @@ internal sealed class WorkflowConversionStage(
                     lastLogPath);
             }
 
-            WorkflowPendingOutputCleaner.TryCleanupWorkspaceForPendingFile(pendingOutputPath);
-            WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
+            cueRescueWorkflowAdapter?.Dispose();
+            cueRescueWorkflowAdapter = null;
+
             WorkflowPendingOutputCleaner.CleanupPendingRootIfEmpty(pendingOutputPath);
+            WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
 
             PostConversionArtifactResult postProcessingResult;
             try
@@ -760,7 +837,7 @@ internal sealed class WorkflowConversionStage(
             sink.RecordPostConversionArtifacts(postProcessingResult);
 
             sink.AttachArtifact(QueueItemArtifactKind.OutputFile, finalOutputPath);
-            long inputBytes = WorkflowPathUtilities.TryGetFileSize(inputPath);
+            long inputBytes = ResolveConversionInputBytes(inputPath, conversionResult);
             long outputBytes = WorkflowPathUtilities.TryGetFileSize(finalOutputPath);
             sink.RecordInputOutputBytes(inputBytes, outputBytes);
 
@@ -779,7 +856,7 @@ internal sealed class WorkflowConversionStage(
             sink.RecordConversionPerformanceReport(performanceReport);
 
             _log.Information(
-                "Conversion performance report. InputBytes={InputBytes}; OutputBytes={OutputBytes}; CompressionRatio={CompressionRatio}; ChdmanDuration={ChdmanDuration}; VerifyDuration={VerifyDuration}; NumProcessors={NumProcessors}; Compression={Compression}; HunkSize={HunkSize}; SourceAndOutputSameVolume={SourceAndOutputSameVolume}; SourceExternal={SourceExternal}; OutputExternal={OutputExternal}; PowerGuardEnabled={PowerGuardEnabled}; TemperatureAvailable={TemperatureAvailable}; TemperatureCapability={TemperatureCapability}; MaxTemperature={MaxTemperature}; Explanation={Explanation}",
+                "Conversion performance report. InputBytes={InputBytes}; OutputBytes={OutputBytes}; CompressionRatio={CompressionRatio}; ChdmanDuration={ChdmanDuration}; VerifyDuration={VerifyDuration}; NumProcessors={NumProcessors}; Compression={Compression}; RequestedPreset={RequestedPreset}; ResolvedCompression={ResolvedCompression}; EffectiveCompression={EffectiveCompression}; SameAsMameDefault={SameAsMameDefault}; HunkSize={HunkSize}; SourceAndOutputSameVolume={SourceAndOutputSameVolume}; SourceExternal={SourceExternal}; OutputExternal={OutputExternal}; PowerGuardEnabled={PowerGuardEnabled}; TemperatureAvailable={TemperatureAvailable}; TemperatureCapability={TemperatureCapability}; MaxTemperature={MaxTemperature}; Explanation={Explanation}; CompressionTruthNote={CompressionTruthNote}",
                 performanceReport.InputBytes,
                 performanceReport.OutputBytes,
                 performanceReport.CompressionRatio,
@@ -787,6 +864,10 @@ internal sealed class WorkflowConversionStage(
                 performanceReport.VerifyDuration,
                 performanceReport.NumProcessors,
                 performanceReport.CompressionCodecs,
+                performanceReport.RequestedCompressionPreset,
+                performanceReport.ResolvedCompressionCodecs,
+                performanceReport.EffectiveCompressionCodecs,
+                performanceReport.EffectiveCompressionSameAsMameDefault,
                 performanceReport.HunkSizeBytes,
                 performanceReport.SourceAndOutputSameVolume,
                 performanceReport.SourceIsExternal,
@@ -795,7 +876,8 @@ internal sealed class WorkflowConversionStage(
                 performanceReport.TemperatureAvailable,
                 performanceReport.TemperatureCapability,
                 performanceReport.MaxTemperatureCelsius,
-                performanceReport.CompressionExplanationKey);
+                performanceReport.CompressionExplanationKey,
+                performanceReport.CompressionTruthNoteKey);
 
             string successDetail = request.IsArchive
                 ? ArchiveConversionSuccessDetailKey
@@ -815,6 +897,31 @@ internal sealed class WorkflowConversionStage(
         {
             cueRescueWorkflowAdapter?.Dispose();
         }
+    }
+
+
+    private static long ResolveConversionInputBytes(string inputPath, ChdConversionResult conversionResult)
+    {
+        if (conversionResult.LogicalInputBytes > 0)
+        {
+            return conversionResult.LogicalInputBytes;
+        }
+
+        return WorkflowPathUtilities.TryGetFileSize(inputPath);
+    }
+
+    private static void TryCleanupPreparedPendingConversionOutput(
+        string? pendingOutputPath,
+        string outputRoot,
+        string finalOutputPath,
+        AppSettings settings)
+    {
+        if (string.IsNullOrWhiteSpace(pendingOutputPath))
+        {
+            return;
+        }
+
+        CleanupPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
     }
 
     private static void CleanupPendingConversionOutput(
@@ -873,7 +980,7 @@ internal sealed class WorkflowConversionStage(
 
     private static StorageTemperaturePolicy SelectTemperaturePolicy(StorageDeviceIdentity device)
     {
-        return device.DeviceKind == StorageDeviceKind.Ssd
+        return device.DeviceKind is StorageDeviceKind.SataSsd or StorageDeviceKind.NvmeSsd
             ? DefaultStorageTemperaturePolicies.ExternalSsd
             : DefaultStorageTemperaturePolicies.ExternalHdd;
     }

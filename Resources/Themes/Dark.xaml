@@ -188,74 +188,74 @@
     <Color x:Key="Fluent.Status.Danger.Border1">#FFC50F1F</Color>
     <Color x:Key="Fluent.Status.Danger.Border2">#FFDC626D</Color>
 
-    <Color x:Key="Color.Background">#FF141414</Color>
-    <Color x:Key="Color.Surface">#FF1F1F1F</Color>
-    <Color x:Key="Color.Card">#FF292929</Color>
+    <Color x:Key="Color.Background">#FF202020</Color>
+    <Color x:Key="Color.Surface">#FF252525</Color>
+    <Color x:Key="Color.Card">#FF2B2B2B</Color>
     <Color x:Key="Color.Text.Primary">#FFFFFFFF</Color>
     <Color x:Key="Color.Text.Secondary">#FFD6D6D6</Color>
-    <Color x:Key="Color.Text.Muted">#FFADADAD</Color>
-    <Color x:Key="Color.Text.Disabled">#FF5C5C5C</Color>
-    <Color x:Key="Color.Border">#FF666666</Color>
-    <Color x:Key="Color.Border.Default">#FF666666</Color>
-    <Color x:Key="Color.Border.Subtle">#FF525252</Color>
-    <Color x:Key="Color.Border.Strong">#FFADADAD</Color>
-    <Color x:Key="Color.HoverSurface">#FF3D3D3D</Color>
-    <Color x:Key="Color.PressedSurface">#FF1F1F1F</Color>
+    <Color x:Key="Color.Text.Muted">#FFA3A3A3</Color>
+    <Color x:Key="Color.Text.Disabled">#FF6B6B6B</Color>
+    <Color x:Key="Color.Border">#FF3D3D3D</Color>
+    <Color x:Key="Color.Border.Default">#FF3D3D3D</Color>
+    <Color x:Key="Color.Border.Subtle">#FF333333</Color>
+    <Color x:Key="Color.Border.Strong">#FF666666</Color>
+    <Color x:Key="Color.HoverSurface">#FF323232</Color>
+    <Color x:Key="Color.PressedSurface">#FF1A1A1A</Color>
 
     <Color x:Key="Color.Accent">#FF115EA3</Color>
     <Color x:Key="Color.Accent.Hover">#FF0F6CBD</Color>
     <Color x:Key="Color.Accent.Pressed">#FF0C3B5E</Color>
-    <Color x:Key="Color.Accent.Text">#FF479EF5</Color>
+    <Color x:Key="Color.Accent.Text">#FF62ABF5</Color>
     <Color x:Key="Color.Accent.Foreground">#FFFFFFFF</Color>
     <Color x:Key="Color.Accent.Subtle">#FF082338</Color>
     <Color x:Key="Color.Brand">#FF115EA3</Color>
-    <Color x:Key="Color.Selection">#FF082338</Color>
+    <Color x:Key="Color.Selection">#FF12395D</Color>
     <Color x:Key="Color.SelectionBorder">#FF479EF5</Color>
 
-    <Color x:Key="Color.CheckBox.Fill.Rest">#FF292929</Color>
-    <Color x:Key="Color.CheckBox.Fill.Hover">#FF3D3D3D</Color>
-    <Color x:Key="Color.CheckBox.Fill.Pressed">#FF1F1F1F</Color>
+    <Color x:Key="Color.CheckBox.Fill.Rest">#FF2B2B2B</Color>
+    <Color x:Key="Color.CheckBox.Fill.Hover">#FF323232</Color>
+    <Color x:Key="Color.CheckBox.Fill.Pressed">#FF1A1A1A</Color>
     <Color x:Key="Color.CheckBox.Fill.Checked">#FF115EA3</Color>
     <Color x:Key="Color.CheckBox.Fill.Checked.Hover">#FF0F6CBD</Color>
     <Color x:Key="Color.CheckBox.Fill.Checked.Pressed">#FF0C3B5E</Color>
-    <Color x:Key="Color.CheckBox.Fill.Disabled">#FF141414</Color>
-    <Color x:Key="Color.CheckBox.Stroke.Rest">#FFADADAD</Color>
-    <Color x:Key="Color.CheckBox.Stroke.Hover">#FF479EF5</Color>
-    <Color x:Key="Color.CheckBox.Stroke.Pressed">#FF62ABF5</Color>
+    <Color x:Key="Color.CheckBox.Fill.Disabled">#FF202020</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Rest">#FF8A8A8A</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Hover">#FFB8B8B8</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Pressed">#FFD6D6D6</Color>
     <Color x:Key="Color.CheckBox.Stroke.Checked">#FF115EA3</Color>
     <Color x:Key="Color.CheckBox.Stroke.Checked.Hover">#FF0F6CBD</Color>
     <Color x:Key="Color.CheckBox.Stroke.Checked.Pressed">#FF0C3B5E</Color>
     <Color x:Key="Color.CheckBox.Stroke.Disabled">#FF5C5C5C</Color>
     <Color x:Key="Color.CheckBox.Glyph.Checked">#FFFFFFFF</Color>
     <Color x:Key="Color.CheckBox.Glyph.Disabled">#FF5C5C5C</Color>
-    <Color x:Key="Color.CheckBox.Focus">#FF479EF5</Color>
+    <Color x:Key="Color.CheckBox.Focus">#00000000</Color>
 
     <Color x:Key="Color.Error">#FFDC626D</Color>
     <Color x:Key="Color.Error.Hover">#FFEEACB2</Color>
     <Color x:Key="Color.Error.Pressed">#FFDC626D</Color>
     <Color x:Key="Color.Error.Foreground">#FF3B0509</Color>
 
-    <Color x:Key="Color.Neutral.Background.Canvas">#FF141414</Color>
-    <Color x:Key="Color.Neutral.Background.Surface">#FF1F1F1F</Color>
-    <Color x:Key="Color.Neutral.Background.Card">#FF292929</Color>
-    <Color x:Key="Color.Neutral.Background.Elevated">#FF333333</Color>
-    <Color x:Key="Color.Neutral.Background.ControlRest">#FF292929</Color>
-    <Color x:Key="Color.Neutral.Background.ControlHover">#FF3D3D3D</Color>
-    <Color x:Key="Color.Neutral.Background.ControlPressed">#FF1F1F1F</Color>
-    <Color x:Key="Color.Neutral.Stroke.Subtle">#FF525252</Color>
-    <Color x:Key="Color.Neutral.Stroke.Default">#FF666666</Color>
-    <Color x:Key="Color.Neutral.Stroke.Strong">#FFADADAD</Color>
+    <Color x:Key="Color.Neutral.Background.Canvas">#FF202020</Color>
+    <Color x:Key="Color.Neutral.Background.Surface">#FF252525</Color>
+    <Color x:Key="Color.Neutral.Background.Card">#FF2B2B2B</Color>
+    <Color x:Key="Color.Neutral.Background.Elevated">#FF303030</Color>
+    <Color x:Key="Color.Neutral.Background.ControlRest">#FF2B2B2B</Color>
+    <Color x:Key="Color.Neutral.Background.ControlHover">#FF323232</Color>
+    <Color x:Key="Color.Neutral.Background.ControlPressed">#FF1A1A1A</Color>
+    <Color x:Key="Color.Neutral.Stroke.Subtle">#FF333333</Color>
+    <Color x:Key="Color.Neutral.Stroke.Default">#FF3D3D3D</Color>
+    <Color x:Key="Color.Neutral.Stroke.Strong">#FF666666</Color>
     <Color x:Key="Color.Neutral.Foreground.Primary">#FFFFFFFF</Color>
     <Color x:Key="Color.Neutral.Foreground.Secondary">#FFD6D6D6</Color>
-    <Color x:Key="Color.Neutral.Foreground.Muted">#FFADADAD</Color>
-    <Color x:Key="Color.Neutral.Foreground.Disabled">#FF5C5C5C</Color>
-    <Color x:Key="Color.Control.Fill.Rest">#FF292929</Color>
-    <Color x:Key="Color.Control.Fill.Hover">#FF3D3D3D</Color>
-    <Color x:Key="Color.Control.Fill.Pressed">#FF1F1F1F</Color>
-    <Color x:Key="Color.Control.Fill.Disabled">#FF141414</Color>
-    <Color x:Key="Color.Control.Stroke.Default">#FF666666</Color>
-    <Color x:Key="Color.Control.Stroke.Strong">#FFADADAD</Color>
-    <Color x:Key="Color.Control.Stroke.Focus">#FF479EF5</Color>
+    <Color x:Key="Color.Neutral.Foreground.Muted">#FFA3A3A3</Color>
+    <Color x:Key="Color.Neutral.Foreground.Disabled">#FF6B6B6B</Color>
+    <Color x:Key="Color.Control.Fill.Rest">#FF2B2B2B</Color>
+    <Color x:Key="Color.Control.Fill.Hover">#FF323232</Color>
+    <Color x:Key="Color.Control.Fill.Pressed">#FF1A1A1A</Color>
+    <Color x:Key="Color.Control.Fill.Disabled">#FF202020</Color>
+    <Color x:Key="Color.Control.Stroke.Default">#FF3D3D3D</Color>
+    <Color x:Key="Color.Control.Stroke.Strong">#FF666666</Color>
+    <Color x:Key="Color.Control.Stroke.Focus">#FF8A8A8A</Color>
 
     <Color x:Key="Color.Brand.Accent">#FF115EA3</Color>
     <Color x:Key="Color.Brand.Accent.Hover">#FF0F6CBD</Color>
@@ -267,43 +267,43 @@
     <Color x:Key="Color.Status.Warning">#FFFAA06B</Color>
     <Color x:Key="Color.Status.Error">#FFDC626D</Color>
 
-    <Color x:Key="Color.Background.Base">#FF141414</Color>
-    <Color x:Key="Color.Background.Subtle">#FF1F1F1F</Color>
-    <Color x:Key="Color.Background.Elevated">#FF333333</Color>
-    <Color x:Key="Color.SurfaceAlt">#FF292929</Color>
-    <Color x:Key="Color.Surface.Alt">#FF333333</Color>
-    <Color x:Key="Color.Layer.Canvas">#FF141414</Color>
-    <Color x:Key="Color.Layer.Surface">#FF1F1F1F</Color>
-    <Color x:Key="Color.Layer.Card">#FF292929</Color>
-    <Color x:Key="Color.Layer.Elevated">#FF333333</Color>
+    <Color x:Key="Color.Background.Base">#FF202020</Color>
+    <Color x:Key="Color.Background.Subtle">#FF252525</Color>
+    <Color x:Key="Color.Background.Elevated">#FF303030</Color>
+    <Color x:Key="Color.SurfaceAlt">#FF2B2B2B</Color>
+    <Color x:Key="Color.Surface.Alt">#FF303030</Color>
+    <Color x:Key="Color.Layer.Canvas">#FF202020</Color>
+    <Color x:Key="Color.Layer.Surface">#FF252525</Color>
+    <Color x:Key="Color.Layer.Card">#FF2B2B2B</Color>
+    <Color x:Key="Color.Layer.Elevated">#FF303030</Color>
     <Color x:Key="Color.Foreground.OnAccent">#FFFFFFFF</Color>
-    <Color x:Key="Color.Accent.SelectedBackground">#FF082338</Color>
-    <Color x:Key="Color.Accent.SelectedBorder">#FF479EF5</Color>
+    <Color x:Key="Color.Accent.SelectedBackground">#FF12395D</Color>
+    <Color x:Key="Color.Accent.SelectedBorder">#00000000</Color>
     <Color x:Key="Color.Accent.SelectedForeground">#FFFFFFFF</Color>
     <Color x:Key="Color.Success">#FF54B054</Color>
     <Color x:Key="Color.Warning">#FFFAA06B</Color>
     <Color x:Key="Color.Transparent">#00000000</Color>
 
-    <Color x:Key="Color.Focus.StrokeOuter">#FF000000</Color>
-    <Color x:Key="Color.Focus.StrokeInner">#FFFFFFFF</Color>
+    <Color x:Key="Color.Focus.StrokeOuter">#00000000</Color>
+    <Color x:Key="Color.Focus.StrokeInner">#FF8A8A8A</Color>
     <Color x:Key="Color.Shadow">#FF000000</Color>
     <Color x:Key="Color.Elevation.Shadow">#66000000</Color>
 
-    <Color x:Key="Color.PageBackground">#FF141414</Color>
-    <Color x:Key="Color.AppBackground">#FF141414</Color>
+    <Color x:Key="Color.PageBackground">#FF202020</Color>
+    <Color x:Key="Color.AppBackground">#FF202020</Color>
     <Color x:Key="Color.AppForeground">#FFFFFFFF</Color>
-    <Color x:Key="Color.SurfaceElevated">#FF333333</Color>
-    <Color x:Key="Color.CardBorder">#FF525252</Color>
-    <Color x:Key="Color.CardBorderStrong">#FF666666</Color>
-    <Color x:Key="Color.Divider">#FF525252</Color>
+    <Color x:Key="Color.SurfaceElevated">#FF303030</Color>
+    <Color x:Key="Color.CardBorder">#FF333333</Color>
+    <Color x:Key="Color.CardBorderStrong">#FF3D3D3D</Color>
+    <Color x:Key="Color.Divider">#FF333333</Color>
     <Color x:Key="Color.PrimaryText">#FFFFFFFF</Color>
     <Color x:Key="Color.SecondaryText">#FFD6D6D6</Color>
-    <Color x:Key="Color.TertiaryText">#FFADADAD</Color>
+    <Color x:Key="Color.TertiaryText">#FFA3A3A3</Color>
     <Color x:Key="Color.AccentForeground">#FFFFFFFF</Color>
     <Color x:Key="Color.AccentSoft">#FF082338</Color>
     <Color x:Key="Color.AccentBorder">#FF479EF5</Color>
     <Color x:Key="Color.BrandAccent">#FF115EA3</Color>
-    <Color x:Key="Color.BrandChdTitle">#FF479EF5</Color>
+    <Color x:Key="Color.BrandChdTitle">#FF62ABF5</Color>
 
     <Color x:Key="Color.PipelineSuccessForeground">#FF54B054</Color>
     <Color x:Key="Color.SuccessSoft">#FF052505</Color>
@@ -313,67 +313,67 @@
     <Color x:Key="Color.ErrorSoft">#FF3B0509</Color>
     <Color x:Key="Color.ErrorBorder">#FFC50F1F</Color>
 
-    <Color x:Key="Color.QueueHeader">#FF1F1F1F</Color>
-    <Color x:Key="Color.QueueRowHover">#FF3D3D3D</Color>
-    <Color x:Key="Color.QueueRowSelected">#FF082338</Color>
+    <Color x:Key="Color.QueueHeader">#FF252525</Color>
+    <Color x:Key="Color.QueueRowHover">#FF323232</Color>
+    <Color x:Key="Color.QueueRowSelected">#FF12395D</Color>
     <Color x:Key="Color.QueueRowSelectedForeground">#FFFFFFFF</Color>
-    <Color x:Key="Color.QueueRowSeparator">#FF525252</Color>
-    <Color x:Key="Color.Progress.Track">#FF525252</Color>
+    <Color x:Key="Color.QueueRowSeparator">#FF333333</Color>
+    <Color x:Key="Color.Progress.Track">#FF3D3D3D</Color>
     <Color x:Key="Color.Progress.Fill">#FF115EA3</Color>
-    <Color x:Key="Color.QueueProgressTrack">#FF525252</Color>
-    <Color x:Key="Color.QueueProgressTrackBorder">#FF666666</Color>
+    <Color x:Key="Color.QueueProgressTrack">#FF3D3D3D</Color>
+    <Color x:Key="Color.QueueProgressTrackBorder">#FF525252</Color>
     <Color x:Key="Color.QueueProgressFill">#FF115EA3</Color>
 
-    <Color x:Key="Color.DropZone">#FF141414</Color>
-    <Color x:Key="Color.DropZoneBorder">#FF666666</Color>
-    <Color x:Key="Color.StatusBar">#FF1F1F1F</Color>
-    <Color x:Key="Color.SubtleButton">#FF292929</Color>
-    <Color x:Key="Color.SubtleButtonBorder">#FF666666</Color>
+    <Color x:Key="Color.DropZone">#FF202020</Color>
+    <Color x:Key="Color.DropZoneBorder">#FF3D3D3D</Color>
+    <Color x:Key="Color.StatusBar">#FF252525</Color>
+    <Color x:Key="Color.SubtleButton">#FF2B2B2B</Color>
+    <Color x:Key="Color.SubtleButtonBorder">#FF3D3D3D</Color>
     <Color x:Key="Color.ButtonPrimary">#FF115EA3</Color>
     <Color x:Key="Color.ButtonPrimaryHover">#FF0F6CBD</Color>
     <Color x:Key="Color.ButtonPrimaryPressed">#FF0C3B5E</Color>
     <Color x:Key="Color.ButtonPrimaryForeground">#FFFFFFFF</Color>
-    <Color x:Key="Color.ButtonSecondary">#FF292929</Color>
-    <Color x:Key="Color.ButtonSecondaryHover">#FF3D3D3D</Color>
-    <Color x:Key="Color.ButtonSecondaryPressed">#FF1F1F1F</Color>
+    <Color x:Key="Color.ButtonSecondary">#FF2B2B2B</Color>
+    <Color x:Key="Color.ButtonSecondaryHover">#FF323232</Color>
+    <Color x:Key="Color.ButtonSecondaryPressed">#FF1A1A1A</Color>
     <Color x:Key="Color.ButtonSecondaryForeground">#FFFFFFFF</Color>
-    <Color x:Key="Color.ButtonDanger">#FFDC626D</Color>
-    <Color x:Key="Color.ButtonDangerHover">#FFEEACB2</Color>
-    <Color x:Key="Color.ButtonDangerPressed">#FFDC626D</Color>
-    <Color x:Key="Color.ButtonDangerForeground">#FF3B0509</Color>
+    <Color x:Key="Color.ButtonDanger">#FFC50F1F</Color>
+    <Color x:Key="Color.ButtonDangerHover">#FFB10E1C</Color>
+    <Color x:Key="Color.ButtonDangerPressed">#FF960B18</Color>
+    <Color x:Key="Color.ButtonDangerForeground">#FFFFFFFF</Color>
 
-    <Color x:Key="Color.InputBackground">#FF292929</Color>
-    <Color x:Key="Color.InputBorder">#FF666666</Color>
+    <Color x:Key="Color.InputBackground">#FF2B2B2B</Color>
+    <Color x:Key="Color.InputBorder">#FF3D3D3D</Color>
     <Color x:Key="Color.InputForeground">#FFFFFFFF</Color>
-    <Color x:Key="Color.InputDisabled">#FF141414</Color>
+    <Color x:Key="Color.InputDisabled">#FF202020</Color>
 
-    <Color x:Key="Color.Indicator.Stroke">#FFADADAD</Color>
-    <Color x:Key="Color.Indicator.Stroke.Hover">#FF479EF5</Color>
+    <Color x:Key="Color.Indicator.Stroke">#FF8A8A8A</Color>
+    <Color x:Key="Color.Indicator.Stroke.Hover">#FFB8B8B8</Color>
     <Color x:Key="Color.Indicator.Stroke.Disabled">#FF5C5C5C</Color>
 
-    <Color x:Key="Color.TabSelected">#FF082338</Color>
-    <Color x:Key="Color.TabHover">#FF3D3D3D</Color>
-    <Color x:Key="Color.SidebarSoft">#FF1F1F1F</Color>
+    <Color x:Key="Color.TabSelected">#FF12395D</Color>
+    <Color x:Key="Color.TabHover">#FF323232</Color>
+    <Color x:Key="Color.SidebarSoft">#FF252525</Color>
 
-    <Color x:Key="Color.HeaderSoftBackground">#FF141414</Color>
+    <Color x:Key="Color.HeaderSoftBackground">#FF202020</Color>
     <Color x:Key="Color.HeaderChromeForeground">#FFFFFFFF</Color>
     <Color x:Key="Color.HeaderChromeMutedForeground">#FFD6D6D6</Color>
     <Color x:Key="Color.HeaderLogoPlateBackground">#FF082338</Color>
     <Color x:Key="Color.HeaderLogoPlateBorder">#FF0E4775</Color>
-    <Color x:Key="Color.HeaderChromeDivider">#FF525252</Color>
-    <Color x:Key="Color.TopNavHoverBackground">#FF3D3D3D</Color>
-    <Color x:Key="Color.TopNavPressedBackground">#FF1F1F1F</Color>
+    <Color x:Key="Color.HeaderChromeDivider">#FF333333</Color>
+    <Color x:Key="Color.TopNavHoverBackground">#FF323232</Color>
+    <Color x:Key="Color.TopNavPressedBackground">#FF1A1A1A</Color>
 
-    <Color x:Key="Color.DashboardHubCardFace">#FF292929</Color>
-    <Color x:Key="Color.DashboardHubCardBorder">#FF525252</Color>
+    <Color x:Key="Color.DashboardHubCardFace">#FF2B2B2B</Color>
+    <Color x:Key="Color.DashboardHubCardBorder">#FF333333</Color>
     <Color x:Key="Color.DashboardHubIconForeground">#FFFFFFFF</Color>
     <Color x:Key="Color.DashboardHubLabelForeground">#FFD6D6D6</Color>
-    <Color x:Key="Color.DashboardNavAccentLine">#FF479EF5</Color>
+    <Color x:Key="Color.DashboardNavAccentLine">#FF62ABF5</Color>
 
-    <Color x:Key="Color.NeutralBadge">#FF292929</Color>
+    <Color x:Key="Color.NeutralBadge">#FF2B2B2B</Color>
     <Color x:Key="Color.NeutralBadgeForeground">#FFD6D6D6</Color>
     <Color x:Key="Color.ActiveBadge">#FF082338</Color>
-    <Color x:Key="Color.ActiveBadgeForeground">#FF479EF5</Color>
+    <Color x:Key="Color.ActiveBadgeForeground">#FF62ABF5</Color>
     <Color x:Key="Color.SuccessBadge">#FF052505</Color>
     <Color x:Key="Color.SuccessBadgeForeground">#FF54B054</Color>
     <Color x:Key="Color.WarningBadge">#FF4A1E04</Color>
@@ -381,20 +381,20 @@
     <Color x:Key="Color.ErrorBadge">#FF3B0509</Color>
     <Color x:Key="Color.ErrorBadgeForeground">#FFDC626D</Color>
 
-    <Color x:Key="Color.ComboBoxPopupBackground">#FF333333</Color>
-    <Color x:Key="Color.ComboBoxPopupBorder">#FF666666</Color>
-    <Color x:Key="Color.ComboBoxItemHover">#FF3D3D3D</Color>
-    <Color x:Key="Color.ComboBoxItemSelected">#FF082338</Color>
+    <Color x:Key="Color.ComboBoxPopupBackground">#FF303030</Color>
+    <Color x:Key="Color.ComboBoxPopupBorder">#FF3D3D3D</Color>
+    <Color x:Key="Color.ComboBoxItemHover">#FF323232</Color>
+    <Color x:Key="Color.ComboBoxItemSelected">#FF12395D</Color>
 
     <Color x:Key="Color.SuccessPillBackground">#FF052505</Color>
     <Color x:Key="Color.SuccessPillForeground">#FF54B054</Color>
 
-    <Color x:Key="Color.GlassHeaderFill">#CC141414</Color>
-    <Color x:Key="Color.GlassHeaderBorder">#FF525252</Color>
-    <Color x:Key="Color.ScrollBarTrack">#FF1F1F1F</Color>
-    <Color x:Key="Color.ScrollBarThumb">#FF666666</Color>
-    <Color x:Key="Color.ScrollBarThumbHover">#FF808080</Color>
-    <Color x:Key="Color.ScrollBarThumbPressed">#FFADADAD</Color>
+    <Color x:Key="Color.GlassHeaderFill">#CC202020</Color>
+    <Color x:Key="Color.GlassHeaderBorder">#FF333333</Color>
+    <Color x:Key="Color.ScrollBarTrack">#FF252525</Color>
+    <Color x:Key="Color.ScrollBarThumb">#FF525252</Color>
+    <Color x:Key="Color.ScrollBarThumbHover">#FF666666</Color>
+    <Color x:Key="Color.ScrollBarThumbPressed">#FF8A8A8A</Color>
 
     <SolidColorBrush x:Key="Brush.Background" Color="{DynamicResource Color.Background}" />
     <SolidColorBrush x:Key="Brush.Surface" Color="{DynamicResource Color.Surface}" />
@@ -555,9 +555,9 @@
     <SolidColorBrush x:Key="InputForegroundBrush" Color="{DynamicResource Color.InputForeground}" />
     <SolidColorBrush x:Key="InputDisabledBrush" Color="{DynamicResource Color.InputDisabled}" />
 
-    <SolidColorBrush x:Key="Brush.Indicator.Stroke" Color="{DynamicResource Color.CheckBox.Stroke.Rest}" />
-    <SolidColorBrush x:Key="Brush.Indicator.Stroke.Hover" Color="{DynamicResource Color.CheckBox.Stroke.Hover}" />
-    <SolidColorBrush x:Key="Brush.Indicator.Stroke.Disabled" Color="{DynamicResource Color.CheckBox.Stroke.Disabled}" />
+    <SolidColorBrush x:Key="Brush.Indicator.Stroke" Color="{DynamicResource Color.Indicator.Stroke}" />
+    <SolidColorBrush x:Key="Brush.Indicator.Stroke.Hover" Color="{DynamicResource Color.Indicator.Stroke.Hover}" />
+    <SolidColorBrush x:Key="Brush.Indicator.Stroke.Disabled" Color="{DynamicResource Color.Indicator.Stroke.Disabled}" />
 
     <SolidColorBrush x:Key="TabSelectedBrush" Color="{DynamicResource Color.TabSelected}" />
     <SolidColorBrush x:Key="TabHoverBrush" Color="{DynamicResource Color.TabHover}" />

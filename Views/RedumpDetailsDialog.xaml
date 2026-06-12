@@ -3,11 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="{DynamicResource LocRedumpDetails_Title}"
-        Width="920"
-        MinWidth="880"
-        SizeToContent="Height"
+        Width="760"
+        MinWidth="700"
+        Height="540"
+        MinHeight="480"
+        MaxHeight="620"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize"
+        ResizeMode="CanResizeWithGrip"
         WindowStyle="None"
         ShowInTaskbar="False"
         AllowsTransparency="False"
@@ -23,41 +25,43 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/Style/AdvancedOptionsWindowStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/OptionsWindowStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Storyboard x:Key="RedumpDetails.ToastShowStoryboard">
                 <DoubleAnimation Storyboard.TargetName="CopyFeedbackToast"
                                  Storyboard.TargetProperty="Opacity"
                                  From="0"
-                                 To="1"
-                                 Duration="0:0:0.16" />
+                                 To="0"
+                                 Duration="0:0:0.01" />
+
                 <DoubleAnimation Storyboard.TargetName="CopyFeedbackToastTranslate"
                                  Storyboard.TargetProperty="Y"
-                                 From="-12"
+                                 From="0"
                                  To="0"
-                                 Duration="0:0:0.16" />
+                                 Duration="0:0:0.01" />
             </Storyboard>
 
             <Storyboard x:Key="RedumpDetails.ToastHideStoryboard">
                 <DoubleAnimation Storyboard.TargetName="CopyFeedbackToast"
                                  Storyboard.TargetProperty="Opacity"
-                                 From="1"
+                                 From="0"
                                  To="0"
-                                 Duration="0:0:0.14" />
+                                 Duration="0:0:0.01" />
+
                 <DoubleAnimation Storyboard.TargetName="CopyFeedbackToastTranslate"
                                  Storyboard.TargetProperty="Y"
                                  From="0"
-                                 To="-12"
-                                 Duration="0:0:0.14" />
+                                 To="0"
+                                 Duration="0:0:0.01" />
             </Storyboard>
 
             <Style x:Key="RedumpDetails.RootFrame"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -68,7 +72,7 @@
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
+                <Setter Property="Padding" Value="14,10" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -76,7 +80,7 @@
             <Style x:Key="RedumpDetails.ContentHost"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
+                <Setter Property="Padding" Value="14" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -84,10 +88,10 @@
             <Style x:Key="RedumpDetails.DecisionSurface"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.14.All}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
+                <Setter Property="Padding" Value="12" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Top" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
@@ -98,11 +102,11 @@
 
             <Style x:Key="RedumpDetails.InfoTile"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.10.8}" />
+                <Setter Property="Padding" Value="10,8" />
                 <Setter Property="MinHeight" Value="58" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -110,12 +114,12 @@
 
             <Style x:Key="RedumpDetails.TechnicalSurface"
                    TargetType="{x:Type Border}">
-                <Setter Property="FlowDirection" Value="LeftToRight" />
-                <Setter Property="Language" Value="en-US" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.10.8}" />
-                <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
+                <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
+                <Setter Property="Padding" Value="10,8" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Center" />
@@ -130,7 +134,7 @@
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
                 <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
                 <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="TextWrapping" Value="Wrap" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -139,7 +143,7 @@
             <Style x:Key="RedumpDetails.TitleText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource RedumpDetails.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.SectionTitle}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
                 <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="TextWrapping" Value="NoWrap" />
@@ -174,16 +178,18 @@
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
                 <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
                 <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="None" />
             </Style>
 
             <Style x:Key="RedumpDetails.TechnicalText"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FlowDirection" Value="LeftToRight" />
-                <Setter Property="Language" Value="en-US" />
+                <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
+                <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Mono}" />
                 <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextAlignment" Value="Left" />
+                <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
                 <Setter Property="TextWrapping" Value="NoWrap" />
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
                 <Setter Property="VerticalAlignment" Value="Center" />
@@ -201,15 +207,25 @@
 
             <Style x:Key="RedumpDetails.StatusBadge"
                    TargetType="{x:Type Border}">
-                <Setter Property="MinWidth" Value="84" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.10.5}" />
-                <Setter Property="Background" Value="{DynamicResource Brush.Accent.Subtle}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Pill}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
+
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Status}" Value="{x:Null}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+
+                    <DataTrigger Binding="{Binding Status}" Value="">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </Style.Triggers>
             </Style>
 
             <Style x:Key="RedumpDetails.StatusBadgeText"
@@ -217,7 +233,8 @@
                    BasedOn="{StaticResource RedumpDetails.GeneralText}">
                 <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
                 <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.Text}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="TextAlignment" Value="Center" />
                 <Setter Property="TextWrapping" Value="NoWrap" />
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
             </Style>
@@ -227,7 +244,7 @@
                    BasedOn="{StaticResource PrimaryButtonStyle}">
                 <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
                 <Setter Property="MaxWidth" Value="156" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.10.5}" />
+                <Setter Property="Padding" Value="10,5" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
@@ -238,53 +255,48 @@
                    BasedOn="{StaticResource SecondaryButtonStyle}">
                 <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
                 <Setter Property="MaxWidth" Value="156" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.10.5}" />
+                <Setter Property="Padding" Value="10,5" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
             </Style>
 
-            <Style x:Key="RedumpDetails.ToastBorder"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Visibility" Value="Collapsed" />
-                <Setter Property="Opacity" Value="0" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Pill}" />
-                <Setter Property="HorizontalAlignment" Value="Center" />
-                <Setter Property="VerticalAlignment" Value="Top" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
-                <Setter Property="IsHitTestVisible" Value="False" />
-            </Style>
-
-            <Style x:Key="RedumpDetails.ToastText"
+            <Style x:Key="RedumpDetails.FooterFeedbackText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource RedumpDetails.GeneralText}">
                 <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
                 <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.Text}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Success}" />
                 <Setter Property="TextWrapping" Value="NoWrap" />
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsCopyFeedbackError}" Value="True">
+                        <Setter Property="Foreground" Value="{DynamicResource Brush.Error}" />
+                    </DataTrigger>
+                </Style.Triggers>
             </Style>
         </ResourceDictionary>
     </Window.Resources>
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="{DynamicResource Space.0}"
+        <shell:WindowChrome CaptionHeight="{DynamicResource Space.40}"
                             CornerRadius="{DynamicResource Radius.Dialog}"
                             GlassFrameThickness="{DynamicResource Inset.None}"
-                            ResizeBorderThickness="{DynamicResource Inset.None}"
+                            ResizeBorderThickness="{DynamicResource Window.ResizeBorderThickness}"
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
     <Border Style="{StaticResource RedumpDetails.RootFrame}">
-        <Grid ClipToBounds="True">
+        <Grid ClipToBounds="True"
+              FlowDirection="{DynamicResource App.FlowDirection}"
+              Language="{DynamicResource App.XmlLanguage}"
+              SnapsToDevicePixels="True">
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
@@ -292,7 +304,11 @@
                     Style="{StaticResource RedumpDetails.HeaderFooter}"
                     BorderThickness="{DynamicResource Inset.0.0.0.1}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}">
+
+                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True">
+
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
@@ -303,18 +319,24 @@
 
                     <Border Grid.Column="0"
                             Width="{DynamicResource Space.4}"
-                            Height="{DynamicResource Space.24}"
+                            Height="{DynamicResource Space.22}"
                             Background="{DynamicResource Brush.Accent}"
                             CornerRadius="{DynamicResource Radius.Control}"
                             VerticalAlignment="Top"
                             SnapsToDevicePixels="True" />
 
                     <StackPanel Grid.Column="2"
-                                FlowDirection="{DynamicResource App.FlowDirection}">
+                                FlowDirection="{DynamicResource App.FlowDirection}"
+                                Language="{DynamicResource App.XmlLanguage}"
+                                VerticalAlignment="Center">
+
                         <TextBlock Text="{DynamicResource LocRedumpDetails_Title}"
+                                   ToolTip="{DynamicResource LocRedumpDetails_Title}"
                                    Style="{StaticResource RedumpDetails.TitleText}" />
+
                         <TextBlock Margin="{DynamicResource Inset.0.2.0.0}"
                                    Text="{DynamicResource LocRedumpDetails_Subtitle}"
+                                   ToolTip="{DynamicResource LocRedumpDetails_Subtitle}"
                                    Style="{StaticResource RedumpDetails.BodyText}"
                                    TextWrapping="NoWrap"
                                    TextTrimming="CharacterEllipsis" />
@@ -328,15 +350,19 @@
                             VerticalAlignment="Center"
                             Style="{StaticResource HeaderIconButtonStyle}"
                             ToolTip="{DynamicResource LocCommon_Close}"
-                            Click="CloseButton_Click"
+                            AutomationProperties.Name="{DynamicResource LocCommon_Close}"
+                            Command="{Binding CloseCommand}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
+
                         <Viewbox Width="{DynamicResource Space.12}"
                                  Height="{DynamicResource Space.12}"
                                  FlowDirection="LeftToRight"
                                  Stretch="Uniform">
+
                             <Path Data="{StaticResource Icon.Close}"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  Stretch="Uniform" />
+                                  Stretch="Uniform"
+                                  SnapsToDevicePixels="True" />
                         </Viewbox>
                     </Button>
                 </Grid>
@@ -344,285 +370,340 @@
 
             <Border Grid.Row="1"
                     Style="{StaticResource RedumpDetails.ContentHost}">
-                <StackPanel FlowDirection="{DynamicResource App.FlowDirection}">
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0"
-                                    MinWidth="0">
-                            <TextBlock Text="{Binding DisplayTitle, Mode=OneWay}"
-                                       ToolTip="{Binding DisplayTitle, Mode=OneWay}"
-                                       Style="{StaticResource RedumpDetails.TitleText}" />
-                            <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
-                                       Text="{Binding StatusNote, Mode=OneWay}"
-                                       Style="{StaticResource RedumpDetails.BodyText}" />
-                        </StackPanel>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto"
+                              CanContentScroll="False"
+                              PanningMode="VerticalOnly"
+                              Focusable="False"
+                              Background="{DynamicResource Brush.Transparent}"
+                              SnapsToDevicePixels="True">
 
-                        <Border Grid.Column="2"
-                                Style="{StaticResource RedumpDetails.StatusBadge}" VerticalAlignment="Stretch" BorderThickness="3,1,3,1">
-                            <TextBlock Text="{Binding Status, Mode=OneWay}"
-                                       ToolTip="{Binding Status, Mode=OneWay}"
-                                       Style="{StaticResource RedumpDetails.StatusBadgeText}"
-                                       TextAlignment="Center" />
-                        </Border>
-                    </Grid>
+                    <StackPanel FlowDirection="{DynamicResource App.FlowDirection}"
+                                Language="{DynamicResource App.XmlLanguage}">
 
-                    <Grid Margin="{DynamicResource Inset.0.14.0.0}"
-                          FlowDirection="{DynamicResource App.FlowDirection}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                              Language="{DynamicResource App.XmlLanguage}"
+                              SnapsToDevicePixels="True">
 
-                        <Border Grid.Column="0"
-                                Style="{StaticResource RedumpDetails.InfoTile}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource LocRedumpDetails_SystemLabel}"
-                                           Style="{StaticResource RedumpDetails.LabelText}" />
-                                <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
-                                           Text="{Binding SystemName, Mode=OneWay}"
-                                           ToolTip="{Binding SystemName, Mode=OneWay}"
-                                           Style="{StaticResource RedumpDetails.TechnicalText}" />
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0"
+                                        MinWidth="0"
+                                        FlowDirection="{DynamicResource App.FlowDirection}"
+                                        Language="{DynamicResource App.XmlLanguage}">
+
+                                <TextBlock Text="{Binding DisplayTitle, Mode=OneWay}"
+                                           ToolTip="{Binding DisplayTitle, Mode=OneWay}"
+                                           Style="{StaticResource RedumpDetails.TitleText}" />
+
+                                <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
+                                           Text="{Binding StatusNote, Mode=OneWay}"
+                                           ToolTip="{Binding StatusNote, Mode=OneWay}"
+                                           Style="{StaticResource RedumpDetails.BodyText}" />
                             </StackPanel>
-                        </Border>
 
-                        <Border Grid.Column="2"
-                                Style="{StaticResource RedumpDetails.InfoTile}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource LocRedumpDetails_ConsoleTypeLabel}"
-                                           Style="{StaticResource RedumpDetails.LabelText}" />
-                                <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
-                                           Text="{Binding ConsoleTypeName, Mode=OneWay}"
-                                           ToolTip="{Binding ConsoleTypeName, Mode=OneWay}"
-                                           Style="{StaticResource RedumpDetails.TechnicalText}" />
-                            </StackPanel>
-                        </Border>
-
-                        <Border Grid.Column="4"
-                                Style="{StaticResource RedumpDetails.InfoTile}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource LocRedumpDetails_ManufacturerLabel}"
-                                           Style="{StaticResource RedumpDetails.LabelText}" />
-                                <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
-                                           Text="{Binding ManufacturerName, Mode=OneWay}"
-                                           ToolTip="{Binding ManufacturerName, Mode=OneWay}"
-                                           Style="{StaticResource RedumpDetails.TechnicalText}" />
-                            </StackPanel>
-                        </Border>
-
-                        <Border Grid.Column="6"
-                                Style="{StaticResource RedumpDetails.InfoTile}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource LocRedumpDetails_SizeLabel}"
-                                           Style="{StaticResource RedumpDetails.LabelText}" />
-                                <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
-                                           Text="{Binding SizeDisplay, Mode=OneWay}"
-                                           ToolTip="{Binding SizeDisplay, Mode=OneWay}"
-                                           Style="{StaticResource RedumpDetails.TechnicalText}" />
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-
-                    <Border Margin="{DynamicResource Inset.0.14.0.0}"
-                            Style="{StaticResource RedumpDetails.DecisionSurface}">
-                        <Grid FlowDirection="{DynamicResource App.FlowDirection}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="{DynamicResource Grid.Space.8}" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <Grid Grid.Row="0"
-                                  FlowDirection="{DynamicResource App.FlowDirection}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource LocRedumpDetails_SuggestedNameTitle}"
-                                               Style="{StaticResource RedumpDetails.SectionTitleText}" />
-                                    <TextBlock Margin="{DynamicResource Inset.0.2.0.0}"
-                                               Text="{DynamicResource LocRedumpDetails_SuggestedNameDescription}"
-                                               Style="{StaticResource RedumpDetails.BodyText}" />
-                                </StackPanel>
-
-                                <Button Grid.Column="2"
-                                        Content="{DynamicResource LocUi_Redump_CopyName}"
-                                        Click="CopyNameButton_Click"
-                                        Style="{StaticResource RedumpDetails.CompactSecondaryButton}" />
-                            </Grid>
-
-                            <Border Grid.Row="2"
-                                    Style="{StaticResource RedumpDetails.TechnicalSurface}">
-                                <TextBlock Text="{Binding SuggestedName, Mode=OneWay}"
-                                           ToolTip="{Binding SuggestedName, Mode=OneWay}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Style="{StaticResource RedumpDetails.TechnicalText}" />
+                            <Border Grid.Column="2"
+                                    Style="{StaticResource RedumpDetails.StatusBadge}">
+                                <TextBlock Text="{Binding Status, Mode=OneWay}"
+                                           ToolTip="{Binding Status, Mode=OneWay}"
+                                           Style="{StaticResource RedumpDetails.StatusBadgeText}" />
                             </Border>
                         </Grid>
-                    </Border>
 
-                    <Expander Margin="{DynamicResource Inset.0.12.0.0}"
-                              FlowDirection="{DynamicResource App.FlowDirection}">
-                        <Expander.Header>
-                            <TextBlock Text="{DynamicResource LocRedumpDetails_HashesTitle}"
-                                       Style="{StaticResource RedumpDetails.SectionTitleText}" />
-                        </Expander.Header>
+                        <Grid Margin="{DynamicResource Inset.0.12.0.0}"
+                              FlowDirection="{DynamicResource App.FlowDirection}"
+                              Language="{DynamicResource App.XmlLanguage}"
+                              SnapsToDevicePixels="True">
 
-                        <StackPanel Margin="{DynamicResource Inset.0.10.0.0}"
-                                    FlowDirection="{DynamicResource App.FlowDirection}">
-                            <Grid FlowDirection="{DynamicResource App.FlowDirection}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="{DynamicResource LocRedumpDetails_HashesDescription}"
-                                           Style="{StaticResource RedumpDetails.BodyText}" />
-                                <Button Grid.Column="2"
-                                        Content="{DynamicResource LocUi_Redump_CopyHash}"
-                                        Click="CopyHashButton_Click"
-                                        Style="{StaticResource RedumpDetails.CompactSecondaryButton}" />
-                            </Grid>
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource RedumpDetails.InfoTile}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource LocRedumpDetails_SystemLabel}"
+                                               ToolTip="{DynamicResource LocRedumpDetails_SystemLabel}"
+                                               Style="{StaticResource RedumpDetails.LabelText}" />
 
-                            <Border Margin="{DynamicResource Inset.0.8.0.0}"
-                                    Style="{StaticResource RedumpDetails.TechnicalSurface}">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                              HorizontalScrollBarVisibility="Disabled"
-                                              Focusable="False"
-                                              CanContentScroll="True"
-                                              MaxHeight="112">
-                                    <TextBlock Text="{Binding HashesSummary, Mode=OneWay}"
-                                               ToolTip="{Binding HashesSummary, Mode=OneWay}"
-                                               Style="{StaticResource RedumpDetails.MultiLineTechnicalText}" />
-                                </ScrollViewer>
+                                    <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
+                                               Text="{Binding SystemName, Mode=OneWay}"
+                                               ToolTip="{Binding SystemName, Mode=OneWay}"
+                                               Style="{StaticResource RedumpDetails.TechnicalText}" />
+                                </StackPanel>
                             </Border>
 
-                            <Grid Margin="{DynamicResource Inset.0.12.0.0}"
-                                  FlowDirection="{DynamicResource App.FlowDirection}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+                            <Border Grid.Column="2"
+                                    Style="{StaticResource RedumpDetails.InfoTile}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource LocRedumpDetails_ConsoleTypeLabel}"
+                                               ToolTip="{DynamicResource LocRedumpDetails_ConsoleTypeLabel}"
+                                               Style="{StaticResource RedumpDetails.LabelText}" />
 
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource LocRedumpDetails_FilesTitle}"
-                                               Style="{StaticResource RedumpDetails.SectionTitleText}" />
-                                    <Border Margin="{DynamicResource Inset.0.6.0.0}"
-                                            Style="{StaticResource RedumpDetails.TechnicalSurface}">
-                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                                      HorizontalScrollBarVisibility="Disabled"
-                                                      Focusable="False"
-                                                      CanContentScroll="True"
-                                                      MaxHeight="88">
-                                            <TextBlock Text="{Binding FilesSummary, Mode=OneWay}"
-                                                       ToolTip="{Binding FilesSummary, Mode=OneWay}"
-                                                       Style="{StaticResource RedumpDetails.MultiLineTechnicalText}" />
-                                        </ScrollViewer>
-                                    </Border>
+                                    <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
+                                               Text="{Binding ConsoleTypeName, Mode=OneWay}"
+                                               ToolTip="{Binding ConsoleTypeName, Mode=OneWay}"
+                                               Style="{StaticResource RedumpDetails.TechnicalText}" />
                                 </StackPanel>
+                            </Border>
 
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource LocRedumpDetails_NotesTitle}"
-                                               Style="{StaticResource RedumpDetails.SectionTitleText}" />
-                                    <Border Margin="{DynamicResource Inset.0.6.0.0}"
-                                            Padding="{DynamicResource Inset.10.8}"
-                                            Background="{DynamicResource Brush.Control.Fill.Rest}"
-                                            BorderBrush="{DynamicResource Brush.Transparent}"
-                                            BorderThickness="{DynamicResource Inset.None}"
-                                            CornerRadius="{DynamicResource Radius.Control}">
-                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                                      HorizontalScrollBarVisibility="Disabled"
-                                                      Focusable="False"
-                                                      CanContentScroll="True"
-                                                      MaxHeight="88">
-                                            <TextBlock Text="{Binding NotesText, Mode=OneWay}"
-                                                       ToolTip="{Binding NotesText, Mode=OneWay}"
-                                                       Style="{StaticResource RedumpDetails.BodyText}" />
-                                        </ScrollViewer>
-                                    </Border>
+                            <Border Grid.Column="4"
+                                    Style="{StaticResource RedumpDetails.InfoTile}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource LocRedumpDetails_ManufacturerLabel}"
+                                               ToolTip="{DynamicResource LocRedumpDetails_ManufacturerLabel}"
+                                               Style="{StaticResource RedumpDetails.LabelText}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
+                                               Text="{Binding ManufacturerName, Mode=OneWay}"
+                                               ToolTip="{Binding ManufacturerName, Mode=OneWay}"
+                                               Style="{StaticResource RedumpDetails.TechnicalText}" />
                                 </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="6"
+                                    Style="{StaticResource RedumpDetails.InfoTile}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource LocRedumpDetails_SizeLabel}"
+                                               ToolTip="{DynamicResource LocRedumpDetails_SizeLabel}"
+                                               Style="{StaticResource RedumpDetails.LabelText}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
+                                               Text="{Binding SizeDisplay, Mode=OneWay}"
+                                               ToolTip="{Binding SizeDisplay, Mode=OneWay}"
+                                               Style="{StaticResource RedumpDetails.TechnicalText}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Margin="{DynamicResource Inset.0.12.0.0}"
+                                Style="{StaticResource RedumpDetails.DecisionSurface}">
+
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  Language="{DynamicResource App.XmlLanguage}"
+                                  SnapsToDevicePixels="True">
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid Grid.Row="0"
+                                      FlowDirection="{DynamicResource App.FlowDirection}"
+                                      Language="{DynamicResource App.XmlLanguage}"
+                                      SnapsToDevicePixels="True">
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0"
+                                                FlowDirection="{DynamicResource App.FlowDirection}"
+                                                Language="{DynamicResource App.XmlLanguage}">
+
+                                        <TextBlock Text="{DynamicResource LocRedumpDetails_SuggestedNameTitle}"
+                                                   ToolTip="{DynamicResource LocRedumpDetails_SuggestedNameTitle}"
+                                                   Style="{StaticResource RedumpDetails.SectionTitleText}" />
+
+                                        <TextBlock Margin="{DynamicResource Inset.0.2.0.0}"
+                                                   Text="{DynamicResource LocRedumpDetails_SuggestedNameDescription}"
+                                                   ToolTip="{DynamicResource LocRedumpDetails_SuggestedNameDescription}"
+                                                   Style="{StaticResource RedumpDetails.BodyText}" />
+                                    </StackPanel>
+
+                                    <Button Grid.Column="2"
+                                            Content="{DynamicResource LocUi_Redump_CopyName}"
+                                            ToolTip="{DynamicResource LocUi_Redump_CopyName}"
+                                            AutomationProperties.Name="{DynamicResource LocUi_Redump_CopyName}"
+                                            Command="{Binding CopyNameCommand}"
+                                            Style="{StaticResource RedumpDetails.CompactSecondaryButton}" />
+                                </Grid>
+
+                                <Border Grid.Row="2"
+                                        Style="{StaticResource RedumpDetails.TechnicalSurface}">
+                                    <TextBlock Text="{Binding SuggestedName, Mode=OneWay}"
+                                               ToolTip="{Binding SuggestedName, Mode=OneWay}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               Style="{StaticResource RedumpDetails.TechnicalText}" />
+                                </Border>
                             </Grid>
-                        </StackPanel>
-                    </Expander>
-                </StackPanel>
+                        </Border>
+
+                        <Expander Margin="{DynamicResource Inset.0.12.0.0}"
+                                  FlowDirection="{DynamicResource App.FlowDirection}"
+                                  Language="{DynamicResource App.XmlLanguage}">
+
+                            <Expander.Header>
+                                <TextBlock Text="{DynamicResource LocRedumpDetails_HashesTitle}"
+                                           ToolTip="{DynamicResource LocRedumpDetails_HashesTitle}"
+                                           Style="{StaticResource RedumpDetails.SectionTitleText}" />
+                            </Expander.Header>
+
+                            <StackPanel Margin="{DynamicResource Inset.0.10.0.0}"
+                                        FlowDirection="{DynamicResource App.FlowDirection}"
+                                        Language="{DynamicResource App.XmlLanguage}">
+
+                                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                      Language="{DynamicResource App.XmlLanguage}"
+                                      SnapsToDevicePixels="True">
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               Text="{DynamicResource LocRedumpDetails_HashesDescription}"
+                                               ToolTip="{DynamicResource LocRedumpDetails_HashesDescription}"
+                                               Style="{StaticResource RedumpDetails.BodyText}" />
+
+                                    <Button Grid.Column="2"
+                                            Content="{DynamicResource LocUi_Redump_CopyHash}"
+                                            ToolTip="{DynamicResource LocUi_Redump_CopyHash}"
+                                            AutomationProperties.Name="{DynamicResource LocUi_Redump_CopyHash}"
+                                            Command="{Binding CopyHashesCommand}"
+                                            Style="{StaticResource RedumpDetails.CompactSecondaryButton}" />
+                                </Grid>
+
+                                <Border Margin="{DynamicResource Inset.0.8.0.0}"
+                                        Style="{StaticResource RedumpDetails.TechnicalSurface}">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  Focusable="False"
+                                                  CanContentScroll="True"
+                                                  MaxHeight="112">
+                                        <TextBlock Text="{Binding HashesSummary, Mode=OneWay}"
+                                                   ToolTip="{Binding HashesSummary, Mode=OneWay}"
+                                                   Style="{StaticResource RedumpDetails.MultiLineTechnicalText}" />
+                                    </ScrollViewer>
+                                </Border>
+
+                                <Grid Margin="{DynamicResource Inset.0.12.0.0}"
+                                      FlowDirection="{DynamicResource App.FlowDirection}"
+                                      Language="{DynamicResource App.XmlLanguage}"
+                                      SnapsToDevicePixels="True">
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0"
+                                                FlowDirection="{DynamicResource App.FlowDirection}"
+                                                Language="{DynamicResource App.XmlLanguage}">
+
+                                        <TextBlock Text="{DynamicResource LocRedumpDetails_FilesTitle}"
+                                                   ToolTip="{DynamicResource LocRedumpDetails_FilesTitle}"
+                                                   Style="{StaticResource RedumpDetails.SectionTitleText}" />
+
+                                        <Border Margin="{DynamicResource Inset.0.6.0.0}"
+                                                Style="{StaticResource RedumpDetails.TechnicalSurface}">
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                          HorizontalScrollBarVisibility="Disabled"
+                                                          Focusable="False"
+                                                          CanContentScroll="True"
+                                                          MaxHeight="88">
+                                                <TextBlock Text="{Binding FilesSummary, Mode=OneWay}"
+                                                           ToolTip="{Binding FilesSummary, Mode=OneWay}"
+                                                           Style="{StaticResource RedumpDetails.MultiLineTechnicalText}" />
+                                            </ScrollViewer>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2"
+                                                FlowDirection="{DynamicResource App.FlowDirection}"
+                                                Language="{DynamicResource App.XmlLanguage}">
+
+                                        <TextBlock Text="{DynamicResource LocRedumpDetails_NotesTitle}"
+                                                   ToolTip="{DynamicResource LocRedumpDetails_NotesTitle}"
+                                                   Style="{StaticResource RedumpDetails.SectionTitleText}" />
+
+                                        <Border Margin="{DynamicResource Inset.0.6.0.0}"
+                                                Style="{StaticResource RedumpDetails.TechnicalSurface}">
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                          HorizontalScrollBarVisibility="Disabled"
+                                                          Focusable="False"
+                                                          CanContentScroll="True"
+                                                          MaxHeight="88">
+                                                <TextBlock Text="{Binding NotesText, Mode=OneWay}"
+                                                           ToolTip="{Binding NotesText, Mode=OneWay}"
+                                                           Style="{StaticResource RedumpDetails.BodyText}" />
+                                            </ScrollViewer>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
 
             <Border Grid.Row="2"
                     Style="{StaticResource RedumpDetails.HeaderFooter}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}">
+
+                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True">
+
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0"
                             Content="{DynamicResource LocCommon_Close}"
-                            Click="CloseButton_Click"
+                            ToolTip="{DynamicResource LocCommon_Close}"
+                            AutomationProperties.Name="{DynamicResource LocCommon_Close}"
+                            Command="{Binding CloseCommand}"
                             Style="{StaticResource RedumpDetails.CompactSecondaryButton}" />
 
-                    <Button Grid.Column="2"
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding CopyFeedbackText, Mode=OneWay}"
+                               ToolTip="{Binding CopyFeedbackText, Mode=OneWay}"
+                               Visibility="{Binding IsCopyFeedbackVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
+                               Style="{StaticResource RedumpDetails.FooterFeedbackText}" />
+
+                    <Button Grid.Column="4"
                             Content="{DynamicResource LocRedumpDetails_ApplyName}"
+                            ToolTip="{DynamicResource LocRedumpDetails_ApplyName}"
+                            AutomationProperties.Name="{DynamicResource LocRedumpDetails_ApplyName}"
                             IsEnabled="{Binding CanApplyName, Mode=OneWay}"
-                            Click="ApplyNameButton_Click"
+                            Command="{Binding ApplyNameCommand}"
                             Style="{StaticResource RedumpDetails.CompactPrimaryButton}" />
                 </Grid>
             </Border>
 
             <Border x:Name="CopyFeedbackToast"
                     Grid.RowSpan="3"
-                    Margin="{DynamicResource Inset.0.8.0.0}"
-                    Panel.ZIndex="50"
-                    Style="{StaticResource RedumpDetails.ToastBorder}">
+                    Width="0"
+                    Height="0"
+                    Visibility="Collapsed"
+                    Opacity="0"
+                    IsHitTestVisible="False">
                 <Border.RenderTransform>
                     <TranslateTransform x:Name="CopyFeedbackToastTranslate"
-                                        Y="-12" />
+                                        Y="0" />
                 </Border.RenderTransform>
-
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <Viewbox Grid.Column="0"
-                             Width="{DynamicResource Space.14}"
-                             Height="{DynamicResource Space.14}"
-                             VerticalAlignment="Center"
-                             FlowDirection="LeftToRight"
-                             Stretch="Uniform">
-                        <Path x:Name="CopyFeedbackIcon"
-                              Data="{StaticResource Icon.Checkmark}"
-                              Stroke="{DynamicResource Brush.Accent}"
-                              StrokeThickness="1.8"
-                              StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round"
-                              StrokeLineJoin="Round"
-                              Stretch="Uniform" />
-                    </Viewbox>
-
-                    <TextBlock x:Name="CopyFeedbackText"
-                               Grid.Column="2"
-                               VerticalAlignment="Center"
-                               Style="{StaticResource RedumpDetails.ToastText}" />
-                </Grid>
             </Border>
         </Grid>
     </Border>

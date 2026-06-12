@@ -1,4 +1,4 @@
-﻿namespace HakamiqChdTool.App.Localization;
+namespace HakamiqChdTool.App.Localization;
 
 public static class TaskActionCodes
 {

@@ -10,6 +10,7 @@
         <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -20,10 +21,11 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
         <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.4}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -72,8 +74,9 @@
                                      FlowDirection="LeftToRight"
                                      Stretch="Uniform">
                                 <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
-                                      Fill="{TemplateBinding Foreground}"
-                                      Stretch="Uniform" />
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Stretch="Uniform"
+                                      SnapsToDevicePixels="True" />
                             </Viewbox>
 
                             <ContentPresenter Grid.Column="4"
@@ -82,7 +85,10 @@
                                               RecognizesAccessKey="True"
                                               FlowDirection="{TemplateBinding FlowDirection}"
                                               Language="{TemplateBinding Language}"
-                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                              TextElement.FontSize="{TemplateBinding FontSize}"
+                                              TextElement.FontWeight="{TemplateBinding FontWeight}" />
                         </Grid>
                     </Border>
 
@@ -93,23 +99,23 @@
                                 <Condition Property="IsChecked" Value="False" />
                             </MultiTrigger.Conditions>
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                         </MultiTrigger>
 
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
-                            <Setter TargetName="Root" Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                             <Setter TargetName="SelectionIndicator" Property="Opacity" Value="1" />
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
                         </Trigger>
 
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
-                            <Setter TargetName="Root" Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
                             <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                             <Setter TargetName="SelectionIndicator" Property="Opacity" Value="{DynamicResource Opacity.Hidden}" />
@@ -128,6 +134,7 @@
         <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
         <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.8}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -143,7 +150,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Card}"
+                            CornerRadius="{DynamicResource Radius.Card.Medium}"
                             Padding="{TemplateBinding Padding}"
                             Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"
@@ -176,16 +183,21 @@
                                      FlowDirection="LeftToRight"
                                      Stretch="Uniform">
                                 <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
-                                      Fill="{TemplateBinding Foreground}"
-                                      Stretch="Uniform" />
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Stretch="Uniform"
+                                      SnapsToDevicePixels="True" />
                             </Viewbox>
 
                             <ContentPresenter Grid.Column="4"
+                                              HorizontalAlignment="Stretch"
                                               VerticalAlignment="Center"
                                               RecognizesAccessKey="True"
                                               FlowDirection="{TemplateBinding FlowDirection}"
                                               Language="{TemplateBinding Language}"
-                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                              TextElement.FontSize="{TemplateBinding FontSize}"
+                                              TextElement.FontWeight="{TemplateBinding FontWeight}" />
                         </Grid>
                     </Border>
 
@@ -235,6 +247,8 @@
         <Setter Property="Padding" Value="{DynamicResource Inset.4.All}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">
@@ -242,7 +256,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Card}"
+                            CornerRadius="{DynamicResource Radius.Menu}"
                             Padding="{TemplateBinding Padding}"
                             Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"
@@ -265,11 +279,17 @@
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
         <Setter Property="MinWidth" Value="{DynamicResource Control.MinWidth}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type MenuItem}">
@@ -298,7 +318,8 @@
                                      Opacity="{DynamicResource Opacity.Hidden}">
                                 <Path Data="{StaticResource Icon.Checkmark}"
                                       Fill="{DynamicResource Brush.Accent}"
-                                      Stretch="Uniform" />
+                                      Stretch="Uniform"
+                                      SnapsToDevicePixels="True" />
                             </Viewbox>
 
                             <ContentPresenter Grid.Column="1"
@@ -307,7 +328,10 @@
                                               VerticalAlignment="Center"
                                               FlowDirection="{TemplateBinding FlowDirection}"
                                               Language="{TemplateBinding Language}"
-                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                              TextElement.FontSize="{TemplateBinding FontSize}"
+                                              TextElement.FontWeight="{TemplateBinding FontWeight}" />
                         </Grid>
                     </Border>
 
@@ -324,6 +348,7 @@
 
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                             <Setter TargetName="Root" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
                             <Setter TargetName="CheckmarkHost" Property="Opacity" Value="{DynamicResource Opacity.Hidden}" />
                         </Trigger>

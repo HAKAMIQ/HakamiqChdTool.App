@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,11 +11,11 @@ namespace HakamiqChdTool.App.Services;
 
 public sealed class ApplicationRestartContext
 {
-    public const string AdvancedOptionsWindowName = "AdvancedOptions";
+    public const string OptionsWindowName = "Options";
 
     public string ReopenWindow { get; set; } = string.Empty;
 
-    public string AdvancedOptionsTabKey { get; set; } = string.Empty;
+    public string OptionsTabKey { get; set; } = string.Empty;
 
     public double MainWindowLeft { get; set; }
 
@@ -47,7 +47,7 @@ public static class ApplicationRestartService
     public static ApplicationRestartContext CreateRestartContext(
         Window mainWindow,
         string reopenWindow,
-        string? advancedOptionsTabKey)
+        string? optionsTabKey)
     {
         ArgumentNullException.ThrowIfNull(mainWindow);
 
@@ -58,7 +58,7 @@ public static class ApplicationRestartService
         return new ApplicationRestartContext
         {
             ReopenWindow = NormalizeContextValue(reopenWindow, maxLength: 64),
-            AdvancedOptionsTabKey = NormalizeContextValue(advancedOptionsTabKey, maxLength: 128),
+            OptionsTabKey = NormalizeContextValue(optionsTabKey, maxLength: 128),
             MainWindowLeft = bounds.Left,
             MainWindowTop = bounds.Top,
             MainWindowWidth = bounds.Width,
@@ -215,7 +215,7 @@ public static class ApplicationRestartService
 
             restartContext.CreatedUtc = DateTimeOffset.UtcNow;
             restartContext.ReopenWindow = NormalizeContextValue(restartContext.ReopenWindow, maxLength: 64);
-            restartContext.AdvancedOptionsTabKey = NormalizeContextValue(restartContext.AdvancedOptionsTabKey, maxLength: 128);
+            restartContext.OptionsTabKey = NormalizeContextValue(restartContext.OptionsTabKey, maxLength: 128);
 
             string json = JsonSerializer.Serialize(restartContext, JsonOptions);
             WriteTextAtomically(path, json, directory);
@@ -320,7 +320,7 @@ public static class ApplicationRestartService
 
     private static void RequestApplicationShutdown()
     {
-        Application? application = Application.Current;
+        System.Windows.Application? application = System.Windows.Application.Current;
         if (application is null)
         {
             return;
@@ -350,7 +350,7 @@ public static class ApplicationRestartService
     private static void NormalizeConsumedContext(ApplicationRestartContext context)
     {
         context.ReopenWindow = NormalizeContextValue(context.ReopenWindow, maxLength: 64);
-        context.AdvancedOptionsTabKey = NormalizeContextValue(context.AdvancedOptionsTabKey, maxLength: 128);
+        context.OptionsTabKey = NormalizeContextValue(context.OptionsTabKey, maxLength: 128);
 
         if (context.MainWindowState is not WindowState.Normal and not WindowState.Maximized)
         {

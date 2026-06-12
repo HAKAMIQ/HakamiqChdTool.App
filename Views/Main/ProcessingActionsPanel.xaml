@@ -13,7 +13,7 @@
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
             <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
             <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-            <Setter Property="TextAlignment" Value="{DynamicResource AdvancedOptions.SettingsTextAlignment}" />
+            <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="MinWidth" Value="0" />
@@ -69,35 +69,22 @@
                                 CornerRadius="{DynamicResource Radius.Card}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
-
                             <Grid FlowDirection="{TemplateBinding FlowDirection}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
                                   SnapsToDevicePixels="True">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0"
-                                        Width="{DynamicResource Space.3}"
-                                        Height="{DynamicResource Space.18}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Background="{DynamicResource Brush.Accent}"
-                                        CornerRadius="{DynamicResource Radius.AccentLine}"
-                                        IsHitTestVisible="False"
-                                        SnapsToDevicePixels="True" />
-
-                                <TextBlock Grid.Column="2"
+                                <TextBlock Grid.Column="0"
                                            Text="{TemplateBinding Content}"
                                            Foreground="{TemplateBinding Foreground}"
                                            Style="{StaticResource ProcessingActionsPanelActionChipText}" />
 
-                                <Viewbox Grid.Column="4"
+                                <Viewbox Grid.Column="2"
                                          Width="{DynamicResource Space.20}"
                                          Height="{DynamicResource Space.20}"
                                          HorizontalAlignment="Center"
@@ -118,22 +105,39 @@
                                     <Condition Property="IsPressed" Value="False" />
                                     <Condition Property="IsEnabled" Value="True" />
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Strong}" />
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Control.Stroke.Strong}" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.Text.Primary}" />
                             </MultiTrigger>
 
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.Accent.SelectedForeground}" />
                             </Trigger>
 
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
-                                <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Disabled}" />
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Control.Stroke.Default}" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.Text.Disabled}" />
+                                <Setter Property="Cursor"
+                                        Value="{x:Static input:Cursors.Arrow}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -165,7 +169,6 @@
                 HorizontalAlignment="Stretch"
                 FlowDirection="{DynamicResource App.FlowDirection}"
                 Visibility="{Binding IsRedumpFeatureVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-
             <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                   SnapsToDevicePixels="True">
                 <Grid.RowDefinitions>
@@ -193,7 +196,8 @@
                     <TextBlock Grid.Column="2"
                                Text="{DynamicResource LocRedump_Tool_Title}"
                                ToolTip="{DynamicResource LocRedump_Tool_Subtitle}"
-                               Style="{StaticResource ProcessingActionsPanelHeaderTitleText}" TextAlignment="Center" />
+                               TextAlignment="Center"
+                               Style="{StaticResource ProcessingActionsPanelHeaderTitleText}" />
                 </Grid>
 
                 <Button Grid.Row="2"

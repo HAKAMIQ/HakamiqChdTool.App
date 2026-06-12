@@ -14,16 +14,17 @@
                    FontFamily="{DynamicResource FontFamily.Base}"
                    FontSize="{DynamicResource FontSize.Caption}"
                    FlowDirection="{DynamicResource App.FlowDirection}"
-                   TextAlignment="{DynamicResource App.TextAlignment}" />
+                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
     </DataTemplate>
 
-    <Style x:Key="FluentToolTipStyle" TargetType="{x:Type ToolTip}">
+    <Style x:Key="FluentToolTipStyle"
+           TargetType="{x:Type ToolTip}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Background" Value="{DynamicResource Brush.Background.Elevated}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.10.8}" />
         <Setter Property="MaxWidth" Value="{DynamicResource Layout.ToolTip.MaxWidth}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
@@ -43,7 +44,7 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Medium}"
+                            CornerRadius="{DynamicResource Radius.ToolTip}"
                             MaxWidth="{TemplateBinding MaxWidth}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True"
@@ -69,7 +70,7 @@
                                                FontFamily="{DynamicResource FontFamily.Base}"
                                                FontSize="{DynamicResource FontSize.Caption}"
                                                FlowDirection="{DynamicResource App.FlowDirection}"
-                                               TextAlignment="{DynamicResource App.TextAlignment}" />
+                                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
                                 </DataTemplate>
                             </ContentPresenter.Resources>
                         </ContentPresenter>
@@ -79,7 +80,8 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type ToolTip}" BasedOn="{StaticResource FluentToolTipStyle}" />
+    <Style TargetType="{x:Type ToolTip}"
+           BasedOn="{StaticResource FluentToolTipStyle}" />
 
     <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="{DynamicResource Color.Card}" />
     <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="{DynamicResource Color.Text.Primary}" />
@@ -104,14 +106,16 @@
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
-    <Style x:Key="FluentImplicitButtonStyle" TargetType="{x:Type Button}">
+    <Style x:Key="FluentImplicitButtonStyle"
+           TargetType="{x:Type Button}">
         <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.80}" />
+        <Setter Property="Padding" Value="12,5" />
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -165,16 +169,19 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource FluentImplicitButtonStyle}" />
+    <Style TargetType="{x:Type Button}"
+           BasedOn="{StaticResource FluentImplicitButtonStyle}" />
 
-    <Style x:Key="FluentImplicitToggleButtonStyle" TargetType="{x:Type primitives:ToggleButton}">
+    <Style x:Key="FluentImplicitToggleButtonStyle"
+           TargetType="{x:Type primitives:ToggleButton}">
         <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.80}" />
+        <Setter Property="Padding" Value="12,5" />
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -234,7 +241,8 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type primitives:ToggleButton}" BasedOn="{StaticResource FluentImplicitToggleButtonStyle}" />
+    <Style TargetType="{x:Type primitives:ToggleButton}"
+           BasedOn="{StaticResource FluentImplicitToggleButtonStyle}" />
 
     <Style TargetType="{x:Type ListBox}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
@@ -262,7 +270,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Small}"
+                            CornerRadius="{DynamicResource Radius.Control}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -272,7 +280,7 @@
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.HoverSurface}" />
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                         </Trigger>
 
@@ -316,6 +324,7 @@
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource QueueRowHoverBrush}" />
@@ -339,6 +348,7 @@
         <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
+
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
@@ -348,7 +358,7 @@
     </Style>
 
     <Style TargetType="{x:Type DataGridColumnHeader}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
@@ -374,7 +384,7 @@
     <Style TargetType="{x:Type MenuItem}">
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
     </Style>
@@ -398,7 +408,7 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="Template">
@@ -408,7 +418,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Small}"
+                            CornerRadius="{DynamicResource Radius.Control}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter ContentSource="Header"
@@ -420,7 +430,7 @@
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.HoverSurface}" />
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                         </Trigger>
 

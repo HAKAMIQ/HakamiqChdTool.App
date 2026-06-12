@@ -1,4 +1,4 @@
-﻿# Legal Notice
+# Legal Notice
 
 Hakamiq CHD Tool does not include or distribute games, ROMs, BIOS files, disc images, Redump databases, decryption keys, or copyrighted user content.
 

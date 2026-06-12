@@ -1,10 +1,10 @@
-using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.Models;
 using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
+
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
 
 namespace HakamiqChdTool.App.Views;
 
@@ -27,12 +27,15 @@ public partial class OrphanedCleanupDialog : Window
         ItemCountText = scanResult.Items.Count.ToString("N0", CultureInfo.CurrentCulture);
         FileCountText = scanResult.TotalFiles.ToString("N0", CultureInfo.CurrentCulture);
         ReclaimableSizeText = reclaimableSizeText;
+
         ProcessTempRootText = string.IsNullOrWhiteSpace(processTempRoot)
             ? ArabicUi.Get("LocOrphanedCleanup_TempRootUnavailable")
             : processTempRoot;
 
         InitializeComponent();
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
         AppLanguageService.ApplyToWindow(this);
+
         DataContext = this;
     }
 
@@ -48,12 +51,12 @@ public partial class OrphanedCleanupDialog : Window
 
     private void CleanButton_Click(object sender, RoutedEventArgs e)
     {
-        DialogResult = true;
+        CloseWithDialogResult(true);
     }
 
     private void SkipButton_Click(object sender, RoutedEventArgs e)
     {
-        DialogResult = false;
+        CloseWithDialogResult(false);
     }
 
     private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -63,18 +66,25 @@ public partial class OrphanedCleanupDialog : Window
             return;
         }
 
-        Dispatcher dispatcher = Dispatcher;
-        if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
-        {
-            return;
-        }
-
         try
         {
             DragMove();
+            e.Handled = true;
         }
         catch (InvalidOperationException)
         {
+        }
+    }
+
+    private void CloseWithDialogResult(bool result)
+    {
+        try
+        {
+            DialogResult = result;
+        }
+        catch (InvalidOperationException)
+        {
+            Close();
         }
     }
 }

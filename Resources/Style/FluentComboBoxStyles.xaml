@@ -1,5 +1,6 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore">
 
     <Style x:Key="FluentComboBoxToggleButtonStyle"
            TargetType="{x:Type ToggleButton}">
@@ -9,7 +10,9 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -29,7 +32,10 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -52,6 +58,7 @@
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -70,6 +77,9 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -96,7 +106,10 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -147,6 +160,10 @@
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
         <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
@@ -170,6 +187,10 @@
                                       BorderBrush="{TemplateBinding BorderBrush}"
                                       BorderThickness="{TemplateBinding BorderThickness}"
                                       Foreground="{TemplateBinding Foreground}"
+                                      FontFamily="{TemplateBinding FontFamily}"
+                                      FontSize="{TemplateBinding FontSize}"
+                                      FontWeight="{TemplateBinding FontWeight}"
+                                      Cursor="{TemplateBinding Cursor}"
                                       FlowDirection="{TemplateBinding FlowDirection}"
                                       Language="{TemplateBinding Language}"
                                       IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
@@ -196,7 +217,10 @@
                                                   RecognizesAccessKey="True"
                                                   FlowDirection="{TemplateBinding FlowDirection}"
                                                   Language="{TemplateBinding Language}"
-                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+                                                  TextElement.Foreground="{TemplateBinding Foreground}"
+                                                  TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                                  TextElement.FontSize="{TemplateBinding FontSize}"
+                                                  TextElement.FontWeight="{TemplateBinding FontWeight}" />
 
                                 <TextBox x:Name="PART_EditableTextBox"
                                          Grid.Column="0"
@@ -215,10 +239,12 @@
                                          FontWeight="{TemplateBinding FontWeight}"
                                          FlowDirection="{TemplateBinding FlowDirection}"
                                          Language="{TemplateBinding Language}"
-                                         TextAlignment="{DynamicResource App.TextAlignment}"
+                                         TextAlignment="{DynamicResource App.DefaultTextAlignment}"
                                          FocusVisualStyle="{x:Null}"
                                          IsReadOnly="{TemplateBinding IsReadOnly}"
-                                         Visibility="Hidden" />
+                                         Visibility="Hidden"
+                                         SnapsToDevicePixels="True"
+                                         UseLayoutRounding="True" />
 
                                 <Viewbox Grid.Column="1"
                                          Width="{DynamicResource Space.10}"
@@ -227,11 +253,13 @@
                                          VerticalAlignment="Center"
                                          FlowDirection="LeftToRight"
                                          Stretch="Uniform"
-                                         IsHitTestVisible="False">
+                                         IsHitTestVisible="False"
+                                         SnapsToDevicePixels="True">
                                     <Path x:Name="Chevron"
                                           Data="{StaticResource Icon.ChevronDown}"
                                           Fill="{DynamicResource Brush.Text.Secondary}"
-                                          Stretch="Uniform" />
+                                          Stretch="Uniform"
+                                          SnapsToDevicePixels="True" />
                                 </Viewbox>
                             </Grid>
                         </ToggleButton>
@@ -256,7 +284,7 @@
                                         Background="{DynamicResource ComboBoxPopupBackgroundBrush}"
                                         BorderBrush="{DynamicResource ComboBoxPopupBorderBrush}"
                                         BorderThickness="{DynamicResource Inset.1.All}"
-                                        CornerRadius="{DynamicResource Radius.Control}"
+                                        CornerRadius="{DynamicResource Radius.Menu}"
                                         Language="{TemplateBinding Language}"
                                         SnapsToDevicePixels="True"
                                         UseLayoutRounding="True">
@@ -267,7 +295,9 @@
                                                   PanningMode="VerticalOnly"
                                                   Focusable="False"
                                                   FlowDirection="{TemplateBinding FlowDirection}"
-                                                  Language="{TemplateBinding Language}">
+                                                  Language="{TemplateBinding Language}"
+                                                  SnapsToDevicePixels="True"
+                                                  UseLayoutRounding="True">
                                         <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
                                     </ScrollViewer>
                                 </Border>
@@ -307,6 +337,7 @@
                             <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
                             <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                             <Setter Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                             <Setter TargetName="Chevron" Property="Fill" Value="{DynamicResource Brush.Text.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>

@@ -507,7 +507,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
                 OnPropertyChanged(nameof(ShowInlineFixedAction));
                 OnPropertyChanged(nameof(ShowOperationCombo));
                 OnPropertyChanged(nameof(ShowActionPlaceholder));
-                RefreshPipelinePresentation();
+                RefreshPipelineView();
                 NotifyUiCardLayoutProperties();
             }
         }
@@ -587,7 +587,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
 
     public string SubStatusDisplay => string.IsNullOrWhiteSpace(StatusDetail)
         ? ArabicUi.Get("LocState_Idle")
-        : StatusDetail;
+        : ArabicUi.ResolveDisplayString(StatusDetail);
 
     public bool IsNamingCompliant
     {
@@ -864,7 +864,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
         }
     }
 
-    public void RefreshPipelinePresentation()
+    public void RefreshPipelineView()
     {
         Pipeline.FileName = FileName;
         Pipeline.Progress = (int)Math.Round(Math.Clamp(ProgressValue, 0, 100));

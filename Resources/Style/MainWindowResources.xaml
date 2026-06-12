@@ -8,20 +8,28 @@
 
     <SolidColorBrush x:Key="Brush.CaptionButton.Standard.Hover"
                      Color="#1A808080" />
+
     <SolidColorBrush x:Key="Brush.CaptionButton.Standard.Pressed"
                      Color="#26808080" />
+
     <SolidColorBrush x:Key="Brush.CaptionButton.Standard.Focus"
                      Color="#14808080" />
 
-    <SolidColorBrush x:Key="Brush.CaptionButton.Close.Hover" Color="{DynamicResource Color.CaptionButton.Close.Hover}" />
-    <SolidColorBrush x:Key="Brush.CaptionButton.Close.Pressed" Color="{DynamicResource Color.CaptionButton.Close.Pressed}" />
-    <SolidColorBrush x:Key="Brush.CaptionButton.Close.Foreground" Color="{DynamicResource Color.CaptionButton.Close.Foreground}" />
+    <SolidColorBrush x:Key="Brush.CaptionButton.Close.Hover"
+                     Color="{DynamicResource Color.CaptionButton.Close.Hover}" />
+
+    <SolidColorBrush x:Key="Brush.CaptionButton.Close.Pressed"
+                     Color="{DynamicResource Color.CaptionButton.Close.Pressed}" />
+
+    <SolidColorBrush x:Key="Brush.CaptionButton.Close.Foreground"
+                     Color="{DynamicResource Color.CaptionButton.Close.Foreground}" />
 
     <Style x:Key="CaptionBtnStyle"
            TargetType="{x:Type Button}">
-        <Setter Property="Width" Value="{DynamicResource Space.40}" />
+        <Setter Property="Width" Value="46" />
         <Setter Property="Height" Value="{DynamicResource Space.32}" />
-        <Setter Property="MinWidth" Value="{DynamicResource Space.40}" />
+        <Setter Property="MinWidth" Value="46" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
         <Setter Property="Margin" Value="{DynamicResource Inset.None}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
@@ -38,6 +46,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="FlowDirection" Value="LeftToRight" />
+        <Setter Property="Language" Value="en-US" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
@@ -49,12 +58,14 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="{DynamicResource Radius.None}"
+                            Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"
                             UseLayoutRounding="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                           RecognizesAccessKey="True"
                                           FlowDirection="LeftToRight"
+                                          Language="{TemplateBinding Language}"
                                           TextElement.Foreground="{TemplateBinding Foreground}"
                                           TextElement.FontFamily="{TemplateBinding FontFamily}"
                                           TextElement.FontSize="{TemplateBinding FontSize}"
@@ -63,24 +74,37 @@
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.CaptionButton.Standard.Hover}" />
-                            <Setter Property="Foreground" Value="{DynamicResource HeaderChromeForegroundBrush}" />
+                            <Setter TargetName="Chrome"
+                                    Property="Background"
+                                    Value="{DynamicResource Brush.CaptionButton.Standard.Hover}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource HeaderChromeForegroundBrush}" />
                         </Trigger>
 
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.CaptionButton.Standard.Pressed}" />
-                            <Setter Property="Foreground" Value="{DynamicResource HeaderChromeForegroundBrush}" />
+                            <Setter TargetName="Chrome"
+                                    Property="Background"
+                                    Value="{DynamicResource Brush.CaptionButton.Standard.Pressed}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource HeaderChromeForegroundBrush}" />
                         </Trigger>
 
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.CaptionButton.Standard.Focus}" />
-                            <Setter Property="Foreground" Value="{DynamicResource HeaderChromeForegroundBrush}" />
+                            <Setter TargetName="Chrome"
+                                    Property="Background"
+                                    Value="{DynamicResource Brush.CaptionButton.Standard.Focus}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource HeaderChromeForegroundBrush}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Transparent}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
-                            <Setter Property="Cursor" Value="Arrow" />
+                            <Setter TargetName="Chrome"
+                                    Property="Background"
+                                    Value="{DynamicResource Brush.Transparent}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="Cursor"
+                                    Value="Arrow" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -100,6 +124,7 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="{DynamicResource Radius.None}"
+                            Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"
                             UseLayoutRounding="True">
                         <Path Width="{DynamicResource Space.10}"
@@ -107,34 +132,49 @@
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center"
                               Data="M 0 0 L 10 10 M 10 0 L 0 10"
+                              FlowDirection="LeftToRight"
                               Stretch="Uniform"
                               Stroke="{TemplateBinding Foreground}"
                               StrokeThickness="1.35"
                               StrokeStartLineCap="Round"
                               StrokeEndLineCap="Round"
+                              StrokeLineJoin="Round"
                               SnapsToDevicePixels="True" />
                     </Border>
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="CloseChrome" Property="Background" Value="{DynamicResource Brush.CaptionButton.Close.Hover}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.CaptionButton.Close.Foreground}" />
+                            <Setter TargetName="CloseChrome"
+                                    Property="Background"
+                                    Value="{DynamicResource Brush.CaptionButton.Close.Hover}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource Brush.CaptionButton.Close.Foreground}" />
                         </Trigger>
 
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="CloseChrome" Property="Background" Value="{DynamicResource Brush.CaptionButton.Close.Pressed}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.CaptionButton.Close.Foreground}" />
+                            <Setter TargetName="CloseChrome"
+                                    Property="Background"
+                                    Value="{DynamicResource Brush.CaptionButton.Close.Pressed}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource Brush.CaptionButton.Close.Foreground}" />
                         </Trigger>
 
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="CloseChrome" Property="Background" Value="{DynamicResource Brush.CaptionButton.Standard.Focus}" />
-                            <Setter Property="Foreground" Value="{DynamicResource HeaderChromeForegroundBrush}" />
+                            <Setter TargetName="CloseChrome"
+                                    Property="Background"
+                                    Value="{DynamicResource Brush.CaptionButton.Standard.Focus}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource HeaderChromeForegroundBrush}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="CloseChrome" Property="Background" Value="{DynamicResource Brush.Transparent}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
-                            <Setter Property="Cursor" Value="Arrow" />
+                            <Setter TargetName="CloseChrome"
+                                    Property="Background"
+                                    Value="{DynamicResource Brush.Transparent}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="Cursor"
+                                    Value="Arrow" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

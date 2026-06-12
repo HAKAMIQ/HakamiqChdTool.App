@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HakamiqChdTool.App.Coordination;
+using HakamiqChdTool.App.QueueRun;
 using HakamiqChdTool.App.Localization;
 using System;
 using System.Collections;
@@ -13,7 +13,7 @@ namespace HakamiqChdTool.App.ViewModels;
 public partial class MainWindowViewModel : ObservableObject, IDisposable
 {
     private readonly IMainWindowSession _session;
-    private readonly IAppSessionCoordinator _coordinator;
+    private readonly IQueueRunCoordinator _coordinator;
     private readonly INotifyCollectionChanged? _observableQueueItems;
     private bool _disposed;
     private bool _isRedumpFeatureVisible;
@@ -48,7 +48,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     public MainWindowViewModel(
         IMainWindowSession session,
-        IAppSessionCoordinator coordinator,
+        IQueueRunCoordinator coordinator,
         IList queueItems)
     {
         _session = session ?? throw new ArgumentNullException(nameof(session));
@@ -61,7 +61,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             _observableQueueItems.CollectionChanged += OnQueueItemsCollectionChanged;
         }
 
-        _coordinator.SessionStateChanged += OnCoordinatorSessionStateChanged;
+        _coordinator.RunStateChanged += OnQueueRunStateChanged;
 
         OpenOutputFolderCommand = new RelayCommand(
             () => _session.OpenExplorerForSelectedQueueItem(SelectedTask),
@@ -95,7 +95,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             item => _session.RunRedumpIntegrityForSelectedQueueItemAsync(item ?? SelectedTask),
             item => IsRedumpFeatureVisible && _session.CanRunRedumpIntegrityForSelectedQueueItem(item ?? SelectedTask));
 
-        ShowRedumpDetailsCommand = new RelayCommand<TaskQueueItemViewModel?>(
+        ShowRedumpDetailsCommand = new AsyncRelayCommand<TaskQueueItemViewModel?>(
             item => _session.ShowRedumpDetails(item ?? SelectedTask),
             item => IsRedumpFeatureVisible && (item ?? SelectedTask) is not null);
 
@@ -137,8 +137,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             () => _coordinator.ScanFolderQuickExtractAsync(),
             () => CanAcceptQueueInput());
 
-        OpenAdvancedOptionsCommand = new RelayCommand(
-            () => _session.OpenAdvancedOptions(),
+        OpenOptionsCommand = new RelayCommand(
+            () => _session.OpenOptions(),
             () => !_session.IsQueueInteractionLocked);
 
         OpenAboutCommand = new RelayCommand(
@@ -182,7 +182,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     public IAsyncRelayCommand VerifySelectedRedumpToolbarCommand { get; }
     public IAsyncRelayCommand VerifyAllRedumpToolbarCommand { get; }
     public IAsyncRelayCommand<TaskQueueItemViewModel?> VerifyRowRedumpCommand { get; }
-    public IRelayCommand<TaskQueueItemViewModel?> ShowRedumpDetailsCommand { get; }
+    public IAsyncRelayCommand<TaskQueueItemViewModel?> ShowRedumpDetailsCommand { get; }
     public IAsyncRelayCommand<TaskQueueItemViewModel?> ApplyRedumpSuggestedNameCommand { get; }
     public IAsyncRelayCommand VerifySelectedToolbarCommand { get; }
     public IRelayCommand RemoveSelectedCommand { get; }
@@ -192,7 +192,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     public IAsyncRelayCommand QuickExtractCommand { get; }
     public IAsyncRelayCommand ScanFolderQuickConvertCommand { get; }
     public IAsyncRelayCommand ScanFolderQuickExtractCommand { get; }
-    public IRelayCommand OpenAdvancedOptionsCommand { get; }
+    public IRelayCommand OpenOptionsCommand { get; }
     public IRelayCommand OpenAboutCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> RetryQueueItemCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> RemoveQueueItemCommand { get; }
@@ -233,7 +233,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         RetryQueueItemCommand.NotifyCanExecuteChanged();
         RemoveQueueItemCommand.NotifyCanExecuteChanged();
         CancelQueueJobCommand.NotifyCanExecuteChanged();
-        OpenAdvancedOptionsCommand.NotifyCanExecuteChanged();
+        OpenOptionsCommand.NotifyCanExecuteChanged();
         OpenAboutCommand.NotifyCanExecuteChanged();
         SelectFilesCommand.NotifyCanExecuteChanged();
         CancelAddingFilesCommand.NotifyCanExecuteChanged();
@@ -268,14 +268,14 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             _observableQueueItems.CollectionChanged -= OnQueueItemsCollectionChanged;
         }
 
-        _coordinator.SessionStateChanged -= OnCoordinatorSessionStateChanged;
+        _coordinator.RunStateChanged -= OnQueueRunStateChanged;
         _intakeCancellationCts?.Cancel();
         _intakeCancellationCts?.Dispose();
         _intakeCancellationCts = null;
         GC.SuppressFinalize(this);
     }
 
-    private void OnCoordinatorSessionStateChanged()
+    private void OnQueueRunStateChanged()
     {
         NotifyQueueCommandsCanExecuteChanged();
     }

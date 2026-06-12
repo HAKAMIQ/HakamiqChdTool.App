@@ -49,8 +49,8 @@ public sealed class ProcessingStateToBrushConverter : IValueConverter
 
     private static object ResolveBrush(string key)
     {
-        return Application.Current?.TryFindResource(key) as Brush
-            ?? Application.Current?.TryFindResource("Brush.Text.Secondary") as Brush
+        return System.Windows.Application.Current?.TryFindResource(key) as Brush
+            ?? System.Windows.Application.Current?.TryFindResource("Brush.Text.Secondary") as Brush
             ?? DependencyProperty.UnsetValue;
     }
 }

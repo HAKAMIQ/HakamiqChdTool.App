@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using HakamiqChdTool.App.Localization;
 using System.Windows.Media;

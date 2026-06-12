@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -44,28 +44,29 @@ public sealed record QueueIntakeAdvisory(
         QueueIntakeAdvisoryAction.Unknown,
         0,
         false,
-        Array.Empty<QueueIntakeAdvisoryReason>(),
-        Array.Empty<QueueIntakeAdvisoryReason>(),
+        [],
+        [],
         null,
         null,
         null,
         null,
         null);
 
-    private static IReadOnlyList<QueueIntakeAdvisoryReason> NormalizeReasons(
+    private static QueueIntakeAdvisoryReason[] NormalizeReasons(
         IEnumerable<QueueIntakeAdvisoryReason>? reasons)
     {
         if (reasons is null)
         {
-            return Array.Empty<QueueIntakeAdvisoryReason>();
+            return [];
         }
 
-        QueueIntakeAdvisoryReason[] normalized = reasons
-            .Where(static reason => reason is not null)
-            .ToArray();
+        QueueIntakeAdvisoryReason[] normalized =
+        [
+            .. reasons.Where(static reason => reason is not null)
+        ];
 
         return normalized.Length == 0
-            ? Array.Empty<QueueIntakeAdvisoryReason>()
+            ? []
             : normalized;
     }
 

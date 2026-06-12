@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Models;
 using System;
 
 namespace HakamiqChdTool.App.Services;

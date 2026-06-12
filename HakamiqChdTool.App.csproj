@@ -1,19 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<AssemblyName>HakamiqChdTool</AssemblyName>
 		<RootNamespace>HakamiqChdTool.App</RootNamespace>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+		<RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+		<LangVersion>12.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<AnalysisLevel>latest</AnalysisLevel>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Resources\HakamiqLogo.ico</ApplicationIcon>
-		<Version>1.0.4</Version>
-		<AssemblyVersion>1.0.4.0</AssemblyVersion>
-		<FileVersion>1.0.4.0</FileVersion>
-		<InformationalVersion>v1.0.4</InformationalVersion>
+		<Version>1.0.5</Version>
+		<AssemblyVersion>1.0.5.0</AssemblyVersion>
+		<FileVersion>1.0.5.0</FileVersion>
+		<InformationalVersion>v1.0.5</InformationalVersion>
 		<Product>Hakamiq CHD Tool</Product>
 		<Company>Hakamiq</Company>
 		<Description>إدارة وتحويل صور الأقراص بصيغة CHD عبر chdman</Description>
@@ -23,14 +25,14 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
-		<SelfContained>true</SelfContained>
+		<SelfContained>false</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<PublishSingleFile>false</PublishSingleFile>
-		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<PublishReadyToRun>false</PublishReadyToRun>
 		<PublishTrimmed>false</PublishTrimmed>
 		<DebugSymbols>false</DebugSymbols>
 		<DebugType>none</DebugType>
+		<UseAppHost>true</UseAppHost>
 		<SatelliteResourceLanguages>ar-SA</SatelliteResourceLanguages>
 	</PropertyGroup>
 
@@ -46,56 +48,56 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Page Remove="Views\AdvancedOptions\GeneralSettingsView.xaml" />
-		<Page Remove="Views\AdvancedOptions\PathsSettingsView.xaml" />
-		<Page Remove="Views\AdvancedOptions\RedumpSettingsView.xaml" />
-		<Page Remove="Views\AdvancedOptions\ProcessingSettingsView.xaml" />
-		<Page Remove="Views\AdvancedOptions\PerformanceSettingsView.xaml" />
-		<Compile Remove="Views\AdvancedOptions\GeneralSettingsView.xaml.cs" />
-		<Compile Remove="Views\AdvancedOptions\PathsSettingsView.xaml.cs" />
-		<Compile Remove="Views\AdvancedOptions\RedumpSettingsView.xaml.cs" />
-		<Compile Remove="Views\AdvancedOptions\ProcessingSettingsView.xaml.cs" />
-		<Compile Remove="Views\AdvancedOptions\PerformanceSettingsView.xaml.cs" />
+		<Page Remove="Views\Options\GeneralSettingsView.xaml" />
+		<Page Remove="Views\Options\PathsSettingsView.xaml" />
+		<Page Remove="Views\Options\RedumpSettingsView.xaml" />
+		<Page Remove="Views\Options\ProcessingSettingsView.xaml" />
+		<Page Remove="Views\Options\PerformanceSettingsView.xaml" />
+		<Compile Remove="Views\Options\GeneralSettingsView.xaml.cs" />
+		<Compile Remove="Views\Options\PathsSettingsView.xaml.cs" />
+		<Compile Remove="Views\Options\RedumpSettingsView.xaml.cs" />
+		<Compile Remove="Views\Options\ProcessingSettingsView.xaml.cs" />
+		<Compile Remove="Views\Options\PerformanceSettingsView.xaml.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Page Include="Views\AdvancedOptions\GeneralSettingsView.xaml">
+		<Page Include="Views\Options\GeneralSettingsView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\AdvancedOptions\PathsSettingsView.xaml">
+		<Page Include="Views\Options\PathsSettingsView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\AdvancedOptions\RedumpSettingsView.xaml">
+		<Page Include="Views\Options\RedumpSettingsView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\AdvancedOptions\ProcessingSettingsView.xaml">
+		<Page Include="Views\Options\ProcessingSettingsView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\AdvancedOptions\PerformanceSettingsView.xaml">
+		<Page Include="Views\Options\PerformanceSettingsView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Compile Include="Views\AdvancedOptions\GeneralSettingsView.xaml.cs">
+		<Compile Include="Views\Options\GeneralSettingsView.xaml.cs">
 			<DependentUpon>GeneralSettingsView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\AdvancedOptions\PathsSettingsView.xaml.cs">
+		<Compile Include="Views\Options\PathsSettingsView.xaml.cs">
 			<DependentUpon>PathsSettingsView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\AdvancedOptions\RedumpSettingsView.xaml.cs">
+		<Compile Include="Views\Options\RedumpSettingsView.xaml.cs">
 			<DependentUpon>RedumpSettingsView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\AdvancedOptions\ProcessingSettingsView.xaml.cs">
+		<Compile Include="Views\Options\ProcessingSettingsView.xaml.cs">
 			<DependentUpon>ProcessingSettingsView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\AdvancedOptions\PerformanceSettingsView.xaml.cs">
+		<Compile Include="Views\Options\PerformanceSettingsView.xaml.cs">
 			<DependentUpon>PerformanceSettingsView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
@@ -105,6 +107,7 @@
 		<EmbeddedResource Include="Tools\chdman.exe">
 			<LogicalName>HakamiqChdTool.App.Tools.chdman.exe</LogicalName>
 		</EmbeddedResource>
+
 
 		<Resource Include="Resources\HakamiqLogo.png">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -116,78 +119,74 @@
 		<None Include="Resources\HakamiqLogo.png" Pack="true" PackagePath="\" Visible="false" />
 
 		<Content Include="README.md">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
 		<Content Include="LICENSE">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
 		<Content Include="docs\legal\LEGAL.md">
 			<TargetPath>LEGAL.md</TargetPath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
 		<Content Include="docs\legal\THIRD_PARTY_NOTICES.txt">
 			<TargetPath>THIRD_PARTY_NOTICES.txt</TargetPath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
 		<Content Include="docs\legal\CHDMAN_NOTICE.md">
 			<TargetPath>CHDMAN_NOTICE.md</TargetPath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
 		<Content Include="docs\legal\SEVENZIP_NOTICE.md">
 			<TargetPath>SEVENZIP_NOTICE.md</TargetPath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 		<Content Include="docs\release-notes\CHANGELOG.md">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
 		<Content Include="docs\legal\MAME_COPYING.txt">
 			<TargetPath>MAME_COPYING.txt</TargetPath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
 		<Content Include="docs\legal\MAME_GPL-2.0.txt">
 			<TargetPath>MAME_GPL-2.0.txt</TargetPath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
 
 		<Content Include="Tools\chd_reader_tool.exe" Condition="Exists('Tools\chd_reader_tool.exe')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 
 		<Content Include="Tools\7zip\7z.exe" Condition="Exists('Tools\7zip\7z.exe')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 
 		<Content Include="Tools\7zip\7z.dll" Condition="Exists('Tools\7zip\7z.dll')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 
 		<Content Include="Tools\7zip\License.txt" Condition="Exists('Tools\7zip\License.txt')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 	</ItemGroup>
 
