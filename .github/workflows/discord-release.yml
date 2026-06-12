@@ -1,4 +1,4 @@
-﻿name: Notify Discord on Release
+name: Notify Discord on Release
 
 on:
   release:
@@ -8,10 +8,13 @@ concurrency:
   group: discord-release-${{ github.event.release.id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   notify-discord:
     name: Send Discord release notification
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Send Discord release notification
