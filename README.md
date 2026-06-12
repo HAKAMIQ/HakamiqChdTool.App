@@ -1,77 +1,59 @@
 # Hakamiq CHD Tool
 
-Hakamiq CHD Tool is a Windows x64 WPF desktop app for CHD workflows built around MAME `chdman`.
+Hakamiq CHD Tool is a Windows x64 WPF desktop application for CHD conversion, verification, extraction, archive intake, and queue-based disc image workflows built around MAME chdman.
 
-It supports queue-based conversion, verification, extraction, archive intake, and optional local Redump-assisted validation for users managing their own legally obtained disc images.
+The tool is designed for safe local processing, clear per-item results, readable validation feedback, and professional end-user release packaging.
 
-## Release
+Current public release: Windows x64 WPF desktop release.
 
-The public release is one unified build with no activation, license keys, store gates, or paid feature restrictions.
+## What this tool focuses on
 
-Available packages:
-
-* `self-contained`: ready to run.
-* `runtime-required`: smaller package; requires .NET 8 Desktop Runtime.
-
-## Features
+The application focuses on:
 
 * ISO / CUE / GDI to CHD workflows
-* CHD verification with `chdman verify`
+* CHD verification
 * CHD extraction where supported
-* ZIP / RAR / 7Z intake where supported
-* Queue processing with cancellation and per-item status
-* Optional local Redump-assisted validation and naming
-* Embedded `chdman` with optional external `chdman.exe`
-* Arabic / English UI with RTL / LTR support
-* Light, Dark, and HAKAMIQ themes
-* Serilog file logging
+* Archive intake where supported
+* Queue-based processing
+* Output safety checks
+* Cancel and failure separation
+* Redump metadata display
+* Storage and temperature advisory
+* Arabic / English UI support
+* RTL interface with LTR technical paths
+* Clean end-user release packaging
 
-## Requirements
+## Supported direction
 
-* Windows 10 1809 or later; Windows 11 recommended
-* Windows x64
-* .NET 8 Desktop Runtime for the `runtime-required` package only
+The project is WPF-only.
 
-## Build
+Avalonia, web UI, cloud conversion, and server-side conversion are not part of the current application direction.
 
-```powershell
-dotnet restore .\HakamiqChdTool.App.csproj -r win-x64
-dotnet build .\HakamiqChdTool.App.csproj -c Debug --no-restore
-dotnet build .\HakamiqChdTool.App.csproj -c Release -r win-x64 --no-restore
-```
+## Notes about PS3
 
-## Publish
+Sony PlayStation 3 support is experimental.
 
-```powershell
-.\scripts\Publish-EndUserRelease.ps1
-.\scripts\Verify-Local.ps1
-```
+The tool may analyze and classify PS3-related inputs, but PS3 conversion behavior must remain conservative and safety-first.
 
-Smoke test checklist:
+## Release package
 
-```text
-docs/SMOKE_TEST_CHECKLIST.md
-```
+End-user releases should contain only the published application output.
 
-## Legal
+Source files, repository scripts, CI folders, test files, and development artifacts are not part of the user release package.
 
-This project does not include games, ROMs, BIOS files, copyrighted disc images, decryption keys, firmware, Disc Keys, or Redump databases.
+## Documentation
 
-Users are responsible for processing only files they are legally allowed to use.
+Use this Wiki for:
 
-Hakamiq CHD Tool uses `chdman` from the MAME project and is not affiliated with, sponsored by, or endorsed by MAMEdev.
+* User guide
+* Installation
+* Supported formats
+* PS3 experimental support
+* Troubleshooting
+* Release packaging
+* Known limitations
+* Developer architecture notes
 
-See:
+## Project identity
 
-```text
-docs/legal/CHDMAN_NOTICE.md
-docs/legal/THIRD_PARTY_NOTICES.txt
-```
-
-## License
-
-Original Hakamiq CHD Tool source code is licensed under the MIT License. See `LICENSE`.
-
-Third-party components are distributed under their own licenses.
-
-The HAKAMIQ name, logo, and official branding are not licensed under the MIT License. Official releases are distributed only through the HAKAMIQ GitHub repository.
+Hakamiq CHD Tool is part of the HAKAMIQ ecosystem for emulator-focused tools, media preparation, and clean Windows desktop utilities.
