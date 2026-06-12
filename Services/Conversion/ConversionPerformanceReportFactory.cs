@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Storage;
 using System;
@@ -5,27 +6,6 @@ using System.Globalization;
 using System.Text;
 
 namespace HakamiqChdTool.App.Services.Conversion;
-
-public sealed record ConversionPerformanceReport(
-    long InputBytes,
-    long OutputBytes,
-    double CompressionRatio,
-    long SavedBytes,
-    TimeSpan ChdmanDuration,
-    TimeSpan VerifyDuration,
-    double AverageOutputMBps,
-    int NumProcessors,
-    string CompressionCodecs,
-    int? HunkSizeBytes,
-    bool SourceAndOutputSameVolume,
-    bool SourceIsExternal,
-    bool OutputIsExternal,
-    bool PowerGuardEnabled,
-    bool TemperatureAvailable,
-    string TemperatureCapability,
-    int? MaxTemperatureCelsius,
-    bool HadInputReadWarning,
-    string? CompressionExplanationKey);
 
 internal sealed class ConversionPerformanceReportFactory
 {
@@ -71,7 +51,25 @@ internal sealed class ConversionPerformanceReportFactory
             averageOutputMBps,
             conversion.NumProcessors,
             string.IsNullOrWhiteSpace(conversion.CompressionCodecs) ? "default" : conversion.CompressionCodecs,
+            string.IsNullOrWhiteSpace(conversion.RequestedCompressionPreset) ? "default" : conversion.RequestedCompressionPreset,
+            string.IsNullOrWhiteSpace(conversion.ResolvedCompressionCodecs) ? "default" : conversion.ResolvedCompressionCodecs,
+            string.IsNullOrWhiteSpace(conversion.EffectiveCompressionCodecs)
+                ? (string.IsNullOrWhiteSpace(conversion.CompressionCodecs) ? "default" : conversion.CompressionCodecs)
+                : conversion.EffectiveCompressionCodecs,
+            conversion.EffectiveCompressionSameAsMameDefault,
+            conversion.CompressionTruthNoteKey,
             conversion.HunkSizeBytes,
+            string.IsNullOrWhiteSpace(conversion.RequestedProfile) ? "auto" : conversion.RequestedProfile,
+            string.IsNullOrWhiteSpace(conversion.ResolvedCommand) ? "unknown" : conversion.ResolvedCommand,
+            string.IsNullOrWhiteSpace(conversion.ResolvedCompression) ? "default" : conversion.ResolvedCompression,
+            conversion.ResolvedHunkSize,
+            string.IsNullOrWhiteSpace(conversion.EffectiveCompression)
+                ? (string.IsNullOrWhiteSpace(conversion.EffectiveCompressionCodecs) ? "default" : conversion.EffectiveCompressionCodecs)
+                : conversion.EffectiveCompression,
+            conversion.EffectiveHunkSize,
+            conversion.SameAsMameDefault || conversion.EffectiveCompressionSameAsMameDefault,
+            conversion.CompatibilityNotes,
+            conversion.ChdmanVersion,
             topology.SourceAndFinalOutputSameVolume,
             topology.SourceIsExternal,
             topology.OutputIsExternal,
@@ -98,6 +96,25 @@ public static class ConversionPerformanceReportFormatter
         builder.AppendLine("وقت التحويل: " + FormatDuration(report.ChdmanDuration));
         builder.AppendLine("وقت التحقق: " + FormatDuration(report.VerifyDuration));
         builder.AppendLine("عدد مسارات الضغط: " + (report.NumProcessors > 0 ? report.NumProcessors.ToString(CultureInfo.InvariantCulture) : "افتراضي"));
+        builder.AppendLine("RequestedProfile: " + FormatInvariant(report.RequestedProfile));
+        builder.AppendLine("ResolvedCommand: " + FormatInvariant(report.ResolvedCommand));
+        builder.AppendLine("ResolvedCompression: " + FormatInvariant(report.ResolvedCompression));
+        builder.AppendLine("ResolvedHunkSize: " + FormatNullableHunk(report.ResolvedHunkSize));
+        builder.AppendLine("EffectiveCompression: " + FormatInvariant(report.EffectiveCompression));
+        builder.AppendLine("EffectiveHunkSize: " + FormatNullableHunk(report.EffectiveHunkSize));
+        builder.AppendLine("SameAsMameDefault: " + FormatBoolInvariant(report.SameAsMameDefault));
+        builder.AppendLine("CompatibilityNotes: " + FormatInvariant(report.CompatibilityNotes));
+        builder.AppendLine("ChdmanVersion: " + FormatInvariant(report.ChdmanVersion));
+        if (!string.IsNullOrWhiteSpace(report.RequestedCompressionPreset))
+        {
+            builder.AppendLine("وضع الضغط المطلوب: " + FormatCompressionPreset(report.RequestedCompressionPreset));
+            builder.AppendLine("ضغط CHD المطبق: " + (string.IsNullOrWhiteSpace(report.EffectiveCompressionCodecs) ? report.CompressionCodecs : report.EffectiveCompressionCodecs));
+
+            if (report.EffectiveCompressionSameAsMameDefault && string.Equals(report.RequestedCompressionPreset, "max", StringComparison.OrdinalIgnoreCase))
+            {
+                builder.AppendLine("ملاحظة الضغط: قد لا يتغير الحجم لأن ضغط MAME الافتراضي للـ CD يستخدم CD LZMA بالفعل.");
+            }
+        }
         builder.AppendLine("المصدر والخرج على نفس القرص: " + FormatYesNo(report.SourceAndOutputSameVolume));
         builder.AppendLine("SourceExternal: " + FormatBoolInvariant(report.SourceIsExternal));
         builder.AppendLine("OutputExternal: " + FormatBoolInvariant(report.OutputIsExternal));
@@ -114,7 +131,23 @@ public static class ConversionPerformanceReportFormatter
 
     private static string FormatYesNo(bool value) => value ? "نعم" : "لا";
 
+    private static string FormatCompressionPreset(string value) => value.ToLowerInvariant() switch
+    {
+        "default" => "افتراضي من MAME",
+        "fast" => "سريع",
+        "balanced" => "متوازن",
+        "max" => "LZMA",
+        "explicit" => "مخصص",
+        _ => value
+    };
+
     private static string FormatBoolInvariant(bool value) => value ? "true" : "false";
+
+    private static string FormatInvariant(string? value) => string.IsNullOrWhiteSpace(value) ? "-" : value.Trim();
+
+    private static string FormatNullableHunk(int? value) => value is > 0
+        ? value.GetValueOrDefault().ToString(CultureInfo.InvariantCulture)
+        : "default";
 
     private static string FormatTemperature(ConversionPerformanceReport report)
     {

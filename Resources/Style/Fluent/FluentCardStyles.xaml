@@ -2,11 +2,12 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Style x:Key="FluentSidebarSectionCard" TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
@@ -17,6 +18,7 @@
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
@@ -26,7 +28,8 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.18.All}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
@@ -35,30 +38,33 @@
            TargetType="{x:Type Border}"
            BasedOn="{StaticResource FluentMiniStatCard}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.18.All}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
     </Style>
 
     <Style x:Key="FluentToolsCard"
            TargetType="{x:Type Border}"
            BasedOn="{StaticResource FluentActionCard}">
-        <Setter Property="Padding" Value="{DynamicResource Inset.18.All}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
     </Style>
 
     <Style x:Key="FluentProcessingActionCard"
            TargetType="{x:Type Border}"
            BasedOn="{StaticResource FluentMiniStatCard}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.14.12}" />
     </Style>
 
     <Style x:Key="FluentFooterStatusStrip" TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.1.0.0}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.16.10}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
@@ -66,38 +72,48 @@
     <Style x:Key="FluentSidePanelCard"
            TargetType="{x:Type Border}"
            BasedOn="{StaticResource FluentSidebarSectionCard}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
     </Style>
 
     <Style x:Key="FluentSettingsSummaryLabel" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
         <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.4}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
     <Style x:Key="FluentSettingsSummaryValue" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextTrimming" Value="None" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
     <Style x:Key="FluentWorkflowFactCard" TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
@@ -119,19 +135,20 @@
     </Style>
 
     <Style x:Key="FluentFooterSessionCapsule" TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.1.0.0}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.16.10}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
     <Style x:Key="FluentHeaderThemeCluster" TargetType="{x:Type Border}">
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.HeaderCluster}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.4.All}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
@@ -146,42 +163,47 @@
         <Setter Property="Foreground" Value="{DynamicResource HeaderChromeForegroundBrush}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
     <Style x:Key="FluentHeaderSubtitleText" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Micro}" />
         <Setter Property="Foreground" Value="{DynamicResource HeaderChromeMutedForegroundBrush}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
     <Style x:Key="FluentSectionTitleText" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.SectionTitle}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
     <Style x:Key="HakamiqSettingsPanelCard"
            TargetType="{x:Type Border}"
            BasedOn="{StaticResource FluentWorkspaceCard}">
         <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
-        <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
     </Style>
@@ -189,9 +211,9 @@
     <Style x:Key="HakamiqSettingsCard"
            TargetType="{x:Type Border}"
            BasedOn="{StaticResource FluentActionCard}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
         <Setter Property="MinHeight" Value="{DynamicResource Space.120}" />
@@ -200,24 +222,30 @@
     </Style>
 
     <Style x:Key="HakamiqSettingsCardTitle" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
         <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextTrimming" Value="None" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
     <Style x:Key="HakamiqSettingsCardDescription" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
         <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextTrimming" Value="None" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
 </ResourceDictionary>

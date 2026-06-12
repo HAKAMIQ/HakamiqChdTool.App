@@ -1,7 +1,9 @@
-using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.ViewModels;
+using System;
 using System.ComponentModel;
 using System.Windows;
+
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.ViewModels;
 
 namespace HakamiqChdTool.App.Views;
 
@@ -14,6 +16,7 @@ public partial class RenameConfirmationDialog : Window
         ArgumentNullException.ThrowIfNull(viewModel);
 
         InitializeComponent();
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
         AppLanguageService.ApplyToWindow(this);
 
         _viewModel = viewModel;
@@ -31,14 +34,29 @@ public partial class RenameConfirmationDialog : Window
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(RenameConfirmationViewModel.DialogResult))
+        if (!StringComparer.Ordinal.Equals(e.PropertyName, nameof(RenameConfirmationViewModel.DialogResult)))
         {
             return;
         }
 
-        if (_viewModel.DialogResult.HasValue)
+        bool? result = _viewModel.DialogResult;
+        if (!result.HasValue)
         {
-            DialogResult = _viewModel.DialogResult;
+            return;
+        }
+
+        CloseWithResult(result.Value);
+    }
+
+    private void CloseWithResult(bool result)
+    {
+        try
+        {
+            DialogResult = result;
+        }
+        catch (InvalidOperationException)
+        {
+            Close();
         }
     }
 }

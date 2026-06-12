@@ -1,0 +1,112 @@
+<UserControl x:Class="HakamiqChdTool.App.Views.Main.QueueListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dd="urn:gong-wpf-dragdrop"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True">
+
+    <DataGrid x:Name="TasksDataGrid"
+              ItemsSource="{Binding QueueItems}"
+              SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              HeadersVisibility="None"
+              GridLinesVisibility="None"
+              RowHeaderWidth="0"
+              SelectionMode="Single"
+              SelectionUnit="FullRow"
+              CanUserAddRows="False"
+              CanUserDeleteRows="False"
+              CanUserReorderColumns="False"
+              CanUserResizeColumns="False"
+              CanUserResizeRows="False"
+              CanUserSortColumns="False"
+              EnableRowVirtualization="True"
+              EnableColumnVirtualization="True"
+              VirtualizingPanel.IsVirtualizing="True"
+              VirtualizingPanel.VirtualizationMode="Recycling"
+              VirtualizingPanel.ScrollUnit="Item"
+              ScrollViewer.CanContentScroll="True"
+              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+              ScrollViewer.VerticalScrollBarVisibility="Auto"
+              Margin="{DynamicResource Inset.8.All}"
+              FlowDirection="{DynamicResource App.FlowDirection}"
+              Language="{DynamicResource App.XmlLanguage}"
+              AllowDrop="True"
+              Drop="ForwardTaskGridDrop"
+              dd:DragDrop.IsDragSource="True"
+              dd:DragDrop.IsDropTarget="False"
+              CellStyle="{StaticResource FluentDataGridCell}"
+              RowStyle="{StaticResource FluentDataGridRow}"
+              Style="{StaticResource FluentMinimalDataGrid}"
+              Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+              LoadingRow="ForwardTasksLoadingRow"
+              UnloadingRow="ForwardTasksUnloadingRow"
+              ScrollViewer.ScrollChanged="ForwardTasksScrollChanged"
+              PreviewMouseRightButtonDown="ForwardTasksPreviewMouseRightButtonDown"
+              MouseDoubleClick="ForwardTasksMouseDoubleClick"
+              SelectionChanged="ForwardTasksSelectionChanged">
+
+        <DataGrid.Resources>
+            <Style TargetType="{x:Type ScrollBar}"
+                   BasedOn="{StaticResource FluentScrollBarStyle}" />
+        </DataGrid.Resources>
+
+        <DataGrid.ContextMenu>
+            <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Mode=Self}}"
+                         FlowDirection="{Binding PlacementTarget.FlowDirection, RelativeSource={RelativeSource Mode=Self}}"
+                         Language="{Binding PlacementTarget.Language, RelativeSource={RelativeSource Mode=Self}}"
+                         Style="{StaticResource QueueWorkspace.ContextMenu}"
+                         Opened="ForwardQueueContextMenuOpened">
+
+                <ContextMenu.Resources>
+                    <Style TargetType="{x:Type MenuItem}"
+                           BasedOn="{StaticResource QueueWorkspace.ContextMenuItem}" />
+
+                    <Style TargetType="{x:Type Separator}"
+                           BasedOn="{StaticResource QueueWorkspace.ContextMenuSeparator}" />
+                </ContextMenu.Resources>
+
+                <MenuItem Command="{Binding ProcessIsoCueGdiCommand}"
+                          CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Header="{DynamicResource LocCtx_ConvertToChd}" />
+
+                <MenuItem Command="{Binding ProcessArchiveCommand}"
+                          CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Header="{DynamicResource LocCtx_ExtractArchive}" />
+
+                <MenuItem Command="{Binding ProcessChdExtractCommand}"
+                          CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Header="{DynamicResource LocCtx_ExtractFromChd}" />
+
+                <MenuItem Command="{Binding CancelQueueJobCommand}"
+                          CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Header="{DynamicResource LocCtx_CancelJob}" />
+
+                <Separator />
+
+                <MenuItem Command="{Binding RetryQueueItemCommand}"
+                          CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Header="{DynamicResource LocCtx_Retry}" />
+
+                <MenuItem Command="{Binding RemoveQueueItemCommand}"
+                          CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Header="{DynamicResource LocCtx_Remove}" />
+
+                <MenuItem Command="{Binding OpenFolderCommand}"
+                          CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                          Header="{DynamicResource LocCtx_OpenPath}" />
+            </ContextMenu>
+        </DataGrid.ContextMenu>
+
+        <DataGrid.Columns>
+            <DataGridTemplateColumn Width="*"
+                                    CanUserReorder="False"
+                                    CanUserResize="False"
+                                    CanUserSort="False"
+                                    CellTemplate="{StaticResource FluentQueueRowTemplate}" />
+        </DataGrid.Columns>
+    </DataGrid>
+</UserControl>

@@ -1,12 +1,14 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.ViewModels;
+using HakamiqChdTool.App.Ui.Queue;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace HakamiqChdTool.App;
@@ -58,40 +60,54 @@ public partial class MainWindow
         e.Handled = false;
     }
 
-    private async void OnWorkspaceFilesDropped(object sender, DragEventArgs e)
+    private void OnWorkspaceFilesDropped(object sender, DragEventArgs e)
     {
         DropHighlightOverlay.Opacity = 0;
         e.Effects = DragDropEffects.None;
 
+        if (IsQueueInteractionLocked)
+        {
+            e.Handled = false;
+            return;
+        }
+
+        if (!TryGetDroppedFilePaths(e, out string[] normalized))
+        {
+            e.Handled = false;
+            return;
+        }
+
+        e.Handled = true;
+        e.Effects = DragDropEffects.Copy;
+
+        QueueExecutionProfile profile = GetSelectedInputExecutionProfileFromUi();
+        _ = HandleWorkspaceFilesDroppedAsync(normalized, profile);
+    }
+
+    private async Task HandleWorkspaceFilesDroppedAsync(
+        string[] normalized,
+        QueueExecutionProfile profile)
+    {
         try
         {
-            if (IsQueueInteractionLocked)
-            {
-                e.Handled = false;
-                return;
-            }
-
-            if (!TryGetDroppedFilePaths(e, out string[] normalized))
-            {
-                e.Handled = false;
-                return;
-            }
-
-            e.Handled = true;
-            e.Effects = DragDropEffects.Copy;
-
-            QueueExecutionProfile profile = GetSelectedInputExecutionProfileFromUi();
             if (profile == QueueExecutionProfile.Standard)
             {
                 await _viewModel
-                    .IngestPathsAsync(normalized, QueueIngestKind.Mixed, QueueIntakeSource.DragDrop)
+                    .IngestPathsAsync(
+                        normalized,
+                        QueueIngestKind.Mixed,
+                        QueueIntakeSource.DragDrop)
                     .ConfigureAwait(true);
 
                 return;
             }
 
             _ = await _viewModel
-                .IngestQuickPathsAsync(normalized, QueueIngestKind.Mixed, profile, QueueIntakeSource.DragDrop)
+                .IngestQuickPathsAsync(
+                    normalized,
+                    QueueIngestKind.Mixed,
+                    profile,
+                    QueueIntakeSource.DragDrop)
                 .ConfigureAwait(true);
         }
         catch (OperationCanceledException ex)
@@ -126,59 +142,57 @@ public partial class MainWindow
         return QueueExecutionProfile.Standard;
     }
 
-    private bool IsSelectedScanModeFromUi() => false;
+    private bool IsSelectedScanModeFromUi()
+    {
+        return false;
+    }
 
     private string GetSelectedInputDialogTitleFromUi(QueueExecutionProfile profile)
     {
-        if (profile == QueueExecutionProfile.QuickVerify)
+        return profile switch
         {
-            return ArabicUi.Get(InputDialogTitleVerifyKey);
-        }
-
-        if (profile == QueueExecutionProfile.QuickExtract)
-        {
-            return ArabicUi.Get(InputDialogTitleExtractKey);
-        }
-
-        if (profile == QueueExecutionProfile.QuickConvert)
-        {
-            return ArabicUi.Get(InputDialogTitleConvertKey);
-        }
-
-        return ArabicUi.Get(MainWindowMessages.AddFilesDialogTitle);
+            QueueExecutionProfile.QuickVerify => ArabicUi.Get(InputDialogTitleVerifyKey),
+            QueueExecutionProfile.QuickExtract => ArabicUi.Get(InputDialogTitleExtractKey),
+            QueueExecutionProfile.QuickConvert => ArabicUi.Get(InputDialogTitleConvertKey),
+            _ => ArabicUi.Get(MainWindowMessages.AddFilesDialogTitle)
+        };
     }
 
-    private string GetSelectedInputDialogFilterFromUi(QueueExecutionProfile profile) => profile switch
+    private string GetSelectedInputDialogFilterFromUi(QueueExecutionProfile profile)
     {
-        QueueExecutionProfile.QuickExtract => ArabicUi.Get(InputDialogFilterChdKey),
-        QueueExecutionProfile.QuickVerify => ArabicUi.Get(InputDialogFilterChdKey),
-        QueueExecutionProfile.QuickConvert => ArabicUi.Get(InputDialogFilterConvertKey),
-        _ => ArabicUi.Get(InputDialogFilterSupportedKey)
-    };
+        return profile switch
+        {
+            QueueExecutionProfile.QuickExtract => ArabicUi.Get(InputDialogFilterChdKey),
+            QueueExecutionProfile.QuickVerify => ArabicUi.Get(InputDialogFilterChdKey),
+            QueueExecutionProfile.QuickConvert => ArabicUi.Get(InputDialogFilterConvertKey),
+            _ => ArabicUi.Get(InputDialogFilterSupportedKey)
+        };
+    }
 
     private string GetSelectedFolderDialogDescriptionFromUi()
     {
         QueueExecutionProfile profile = GetSelectedInputExecutionProfileFromUi();
+
         string scope = _settings.IncludeSubfolders
             ? ArabicUi.Get(FolderScopeWithSubfoldersKey)
             : ArabicUi.Get(FolderScopeSelectedKey);
 
-        if (profile == QueueExecutionProfile.QuickExtract)
+        return profile switch
         {
-            return ArabicUi.Format(FolderDialogDescriptionExtractFormatKey, scope);
-        }
+            QueueExecutionProfile.QuickExtract => ArabicUi.Format(
+                FolderDialogDescriptionExtractFormatKey,
+                scope),
 
-        if (profile == QueueExecutionProfile.QuickVerify)
-        {
-            return ArabicUi.Format(FolderDialogDescriptionVerifyFormatKey, scope);
-        }
+            QueueExecutionProfile.QuickVerify => ArabicUi.Format(
+                FolderDialogDescriptionVerifyFormatKey,
+                scope),
 
-        if (profile == QueueExecutionProfile.QuickConvert)
-        {
-            return ArabicUi.Format(FolderDialogDescriptionConvertFormatKey, scope);
-        }
+            QueueExecutionProfile.QuickConvert => ArabicUi.Format(
+                FolderDialogDescriptionConvertFormatKey,
+                scope),
 
-        return ArabicUi.Get(MainWindowMessages.SelectFolderDialogDescription);
+            _ => ArabicUi.Get(MainWindowMessages.SelectFolderDialogDescription)
+        };
     }
 
     private bool CanAcceptWorkspaceFileDrop(DragEventArgs e)
@@ -205,7 +219,8 @@ public partial class MainWindow
 
         try
         {
-            if (e.Data.GetData(DataFormats.FileDrop, autoConvert: true) is not string[] rawPaths || rawPaths.Length == 0)
+            if (e.Data.GetData(DataFormats.FileDrop, autoConvert: true) is not string[] rawPaths ||
+                rawPaths.Length == 0)
             {
                 return false;
             }
@@ -215,8 +230,8 @@ public partial class MainWindow
 
             foreach (string rawPath in rawPaths)
             {
-                if (TaskQueueDropPathNormalizer.TryNormalizeRootPath(rawPath, out string? normalizedPath)
-                    && seen.Add(normalizedPath))
+                if (TaskQueueDropPathNormalizer.TryNormalizeRootPath(rawPath, out string? normalizedPath) &&
+                    seen.Add(normalizedPath))
                 {
                     normalizedPaths.Add(normalizedPath);
                 }

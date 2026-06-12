@@ -1,4 +1,6 @@
-﻿using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Input;
+using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Services;
 using Serilog;
@@ -103,7 +105,9 @@ internal sealed class ArchiveWorkflowPreparationService(
             {
                 QueueItemFailureKind kind = extractionResult.RequiresPassword
                     ? QueueItemFailureKind.PasswordRequired
-                    : QueueItemFailureKind.Failed;
+                    : IsUnsupportedArchiveContentMessage(extractionResult.Message)
+                        ? QueueItemFailureKind.Unsupported
+                        : QueueItemFailureKind.Failed;
 
                 string extractionDetail = extractionResult.RequiresPassword
                     ? PasswordRequiredKey
@@ -240,6 +244,16 @@ internal sealed class ArchiveWorkflowPreparationService(
             tempCleanup.DeletedBytes,
             tempCleanup.DeletedFiles);
     }
+
+    private static bool IsUnsupportedArchiveContentMessage(string? message) =>
+        string.Equals(message, "LocArchive_NoConvertibleDiscImage", StringComparison.Ordinal)
+        || string.Equals(message, ArchiveCandidateDiscovery.UnsupportedDiscImageMessageResourceKey, StringComparison.Ordinal)
+        || string.Equals(message, ArchiveCandidateDiscovery.MultipleConvertibleImageSetsMessageResourceKey, StringComparison.Ordinal)
+        || string.Equals(message, ArchiveCandidateDiscovery.EmptyArchiveMessageResourceKey, StringComparison.Ordinal)
+        || string.Equals(message, ArchiveCandidateDiscovery.DescriptorMissingDependenciesMessageResourceKey, StringComparison.Ordinal)
+        || string.Equals(message, ArchiveCandidateDiscovery.DescriptorUnsafeReferenceMessageResourceKey, StringComparison.Ordinal)
+        || string.Equals(message, ArchiveCandidateDiscovery.DescriptorHasNoTrackReferencesMessageResourceKey, StringComparison.Ordinal)
+        || string.Equals(message, ArchiveCandidateDiscovery.DescriptorUnreadableMessageResourceKey, StringComparison.Ordinal);
 
     private static WorkflowPreparationResult Cancelled(IQueueItemStateSink sink)
     {

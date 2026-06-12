@@ -1,8 +1,9 @@
+using System;
+using System.Windows;
+
 using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
 using Hardcodet.Wpf.TaskbarNotification;
-using System;
-using System.Windows;
 
 namespace HakamiqChdTool.App;
 

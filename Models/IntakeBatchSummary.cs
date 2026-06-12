@@ -57,20 +57,21 @@ public sealed record IntakeBatchSummary(
         };
     }
 
-    private static IReadOnlyList<SuspiciousArtifact> NormalizeSafetyArtifacts(
+    private static SuspiciousArtifact[] NormalizeSafetyArtifacts(
         IEnumerable<SuspiciousArtifact>? artifacts)
     {
         if (artifacts is null)
         {
-            return Array.Empty<SuspiciousArtifact>();
+            return [];
         }
 
-        SuspiciousArtifact[] normalized = artifacts
-            .Where(static artifact => artifact is not null)
-            .ToArray();
+        SuspiciousArtifact[] normalized =
+        [
+            .. artifacts.Where(static artifact => artifact is not null)
+        ];
 
         return normalized.Length == 0
-            ? Array.Empty<SuspiciousArtifact>()
+            ? []
             : normalized;
     }
 }

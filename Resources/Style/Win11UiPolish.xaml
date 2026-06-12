@@ -1,0 +1,121 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="Win11.Layer.BackdropBrush"
+                     Color="{DynamicResource Color.Background}" />
+
+    <SolidColorBrush x:Key="Win11.Layer.SurfaceBrush"
+                     Color="{DynamicResource Color.Surface}" />
+
+    <SolidColorBrush x:Key="Win11.Layer.CardBrush"
+                     Color="{DynamicResource Color.Card}" />
+
+    <SolidColorBrush x:Key="Win11.Stroke.SubtleBrush"
+                     Color="{DynamicResource Color.Border.Subtle}" />
+
+    <SolidColorBrush x:Key="Win11.Stroke.DefaultBrush"
+                     Color="{DynamicResource Color.Border.Default}" />
+
+    <Style x:Key="Win11.AppRootFrame"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Canvas}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Window}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11.WindowTopBar"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.16.12}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11.SettingsPane"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.16.14}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11.DialogRootFrame"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11.DialogTopBar"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.18.14}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11.DialogActionBar"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.1.0.0}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.16.12}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11.ContentCard"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.16.14}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+</ResourceDictionary>

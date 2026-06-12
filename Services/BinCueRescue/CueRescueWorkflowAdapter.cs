@@ -1,4 +1,6 @@
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.ConsoleMedia;
+using HakamiqChdTool.App.Services.DiscLayout;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +24,9 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
     internal CueRescueWorkflowPrepareResult TryPrepare(
         string? inputPath,
         string? processTempRoot = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        DiscLayoutTrustMode trustMode = DiscLayoutTrustMode.StrictEvidence,
+        bool allowConstrainedAbsoluteBinFallback = false)
     {
         ThrowIfDisposed();
 
@@ -75,6 +79,26 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
 
         cancellationToken.ThrowIfCancellationRequested();
 
+        ConsoleDiscIdentityResult consoleIdentity = ConsoleDiscIdentityService.Shared.Detect(fullInputPath);
+        DiscLayoutDecision layoutDecision = DiscLayoutDecision.FromStandaloneBinPlan(
+            plan,
+            consoleIdentity,
+            trustMode);
+
+        if (!layoutDecision.IsAccepted)
+        {
+            return CueRescueWorkflowPrepareResult.Failed(
+                fullInputPath,
+                string.IsNullOrWhiteSpace(layoutDecision.MessageKey)
+                    ? BinCueRescuePrepareFailedDetailKey
+                    : layoutDecision.MessageKey);
+        }
+
+        if (layoutDecision.UsesAdjacentCue && !string.IsNullOrWhiteSpace(layoutDecision.EffectiveCuePath))
+        {
+            plan = plan with { AdjacentCuePath = layoutDecision.EffectiveCuePath };
+        }
+
         if (plan.CanUseAdjacentCue)
         {
             string adjacentCuePath;
@@ -120,6 +144,9 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
             CueRescueWriteResult writeResult = CueRescueWriter.Write(
                 plan,
                 effectiveProcessTempRoot,
+                allowConstrainedAbsoluteBinFallback
+                    ? CueRescueWriteOptions.WithConstrainedAbsoluteFallback
+                    : CueRescueWriteOptions.Strict,
                 cancellationToken);
 
             if (!writeResult.Succeeded || string.IsNullOrWhiteSpace(writeResult.CuePath))

@@ -1,26 +1,28 @@
-using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.Services;
 using System;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
+
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Services;
 
 namespace HakamiqChdTool.App.Views;
 
 public partial class VerificationResultDialog : Window
 {
-    public VerificationResultDialog(QueueVerificationResultPresentation presentation)
+    public VerificationResultDialog(QueueVerifyView view)
     {
-        ArgumentNullException.ThrowIfNull(presentation);
+        ArgumentNullException.ThrowIfNull(view);
 
         InitializeComponent();
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
         AppLanguageService.ApplyToWindow(this);
-        DataContext = presentation;
+
+        DataContext = view;
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        DialogResult = true;
+        CloseAsConfirmed();
     }
 
     private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -30,18 +32,25 @@ public partial class VerificationResultDialog : Window
             return;
         }
 
-        Dispatcher dispatcher = Dispatcher;
-        if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
-        {
-            return;
-        }
-
         try
         {
             DragMove();
+            e.Handled = true;
         }
         catch (InvalidOperationException)
         {
+        }
+    }
+
+    private void CloseAsConfirmed()
+    {
+        try
+        {
+            DialogResult = true;
+        }
+        catch (InvalidOperationException)
+        {
+            Close();
         }
     }
 }

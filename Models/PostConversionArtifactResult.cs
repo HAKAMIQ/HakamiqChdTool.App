@@ -8,8 +8,7 @@ public sealed class PostConversionArtifactResult
     private int _sbiCopiedCount;
     private int _m3uGeneratedCount;
     private int _m3uSkippedExistingCount;
-    private IReadOnlyList<PostConversionArtifactFailure> _failures =
-        Array.Empty<PostConversionArtifactFailure>();
+    private PostConversionArtifactFailure[] _failures = [];
 
     public int SbiCopiedCount
     {
@@ -29,7 +28,7 @@ public sealed class PostConversionArtifactResult
         init => _m3uSkippedExistingCount = Math.Max(0, value);
     }
 
-    public int FailedArtifactCount => Failures.Count;
+    public int FailedArtifactCount => _failures.Length;
 
     public IReadOnlyList<PostConversionArtifactFailure> Failures
     {
@@ -72,7 +71,7 @@ public sealed class PostConversionArtifactResult
         int sbiCopied = 0;
         int m3uGenerated = 0;
         int m3uSkippedExisting = 0;
-        var failures = new List<PostConversionArtifactFailure>();
+        List<PostConversionArtifactFailure> failures = [];
 
         foreach (PostConversionArtifactResult? result in results)
         {
@@ -100,20 +99,20 @@ public sealed class PostConversionArtifactResult
             M3uGeneratedCount = m3uGenerated,
             M3uSkippedExistingCount = m3uSkippedExisting,
             Failures = failures.Count == 0
-                ? Array.Empty<PostConversionArtifactFailure>()
-                : failures.ToArray()
+                ? []
+                : [.. failures]
         };
     }
 
-    private static IReadOnlyList<PostConversionArtifactFailure> NormalizeFailures(
+    private static PostConversionArtifactFailure[] NormalizeFailures(
         IEnumerable<PostConversionArtifactFailure>? failures)
     {
         if (failures is null)
         {
-            return Array.Empty<PostConversionArtifactFailure>();
+            return [];
         }
 
-        var normalized = new List<PostConversionArtifactFailure>();
+        List<PostConversionArtifactFailure> normalized = [];
 
         foreach (PostConversionArtifactFailure? failure in failures)
         {
@@ -124,8 +123,8 @@ public sealed class PostConversionArtifactResult
         }
 
         return normalized.Count == 0
-            ? Array.Empty<PostConversionArtifactFailure>()
-            : normalized.ToArray();
+            ? []
+            : [.. normalized];
     }
 
     private static bool IsValidFailure(PostConversionArtifactFailure? failure)

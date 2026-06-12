@@ -193,6 +193,9 @@ function Assert-NoUnsupportedMameTools {
 function Invoke-ReleaseComplianceChecks {
     foreach ($required in @(
         "LICENSE",
+        "README.md",
+        "SECURITY.md",
+        "docs\release-notes\CHANGELOG.md",
         "docs\legal\LEGAL.md",
         "docs\legal\THIRD_PARTY_NOTICES.txt",
         "docs\legal\CHDMAN_NOTICE.md",
@@ -322,26 +325,39 @@ try {
         $OutputPath,
         "--no-restore",
         "--no-build",
+        "--self-contained",
+        "false",
+        "-p:PublishSingleFile=false",
+        "-p:PublishTrimmed=false",
+        "-p:PublishReadyToRun=false",
         "-p:DebugType=none",
         "-p:DebugSymbols=false"
     )
 
+    $docsPath = Join-Path $OutputPath "docs"
+    $legalDocsPath = Join-Path $docsPath "legal"
+    New-Item -ItemType Directory -Path $docsPath -Force | Out-Null
+    New-Item -ItemType Directory -Path $legalDocsPath -Force | Out-Null
+
     foreach ($doc in @(
-        "LICENSE",
-        "docs\legal\LEGAL.md",
-        "docs\legal\THIRD_PARTY_NOTICES.txt",
-        "docs\legal\CHDMAN_NOTICE.md",
-        "docs\legal\MAME_COPYING.txt",
-        "docs\legal\MAME_GPL-2.0.txt",
-        "docs\legal\SEVENZIP_NOTICE.md",
-        "README.md",
-        "docs\release-notes\CHANGELOG.md"
+        @{ Source = "README.md"; Destination = "docs\README.md" },
+        @{ Source = "SECURITY.md"; Destination = "docs\SECURITY.md" },
+        @{ Source = "docs\release-notes\CHANGELOG.md"; Destination = "docs\CHANGELOG.md" },
+        @{ Source = "LICENSE"; Destination = "docs\legal\LICENSE" },
+        @{ Source = "docs\legal\LEGAL.md"; Destination = "docs\legal\LEGAL.md" },
+        @{ Source = "docs\legal\THIRD_PARTY_NOTICES.txt"; Destination = "docs\legal\THIRD_PARTY_NOTICES.txt" },
+        @{ Source = "docs\legal\CHDMAN_NOTICE.md"; Destination = "docs\legal\CHDMAN_NOTICE.md" },
+        @{ Source = "docs\legal\MAME_COPYING.txt"; Destination = "docs\legal\MAME_COPYING.txt" },
+        @{ Source = "docs\legal\MAME_GPL-2.0.txt"; Destination = "docs\legal\MAME_GPL-2.0.txt" },
+        @{ Source = "docs\legal\SEVENZIP_NOTICE.md"; Destination = "docs\legal\SEVENZIP_NOTICE.md" }
     )) {
-        $sourcePath = Join-Path $ProjectRoot $doc
+        $sourcePath = Join-Path $ProjectRoot $doc.Source
         if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {
-            $destinationName = Split-Path -Path $doc -Leaf
-            Copy-Item -LiteralPath $sourcePath -Destination (Join-Path $OutputPath $destinationName) -Force
-            Write-Host "[INFO] Copied $destinationName" -ForegroundColor Cyan
+            $destinationPath = Join-Path $OutputPath $doc.Destination
+            $destinationDirectory = Split-Path -Parent $destinationPath
+            New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
+            Copy-Item -LiteralPath $sourcePath -Destination $destinationPath -Force
+            Write-Host "[INFO] Copied $($doc.Destination)" -ForegroundColor Cyan
         }
     }
 

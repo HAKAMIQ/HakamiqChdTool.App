@@ -47,7 +47,7 @@ public partial class QueueWorkspaceView : UserControl
         set => SetValue(OperationModeKeyProperty, string.IsNullOrWhiteSpace(value) ? "Convert" : value);
     }
 
-    public DataGrid TaskGrid => TasksDataGrid;
+    public DataGrid TaskGrid => QueueListSection.TaskGrid;
 
     public Rectangle DropZoneFrame => DropZoneDashedFrame;
 

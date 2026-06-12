@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,6 +9,9 @@ namespace HakamiqChdTool.App.Views.Main;
 
 public partial class FooterStatusStripView : UserControl
 {
+    private const string LeftToRightPrefix = "\u200E";
+    private string _stateDotBrushKey = "Brush.Accent.Text";
+
     public FooterStatusStripView()
     {
         InitializeComponent();
@@ -45,29 +48,24 @@ public partial class FooterStatusStripView : UserControl
 
     public void SetReady()
     {
-        SetStateText("LocFooter_StateReady", "Ready");
-        SetStateDot("Brush.Accent.Text");
+        SetFooterState("LocFooter_StateReady", "Ready", "Brush.Accent.Text");
 
         FooterQueueSummaryText.Text = GetText(
             "LocFooter_IdleNoTasks",
             "No tasks in the processing queue.");
 
         ResetProgressDisplay();
-        FooterSessionPhaseText.Text = string.Empty;
-
-        FooterProgressStrip.Visibility = Visibility.Collapsed;
-        StatusBarSettingsText.Visibility = Visibility.Collapsed;
-
+        ClearSessionPhase();
+        HideProgressAndSettings();
         SetHiddenCounters(0, 0, 0, 0, 0);
     }
 
     public void SetQueuedReady(int queuedCount, int totalCount)
     {
-        int safeQueued = Math.Max(0, queuedCount);
-        int safeTotal = Math.Max(0, totalCount);
+        int safeQueued = NonNegative(queuedCount);
+        int safeTotal = NonNegative(totalCount);
 
-        SetStateText("LocFooter_StateReady", "Ready");
-        SetStateDot("Brush.Accent.Text");
+        SetFooterState("LocFooter_StateReady", "Ready", "Brush.Accent.Text");
 
         FooterQueueSummaryText.Text = ArabicUi.FormatText(
             GetText("LocFooterFmt_QueuedReady", "Processing queue ready: {0} runnable of {1}."),
@@ -75,10 +73,8 @@ public partial class FooterStatusStripView : UserControl
             safeTotal);
 
         ResetProgressDisplay();
-        FooterSessionPhaseText.Text = string.Empty;
-
-        FooterProgressStrip.Visibility = Visibility.Collapsed;
-        StatusBarSettingsText.Visibility = Visibility.Collapsed;
+        ClearSessionPhase();
+        HideProgressAndSettings();
     }
 
     public void SetProcessing(
@@ -89,15 +85,13 @@ public partial class FooterStatusStripView : UserControl
         string? phaseText,
         bool isIndeterminate)
     {
-        int safeCurrent = Math.Max(0, currentIndex);
-        int safeTotal = Math.Max(0, totalCount);
+        int safeCurrent = NonNegative(currentIndex);
+        int safeTotal = NonNegative(totalCount);
+        string safeFileName = CleanText(
+            currentFileName,
+            GetText("LocFooter_CurrentItemUnknown", "Current item"));
 
-        string safeFileName = string.IsNullOrWhiteSpace(currentFileName)
-            ? GetText("LocFooter_CurrentItemUnknown", "Current item")
-            : currentFileName.Trim();
-
-        SetStateText("LocFooter_StateProcessing", "Processing");
-        SetStateDot("Brush.Accent.Text");
+        SetFooterState("LocFooter_StateProcessing", "Processing", "Brush.Accent.Text");
 
         FooterQueueSummaryText.Text = ArabicUi.FormatText(
             GetText("LocFooterFmt_Processing", "Processing {0} of {1}: {2}"),
@@ -105,14 +99,12 @@ public partial class FooterStatusStripView : UserControl
             safeTotal,
             safeFileName);
 
-        FooterSessionPhaseText.Text = string.IsNullOrWhiteSpace(phaseText)
-            ? GetText("LocFooter_PhaseProcessing", "Processing")
-            : phaseText.Trim();
+        FooterSessionPhaseText.Text = CleanText(
+            phaseText,
+            GetText("LocFooter_PhaseProcessing", "Processing"));
 
         SetProgressDisplay(progressPercent, isIndeterminate);
-
-        FooterProgressStrip.Visibility = Visibility.Visible;
-        StatusBarSettingsText.Visibility = Visibility.Collapsed;
+        ShowProgressOnly();
     }
 
     public void SetIntakeProgress(
@@ -122,12 +114,13 @@ public partial class FooterStatusStripView : UserControl
         int acceptedCount,
         bool hasKnownTotal)
     {
-        int safeScanned = Math.Max(0, scannedCount);
-        int safeTotal = Math.Max(0, totalCount);
-        int safeAccepted = Math.Max(0, acceptedCount);
-        string safeStageText = string.IsNullOrWhiteSpace(stageText)
-            ? GetText("LocQueueAdd_ScanningFiles", "Adding files...")
-            : stageText.Trim();
+        int safeScanned = NonNegative(scannedCount);
+        int safeTotal = NonNegative(totalCount);
+        int safeAccepted = NonNegative(acceptedCount);
+
+        string safeStageText = CleanText(
+            stageText,
+            GetText("LocQueueAdd_ScanningFiles", "Adding files..."));
 
         string addedText = ArabicUi.FormatText(
             GetText("LocQueueAdd_AddedFilesInProgressFormat", "Added {0} files."),
@@ -136,8 +129,7 @@ public partial class FooterStatusStripView : UserControl
         FooterQueueSummaryText.Text = string.Concat(safeStageText, " ", addedText);
         FooterSessionPhaseText.Text = GetText("LocQueueAdd_Title", "Adding files");
 
-        SetStateText("LocQueueAdd_Title", "Adding files");
-        SetStateDot("Brush.Accent.Text");
+        SetFooterState("LocQueueAdd_Title", "Adding files", "Brush.Accent.Text");
 
         bool isIndeterminate = !hasKnownTotal || safeTotal <= 0;
         double progressPercent = isIndeterminate
@@ -145,32 +137,27 @@ public partial class FooterStatusStripView : UserControl
             : Math.Clamp((safeScanned / (double)safeTotal) * 100d, 0d, 100d);
 
         SetProgressDisplay(progressPercent, isIndeterminate);
-
-        FooterProgressStrip.Visibility = Visibility.Visible;
-        StatusBarSettingsText.Visibility = Visibility.Collapsed;
+        ShowProgressOnly();
     }
 
     public void SetStoppedByUser()
     {
-        SetStateText("LocFooter_StateStopped", "Stopped");
-        SetStateDot("Brush.Text.Secondary");
+        SetFooterState("LocFooter_StateStopped", "Stopped", "Brush.Text.Secondary");
 
         FooterQueueSummaryText.Text = GetText(
             "LocFooter_StoppedByUser",
             "Processing was stopped by the user.");
 
         ResetProgressDisplay();
-        FooterSessionPhaseText.Text = string.Empty;
-
-        FooterProgressStrip.Visibility = Visibility.Collapsed;
-        StatusBarSettingsText.Visibility = Visibility.Collapsed;
+        ClearSessionPhase();
+        HideProgressAndSettings();
     }
 
     public void SetCompleted(int completedCount, int failedCount, int skippedCount)
     {
-        int safeCompleted = Math.Max(0, completedCount);
-        int safeFailed = Math.Max(0, failedCount);
-        int safeSkipped = Math.Max(0, skippedCount);
+        int safeCompleted = NonNegative(completedCount);
+        int safeFailed = NonNegative(failedCount);
+        int safeSkipped = NonNegative(skippedCount);
 
         SetHiddenCounters(
             waiting: 0,
@@ -184,22 +171,19 @@ public partial class FooterStatusStripView : UserControl
 
         if (safeCompleted <= 0 && safeFailed > 0)
         {
-            SetStateText("LocFooter_StateFailed", "Failed");
-            SetStateDot("Brush.Text.Secondary");
+            SetFooterState("LocFooter_StateFailed", "Failed", "Brush.Text.Secondary");
             summaryFormatKey = "LocFooterFmt_Failed";
             summaryFallback = "Processing failed: {0} succeeded, {1} failed, {2} skipped.";
         }
         else if (safeFailed > 0)
         {
-            SetStateText("LocFooter_StateCompletedWithErrors", "Completed with errors");
-            SetStateDot("Brush.Text.Secondary");
+            SetFooterState("LocFooter_StateCompletedWithErrors", "Completed with errors", "Brush.Text.Secondary");
             summaryFormatKey = "LocFooterFmt_CompletedWithErrors";
             summaryFallback = "Processing completed with errors: {0} succeeded, {1} failed, {2} skipped.";
         }
         else
         {
-            SetStateText("LocFooter_StateCompleted", "Completed");
-            SetStateDot("Brush.Accent.Text");
+            SetFooterState("LocFooter_StateCompleted", "Completed", "Brush.Accent.Text");
         }
 
         FooterQueueSummaryText.Text = ArabicUi.FormatText(
@@ -209,24 +193,33 @@ public partial class FooterStatusStripView : UserControl
             safeSkipped);
 
         SetProgressDisplay(100d, isIndeterminate: false);
-        FooterSessionPhaseText.Text = string.Empty;
+        ClearSessionPhase();
+        HideProgressAndSettings();
+    }
 
-        FooterProgressStrip.Visibility = Visibility.Collapsed;
-        StatusBarSettingsText.Visibility = Visibility.Collapsed;
+    public void SetStatusMessage(string? message)
+    {
+        SetFooterState("LocFooter_StateReady", "Ready", "Brush.Accent.Text");
+
+        FooterQueueSummaryText.Text = CleanText(
+            message,
+            GetText("LocFooter_IdleNoTasks", "No tasks in the processing queue."));
+
+        ResetProgressDisplay();
+        ClearSessionPhase();
+        HideProgressAndSettings();
     }
 
     public void SetFailed(string? message)
     {
-        SetStateText("LocFooter_StateError", "Error");
-        SetStateDot("Brush.Text.Secondary");
+        SetFooterState("LocFooter_StateError", "Error", "Brush.Text.Secondary");
 
-        FooterQueueSummaryText.Text = string.IsNullOrWhiteSpace(message)
-            ? GetText("LocFooter_ErrorGeneric", "The operation could not be completed.")
-            : message.Trim();
+        FooterQueueSummaryText.Text = CleanText(
+            message,
+            GetText("LocFooter_ErrorGeneric", "The operation could not be completed."));
 
         ResetProgressDisplay();
-        FooterProgressStrip.Visibility = Visibility.Collapsed;
-        StatusBarSettingsText.Visibility = Visibility.Collapsed;
+        HideProgressAndSettings();
     }
 
     public void SetSettingsMessage(string? message)
@@ -252,11 +245,39 @@ public partial class FooterStatusStripView : UserControl
         int failed,
         int skipped)
     {
-        FooterWaitingCountText.Text = Math.Max(0, waiting).ToString(CultureInfo.CurrentCulture);
-        FooterActiveCountText.Text = Math.Max(0, active).ToString(CultureInfo.CurrentCulture);
-        FooterCompletedCountText.Text = Math.Max(0, completed).ToString(CultureInfo.CurrentCulture);
-        FooterFailedCountText.Text = Math.Max(0, failed).ToString(CultureInfo.CurrentCulture);
-        FooterSkippedCountText.Text = Math.Max(0, skipped).ToString(CultureInfo.CurrentCulture);
+        FooterWaitingCountText.Text = FormatCount(waiting);
+        FooterActiveCountText.Text = FormatCount(active);
+        FooterCompletedCountText.Text = FormatCount(completed);
+        FooterFailedCountText.Text = FormatCount(failed);
+        FooterSkippedCountText.Text = FormatCount(skipped);
+    }
+
+    public void RefreshThemeBrushes()
+    {
+        SetStateDot(_stateDotBrushKey);
+    }
+
+    private static int NonNegative(int value)
+    {
+        return Math.Max(0, value);
+    }
+
+    private static string FormatCount(int value)
+    {
+        return NonNegative(value).ToString(CultureInfo.CurrentCulture);
+    }
+
+    private static string CleanText(string? value, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? fallback
+            : value.Trim();
+    }
+
+    private void SetFooterState(string resourceKey, string fallback, string brushKey)
+    {
+        FooterStateText.Text = GetText(resourceKey, fallback);
+        SetStateDot(brushKey);
     }
 
     private void SetProgressDisplay(double progressPercent, bool isIndeterminate)
@@ -266,14 +287,10 @@ public partial class FooterStatusStripView : UserControl
         QueueProgressBar.IsIndeterminate = isIndeterminate;
         QueueProgressBar.Value = isIndeterminate ? 0d : safePercent;
 
-        if (isIndeterminate)
-        {
-            QueueProgressText.Text = "\u200E…";
-            QueueProgressText.Visibility = Visibility.Visible;
-            return;
-        }
+        QueueProgressText.Text = isIndeterminate
+            ? LeftToRightPrefix + "..."
+            : LeftToRightPrefix + safePercent.ToString("0", CultureInfo.InvariantCulture) + "%";
 
-        QueueProgressText.Text = "\u200E" + safePercent.ToString("0", CultureInfo.InvariantCulture) + "%";
         QueueProgressText.Visibility = Visibility.Visible;
     }
 
@@ -281,18 +298,35 @@ public partial class FooterStatusStripView : UserControl
     {
         QueueProgressBar.IsIndeterminate = false;
         QueueProgressBar.Value = 0d;
-        QueueProgressText.Text = "\u200E0%";
+        QueueProgressText.Text = LeftToRightPrefix + "0%";
         QueueProgressText.Visibility = Visibility.Visible;
     }
 
-    private void SetStateText(string resourceKey, string fallback)
+    private void ShowProgressOnly()
     {
-        FooterStateText.Text = GetText(resourceKey, fallback);
+        FooterProgressStrip.Visibility = Visibility.Visible;
+        StatusBarSettingsText.Visibility = Visibility.Collapsed;
+    }
+
+    private void HideProgressAndSettings()
+    {
+        FooterProgressStrip.Visibility = Visibility.Collapsed;
+        StatusBarSettingsText.Visibility = Visibility.Collapsed;
+    }
+
+    private void ClearSessionPhase()
+    {
+        FooterSessionPhaseText.Text = string.Empty;
     }
 
     private void SetStateDot(string brushKey)
     {
-        if (TryFindResource(brushKey) is Brush brush)
+        if (!string.IsNullOrWhiteSpace(brushKey))
+        {
+            _stateDotBrushKey = brushKey;
+        }
+
+        if (TryFindResource(_stateDotBrushKey) is Brush brush)
         {
             FooterStateDot.Background = brush;
         }

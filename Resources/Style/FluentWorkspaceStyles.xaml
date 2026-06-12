@@ -5,6 +5,11 @@
         <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentBaseStyles.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentButtonStyles.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentCardStyles.xaml" />
+
+        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentScrollBarStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentInputStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentComboBoxStyles.xaml" />
+
         <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentQueueStyles.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentNavigationStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>

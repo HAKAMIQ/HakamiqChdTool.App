@@ -1,0 +1,125 @@
+<UserControl x:Class="HakamiqChdTool.App.Views.Main.QueueEmptyStateView"
+             x:Name="QueueEmptyStateRoot"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True">
+
+    <Grid HorizontalAlignment="Center"
+          VerticalAlignment="Center"
+          FlowDirection="{DynamicResource App.FlowDirection}"
+          Language="{DynamicResource App.XmlLanguage}"
+          SnapsToDevicePixels="True">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="{DynamicResource Grid.Space.10}" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Width="{DynamicResource Space.56}"
+                Height="{DynamicResource Space.56}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Background="{DynamicResource Brush.Accent.Subtle}"
+                BorderBrush="{DynamicResource Brush.Accent.SelectedBorder}"
+                BorderThickness="{DynamicResource Inset.1.All}"
+                CornerRadius="{DynamicResource Radius.DropHintIcon}"
+                SnapsToDevicePixels="True">
+
+            <Viewbox Width="{DynamicResource Space.26}"
+                     Height="{DynamicResource Space.26}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     FlowDirection="LeftToRight"
+                     Stretch="Uniform">
+
+                <Path Fill="{DynamicResource Brush.Accent}"
+                      Stretch="Uniform"
+                      SnapsToDevicePixels="True">
+                    <Path.Style>
+                        <Style TargetType="{x:Type Path}">
+                            <Setter Property="Data"
+                                    Value="{StaticResource Icon.Operation.Convert}" />
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                             Value="Extract">
+                                    <Setter Property="Data"
+                                            Value="{StaticResource Icon.Operation.Extract}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                             Value="Verify">
+                                    <Setter Property="Data"
+                                            Value="{StaticResource Icon.Operation.Verify}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                             Value="ScanConvert">
+                                    <Setter Property="Data"
+                                            Value="{StaticResource Icon.DatabaseSearch}" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                             Value="ScanExtract">
+                                    <Setter Property="Data"
+                                            Value="{StaticResource Icon.FolderZip}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Path.Style>
+                </Path>
+            </Viewbox>
+        </Border>
+
+        <TextBlock Grid.Row="2"
+                   MaxWidth="520"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap"
+                   TextTrimming="None"
+                   SnapsToDevicePixels="True">
+
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}"
+                       BasedOn="{StaticResource QueueWorkspaceDropHintText}">
+                    <Setter Property="Text"
+                            Value="{DynamicResource LocUi_DropZone_Convert}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource Brush.Text.Secondary}" />
+
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                     Value="Extract">
+                            <Setter Property="Text"
+                                    Value="{DynamicResource LocUi_DropZone_Extract}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                     Value="Verify">
+                            <Setter Property="Text"
+                                    Value="{DynamicResource LocUi_DropZone_Verify}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                     Value="ScanConvert">
+                            <Setter Property="Text"
+                                    Value="{DynamicResource LocUi_DropZone_ScanConvert}" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                     Value="ScanExtract">
+                            <Setter Property="Text"
+                                    Value="{DynamicResource LocUi_DropZone_ScanExtract}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+    </Grid>
+</UserControl>

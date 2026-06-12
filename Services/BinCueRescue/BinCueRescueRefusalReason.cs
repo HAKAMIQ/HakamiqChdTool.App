@@ -1,4 +1,4 @@
-﻿namespace HakamiqChdTool.App.Services.BinCueRescue;
+namespace HakamiqChdTool.App.Services.BinCueRescue;
 
 internal enum BinCueRescueRefusalReason
 {
@@ -12,5 +12,6 @@ internal enum BinCueRescueRefusalReason
     AdjacentCueMissing = 7,
     AdjacentCueDoesNotReferenceBin = 8,
     UnsupportedPlatform = 9,
-    NonStandardSectorLayout = 10
+    NonStandardSectorLayout = 10,
+    PathHintOnly = 11
 }

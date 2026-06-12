@@ -1,0 +1,52 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/Style/Queue/QueueItemBaseStyles.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QueueWorkspaceSharedStyles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <DataTemplate x:Key="QueueItemProgressFieldsTemplate">
+        <Border Margin="{DynamicResource Inset.0.8.0.0}"
+                Style="{StaticResource FluentQueueProgressPanelBorder}"
+                ToolTip="{DynamicResource LocUi_QueueProgressPanelTooltip}"
+                Visibility="{Binding UiShowProgressRow, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid FlowDirection="{DynamicResource TechnicalText.FlowDirection}"
+                  Language="{DynamicResource TechnicalText.Language}"
+                  SnapsToDevicePixels="True"
+                  UseLayoutRounding="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <ProgressBar Grid.Column="0"
+                             VerticalAlignment="Center"
+                             Minimum="{DynamicResource Progress.Minimum}"
+                             Maximum="{DynamicResource Progress.Maximum}"
+                             IsIndeterminate="{Binding IsIndeterminate}"
+                             Value="{Binding ProgressBarDisplayValue, Mode=OneWay}"
+                             Style="{StaticResource FluentQueueCardProgressBar}" />
+
+                <TextBlock Grid.Column="2"
+                           MinWidth="{DynamicResource Space.48}"
+                           VerticalAlignment="Center"
+                           FlowDirection="{DynamicResource TechnicalText.FlowDirection}"
+                           Language="{DynamicResource TechnicalText.Language}"
+                           FontFamily="{DynamicResource FontFamily.Mono}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FontWeight="{DynamicResource FontWeight.SemiBold}"
+                           Foreground="{DynamicResource Brush.Progress.Fill}"
+                           Text="{Binding ProgressPercentDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Technical}"
+                           TextAlignment="{DynamicResource TechnicalText.TextAlignment}"
+                           TextWrapping="NoWrap"
+                           TextTrimming="CharacterEllipsis"
+                           Visibility="{Binding ShowProgressPercent, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           SnapsToDevicePixels="True"
+                           UseLayoutRounding="True" />
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>

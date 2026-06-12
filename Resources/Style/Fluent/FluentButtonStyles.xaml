@@ -4,11 +4,12 @@
 
     <Style x:Key="FluentPrimaryButton" TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
-        <Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground.OnAccent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
@@ -37,7 +38,10 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -50,14 +54,12 @@
                         </Trigger>
 
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Focus.StrokeOuter}" />
-                            <Setter TargetName="Root" Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                            <Setter TargetName="Root" Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
                             <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                         </Trigger>
@@ -91,7 +93,10 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -144,7 +149,10 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -176,15 +184,21 @@
 
     <Style x:Key="FluentGhostButton"
            TargetType="{x:Type Button}"
-           BasedOn="{StaticResource FluentSecondaryButton}" />
+           BasedOn="{StaticResource FluentSecondaryButton}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+    </Style>
 
     <Style x:Key="FluentHeaderGhostButton" TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="Foreground" Value="{DynamicResource HeaderChromeForegroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.10.8.10.8}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -210,7 +224,10 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -224,7 +241,6 @@
 
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
-                            <Setter TargetName="Root" Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
@@ -238,11 +254,12 @@
     </Style>
 
     <Style x:Key="FluentDestructiveButton" TargetType="{x:Type Button}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Error}" />
-        <Setter Property="Foreground" Value="{DynamicResource Brush.Error.Foreground}" />
+        <Setter Property="Background" Value="{DynamicResource ButtonDangerBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ButtonDangerForegroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
@@ -272,7 +289,10 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -285,14 +305,12 @@
                         </Trigger>
 
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Focus.StrokeOuter}" />
-                            <Setter TargetName="Root" Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                            <Setter TargetName="Root" Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
                             <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                         </Trigger>
@@ -310,6 +328,7 @@
         <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
         <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -326,7 +345,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Card}"
+                            CornerRadius="{DynamicResource Radius.Card.Medium}"
                             Padding="{TemplateBinding Padding}"
                             Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"
@@ -348,7 +367,8 @@
                                 <Path x:Name="ToolIconPath"
                                       Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
                                       Fill="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
-                                      Stretch="Uniform" />
+                                      Stretch="Uniform"
+                                      SnapsToDevicePixels="True" />
                             </Viewbox>
 
                             <ContentPresenter Grid.Column="2"
@@ -357,7 +377,10 @@
                                               RecognizesAccessKey="True"
                                               FlowDirection="{TemplateBinding FlowDirection}"
                                               Language="{TemplateBinding Language}"
-                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                              TextElement.FontSize="{TemplateBinding FontSize}"
+                                              TextElement.FontWeight="{TemplateBinding FontWeight}" />
                         </Grid>
                     </Border>
 
@@ -400,7 +423,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Card}"
+                            CornerRadius="{DynamicResource Radius.Card.Medium}"
                             Padding="{TemplateBinding Padding}"
                             Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"
@@ -422,7 +445,8 @@
                                 <Path x:Name="ToolIconPath"
                                       Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
                                       Fill="{DynamicResource Brush.Text.Muted}"
-                                      Stretch="Uniform" />
+                                      Stretch="Uniform"
+                                      SnapsToDevicePixels="True" />
                             </Viewbox>
 
                             <ContentPresenter Grid.Column="2"
@@ -431,7 +455,10 @@
                                               RecognizesAccessKey="True"
                                               FlowDirection="{TemplateBinding FlowDirection}"
                                               Language="{TemplateBinding Language}"
-                                              TextElement.Foreground="{TemplateBinding Foreground}" />
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                              TextElement.FontSize="{TemplateBinding FontSize}"
+                                              TextElement.FontWeight="{TemplateBinding FontWeight}" />
                         </Grid>
                     </Border>
 
@@ -444,6 +471,7 @@
 
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Error}" />
                             <Setter TargetName="ToolIconPath" Property="Fill" Value="{DynamicResource Brush.Error}" />
                         </Trigger>
 
@@ -472,7 +500,9 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -497,14 +527,16 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                         </Trigger>
 
                         <Trigger Property="IsPressed" Value="True">
@@ -534,6 +566,10 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -558,7 +594,10 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -580,6 +619,7 @@
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Root" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

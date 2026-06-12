@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Threading;
-using WpfApplication = System.Windows.Application;
+using AppHost = System.Windows.Application;
 
 namespace HakamiqChdTool.App.Localization;
 
@@ -119,7 +119,7 @@ public sealed class AppLanguageService
     {
         string normalized = NormalizeLanguageName(languageName);
 
-        WpfApplication? app = WpfApplication.Current;
+        AppHost? app = AppHost.Current;
         if (app is null)
         {
             ApplyCultureState(normalized);
@@ -155,7 +155,7 @@ public sealed class AppLanguageService
         }
     }
 
-    private void ApplyLanguageOnDispatcher(WpfApplication app, string languageName, bool raiseChanged)
+    private void ApplyLanguageOnDispatcher(AppHost app, string languageName, bool raiseChanged)
     {
         string requestedLanguage = NormalizeLanguageName(languageName);
 
@@ -170,7 +170,7 @@ public sealed class AppLanguageService
         }
     }
 
-    private void ApplyLanguageDictionary(WpfApplication app, string languageName, bool raiseChanged)
+    private void ApplyLanguageDictionary(AppHost app, string languageName, bool raiseChanged)
     {
         string normalized = NormalizeLanguageName(languageName);
         ResourceDictionary dictionary = CreateLanguageDictionary(normalized);
@@ -202,14 +202,14 @@ public sealed class AppLanguageService
         CultureInfo.DefaultThreadCurrentUICulture = culture;
     }
 
-    private void ApplyApplicationLanguageResources(WpfApplication app)
+    private void ApplyApplicationLanguageResources(AppHost app)
     {
         app.Resources[AppFlowDirectionResourceKey] = CurrentFlowDirection;
         app.Resources[AppXmlLanguageResourceKey] = CurrentXmlLanguage;
         app.Resources[AppCaptionButtonsFlowDirectionResourceKey] = FlowDirection.RightToLeft;
     }
 
-    private static void ApplyLanguageToOpenWindows(WpfApplication app)
+    private static void ApplyLanguageToOpenWindows(AppHost app)
     {
         foreach (Window window in app.Windows.OfType<Window>())
         {

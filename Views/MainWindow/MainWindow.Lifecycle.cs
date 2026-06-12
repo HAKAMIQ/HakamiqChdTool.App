@@ -1,20 +1,20 @@
-﻿using HakamiqChdTool.App.Core.Workflow;
-using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Threading;
 
 namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
+    private static readonly TimeSpan StartupUpdateCheckShutdownTimeout = TimeSpan.FromSeconds(3);
+    private static readonly TimeSpan RuntimeDeferredCleanupShutdownTimeout = TimeSpan.FromSeconds(3);
+    private static readonly TimeSpan QueueDisposeShutdownTimeout = TimeSpan.FromSeconds(8);
+    private static readonly TimeSpan PendingWorkspaceCleanupShutdownTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan RuntimeSessionCleanupShutdownTimeout = TimeSpan.FromSeconds(3);
+
     private async Task ShutdownAsync()
     {
         if (_shutdownCompleted)
@@ -55,17 +55,22 @@ public partial class MainWindow
 
         if (_startupUpdateCheckTask is not null)
         {
-            await RunBackgroundShutdownStepAsync("Wait for startup update check.", async () =>
-            {
-                await _startupUpdateCheckTask.ConfigureAwait(false);
-            }).ConfigureAwait(false);
+            await RunBackgroundShutdownStepAsync(
+                "Wait for startup update check.",
+                async () =>
+                {
+                    await _startupUpdateCheckTask.ConfigureAwait(false);
+                },
+                StartupUpdateCheckShutdownTimeout).ConfigureAwait(false);
         }
 
-        await RunBackgroundShutdownStepAsync("Wait for runtime tool deferred cleanup.", async () =>
-        {
-            await _runtimeTools.WaitForDeferredCleanupAsync().ConfigureAwait(false);
-        }).ConfigureAwait(false);
-
+        await RunBackgroundShutdownStepAsync(
+            "Wait for runtime tool deferred cleanup.",
+            async () =>
+            {
+                await _runtimeTools.WaitForDeferredCleanupAsync().ConfigureAwait(false);
+            },
+            RuntimeDeferredCleanupShutdownTimeout).ConfigureAwait(false);
 
         await RunUiShutdownStepAsync("Dispose MainWindow view model.", () =>
         {
@@ -82,13 +87,18 @@ public partial class MainWindow
             _queueController.Dispose();
         }).ConfigureAwait(false);
 
-        await RunBackgroundShutdownStepAsync("Dispose queue.", async () =>
-        {
-            await _queue.DisposeAsync().ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        await RunBackgroundShutdownStepAsync(
+            "Dispose queue.",
+            async () =>
+            {
+                await _queue.DisposeAsync().ConfigureAwait(false);
+            },
+            QueueDisposeShutdownTimeout).ConfigureAwait(false);
 
-        await RunBackgroundShutdownStepAsync("Clean pending conversion workspaces after queue shutdown.", () =>
-            Task.Run(TryCleanupPendingWorkspacesAfterQueueShutdown)).ConfigureAwait(false);
+        await RunBackgroundShutdownStepAsync(
+            "Clean pending conversion workspaces after queue shutdown.",
+            () => Task.Run(TryCleanupPendingWorkspacesAfterQueueShutdown),
+            PendingWorkspaceCleanupShutdownTimeout).ConfigureAwait(false);
 
         await RunUiShutdownStepAsync("Release queue viewport resolver.", () =>
         {
@@ -105,10 +115,13 @@ public partial class MainWindow
             _viewport.Dispose();
         }).ConfigureAwait(false);
 
-        await RunBackgroundShutdownStepAsync("Clean up runtime tool session.", async () =>
-        {
-            await Task.Run(_runtimeTools.TryCleanupCurrentSession).ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        await RunBackgroundShutdownStepAsync(
+            "Clean up runtime tool session.",
+            async () =>
+            {
+                await Task.Run(_runtimeTools.TryCleanupCurrentSession).ConfigureAwait(false);
+            },
+            RuntimeSessionCleanupShutdownTimeout).ConfigureAwait(false);
 
         await RunUiShutdownStepAsync("Dispose window lifetime token source.", () =>
         {
@@ -183,118 +196,6 @@ public partial class MainWindow
         _ = BeginDeterministicShutdownAsync();
     }
 
-    private void TryCleanupPendingWorkspacesAfterQueueShutdown()
-    {
-        try
-        {
-            string[] outputRoots = CollectKnownOutputRootsForPendingWorkspaceCleanup();
-            if (outputRoots.Length == 0)
-            {
-                return;
-            }
-
-            string[] pendingRoots = BuildPendingWorkspaceRoots(outputRoots);
-            if (pendingRoots.Length > 0)
-            {
-                OrphanedWorkItemScanResult scanResult = _orphanedScanner.Scan(
-                    TimeSpan.Zero,
-                    pendingRoots);
-
-                if (scanResult.HasItems)
-                {
-                    _orphanedCleanup.Clean(scanResult);
-                }
-            }
-
-            foreach (string outputRoot in outputRoots)
-            {
-                WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
-            }
-        }
-        catch (Exception ex) when (IsExpectedPendingWorkspaceShutdownCleanupException(ex))
-        {
-            Log.Debug(ex, "Pending workspace shutdown cleanup was skipped after a non-fatal error.");
-        }
-    }
-
-    private string[] CollectKnownOutputRootsForPendingWorkspaceCleanup()
-    {
-        var outputRoots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var row in _queueRowStore.GetRowsSnapshot())
-        {
-            string originalPath = row.OriginalPath;
-            string sourcePath = string.IsNullOrWhiteSpace(row.SourcePath)
-                ? row.OriginalPath
-                : row.SourcePath;
-
-            TryAddOutputRootForPendingWorkspaceCleanup(outputRoots, originalPath, sourcePath);
-
-            if (!string.Equals(originalPath, sourcePath, StringComparison.OrdinalIgnoreCase))
-            {
-                TryAddOutputRootForPendingWorkspaceCleanup(outputRoots, originalPath, originalPath);
-            }
-        }
-
-        return [.. outputRoots];
-    }
-
-    private void TryAddOutputRootForPendingWorkspaceCleanup(
-        HashSet<string> outputRoots,
-        string originalPath,
-        string sourcePath)
-    {
-        if (string.IsNullOrWhiteSpace(originalPath) || string.IsNullOrWhiteSpace(sourcePath))
-        {
-            return;
-        }
-
-        try
-        {
-            string outputRoot = WorkflowPathUtilities.ResolveBaseOutputRoot(originalPath, sourcePath, _settings);
-            if (!string.IsNullOrWhiteSpace(outputRoot))
-            {
-                outputRoots.Add(Path.GetFullPath(outputRoot));
-            }
-        }
-        catch (Exception ex) when (IsExpectedPendingWorkspaceShutdownCleanupException(ex))
-        {
-            Log.Debug(ex, "Failed to resolve output root for pending workspace shutdown cleanup. OriginalPath={OriginalPath}; SourcePath={SourcePath}", originalPath, sourcePath);
-        }
-    }
-
-    private string[] BuildPendingWorkspaceRoots(IEnumerable<string> outputRoots)
-    {
-        var pendingRoots = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (string outputRoot in outputRoots)
-        {
-            try
-            {
-                string pendingRoot = PendingWorkspacePathPolicy.ResolvePendingWorkspaceRoot(outputRoot, _settings);
-                if (Directory.Exists(pendingRoot))
-                {
-                    pendingRoots.Add(Path.GetFullPath(pendingRoot));
-                }
-            }
-            catch (Exception ex) when (IsExpectedPendingWorkspaceShutdownCleanupException(ex))
-            {
-                Log.Debug(ex, "Failed to resolve pending workspace root for shutdown cleanup. OutputRoot={OutputRoot}", outputRoot);
-            }
-        }
-
-        return [.. pendingRoots];
-    }
-
-    private static bool IsExpectedPendingWorkspaceShutdownCleanupException(Exception ex) =>
-        ex is IOException
-        or UnauthorizedAccessException
-        or ArgumentException
-        or InvalidOperationException
-        or NotSupportedException
-        or PathTooLongException
-        or System.Security.SecurityException;
-
     private async Task RunUiShutdownStepAsync(string stepName, Action action)
     {
         ArgumentNullException.ThrowIfNull(action);
@@ -312,41 +213,80 @@ public partial class MainWindow
                 return;
             }
 
-            await Dispatcher.InvokeAsync(action, DispatcherPriority.Send);
+            await Dispatcher.InvokeAsync(
+                action,
+                DispatcherPriority.Send);
         }
         catch (TaskCanceledException ex) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
         {
-            Log.Debug(ex, "Shutdown UI step cancelled because Dispatcher is shutting down: {StepName}", stepName);
+            Log.Debug(
+                ex,
+                "Shutdown UI step cancelled because Dispatcher is shutting down: {StepName}",
+                stepName);
         }
         catch (InvalidOperationException ex) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
         {
-            Log.Debug(ex, "Shutdown UI step skipped because Dispatcher is shutting down: {StepName}", stepName);
+            Log.Debug(
+                ex,
+                "Shutdown UI step skipped because Dispatcher is shutting down: {StepName}",
+                stepName);
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Shutdown UI step failed: {StepName}", stepName);
+            Log.Warning(
+                ex,
+                "Shutdown UI step failed: {StepName}",
+                stepName);
         }
     }
 
-    private static async Task RunBackgroundShutdownStepAsync(string stepName, Func<Task> action)
+    private static async Task RunBackgroundShutdownStepAsync(
+        string stepName,
+        Func<Task> action,
+        TimeSpan? timeout = null)
     {
         ArgumentNullException.ThrowIfNull(action);
 
         try
         {
-            await action().ConfigureAwait(false);
+            Task stepTask = action();
+
+            if (timeout.HasValue)
+            {
+                await stepTask.WaitAsync(timeout.Value).ConfigureAwait(false);
+            }
+            else
+            {
+                await stepTask.ConfigureAwait(false);
+            }
+        }
+        catch (TimeoutException ex)
+        {
+            Log.Warning(
+                ex,
+                "Shutdown background step timed out: {StepName}",
+                stepName);
         }
         catch (OperationCanceledException ex)
         {
-            Log.Debug(ex, "Shutdown background step cancelled: {StepName}", stepName);
+            Log.Debug(
+                ex,
+                "Shutdown background step cancelled: {StepName}",
+                stepName);
         }
         catch (ObjectDisposedException ex)
         {
-            Log.Debug(ex, "Shutdown background step skipped because dependency was disposed: {StepName}", stepName);
+            Log.Debug(
+                ex,
+                "Shutdown background step skipped because dependency was disposed: {StepName}",
+                stepName);
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Shutdown background step failed: {StepName}", stepName);
+            Log.Warning(
+                ex,
+                "Shutdown background step failed: {StepName}",
+                stepName);
         }
     }
 }

@@ -1,8 +1,11 @@
-﻿using HakamiqChdTool.App.Localization;
+using System;
+using System.Linq;
+using System.Windows;
+using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using System;
-using System.Windows;
+using HakamiqChdTool.App.Services.Features;
+using HakamiqChdTool.App.ViewModels;
 
 namespace HakamiqChdTool.App;
 
@@ -50,7 +53,10 @@ public partial class MainWindow
             return;
         }
 
-        if (!string.Equals(_settings.Theme, ThemeService.Instance.CurrentThemeName, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(
+                _settings.Theme,
+                ThemeService.Instance.CurrentThemeName,
+                StringComparison.OrdinalIgnoreCase))
         {
             ThemeService.Instance.SetTheme(_settings.Theme);
         }
@@ -64,8 +70,9 @@ public partial class MainWindow
     private void SyncFeatureVisibility()
     {
         _viewModel.IsRedumpFeatureVisible =
-            _settings.EnableDeepIntegrityCheck
-            && _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity);
+            _settings.EnableDeepIntegrityCheck &&
+            _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity);
+
         _viewModel.NotifyQueueCommandsCanExecuteChanged();
     }
 
@@ -124,5 +131,22 @@ public partial class MainWindow
     {
         SyncThemeSelectorFromService();
         SyncFeatureVisibility();
+        RefreshThemeRuntimeResources();
+        UpdateHeaderModeText();
+        UpdateUiState();
+    }
+
+    private void RefreshThemeRuntimeResources()
+    {
+        FooterStatusStrip.RefreshThemeBrushes();
+
+        foreach (TaskQueueItemViewModel item in _viewModel.QueueItems.OfType<TaskQueueItemViewModel>())
+        {
+            item.RefreshThemeBrushes();
+        }
+
+        TasksDataGrid.Items.Refresh();
+        QueueWorkspace.InvalidateVisual();
+        InvalidateVisual();
     }
 }

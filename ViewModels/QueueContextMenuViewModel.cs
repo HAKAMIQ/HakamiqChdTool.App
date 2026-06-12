@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using HakamiqChdTool.App.Localization;
 using System;
 using System.Threading.Tasks;

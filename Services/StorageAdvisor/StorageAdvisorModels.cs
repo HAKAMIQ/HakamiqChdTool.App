@@ -1,18 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using HakamiqChdTool.App.Services.Storage;
 
 namespace HakamiqChdTool.App.Services.StorageAdvisor;
 
-internal enum StorageDeviceKind
-{
-    Unknown = 0,
-    Hdd = 1,
-    SataSsd = 2,
-    NvmeSsd = 3,
-    Removable = 4,
-    Network = 5
-}
 
 internal enum StoragePathRole
 {

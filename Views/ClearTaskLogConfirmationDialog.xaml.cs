@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
+
 using HakamiqChdTool.App.Localization;
 
 namespace HakamiqChdTool.App.Views;
@@ -17,10 +17,21 @@ public partial class ClearTaskLogConfirmationDialog : Window
     {
     }
 
-    internal ClearTaskLogConfirmationDialog(string title, string body, string confirmText, string cancelText)
+    internal ClearTaskLogConfirmationDialog(
+        string title,
+        string body,
+        string confirmText,
+        string cancelText)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(title);
+        ArgumentException.ThrowIfNullOrWhiteSpace(body);
+        ArgumentException.ThrowIfNullOrWhiteSpace(confirmText);
+        ArgumentException.ThrowIfNullOrWhiteSpace(cancelText);
+
         InitializeComponent();
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
         AppLanguageService.ApplyToWindow(this);
+
         DataContext = new ConfirmationDialogModel(
             title.Trim(),
             body.Trim(),
@@ -30,12 +41,12 @@ public partial class ClearTaskLogConfirmationDialog : Window
 
     private void ConfirmButton_Click(object sender, RoutedEventArgs e)
     {
-        DialogResult = true;
+        CloseWithDialogResult(true);
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
-        DialogResult = false;
+        CloseWithDialogResult(false);
     }
 
     private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -45,18 +56,25 @@ public partial class ClearTaskLogConfirmationDialog : Window
             return;
         }
 
-        Dispatcher dispatcher = Dispatcher;
-        if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
-        {
-            return;
-        }
-
         try
         {
             DragMove();
+            e.Handled = true;
         }
         catch (InvalidOperationException)
         {
+        }
+    }
+
+    private void CloseWithDialogResult(bool result)
+    {
+        try
+        {
+            DialogResult = result;
+        }
+        catch (InvalidOperationException)
+        {
+            Close();
         }
     }
 

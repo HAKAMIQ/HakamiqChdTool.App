@@ -7,7 +7,7 @@
     <FontFamily x:Key="FontFamily.Small">Segoe UI Variable Small, Segoe UI</FontFamily>
     <FontFamily x:Key="FontFamily.Base">Segoe UI Variable Text, Segoe UI</FontFamily>
     <FontFamily x:Key="FontFamily.App">Segoe UI Variable Text, Segoe UI</FontFamily>
-    <FontFamily x:Key="FontFamily.Numeric">Bahnschrift, Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontFamily.Numeric">Segoe UI Variable Text, Segoe UI</FontFamily>
     <FontFamily x:Key="FontFamily.Mono">Cascadia Mono, Cascadia Code, Consolas, Courier New</FontFamily>
     <FontFamily x:Key="FontFamily.Monospace">Cascadia Mono, Cascadia Code, Consolas, Courier New</FontFamily>
     <FontFamily x:Key="FontFamily.Icon">Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI Symbol, Segoe UI Variable Text, Segoe UI</FontFamily>

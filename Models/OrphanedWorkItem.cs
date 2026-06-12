@@ -2,33 +2,29 @@ using System;
 
 namespace HakamiqChdTool.App.Models;
 
-internal sealed class OrphanedWorkItem
+internal sealed class OrphanedWorkItem(
+    string path,
+    OrphanedWorkItemKind kind,
+    long sizeBytes,
+    int fileCount,
+    DateTimeOffset lastWriteUtc)
 {
-    public OrphanedWorkItem(
-        string path,
-        OrphanedWorkItemKind kind,
-        long sizeBytes,
-        int fileCount,
-        DateTimeOffset lastWriteUtc)
+    public string Path { get; } = ValidatePath(path);
+
+    public OrphanedWorkItemKind Kind { get; } = kind;
+
+    public long SizeBytes { get; } = Math.Max(0, sizeBytes);
+
+    public int FileCount { get; } = Math.Max(0, fileCount);
+
+    public DateTimeOffset LastWriteUtc { get; } = lastWriteUtc;
+
+    private static string ValidatePath(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
-        Path = path;
-        Kind = kind;
-        SizeBytes = Math.Max(0, sizeBytes);
-        FileCount = Math.Max(0, fileCount);
-        LastWriteUtc = lastWriteUtc;
+        return path;
     }
-
-    public string Path { get; }
-
-    public OrphanedWorkItemKind Kind { get; }
-
-    public long SizeBytes { get; }
-
-    public int FileCount { get; }
-
-    public DateTimeOffset LastWriteUtc { get; }
 }
 
 internal enum OrphanedWorkItemKind

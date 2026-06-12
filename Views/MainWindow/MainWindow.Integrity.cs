@@ -1,18 +1,21 @@
-﻿using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.ViewModels;
-using Serilog;
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.Features;
+using HakamiqChdTool.App.ViewModels;
+using Serilog;
 
 namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
-    private async Task RunDeepIntegrityValidationAsync(TaskQueueItemViewModel item, string probePath)
+    private async Task RunDeepIntegrityValidationAsync(
+        TaskQueueItemViewModel item,
+        string probePath)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -32,8 +35,8 @@ public partial class MainWindow
 
         CancellationToken cancellationToken = _windowLifetimeCts.Token;
 
-        if (!_settings.EnableDeepIntegrityCheck
-            || !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity))
+        if (!_settings.EnableDeepIntegrityCheck ||
+            !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity))
         {
             await InvokeOnUiIfAvailableAsync(() =>
             {
@@ -65,7 +68,7 @@ public partial class MainWindow
 
             string probeKey = FilePathExclusiveGate.NormalizePathForExclusiveLock(probePath);
 
-            await using var _ = await FilePathExclusiveGate
+            await using IAsyncDisposable exclusivePathLease = await FilePathExclusiveGate
                 .AcquireAsync(probeKey, cancellationToken)
                 .ConfigureAwait(false);
 
@@ -161,13 +164,19 @@ public partial class MainWindow
 
                 ApplyRedumpResultAndSync(item, result);
 
-                DeepHashAnalysisPresentation presentation = DeepHashAnalysisPresenter.Format(result);
-                SetFooterStatus(ArabicUi.Format(MainWindowMessages.Fmt_DeepIntegrityDone, presentation.StatusMessage));
+                DeepHashAnalysisView presentation = DeepHashAnalysisPresenter.Format(result);
+
+                SetFooterStatus(ArabicUi.Format(
+                    MainWindowMessages.Fmt_DeepIntegrityDone,
+                    presentation.StatusMessage));
             }).ConfigureAwait(false);
         }
         catch (OperationCanceledException ex)
         {
-            Log.Debug(ex, "Deep integrity validation was cancelled. ProbePath={ProbePath}", probePath);
+            Log.Debug(
+                ex,
+                "Deep integrity validation was cancelled. ProbePath={ProbePath}",
+                probePath);
 
             await InvokeOnUiIfAvailableAsync(() =>
             {
@@ -182,17 +191,29 @@ public partial class MainWindow
         }
         catch (IOException ex)
         {
-            Log.Warning(ex, "Deep integrity validation failed due to an I/O error. ProbePath={ProbePath}", probePath);
+            Log.Warning(
+                ex,
+                "Deep integrity validation failed due to an I/O error. ProbePath={ProbePath}",
+                probePath);
+
             await ApplyDeepIntegrityErrorAsync(item).ConfigureAwait(false);
         }
         catch (UnauthorizedAccessException ex)
         {
-            Log.Warning(ex, "Deep integrity validation failed due to access permissions. ProbePath={ProbePath}", probePath);
+            Log.Warning(
+                ex,
+                "Deep integrity validation failed due to access permissions. ProbePath={ProbePath}",
+                probePath);
+
             await ApplyDeepIntegrityErrorAsync(item).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            Log.Warning(ex, "Deep integrity validation failed unexpectedly. ProbePath={ProbePath}", probePath);
+            Log.Warning(
+                ex,
+                "Deep integrity validation failed unexpectedly. ProbePath={ProbePath}",
+                probePath);
+
             await ApplyDeepIntegrityErrorAsync(item).ConfigureAwait(false);
         }
         finally
@@ -207,6 +228,8 @@ public partial class MainWindow
 
     private Task ApplyDeepIntegrityErrorAsync(TaskQueueItemViewModel item)
     {
+        ArgumentNullException.ThrowIfNull(item);
+
         return InvokeOnUiIfAvailableAsync(() =>
         {
             ApplyIntegrityAndSync(
@@ -244,7 +267,9 @@ public partial class MainWindow
         }
     }
 
-    private async Task<T> InvokeOnUiIfAvailableAsync<T>(Func<T> action, T fallback)
+    private async Task<T> InvokeOnUiIfAvailableAsync<T>(
+        Func<T> action,
+        T fallback)
     {
         ArgumentNullException.ThrowIfNull(action);
 

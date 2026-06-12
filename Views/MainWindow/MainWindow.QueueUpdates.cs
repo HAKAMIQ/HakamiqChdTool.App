@@ -1,20 +1,29 @@
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Ui.Queue;
+using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 
 namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
-    private string GetChdmanPath() => _chdmanPathResolver.ResolvePath(_settings);
+    private string GetChdmanPath()
+    {
+        return _chdmanPathResolver.ResolvePath(_settings);
+    }
 
     private void OnQueueItemUpdated(ChdQueueItem item)
     {
+        ArgumentNullException.ThrowIfNull(item);
+
         _pendingQueueUiSnapshots[item.Id] = CloneQueueItemSnapshot(item);
 
         if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
@@ -68,8 +77,8 @@ public partial class MainWindow
         {
             Interlocked.Exchange(ref _pendingQueueUiFlush, 0);
 
-            if (!_pendingQueueUiSnapshots.IsEmpty
-                && Interlocked.Exchange(ref _pendingQueueUiFlush, 1) == 0)
+            if (!_pendingQueueUiSnapshots.IsEmpty &&
+                Interlocked.Exchange(ref _pendingQueueUiFlush, 1) == 0)
             {
                 SchedulePendingQueueUiFlush();
             }
@@ -113,6 +122,7 @@ public partial class MainWindow
         if (IsTerminalQueueStatus(item.Status))
         {
             SetHasActiveQueueBindingAndSync(item.Id, false);
+            ApplyTerminalQueueStatusToRow(item);
         }
 
         task?.ApplyQueueItemSnapshot(item);
@@ -133,8 +143,31 @@ public partial class MainWindow
         }
     }
 
-    private TaskQueueItemViewModel? TryResolveTaskByQueueItemId(Guid id) =>
-        _viewport.TryGetMaterialized(id);
+    private void ApplyTerminalQueueStatusToRow(ChdQueueItem item)
+    {
+        _queueRowStore.Mutate(item.Id, row =>
+        {
+            if (string.Equals(item.Status, TaskQueueStateCodes.Cancelled, StringComparison.OrdinalIgnoreCase))
+            {
+                row.CurrentState = TaskQueueStateCodes.Cancelled;
+                row.FinalResult = TaskFinalResultCodes.Cancelled;
+                row.StatusDetail = string.IsNullOrWhiteSpace(item.Error)
+                    ? "LocQueue_OperationCancelled"
+                    : item.Error;
+
+                row.IsProgressActive = false;
+                row.IsIndeterminate = false;
+                row.RuntimeProgressKind = QueueRuntimeProgressKind.None;
+                row.RuntimeProgressPrimaryMessageKey = string.Empty;
+                row.RuntimeProgressShowActivitySpinner = false;
+            }
+        });
+    }
+
+    private TaskQueueItemViewModel? TryResolveTaskByQueueItemId(Guid id)
+    {
+        return _viewport.TryGetMaterialized(id);
+    }
 
     private static ChdQueueItem CloneQueueItemSnapshot(ChdQueueItem item)
     {
@@ -158,8 +191,8 @@ public partial class MainWindow
 
     private static bool ShouldLogTerminalQueueError(ChdQueueItem item)
     {
-        return (string.Equals(item.Status, TaskQueueStateCodes.Failed, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(item.Status, TaskQueueStateCodes.Cancelled, StringComparison.OrdinalIgnoreCase))
-            && !string.IsNullOrWhiteSpace(item.Error);
+        return (string.Equals(item.Status, TaskQueueStateCodes.Failed, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(item.Status, TaskQueueStateCodes.Cancelled, StringComparison.OrdinalIgnoreCase)) &&
+            !string.IsNullOrWhiteSpace(item.Error);
     }
 }

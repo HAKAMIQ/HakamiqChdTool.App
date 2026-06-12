@@ -186,8 +186,25 @@ internal sealed class ConversionSessionScope : IAsyncDisposable
             }
 
             _unavailableNotified = true;
+            _lastNotifiedSeverity = decision.Severity;
+
+            _log.Debug(
+                "Storage temperature monitoring unavailable. Severity={Severity}; Device={Device}; TemperatureCapability={TemperatureCapability}; Reason={ReasonCode}; MessageKey={MessageKey}",
+                decision.Severity,
+                _device.DisplayName,
+                _temperatureCapability,
+                reading.UnavailableReasonCode,
+                decision.MessageKey);
+
+            _onNotification?.Invoke(new ConversionSessionNotification(
+                decision.MessageKey,
+                decision.Severity,
+                decision.CurrentCelsius));
+
+            return !IsStableUnavailableCapability(_temperatureCapability);
         }
-        else if (decision.Severity <= _lastNotifiedSeverity)
+
+        if (decision.Severity <= _lastNotifiedSeverity)
         {
             return true;
         }
@@ -205,8 +222,7 @@ internal sealed class ConversionSessionScope : IAsyncDisposable
             decision.Severity,
             decision.CurrentCelsius));
 
-        return decision.Severity != StorageHealthSeverity.Unavailable
-            || !IsStableUnavailableCapability(_temperatureCapability);
+        return true;
     }
 
     private void LogTemperatureCapabilityOnce(StorageTemperatureReading reading)
@@ -218,7 +234,8 @@ internal sealed class ConversionSessionScope : IAsyncDisposable
 
         _temperatureCapabilityLogged = true;
 
-        if (reading.DiagnosticException is Exception ex)
+        if (reading.DiagnosticException is Exception ex
+            && !IsStableUnavailableCapability(reading.Capability))
         {
             _log.Debug(
                 ex,

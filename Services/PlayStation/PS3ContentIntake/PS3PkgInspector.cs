@@ -29,7 +29,7 @@ public sealed class PS3PkgInspector
         var warnings = new List<string>();
         if (!File.Exists(path))
         {
-            warnings.Add("The selected PKG file was not found.");
+            warnings.Add(PS3ContentIntakeMessages.WarningPkgMissing);
             return BuildResult(path, PS3PkgMetadataInvalid(), warnings);
         }
 
@@ -50,7 +50,7 @@ public sealed class PS3PkgInspector
 
             if (!HasPkgMagic(span))
             {
-                warnings?.Add("The PKG header was not recognized.");
+                warnings?.Add(PS3ContentIntakeMessages.WarningPkgHeaderUnrecognized);
                 return PS3PkgMetadataInvalid();
             }
 
@@ -61,7 +61,7 @@ public sealed class PS3PkgInspector
 
             if (string.IsNullOrWhiteSpace(contentId))
             {
-                warnings?.Add("The PKG header is valid, but Content ID was not found in the probed header area.");
+                warnings?.Add(PS3ContentIntakeMessages.WarningPkgContentIdMissing);
             }
 
             return new PS3PkgMetadata(
@@ -73,7 +73,7 @@ public sealed class PS3PkgInspector
         }
         catch (Exception ex) when (IsExpectedReadException(ex))
         {
-            warnings?.Add("The PKG header could not be read.");
+            warnings?.Add(PS3ContentIntakeMessages.WarningPkgHeaderUnreadable);
             return PS3PkgMetadataInvalid();
         }
     }
@@ -95,8 +95,8 @@ public sealed class PS3PkgInspector
             IsProbablyEncrypted: metadata.IsProbablyEncrypted,
             CanConvertToChd: false,
             RecommendedPipeline: metadata.IsValidPackage
-                ? "Install into RPCS3-like dev_hdd0/game layout or keep as package"
-                : "Keep as package; unsupported or invalid PKG header",
+                ? PS3ContentIntakeMessages.PipelinePkgInstallable
+                : PS3ContentIntakeMessages.PipelinePkgUnsupported,
             Warnings: warnings);
 
     private static bool HasPkgMagic(ReadOnlySpan<byte> header) =>

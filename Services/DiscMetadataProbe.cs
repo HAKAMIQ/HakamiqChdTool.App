@@ -1,4 +1,5 @@
-﻿using DiscUtils.Iso9660;
+using HakamiqChdTool.App.Models;
+using DiscUtils.Iso9660;
 using System.IO;
 using System.Text;
 

@@ -1,0 +1,169 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/Style/Queue/QueueItemBaseStyles.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QueueWorkspaceSharedStyles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <DataTemplate x:Key="QueueItemStatusFieldsTemplate">
+        <Grid Margin="{DynamicResource Inset.0.8.0.0}"
+              FlowDirection="{DynamicResource App.FlowDirection}"
+              Language="{DynamicResource App.XmlLanguage}"
+              Visibility="{Binding UiShowIdleSurface, Converter={StaticResource BooleanToVisibilityConverter}}"
+              SnapsToDevicePixels="True"
+              UseLayoutRounding="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0"
+                  MinWidth="0"
+                  FlowDirection="{DynamicResource App.FlowDirection}"
+                  Language="{DynamicResource App.XmlLanguage}"
+                  SnapsToDevicePixels="True"
+                  UseLayoutRounding="True">
+
+                <Border Style="{StaticResource FluentQueueInlineSurfaceBorder}"
+                        Visibility="{Binding ShowInlineFixedAction, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock VerticalAlignment="Center"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FontWeight="{DynamicResource FontWeight.SemiBold}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               Text="{Binding SelectedOperationDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}"
+                               TextTrimming="CharacterEllipsis"
+                               TextWrapping="NoWrap"
+                               SnapsToDevicePixels="True"
+                               UseLayoutRounding="True" />
+                </Border>
+
+                <Grid Visibility="{Binding ShowOperationCombo, Converter={StaticResource BooleanToVisibilityConverter}}"
+                      FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True"
+                      UseLayoutRounding="True">
+                    <ComboBox Background="{DynamicResource InputBackgroundBrush}"
+                              BorderBrush="{DynamicResource InputBorderBrush}"
+                              BorderThickness="{DynamicResource Inset.1.All}"
+                              FlowDirection="{DynamicResource App.FlowDirection}"
+                              Language="{DynamicResource App.XmlLanguage}"
+                              FontFamily="{DynamicResource FontFamily.Base}"
+                              FontSize="{DynamicResource FontSize.Caption}"
+                              Foreground="{DynamicResource InputForegroundBrush}"
+                              ItemsSource="{Binding OperationChoices}"
+                              Padding="{DynamicResource Inset.10.5}"
+                              SelectedValue="{Binding SelectedOperationBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Code"
+                              TextSearch.TextPath="Label"
+                              SnapsToDevicePixels="True"
+                              UseLayoutRounding="True">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock FlowDirection="{DynamicResource App.FlowDirection}"
+                                           Language="{DynamicResource App.XmlLanguage}"
+                                           FontFamily="{DynamicResource FontFamily.Base}"
+                                           FontSize="{DynamicResource FontSize.Caption}"
+                                           Foreground="{DynamicResource Brush.Text.Primary}"
+                                           Text="{Binding Label, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                           TextAlignment="{DynamicResource App.DefaultTextAlignment}"
+                                           TextTrimming="CharacterEllipsis"
+                                           TextWrapping="NoWrap"
+                                           SnapsToDevicePixels="True"
+                                           UseLayoutRounding="True" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Margin="{DynamicResource Inset.34.0}"
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               Foreground="{DynamicResource Brush.Text.Secondary}"
+                               Text="{DynamicResource LocQueue_Label_ChooseAction}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}"
+                               TextTrimming="CharacterEllipsis"
+                               TextWrapping="NoWrap"
+                               Visibility="{Binding ShowActionPlaceholder, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               SnapsToDevicePixels="True"
+                               UseLayoutRounding="True" />
+                </Grid>
+            </Grid>
+
+            <Button Grid.Column="2"
+                    MinHeight="{DynamicResource Space.32}"
+                    Padding="{DynamicResource Inset.12.7}"
+                    FlowDirection="{DynamicResource App.FlowDirection}"
+                    Language="{DynamicResource App.XmlLanguage}"
+                    Command="{Binding DataContext.VerifyRowRedumpCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                    CommandParameter="{Binding}"
+                    ToolTip="{DynamicResource LocQueue_RedumpVerifyTooltip}"
+                    ToolTipService.ShowOnDisabled="True">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}"
+                           BasedOn="{StaticResource FluentQueueRowSubtleActionButton}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsRedumpFeatureVisible, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding IntegrityState}" Value="Validating">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+
+                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True"
+                      UseLayoutRounding="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox Grid.Column="0"
+                             Width="{DynamicResource Space.14}"
+                             Height="{DynamicResource Space.14}"
+                             VerticalAlignment="Center"
+                             FlowDirection="LeftToRight"
+                             Stretch="Uniform"
+                             SnapsToDevicePixels="True">
+                        <Path Data="{StaticResource Icon.DatabaseSearch}"
+                              Fill="{DynamicResource Brush.Accent}"
+                              Stretch="Uniform"
+                              SnapsToDevicePixels="True" />
+                    </Viewbox>
+
+                    <TextBlock Grid.Column="2"
+                               VerticalAlignment="Center"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FontWeight="{DynamicResource FontWeight.SemiBold}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               Text="{DynamicResource LocQueue_RedumpVerifyButton}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}"
+                               TextTrimming="CharacterEllipsis"
+                               TextWrapping="NoWrap"
+                               SnapsToDevicePixels="True"
+                               UseLayoutRounding="True" />
+                </Grid>
+            </Button>
+        </Grid>
+    </DataTemplate>
+
+</ResourceDictionary>

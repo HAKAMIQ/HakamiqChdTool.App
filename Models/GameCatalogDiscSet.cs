@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,8 +19,8 @@ public sealed record GameCatalogDiscSet
         CollectionTitle = collectionTitle ?? string.Empty;
         DirectoryPath = directoryPath ?? string.Empty;
         Discs = discs is null || discs.Count == 0
-            ? Array.Empty<GameCatalogEntry>()
-            : discs.Where(static entry => entry is not null).ToArray();
+            ? []
+            : [.. discs.Where(static entry => entry is not null)];
     }
 
     public string Key { get; init; }

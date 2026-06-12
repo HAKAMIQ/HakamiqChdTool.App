@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Models;
 using System;
 

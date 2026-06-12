@@ -2,6 +2,7 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
 using HakamiqChdTool.App.Services.PlayStation.BluRayAnalysis;
+using HakamiqChdTool.App.Services.MediaInputPolicy;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -140,11 +141,42 @@ public static class ChdWorkflowProfilePlanner
             ".iso" => PlanIsoCreate(inputPath, isoCreateCommandOverride, containerKind),
             ".chd" => ChdWorkflowProfilePlan.Unsupported(ChdAlreadyChdMessageKey, containerKind),
             ".zip" or ".rar" or ".7z" => ChdWorkflowProfilePlan.Unsupported(ArchiveRequiresExtractionMessageKey, ChdMediaContainerKind.Archive),
-            ".bin" => ChdWorkflowProfilePlan.Unsupported(BinStandaloneBlockedMessageKey, containerKind),
+            ".bin" => PlanStandaloneBinCreate(inputPath, containerKind),
             ".cdi" => ChdWorkflowProfilePlan.Unsupported(UnsupportedMessageKey, containerKind),
             ".raw" => ChdWorkflowProfilePlan.Unsupported(RawStandaloneBlockedMessageKey, containerKind),
             _ => ChdWorkflowProfilePlan.Unsupported(UnsupportedMessageKey, containerKind)
         };
+    }
+
+    private static ChdWorkflowProfilePlan PlanStandaloneBinCreate(
+        string inputPath,
+        ChdMediaContainerKind containerKind)
+    {
+        MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(inputPath);
+        if (mediaDecision.IsRedirectedToCue)
+        {
+            return PlanDescriptorCreateCd(mediaDecision.EffectivePath, ChdMediaFormatKind.Cue, StatusCreateCueKey, containerKind);
+        }
+
+        if (mediaDecision.RequiresTemporaryCue)
+        {
+            return new ChdWorkflowProfilePlan
+            {
+                IsSupported = true,
+                ContainerKind = containerKind,
+                MediaKind = ChdMediaFormatKind.Cue,
+                ProfileKind = ChdWorkflowProfileKind.CreateCd,
+                Command = "createcd",
+                OutputExtension = ".chd",
+                StatusLine = StatusCreateCueKey
+            };
+        }
+
+        return ChdWorkflowProfilePlan.Unsupported(
+            string.IsNullOrWhiteSpace(mediaDecision.MessageKey)
+                ? BinStandaloneBlockedMessageKey
+                : mediaDecision.MessageKey,
+            containerKind);
     }
 
     public static ChdWorkflowProfilePlan PlanVerifyChd(string inputPath)
@@ -377,7 +409,7 @@ public static class ChdWorkflowProfilePlanner
         return true;
     }
 
-    private static bool IsRawChdMediaType(string mediaType) =>
+    public static bool IsRawChdMediaType(string mediaType) =>
         string.Equals(mediaType, "Raw", StringComparison.OrdinalIgnoreCase)
         || string.Equals(mediaType, "RAW", StringComparison.OrdinalIgnoreCase)
         || string.Equals(mediaType, "Raw Disk", StringComparison.OrdinalIgnoreCase);

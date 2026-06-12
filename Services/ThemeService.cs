@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using WpfApplication = System.Windows.Application;
+using AppHost = System.Windows.Application;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -85,7 +85,7 @@ public sealed class ThemeService : IThemeManager
     {
         ArgumentNullException.ThrowIfNull(action);
 
-        WpfApplication? app = WpfApplication.Current;
+        AppHost? app = AppHost.Current;
         Dispatcher? dispatcher = app?.Dispatcher;
 
         if (dispatcher is null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
@@ -113,7 +113,7 @@ public sealed class ThemeService : IThemeManager
 
     private static void ApplyThemeDictionary(string themeName)
     {
-        WpfApplication? app = WpfApplication.Current;
+        AppHost? app = AppHost.Current;
         if (app is null)
         {
             return;
@@ -155,10 +155,42 @@ public sealed class ThemeService : IThemeManager
         if (insertAt >= 0 && insertAt <= merged.Count)
         {
             merged.Insert(insertAt, next);
+        }
+        else
+        {
+            merged.Add(next);
+        }
+
+        RefreshRuntimeThemeAliases(app);
+    }
+
+    private static void RefreshRuntimeThemeAliases(AppHost app)
+    {
+        ArgumentNullException.ThrowIfNull(app);
+
+        SetRuntimeThemeAlias(app, "Win11.Layer.BackdropBrush", "Brush.Layer.Canvas");
+        SetRuntimeThemeAlias(app, "Win11.Layer.SurfaceBrush", "Brush.Surface");
+        SetRuntimeThemeAlias(app, "Win11.Layer.CardBrush", "Brush.Card");
+        SetRuntimeThemeAlias(app, "Win11.Stroke.SubtleBrush", "Brush.Border.Subtle");
+        SetRuntimeThemeAlias(app, "Win11.Stroke.DefaultBrush", "Brush.Border.Default");
+
+        SetRuntimeThemeAlias(app, "FluentPageBackgroundBrush", "Brush.Background");
+        SetRuntimeThemeAlias(app, "FluentAccentBrush", "Brush.Accent");
+        SetRuntimeThemeAlias(app, "FluentHeaderBgBrush", "Brush.Surface");
+        SetRuntimeThemeAlias(app, "FluentCardSurfaceBrush", "Brush.Card");
+        SetRuntimeThemeAlias(app, "FluentSecondaryButtonBgBrush", "Brush.Surface");
+        SetRuntimeThemeAlias(app, "FluentSecondaryTextBrush", "Brush.Text.Secondary");
+    }
+
+    private static void SetRuntimeThemeAlias(AppHost app, string targetKey, string sourceKey)
+    {
+        object? source = app.TryFindResource(sourceKey);
+        if (source is null)
+        {
             return;
         }
 
-        merged.Add(next);
+        app.Resources[targetKey] = source;
     }
 
     private static string? NormalizeThemeName(string? themeName)

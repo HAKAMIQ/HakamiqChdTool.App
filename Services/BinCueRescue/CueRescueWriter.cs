@@ -25,6 +25,20 @@ internal static class CueRescueWriter
         string? processTempRoot = null,
         CancellationToken cancellationToken = default)
     {
+        return Write(
+            plan,
+            processTempRoot,
+            CueRescueWriteOptions.Strict,
+            cancellationToken);
+    }
+
+    internal static CueRescueWriteResult Write(
+        BinCueRescuePlan? plan,
+        string? processTempRoot,
+        CueRescueWriteOptions options,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(options);
         if (plan is null)
         {
             return CueRescueWriteResult.Fail(
@@ -96,10 +110,11 @@ internal static class CueRescueWriter
             List<StagedCueTrack> stagedTracks = StageTrackFiles(
                 preparedTracks,
                 workspacePath,
+                options,
                 cancellationToken);
 
             string cueText = BuildCueText(stagedTracks);
-            if (!IsCueContentSafe(cueText))
+            if (!IsCueContentSafe(cueText, options))
             {
                 TryDeleteDirectory(workspacePath);
 
@@ -233,6 +248,7 @@ internal static class CueRescueWriter
     private static List<StagedCueTrack> StageTrackFiles(
         IReadOnlyList<PreparedCueTrack> preparedTracks,
         string workspacePath,
+        CueRescueWriteOptions options,
         CancellationToken cancellationToken)
     {
         List<StagedCueTrack> stagedTracks = [];
@@ -260,6 +276,11 @@ internal static class CueRescueWriter
                     workspacePath,
                     out string cueFilePath))
             {
+                if (!options.AllowConstrainedAbsoluteBinFallback)
+                {
+                    throw new IOException();
+                }
+
                 cueFilePath = CreateSafeAbsoluteCueFilePath(track.SourcePath);
             }
 
@@ -360,7 +381,9 @@ internal static class CueRescueWriter
         return builder.ToString();
     }
 
-    private static bool IsCueContentSafe(string cueText)
+    private static bool IsCueContentSafe(
+        string cueText,
+        CueRescueWriteOptions options)
     {
         if (string.IsNullOrWhiteSpace(cueText))
         {
@@ -388,7 +411,9 @@ internal static class CueRescueWriter
             }
 
             string cueFilePath = line.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
-            if (!IsCueFilePathSafe(cueFilePath, allowRootedPath: true))
+            if (!IsCueFilePathSafe(
+                    cueFilePath,
+                    allowRootedPath: options.AllowConstrainedAbsoluteBinFallback))
             {
                 return false;
             }

@@ -36,19 +36,19 @@ public sealed class PS3FolderLayoutReader
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
-            warnings.Add("The selected folder path is not valid.");
+            warnings.Add(PS3ContentIntakeMessages.WarningFolderInvalidPath);
             return BuildUnsupported(path, warnings);
         }
 
         if (!SafeDirectoryExists(fullPath))
         {
-            warnings.Add("The selected folder was not found.");
+            warnings.Add(PS3ContentIntakeMessages.WarningFolderMissing);
             return BuildUnsupported(fullPath, warnings);
         }
 
         if (IsReparsePoint(fullPath))
         {
-            warnings.Add("The selected folder is a reparse point and cannot be analyzed safely.");
+            warnings.Add(PS3ContentIntakeMessages.WarningFolderReparsePoint);
             return BuildUnsupported(fullPath, warnings);
         }
 
@@ -73,7 +73,7 @@ public sealed class PS3FolderLayoutReader
 
         if (ps3GameIsReparsePoint)
         {
-            warnings.Add("PS3_GAME is a reparse point and was not followed.");
+            warnings.Add(PS3ContentIntakeMessages.WarningPs3GameReparsePoint);
         }
 
         bool hasParam = hasPs3Game && SafeFileExists(paramSfo);
@@ -82,27 +82,27 @@ public sealed class PS3FolderLayoutReader
 
         if (!hasPs3Game)
         {
-            warnings.Add("The folder does not contain a safe PS3_GAME directory.");
+            warnings.Add(PS3ContentIntakeMessages.WarningFolderNoSafePs3Game);
         }
 
         if (hasPs3Game && !hasParam)
         {
-            warnings.Add("PARAM.SFO was not found inside PS3_GAME.");
+            warnings.Add(PS3ContentIntakeMessages.WarningFolderParamMissing);
         }
 
         if (hasPs3Game && !hasEboot)
         {
-            warnings.Add("EBOOT.BIN was not found inside PS3_GAME/USRDIR.");
+            warnings.Add(PS3ContentIntakeMessages.WarningFolderEbootMissing);
         }
 
         if (hasPs3Game && !hasDiscSfb)
         {
-            warnings.Add("PS3_DISC.SFB was not found. This may be extracted content, but disc identity is weaker.");
+            warnings.Add(PS3ContentIntakeMessages.WarningFolderDiscSfbMissing);
         }
 
         if (selectedPs3GameFolder)
         {
-            warnings.Add("The selected folder is PS3_GAME itself. The parent folder was used for disc metadata checks.");
+            warnings.Add(PS3ContentIntakeMessages.WarningSelectedFolderIsPs3Game);
         }
 
         PS3ContentIdentity identity = hasParam
@@ -134,8 +134,8 @@ public sealed class PS3FolderLayoutReader
             IsProbablyEncrypted: false,
             CanConvertToChd: canConvert,
             RecommendedPipeline: canConvert
-                ? "Folder -> temporary ISO -> chdman createdvd -> CHD"
-                : "Unsupported folder layout",
+                ? PS3ContentIntakeMessages.PipelineFolderToChd
+                : PS3ContentIntakeMessages.PipelineUnsupportedFolder,
             Warnings: warnings);
     }
 
@@ -152,7 +152,7 @@ public sealed class PS3FolderLayoutReader
         HasPs3DiscSfb: false,
         IsProbablyEncrypted: false,
         CanConvertToChd: false,
-        RecommendedPipeline: "Unsupported folder layout",
+        RecommendedPipeline: PS3ContentIntakeMessages.PipelineUnsupportedFolder,
         Warnings: warnings);
 
     private static bool SafeDirectoryExists(string path)

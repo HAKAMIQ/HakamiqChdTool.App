@@ -1,4 +1,5 @@
-﻿using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Core.Input;
+using HakamiqChdTool.App.Models;
 
 namespace HakamiqChdTool.App.Services;
 

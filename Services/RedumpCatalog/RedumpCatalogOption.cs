@@ -9,7 +9,7 @@ public sealed class RedumpCatalogOption
         string labelKey,
         string descriptionKey,
         string? url = null,
-        bool isLegalAdvancedArtifact = false,
+        bool isLegalArtifact = false,
         string? technicalDescription = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
@@ -20,7 +20,7 @@ public sealed class RedumpCatalogOption
         LabelKey = labelKey.Trim();
         DescriptionKey = descriptionKey.Trim();
         Url = NormalizeSafeUrl(url);
-        IsLegalAdvancedArtifact = isLegalAdvancedArtifact;
+        IsLegalArtifact = isLegalArtifact;
         TechnicalDescription = NormalizeOptionalValue(technicalDescription);
     }
 
@@ -34,7 +34,7 @@ public sealed class RedumpCatalogOption
 
     public string? Url { get; }
 
-    public bool IsLegalAdvancedArtifact { get; }
+    public bool IsLegalArtifact { get; }
 
     public override string ToString()
     {

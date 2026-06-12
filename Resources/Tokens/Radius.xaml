@@ -18,6 +18,7 @@
 
     <CornerRadius x:Key="Radius.Window">8</CornerRadius>
     <CornerRadius x:Key="Radius.WindowOuter">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Dialog">8</CornerRadius>
 
     <CornerRadius x:Key="Radius.Control">4</CornerRadius>
     <CornerRadius x:Key="Radius.Control.Small">2</CornerRadius>
@@ -39,7 +40,6 @@
     <CornerRadius x:Key="Radius.Flyout">8</CornerRadius>
     <CornerRadius x:Key="Radius.Menu">8</CornerRadius>
     <CornerRadius x:Key="Radius.ToolTip">4</CornerRadius>
-    <CornerRadius x:Key="Radius.Dialog">8</CornerRadius>
 
     <CornerRadius x:Key="Radius.HeaderButton">4</CornerRadius>
     <CornerRadius x:Key="Radius.HeaderCluster">6</CornerRadius>

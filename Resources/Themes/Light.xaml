@@ -198,6 +198,7 @@
     <Color x:Key="Color.Border">#FFC4CCD7</Color>
     <Color x:Key="Color.Border.Default">#FFC4CCD7</Color>
     <Color x:Key="Color.Border.Subtle">#FFD2DBE6</Color>
+    <Color x:Key="Color.Border.Strong">#FF596575</Color>
     <Color x:Key="Color.HoverSurface">#FFE6EBF1</Color>
     <Color x:Key="Color.PressedSurface">#FFD2DBE6</Color>
 
@@ -209,23 +210,24 @@
     <Color x:Key="Color.Accent.Subtle">#FFDDEBFA</Color>
     <Color x:Key="Color.Brand">#FF0F6CBD</Color>
     <Color x:Key="Color.Selection">#FFDDEBFA</Color>
-    <Color x:Key="Color.CheckBox.Fill.Rest">#FF292929</Color>
-    <Color x:Key="Color.CheckBox.Fill.Hover">#FF3D3D3D</Color>
-    <Color x:Key="Color.CheckBox.Fill.Pressed">#FF1F1F1F</Color>
-    <Color x:Key="Color.CheckBox.Fill.Checked">#FF115EA3</Color>
-    <Color x:Key="Color.CheckBox.Fill.Checked.Hover">#FF0F6CBD</Color>
+
+    <Color x:Key="Color.CheckBox.Fill.Rest">#FFF8FAFC</Color>
+    <Color x:Key="Color.CheckBox.Fill.Hover">#FFECEFF4</Color>
+    <Color x:Key="Color.CheckBox.Fill.Pressed">#FFD2DBE6</Color>
+    <Color x:Key="Color.CheckBox.Fill.Checked">#FF0F6CBD</Color>
+    <Color x:Key="Color.CheckBox.Fill.Checked.Hover">#FF115EA3</Color>
     <Color x:Key="Color.CheckBox.Fill.Checked.Pressed">#FF0C3B5E</Color>
-    <Color x:Key="Color.CheckBox.Fill.Disabled">#FF141414</Color>
-    <Color x:Key="Color.CheckBox.Stroke.Rest">#FF8B97A6</Color>
-    <Color x:Key="Color.CheckBox.Stroke.Hover">#FF479EF5</Color>
-    <Color x:Key="Color.CheckBox.Stroke.Pressed">#FF62ABF5</Color>
-    <Color x:Key="Color.CheckBox.Stroke.Checked">#FF115EA3</Color>
-    <Color x:Key="Color.CheckBox.Stroke.Checked.Hover">#FF0F6CBD</Color>
+    <Color x:Key="Color.CheckBox.Fill.Disabled">#FFE6EBF1</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Rest">#FF667181</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Hover">#FF0F6CBD</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Pressed">#FF115EA3</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Checked">#FF0F6CBD</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Checked.Hover">#FF115EA3</Color>
     <Color x:Key="Color.CheckBox.Stroke.Checked.Pressed">#FF0C3B5E</Color>
-    <Color x:Key="Color.CheckBox.Stroke.Disabled">#FF667181</Color>
+    <Color x:Key="Color.CheckBox.Stroke.Disabled">#FF9AA5B2</Color>
     <Color x:Key="Color.CheckBox.Glyph.Checked">#FFFFFFFF</Color>
-    <Color x:Key="Color.CheckBox.Glyph.Disabled">#FF667181</Color>
-    <Color x:Key="Color.CheckBox.Focus">#FF479EF5</Color>
+    <Color x:Key="Color.CheckBox.Glyph.Disabled">#FF9AA5B2</Color>
+    <Color x:Key="Color.CheckBox.Focus">#00000000</Color>
 
     <Color x:Key="Color.Error">#FFC50F1F</Color>
     <Color x:Key="Color.Error.Hover">#FFB10E1C</Color>
@@ -266,10 +268,9 @@
     <Color x:Key="Color.Layer.Surface">#FFF2F5F8</Color>
     <Color x:Key="Color.Layer.Card">#FFF8FAFC</Color>
     <Color x:Key="Color.Layer.Elevated">#FFFBFCFE</Color>
-    <Color x:Key="Color.Border.Strong">#FF596575</Color>
     <Color x:Key="Color.Foreground.OnAccent">#FFFFFFFF</Color>
     <Color x:Key="Color.Accent.SelectedBackground">#FFDDEBFA</Color>
-    <Color x:Key="Color.Accent.SelectedBorder">#FF0F6CBD</Color>
+    <Color x:Key="Color.Accent.SelectedBorder">#00000000</Color>
     <Color x:Key="Color.Accent.SelectedForeground">#FF0F6CBD</Color>
     <Color x:Key="Color.Success">#FF0E700E</Color>
     <Color x:Key="Color.Warning">#FFBC4B09</Color>
@@ -283,8 +284,8 @@
     <Color x:Key="Color.Control.Stroke.Strong">#FF596575</Color>
     <Color x:Key="Color.Control.Stroke.Focus">#FF0F6CBD</Color>
 
-    <Color x:Key="Color.Focus.StrokeOuter">#FF000000</Color>
-    <Color x:Key="Color.Focus.StrokeInner">#FFFFFFFF</Color>
+    <Color x:Key="Color.Focus.StrokeOuter">#00000000</Color>
+    <Color x:Key="Color.Focus.StrokeInner">#FF0F6CBD</Color>
     <Color x:Key="Color.Shadow">#FF000000</Color>
     <Color x:Key="Color.Elevation.Shadow">#33000000</Color>
 

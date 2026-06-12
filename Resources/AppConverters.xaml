@@ -4,10 +4,13 @@
                     xmlns:conv="clr-namespace:HakamiqChdTool.App.Converters">
 
     <controls:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
     <conv:AppBooleanToVisibilityConverter x:Key="AppBooleanToVisibilityConverter" />
     <conv:NullOrEmptyToVisibilityConverter x:Key="NullOrEmptyToVisibilityConverter" />
+
     <conv:ProcessingStateToBrushConverter x:Key="ProcessingStateToBrushConverter" />
     <conv:StateToArabicConverter x:Key="StateToArabicConverter" />
     <conv:ActionToArabicConverter x:Key="ActionToArabicConverter" />
     <conv:BidiTextConverter x:Key="BidiTextConverter" />
+
 </ResourceDictionary>

@@ -1,13 +1,18 @@
-﻿using HakamiqChdTool.App.Core.Queue;
-using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.ViewModels;
-using HakamiqChdTool.App.ViewModels.Virtualization;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+
+using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Session;
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Ui.Queue;
+using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.Features;
+using HakamiqChdTool.App.ViewModels;
+using HakamiqChdTool.App.ViewModels.Virtualization;
+
 using IoPath = System.IO.Path;
 
 namespace HakamiqChdTool.App;
@@ -50,6 +55,7 @@ public partial class MainWindow
         }
 
         _queueRowsPresenterCache = null;
+
         UpdateQueueViewportWindow();
         RequestUiStateRefresh();
     }
@@ -89,22 +95,36 @@ public partial class MainWindow
             row.IntegrityMessage = statusMessage;
         });
 
-        item.SetIntegrityPresentation(state, statusMessage, detailTooltip);
+        item.SetIntegrityView(
+            state,
+            statusMessage,
+            detailTooltip);
     }
 
-    private void ApplyRedumpResultAndSync(TaskQueueItemViewModel item, DeepHashAnalysisResult result)
+    private void ApplyRedumpResultAndSync(
+        TaskQueueItemViewModel item,
+        DeepHashAnalysisResult result)
     {
-        DeepHashAnalysisPresentation presentation = DeepHashAnalysisPresenter.Format(result);
-        ApplyIntegrityAndSync(item, result.State, presentation.StatusMessage, presentation.DetailTooltip);
+        DeepHashAnalysisView presentation = DeepHashAnalysisPresenter.Format(result);
 
-        if (result.State == IntegrityValidationState.Verified && !string.IsNullOrWhiteSpace(result.SuggestedStandardName))
+        ApplyIntegrityAndSync(
+            item,
+            result.State,
+            presentation.StatusMessage,
+            presentation.DetailTooltip);
+
+        if (result.State == IntegrityValidationState.Verified &&
+            !string.IsNullOrWhiteSpace(result.SuggestedStandardName))
         {
             string currentFileName = string.IsNullOrWhiteSpace(item.SourcePath)
                 ? string.Empty
                 : IoPath.GetFileName(item.SourcePath);
 
             item.SuggestedStandardName = result.SuggestedStandardName;
-            item.IsNamingCompliant = string.Equals(currentFileName, result.SuggestedStandardName, StringComparison.OrdinalIgnoreCase);
+            item.IsNamingCompliant = string.Equals(
+                currentFileName,
+                result.SuggestedStandardName,
+                StringComparison.OrdinalIgnoreCase);
         }
         else
         {
@@ -134,7 +154,10 @@ public partial class MainWindow
 
     private void SetHasActiveQueueBindingAndSync(Guid rowId, bool value)
     {
-        _queueRowStore.Mutate(rowId, row => row.HasActiveQueueBinding = value);
+        _queueRowStore.Mutate(rowId, row =>
+        {
+            row.HasActiveQueueBinding = value;
+        });
 
         TaskQueueItemViewModel? vm = _viewport.TryGetMaterialized(rowId);
         if (vm is not null)
@@ -143,12 +166,20 @@ public partial class MainWindow
         }
     }
 
-    private void SetHasActiveQueueBindingAndSync(TaskQueueItemViewModel item, bool value) =>
-        SetHasActiveQueueBindingAndSync(item.QueueItemId, value);
+    private void SetHasActiveQueueBindingAndSync(TaskQueueItemViewModel item, bool value)
+    {
+        SetHasActiveQueueBindingAndSync(
+            item.QueueItemId,
+            value);
+    }
 
     private void ApplyPathResetAndSync(TaskQueueItemViewModel item, string newPath)
     {
-        item.InitializeFromPath(newPath, item.RequestedAction, item.DetectedPlatform);
+        item.InitializeFromPath(
+            newPath,
+            item.RequestedAction,
+            item.DetectedPlatform);
+
         SyncRowFromViewModel(item);
     }
 
@@ -191,9 +222,11 @@ public partial class MainWindow
         {
             TaskQueueItemViewModel? item = sender as TaskQueueItemViewModel;
 
-            if (item is not null && e.PropertyName is nameof(TaskQueueItemViewModel.CurrentState) or nameof(TaskQueueItemViewModel.FinalResult))
+            if (item is not null &&
+                e.PropertyName is nameof(TaskQueueItemViewModel.CurrentState) or nameof(TaskQueueItemViewModel.FinalResult))
             {
                 string signature = $"{item.OriginalPath}|{item.CurrentState}|{item.FinalResult}|{item.StatusDetailDisplay}";
+
                 if (_loggedExecutionSignatures.Count >= MaxExecutionSignatures)
                 {
                     _loggedExecutionSignatures.Clear();
@@ -242,15 +275,17 @@ public partial class MainWindow
             return;
         }
 
-        _ = Dispatcher.InvokeAsync(() =>
-        {
-            if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        _ = Dispatcher.InvokeAsync(
+            () =>
             {
-                return;
-            }
+                if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+                {
+                    return;
+                }
 
-            Handle();
-        }, DispatcherPriority.DataBind);
+                Handle();
+            },
+            DispatcherPriority.DataBind);
     }
 
     private Task ApplyAutoStandardizedNameIfEnabled(TaskQueueItemViewModel item)
@@ -265,7 +300,8 @@ public partial class MainWindow
 
         ApplyNamingAnalysisAndSync(item);
 
-        if (!item.IsNamingCompliant && !string.IsNullOrWhiteSpace(item.SuggestedStandardName))
+        if (!item.IsNamingCompliant &&
+            !string.IsNullOrWhiteSpace(item.SuggestedStandardName))
         {
             AppendExecutionLog(ArabicUi.Format(
                 RedumpNamingSuggestionLogFormatKey,

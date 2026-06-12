@@ -1,0 +1,945 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore">
+
+    <Style x:Key="FluentSettingsOptionRow"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.0.12.0.12}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="FluentSettingsOptionRowGrid"
+           TargetType="{x:Type Grid}">
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="FluentSettingsOptionTextArea"
+           TargetType="{x:Type Grid}">
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="FluentSettingsOptionControlArea"
+           TargetType="{x:Type FrameworkElement}">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="OptionsToolTipStyle"
+           TargetType="{x:Type ToolTip}"
+           BasedOn="{StaticResource FluentToolTipStyle}">
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+    </Style>
+
+    <Style TargetType="{x:Type ToolTip}"
+           BasedOn="{StaticResource OptionsToolTipStyle}" />
+
+    <Style x:Key="HakamiqSettingsPanelCard"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Surface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+    </Style>
+
+    <Style x:Key="HakamiqSettingsCard"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.0}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+    </Style>
+
+    <Style x:Key="OptionsCompactCard"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource HakamiqSettingsCard}">
+        <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="MinWidth" Value="0" />
+    </Style>
+
+    <Style x:Key="OptionsHeroCard"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource HakamiqSettingsCard}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.18.14}" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+
+    <Style x:Key="OptionsPageTitleText"
+           TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Subtitle}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="OptionsPageDescriptionText"
+           TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="OptionsCardTitleText"
+           TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="OptionsCardDescriptionText"
+           TargetType="{x:Type TextBlock}">
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.4.0.12}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <DataTemplate x:Key="ChoiceOptionLabelTemplate">
+        <TextBlock Text="{Binding Label, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                   FontFamily="{DynamicResource FontFamily.Base}"
+                   FontSize="{DynamicResource FontSize.BodySmall}"
+                   Foreground="{DynamicResource Brush.Text.Primary}"
+                   TextTrimming="CharacterEllipsis"
+                   TextAlignment="{DynamicResource Options.SettingsTextAlignment}"
+                   FlowDirection="{DynamicResource App.FlowDirection}"
+                   Language="{DynamicResource App.XmlLanguage}"
+                   SnapsToDevicePixels="True"
+                   UseLayoutRounding="True" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="ProcessorOptionLabelTemplate">
+        <TextBlock Text="{Binding Label, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                   FontFamily="{DynamicResource FontFamily.Base}"
+                   FontSize="{DynamicResource FontSize.BodySmall}"
+                   Foreground="{DynamicResource Brush.Text.Primary}"
+                   TextTrimming="CharacterEllipsis"
+                   TextAlignment="{DynamicResource Options.SettingsTextAlignment}"
+                   FlowDirection="{DynamicResource App.FlowDirection}"
+                   Language="{DynamicResource App.XmlLanguage}"
+                   SnapsToDevicePixels="True"
+                   UseLayoutRounding="True" />
+    </DataTemplate>
+
+    <Style x:Key="AppComboBoxItemStyle"
+           TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          FlowDirection="{TemplateBinding FlowDirection}"
+                                          Content="{TemplateBinding Content}"
+                                          ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ComboBoxItemHoverBrush}" />
+                        </Trigger>
+
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                            <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter TargetName="Bd" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="AppComboBoxTemplate"
+                     TargetType="{x:Type ComboBox}">
+        <Grid SnapsToDevicePixels="True"
+              UseLayoutRounding="True"
+              FlowDirection="{TemplateBinding FlowDirection}"
+              Language="{TemplateBinding Language}">
+
+            <Border x:Name="RootBorder"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{DynamicResource Radius.Control}"
+                    SnapsToDevicePixels="True"
+                    UseLayoutRounding="True">
+                <Grid FlowDirection="{TemplateBinding FlowDirection}"
+                      Language="{TemplateBinding Language}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.40}" />
+                    </Grid.ColumnDefinitions>
+
+                    <ContentPresenter x:Name="ContentSite"
+                                      Grid.Column="0"
+                                      Margin="{DynamicResource Inset.14.0.14.0}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      Content="{TemplateBinding SelectionBoxItem}"
+                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                      ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                      FlowDirection="{TemplateBinding FlowDirection}"
+                                      Language="{TemplateBinding Language}"
+                                      IsHitTestVisible="False"
+                                      TextElement.Foreground="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                                      TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                      TextElement.FontSize="{TemplateBinding FontSize}"
+                                      TextElement.FontWeight="{TemplateBinding FontWeight}" />
+
+                    <TextBox x:Name="PART_EditableTextBox"
+                             Grid.Column="0"
+                             Margin="{DynamicResource Inset.14.0.14.0}"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Center"
+                             Background="{DynamicResource Brush.Transparent}"
+                             BorderBrush="{DynamicResource Brush.Transparent}"
+                             BorderThickness="{DynamicResource Inset.None}"
+                             Foreground="{TemplateBinding Foreground}"
+                             CaretBrush="{DynamicResource Brush.Text.Primary}"
+                             SelectionBrush="{DynamicResource Brush.Accent.Subtle}"
+                             SelectionTextBrush="{DynamicResource Brush.Text.Primary}"
+                             FlowDirection="{TemplateBinding FlowDirection}"
+                             TextAlignment="{DynamicResource Options.SettingsTextAlignment}"
+                             FontFamily="{TemplateBinding FontFamily}"
+                             FontSize="{TemplateBinding FontSize}"
+                             FontWeight="{TemplateBinding FontWeight}"
+                             Language="{TemplateBinding Language}"
+                             FocusVisualStyle="{x:Null}"
+                             IsReadOnly="{TemplateBinding IsReadOnly}"
+                             Visibility="Hidden"
+                             SnapsToDevicePixels="True"
+                             UseLayoutRounding="True" />
+
+                    <Border x:Name="ArrowBorder"
+                            Grid.Column="1"
+                            Background="{DynamicResource Brush.Transparent}">
+                        <Viewbox x:Name="ArrowIcon"
+                                 Width="{DynamicResource Space.12}"
+                                 Height="{DynamicResource Space.12}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 FlowDirection="LeftToRight"
+                                 Stretch="Uniform"
+                                 SnapsToDevicePixels="True">
+                            <Path x:Name="ArrowGlyph"
+                                  Data="{StaticResource Icon.ChevronDown}"
+                                  Fill="{DynamicResource Brush.Text.Secondary}"
+                                  Stretch="Uniform"
+                                  SnapsToDevicePixels="True" />
+                        </Viewbox>
+                    </Border>
+
+                    <ToggleButton x:Name="DropDownToggle"
+                                  Grid.ColumnSpan="2"
+                                  Background="{DynamicResource Brush.Transparent}"
+                                  BorderThickness="{DynamicResource Inset.None}"
+                                  Focusable="False"
+                                  IsTabStop="False"
+                                  ClickMode="Press"
+                                  IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                        <ToggleButton.Template>
+                            <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                <Border Background="{DynamicResource Brush.Transparent}" />
+                            </ControlTemplate>
+                        </ToggleButton.Template>
+                    </ToggleButton>
+                </Grid>
+            </Border>
+
+            <Popup x:Name="PART_Popup"
+                   AllowsTransparency="True"
+                   Focusable="False"
+                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                   Placement="Bottom"
+                   PlacementTarget="{Binding ElementName=RootBorder}"
+                   PopupAnimation="Fade"
+                   StaysOpen="False">
+                <Border MinWidth="{Binding ActualWidth, ElementName=RootBorder}"
+                        MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                        Margin="{DynamicResource Inset.0.6.0.0}"
+                        Background="{DynamicResource ComboBoxPopupBackgroundBrush}"
+                        BorderBrush="{DynamicResource ComboBoxPopupBorderBrush}"
+                        BorderThickness="{DynamicResource Inset.1.All}"
+                        CornerRadius="{DynamicResource Radius.Menu}"
+                        FlowDirection="{TemplateBinding FlowDirection}"
+                        Language="{TemplateBinding Language}"
+                        SnapsToDevicePixels="True"
+                        UseLayoutRounding="True">
+                    <ScrollViewer CanContentScroll="False"
+                                  Margin="{DynamicResource Inset.4.All}"
+                                  FlowDirection="{TemplateBinding FlowDirection}"
+                                  Language="{TemplateBinding Language}"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto"
+                                  PanningMode="VerticalOnly"
+                                  Focusable="False"
+                                  SnapsToDevicePixels="True"
+                                  UseLayoutRounding="True">
+                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                    </ScrollViewer>
+                </Border>
+            </Popup>
+
+            <Border x:Name="Underline"
+                    Height="1"
+                    Margin="1,0,1,0"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Stretch"
+                    Background="{DynamicResource Brush.Border.Subtle}"
+                    IsHitTestVisible="False"
+                    SnapsToDevicePixels="True" />
+        </Grid>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEditable" Value="True">
+                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
+                <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden" />
+                <Setter TargetName="DropDownToggle" Property="Grid.Column" Value="1" />
+                <Setter TargetName="DropDownToggle" Property="Grid.ColumnSpan" Value="1" />
+            </Trigger>
+
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="RootBorder" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Strong}" />
+                <Setter TargetName="ArrowGlyph" Property="Fill" Value="{DynamicResource Brush.Accent.Text}" />
+                <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Control.Stroke.Strong}" />
+            </Trigger>
+
+            <Trigger Property="IsDropDownOpen" Value="True">
+                <Setter TargetName="RootBorder" Property="Background" Value="{DynamicResource Brush.Control.Fill.Pressed}" />
+                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                <Setter TargetName="ArrowGlyph" Property="Fill" Value="{DynamicResource Brush.Accent.Text}" />
+                <Setter TargetName="Underline" Property="Height" Value="2" />
+                <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+            </Trigger>
+
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                <Setter TargetName="Underline" Property="Height" Value="2" />
+                <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+            </Trigger>
+
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="RootBorder" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
+                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter TargetName="ArrowGlyph" Property="Fill" Value="{DynamicResource Brush.Text.Disabled}" />
+                <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Border.Subtle}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="InfoButtonStyle"
+           TargetType="{x:Type Button}">
+        <Setter Property="Width" Value="{DynamicResource Space.24}" />
+        <Setter Property="Height" Value="{DynamicResource Space.24}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="IsTabStop" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
+        <Setter Property="ToolTipService.Placement" Value="Mouse" />
+        <Setter Property="ToolTipService.ShowDuration" Value="{DynamicResource ToolTip.ShowDuration.Long}" />
+        <Setter Property="ToolTipService.InitialShowDelay" Value="{DynamicResource ToolTip.InitialShowDelay.Default}" />
+        <Setter Property="ToolTipService.BetweenShowDelay" Value="{DynamicResource ToolTip.BetweenShowDelay.Default}" />
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border x:Name="Chrome"
+                            Width="{DynamicResource Space.20}"
+                            Height="{DynamicResource Space.20}"
+                            CornerRadius="{DynamicResource Radius.Pill}"
+                            BorderThickness="{DynamicResource Inset.1.All}"
+                            BorderBrush="{DynamicResource Brush.Accent.SelectedBorder}"
+                            Background="{DynamicResource Brush.Accent.Subtle}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <Viewbox Width="{DynamicResource Space.12}"
+                                 Height="{DynamicResource Space.12}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 FlowDirection="LeftToRight"
+                                 Stretch="Uniform"
+                                 SnapsToDevicePixels="True">
+                            <Path Data="{StaticResource Icon.Info}"
+                                  Fill="{DynamicResource Brush.Accent.Text}"
+                                  Stretch="Uniform"
+                                  SnapsToDevicePixels="True" />
+                        </Viewbox>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Control.Fill.Pressed}" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type ComboBox}">
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.8.6}" />
+        <Setter Property="Template" Value="{StaticResource AppComboBoxTemplate}" />
+        <Setter Property="ItemContainerStyle" Value="{StaticResource AppComboBoxItemStyle}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    </Style>
+
+    <Style x:Key="RightSidebarRadioButtonStyle"
+           TargetType="{x:Type RadioButton}">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.8}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <Border x:Name="Chrome"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            Padding="{TemplateBinding Padding}"
+                            Language="{TemplateBinding Language}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <Grid HorizontalAlignment="Stretch"
+                              VerticalAlignment="Center"
+                              FlowDirection="{TemplateBinding FlowDirection}"
+                              Language="{TemplateBinding Language}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border x:Name="ActiveIndicator"
+                                    Grid.Column="0"
+                                    Width="{DynamicResource Space.3}"
+                                    Height="{DynamicResource Space.16}"
+                                    CornerRadius="{DynamicResource Radius.AccentLine}"
+                                    Background="{DynamicResource Brush.Transparent}"
+                                    IsHitTestVisible="False" />
+
+                            <Viewbox Grid.Column="2"
+                                     Width="{DynamicResource Space.20}"
+                                     Height="{DynamicResource Space.20}"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     FlowDirection="LeftToRight"
+                                     Stretch="Uniform"
+                                     SnapsToDevicePixels="True">
+                                <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Stretch="Uniform"
+                                      SnapsToDevicePixels="True" />
+                            </Viewbox>
+
+                            <ContentPresenter Grid.Column="4"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Stretch"
+                                              RecognizesAccessKey="True"
+                                              FlowDirection="{TemplateBinding FlowDirection}"
+                                              Language="{TemplateBinding Language}"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                              TextElement.FontSize="{TemplateBinding FontSize}"
+                                              TextElement.FontWeight="{TemplateBinding FontWeight}" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsChecked" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                        </MultiTrigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Control.Fill.Pressed}" />
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                        </Trigger>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                            <Setter TargetName="ActiveIndicator" Property="Background" Value="{DynamicResource Brush.Accent}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Win11SettingsPageRoot"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+    </Style>
+
+    <Style x:Key="Win11SettingsScrollViewer"
+           TargetType="{x:Type ScrollViewer}">
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="CanContentScroll" Value="False" />
+        <Setter Property="PanningMode" Value="VerticalOnly" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsContentStack"
+           TargetType="{x:Type StackPanel}">
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsSection"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.12}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+    </Style>
+
+    <Style x:Key="Win11SettingsSectionHeader"
+           TargetType="{x:Type Grid}">
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="18,16,18,8" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsSectionTitleText"
+           TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsSectionDescriptionText"
+           TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.4.0.0}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsRow"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
+        <Setter Property="Padding" Value="18,12,18,12" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.64}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+    </Style>
+
+    <Style x:Key="Win11SettingsLastRow"
+           TargetType="{x:Type Border}"
+           BasedOn="{StaticResource Win11SettingsRow}">
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+    </Style>
+
+    <Style x:Key="Win11SettingsRowGrid"
+           TargetType="{x:Type Grid}">
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsRowTextArea"
+           TargetType="{x:Type Grid}">
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsRowTitleText"
+           TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsRowDescriptionText"
+           TargetType="{x:Type TextBlock}">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.4.0.0}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsControlArea"
+           TargetType="{x:Type FrameworkElement}">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+    </Style>
+
+    <Style x:Key="Win11SettingsPathControlArea"
+           TargetType="{x:Type Grid}">
+        <Setter Property="Width" Value="360" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+    </Style>
+
+    <Style x:Key="Win11SettingsTechnicalTextBox"
+           TargetType="{x:Type TextBox}"
+           BasedOn="{StaticResource FluentTechnicalTextBoxStyle}">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
+        <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
+    </Style>
+
+    <Style x:Key="Win11SettingsComboBox"
+           TargetType="{x:Type ComboBox}"
+           BasedOn="{StaticResource {x:Type ComboBox}}">
+        <Setter Property="Width" Value="220" />
+        <Setter Property="SelectedValuePath" Value="Tag" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+    </Style>
+
+    <Style x:Key="Win11SettingsCheckBox"
+           TargetType="{x:Type CheckBox}"
+           BasedOn="{StaticResource FluentCheckBoxStyle}">
+        <Setter Property="Width" Value="{DynamicResource Space.32}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.32}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="Win11SettingsRadioButton"
+           TargetType="{x:Type RadioButton}">
+        <Setter Property="Width" Value="{DynamicResource Space.32}" />
+        <Setter Property="Height" Value="{DynamicResource Space.32}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.32}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Rest}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <Grid x:Name="Root"
+                          Width="{TemplateBinding Width}"
+                          Height="{TemplateBinding Height}"
+                          Background="{TemplateBinding Background}"
+                          SnapsToDevicePixels="True"
+                          UseLayoutRounding="True">
+                        <Ellipse x:Name="Outer"
+                                 Width="{DynamicResource Space.18}"
+                                 Height="{DynamicResource Space.18}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Fill="{DynamicResource Brush.CheckBox.Fill.Rest}"
+                                 Stroke="{TemplateBinding BorderBrush}"
+                                 StrokeThickness="1"
+                                 SnapsToDevicePixels="True" />
+
+                        <Ellipse x:Name="Inner"
+                                 Width="{DynamicResource Space.8}"
+                                 Height="{DynamicResource Space.8}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Fill="{DynamicResource Brush.Foreground.OnAccent}"
+                                 Visibility="Collapsed"
+                                 SnapsToDevicePixels="True" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Hover}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Hover}" />
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Pressed}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Pressed}" />
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                        </Trigger>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Checked}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Checked}" />
+                            <Setter TargetName="Inner" Property="Visibility" Value="Visible" />
+                        </Trigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True" />
+                                <Condition Property="IsMouseOver" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Checked.Hover}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Checked.Hover}" />
+                        </MultiTrigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Disabled}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Disabled}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Win11SettingsCompactButton"
+           TargetType="{x:Type Button}"
+           BasedOn="{StaticResource SecondaryButtonStyle}">
+        <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
+        <Setter Property="MaxWidth" Value="{DynamicResource Space.120}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+</ResourceDictionary>

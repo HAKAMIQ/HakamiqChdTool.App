@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Services.StorageAdvisor;
+using HakamiqChdTool.App.Services.StorageAdvisor;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -10,13 +10,14 @@ public partial class StorageAdvisorDialog : Window
 {
     private readonly StorageAdvisorDialogViewModel _viewModel;
 
-    internal StorageAdvisorDialog(StorageAdvisorPresentation presentation)
+    internal StorageAdvisorDialog(StorageAdvisorView view)
     {
-        ArgumentNullException.ThrowIfNull(presentation);
+        ArgumentNullException.ThrowIfNull(view);
 
         InitializeComponent();
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
 
-        _viewModel = new StorageAdvisorDialogViewModel(presentation);
+        _viewModel = new StorageAdvisorDialogViewModel(view);
         DataContext = _viewModel;
     }
 
@@ -51,9 +52,9 @@ public partial class StorageAdvisorDialog : Window
         CloseWithResult(StorageAdvisorDialogResult.Cancel, false);
     }
 
-    private void OpenAdvancedOptionsButton_Click(object sender, RoutedEventArgs e)
+    private void OpenOptionsButton_Click(object sender, RoutedEventArgs e)
     {
-        CloseWithResult(StorageAdvisorDialogResult.OpenAdvancedOptions, true);
+        CloseWithResult(StorageAdvisorDialogResult.OpenOptions, true);
     }
 
     private void ContinueRecommendedButton_Click(object sender, RoutedEventArgs e)
@@ -80,20 +81,20 @@ public partial class StorageAdvisorDialog : Window
 
     private sealed class StorageAdvisorDialogViewModel
     {
-        internal StorageAdvisorDialogViewModel(StorageAdvisorPresentation presentation)
+        internal StorageAdvisorDialogViewModel(StorageAdvisorView view)
         {
-            ArgumentNullException.ThrowIfNull(presentation);
+            ArgumentNullException.ThrowIfNull(view);
 
-            Paths = presentation.Paths;
-            Messages = presentation.Messages;
-            HasBlockingIssue = presentation.HasBlockingIssue;
-            HasWarningOrHigher = presentation.HasWarningOrHigher;
-            ShouldShowDialog = presentation.ShouldShowDialog;
+            Paths = view.Paths;
+            Messages = view.Messages;
+            HasBlockingIssue = view.HasBlockingIssue;
+            HasWarningOrHigher = view.HasWarningOrHigher;
+            ShouldShowDialog = view.ShouldShowDialog;
         }
 
-        public IReadOnlyList<StorageAdvisorPathPresentation> Paths { get; }
+        public IReadOnlyList<StoragePathView> Paths { get; }
 
-        public IReadOnlyList<StorageAdvisorMessagePresentation> Messages { get; }
+        public IReadOnlyList<StorageMessageView> Messages { get; }
 
         public bool HasBlockingIssue { get; }
 
@@ -109,5 +110,5 @@ internal enum StorageAdvisorDialogResult
 {
     Cancel = 0,
     ContinueRecommended = 1,
-    OpenAdvancedOptions = 2
+    OpenOptions = 2
 }

@@ -1,4 +1,4 @@
-﻿namespace HakamiqChdTool.App.Services.BinCueRescue;
+namespace HakamiqChdTool.App.Services.BinCueRescue;
 
 internal enum BinCueRescueDecision
 {

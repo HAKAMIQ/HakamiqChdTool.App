@@ -4,19 +4,13 @@ using System.Linq;
 
 namespace HakamiqChdTool.App.Models;
 
-internal sealed class OrphanedWorkItemScanResult
+internal sealed class OrphanedWorkItemScanResult(
+    IReadOnlyList<OrphanedWorkItem>? items,
+    IReadOnlyList<string>? rootPaths = null)
 {
-    public OrphanedWorkItemScanResult(
-        IReadOnlyList<OrphanedWorkItem>? items,
-        IReadOnlyList<string>? rootPaths = null)
-    {
-        Items = NormalizeItems(items);
-        RootPaths = NormalizeRootPaths(rootPaths);
-    }
+    public IReadOnlyList<OrphanedWorkItem> Items { get; } = NormalizeItems(items);
 
-    public IReadOnlyList<OrphanedWorkItem> Items { get; }
-
-    public IReadOnlyList<string> RootPaths { get; }
+    public IReadOnlyList<string> RootPaths { get; } = NormalizeRootPaths(rootPaths);
 
     public bool HasItems => Items.Count > 0;
 
@@ -28,42 +22,44 @@ internal sealed class OrphanedWorkItemScanResult
         0,
         static (total, item) => AddSaturating(total, item.FileCount));
 
-    public static OrphanedWorkItemScanResult Empty { get; } =
-        new(Array.Empty<OrphanedWorkItem>(), Array.Empty<string>());
+    public static OrphanedWorkItemScanResult Empty { get; } = new([], []);
 
-    private static IReadOnlyList<OrphanedWorkItem> NormalizeItems(
+    private static OrphanedWorkItem[] NormalizeItems(
         IEnumerable<OrphanedWorkItem>? items)
     {
         if (items is null)
         {
-            return Array.Empty<OrphanedWorkItem>();
+            return [];
         }
 
-        OrphanedWorkItem[] normalized = items
-            .Where(static item => item is not null)
-            .ToArray();
+        OrphanedWorkItem[] normalized =
+        [
+            .. items.Where(static item => item is not null)
+        ];
 
         return normalized.Length == 0
-            ? Array.Empty<OrphanedWorkItem>()
+            ? []
             : normalized;
     }
 
-    private static IReadOnlyList<string> NormalizeRootPaths(
+    private static string[] NormalizeRootPaths(
         IEnumerable<string>? rootPaths)
     {
         if (rootPaths is null)
         {
-            return Array.Empty<string>();
+            return [];
         }
 
-        string[] normalized = rootPaths
-            .Where(static path => !string.IsNullOrWhiteSpace(path))
-            .Select(static path => path.Trim())
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        string[] normalized =
+        [
+            .. rootPaths
+                .Where(static path => !string.IsNullOrWhiteSpace(path))
+                .Select(static path => path.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+        ];
 
         return normalized.Length == 0
-            ? Array.Empty<string>()
+            ? []
             : normalized;
     }
 

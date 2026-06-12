@@ -62,7 +62,8 @@ public static class ChdmanProcessRunner
         var captureLock = new object();
 
         bool progressEmitterActive = parseProgressPercent && progress is not null;
-        var emitter = progressEmitterActive ? new ThrottledProgressEmitter(progress!) : null;
+        IChdProgressParser progressParser = ChdProgressParser.Shared;
+        var emitter = progressEmitterActive ? new ThrottledProgressEmitter(progress!, progressParser) : null;
 
         var psi = new ProcessStartInfo
         {
@@ -855,6 +856,7 @@ public static class ChdmanProcessRunner
     private sealed class ThrottledProgressEmitter
     {
         private readonly IProgress<int> _progress;
+        private readonly IChdProgressParser _parser;
         private readonly object _gate = new();
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
@@ -862,9 +864,10 @@ public static class ChdmanProcessRunner
         private int _lastEmitted = -1;
         private long _lastEmitAtMs = -ProgressEmitIntervalMs;
 
-        public ThrottledProgressEmitter(IProgress<int> progress)
+        public ThrottledProgressEmitter(IProgress<int> progress, IChdProgressParser parser)
         {
             _progress = progress;
+            _parser = parser ?? throw new ArgumentNullException(nameof(parser));
         }
 
         public void ParseRollingAndMaybeEmit(StringBuilder rolling)
@@ -874,7 +877,7 @@ public static class ChdmanProcessRunner
                 return;
             }
 
-            if (ChdmanOutputParser.TryParseActiveProgressSnapshot(
+            if (_parser.TryParseActiveProgressSnapshot(
                     rolling,
                     isErrorLine: false,
                     minimumPercent: null,
@@ -885,7 +888,7 @@ public static class ChdmanProcessRunner
                 return;
             }
 
-            if (ChdmanOutputParser.TryParseLastPercent(rolling, out int fallbackPercent))
+            if (_parser.TryParseLastPercent(rolling, out int fallbackPercent))
             {
                 SubmitPercent(fallbackPercent);
             }

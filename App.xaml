@@ -2,10 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:markup="clr-namespace:System.Windows.Markup;assembly=PresentationCore">
+
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-
                 <ResourceDictionary Source="pack://application:,,,/Resources/AppConverters.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/ArabicStrings.xaml" />
 
@@ -24,20 +24,19 @@
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/TextStyles.xaml" />
 
                 <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentWorkspaceStyles.xaml" />
-
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Fluent/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/Win11UiPolish.xaml" />
 
                 <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentInputCheckStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Style/QueueItemTemplate.xaml" />
-
             </ResourceDictionary.MergedDictionaries>
 
             <FlowDirection x:Key="App.FlowDirection">RightToLeft</FlowDirection>
             <FlowDirection x:Key="App.CaptionButtonsFlowDirection">RightToLeft</FlowDirection>
-            <TextAlignment x:Key="App.TextAlignment">Right</TextAlignment>
+            <TextAlignment x:Key="App.DefaultTextAlignment">Right</TextAlignment>
             <markup:XmlLanguage x:Key="App.XmlLanguage">ar-SA</markup:XmlLanguage>
 
-            <TextAlignment x:Key="AdvancedOptions.SettingsTextAlignment">Left</TextAlignment>
+            <TextAlignment x:Key="Options.SettingsTextAlignment">Left</TextAlignment>
 
             <FlowDirection x:Key="TechnicalText.FlowDirection">LeftToRight</FlowDirection>
             <TextAlignment x:Key="TechnicalText.TextAlignment">Left</TextAlignment>
@@ -49,21 +48,22 @@
 
             <Style TargetType="{x:Type TextBlock}">
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource App.DefaultTextAlignment}" />
                 <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
                 <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="Width" Value="NaN" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
             </Style>
 
             <Style x:Key="TechnicalTextBlock"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Mono}" />
                 <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
                 <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
                 <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
                 <Setter Property="TextWrapping" Value="NoWrap" />
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels" Value="True" />
             </Style>
 
             <Style TargetType="{x:Type Button}"
@@ -74,7 +74,6 @@
             <Style TargetType="{x:Type DataGridColumnHeader}">
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
             </Style>
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

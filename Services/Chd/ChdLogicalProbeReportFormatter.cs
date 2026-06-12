@@ -1,4 +1,5 @@
-﻿using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Localization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -11,7 +12,7 @@ public sealed record ChdLogicalProbeReportMetric(
     string Label,
     string Value);
 
-public sealed record ChdLogicalProbeReportPresentation(
+public sealed record ChdProbeReportView(
     string Title,
     IReadOnlyList<ChdLogicalProbeReportMetric> Metrics)
 {
@@ -22,14 +23,14 @@ public static class ChdLogicalProbeReportFormatter
 {
     private static readonly char[] LineSeparators = ['\r', '\n'];
 
-    public static ChdLogicalProbeReportPresentation? BuildPresentation(ChdLogicalProbeResult result)
+    public static ChdProbeReportView? BuildView(ChdLogicalProbeResult result)
     {
         if (!result.HasLogicalGeometry)
         {
             return null;
         }
 
-        return BuildPresentationCore(
+        return BuildViewCore(
             result.PhysicalBytes,
             result.LogicalBytes,
             result.HunkBytes,
@@ -37,7 +38,7 @@ public static class ChdLogicalProbeReportFormatter
             result.DecodedCacheBytes);
     }
 
-    public static ChdLogicalProbeReportPresentation? BuildPresentation(ChdInfoResult result)
+    public static ChdProbeReportView? BuildView(ChdInfoResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
 
@@ -46,7 +47,7 @@ public static class ChdLogicalProbeReportFormatter
             return null;
         }
 
-        return BuildPresentationCore(
+        return BuildViewCore(
             result.PhysicalBytes.Value,
             result.LogicalBytes.Value,
             result.HunkBytes.Value,
@@ -56,17 +57,17 @@ public static class ChdLogicalProbeReportFormatter
 
     public static string BuildReport(ChdLogicalProbeResult result)
     {
-        ChdLogicalProbeReportPresentation? presentation = BuildPresentation(result);
+        ChdProbeReportView? presentation = BuildView(result);
         return BuildTextReport(presentation);
     }
 
     public static string BuildReport(ChdInfoResult result)
     {
-        ChdLogicalProbeReportPresentation? presentation = BuildPresentation(result);
+        ChdProbeReportView? presentation = BuildView(result);
         return BuildTextReport(presentation);
     }
 
-    public static ChdLogicalProbeReportPresentation? TryBuildPresentationFromInfoLog(string? logPath)
+    public static ChdProbeReportView? TryBuildViewFromInfoLog(string? logPath)
     {
         if (string.IsNullOrWhiteSpace(logPath))
         {
@@ -82,7 +83,7 @@ public static class ChdLogicalProbeReportFormatter
             }
 
             string text = File.ReadAllText(fullPath);
-            return TryBuildPresentationFromInfoLogText(text);
+            return TryBuildViewFromInfoLogText(text);
         }
         catch (Exception ex) when (IsExpectedIoException(ex))
         {
@@ -92,11 +93,11 @@ public static class ChdLogicalProbeReportFormatter
 
     public static string TryBuildReportFromInfoLog(string? logPath)
     {
-        ChdLogicalProbeReportPresentation? presentation = TryBuildPresentationFromInfoLog(logPath);
+        ChdProbeReportView? presentation = TryBuildViewFromInfoLog(logPath);
         return BuildTextReport(presentation);
     }
 
-    public static ChdLogicalProbeReportPresentation? TryBuildPresentationFromInfoLogText(string? text)
+    public static ChdProbeReportView? TryBuildViewFromInfoLogText(string? text)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -120,7 +121,7 @@ public static class ChdLogicalProbeReportFormatter
             return null;
         }
 
-        return BuildPresentationCore(
+        return BuildViewCore(
             physicalBytes,
             logicalBytes,
             hunkBytes,
@@ -130,11 +131,11 @@ public static class ChdLogicalProbeReportFormatter
 
     public static string TryBuildReportFromInfoLogText(string? text)
     {
-        ChdLogicalProbeReportPresentation? presentation = TryBuildPresentationFromInfoLogText(text);
+        ChdProbeReportView? presentation = TryBuildViewFromInfoLogText(text);
         return BuildTextReport(presentation);
     }
 
-    private static ChdLogicalProbeReportPresentation? BuildPresentationCore(
+    private static ChdProbeReportView? BuildViewCore(
         long physicalBytes,
         long logicalBytes,
         int hunkBytes,
@@ -165,12 +166,12 @@ public static class ChdLogicalProbeReportFormatter
                 FormatBytes(decodedCacheBytes)));
         }
 
-        return new ChdLogicalProbeReportPresentation(
+        return new ChdProbeReportView(
             ArabicUi.Get("LocChdLogicalReport_Title"),
             metrics);
     }
 
-    private static string BuildTextReport(ChdLogicalProbeReportPresentation? presentation)
+    private static string BuildTextReport(ChdProbeReportView? presentation)
     {
         if (presentation is null || !presentation.HasMetrics)
         {

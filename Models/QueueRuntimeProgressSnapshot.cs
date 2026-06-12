@@ -1,4 +1,6 @@
-﻿namespace HakamiqChdTool.App.Models;
+using System;
+
+namespace HakamiqChdTool.App.Models;
 
 public enum QueueRuntimeProgressKind
 {

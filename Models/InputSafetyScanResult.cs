@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -22,10 +21,10 @@ public sealed record InputSafetyScanResult(IReadOnlyList<SuspiciousArtifact>? Ar
 
     public bool HasWarnings => WarningCount > 0;
 
-    public static InputSafetyScanResult Empty { get; } = new(Array.Empty<SuspiciousArtifact>());
+    public static InputSafetyScanResult Empty { get; } = new([]);
 
     public static InputSafetyScanResult FromArtifacts(IEnumerable<SuspiciousArtifact>? artifacts) =>
-        new(artifacts?.ToArray() ?? Array.Empty<SuspiciousArtifact>());
+        new(artifacts is null ? [] : [.. artifacts]);
 
     public static InputSafetyScanResult Merge(params InputSafetyScanResult?[]? results)
     {
@@ -115,21 +114,22 @@ public sealed record InputSafetyScanResult(IReadOnlyList<SuspiciousArtifact>? Ar
         }
     }
 
-    private static IReadOnlyList<SuspiciousArtifact> NormalizeArtifacts(
+    private static SuspiciousArtifact[] NormalizeArtifacts(
         IEnumerable<SuspiciousArtifact>? artifacts)
     {
         if (artifacts is null)
         {
-            return Array.Empty<SuspiciousArtifact>();
+            return [];
         }
 
-        SuspiciousArtifact[] normalized = artifacts
-            .Where(static artifact => artifact is not null)
-            .ToArray();
+        SuspiciousArtifact[] normalized =
+        [
+            .. artifacts.Where(static artifact => artifact is not null)
+        ];
 
         return normalized.Length == 0
-            ? Array.Empty<SuspiciousArtifact>()
-            : new ReadOnlyCollection<SuspiciousArtifact>(normalized);
+            ? []
+            : normalized;
     }
 
     private static bool IsExpectedPathException(Exception ex)

@@ -17,7 +17,7 @@
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-        <Setter Property="TextAlignment" Value="{DynamicResource App.TextAlignment}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource App.DefaultTextAlignment}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -90,9 +90,9 @@
     <Style x:Key="FluentTechnicalTextBoxStyle"
            TargetType="{x:Type TextBox}"
            BasedOn="{StaticResource FluentTextBoxStyle}">
-        <Setter Property="FlowDirection" Value="LeftToRight" />
-        <Setter Property="TextAlignment" Value="Left" />
-        <Setter Property="Language" Value="en-US" />
+        <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
+        <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
+        <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Mono}" />
     </Style>
 
@@ -100,14 +100,14 @@
         <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Indicator.Stroke}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Rest}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
@@ -133,24 +133,22 @@
                                 Height="{DynamicResource Space.18}"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Background="{DynamicResource Brush.Control.Fill.Rest}"
+                                Background="{DynamicResource Brush.CheckBox.Fill.Rest}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{DynamicResource Inset.1.All}"
                                 CornerRadius="{DynamicResource Radius.CheckBox}"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
                             <Path x:Name="CheckGlyph"
                                   Width="{DynamicResource Space.12}"
-                                  Height="{DynamicResource Space.8}"
+                                  Height="{DynamicResource Space.12}"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   FlowDirection="LeftToRight"
-                                  Stretch="Uniform"
-                                  Stroke="{DynamicResource Brush.Foreground.OnAccent}"
-                                  StrokeThickness="{DynamicResource Fluent.StrokeThickness.Thick}"
-                                  StrokeStartLineCap="Round"
-                                  StrokeEndLineCap="Round"
-                                  StrokeLineJoin="Round"
                                   Data="{StaticResource Icon.Checkmark}"
+                                  Fill="{DynamicResource Brush.CheckBox.Glyph.Checked}"
+                                  Stretch="Uniform"
+                                  SnapsToDevicePixels="True"
                                   Visibility="Collapsed" />
                         </Border>
 
@@ -160,9 +158,10 @@
                                 Height="{DynamicResource Space.2}"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Background="{DynamicResource Brush.Foreground.OnAccent}"
+                                Background="{DynamicResource Brush.CheckBox.Glyph.Checked}"
                                 CornerRadius="{DynamicResource Radius.Pill}"
-                                Visibility="Collapsed" />
+                                Visibility="Collapsed"
+                                SnapsToDevicePixels="True" />
 
                         <ContentPresenter Grid.Column="2"
                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -174,18 +173,20 @@
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
                                           Language="{TemplateBinding Language}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}" />
                     </Grid>
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
-                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.Indicator.Stroke.Hover}" />
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.CheckBox.Fill.Hover}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Hover}" />
                         </Trigger>
 
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.Control.Fill.Pressed}" />
-                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.CheckBox.Fill.Pressed}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Pressed}" />
                         </Trigger>
 
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
@@ -193,25 +194,63 @@
                         </Trigger>
 
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.Accent}" />
-                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.CheckBox.Fill.Checked}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Checked}" />
                             <Setter TargetName="CheckGlyph" Property="Visibility" Value="Visible" />
                             <Setter TargetName="IndeterminateGlyph" Property="Visibility" Value="Collapsed" />
                         </Trigger>
 
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True" />
+                                <Condition Property="IsMouseOver" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.CheckBox.Fill.Checked.Hover}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Checked.Hover}" />
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True" />
+                                <Condition Property="IsPressed" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.CheckBox.Fill.Checked.Pressed}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Checked.Pressed}" />
+                        </MultiTrigger>
+
                         <Trigger Property="IsChecked" Value="{x:Null}">
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.Accent}" />
-                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.CheckBox.Fill.Checked}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Checked}" />
                             <Setter TargetName="CheckGlyph" Property="Visibility" Value="Collapsed" />
                             <Setter TargetName="IndeterminateGlyph" Property="Visibility" Value="Visible" />
                         </Trigger>
 
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="{x:Null}" />
+                                <Condition Property="IsMouseOver" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.CheckBox.Fill.Checked.Hover}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Checked.Hover}" />
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="{x:Null}" />
+                                <Condition Property="IsPressed" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.CheckBox.Fill.Checked.Pressed}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Checked.Pressed}" />
+                        </MultiTrigger>
+
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Root" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.CheckBox.Fill.Disabled}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Disabled}" />
+                            <Setter TargetName="CheckGlyph" Property="Fill" Value="{DynamicResource Brush.CheckBox.Glyph.Disabled}" />
+                            <Setter TargetName="IndeterminateGlyph" Property="Background" Value="{DynamicResource Brush.CheckBox.Glyph.Disabled}" />
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
                             <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
-                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.Indicator.Stroke.Disabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -219,7 +258,10 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource FluentTextBoxStyle}" />
-    <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource FluentCheckBoxStyle}" />
+    <Style TargetType="{x:Type TextBox}"
+           BasedOn="{StaticResource FluentTextBoxStyle}" />
+
+    <Style TargetType="{x:Type CheckBox}"
+           BasedOn="{StaticResource FluentCheckBoxStyle}" />
 
 </ResourceDictionary>
