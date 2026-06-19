@@ -36,42 +36,44 @@
     </Style>
 
     <Style x:Key="FluentQueueCardProgressBar" TargetType="{x:Type ProgressBar}">
-        <Setter Property="Height" Value="{DynamicResource Space.8}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.8}" />
+        <Setter Property="Height" Value="{DynamicResource Space.4}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.4}" />
         <Setter Property="Background" Value="{DynamicResource QueueProgressTrackBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource QueueProgressTrackBorderBrush}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
         <Setter Property="Foreground" Value="{DynamicResource QueueProgressFillBrush}" />
         <Setter Property="FlowDirection" Value="LeftToRight" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsHitTestVisible" Value="False" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ProgressBar}">
-                    <Border x:Name="TemplateRoot"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.ProgressTrack}"
-                            ClipToBounds="True"
-                            FlowDirection="LeftToRight"
-                            SnapsToDevicePixels="True"
-                            UseLayoutRounding="True">
-                        <Grid FlowDirection="LeftToRight"
-                              SnapsToDevicePixels="True"
-                              UseLayoutRounding="True">
-                            <Border x:Name="PART_Track"
-                                    Background="{TemplateBinding Background}"
-                                    CornerRadius="{DynamicResource Radius.ProgressTrack}"
-                                    SnapsToDevicePixels="True" />
+                    <Grid x:Name="TemplateRoot"
+                          Height="{TemplateBinding Height}"
+                          ClipToBounds="True"
+                          FlowDirection="LeftToRight"
+                          SnapsToDevicePixels="True"
+                          UseLayoutRounding="True">
+                        <Border x:Name="PART_Track"
+                                Height="{TemplateBinding Height}"
+                                VerticalAlignment="Center"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource Radius.ProgressTrack}"
+                                SnapsToDevicePixels="True" />
 
-                            <Border x:Name="PART_Indicator"
-                                    HorizontalAlignment="Left"
-                                    Background="{TemplateBinding Foreground}"
-                                    CornerRadius="{DynamicResource Radius.ProgressFill}"
-                                    SnapsToDevicePixels="True" />
-                        </Grid>
-                    </Border>
+                        <Border x:Name="PART_Indicator"
+                                Height="{TemplateBinding Height}"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Background="{TemplateBinding Foreground}"
+                                CornerRadius="{DynamicResource Radius.ProgressFill}"
+                                SnapsToDevicePixels="True" />
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

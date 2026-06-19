@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Core.Chd.Commands;
 using Serilog;
 using System;
 using System.IO;
@@ -32,6 +33,17 @@ internal static class ChdConversionServiceSupport
         ChdExecutionReportContext ExecutionReportContext,
         ChdConversionResult? FailureResult);
 
+    internal sealed record ChdInputPreparationReport(
+        string OriginalInputPath,
+        string PreparedInputPath,
+        string PreparationTool,
+        string PreparationToolVersion,
+        string PreparationCommand,
+        int PreparationExitCode,
+        long? PreparedOutputBytes,
+        bool TemporaryIsoDeleted,
+        bool SourcePreserved);
+
     internal static async Task<ChdPreparedPolicyContext> PreparePolicyContextAsync(
         string chdmanPath,
         string inputPath,
@@ -55,6 +67,7 @@ internal static class ChdConversionServiceSupport
         ChdProfileMediaKind profileMediaKind = ResolveProfileMediaKind(resolvedInputPath, command, extractionKind, isoDiagnostics);
         ChdMediaFormatKind profileInputFormat = ResolveProfileInputFormat(resolvedInputPath, command, extractionKind);
         string profilePlatform = ResolveProfilePlatform(resolvedInputPath, isoDiagnostics);
+
         PlatformAwareChdProfileDecision profileDecision = profilePolicy.Resolve(new PlatformAwareChdProfileRequest(
             profileMediaKind,
             profilePlatform,
@@ -63,6 +76,7 @@ internal static class ChdConversionServiceSupport
             ChdProfileUserGoal.Auto,
             chdmanCapabilities,
             command,
+            resolvedInputPath,
             compressionCodecs,
             hunkSizeBytes));
 
@@ -77,12 +91,14 @@ internal static class ChdConversionServiceSupport
                 profilePlatform,
                 profileDecision.ReasonCode,
                 profileDecision.CompatibilityWarningCode);
+
             ChdExecutionReportContext blockedReportContext = BuildExecutionReportContext(
                 command,
                 profileDecision,
                 ChdCompressionResolution.NotApplicable,
                 0,
                 chdmanCapabilities);
+
             ChdConversionResult failure = BuildPreExecutionFailureResult(
                 inputPath,
                 outputPath,
@@ -90,6 +106,7 @@ internal static class ChdConversionServiceSupport
                     ? PlatformAwareChdProfilePolicy.UnknownIsoMediaKindRequiredMessageKey
                     : profileDecision.CompatibilityWarningCode,
                 reportContext: blockedReportContext);
+
             return new ChdPreparedPolicyContext(
                 command,
                 isExtractCommand,
@@ -101,8 +118,10 @@ internal static class ChdConversionServiceSupport
         }
 
         LogSelectedProfile(command, resolvedInputPath, profileMediaKind, profileInputFormat, profilePlatform, profileDecision);
+
         command = profileDecision.Command;
         isExtractCommand = commandPreparation.IsExtractCommand(command);
+
         ChdCompressionResolution compressionResolution = ChdCompressionResolution.NotApplicable;
         string resolvedCompression = string.Empty;
         int resolvedHunkSizeBytes = 0;
@@ -117,6 +136,7 @@ internal static class ChdConversionServiceSupport
 
         LogCompressionTruth(command, resolvedInputPath, compressionResolution, profileDecision.CompressionPolicyName);
         LogHunkPolicy(command, resolvedInputPath, hunkSizeBytes, profileDecision.HunkSize, resolvedHunkSizeBytes, hunkPolicyNote, profileDecision.HunkPolicyName);
+
         ChdExecutionReportContext executionReportContext = BuildExecutionReportContext(
             command,
             profileDecision,
@@ -140,7 +160,14 @@ internal static class ChdConversionServiceSupport
 
         if (policyDecision.IsAllowed)
         {
-            return new ChdPreparedPolicyContext(command, isExtractCommand, compressionResolution, resolvedCompression, resolvedHunkSizeBytes, executionReportContext, null);
+            return new ChdPreparedPolicyContext(
+                command,
+                isExtractCommand,
+                compressionResolution,
+                resolvedCompression,
+                resolvedHunkSizeBytes,
+                executionReportContext,
+                null);
         }
 
         Log.Warning(
@@ -149,6 +176,7 @@ internal static class ChdConversionServiceSupport
             resolvedOutputPath,
             command,
             policyDecision.MessageKey);
+
         ChdConversionResult policyFailure = BuildPreExecutionFailureResult(
             inputPath,
             outputPath,
@@ -156,7 +184,15 @@ internal static class ChdConversionServiceSupport
             compressionResolution,
             resolvedHunkSizeBytes,
             executionReportContext);
-        return new ChdPreparedPolicyContext(command, isExtractCommand, compressionResolution, resolvedCompression, resolvedHunkSizeBytes, executionReportContext, policyFailure);
+
+        return new ChdPreparedPolicyContext(
+            command,
+            isExtractCommand,
+            compressionResolution,
+            resolvedCompression,
+            resolvedHunkSizeBytes,
+            executionReportContext,
+            policyFailure);
     }
 
     private static void LogSelectedProfile(
@@ -171,16 +207,43 @@ internal static class ChdConversionServiceSupport
         string template = changed
             ? "CHD profile policy changed command. Input={InputPath}; PreviousCommand={PreviousCommand}; Command={Command}; InputFormat={InputFormat}; MediaKind={MediaKind}; Platform={Platform}; EffectiveProfile={EffectiveProfile}; ReasonCode={ReasonCode}; CompressionPolicy={CompressionPolicy}; HunkPolicy={HunkPolicy}"
             : "CHD profile policy selected profile. Input={InputPath}; PreviousCommand={PreviousCommand}; Command={Command}; InputFormat={InputFormat}; MediaKind={MediaKind}; Platform={Platform}; EffectiveProfile={EffectiveProfile}; ReasonCode={ReasonCode}; CompressionPolicy={CompressionPolicy}; HunkPolicy={HunkPolicy}";
+
         if (changed)
         {
-            Log.Information(template, resolvedInputPath, previousCommand, profileDecision.Command, profileInputFormat, profileMediaKind, profilePlatform, profileDecision.EffectiveProfileName, profileDecision.ReasonCode, profileDecision.CompressionPolicyName, profileDecision.HunkPolicyName);
+            Log.Information(
+                template,
+                resolvedInputPath,
+                previousCommand,
+                profileDecision.Command,
+                profileInputFormat,
+                profileMediaKind,
+                profilePlatform,
+                profileDecision.EffectiveProfileName,
+                profileDecision.ReasonCode,
+                profileDecision.CompressionPolicyName,
+                profileDecision.HunkPolicyName);
             return;
         }
 
-        Log.Debug(template, resolvedInputPath, previousCommand, profileDecision.Command, profileInputFormat, profileMediaKind, profilePlatform, profileDecision.EffectiveProfileName, profileDecision.ReasonCode, profileDecision.CompressionPolicyName, profileDecision.HunkPolicyName);
+        Log.Debug(
+            template,
+            resolvedInputPath,
+            previousCommand,
+            profileDecision.Command,
+            profileInputFormat,
+            profileMediaKind,
+            profilePlatform,
+            profileDecision.EffectiveProfileName,
+            profileDecision.ReasonCode,
+            profileDecision.CompressionPolicyName,
+            profileDecision.HunkPolicyName);
     }
 
-    private static void LogCompressionTruth(string command, string resolvedInputPath, ChdCompressionResolution compressionResolution, string compressionPolicyName)
+    private static void LogCompressionTruth(
+        string command,
+        string resolvedInputPath,
+        ChdCompressionResolution compressionResolution,
+        string compressionPolicyName)
     {
         if (string.IsNullOrWhiteSpace(compressionResolution.RequestedPreset))
         {
@@ -277,6 +340,11 @@ internal static class ChdConversionServiceSupport
         }
 
         string extension = Path.GetExtension(inputPath).ToLowerInvariant();
+        if (extension == ".cso")
+        {
+            return ChdProfileMediaKind.DvdRom;
+        }
+
         if (extension is ".cue" or ".gdi" or ".toc" or ".nrg" or ".bin")
         {
             return ChdProfileMediaKind.CdRom;
@@ -346,6 +414,7 @@ internal static class ChdConversionServiceSupport
             ".gdi" => ChdMediaFormatKind.Gdi,
             ".toc" => ChdMediaFormatKind.Toc,
             ".nrg" => ChdMediaFormatKind.Nrg,
+            ".cso" => ChdMediaFormatKind.Cso,
             ".bin" when string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase) => ChdMediaFormatKind.Cue,
             ".chd" => ChdMediaFormatKind.Chd,
             _ => ChdMediaFormatKind.Unknown
@@ -364,12 +433,18 @@ internal static class ChdConversionServiceSupport
             PlatformDetectionResult detection = PlatformDetectionService.Detect(inputPath);
             return detection.PlatformName;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException or InvalidDataException or OperationCanceledException or OverflowException)
+        catch (Exception ex) when (ex is IOException
+                                  or UnauthorizedAccessException
+                                  or ArgumentException
+                                  or NotSupportedException
+                                  or PathTooLongException
+                                  or InvalidDataException
+                                  or OperationCanceledException
+                                  or OverflowException)
         {
             return string.Empty;
         }
     }
-
 
     internal static void TryDeleteAuxiliaryOutputFile(string? path, string reason)
     {
@@ -400,6 +475,20 @@ internal static class ChdConversionServiceSupport
         }
     }
 
+    internal static string NormalizeOptionalExtractCdOutputPath(
+        string? path,
+        IChdCommandPreparationService commandPreparation)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        string normalized = commandPreparation.NormalizePathForCli(path);
+        ConversionPathValidator.ThrowIfUnsafeForChdman(normalized, nameof(path));
+        return normalized;
+    }
+
     internal static ChdConversionResult BuildPreExecutionFailureResult(
         string inputPath,
         string outputPath,
@@ -414,12 +503,54 @@ internal static class ChdConversionServiceSupport
             IsSuccess = false,
             WasCancelled = false,
             ExitCode = 1,
+            Status = ChdConversionStatus.Failed,
             InputPath = inputPath,
             OutputPath = outputPath,
             CommandLine = string.Empty,
             Output = string.Empty,
             Error = string.Empty,
             Message = messageKey,
+            LogPath = string.Empty,
+            CompressionCodecs = compression.LogResolvedCompression,
+            RequestedCompressionPreset = compression.RequestedPreset,
+            ResolvedCompressionCodecs = compression.LogResolvedCompression,
+            EffectiveCompressionCodecs = compression.EffectiveCompression,
+            EffectiveCompressionSameAsMameDefault = compression.SameAsMameDefault,
+            CompressionTruthNoteKey = compression.TruthNoteKey,
+            HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null,
+            RequestedProfile = reportContext?.RequestedProfile ?? string.Empty,
+            ResolvedCommand = reportContext?.ResolvedCommand ?? string.Empty,
+            ResolvedCompression = reportContext?.ResolvedCompression ?? compression.LogResolvedCompression,
+            ResolvedHunkSize = reportContext?.ResolvedHunkSize > 0 ? reportContext.ResolvedHunkSize : null,
+            EffectiveCompression = reportContext?.EffectiveCompression ?? compression.EffectiveCompression,
+            EffectiveHunkSize = reportContext?.EffectiveHunkSize > 0 ? reportContext.EffectiveHunkSize : null,
+            SameAsMameDefault = reportContext?.SameAsMameDefault ?? compression.SameAsMameDefault,
+            CompatibilityNotes = reportContext?.CompatibilityNotes ?? string.Empty,
+            ChdmanVersion = reportContext?.ChdmanVersion ?? string.Empty
+        };
+    }
+
+    internal static ChdConversionResult BuildPreparationCancelledResult(
+        string inputPath,
+        string outputPath,
+        string messageKey,
+        ChdCompressionResolution? compressionResolution = null,
+        int resolvedHunkSizeBytes = 0,
+        ChdExecutionReportContext? reportContext = null)
+    {
+        ChdCompressionResolution compression = compressionResolution ?? ChdCompressionResolution.NotApplicable;
+        return new ChdConversionResult
+        {
+            IsSuccess = false,
+            WasCancelled = true,
+            ExitCode = ChdmanProcessRunner.CanceledExitCode,
+            Status = ChdConversionStatus.UserCanceled,
+            InputPath = inputPath,
+            OutputPath = outputPath,
+            CommandLine = string.Empty,
+            Output = string.Empty,
+            Error = string.Empty,
+            Message = string.IsNullOrWhiteSpace(messageKey) ? UserCancelledMessageKey : messageKey,
             LogPath = string.Empty,
             CompressionCodecs = compression.LogResolvedCompression,
             RequestedCompressionPreset = compression.RequestedPreset,
@@ -450,6 +581,7 @@ internal static class ChdConversionServiceSupport
         TimeSpan duration,
         ChdmanCliRunner.Result run,
         bool success,
+        ChdConversionStatus status,
         bool isExtractCommand,
         string? resultMessageKeyOverride,
         int passedProcessorLimit,
@@ -457,39 +589,40 @@ internal static class ChdConversionServiceSupport
         int resolvedHunkSizeBytes,
         long logicalInputBytes,
         ChdExecutionReportContext? reportContext = null) => new()
-    {
-        IsSuccess = success,
-        WasCancelled = run.WasCancelled,
-        ExitCode = run.ExitCode,
-        InputPath = inputPath,
-        OutputPath = outputPath,
-        CommandLine = displayCommandLine,
-        Output = output,
-        Error = error,
-        Message = success
+        {
+            IsSuccess = success,
+            WasCancelled = run.WasCancelled,
+            ExitCode = run.ExitCode,
+            Status = status,
+            InputPath = inputPath,
+            OutputPath = outputPath,
+            CommandLine = displayCommandLine,
+            Output = output,
+            Error = error,
+            Message = success
             ? (isExtractCommand ? ExtractionSuccessMessageKey : ConversionSuccessMessageKey)
             : resultMessageKeyOverride ?? (isExtractCommand ? ExtractionFailedMessageKey : ConversionFailedMessageKey),
-        LogPath = logPath,
-        ChdmanDuration = duration,
-        NumProcessors = passedProcessorLimit,
-        CompressionCodecs = compressionResolution.LogResolvedCompression,
-        RequestedCompressionPreset = compressionResolution.RequestedPreset,
-        ResolvedCompressionCodecs = compressionResolution.LogResolvedCompression,
-        EffectiveCompressionCodecs = compressionResolution.EffectiveCompression,
-        EffectiveCompressionSameAsMameDefault = compressionResolution.SameAsMameDefault,
-        CompressionTruthNoteKey = compressionResolution.TruthNoteKey,
-        HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null,
-        LogicalInputBytes = logicalInputBytes,
-        RequestedProfile = reportContext?.RequestedProfile ?? string.Empty,
-        ResolvedCommand = reportContext?.ResolvedCommand ?? string.Empty,
-        ResolvedCompression = reportContext?.ResolvedCompression ?? compressionResolution.LogResolvedCompression,
-        ResolvedHunkSize = reportContext?.ResolvedHunkSize > 0 ? reportContext.ResolvedHunkSize : null,
-        EffectiveCompression = reportContext?.EffectiveCompression ?? compressionResolution.EffectiveCompression,
-        EffectiveHunkSize = reportContext?.EffectiveHunkSize > 0 ? reportContext.EffectiveHunkSize : null,
-        SameAsMameDefault = reportContext?.SameAsMameDefault ?? compressionResolution.SameAsMameDefault,
-        CompatibilityNotes = reportContext?.CompatibilityNotes ?? string.Empty,
-        ChdmanVersion = reportContext?.ChdmanVersion ?? string.Empty
-    };
+            LogPath = logPath,
+            ChdmanDuration = duration,
+            NumProcessors = passedProcessorLimit,
+            CompressionCodecs = compressionResolution.LogResolvedCompression,
+            RequestedCompressionPreset = compressionResolution.RequestedPreset,
+            ResolvedCompressionCodecs = compressionResolution.LogResolvedCompression,
+            EffectiveCompressionCodecs = compressionResolution.EffectiveCompression,
+            EffectiveCompressionSameAsMameDefault = compressionResolution.SameAsMameDefault,
+            CompressionTruthNoteKey = compressionResolution.TruthNoteKey,
+            HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null,
+            LogicalInputBytes = logicalInputBytes,
+            RequestedProfile = reportContext?.RequestedProfile ?? string.Empty,
+            ResolvedCommand = reportContext?.ResolvedCommand ?? string.Empty,
+            ResolvedCompression = reportContext?.ResolvedCompression ?? compressionResolution.LogResolvedCompression,
+            ResolvedHunkSize = reportContext?.ResolvedHunkSize > 0 ? reportContext.ResolvedHunkSize : null,
+            EffectiveCompression = reportContext?.EffectiveCompression ?? compressionResolution.EffectiveCompression,
+            EffectiveHunkSize = reportContext?.EffectiveHunkSize > 0 ? reportContext.EffectiveHunkSize : null,
+            SameAsMameDefault = reportContext?.SameAsMameDefault ?? compressionResolution.SameAsMameDefault,
+            CompatibilityNotes = reportContext?.CompatibilityNotes ?? string.Empty,
+            ChdmanVersion = reportContext?.ChdmanVersion ?? string.Empty
+        };
 
     internal static async Task WriteConversionLogAsync(
         string logPath,
@@ -514,24 +647,43 @@ internal static class ChdConversionServiceSupport
         string diskPreflightMessageKey,
         string diskPreflightOperationKey,
         FileHashResult? inputSha1,
+        ChdInputPreparationReport? inputPreparationReport = null,
         ChdExecutionReportContext? reportContext = null)
     {
         var logBuilder = new StringBuilder();
+
         logBuilder.AppendLine($"Time: {DateTime.Now:yyyyMMdd_HHmmss}");
         logBuilder.AppendLine($"Command: {command}");
         logBuilder.AppendLine($"Input: {inputPath}");
         logBuilder.AppendLine($"Output: {outputPath}");
+        if (inputPreparationReport is not null)
+        {
+            logBuilder.AppendLine($"OriginalInputPath: {inputPreparationReport.OriginalInputPath}");
+            logBuilder.AppendLine($"PreparedInputPath: {inputPreparationReport.PreparedInputPath}");
+            logBuilder.AppendLine($"PreparationTool: {inputPreparationReport.PreparationTool}");
+            logBuilder.AppendLine($"PreparationToolVersion: {inputPreparationReport.PreparationToolVersion}");
+            logBuilder.AppendLine($"PreparationCommand: {inputPreparationReport.PreparationCommand}");
+            logBuilder.AppendLine($"PreparationExitCode: {inputPreparationReport.PreparationExitCode}");
+            logBuilder.AppendLine($"PreparationOutputBytes: {inputPreparationReport.PreparedOutputBytes?.ToString() ?? string.Empty}");
+            logBuilder.AppendLine($"TemporaryIsoDeleted: {inputPreparationReport.TemporaryIsoDeleted}");
+            logBuilder.AppendLine($"SourcePreserved: {inputPreparationReport.SourcePreserved}");
+            logBuilder.AppendLine($"FinalChdCommand: {command}");
+        }
+
         logBuilder.AppendLine($"ExitCode: {exitCode}");
         logBuilder.AppendLine($"Compression: {compressionResolution.LogResolvedCompression}");
         logBuilder.AppendLine($"RequestedPreset: {compressionResolution.RequestedPreset}");
         logBuilder.AppendLine($"ResolvedCompression: {compressionResolution.LogResolvedCompression}");
         logBuilder.AppendLine($"EffectiveCompression: {compressionResolution.EffectiveCompression}");
         logBuilder.AppendLine($"SameAsMameDefault: {compressionResolution.SameAsMameDefault}");
+
         if (!string.IsNullOrWhiteSpace(compressionResolution.TruthNoteKey))
         {
             logBuilder.AppendLine($"CompressionTruthNoteKey: {compressionResolution.TruthNoteKey}");
         }
+
         logBuilder.AppendLine($"HunkSize: {(resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes.ToString() : "default")}");
+
         if (reportContext is not null)
         {
             logBuilder.AppendLine($"RequestedProfile: {reportContext.RequestedProfile}");
@@ -544,6 +696,7 @@ internal static class ChdConversionServiceSupport
             logBuilder.AppendLine($"CompatibilityNotes: {reportContext.CompatibilityNotes}");
             logBuilder.AppendLine($"ChdmanVersion: {reportContext.ChdmanVersion}");
         }
+
         logBuilder.AppendLine($"AvailableLogicalProcessors: {availableLogicalProcessors}");
         logBuilder.AppendLine($"RequestedProcessors: {(maxProcessorCount > 0 ? maxProcessorCount.ToString() : "auto")}");
         logBuilder.AppendLine($"AutoResourceLimiter: {enableAutoResourceLimiter}");
@@ -552,16 +705,23 @@ internal static class ChdConversionServiceSupport
         logBuilder.AppendLine($"PerformanceMode: {performanceMode}");
         logBuilder.AppendLine($"PriorityMode: {priorityMode}");
         logBuilder.AppendLine($"ChdmanDuration: {duration}");
+
         if (logicalInputBytes > 0)
         {
             logBuilder.AppendLine($"LogicalInputBytes: {logicalInputBytes}");
         }
+
         logBuilder.AppendLine($"DiskPreflightMessageKey: {diskPreflightMessageKey}");
         logBuilder.AppendLine($"DiskPreflightOperationKey: {diskPreflightOperationKey}");
+
         if (inputSha1 is not null)
         {
-            logBuilder.AppendLine($"InputSHA1: {inputSha1.Hex}");
+            string sha1Label = inputPreparationReport is not null
+                ? "Prepared ISO SHA1"
+                : "InputSHA1";
+            logBuilder.AppendLine($"{sha1Label}: {inputSha1.Hex}");
         }
+
         logBuilder.AppendLine($"Success: {success}");
         AppendProcessText(logBuilder, "STDOUT", output);
         AppendProcessText(logBuilder, "STDERR", error);
@@ -594,34 +754,35 @@ internal static class ChdConversionServiceSupport
         ChdCompressionResolution compressionResolution,
         int resolvedHunkSizeBytes,
         ChdExecutionReportContext? reportContext = null) => new()
-    {
-        IsSuccess = false,
-        WasCancelled = true,
-        ExitCode = exitCode,
-        InputPath = inputPath,
-        OutputPath = outputPath,
-        CommandLine = displayCommandLine,
-        Output = output,
-        Error = error,
-        Message = UserCancelledMessageKey,
-        LogPath = logPath,
-        ChdmanDuration = duration,
-        NumProcessors = passedProcessorLimit,
-        CompressionCodecs = compressionResolution.LogResolvedCompression,
-        RequestedCompressionPreset = compressionResolution.RequestedPreset,
-        ResolvedCompressionCodecs = compressionResolution.LogResolvedCompression,
-        EffectiveCompressionCodecs = compressionResolution.EffectiveCompression,
-        EffectiveCompressionSameAsMameDefault = compressionResolution.SameAsMameDefault,
-        CompressionTruthNoteKey = compressionResolution.TruthNoteKey,
-        HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null,
-        RequestedProfile = reportContext?.RequestedProfile ?? string.Empty,
-        ResolvedCommand = reportContext?.ResolvedCommand ?? string.Empty,
-        ResolvedCompression = reportContext?.ResolvedCompression ?? compressionResolution.LogResolvedCompression,
-        ResolvedHunkSize = reportContext?.ResolvedHunkSize > 0 ? reportContext.ResolvedHunkSize : null,
-        EffectiveCompression = reportContext?.EffectiveCompression ?? compressionResolution.EffectiveCompression,
-        EffectiveHunkSize = reportContext?.EffectiveHunkSize > 0 ? reportContext.EffectiveHunkSize : null,
-        SameAsMameDefault = reportContext?.SameAsMameDefault ?? compressionResolution.SameAsMameDefault,
-        CompatibilityNotes = reportContext?.CompatibilityNotes ?? string.Empty,
-        ChdmanVersion = reportContext?.ChdmanVersion ?? string.Empty
-    };
+        {
+            IsSuccess = false,
+            WasCancelled = true,
+            ExitCode = exitCode,
+            Status = ChdConversionStatus.UserCanceled,
+            InputPath = inputPath,
+            OutputPath = outputPath,
+            CommandLine = displayCommandLine,
+            Output = output,
+            Error = error,
+            Message = UserCancelledMessageKey,
+            LogPath = logPath,
+            ChdmanDuration = duration,
+            NumProcessors = passedProcessorLimit,
+            CompressionCodecs = compressionResolution.LogResolvedCompression,
+            RequestedCompressionPreset = compressionResolution.RequestedPreset,
+            ResolvedCompressionCodecs = compressionResolution.LogResolvedCompression,
+            EffectiveCompressionCodecs = compressionResolution.EffectiveCompression,
+            EffectiveCompressionSameAsMameDefault = compressionResolution.SameAsMameDefault,
+            CompressionTruthNoteKey = compressionResolution.TruthNoteKey,
+            HunkSizeBytes = resolvedHunkSizeBytes > 0 ? resolvedHunkSizeBytes : null,
+            RequestedProfile = reportContext?.RequestedProfile ?? string.Empty,
+            ResolvedCommand = reportContext?.ResolvedCommand ?? string.Empty,
+            ResolvedCompression = reportContext?.ResolvedCompression ?? compressionResolution.LogResolvedCompression,
+            ResolvedHunkSize = reportContext?.ResolvedHunkSize > 0 ? reportContext.ResolvedHunkSize : null,
+            EffectiveCompression = reportContext?.EffectiveCompression ?? compressionResolution.EffectiveCompression,
+            EffectiveHunkSize = reportContext?.EffectiveHunkSize > 0 ? reportContext.EffectiveHunkSize : null,
+            SameAsMameDefault = reportContext?.SameAsMameDefault ?? compressionResolution.SameAsMameDefault,
+            CompatibilityNotes = reportContext?.CompatibilityNotes ?? string.Empty,
+            ChdmanVersion = reportContext?.ChdmanVersion ?? string.Empty
+        };
 }

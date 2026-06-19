@@ -1,10 +1,10 @@
-# CHD Logical Reader Probe
+# CHD logical reader probe
 
-Internal WPF-only helper used to enrich CHD metadata without changing the conversion workflow.
+The logical reader is an internal WPF-only helper used to enrich CHD metadata without changing the conversion workflow.
 
 ## Purpose
 
-The application still uses `chdman` for conversion, verification, and extraction. The CHD logical reader is a secondary probe that reads CHD geometry as a logical byte space:
+The application still uses `chdman` for conversion, verification, and extraction. The logical reader is a secondary read-only probe for CHD geometry:
 
 - physical CHD file size
 - logical virtual disc size
@@ -15,14 +15,26 @@ The application still uses `chdman` for conversion, verification, and extraction
 
 ## Architecture
 
-`Services/Chd/ChdLogicalProbeService.cs` executes `Tools/chd_reader_tool.exe info <file.chd>` with `UseShellExecute=false`, redirected output, argument-list escaping, cancellation support, and a short timeout.
+`Services/Chd/ChdLogicalProbeService.cs` looks for:
+
+```text
+Tools\chd_reader_tool.exe info <file.chd>
+```
+
+The process uses `UseShellExecute=false`, redirected output, argument-list escaping, cancellation support, and a short timeout.
 
 `Services/Chd/ChdLogicalProbeResult.cs` carries the parsed geometry.
 
-`Services/ChdInfoService.cs` uses the probe only as metadata enrichment after `chdman info`. If the probe is missing or fails, the existing CHD workflow continues through `chdman info`; no conversion, verification, queue, Redump, or cleanup behavior is changed.
+`Services/ChdInfoService.cs` uses the probe only as metadata enrichment after `chdman info`. If the probe is missing or fails, the existing CHD workflow continues through `chdman info` where possible.
+
+## Release gate
+
+Current end-user release checks block `chd_reader_tool.exe`, `libchdr.dll`, and related native inspection artifacts from the public package. Keep that behavior unless a future release explicitly approves shipping the helper and its full third-party notices.
+
+No conversion, verification, queue, Redump, or cleanup behavior should depend on this helper as the only path.
 
 ## User-facing behavior
 
-The verification/result dialog now adds a compact logical CHD report when a readable output CHD is available, or when the saved `info_*.log` already contains probe geometry. This is appended to the existing user-facing report without adding a new button or changing conversion, verification, queue, Redump, or cleanup behavior.
+The verification/result dialog can append a compact logical CHD report when probe data is available. If not, the UI should stay quiet and rely on the existing `chdman` path.
 
-The helper must not expose internal runtime names or raw process failures to the end-user UI.
+The helper must not expose raw internal process failures to the user-facing UI.

@@ -1,18 +1,21 @@
-# Legal Notice
+# Legal notice
 
-Hakamiq CHD Tool does not include or distribute games, ROMs, BIOS files, disc images, Redump databases, decryption keys, or copyrighted user content.
+Hakamiq CHD Tool does not include or distribute games, ROMs, BIOS files, disc images, Redump databases, decryption keys, platform firmware, or copyrighted user content.
 
-Users are responsible for using the app only with files they legally own or are authorized to process.
+Use the app only with files you own or are legally allowed to process.
 
-`chdman` is part of the MAME project and is not owned by Hakamiq CHD Tool.
+## Third-party tools
 
-If `chdman.exe` is included in a release, include the MAME license and notice files with the release.
+`chdman` is part of the MAME project and is not owned or maintained by Hakamiq CHD Tool. If `chdman.exe` is included in a release, include the required MAME license and notice files.
 
-If 7-Zip tools are included in a release, include the related 7-Zip license notice with the release.
+If 7-Zip tools are included, include the related 7-Zip license notice.
 
+If `hakamiq-cso.exe` is included, include `docs/legal/CSOKIT_NOTICE.md` and the bundled helper license/readme files for the exact binary being distributed.
 
-Redump support is optional and works only with user-provided local verification data. Hakamiq CHD Tool does not provide Redump databases or game files.
+## Redump
 
-Hakamiq CHD Tool is not affiliated with MAMEdev, Redump, console manufacturers, or game publishers.
+Redump support is optional and works only with user-provided or user-configured verification data. Hakamiq CHD Tool does not provide Redump databases or game files.
 
-Before publishing a release, make sure it does not contain games, ROMs, BIOS files, ISO/CHD images, Redump databases, keys, or copyrighted screenshots.
+Hakamiq CHD Tool is not affiliated with MAMEdev, Redump, console manufacturers, emulator projects, or game publishers.
+
+Before publishing a release, verify that it does not contain games, ROMs, BIOS files, ISO/CHD images, Redump databases, keys, private logs, or copyrighted screenshots.

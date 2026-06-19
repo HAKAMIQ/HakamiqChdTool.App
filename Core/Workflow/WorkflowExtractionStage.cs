@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Chd.Commands;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using Serilog;
@@ -375,6 +376,21 @@ internal sealed class WorkflowExtractionStage(
 
         if (!conversionResult.IsSuccess)
         {
+            if (conversionResult.Status == ChdConversionStatus.SkippedOutputExists)
+            {
+                sink.ReportTerminalSuccess(
+                    QueueItemTerminalOutcome.SkippedExists,
+                    OutputFileExistsDetailKey);
+                sink.ReportProgress(100, indeterminate: false);
+                WorkflowPathUtilities.RaiseProgress(request, 100);
+
+                return WorkflowResultBuilder.Skipped(
+                    QueueItemTerminalOutcome.SkippedExists,
+                    OutputFileExistsDetailKey,
+                    finalOutputPath,
+                    lastLogPath);
+            }
+
             CleanupPendingExtractionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
 
             sink.ReportTerminalFailure(QueueItemFailureKind.FailedExtract, conversionResult.Message);

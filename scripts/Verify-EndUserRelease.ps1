@@ -325,10 +325,13 @@ function Assert-RequiredReleaseFiles {
         "HakamiqChdTool.deps.json",
         "HakamiqChdTool.runtimeconfig.json",
         "release-manifest.json",
-        "Tools\chd_reader_tool.exe",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
+        "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "Tools\hakamiq-cso\win-x64\LICENSE.txt",
+        "Tools\hakamiq-cso\win-x64\README.md",
+        "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
         "docs\README.md",
         "docs\CHANGELOG.md",
         "docs\SECURITY.md",
@@ -338,7 +341,8 @@ function Assert-RequiredReleaseFiles {
         "docs\legal\CHDMAN_NOTICE.md",
         "docs\legal\MAME_COPYING.txt",
         "docs\legal\MAME_GPL-2.0.txt",
-        "docs\legal\SEVENZIP_NOTICE.md"
+        "docs\legal\SEVENZIP_NOTICE.md",
+        "docs\legal\CSOKIT_NOTICE.md"
     )) {
         Assert-FileExists $required
     }
@@ -349,10 +353,13 @@ function Assert-RequiredReleaseFiles {
         "HakamiqChdTool.deps.json",
         "HakamiqChdTool.runtimeconfig.json",
         "release-manifest.json",
-        "Tools\chd_reader_tool.exe",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
+        "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "Tools\hakamiq-cso\win-x64\LICENSE.txt",
+        "Tools\hakamiq-cso\win-x64\README.md",
+        "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
         "docs\README.md",
         "docs\CHANGELOG.md",
         "docs\SECURITY.md",
@@ -362,7 +369,8 @@ function Assert-RequiredReleaseFiles {
         "docs\legal\CHDMAN_NOTICE.md",
         "docs\legal\MAME_COPYING.txt",
         "docs\legal\MAME_GPL-2.0.txt",
-        "docs\legal\SEVENZIP_NOTICE.md"
+        "docs\legal\SEVENZIP_NOTICE.md",
+        "docs\legal\CSOKIT_NOTICE.md"
     )) {
         Assert-FileIsNotEmpty $required
     }
@@ -452,10 +460,13 @@ function Assert-OnlyApprovedToolFiles {
     }
 
     $approved = @(
-        "chd_reader_tool.exe",
         "7zip\7z.exe",
         "7zip\7z.dll",
-        "7zip\license.txt"
+        "7zip\license.txt",
+        "hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "hakamiq-cso\win-x64\license.txt",
+        "hakamiq-cso\win-x64\readme.md",
+        "hakamiq-cso\win-x64\sha256sums.txt"
     )
 
     $matches = Get-ChildItem -LiteralPath $toolsRoot -File -Recurse -Force -ErrorAction SilentlyContinue |
@@ -481,7 +492,9 @@ function Assert-OnlyApprovedToolDirectories {
     }
 
     $approved = @(
-        "7zip"
+        "7zip",
+        "hakamiq-cso",
+        "hakamiq-cso\win-x64"
     )
 
     $matches = Get-ChildItem -LiteralPath $toolsRoot -Directory -Recurse -Force -ErrorAction SilentlyContinue |
@@ -509,6 +522,82 @@ function Assert-NoStandaloneChdmanExecutable {
         }
 
         throw "Standalone chdman.exe detected in end-user release."
+    }
+}
+
+function Assert-NoLibchdrReleaseArtifacts {
+    $blockedNames = @(
+        "chd_reader_tool.exe",
+        "libchdr.dll",
+        "libchdr.pdb",
+        "chdr.dll",
+        "chdr.pdb"
+    )
+
+    $matches = Get-ChildItem -LiteralPath $OutputPath -File -Recurse -Force -ErrorAction SilentlyContinue |
+        Where-Object { $blockedNames -contains $_.Name.ToLowerInvariant() }
+
+    if ($matches) {
+        foreach ($match in $matches) {
+            Write-Err "libchdr/native CHD inspection artifact must not be included in the P1 end-user release: $($match.FullName)"
+        }
+
+        throw "libchdr/native CHD inspection artifacts detected in end-user release."
+    }
+}
+
+function Assert-CsoKitBundledToolContract {
+    foreach ($required in @(
+        "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "Tools\hakamiq-cso\win-x64\LICENSE.txt",
+        "Tools\hakamiq-cso\win-x64\README.md",
+        "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
+        "docs\legal\CSOKIT_NOTICE.md"
+    )) {
+        Assert-FileExists $required
+        Assert-FileIsNotEmpty $required
+    }
+}
+
+function Assert-NoOldCsoToolArtifacts {
+    $blocked = Get-ChildItem -LiteralPath $OutputPath -Recurse -File -Force -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match 'disallowed-cso-helper' -or $_.FullName -match '[\\/]disallowed-cso-helper([\\/]|$)' }
+
+    if ($blocked) {
+        foreach ($match in $blocked) {
+            Write-Err "disallowed-cso-helper must not be included in the release package: $($match.FullName)"
+        }
+
+        throw "disallowed-cso-helper must not be included in the release package."
+    }
+}
+
+function Assert-NoForbiddenExternalArtifacts {
+    $blockedNames = @(
+        "ZArchive*",
+        "ymir*"
+    )
+
+    $matches = Get-ChildItem -LiteralPath $OutputPath -File -Recurse -Force -ErrorAction SilentlyContinue |
+        Where-Object {
+            $fileName = $_.Name
+            $isBlocked = $false
+            foreach ($pattern in $blockedNames) {
+                if ($fileName -like $pattern) {
+                    $isBlocked = $true
+                    break
+                }
+            }
+
+            $isBlocked
+        }
+
+    if ($matches) {
+        foreach ($match in $matches) {
+            Write-Err "Forbidden external tool artifact must not be included in the end-user release: $($match.FullName)"
+        }
+
+        throw "Forbidden external tool artifacts detected in end-user release."
     }
 }
 
@@ -711,8 +800,12 @@ Assert-RootIsClean -OutputPath $OutputPath
 Assert-NoDeveloperArtifacts
 Assert-NoUnsupportedMameTools
 Assert-NoStandaloneChdmanExecutable
+Assert-NoLibchdrReleaseArtifacts
+Assert-NoOldCsoToolArtifacts
+Assert-NoForbiddenExternalArtifacts
 Assert-OnlyApprovedToolFiles
 Assert-OnlyApprovedToolDirectories
+Assert-CsoKitBundledToolContract
 Assert-NoSquashFsArtifacts
 Assert-ExecutableFilesAreNotEmpty
 Assert-ReleaseManifest

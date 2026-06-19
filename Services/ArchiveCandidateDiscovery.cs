@@ -21,7 +21,7 @@ public static partial class ArchiveCandidateDiscovery
     private const long MaxDescriptorTextBytes = 4L * 1024L * 1024L;
     private const int RegexTimeoutMilliseconds = 250;
 
-    public static readonly string[] ConvertibleLeaderPriority = [".gdi", ".cue", ".toc", ".nrg", ".iso"];
+    public static readonly string[] ConvertibleLeaderPriority = [".gdi", ".cue", ".toc", ".nrg", ".iso", ".cso"];
     private static readonly string[] DescriptorLeaderPriority = [".gdi", ".cue", ".toc"];
 
     public static bool IsConvertibleLeaderExtension(string extension)

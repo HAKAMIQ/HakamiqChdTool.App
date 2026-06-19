@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using HakamiqChdTool.App.Core.Chd.Commands;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -27,10 +28,17 @@ public sealed class ChdProgressParser : IChdProgressParser
     {
         string rawLine = line ?? string.Empty;
         int? percent = null;
+        int parsedPercent = 0;
 
-        if (TryParseProgressCompletePercent(rawLine, out int parsedPercent) ||
+        if (ChdmanProgressParser.TryParse(rawLine, out double precisePercent, out _) ||
+            TryParseProgressCompletePercent(rawLine, out parsedPercent) ||
             (IsSafeGenericProgressLine(rawLine) && TryParseLastPercent(rawLine, out parsedPercent)))
         {
+            if (precisePercent > 0)
+            {
+                parsedPercent = (int)Math.Round(precisePercent, MidpointRounding.AwayFromZero);
+            }
+
             percent = minimumPercent is int floor
                 ? Math.Max(parsedPercent, Math.Clamp(floor, 0, 100))
                 : parsedPercent;

@@ -1,0 +1,7 @@
+﻿Hakamiq CsoKit
+
+Copyright (c) 2026 HAKAMIQ.
+All rights reserved.
+
+This source code and its compiled binaries are provided by HAKAMIQ.
+No permission is granted to copy, redistribute, sublicense, sell, or modify this software except where explicitly authorized by HAKAMIQ in writing.

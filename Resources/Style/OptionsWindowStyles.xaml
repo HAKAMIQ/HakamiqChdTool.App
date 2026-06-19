@@ -822,7 +822,6 @@
            TargetType="{x:Type ComboBox}"
            BasedOn="{StaticResource {x:Type ComboBox}}">
         <Setter Property="Width" Value="220" />
-        <Setter Property="SelectedValuePath" Value="Tag" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />

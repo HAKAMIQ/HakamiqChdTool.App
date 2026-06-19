@@ -51,8 +51,8 @@
     <CornerRadius x:Key="Radius.QueueSurface">6</CornerRadius>
     <CornerRadius x:Key="Radius.DropHintIcon">8</CornerRadius>
 
-    <CornerRadius x:Key="Radius.ProgressTrack">9999</CornerRadius>
-    <CornerRadius x:Key="Radius.ProgressFill">9999</CornerRadius>
+    <CornerRadius x:Key="Radius.ProgressTrack">2</CornerRadius>
+    <CornerRadius x:Key="Radius.ProgressFill">2</CornerRadius>
     <CornerRadius x:Key="Radius.AccentLine">9999</CornerRadius>
 
     <CornerRadius x:Key="Radius.Pill">9999</CornerRadius>

@@ -12,10 +12,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Resources\HakamiqLogo.ico</ApplicationIcon>
-		<Version>1.0.5</Version>
-		<AssemblyVersion>1.0.5.0</AssemblyVersion>
-		<FileVersion>1.0.5.0</FileVersion>
-		<InformationalVersion>v1.0.5</InformationalVersion>
+		<Version>1.0.6</Version>
+		<AssemblyVersion>1.0.6.0</AssemblyVersion>
+		<FileVersion>1.0.6.0</FileVersion>
+		<InformationalVersion>v1.0.6</InformationalVersion>
 		<Product>Hakamiq CHD Tool</Product>
 		<Company>Hakamiq</Company>
 		<Description>إدارة وتحويل صور الأقراص بصيغة CHD عبر chdman</Description>
@@ -39,12 +39,16 @@
 	<ItemGroup>
 		<Compile Remove="Adapters\**" />
 		<Compile Remove="Controls\**" />
+		<Compile Remove="HakamiqChdTool.App.Tests\**" />
 		<EmbeddedResource Remove="Adapters\**" />
 		<EmbeddedResource Remove="Controls\**" />
+		<EmbeddedResource Remove="HakamiqChdTool.App.Tests\**" />
 		<None Remove="Adapters\**" />
 		<None Remove="Controls\**" />
+		<None Remove="HakamiqChdTool.App.Tests\**" />
 		<Page Remove="Adapters\**" />
 		<Page Remove="Controls\**" />
+		<Page Remove="HakamiqChdTool.App.Tests\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -151,6 +155,11 @@
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
+		<Content Include="docs\legal\CSOKIT_NOTICE.md">
+			<TargetPath>CSOKIT_NOTICE.md</TargetPath>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>
 		<Content Include="docs\release-notes\CHANGELOG.md">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
@@ -168,12 +177,6 @@
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
-
-		<Content Include="Tools\chd_reader_tool.exe" Condition="Exists('Tools\chd_reader_tool.exe')">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</Content>
-
 		<Content Include="Tools\7zip\7z.exe" Condition="Exists('Tools\7zip\7z.exe')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -185,6 +188,26 @@
 		</Content>
 
 		<Content Include="Tools\7zip\License.txt" Condition="Exists('Tools\7zip\License.txt')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\hakamiq-cso\win-x64\hakamiq-cso.exe" Condition="Exists('Tools\hakamiq-cso\win-x64\hakamiq-cso.exe')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\hakamiq-cso\win-x64\LICENSE.txt" Condition="Exists('Tools\hakamiq-cso\win-x64\LICENSE.txt')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\hakamiq-cso\win-x64\README.md" Condition="Exists('Tools\hakamiq-cso\win-x64\README.md')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\hakamiq-cso\win-x64\SHA256SUMS.txt" Condition="Exists('Tools\hakamiq-cso\win-x64\SHA256SUMS.txt')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
@@ -209,4 +232,3 @@
 
 
 </Project>
-

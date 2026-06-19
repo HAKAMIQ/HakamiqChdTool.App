@@ -1,4 +1,4 @@
-# chdman / MAME Notice
+# chdman / MAME notice
 
 This project may include `Tools/chdman.exe` for user convenience.
 
@@ -17,15 +17,15 @@ Required license files:
 - `MAME_COPYING.txt`
 - `MAME_GPL-2.0.txt`
 
-MAME source:
+Upstream sources:
 
 - https://github.com/mamedev/mame
 - https://www.mamedev.org/
 
 Hakamiq CHD Tool is not affiliated with, sponsored by, or endorsed by MAMEdev.
 
-This project does not include games, ROMs, BIOS files, disc images, or copyrighted user media.
+This project does not include games, ROMs, BIOS files, disc images, Redump databases, keys, or copyrighted user media.
 
-Do not run Hakamiq CHD Tool or `chdman.exe` as Administrator unless needed.
+Do not run Hakamiq CHD Tool or `chdman.exe` as Administrator unless you have a specific reason.
 
 MAME and `chdman` are provided without warranty under their upstream license terms.

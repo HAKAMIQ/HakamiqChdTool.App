@@ -36,5 +36,6 @@ public interface IChdConversionService
         bool extractionMetadataDecisionConfirmed = false,
         string? extractCdCueOutputPath = null,
         string? extractCdBinOutputPath = null,
-        bool verifyExtractCdCueBinContract = true);
+        bool verifyExtractCdCueBinContract = true,
+        string? platformProfileId = null);
 }

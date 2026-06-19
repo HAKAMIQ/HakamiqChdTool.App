@@ -81,7 +81,7 @@ public static class DeepHashAnalyzer
 
     private static readonly HashSet<string> HashableExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".cue", ".gdi", ".iso", ".bin", ".img", ".raw"
+        ".cue", ".gdi", ".iso", ".bin", ".img", ".raw", ".cso"
     };
 
     private static readonly HashSet<string> ArchiveNoDirectExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -371,7 +371,7 @@ public static class DeepHashAnalyzer
         {
             ".cue" => ResolveCueBinFiles(normalized),
             ".gdi" => ResolveGdiTrackFiles(normalized),
-            ".iso" or ".bin" or ".img" or ".raw" => [normalized],
+            ".iso" or ".bin" or ".img" or ".raw" or ".cso" => [normalized],
             _ => []
         };
     }

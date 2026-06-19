@@ -86,16 +86,9 @@
 
                 <ProgressBar Grid.Row="1"
                              Margin="{DynamicResource Inset.0.6.0.0}"
-                             Height="{DynamicResource Space.4}"
-                             MinHeight="{DynamicResource Space.4}"
                              FlowDirection="LeftToRight"
-                             Background="{DynamicResource Brush.Progress.Track}"
-                             Foreground="{DynamicResource Brush.Accent}"
-                             BorderThickness="{DynamicResource Inset.None}"
                              IsIndeterminate="True"
-                             IsHitTestVisible="False"
-                             SnapsToDevicePixels="True"
-                             UseLayoutRounding="True" />
+                             Style="{StaticResource FluentQueueCardProgressBar}" />
             </Grid>
         </Border>
     </DataTemplate>

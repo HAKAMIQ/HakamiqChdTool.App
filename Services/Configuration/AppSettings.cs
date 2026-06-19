@@ -106,6 +106,8 @@ public sealed class AppSettings
 
     public IsoCreateCommandOverride IsoCreateCommandOverride { get; set; } = IsoCreateCommandOverride.Auto;
 
+    public string ChdPlatformProfileId { get; set; } = "auto";
+
     public static AppSettings CreateSafeDefaults() => new();
 
     public static void ResetEngineToDefaults(AppSettings settings)
@@ -121,6 +123,7 @@ public sealed class AppSettings
         settings.CompressionCodecs = "preset:default";
         settings.HunkSizeBytes = 0;
         settings.IsoCreateCommandOverride = IsoCreateCommandOverride.Auto;
+        settings.ChdPlatformProfileId = "auto";
     }
 
     public static int NormalizeMaxConcurrentConversions(int value)
@@ -179,6 +182,7 @@ public sealed class AppSettings
         CompressionCodecs = other.CompressionCodecs;
         HunkSizeBytes = other.HunkSizeBytes;
         IsoCreateCommandOverride = other.IsoCreateCommandOverride;
+        ChdPlatformProfileId = other.ChdPlatformProfileId;
         ExtensionData = other.ExtensionData is null
             ? null
             : new Dictionary<string, JsonElement>(other.ExtensionData, StringComparer.Ordinal);
@@ -235,6 +239,7 @@ public sealed class AppSettings
             CompressionCodecs = CompressionCodecs,
             HunkSizeBytes = HunkSizeBytes,
             IsoCreateCommandOverride = IsoCreateCommandOverride,
+            ChdPlatformProfileId = ChdPlatformProfileId,
             ExtensionData = ExtensionData is null
                 ? null
                 : new Dictionary<string, JsonElement>(ExtensionData, StringComparer.Ordinal)

@@ -202,6 +202,11 @@ function Invoke-ReleaseComplianceChecks {
         "docs\legal\MAME_COPYING.txt",
         "docs\legal\MAME_GPL-2.0.txt",
         "docs\legal\SEVENZIP_NOTICE.md",
+        "docs\legal\CSOKIT_NOTICE.md",
+        "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "Tools\hakamiq-cso\win-x64\LICENSE.txt",
+        "Tools\hakamiq-cso\win-x64\README.md",
+        "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
@@ -336,8 +341,26 @@ try {
 
     $docsPath = Join-Path $OutputPath "docs"
     $legalDocsPath = Join-Path $docsPath "legal"
+    $csoKitToolsPath = Join-Path $OutputPath "Tools\hakamiq-cso\win-x64"
     New-Item -ItemType Directory -Path $docsPath -Force | Out-Null
     New-Item -ItemType Directory -Path $legalDocsPath -Force | Out-Null
+    New-Item -ItemType Directory -Path $csoKitToolsPath -Force | Out-Null
+
+    foreach ($tool in @(
+        @{ Source = "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe"; Destination = "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe" },
+        @{ Source = "Tools\hakamiq-cso\win-x64\LICENSE.txt"; Destination = "Tools\hakamiq-cso\win-x64\LICENSE.txt" },
+        @{ Source = "Tools\hakamiq-cso\win-x64\README.md"; Destination = "Tools\hakamiq-cso\win-x64\README.md" },
+        @{ Source = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt"; Destination = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt" }
+    )) {
+        $sourcePath = Join-Path $ProjectRoot $tool.Source
+        if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {
+            $destinationPath = Join-Path $OutputPath $tool.Destination
+            $destinationDirectory = Split-Path -Parent $destinationPath
+            New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
+            Copy-Item -LiteralPath $sourcePath -Destination $destinationPath -Force
+            Write-Host "[INFO] Copied $($tool.Destination)" -ForegroundColor Cyan
+        }
+    }
 
     foreach ($doc in @(
         @{ Source = "README.md"; Destination = "docs\README.md" },
@@ -349,7 +372,8 @@ try {
         @{ Source = "docs\legal\CHDMAN_NOTICE.md"; Destination = "docs\legal\CHDMAN_NOTICE.md" },
         @{ Source = "docs\legal\MAME_COPYING.txt"; Destination = "docs\legal\MAME_COPYING.txt" },
         @{ Source = "docs\legal\MAME_GPL-2.0.txt"; Destination = "docs\legal\MAME_GPL-2.0.txt" },
-        @{ Source = "docs\legal\SEVENZIP_NOTICE.md"; Destination = "docs\legal\SEVENZIP_NOTICE.md" }
+        @{ Source = "docs\legal\SEVENZIP_NOTICE.md"; Destination = "docs\legal\SEVENZIP_NOTICE.md" },
+        @{ Source = "docs\legal\CSOKIT_NOTICE.md"; Destination = "docs\legal\CSOKIT_NOTICE.md" }
     )) {
         $sourcePath = Join-Path $ProjectRoot $doc.Source
         if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {

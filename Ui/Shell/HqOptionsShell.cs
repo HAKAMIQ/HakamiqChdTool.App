@@ -50,6 +50,7 @@ internal sealed partial class HqOptionsShell : IDisposable
     private static readonly string PathsTabKey = OptionsWindow.PathsTabKey;
     private static readonly string RedumpTabKey = OptionsWindow.RedumpTabKey;
     private static readonly string ProcessingTabKey = OptionsWindow.ProcessingTabKey;
+    private static readonly string ExternalToolsTabKey = OptionsWindow.ExternalToolsTabKey;
     private static readonly string PerformanceTabKey = OptionsWindow.PerformanceTabKey;
 
     private static readonly ILogger Logger = Log.ForContext<HqOptionsShell>();
@@ -62,7 +63,9 @@ internal sealed partial class HqOptionsShell : IDisposable
     private readonly ToolTipEventHandler _toolTipOpeningHandler;
 
     private CancellationTokenSource? _databaseStateRefreshCts;
+    private CancellationTokenSource? _externalToolsRefreshCts;
     private int _databaseStateRefreshGeneration;
+    private int _externalToolsRefreshGeneration;
     private bool _isClosed;
     private bool _isAttached;
 
@@ -105,6 +108,10 @@ internal sealed partial class HqOptionsShell : IDisposable
         _ = _owner.Dispatcher.BeginInvoke(
             new Action(QueueDatabaseStateRefresh),
             DispatcherPriority.ContextIdle);
+
+        _ = _owner.Dispatcher.BeginInvoke(
+            new Action(QueueExternalToolsRefresh),
+            DispatcherPriority.ContextIdle);
     }
 
     public void Dispose()
@@ -113,6 +120,9 @@ internal sealed partial class HqOptionsShell : IDisposable
 
         _owner.RedumpPanelView.DownloadDatabaseRequested -= DownloadDatabase;
         _owner.RedumpPanelView.ImportRedumpDatabaseRequested -= ImportRedumpDatabase;
+        _owner.ExternalToolsPanelView.RecheckRequested -= RecheckExternalTools;
+        _owner.ExternalToolsPanelView.OpenToolsFolderRequested -= OpenExternalToolsFolder;
+        _owner.ExternalToolsPanelView.CopySetupInstructionsRequested -= CopyExternalToolsSetupInstructions;
 
         if (_isAttached)
         {
@@ -122,6 +132,8 @@ internal sealed partial class HqOptionsShell : IDisposable
 
         _databaseStateRefreshCts?.Cancel();
         _databaseStateRefreshCts?.Dispose();
+        _externalToolsRefreshCts?.Cancel();
+        _externalToolsRefreshCts?.Dispose();
 
         _windowLifetimeCts.Cancel();
         _windowLifetimeCts.Dispose();

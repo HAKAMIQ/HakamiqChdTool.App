@@ -105,7 +105,7 @@ public sealed class IntakeAnalysisService
 
     private static bool IsDiscImageExtension(string extension)
     {
-        return extension is "iso" or "cue" or "gdi" or "toc" or "nrg" or "bin";
+        return extension is "iso" or "cue" or "gdi" or "toc" or "nrg" or "bin" or "cso";
     }
 
     private static bool IsCueLikeDescriptorExtension(string extension)

@@ -225,12 +225,9 @@
                             </StackPanel>
 
                             <ProgressBar Grid.Row="4"
-                                         Height="{DynamicResource Space.4}"
                                          FlowDirection="LeftToRight"
-                                         Background="{DynamicResource Brush.Progress.Track}"
-                                         Foreground="{DynamicResource Brush.Accent}"
-                                         BorderThickness="{DynamicResource Inset.None}"
-                                         IsIndeterminate="True" />
+                                         IsIndeterminate="True"
+                                         Style="{StaticResource FluentQueueCardProgressBar}" />
 
                             <Button Grid.Row="6"
                                     HorizontalAlignment="Center"

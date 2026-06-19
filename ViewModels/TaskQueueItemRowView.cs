@@ -502,7 +502,17 @@ public sealed partial class TaskQueueItemViewModel
 
     private static string BuildReleaseSafeIntakeAdvisorySummary(QueueIntakeAdvisory advisory)
     {
-        string reasonCode = advisory.Reasons.FirstOrDefault()?.Code ?? string.Empty;
+        QueueIntakeAdvisoryReason? primaryReason =
+            advisory.Reasons.FirstOrDefault()
+            ?? advisory.Warnings.FirstOrDefault();
+
+        string reasonCode = primaryReason?.Code ?? string.Empty;
+
+        if (reasonCode.StartsWith("FORMAT_SAFETY_", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(primaryReason?.Message))
+        {
+            return ArabicUi.Get(primaryReason.Message);
+        }
 
         if (string.Equals(reasonCode, "INTAKE_ARCHIVE_EXTRACT_REQUIRED", StringComparison.OrdinalIgnoreCase))
         {

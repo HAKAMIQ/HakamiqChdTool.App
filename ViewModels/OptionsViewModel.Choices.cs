@@ -35,4 +35,14 @@ public sealed partial class OptionsViewModel
     private ChoiceOption? ResolveIsoCreateOverride(IsoCreateCommandOverride value) =>
         IsoCreateOverrideOptions.FirstOrDefault(x => string.Equals(x.Key, value.ToString(), StringComparison.OrdinalIgnoreCase))
         ?? IsoCreateOverrideOptions.FirstOrDefault();
+
+    private ChoiceOption? ResolveChdPlatformProfile(string? platformProfileId)
+    {
+        string key = string.IsNullOrWhiteSpace(platformProfileId)
+            ? "auto"
+            : platformProfileId.Trim();
+
+        return ChdPlatformProfileOptions.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase))
+            ?? ChdPlatformProfileOptions.FirstOrDefault();
+    }
 }

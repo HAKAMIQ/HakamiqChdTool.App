@@ -1,0 +1,219 @@
+<UserControl x:Class="HakamiqChdTool.App.Views.Options.ExternalToolsSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/Style/OptionsWindowStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource Win11SettingsPageRoot}">
+        <ScrollViewer Style="{StaticResource Win11SettingsScrollViewer}">
+            <StackPanel Style="{StaticResource Win11SettingsContentStack}">
+
+                <Border Style="{StaticResource Win11SettingsSection}">
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}"
+                          SnapsToDevicePixels="True">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"
+                              Style="{StaticResource Win11SettingsSectionHeader}">
+                            <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
+                                       Text="{DynamicResource LocExternalTools_Title}"
+                                       ToolTip="{DynamicResource LocExternalTools_Title}" />
+                        </Grid>
+
+                        <Border Grid.Row="1"
+                                Style="{StaticResource Win11SettingsRow}">
+                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               Text="{DynamicResource LocExternalTools_CsoKitTitle}"
+                                               ToolTip="{DynamicResource LocExternalTools_CsoKitTitle}" />
+
+                                    <TextBlock Grid.Row="1"
+                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                               Text="{DynamicResource LocExternalTools_CsoKitDescription}"
+                                               ToolTip="{DynamicResource LocExternalTools_CsoKitDescription}" />
+                                </Grid>
+
+                                <Border Grid.Column="2"
+                                        Width="380"
+                                        Background="{DynamicResource Brush.Layer.Surface}"
+                                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                                        BorderThickness="{DynamicResource Inset.1.All}"
+                                        CornerRadius="{DynamicResource Radius.Control}"
+                                        Padding="{DynamicResource Inset.10.All}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        SnapsToDevicePixels="True">
+
+                                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                          Language="{DynamicResource App.XmlLanguage}"
+                                          SnapsToDevicePixels="True">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                       Text="{DynamicResource LocExternalTools_StatusLabel}" />
+
+                                            <TextBlock Grid.Column="2"
+                                                       Style="{StaticResource Win11SettingsRowTitleText}"
+                                                       Text="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                                       ToolTip="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </Grid>
+
+                                        <Grid Grid.Row="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                       Text="{DynamicResource LocExternalTools_VersionLabel}" />
+
+                                            <TextBlock Grid.Column="2"
+                                                       FlowDirection="LeftToRight"
+                                                       Language="en-US"
+                                                       TextAlignment="Left"
+                                                       Style="{StaticResource Win11SettingsRowTitleText}"
+                                                       Text="{Binding ExternalToolsCsoKitVersion}"
+                                                       ToolTip="{Binding ExternalToolsCsoKitVersion}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </Grid>
+
+                                        <Grid Grid.Row="4">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0"
+                                                       Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                       Text="{DynamicResource LocExternalTools_PathLabel}" />
+
+                                            <TextBlock Grid.Row="2"
+                                                       FlowDirection="LeftToRight"
+                                                       Language="en-US"
+                                                       TextAlignment="Left"
+                                                       Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                       Text="{Binding ExternalToolsCsoKitPath}"
+                                                       ToolTip="{Binding ExternalToolsCsoKitPath}"
+                                                       TextWrapping="Wrap"
+                                                       TextTrimming="None" />
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="2"
+                                Style="{StaticResource Win11SettingsLastRow}">
+                            <WrapPanel HorizontalAlignment="Right"
+                                       FlowDirection="{DynamicResource App.FlowDirection}">
+                                <Button x:Name="RecheckButton"
+                                        MinWidth="{DynamicResource Space.120}"
+                                        Margin="{DynamicResource Inset.0.0.12.0}"
+                                        Click="RecheckButton_Click"
+                                        ToolTip="{DynamicResource LocExternalTools_Recheck}"
+                                        AutomationProperties.Name="{DynamicResource LocExternalTools_Recheck}"
+                                        Style="{StaticResource SecondaryButtonStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Width="{DynamicResource Space.14}"
+                                              Height="{DynamicResource Space.14}"
+                                              Margin="{DynamicResource Inset.0.0.6.0}"
+                                              Data="{StaticResource Icon.Queue.Retry}"
+                                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                              Stretch="Uniform" />
+                                        <TextBlock Text="{DynamicResource LocExternalTools_Recheck}" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button x:Name="OpenToolsFolderButton"
+                                        MinWidth="{DynamicResource Space.120}"
+                                        Margin="{DynamicResource Inset.0.0.12.0}"
+                                        Click="OpenToolsFolderButton_Click"
+                                        ToolTip="{DynamicResource LocExternalTools_OpenFolder}"
+                                        AutomationProperties.Name="{DynamicResource LocExternalTools_OpenFolder}"
+                                        Style="{StaticResource SecondaryButtonStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Width="{DynamicResource Space.14}"
+                                              Height="{DynamicResource Space.14}"
+                                              Margin="{DynamicResource Inset.0.0.6.0}"
+                                              Data="{StaticResource Icon.FolderOpen}"
+                                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                              Stretch="Uniform" />
+                                        <TextBlock Text="{DynamicResource LocExternalTools_OpenFolder}" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button x:Name="CopySetupInstructionsButton"
+                                        MinWidth="{DynamicResource Space.120}"
+                                        Click="CopySetupInstructionsButton_Click"
+                                        ToolTip="{DynamicResource LocExternalTools_CopySetupInstructions}"
+                                        AutomationProperties.Name="{DynamicResource LocExternalTools_CopySetupInstructions}"
+                                        Style="{StaticResource SecondaryButtonStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Width="{DynamicResource Space.14}"
+                                              Height="{DynamicResource Space.14}"
+                                              Margin="{DynamicResource Inset.0.0.6.0}"
+                                              Data="{StaticResource Icon.Document}"
+                                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                              Stretch="Uniform" />
+                                        <TextBlock Text="{DynamicResource LocExternalTools_CopySetupInstructions}" />
+                                    </StackPanel>
+                                </Button>
+                            </WrapPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

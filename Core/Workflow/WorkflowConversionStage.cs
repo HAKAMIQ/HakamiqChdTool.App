@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Chd.Commands;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Conversion;
@@ -255,7 +256,8 @@ internal sealed class WorkflowConversionStage(
                 createPlan = ChdWorkflowProfilePlanner.PlanCreateFromSource(
                     conversionInputPath,
                     settings.IsoCreateCommandOverride,
-                    ChdMediaContainerKind.DirectFile);
+                    ChdMediaContainerKind.DirectFile,
+                    settings.ChdPlatformProfileId);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -555,7 +557,8 @@ internal sealed class WorkflowConversionStage(
                         allowOverwriteOutput: !settings.SkipExistingOutput,
                         enableDiskSpaceGuard: settings.EnableDiskSpaceGuard,
                         performanceMode: settings.PerformanceMode,
-                        priorityMode: settings.ChdmanPriorityMode).ConfigureAwait(false);
+                        priorityMode: settings.ChdmanPriorityMode,
+                        platformProfileId: settings.ChdPlatformProfileId).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
@@ -630,6 +633,21 @@ internal sealed class WorkflowConversionStage(
 
             if (!conversionResult.IsSuccess)
             {
+                if (conversionResult.Status == ChdConversionStatus.SkippedOutputExists)
+                {
+                    sink.ReportTerminalSuccess(
+                        QueueItemTerminalOutcome.SkippedExists,
+                        FinalOutputExistsDetailKey);
+                    sink.ReportProgress(100, indeterminate: false);
+                    WorkflowPathUtilities.RaiseProgress(request, 100);
+
+                    return WorkflowResultBuilder.Skipped(
+                        QueueItemTerminalOutcome.SkippedExists,
+                        FinalOutputExistsDetailKey,
+                        finalOutputPath,
+                        lastLogPath);
+                }
+
                 CleanupPendingConversionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
 
                 bool chdmanInputReadFailure = _safetyPolicy.LooksLikeChdmanInputReadFailure(conversionResult);
