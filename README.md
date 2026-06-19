@@ -1,59 +1,79 @@
 # Hakamiq CHD Tool
 
-Hakamiq CHD Tool is a Windows x64 WPF desktop application for CHD conversion, verification, extraction, archive intake, and queue-based disc image workflows built around MAME chdman.
+Hakamiq CHD Tool is a Windows x64 desktop app for converting, checking, and extracting disc image files with CHD workflows. It is built for local use: add files, review the queue, run the job, then check the result.
 
-The tool is designed for safe local processing, clear per-item results, readable validation feedback, and professional end-user release packaging.
+## Download
 
-Current public release: Windows x64 WPF desktop release.
+Get the latest release from:
 
-## What this tool focuses on
+<https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/latest>
 
-The application focuses on:
+Choose one package:
 
-* ISO / CUE / GDI to CHD workflows
-* CHD verification
-* CHD extraction where supported
-* Archive intake where supported
-* Queue-based processing
-* Output safety checks
-* Cancel and failure separation
-* Redump metadata display
-* Storage and temperature advisory
-* Arabic / English UI support
-* RTL interface with LTR technical paths
-* Clean end-user release packaging
+| Package | Use it when |
+| --- | --- |
+| `HakamiqChdTool-*-win-x64-self-contained.zip` | Best for most users. Runs without installing .NET separately. |
+| `HakamiqChdTool-*-win-x64-runtime-required.zip` | Smaller download. Requires .NET 8 Desktop Runtime x64. |
 
-## Supported direction
+## Quick start
 
-The project is WPF-only.
+1. Download one of the ZIP files above.
+2. Extract it to a normal folder, not inside `Program Files`.
+3. Run `HakamiqChdTool.exe`.
+4. Add your disc image files.
+5. Pick an output folder and start the queue.
 
-Avalonia, web UI, cloud conversion, and server-side conversion are not part of the current application direction.
+That's it. For most cases, the self-contained package is the easiest choice.
 
-## Notes about PS3
+## Common uses
 
-Sony PlayStation 3 support is experimental.
+### Convert ISO to CHD
 
-The tool may analyze and classify PS3-related inputs, but PS3 conversion behavior must remain conservative and safety-first.
+Add an `.iso` file, choose the output folder, then start the queue. The app keeps the original file and writes a new CHD.
 
-## Release package
+### Convert CUE or GDI to CHD
 
-End-user releases should contain only the published application output.
+Add the `.cue` or `.gdi` file, not only the track files. Keep the referenced `.bin` or track files in the same folder.
 
-Source files, repository scripts, CI folders, test files, and development artifacts are not part of the user release package.
+### Prepare CSO input
 
-## Documentation
+CSO files are prepared through the bundled Hakamiq.CsoKit helper before CHD conversion. If the helper is missing, the item fails cleanly instead of producing a bad CHD.
 
-Use this Wiki for:
+### Verify a CHD
 
-* User guide
-* Installation
-* Supported formats
-* PS3 experimental support
-* Troubleshooting
-* Release packaging
-* Known limitations
-* Developer architecture notes
+Use verification when you want to check an existing CHD before archiving it or moving it to long-term storage.
 
-## Project identity
+### Extract a CHD
 
-Hakamiq CHD Tool is part of the HAKAMIQ ecosystem for emulator-focused tools, media preparation, and clean Windows desktop utilities.
+Add a CHD and choose an extraction workflow when supported. Good for checking a result against the original source.
+
+### Use the queue
+
+Add multiple files, review each item, then run the queue. Failed and canceled items stay separate, which makes cleanup easier.
+
+### Check external tools
+
+Open Options, then External Tools. You should see the bundled tools detected from the release folder.
+
+### Work with Arabic paths
+
+The interface supports Arabic and English. Technical paths stay readable left-to-right so file locations do not become confusing.
+
+## Package reference
+
+| Item | Meaning |
+| --- | --- |
+| Windows support | Windows x64 desktop |
+| UI | WPF |
+| Main output | CHD |
+| Bundled helpers | chdman and Hakamiq.CsoKit |
+| Release type | Portable ZIP |
+| Installer | Not provided |
+
+## Limitations
+
+No games, ROMs, BIOS files, ISO files, CHD files, or Redump databases are included. PS3-related handling is conservative and still experimental. Use the tool only with files you own or are allowed to process.
+
+## More documentation
+
+Detailed notes live in [`docs/`](docs/README.md). Start there if you need supported format notes, troubleshooting, legal notices, or deeper behavior details.
