@@ -15,6 +15,7 @@ internal sealed partial class HqOptionsShell
         _owner.PathsTabButtonView.IsChecked = string.Equals(normalizedTabKey, PathsTabKey, StringComparison.Ordinal);
         _owner.RedumpTabButtonView.IsChecked = string.Equals(normalizedTabKey, RedumpTabKey, StringComparison.Ordinal);
         _owner.ProcessingTabButtonView.IsChecked = string.Equals(normalizedTabKey, ProcessingTabKey, StringComparison.Ordinal);
+        _owner.ExternalToolsTabButtonView.IsChecked = string.Equals(normalizedTabKey, ExternalToolsTabKey, StringComparison.Ordinal);
         _owner.PerformanceTabButtonView.IsChecked = string.Equals(normalizedTabKey, PerformanceTabKey, StringComparison.Ordinal);
 
         UpdateVisiblePanel();
@@ -35,6 +36,11 @@ internal sealed partial class HqOptionsShell
         if (_owner.ProcessingTabButtonView?.IsChecked == true)
         {
             return ProcessingTabKey;
+        }
+
+        if (_owner.ExternalToolsTabButtonView?.IsChecked == true)
+        {
+            return ExternalToolsTabKey;
         }
 
         if (_owner.PerformanceTabButtonView?.IsChecked == true)
@@ -69,6 +75,11 @@ internal sealed partial class HqOptionsShell
             return ProcessingTabKey;
         }
 
+        if (value.Equals(ExternalToolsTabKey, StringComparison.OrdinalIgnoreCase))
+        {
+            return ExternalToolsTabKey;
+        }
+
         if (value.Equals(PerformanceTabKey, StringComparison.OrdinalIgnoreCase))
         {
             return PerformanceTabKey;
@@ -91,6 +102,7 @@ internal sealed partial class HqOptionsShell
             || _owner.PathsPanelView is null
             || _owner.RedumpPanelView is null
             || _owner.ProcessingPanelView is null
+            || _owner.ExternalToolsPanelView is null
             || _owner.PerformancePanelView is null)
         {
             return;
@@ -100,6 +112,7 @@ internal sealed partial class HqOptionsShell
         SetPanelVisibilityIfAvailable(_owner.PathsPanelView, _owner.PathsTabButtonView.IsChecked == true ? Visibility.Visible : Visibility.Collapsed);
         SetPanelVisibilityIfAvailable(_owner.RedumpPanelView, _owner.RedumpTabButtonView.IsChecked == true ? Visibility.Visible : Visibility.Collapsed);
         SetPanelVisibilityIfAvailable(_owner.ProcessingPanelView, _owner.ProcessingTabButtonView.IsChecked == true ? Visibility.Visible : Visibility.Collapsed);
+        SetPanelVisibilityIfAvailable(_owner.ExternalToolsPanelView, _owner.ExternalToolsTabButtonView.IsChecked == true ? Visibility.Visible : Visibility.Collapsed);
         SetPanelVisibilityIfAvailable(_owner.PerformancePanelView, _owner.PerformanceTabButtonView.IsChecked == true ? Visibility.Visible : Visibility.Collapsed);
     }
 

@@ -45,7 +45,7 @@ public static class QueueInputClassifier
         string extension = Path.GetExtension(path).ToLowerInvariant();
         QueueInputRole role = extension switch
         {
-            ".cue" or ".gdi" or ".toc" or ".nrg" or ".iso" => QueueInputRole.ConvertibleDiscImage,
+            ".cue" or ".gdi" or ".toc" or ".nrg" or ".iso" or ".cso" => QueueInputRole.ConvertibleDiscImage,
             ".zip" or ".rar" or ".7z" => QueueInputRole.ArchiveContainer,
             ".chd" => QueueInputRole.ChdImage,
             ".bin" => QueueInputRole.BinCueRescueCandidate,

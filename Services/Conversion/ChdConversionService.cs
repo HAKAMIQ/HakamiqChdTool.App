@@ -1,4 +1,6 @@
 using HakamiqChdTool.App.Core.Contracts;
+using HakamiqChdTool.App.Core.Chd.Commands;
+using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
@@ -20,12 +22,9 @@ public sealed class ChdConversionService : IChdConversionService
     private readonly IChdOperationPolicyGate _operationPolicyGate;
     private readonly IChdmanCapabilityService _capabilityService;
     private readonly IPlatformAwareChdProfilePolicy _profilePolicy;
+    private readonly ChdCsoInputPreparationCoordinator _csoInputPreparation;
     public ChdConversionService()
-        : this(
-            new ChdCommandPreparationService(),
-            new ChdProcessExecutionService(),
-            new ChdResultMappingService(),
-            new ChdVerificationBridge())
+        : this(new ChdCommandPreparationService(), new ChdProcessExecutionService(), new ChdResultMappingService(), new ChdVerificationBridge())
     {
     }
     public ChdConversionService(
@@ -33,14 +32,7 @@ public sealed class ChdConversionService : IChdConversionService
         IChdProcessExecutionService processExecution,
         IChdResultMappingService resultMapping,
         IChdVerificationBridge verificationBridge)
-        : this(
-            commandPreparation,
-            processExecution,
-            resultMapping,
-            verificationBridge,
-            new ChdmanCapabilityService(),
-            null,
-            new PlatformAwareChdProfilePolicy())
+        : this(commandPreparation, processExecution, resultMapping, verificationBridge, new ChdmanCapabilityService(), null, new PlatformAwareChdProfilePolicy())
     {
     }
     public ChdConversionService(
@@ -49,14 +41,7 @@ public sealed class ChdConversionService : IChdConversionService
         IChdResultMappingService resultMapping,
         IChdVerificationBridge verificationBridge,
         IChdOperationPolicyGate operationPolicyGate)
-        : this(
-            commandPreparation,
-            processExecution,
-            resultMapping,
-            verificationBridge,
-            new ChdmanCapabilityService(),
-            operationPolicyGate,
-            new PlatformAwareChdProfilePolicy())
+        : this(commandPreparation, processExecution, resultMapping, verificationBridge, new ChdmanCapabilityService(), operationPolicyGate, new PlatformAwareChdProfilePolicy())
     {
     }
     public ChdConversionService(
@@ -66,7 +51,8 @@ public sealed class ChdConversionService : IChdConversionService
         IChdVerificationBridge verificationBridge,
         IChdmanCapabilityService capabilityService,
         IChdOperationPolicyGate? operationPolicyGate,
-        IPlatformAwareChdProfilePolicy profilePolicy)
+        IPlatformAwareChdProfilePolicy profilePolicy,
+        ICsoPreprocessor? csoPreprocessor = null)
     {
         _commandPreparation = commandPreparation ?? throw new ArgumentNullException(nameof(commandPreparation));
         _processExecution = processExecution ?? throw new ArgumentNullException(nameof(processExecution));
@@ -75,6 +61,7 @@ public sealed class ChdConversionService : IChdConversionService
         _capabilityService = capabilityService ?? throw new ArgumentNullException(nameof(capabilityService));
         _operationPolicyGate = operationPolicyGate ?? new ChdOperationPolicyGate(_capabilityService);
         _profilePolicy = profilePolicy ?? throw new ArgumentNullException(nameof(profilePolicy));
+        _csoInputPreparation = new ChdCsoInputPreparationCoordinator(csoPreprocessor ?? new CsoPreprocessor());
     }
     public string BuildCommand(
         string inputPath,
@@ -83,6 +70,7 @@ public sealed class ChdConversionService : IChdConversionService
     {
         return _commandPreparation.BuildCommand(inputPath, extractionKind, isoCreateCommandOverride);
     }
+
     public async Task<ChdConversionResult> ConvertToChdAsync(
         string chdmanPath,
         string inputPath,
@@ -107,42 +95,20 @@ public sealed class ChdConversionService : IChdConversionService
         bool extractionMetadataDecisionConfirmed = false,
         string? extractCdCueOutputPath = null,
         string? extractCdBinOutputPath = null,
-        bool verifyExtractCdCueBinContract = true)
+        bool verifyExtractCdCueBinContract = true,
+        string? platformProfileId = null)
     {
-        if (string.IsNullOrWhiteSpace(chdmanPath))
-        {
-            throw new ArgumentException(InvalidChdmanPathMessageKey, nameof(chdmanPath));
-        }
-        if (string.IsNullOrWhiteSpace(inputPath))
-        {
-            throw new ArgumentException(InvalidInputPathMessageKey, nameof(inputPath));
-        }
-        if (string.IsNullOrWhiteSpace(outputPath))
-        {
-            throw new ArgumentException(InvalidOutputPathMessageKey, nameof(outputPath));
-        }
-        if (!File.Exists(chdmanPath))
-        {
-            throw new FileNotFoundException(ChdmanNotFoundMessageKey, chdmanPath);
-        }
-        if (!File.Exists(inputPath))
-        {
-            throw new FileNotFoundException(InputFileNotFoundMessageKey, inputPath);
-        }
-        ConversionPathValidator.ThrowIfUnsafeForChdman(chdmanPath, nameof(chdmanPath));
-        ConversionPathValidator.ThrowIfUnsafeForChdman(inputPath, nameof(inputPath));
-        ConversionPathValidator.ThrowIfUnsafeForChdman(outputPath, nameof(outputPath));
+        ChdConversionRequestGuard.ValidateToChdInputs(chdmanPath, inputPath, outputPath);
         string resolvedInputPath = _commandPreparation.NormalizePathForCli(inputPath);
         string resolvedOutputPath = _commandPreparation.NormalizePathForCli(outputPath);
-        string resolvedExtractCdCueOutputPath = NormalizeOptionalExtractCdOutputPath(extractCdCueOutputPath);
-        string resolvedExtractCdBinOutputPath = NormalizeOptionalExtractCdOutputPath(extractCdBinOutputPath);
+        string resolvedExtractCdCueOutputPath = ChdConversionServiceSupport.NormalizeOptionalExtractCdOutputPath(extractCdCueOutputPath, _commandPreparation);
+        string resolvedExtractCdBinOutputPath = ChdConversionServiceSupport.NormalizeOptionalExtractCdOutputPath(extractCdBinOutputPath, _commandPreparation);
         if ((!string.IsNullOrWhiteSpace(resolvedExtractCdCueOutputPath)
                 || !string.IsNullOrWhiteSpace(resolvedExtractCdBinOutputPath))
             && extractionKind != ChdmanExtractionKind.ExtractCd)
         {
             throw new InvalidOperationException(InvalidCueOutputPathMessageKey);
         }
-
         string inputExtension = Path.GetExtension(resolvedInputPath).ToLowerInvariant();
         if (string.Equals(inputExtension, ".chd", StringComparison.OrdinalIgnoreCase)
             && extractionKind == ChdmanExtractionKind.None)
@@ -151,19 +117,30 @@ public sealed class ChdConversionService : IChdConversionService
                 "Direct CHD to CHD recompression was blocked. Input={InputPath}; Output={OutputPath}; RequiredPipeline=extract-original-like-then-rebuild",
                 resolvedInputPath,
                 resolvedOutputPath);
-
             return ChdConversionServiceSupport.BuildPreExecutionFailureResult(
                 inputPath,
                 outputPath,
                 ChdConversionMessages.DirectChdRecompressBlockedMessageKey);
         }
-
         (string command, IsoChdmanCreateDiagnostics? isoDiagnostics) =
             _commandPreparation.ResolveTwoWayCommandWithOptionalIsoDiagnostics(
                 inputExtension,
                 extractionKind,
                 resolvedInputPath,
                 isoCreateCommandOverride);
+        ChdRequestedCreateProfileSelection requestedProfileSelection =
+            ChdPlatformProfileExecutionPolicy.ApplyRequestedCreateProfile(
+                command,
+                inputExtension,
+                platformProfileId,
+                extractionKind,
+                inputPath,
+                outputPath);
+        if (requestedProfileSelection.FailureResult is not null)
+        {
+            return requestedProfileSelection.FailureResult;
+        }
+        command = requestedProfileSelection.Command;
         string logsDirectory = _commandPreparation.BuildLogsDirectory();
         string logPath = Path.Combine(
             logsDirectory,
@@ -213,14 +190,66 @@ public sealed class ChdConversionService : IChdConversionService
         {
             return preparedPolicy.FailureResult;
         }
-
         command = preparedPolicy.Command;
         bool isExtractCommand = preparedPolicy.IsExtractCommand;
         ChdCompressionResolution compressionResolution = preparedPolicy.CompressionResolution;
         string resolvedCompression = preparedPolicy.ResolvedCompression;
         int resolvedHunkSizeBytes = preparedPolicy.ResolvedHunkSizeBytes;
         ChdConversionServiceSupport.ChdExecutionReportContext executionReportContext = preparedPolicy.ExecutionReportContext;
+        string resolvedProfilePlatform = ChdConversionServiceSupport.ResolveProfilePlatform(resolvedInputPath, isoDiagnostics);
+        ChdPlatformProfile? createProfile = ChdPlatformProfileExecutionPolicy.ResolveCreateProfile(
+            isExtractCommand,
+            requestedProfileSelection.Profile,
+            command,
+            resolvedInputPath,
+            resolvedProfilePlatform,
+            platformProfileId);
 
+        ChdCsoInputPreparationOutcome csoPreparationOutcome = await _csoInputPreparation.PrepareIfRequiredAsync(
+                createProfile,
+                inputPath,
+                outputPath,
+                resolvedInputPath,
+                compressionResolution,
+                resolvedHunkSizeBytes,
+                executionReportContext,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (csoPreparationOutcome.FailureResult is not null)
+        {
+            return csoPreparationOutcome.FailureResult;
+        }
+
+        ChdConversionServiceSupport.ChdInputPreparationReport? inputPreparationReport = csoPreparationOutcome.Lease?.Report;
+        if (csoPreparationOutcome.Lease is not null)
+        {
+            resolvedInputPath = csoPreparationOutcome.Lease.PreparedIsoPath;
+            isoDiagnostics = null;
+            resolvedProfilePlatform = ChdConversionServiceSupport.ResolveProfilePlatform(resolvedInputPath, isoDiagnostics);
+
+            Log.Information(
+                "CSO input prepared for CHD conversion. OriginalInput={OriginalInput}; PreparedInput={PreparedInput}; FinalCommand={Command}; SourcePreserved={SourcePreserved}",
+                inputPath,
+                resolvedInputPath,
+                command,
+                inputPreparationReport?.SourcePreserved ?? true);
+        }
+
+        using (csoPreparationOutcome.Lease)
+        {
+        ChdConversionResult? sectorAlignmentFailure = ChdPlatformProfileExecutionPolicy.ValidateDvdSectorAlignment(
+            createProfile,
+            resolvedInputPath,
+            inputPath,
+            outputPath,
+            compressionResolution,
+            resolvedHunkSizeBytes,
+            executionReportContext);
+        if (sectorAlignmentFailure is not null)
+        {
+            return sectorAlignmentFailure;
+        }
         string diskPreflightMessageKey;
         string diskPreflightOperationKey;
         DiskPreflightMode diskPreflightMode = isExtractCommand
@@ -290,14 +319,25 @@ public sealed class ChdConversionService : IChdConversionService
             Directory.CreateDirectory(binDirectory);
         }
 
-        var arguments = new List<string>
-        {
-            command,
-            "-i",
-            resolvedInputPath,
-            "-o",
-            extractionKind == ChdmanExtractionKind.ExtractCd ? extractCdCueOutputPathForArgument : resolvedOutputPath
-        };
+        int availableLogicalProcessors = ProcessorTopologyService.GetAvailableLogicalProcessorCount();
+        int normalizedProcessorLimit = ProcessorTopologyService.ResolveChdmanProcessorCount(
+            maxProcessorCount,
+            enableAutoResourceLimiter,
+            reservedLogicalCores,
+            performanceMode);
+        int passedProcessorLimit = isExtractCommand ? 0 : normalizedProcessorLimit;
+        List<string> arguments = !isExtractCommand && createProfile is not null
+            ? ChdmanCommandBuilder
+                .BuildCreateArgs(createProfile, resolvedInputPath, resolvedOutputPath, passedProcessorLimit)
+                .ToList()
+            : new List<string>
+            {
+                command,
+                "-i",
+                resolvedInputPath,
+                "-o",
+                extractionKind == ChdmanExtractionKind.ExtractCd ? extractCdCueOutputPathForArgument : resolvedOutputPath
+            };
         if (extractionKind == ChdmanExtractionKind.ExtractCd)
         {
             arguments.Add("-ob");
@@ -306,18 +346,6 @@ public sealed class ChdConversionService : IChdConversionService
         if (allowOverwriteOutput && (isExtractCommand || _commandPreparation.IsCreateCommand(command)))
         {
             arguments.Add("-f");
-        }
-        int availableLogicalProcessors = ProcessorTopologyService.GetAvailableLogicalProcessorCount();
-        int normalizedProcessorLimit = ProcessorTopologyService.ResolveChdmanProcessorCount(
-            maxProcessorCount,
-            enableAutoResourceLimiter,
-            reservedLogicalCores,
-            performanceMode);
-        int passedProcessorLimit = isExtractCommand ? 0 : normalizedProcessorLimit;
-        if (passedProcessorLimit > 0)
-        {
-            arguments.Add("--numprocessors");
-            arguments.Add(passedProcessorLimit.ToString());
         }
         if (!isExtractCommand)
         {
@@ -569,7 +597,23 @@ public sealed class ChdConversionService : IChdConversionService
                     extractCdCueOutputPathForArgument);
             }
         }
-        bool success = run.ExitCode == 0 && extractCdCueContractValid && _resultMapping.VerifyOutputExists(resolvedOutputPath, isExtractCommand);
+        ChdConversionStatus classifiedStatus = ChdmanResultClassifier.Classify(
+            run.ExitCode,
+            run.WasCancelled,
+            string.Concat(output, Environment.NewLine, error));
+        bool outputAlreadyExistsSkipped = classifiedStatus == ChdConversionStatus.SkippedOutputExists;
+        bool success = classifiedStatus == ChdConversionStatus.Success
+            && extractCdCueContractValid
+            && _resultMapping.VerifyOutputExists(resolvedOutputPath, isExtractCommand);
+        if (!success && classifiedStatus == ChdConversionStatus.Success)
+        {
+            classifiedStatus = ChdConversionStatus.Failed;
+        }
+        if (outputAlreadyExistsSkipped)
+        {
+            resultMessageKeyOverride = "LocStatus_OutputFileExists";
+        }
+
         if (success)
         {
             ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "extractcd auxiliary cue after success");
@@ -578,15 +622,32 @@ public sealed class ChdConversionService : IChdConversionService
         }
         else
         {
-            _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "failed");
+            if (!outputAlreadyExistsSkipped)
+            {
+                _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "failed");
+            }
             ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "failed");
-            Log.Error(
-                "chdman failed. Command: {Command}, Input: {InputPath}, ExitCode: {ExitCode}, StdErr: {StdErr}",
-                command,
-                inputPath,
-                run.ExitCode,
+            if (outputAlreadyExistsSkipped)
+            {
+                Log.Warning(
+                    "chdman skipped because output already exists. Command={Command}, Input={InputPath}, Output={OutputPath}, ExitCode={ExitCode}",
+                    command,
+                    inputPath,
+                    resolvedOutputPath,
+                    run.ExitCode);
+            }
+            else
+            {
+                Log.Error(
+                    "chdman failed. Command: {Command}, Input: {InputPath}, ExitCode: {ExitCode}, StdErr: {StdErr}",
+                    command,
+                    inputPath,
+                    run.ExitCode,
                 error);
+            }
         }
+        csoPreparationOutcome.Lease?.Dispose();
+        inputPreparationReport = csoPreparationOutcome.Lease?.Report ?? inputPreparationReport;
         await ChdConversionServiceSupport.WriteConversionLogAsync(
             logPath,
             command,
@@ -610,6 +671,7 @@ public sealed class ChdConversionService : IChdConversionService
             diskPreflightMessageKey,
             diskPreflightOperationKey,
             inputSha1,
+            inputPreparationReport,
             executionReportContext);
         return ChdConversionServiceSupport.BuildCompletedConversionResult(
             inputPath,
@@ -621,6 +683,7 @@ public sealed class ChdConversionService : IChdConversionService
             chdmanStopwatch.Elapsed,
             run,
             success,
+            classifiedStatus,
             isExtractCommand,
             resultMessageKeyOverride,
             passedProcessorLimit,
@@ -628,17 +691,7 @@ public sealed class ChdConversionService : IChdConversionService
             resolvedHunkSizeBytes,
             logicalInputBytes,
             executionReportContext);
-    }
-
-    private string NormalizeOptionalExtractCdOutputPath(string? path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return string.Empty;
         }
-
-        string normalized = _commandPreparation.NormalizePathForCli(path);
-        ConversionPathValidator.ThrowIfUnsafeForChdman(normalized, nameof(path));
-        return normalized;
     }
+
 }

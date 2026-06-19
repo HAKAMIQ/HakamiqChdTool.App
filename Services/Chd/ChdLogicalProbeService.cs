@@ -130,40 +130,10 @@ public sealed class ChdLogicalProbeService
     private static bool TryResolveToolPath(out string toolPath)
     {
         toolPath = string.Empty;
-
-        try
-        {
-            string candidate = Path.Combine(AppContext.BaseDirectory, ToolFolderName, ToolFileName);
-            if (!File.Exists(candidate))
-            {
-                candidate = Path.Combine(AppContext.BaseDirectory, ToolFileName);
-            }
-
-            if (!File.Exists(candidate))
-            {
-                return false;
-            }
-
-            string fullPath = Path.GetFullPath(candidate);
-            if (!string.Equals(Path.GetExtension(fullPath), ".exe", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            var fileInfo = new FileInfo(fullPath);
-            if (fileInfo.Length <= 0)
-            {
-                return false;
-            }
-
-            toolPath = fullPath;
-            return true;
-        }
-        catch (Exception ex) when (IsExpectedIoException(ex))
-        {
-            Logger.Debug(ex, "CHD logical probe tool path resolution failed.");
-            return false;
-        }
+        // P1 keeps libchdr/chd_reader_tool as a future technical reference only.
+        // CHD metadata inspection in the end-user app continues through chdman info.
+        Logger.Debug("CHD logical probe helper is disabled in P1.");
+        return false;
     }
 
     private static bool TryNormalizeChdPath(string chdFilePath, out string normalizedPath)

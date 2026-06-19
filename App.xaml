@@ -17,8 +17,6 @@
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Light.xaml" />
 
                 <ResourceDictionary Source="pack://application:,,,/Resources/FluentSystemIcons.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentScrollBarStyles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentComboBoxStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/CardStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/ButtonStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/TextStyles.xaml" />
@@ -27,7 +25,6 @@
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Fluent/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Style/Win11UiPolish.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentInputCheckStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Style/QueueItemTemplate.xaml" />
             </ResourceDictionary.MergedDictionaries>
 

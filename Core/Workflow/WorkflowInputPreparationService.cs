@@ -77,7 +77,8 @@ internal sealed class WorkflowInputPreparationService
             TaskActionCodes.ConvertToChd => ChdWorkflowProfilePlanner.PlanCreateFromSource(
                 snap.SourcePath,
                 ctx.Settings.IsoCreateCommandOverride,
-                ChdMediaContainerKind.DirectFile),
+                ChdMediaContainerKind.DirectFile,
+                ctx.Settings.ChdPlatformProfileId),
 
             TaskActionCodes.VerifyChd => ChdWorkflowProfilePlanner.PlanVerifyChd(snap.SourcePath),
 

@@ -1,17 +1,42 @@
 # Changelog
 
+This file tracks source-level release notes. GitHub Releases remain the public download history.
+
+## v1.0.5 — 2026-06
+
+### Changed
+
+- Prepared a maintenance release focused on stability and internal organization.
+- Cleaned project structure and release metadata.
+- Improved interface consistency without adding new public features.
+
+## v1.0.4 — 2026-06
+
+### Improved
+
+- Strengthened source safety checks before conversion starts.
+- Blocked conversion when read errors such as CRC or I/O failures are detected.
+- Improved handling for large ISO and CHD files.
+- Improved storage warnings for slow read/write behavior and storage pressure.
+- Improved performance options and concurrent conversion handling.
+- Hardened conversion session cleanup so `chdman` is less likely to remain after cancellation or failure.
+
 ## v1.0.3 — 2026-06-06
 
 ### Added
 
-- Integrated Hakamiq.BluRayAnalyzer as an internal PS3 / Blu-ray ISO analysis layer.
+- Integrated Hakamiq.BluRayAnalyzer-derived logic as an internal PS3 / Blu-ray ISO analysis layer.
 - Added raw ISO detection support for PS3 and Blu-ray/UDF media.
 - Added metadata checks for PS3 disc markers such as `PS3_DISC.SFB`, `PARAM.SFO`, and `EBOOT.BIN`.
 
 ### Changed
 
 - Kept `HakamiqChdTool.App` as the fixed source/package folder name while advancing assembly metadata to `v1.0.3`.
-- Preserved the existing queue, workflow, Redump, 7-Zip, and `chdman` runtime behavior from v102.
+- Preserved the existing queue, workflow, Redump, 7-Zip, and `chdman` runtime behavior from v1.0.2.
+
+### Fixed
+
+- Redump standard-name suggestion setting can be enabled or disabled from Advanced Options without requiring the local Redump database to be available first.
 
 ## v1.0.2 — 2026-06-06
 
@@ -21,10 +46,7 @@
 - Removed Free/Premium/licensing runtime gates and related product activation flow.
 - Kept third-party legal notices for MIT, MAME/chdman, and 7-Zip.
 - Aligned application version metadata with the GitHub release tag.
-
-### Fixed
-
-- Redump standard-name suggestion setting can be enabled or disabled from Advanced Options without requiring the local Redump database to be available first.
+- Added bundled CHD reader helper support for metadata-oriented probing.
 
 ## GitHub source package cleanup — 2026-06-04
 
@@ -64,11 +86,7 @@
 - Added `LICENSE`.
 - Added `LEGAL.md`.
 - Added `SECURITY.md`.
-- Added `THIRD_PARTY_NOTICES.txt`.
-- Added `CHDMAN_NOTICE.md`.
-- Added `SEVENZIP_NOTICE.md`.
-- Added `MAME_COPYING.txt`.
-- Added `MAME_GPL-2.0.txt`.
+- Added third-party notices for MAME/chdman and 7-Zip.
 
 ## Release hardening pass — CHD phase 1
 
@@ -87,4 +105,3 @@
 - Enriched `ChdInfoResult` with physical/logical bytes, hunk size, total hunks, decoded cache bytes, and probe status.
 - Kept the existing `chdman` conversion/verification workflow unchanged; the probe is metadata enrichment only.
 - Added a compact logical CHD report to the existing verification/result dialog when probe data is available.
-- The report shows compressed size, logical size, estimated saved storage, hunk size, total hunks, and decoded read cache.

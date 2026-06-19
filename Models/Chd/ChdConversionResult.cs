@@ -1,4 +1,5 @@
 using System;
+using HakamiqChdTool.App.Core.Chd.Commands;
 
 namespace HakamiqChdTool.App.Models.Chd;
 
@@ -9,6 +10,8 @@ public sealed class ChdConversionResult
     public bool WasCancelled { get; init; }
 
     public int ExitCode { get; init; }
+
+    public ChdConversionStatus Status { get; init; } = ChdConversionStatus.Failed;
 
     public string InputPath { get; init; } = string.Empty;
 

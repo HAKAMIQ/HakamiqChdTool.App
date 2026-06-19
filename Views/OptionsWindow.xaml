@@ -302,6 +302,15 @@
                                        Style="{StaticResource OptionsWindow.TabText}" />
                         </RadioButton>
 
+                        <RadioButton x:Name="ExternalToolsTabButton"
+                                     GroupName="OptionsTabs"
+                                     Tag="{StaticResource Icon.External}"
+                                     Style="{StaticResource RightSidebarRadioButtonStyle}"
+                                     Checked="OnTabButtonChecked">
+                            <TextBlock Text="{DynamicResource LocExternalTools_Title}"
+                                       Style="{StaticResource OptionsWindow.TabText}" />
+                        </RadioButton>
+
                         <RadioButton x:Name="PerformanceTabButton"
                                      GroupName="OptionsTabs"
                                      Tag="{StaticResource Icon.Games}"
@@ -338,6 +347,11 @@
                                                                 HorizontalAlignment="Stretch"
                                                                 VerticalAlignment="Stretch"
                                                                 Visibility="Collapsed" />
+
+                        <options:ExternalToolsSettingsView x:Name="ExternalToolsPanel"
+                                                           HorizontalAlignment="Stretch"
+                                                           VerticalAlignment="Stretch"
+                                                           Visibility="Collapsed" />
 
                         <options:PerformanceSettingsView x:Name="PerformancePanel"
                                                                  HorizontalAlignment="Stretch"

@@ -30,6 +30,7 @@ public partial class OptionsWindow : Window
     public const string PathsTabKey = "Paths";
     public const string RedumpTabKey = "Redump";
     public const string ProcessingTabKey = "Processing";
+    public const string ExternalToolsTabKey = "ExternalTools";
     public const string PerformanceTabKey = "Performance";
 
     private static readonly ILogger Logger = Log.ForContext<OptionsWindow>();
@@ -58,6 +59,9 @@ public partial class OptionsWindow : Window
         _coordinator.Attach();
         RedumpPanel.DownloadDatabaseRequested += _coordinator.DownloadDatabase;
         RedumpPanel.ImportRedumpDatabaseRequested += _coordinator.ImportRedumpDatabase;
+        ExternalToolsPanel.RecheckRequested += _coordinator.RecheckExternalTools;
+        ExternalToolsPanel.OpenToolsFolderRequested += _coordinator.OpenExternalToolsFolder;
+        ExternalToolsPanel.CopySetupInstructionsRequested += _coordinator.CopyExternalToolsSetupInstructions;
         Loaded += OptionsWindow_Loaded;
         Closed += OptionsWindow_Closed;
 
@@ -80,6 +84,8 @@ public partial class OptionsWindow : Window
 
     internal RadioButton ProcessingTabButtonView => ProcessingTabButton;
 
+    internal RadioButton ExternalToolsTabButtonView => ExternalToolsTabButton;
+
     internal RadioButton PerformanceTabButtonView => PerformanceTabButton;
 
     internal GeneralSettingsView GeneralPanelView => GeneralPanel;
@@ -89,6 +95,8 @@ public partial class OptionsWindow : Window
     internal RedumpSettingsView RedumpPanelView => RedumpPanel;
 
     internal ProcessingSettingsView ProcessingPanelView => ProcessingPanel;
+
+    internal ExternalToolsSettingsView ExternalToolsPanelView => ExternalToolsPanel;
 
     internal PerformanceSettingsView PerformancePanelView => PerformancePanel;
 
@@ -114,6 +122,9 @@ public partial class OptionsWindow : Window
 
         RedumpPanel.DownloadDatabaseRequested -= _coordinator.DownloadDatabase;
         RedumpPanel.ImportRedumpDatabaseRequested -= _coordinator.ImportRedumpDatabase;
+        ExternalToolsPanel.RecheckRequested -= _coordinator.RecheckExternalTools;
+        ExternalToolsPanel.OpenToolsFolderRequested -= _coordinator.OpenExternalToolsFolder;
+        ExternalToolsPanel.CopySetupInstructionsRequested -= _coordinator.CopyExternalToolsSetupInstructions;
         _coordinator.Dispose();
         _coordinator = null;
     }

@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
 using HakamiqChdTool.App.Services.PlayStation.BluRayAnalysis;
@@ -29,7 +30,8 @@ public enum ChdMediaFormatKind
     HdChd = 7,
     RawChd = 8,
     Toc = 9,
-    Nrg = 10
+    Nrg = 10,
+    Cso = 11
 }
 
 public enum ChdWorkflowProfileKind
@@ -58,6 +60,7 @@ public sealed class ChdWorkflowProfilePlan
     public string ContainerLabel => ContainerKind == ChdMediaContainerKind.Archive ? "Archive" : "DirectFile";
     public bool RequiresDescriptorDependencies => MediaKind is ChdMediaFormatKind.Cue or ChdMediaFormatKind.Gdi or ChdMediaFormatKind.Toc;
     public IsoChdmanCreateDiagnostics? IsoDiagnostics { get; init; }
+    public ChdPlatformProfile? PlatformProfile { get; init; }
 
     public static ChdWorkflowProfilePlan Unsupported(
         string messageKey,
@@ -93,11 +96,13 @@ public static class ChdWorkflowProfilePlanner
     public const string IsoTooSmallMessageKey = "LocWorkflow_IsoTooSmall";
     public const string IsoReadFailedMessageKey = "LocWorkflow_IsoReadFailed";
     public const string NonChdRecommendedCompressionMessageKey = "LocWorkflow_NonChdRecommendedCompression";
+    public const string CsoPreparationDisabledMessageKey = "LocWorkflow_CsoPreparationDisabled";
 
     private const string StatusCreateCueKey = "LocWorkflow_StatusCreateCue";
     private const string StatusCreateGdiKey = "LocWorkflow_StatusCreateGdi";
     private const string StatusCreateTocKey = "LocWorkflow_StatusCreateToc";
     private const string StatusCreateNrgKey = "LocWorkflow_StatusCreateNrg";
+    private const string StatusPrepareCsoToIsoKey = "LocWorkflow_PreparingCsoToIso";
     private const string StatusVerifyChdKey = "LocWorkflow_StatusVerifyChd";
     private const string StatusExtractCdKey = "LocWorkflow_StatusExtractCd";
     private const string StatusExtractDvdKey = "LocWorkflow_StatusExtractDvd";
@@ -119,7 +124,8 @@ public static class ChdWorkflowProfilePlanner
     public static ChdWorkflowProfilePlan PlanCreateFromSource(
         string inputPath,
         IsoCreateCommandOverride isoCreateCommandOverride = IsoCreateCommandOverride.Auto,
-        ChdMediaContainerKind containerKind = ChdMediaContainerKind.DirectFile)
+        ChdMediaContainerKind containerKind = ChdMediaContainerKind.DirectFile,
+        string? platformProfileId = null)
     {
         if (string.IsNullOrWhiteSpace(inputPath))
         {
@@ -132,6 +138,12 @@ public static class ChdWorkflowProfilePlanner
         }
 
         string extension = Path.GetExtension(inputPath).ToLowerInvariant();
+        ChdPlatformProfile? requestedProfile = ChdPlatformProfiles.FindById(platformProfileId);
+        if (requestedProfile is not null)
+        {
+            return PlanRequestedPlatformProfile(inputPath, extension, requestedProfile, containerKind);
+        }
+
         return extension switch
         {
             ".cue" => PlanDescriptorCreateCd(inputPath, ChdMediaFormatKind.Cue, StatusCreateCueKey, containerKind),
@@ -139,6 +151,7 @@ public static class ChdWorkflowProfilePlanner
             ".toc" => PlanDescriptorCreateCd(inputPath, ChdMediaFormatKind.Toc, StatusCreateTocKey, containerKind),
             ".nrg" => PlanSingleFileCreateCd(inputPath, ChdMediaFormatKind.Nrg, StatusCreateNrgKey, containerKind),
             ".iso" => PlanIsoCreate(inputPath, isoCreateCommandOverride, containerKind),
+            ".cso" => PlanCsoCreateDvd(inputPath, containerKind),
             ".chd" => ChdWorkflowProfilePlan.Unsupported(ChdAlreadyChdMessageKey, containerKind),
             ".zip" or ".rar" or ".7z" => ChdWorkflowProfilePlan.Unsupported(ArchiveRequiresExtractionMessageKey, ChdMediaContainerKind.Archive),
             ".bin" => PlanStandaloneBinCreate(inputPath, containerKind),
@@ -177,6 +190,91 @@ public static class ChdWorkflowProfilePlanner
                 ? BinStandaloneBlockedMessageKey
                 : mediaDecision.MessageKey,
             containerKind);
+    }
+
+    private static ChdWorkflowProfilePlan PlanRequestedPlatformProfile(
+        string inputPath,
+        string extension,
+        ChdPlatformProfile profile,
+        ChdMediaContainerKind containerKind)
+    {
+        if (!ChdPlatformProfiles.SupportsExtension(profile, extension))
+        {
+            return ChdWorkflowProfilePlan.Unsupported(UnsupportedMessageKey, containerKind);
+        }
+
+        if (profile.RequiresToc)
+        {
+            if (!TryValidateExistingDescriptorDependencies(inputPath, out string failureMessage))
+            {
+                return ChdWorkflowProfilePlan.Unsupported(failureMessage, containerKind);
+            }
+        }
+
+        if (profile.CommandKind == ChdCommandKind.CreateDvd
+            && profile.PreparationKind == ChdInputPreparationKind.None
+            && !TryValidateIsoPlausible(inputPath, out string isoFailureMessage))
+        {
+            return ChdWorkflowProfilePlan.Unsupported(isoFailureMessage, containerKind);
+        }
+
+        bool createDvd = profile.CommandKind == ChdCommandKind.CreateDvd;
+        return new ChdWorkflowProfilePlan
+        {
+            IsSupported = true,
+            ContainerKind = containerKind,
+            MediaKind = extension switch
+            {
+                ".iso" => ChdMediaFormatKind.Iso,
+                ".gdi" => ChdMediaFormatKind.Gdi,
+                ".cue" => ChdMediaFormatKind.Cue,
+                ".cso" => ChdMediaFormatKind.Cso,
+                _ => ChdMediaFormatKind.Unknown
+            },
+            ProfileKind = createDvd ? ChdWorkflowProfileKind.CreateDvd : ChdWorkflowProfileKind.CreateCd,
+            Command = createDvd ? "createdvd" : "createcd",
+            StatusLine = ResolveProfileStatusLine(profile, extension),
+            PlatformProfile = profile
+        };
+    }
+
+    private static string ResolveProfileStatusLine(ChdPlatformProfile profile, string extension)
+    {
+        if (profile.PreparationKind == ChdInputPreparationKind.ExpandCsoToIso
+            || string.Equals(extension, ".cso", StringComparison.OrdinalIgnoreCase))
+        {
+            return StatusPrepareCsoToIsoKey;
+        }
+
+        if (profile == ChdPlatformProfiles.DreamcastGdi || string.Equals(extension, ".gdi", StringComparison.OrdinalIgnoreCase))
+        {
+            return StatusCreateGdiKey;
+        }
+
+        if (profile.CommandKind == ChdCommandKind.CreateDvd)
+        {
+            return StatusCreateIsoDvdKey;
+        }
+
+        return StatusCreateCueKey;
+    }
+
+    private static ChdWorkflowProfilePlan PlanCsoCreateDvd(
+        string inputPath,
+        ChdMediaContainerKind containerKind)
+    {
+        ValidateInputReadableOrThrow(inputPath);
+
+        return new ChdWorkflowProfilePlan
+        {
+            IsSupported = true,
+            ContainerKind = containerKind,
+            MediaKind = ChdMediaFormatKind.Cso,
+            ProfileKind = ChdWorkflowProfileKind.CreateDvd,
+            Command = "createdvd",
+            StatusLine = StatusPrepareCsoToIsoKey,
+            PlatformProfile = ChdPlatformProfiles.PspCso
+        };
     }
 
     public static ChdWorkflowProfilePlan PlanVerifyChd(string inputPath)

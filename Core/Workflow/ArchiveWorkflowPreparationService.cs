@@ -135,7 +135,8 @@ internal sealed class ArchiveWorkflowPreparationService(
                 archivePlan = ChdWorkflowProfilePlanner.PlanCreateFromSource(
                     extractedPath,
                     ctx.Settings.IsoCreateCommandOverride,
-                    ChdMediaContainerKind.Archive);
+                    ChdMediaContainerKind.Archive,
+                    ctx.Settings.ChdPlatformProfileId);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {

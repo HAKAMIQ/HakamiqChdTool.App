@@ -119,7 +119,8 @@ public sealed partial class OptionsViewModel
             && priorityMode == snapshot.ChdmanPriorityMode
             && StringEquals(compressionCodecs, snapshot.CompressionCodecs)
             && hunkSizeBytes == snapshot.HunkSizeBytes
-            && isoCreateOverride == snapshot.IsoCreateCommandOverride;
+            && isoCreateOverride == snapshot.IsoCreateCommandOverride
+            && StringEquals(SelectedChdPlatformProfile?.Key ?? "auto", string.IsNullOrWhiteSpace(snapshot.ChdPlatformProfileId) ? "auto" : snapshot.ChdPlatformProfileId);
     }
 
 

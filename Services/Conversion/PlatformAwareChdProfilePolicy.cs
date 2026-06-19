@@ -1,5 +1,6 @@
-using HakamiqChdTool.App.Models;
 using System;
+using HakamiqChdTool.App.Core.Chd.Profiles;
+using HakamiqChdTool.App.Models;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -38,6 +39,7 @@ public sealed record PlatformAwareChdProfileRequest(
     ChdProfileUserGoal UserGoal,
     ChdmanCapabilitySnapshot ChdmanCapabilities,
     string CurrentCommand,
+    string InputPath,
     string? RequestedCompression,
     int RequestedHunkSizeBytes);
 
@@ -64,6 +66,7 @@ public sealed class PlatformAwareChdProfilePolicy : IPlatformAwareChdProfilePoli
     public const string GenericCdProfileName = "Generic CD createcd";
     public const string GenericDvdProfileName = "Generic DVD createdvd";
     public const string PspPpssppProfileName = "PPSSPP PSP ISO createdvd 2048";
+    public const string PspCsoPreparedProfileName = "PSP CSO prepared ISO createdvd";
     public const string Ps2DvdProfileName = "PCSX2 PS2 DVD ISO createdvd";
     public const string HardDiskProfileName = "Generic HD createhd";
 
@@ -75,6 +78,8 @@ public sealed class PlatformAwareChdProfilePolicy : IPlatformAwareChdProfilePoli
     public const string IsoDvdReasonCode = "ChdPolicyReason_IsoMediaKindDvdCreateDvd";
     public const string UnknownIsoReasonCode = "ChdPolicyReason_UnknownIsoMediaKindBlocked";
     public const string ExistingCommandReasonCode = "ChdPolicyReason_ExistingCommandPreserved";
+    public const string CanonicalProfileReasonCode = "ChdPolicyReason_CanonicalProfileResolved";
+    public const string CsoPreparationRequiredReasonCode = "ChdPolicyReason_CsoPreparationRequired";
 
     public const string UnknownIsoMediaKindRequiredMessageKey = "LocChdPolicy_UnknownIsoMediaKindRequired";
     public const string CreateDvdUnsupportedMessageKey = "LocChdPolicy_CreateDvdUnsupported";
@@ -88,53 +93,38 @@ public sealed class PlatformAwareChdProfilePolicy : IPlatformAwareChdProfilePoli
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        string platform = request.Platform?.Trim() ?? string.Empty;
-        TargetEmulatorProfile targetProfile = ResolveTargetProfile(platform, request.TargetEmulatorProfile);
+        if (TryResolveCanonicalCreateProfile(request, out ChdPlatformProfile? canonicalProfile)
+            && canonicalProfile is not null
+            && !ShouldPreserveIsoCdCommand(request, canonicalProfile))
+        {
+            return BuildCanonicalProfileDecision(request, canonicalProfile);
+        }
+
+        return ResolveLegacyNonProfileDecision(request);
+    }
+
+    private PlatformAwareChdProfileDecision BuildCanonicalProfileDecision(
+        PlatformAwareChdProfileRequest request,
+        ChdPlatformProfile profile)
+    {
+        string command = ChdPlatformProfiles.ToCommandName(profile.CommandKind);
+        ChdDiscProfileSettings settings = profile.CommandKind == ChdCommandKind.CreateDvd
+            ? ResolveDvdProfileSettings(request, ResolveDvdHunkIntent(profile))
+            : ResolveCdProfileSettings(request, ResolveCdHunkIntent(profile));
+
+        return Build(
+            command,
+            settings,
+            BuildProfileName(profile),
+            profile.CommandKind == ChdCommandKind.CreateDvd
+                ? BuildCreateDvdCapabilityWarning(request.ChdmanCapabilities)
+                : string.Empty,
+            ResolveCanonicalReasonCode(profile));
+    }
+
+    private PlatformAwareChdProfileDecision ResolveLegacyNonProfileDecision(PlatformAwareChdProfileRequest request)
+    {
         bool isIso = request.InputFormat == ChdMediaFormatKind.Iso;
-
-        if (isIso && IsPsp(platform, targetProfile))
-        {
-            ChdDiscProfileSettings settings = ResolveDvdProfileSettings(request, ChdDiscHunkIntent.PspPpssppDvd);
-            return Build(
-                "createdvd",
-                settings,
-                PspPpssppProfileName,
-                BuildCreateDvdCapabilityWarning(request.ChdmanCapabilities),
-                PspPpssppIsoReasonCode);
-        }
-
-        if (isIso && IsPlayStation2(platform) && request.MediaKind == ChdProfileMediaKind.DvdRom)
-        {
-            ChdDiscProfileSettings settings = ResolveDvdProfileSettings(request, ChdDiscHunkIntent.Ps2Dvd);
-            return Build(
-                "createdvd",
-                settings,
-                Ps2DvdProfileName,
-                BuildCreateDvdCapabilityWarning(request.ChdmanCapabilities),
-                Ps2DvdIsoReasonCode);
-        }
-
-        if (request.InputFormat is ChdMediaFormatKind.Cue or ChdMediaFormatKind.Toc or ChdMediaFormatKind.Nrg)
-        {
-            ChdDiscProfileSettings settings = ResolveCdProfileSettings(request, ChdDiscHunkIntent.CdDescriptor);
-            return Build(
-                "createcd",
-                settings,
-                GenericCdProfileName,
-                string.Empty,
-                CdDescriptorReasonCode);
-        }
-
-        if (request.InputFormat == ChdMediaFormatKind.Gdi)
-        {
-            ChdDiscProfileSettings settings = ResolveCdProfileSettings(request, ChdDiscHunkIntent.Gdi);
-            return Build(
-                "createcd",
-                settings,
-                GenericCdProfileName,
-                string.Empty,
-                GdiReasonCode);
-        }
 
         if (isIso)
         {
@@ -171,6 +161,172 @@ public sealed class PlatformAwareChdProfilePolicy : IPlatformAwareChdProfilePoli
         }
 
         return BuildExistingCommandDecision(request);
+    }
+
+    private static bool TryResolveCanonicalCreateProfile(
+        PlatformAwareChdProfileRequest request,
+        out ChdPlatformProfile? profile)
+    {
+        profile = null;
+
+        string inputPath = ResolveCanonicalInputPath(request);
+        if (string.IsNullOrWhiteSpace(inputPath))
+        {
+            return false;
+        }
+
+        profile = ChdPlatformProfiles.ResolveForInput(
+            inputPath,
+            BuildCanonicalPlatformHint(request));
+
+        return profile is not null;
+    }
+
+    private static string ResolveCanonicalInputPath(PlatformAwareChdProfileRequest request)
+    {
+        if (!string.IsNullOrWhiteSpace(request.InputPath))
+        {
+            return request.InputPath;
+        }
+
+        return request.InputFormat switch
+        {
+            ChdMediaFormatKind.Iso => "input.iso",
+            ChdMediaFormatKind.Cue => "input.cue",
+            ChdMediaFormatKind.Gdi => "input.gdi",
+            ChdMediaFormatKind.Toc => "input.toc",
+            ChdMediaFormatKind.Nrg => "input.nrg",
+            _ => string.Empty
+        };
+    }
+
+    private static string BuildCanonicalPlatformHint(PlatformAwareChdProfileRequest request)
+    {
+        string platform = request.Platform?.Trim() ?? string.Empty;
+        TargetEmulatorProfile targetProfile = ResolveTargetProfile(platform, request.TargetEmulatorProfile);
+
+        string targetHint = targetProfile switch
+        {
+            TargetEmulatorProfile.PPSSPP => "PPSSPP PSP",
+            TargetEmulatorProfile.PCSX2 => "PCSX2 PS2",
+            TargetEmulatorProfile.DuckStation => "DuckStation PlayStation",
+            _ => string.Empty
+        };
+
+        if (string.IsNullOrWhiteSpace(targetHint))
+        {
+            return platform;
+        }
+
+        if (string.IsNullOrWhiteSpace(platform))
+        {
+            return targetHint;
+        }
+
+        return $"{platform} {targetHint}";
+    }
+
+    private static bool ShouldPreserveIsoCdCommand(
+        PlatformAwareChdProfileRequest request,
+        ChdPlatformProfile profile) =>
+        profile == ChdPlatformProfiles.GenericDvd
+        && request.InputFormat == ChdMediaFormatKind.Iso
+        && request.MediaKind == ChdProfileMediaKind.CdRom
+        && string.Equals(request.CurrentCommand, "createcd", StringComparison.OrdinalIgnoreCase);
+
+    private static ChdDiscHunkIntent ResolveCdHunkIntent(ChdPlatformProfile profile)
+    {
+        if (profile == ChdPlatformProfiles.DreamcastGdi)
+        {
+            return ChdDiscHunkIntent.Gdi;
+        }
+
+        return ChdDiscHunkIntent.CdDescriptor;
+    }
+
+    private static ChdDiscHunkIntent ResolveDvdHunkIntent(ChdPlatformProfile profile)
+    {
+        if (profile == ChdPlatformProfiles.PspIso)
+        {
+            return ChdDiscHunkIntent.PspPpssppDvd;
+        }
+
+        if (profile == ChdPlatformProfiles.PspCso)
+        {
+            return ChdDiscHunkIntent.GenericDvd;
+        }
+
+        if (profile == ChdPlatformProfiles.Ps2Dvd)
+        {
+            return ChdDiscHunkIntent.Ps2Dvd;
+        }
+
+        return ChdDiscHunkIntent.GenericDvd;
+    }
+
+    private static string BuildProfileName(ChdPlatformProfile profile)
+    {
+        if (profile == ChdPlatformProfiles.PspIso)
+        {
+            return PspPpssppProfileName;
+        }
+
+        if (profile == ChdPlatformProfiles.PspCso)
+        {
+            return PspCsoPreparedProfileName;
+        }
+
+        if (profile == ChdPlatformProfiles.Ps2Dvd)
+        {
+            return Ps2DvdProfileName;
+        }
+
+        if (profile.CommandKind == ChdCommandKind.CreateCd)
+        {
+            return GenericCdProfileName;
+        }
+
+        if (profile.CommandKind == ChdCommandKind.CreateDvd)
+        {
+            return GenericDvdProfileName;
+        }
+
+        return profile.DisplayName;
+    }
+
+    private static string ResolveCanonicalReasonCode(ChdPlatformProfile profile)
+    {
+        if (profile == ChdPlatformProfiles.PspIso)
+        {
+            return PspPpssppIsoReasonCode;
+        }
+
+        if (profile == ChdPlatformProfiles.PspCso)
+        {
+            return CsoPreparationRequiredReasonCode;
+        }
+
+        if (profile == ChdPlatformProfiles.Ps2Dvd)
+        {
+            return Ps2DvdIsoReasonCode;
+        }
+
+        if (profile == ChdPlatformProfiles.DreamcastGdi)
+        {
+            return GdiReasonCode;
+        }
+
+        if (profile.CommandKind == ChdCommandKind.CreateCd)
+        {
+            return CdDescriptorReasonCode;
+        }
+
+        if (profile.CommandKind == ChdCommandKind.CreateDvd)
+        {
+            return IsoDvdReasonCode;
+        }
+
+        return CanonicalProfileReasonCode;
     }
 
     private ChdDiscProfileSettings ResolveCdProfileSettings(
@@ -260,9 +416,6 @@ public sealed class PlatformAwareChdProfilePolicy : IPlatformAwareChdProfilePoli
 
         return TargetEmulatorProfile.GenericChd;
     }
-
-    private static bool IsPsp(string platform, TargetEmulatorProfile targetProfile) =>
-        targetProfile == TargetEmulatorProfile.PPSSPP || IsPspPlatform(platform);
 
     private static bool IsPspPlatform(string platform) =>
         platform.Contains("PlayStation Portable", StringComparison.OrdinalIgnoreCase)

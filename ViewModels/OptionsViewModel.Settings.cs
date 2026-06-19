@@ -67,6 +67,7 @@ public sealed partial class OptionsViewModel
         SelectedCompressionPreset = ResolveCompressionPreset(settings.CompressionCodecs);
         SelectedHunkPreset = ResolveHunkPreset(settings.HunkSizeBytes);
         SelectedIsoCreateOverride = ResolveIsoCreateOverride(settings.IsoCreateCommandOverride);
+        SelectedChdPlatformProfile = ResolveChdPlatformProfile(settings.ChdPlatformProfileId);
         EnableDeepIntegrityCheck = settings.EnableDeepIntegrityCheck;
         ApplyStandardNamingBasedOnHash = settings.ApplyStandardNamingBasedOnHash;
 
@@ -147,6 +148,9 @@ public sealed partial class OptionsViewModel
         result.IsoCreateCommandOverride = Enum.TryParse<IsoCreateCommandOverride>(SelectedIsoCreateOverride?.Key, true, out var iso)
             ? iso
             : IsoCreateCommandOverride.Auto;
+        result.ChdPlatformProfileId = string.IsNullOrWhiteSpace(SelectedChdPlatformProfile?.Key)
+            ? "auto"
+            : SelectedChdPlatformProfile.Key;
         result.Theme = Theme;
         result.UiLanguage = AppLanguageService.NormalizeLanguageName(UiLanguage);
 

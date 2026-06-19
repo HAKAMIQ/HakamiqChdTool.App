@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
@@ -52,6 +53,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private ChoiceOption? _selectedCompressionPreset;
     private ChoiceOption? _selectedHunkPreset;
     private ChoiceOption? _selectedIsoCreateOverride;
+    private ChoiceOption? _selectedChdPlatformProfile;
     private bool _useCustomPendingWorkspace;
     private bool _showStorageAdvisorDialog = true;
     private string _pendingWorkspaceCustomRoot = string.Empty;
@@ -108,6 +110,17 @@ public sealed partial class OptionsViewModel : ObservableValidator
         new("CreateDvd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdDescription"))
     };
 
+    public ObservableCollection<ChoiceOption> ChdPlatformProfileOptions { get; } = new()
+    {
+        new(ChdPlatformProfiles.AutoDetectPlatformId, ArabicUi.Get("LocChdProfile_AutoDetectLabel"), ArabicUi.Get("LocChdProfile_AutoDetectDescription")),
+        new(ChdPlatformProfiles.Ps1.PlatformId, ArabicUi.Get("LocChdProfile_Ps1Label"), ArabicUi.Get("LocChdProfile_Ps1Description")),
+        new(ChdPlatformProfiles.Ps2Cd.PlatformId, ArabicUi.Get("LocChdProfile_Ps2CdLabel"), ArabicUi.Get("LocChdProfile_Ps2CdDescription")),
+        new(ChdPlatformProfiles.Ps2Dvd.PlatformId, ArabicUi.Get("LocChdProfile_Ps2DvdLabel"), ArabicUi.Get("LocChdProfile_Ps2DvdDescription")),
+        new(ChdPlatformProfiles.PspIso.PlatformId, ArabicUi.Get("LocChdProfile_PspLabel"), ArabicUi.Get("LocChdProfile_PspDescription")),
+        new(ChdPlatformProfiles.SegaSaturn.PlatformId, ArabicUi.Get("LocChdProfile_SaturnLabel"), ArabicUi.Get("LocChdProfile_SaturnDescription")),
+        new(ChdPlatformProfiles.DreamcastGdi.PlatformId, ArabicUi.Get("LocChdProfile_DreamcastLabel"), ArabicUi.Get("LocChdProfile_DreamcastDescription"))
+    };
+
     public OptionsViewModel()
     {
         LoadProcessorChoices();
@@ -121,6 +134,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         _selectedCompressionPreset = CompressionPresetOptions.FirstOrDefault();
         _selectedHunkPreset = HunkPresetOptions.FirstOrDefault();
         _selectedIsoCreateOverride = IsoCreateOverrideOptions.FirstOrDefault();
+        _selectedChdPlatformProfile = ChdPlatformProfileOptions.FirstOrDefault();
 
         ErrorsChanged += (_, _) => NotifySaveStateChanged();
         PropertyChanged += (_, e) =>
@@ -588,6 +602,8 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
     public string IsoCreateOverrideDescription => SelectedIsoCreateOverride?.Description ?? string.Empty;
 
+    public string ChdPlatformProfileDescription => SelectedChdPlatformProfile?.Description ?? string.Empty;
+
     public string ProcessorSelectionDescription
     {
         get
@@ -698,6 +714,19 @@ public sealed partial class OptionsViewModel : ObservableValidator
             if (SetProperty(ref _selectedIsoCreateOverride, value))
             {
                 OnPropertyChanged(nameof(IsoCreateOverrideDescription));
+            }
+        }
+    }
+
+    public ChoiceOption? SelectedChdPlatformProfile
+    {
+        get => _selectedChdPlatformProfile;
+        set
+        {
+            if (SetProperty(ref _selectedChdPlatformProfile, value))
+            {
+                OnPropertyChanged(nameof(ChdPlatformProfileDescription));
+                OnPropertyChanged(nameof(CanSave));
             }
         }
     }

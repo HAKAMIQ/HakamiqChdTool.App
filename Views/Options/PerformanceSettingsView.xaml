@@ -78,6 +78,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0"
@@ -323,6 +324,47 @@
                                     </Grid.RowDefinitions>
 
                                     <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocPerformance_ChdPlatformProfile}"
+                                               ToolTip="{DynamicResource LocPerformance_ChdPlatformProfile}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+
+                                    <TextBlock Grid.Row="1"
+                                               Text="{Binding ChdPlatformProfileDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               ToolTip="{Binding ChdPlatformProfileDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                               Style="{StaticResource Win11SettingsRowDescriptionText}" />
+                                </Grid>
+
+                                <ComboBox x:Name="ChdPlatformProfileComboBox"
+                                          Grid.Column="2"
+                                          ItemsSource="{Binding ChdPlatformProfileOptions}"
+                                          SelectedItem="{Binding SelectedChdPlatformProfile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                          IsTextSearchEnabled="True"
+                                          TextSearch.TextPath="Label"
+                                          MaxDropDownHeight="320"
+                                          Style="{StaticResource Win11SettingsComboBox}"
+                                          ToolTip="{Binding ChdPlatformProfileDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                          AutomationProperties.Name="{DynamicResource LocPerformance_ChdPlatformProfile}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="7"
+                                Style="{StaticResource Win11SettingsRow}">
+                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
                                                Text="{DynamicResource LocPerformance_CompressionPreset}"
                                                ToolTip="{DynamicResource LocPerformance_CompressionPreset}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
@@ -348,7 +390,7 @@
                             </Grid>
                         </Border>
 
-                        <Border Grid.Row="7"
+                        <Border Grid.Row="8"
                                 Style="{StaticResource Win11SettingsLastRow}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>

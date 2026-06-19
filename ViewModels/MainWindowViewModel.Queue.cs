@@ -24,6 +24,7 @@ public partial class MainWindowViewModel
 {
     private static readonly IInputResolver InputResolverStatic = new Core.Input.InputResolver();
     private static readonly ArchiveContentPreviewService ArchivePreviewService = new();
+    private static readonly FormatSafetyAdvisor FormatSafetyAdvisorStatic = new();
 
     private readonly record struct QueuePlatformView(string PlatformName, string Reason);
 
@@ -666,6 +667,11 @@ public partial class MainWindowViewModel
         QueueIntakeSource intakeSource,
         QueueIntakeAdvisory? intakeAdvisory = null)
     {
+        QueueIntakeAdvisory? resolvedIntakeAdvisory = FormatSafetyAdvisorStatic.BuildQueueAdvisory(
+            path,
+            detectedPlatform,
+            intakeAdvisory);
+
         (bool isCompliant, string suggestedName) = executionProfile == QueueExecutionProfile.Standard
             ? _session.AnalyzeNamingForPath(path)
             : (true, string.Empty);
@@ -700,7 +706,7 @@ public partial class MainWindowViewModel
             RequestedAction = action,
             ExecutionProfile = executionProfile,
             IntakeSource = intakeSource,
-            IntakeAdvisory = intakeAdvisory,
+            IntakeAdvisory = resolvedIntakeAdvisory,
             CurrentState = initialState,
             StatusDetail = initialDetail,
             IsNamingCompliant = isCompliant,
