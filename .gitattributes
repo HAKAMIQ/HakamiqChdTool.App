@@ -1,21 +1,50 @@
 # Normalize source text
 * text=auto
 
-# Keep Windows scripts line endings friendly
+# Windows scripts
 *.ps1 text eol=crlf
 *.bat text eol=crlf
 *.cmd text eol=crlf
 
-# Binary assets
+# Source and project files
+*.cs text
+*.xaml text
+*.csproj text
+*.sln text
+*.props text
+*.targets text
+
+# Documentation and config
+*.md text
+*.txt text
+*.json text
+*.yml text
+*.yaml text
+*.xml text
+
+# Disc descriptor files
+*.cue text
+*.gdi text
+*.toc text
+
+# Binary assets and packages
 *.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
 *.ico binary
 *.exe binary
 *.dll binary
+*.pdb binary
 *.zip binary
 *.7z binary
 *.rar binary
+
+# Disc and image files
 *.chd binary
 *.iso binary
 *.bin binary
-*.cue text
-*.gdi text
+*.img binary
+*.cso binary
+*.zso binary
+*.pkg binary
