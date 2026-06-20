@@ -1,79 +1,80 @@
 # Hakamiq CHD Tool
 
-Hakamiq CHD Tool is a Windows x64 desktop app for converting, checking, and extracting disc image files with CHD workflows. It is built for local use: add files, review the queue, run the job, then check the result.
+Hakamiq CHD Tool is a Windows x64 desktop app for converting supported game disc images to CHD through a guided WPF interface.
+
+It checks the source, prepares the output path, runs `chdman`, tracks progress, and keeps failures readable. No manual command-line work needed for normal use.
 
 ## Download
 
-Get the latest release from:
+Latest release:
 
 <https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/latest>
 
 Choose one package:
 
-| Package | Use it when |
+| Package | Best for |
 | --- | --- |
-| `HakamiqChdTool-*-win-x64-self-contained.zip` | Best for most users. Runs without installing .NET separately. |
+| `HakamiqChdTool-*-win-x64-self-contained.zip` | Most users. No separate .NET install. |
 | `HakamiqChdTool-*-win-x64-runtime-required.zip` | Smaller download. Requires .NET 8 Desktop Runtime x64. |
+
+## Requirements
+
+- Windows x64
+- .NET 8 Desktop Runtime x64 only if you choose the runtime-required package
+- Enough free disk space for the source, temporary work, and final CHD
 
 ## Quick start
 
-1. Download one of the ZIP files above.
-2. Extract it to a normal folder, not inside `Program Files`.
+1. Download a ZIP from the latest release.
+2. Extract it to a normal folder, not `Program Files`.
 3. Run `HakamiqChdTool.exe`.
-4. Add your disc image files.
+4. Add a file or folder.
 5. Pick an output folder and start the queue.
 
-That's it. For most cases, the self-contained package is the easiest choice.
+Start with a single file — easier to verify the output first.
 
 ## Common uses
 
 ### Convert ISO to CHD
 
-Add an `.iso` file, choose the output folder, then start the queue. The app keeps the original file and writes a new CHD.
+Add an `.iso`, choose the output folder, then start the queue. The original file stays untouched.
 
-### Convert CUE or GDI to CHD
+### Convert BIN/CUE or GDI
 
-Add the `.cue` or `.gdi` file, not only the track files. Keep the referenced `.bin` or track files in the same folder.
+Add the descriptor file: `.cue` or `.gdi`. Keep the referenced track files beside it.
+
+### Process archives
+
+Add a supported archive and the app stages the image inside before conversion. If the archive is damaged or unclear, it stops early.
 
 ### Prepare CSO input
 
-CSO files are prepared through the bundled Hakamiq.CsoKit helper before CHD conversion. If the helper is missing, the item fails cleanly instead of producing a bad CHD.
+CSO is handled as an input step. The app prepares a temporary ISO, then sends that through the normal CHD workflow.
 
 ### Verify a CHD
 
-Use verification when you want to check an existing CHD before archiving it or moving it to long-term storage.
+Use verification before archiving a CHD or moving it to long-term storage. Quick confidence check.
 
 ### Extract a CHD
 
-Add a CHD and choose an extraction workflow when supported. Good for checking a result against the original source.
+Extraction is available where the CHD type and selected profile are supported.
 
-### Use the queue
+### Run a queue
 
-Add multiple files, review each item, then run the queue. Failed and canceled items stay separate, which makes cleanup easier.
+Add multiple items, review the list, then start. Failed and cancelled items stay separate, which makes cleanup less annoying.
 
-### Check external tools
+### Check bundled tools
 
-Open Options, then External Tools. You should see the bundled tools detected from the release folder.
+Open Options, then External Tools. If something is missing, the app should tell you what it needs.
 
-### Work with Arabic paths
+## Legal
 
-The interface supports Arabic and English. Technical paths stay readable left-to-right so file locations do not become confusing.
-
-## Package reference
-
-| Item | Meaning |
-| --- | --- |
-| Windows support | Windows x64 desktop |
-| UI | WPF |
-| Main output | CHD |
-| Bundled helpers | chdman and Hakamiq.CsoKit |
-| Release type | Portable ZIP |
-| Installer | Not provided |
+The tool does not include games, ROMs, BIOS files, disc images, or Redump databases. Use it only with content you own or are legally allowed to process.
 
 ## Limitations
 
-No games, ROMs, BIOS files, ISO files, CHD files, or Redump databases are included. PS3-related handling is conservative and still experimental. Use the tool only with files you own or are allowed to process.
+PS3-related handling is experimental and conservative. The app is not an emulator and not a ROM downloader. Android, web, cloud conversion, and C++ rewrites are outside the current direction.
 
 ## More documentation
 
-Detailed notes live in [`docs/`](docs/README.md). Start there if you need supported format notes, troubleshooting, legal notices, or deeper behavior details.
+Detailed format notes, conversion behavior, logs, helper tools, and developer documentation live in [`docs/`](docs/README.md).
