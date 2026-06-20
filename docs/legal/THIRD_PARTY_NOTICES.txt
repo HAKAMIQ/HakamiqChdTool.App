@@ -1,48 +1,63 @@
-Hakamiq CHD Tool — Third Party Notices
+Hakamiq CHD Tool - Third-party notices
 
-This application uses third-party components. Each component is distributed under its own license.
+Hakamiq CHD Tool uses tools and libraries from other projects.
+
+Each project keeps its own license.
 
 --------------------------------------------------------------------------------
 chdman / MAME
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool bundles chdman.exe from the MAME project for user convenience.
+Hakamiq CHD Tool may include chdman.exe from the MAME project.
+
+Project:
+MAME
 
 Upstream:
 https://github.com/mamedev/mame
 
-Bundled build:
+Bundled version:
 0.286 (mame0286)
 
 Bundled SHA-256:
 a0ebe23efee237c29ce81f5436979b20ef9fba8d9605ddc77cad72c1db7e0c7a
 
-See:
-- CHDMAN_NOTICE.md
-- MAME_COPYING.txt
-- MAME_GPL-2.0.txt
+Related files:
+CHDMAN_NOTICE.md
+MAME_COPYING.txt
+MAME_GPL-2.0.txt
 
-Hakamiq CHD Tool is not affiliated with, sponsored by, or endorsed by MAMEdev.
+Hakamiq CHD Tool is not connected to MAMEdev.
 
 --------------------------------------------------------------------------------
 7-Zip
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool can use 7-Zip as an optional archive extraction backend when bundled under Tools\7zip.
+Hakamiq CHD Tool may include 7-Zip to open ZIP, RAR, and 7Z files.
 
-See:
-- SEVENZIP_NOTICE.md
+Related file:
+SEVENZIP_NOTICE.md
 
-Hakamiq CHD Tool is not affiliated with, sponsored by, or endorsed by Igor Pavlov or the 7-Zip project.
+Hakamiq CHD Tool is not connected to Igor Pavlov or the 7-Zip project.
 
+--------------------------------------------------------------------------------
+Hakamiq.CsoKit
+--------------------------------------------------------------------------------
 
+Hakamiq CHD Tool may include Hakamiq.CsoKit to handle PSP CSO files.
 
+CsoKit can read CSO file details, check a CSO file, and make a
+temporary ISO before chdman creates the CHD.
+
+Related file:
+CSOKIT_NOTICE.md
 
 --------------------------------------------------------------------------------
 Microsoft Fluent UI System Icons
 --------------------------------------------------------------------------------
 
-Selected SVG path data from Microsoft Fluent UI System Icons is used as WPF Geometry resources.
+Hakamiq CHD Tool uses selected SVG path data from Microsoft Fluent UI
+System Icons.
 
 Upstream:
 https://github.com/microsoft/fluentui-system-icons
@@ -53,40 +68,40 @@ MIT License
 Copyright:
 Copyright (c) Microsoft Corporation.
 
-No Fluent icon font files are bundled.
+No Fluent icon font files are included.
 
 --------------------------------------------------------------------------------
-NuGet / framework dependencies
+NuGet and .NET libraries
 --------------------------------------------------------------------------------
 
-This application may use the following NuGet or framework dependencies:
+Hakamiq CHD Tool may use these NuGet or .NET libraries:
 
-- GongSolutions.WPF.DragDrop
-- Hardcodet.NotifyIcon.Wpf
-- Humanizer.Core
-- Serilog
-- Serilog.Sinks.Async
-- Serilog.Sinks.File
-- Velopack
-- SharpCompress
-- CommunityToolkit.Mvvm
-- Ookii.Dialogs.Wpf
-- LTRData.DiscUtils.Iso9660
-- System.Management
-- Microsoft.Data.Sqlite
+GongSolutions.WPF.DragDrop
+Hardcodet.NotifyIcon.Wpf
+Humanizer.Core
+Serilog
+Serilog.Sinks.Async
+Serilog.Sinks.File
+Velopack
+SharpCompress
+CommunityToolkit.Mvvm
+Ookii.Dialogs.Wpf
+LTRData.DiscUtils.Iso9660
+System.Management
+Microsoft.Data.Sqlite
 
-Each dependency is distributed under its own license.
-
+Each library keeps its own license.
 
 --------------------------------------------------------------------------------
 Redump
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool may let users download or import Redump DAT/XML metadata for local verification.
+Hakamiq CHD Tool may use Redump DAT or XML files provided by the user.
 
-This repository and its releases do not bundle Redump databases, disc keys, subchannel files, BIOS files, ROMs, disc images, CHD files, decryption keys, platform firmware, or copyrighted user media.
+Hakamiq CHD Tool does not include Redump files, games, ROMs, BIOS files,
+disc images, CHD files, keys, firmware, or private user files.
 
-Hakamiq CHD Tool is not affiliated with, sponsored by, or endorsed by Redump.
+Hakamiq CHD Tool is not connected to Redump.
 
 --------------------------------------------------------------------------------
 Hakamiq CHD Tool
@@ -95,6 +110,6 @@ Hakamiq CHD Tool
 Original Hakamiq CHD Tool source code is licensed under the MIT License.
 
 See:
-- LICENSE
+LICENSE
 
-Third-party components remain under their respective licenses.
+Third-party tools and libraries keep their own licenses.
