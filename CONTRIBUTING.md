@@ -1,142 +1,116 @@
 # Contributing
 
-Hakamiq CHD Tool is a Windows x64 WPF app built on .NET 8.
-Keep changes boring unless the feature truly needs more.
+Hakamiq CHD Tool is a Windows x64 WPF app built with .NET 8.
 
-The app wraps local CHD workflows. Small UI changes can still break
-conversion flow, release packaging, or cancellation behavior, so run
-the gates before shipping.
+Keep changes small and easy to review. A small UI change can still affect
+conversion, cancel, package output, or app startup.
 
 ## Requirements
 
 - Windows
 - PowerShell 5.1 or later
-- .NET SDK compatible with `global.json`
-- GitHub CLI if you need Actions or Release checks
+- .NET SDK version from global.json
+- GitHub CLI for CI and release checks
 
 ## Build
 
 Use Debug while editing:
 
-```powershell
-dotnet restore .\HakamiqChdTool.App.csproj
-dotnet build .\HakamiqChdTool.App.csproj -c Debug --no-restore
-```
+- `dotnet restore .\HakamiqChdTool.App.csproj`
+- `dotnet build .\HakamiqChdTool.App.csproj -c Debug --no-restore`
 
-Public packages come from the release scripts, not from Debug output.
+Do not publish from Debug output.
 
-## Local gate
+## Local check
 
-Run this before you trust a change:
+Run this before trusting a change:
 
-```powershell
-.\scripts\Verify-Local.ps1
-```
+- `PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify-Local.ps1`
 
-This is the quick confidence pass. It restores, builds, and prints the
-manual smoke checklist from `docs/SMOKE_TEST_CHECKLIST.md`.
+This restores packages, builds Debug, builds Release, and prints the
+manual smoke checklist.
 
-There is no real test project right now, so do not add fake `dotnet test`
-requirements.
+There is no test project right now. Do not add fake test commands.
 
-## Release gate
+## Release check
 
-Before uploading a public ZIP:
+Before uploading a public ZIP, run:
 
-```powershell
-.\scripts\Publish-EndUserRelease.ps1
-.\scripts\Verify-EndUserRelease.ps1
-```
+- `PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Publish-EndUserRelease.ps1`
+- `PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify-EndUserRelease.ps1`
 
-The scripts publish the app, copy approved bundled tools and legal
-notices, generate the manifest, then verify the release output.
+Use the release scripts only. Do not publish from `bin`, `obj`, or a
+hand-made folder.
 
-Do not publish from `bin`, `obj`, or a hand-made folder.
+## Manual smoke test
 
-## Manual smoke
+After a Release build, launch the app and check the main screens.
 
-After a Release build, launch the app from `Release` and click through
-the important paths. Build passing is not enough for a desktop tool.
+Use:
 
-Use `docs/SMOKE_TEST_CHECKLIST.md` as the maintained checklist.
+- `docs/SMOKE_TEST_CHECKLIST.md`
 
 Check at least:
 
-- Options opens.
-- About opens.
-- a small ISO can be added.
-- a CHD can be verified.
-- a running item can be cancelled.
-- failed and cancelled items are reported differently.
-- no orphan `chdman`, `7z`, or helper process remains.
+- Main window opens.
+- Options window opens.
+- About window opens.
+- A small ISO can be added.
+- A CHD can be checked.
+- A running item can be cancelled.
+- Failed and cancelled items look different.
+- No chdman or 7-Zip process is left open after closing the app.
 
-Simple, but it catches real problems.
+## Before commit
 
-## Release assets
+Run:
 
-Use stable asset names:
+- `git status --short`
+- `git --no-pager diff --check`
+- `PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify-Local.ps1`
 
-```text
-HakamiqChdTool-vX.Y.Z-win-x64-runtime-required.zip
-HakamiqChdTool-vX.Y.Z-win-x64-self-contained.zip
-```
+Also check for old unwanted text:
 
-The runtime-required package is smaller and needs .NET 8 Desktop
-Runtime x64. The self-contained package is larger, but easier for most
-users.
-
-Never commit generated ZIP files, release folders, logs, source
-packages, or local artifacts.
-
-## Repository hygiene
-
-Before commit:
-
-```powershell
-git status --short
-git --no-pager diff --check
-```
-
-Check for old forbidden leftovers:
-
-```powershell
-git --no-pager grep -n -i "maxcso\|NuGet.temp.config" -- . 2>$null
-```
+- `git --no-pager grep -n -i "maxcso\|NuGet.temp.config" -- . 2>$null`
 
 No output is expected.
 
 ## GitHub Actions
 
-Main pushes run CI:
+Main branch pushes run CI.
 
-```powershell
-gh run list --branch main --limit 5
-```
+Check recent runs with:
 
-If CI fails, fix the workflow or the code before publishing a release.
+- `gh run list --branch main --limit 5`
 
-Release notification runs only when a GitHub Release is published:
-
-```powershell
-gh run list --limit 10
-```
+If CI fails, fix it before making a release.
 
 ## Screenshots
 
-Use clean screenshots only. No private paths, copyrighted media names,
-desktop clutter, or real game dumps.
+Use clean screenshots only.
+
+Do not show private paths, desktop clutter, copyrighted media names, or
+real game dumps.
 
 Neutral examples are better:
 
-```text
-D:\CHDWork\Sample.iso
-D:\CHDOut\Sample.chd
-```
+- `D:\CHDWork\Sample.iso`
+- `D:\CHDOut\Sample.chd`
 
-## Legal boundary
+## Files not allowed
 
-Do not add games, ROMs, BIOS files, ISO or CHD images, Redump
-databases, keys, firmware, private logs, or copyrighted screenshots.
+Do not add:
 
-If a release bundles third-party tools, keep the matching legal notices
-with the package.
+- games
+- ROMs
+- BIOS files
+- ISO files
+- CHD files
+- Redump files
+- keys
+- firmware
+- private logs
+- copyrighted screenshots
+
+If a release includes tools from other projects, keep their license
+files with the package.
