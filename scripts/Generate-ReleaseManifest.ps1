@@ -152,4 +152,3 @@ if (-not (Test-Path -LiteralPath $OutputPath -PathType Container)) {
 }
 
 New-ReleaseManifest
-exit 0
