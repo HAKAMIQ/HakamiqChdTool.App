@@ -1,87 +1,72 @@
 # CHD reader helper
 
-The CHD reader helper is a read-only metadata probe. It is not the
-conversion engine and it does not replace chdman.
+The CHD reader helper is a read-only metadata tool.
 
-Its job is narrow: give the app better information about an existing
-CHD without changing that CHD.
+It reads information from an existing CHD. It does not convert, verify,
+extract, repair, or replace chdman.
 
 ## Purpose
 
-The helper can inspect CHD structure and report values that are useful
-for UI display, diagnostics, and safer workflow decisions.
+The helper gives the app useful details about a CHD without changing the
+file.
 
-Typical values include:
+Typical details include:
 
 - physical file size
-- logical virtual size
+- logical size
 - hunk size
 - hunk count
 - compression hints
-- read-only metadata
+- basic read-only metadata
 
-This information helps the app show clearer details without asking the
-user to run low-level tools manually.
-
-## Boundary
-
-Conversion, verification, and extraction still belong to chdman.
-
-The reader helper should not decide final conversion behavior by itself.
-It can support the workflow, but it should not become a second CHD
-engine hidden inside the app.
-
-If the helper is missing or fails, the app should continue where it can
-safely continue. A metadata probe failure should not be treated as a
-conversion failure unless the selected action depends on that metadata.
+The app can use this information for display, diagnostics, and safer
+workflow decisions.
 
 ## Logical size
 
 Logical size is the virtual size represented by the CHD.
 
-It is not the same as the physical size of the `.chd` file on disk. A
-small physical CHD can still represent a much larger source image.
+It is not the same as the physical size of the .chd file on disk. A CHD
+file can be small while representing a much larger source image.
 
-This matters for:
+## Boundary
 
-- progress display
-- storage estimates
-- verify and extract planning
-- user-facing file details
+CHD conversion, verification, and extraction still belong to chdman.
+
+The helper should support the workflow, not become a second CHD engine
+inside the app.
+
+If the helper is missing or fails, the app should continue where it can
+safely continue. Only actions that require that metadata should stop.
 
 ## Read-only rule
 
 The helper must stay read-only.
 
-It should not repair, rewrite, recompress, patch, normalize, or mutate
-CHD content. Any write path belongs to a separate reviewed workflow.
+It should not repair, rewrite, recompress, patch, normalize, or change
+CHD content.
 
-Keep this line clear. Read-only helpers are easier to trust, test, and
-package.
+Any write behavior belongs in a separate reviewed workflow.
 
 ## Failure behavior
 
-A helper failure should be reported as helper failure, not as corrupt
-media unless there is direct evidence.
+A helper failure should be reported as a helper problem unless there is
+direct evidence that the CHD itself is bad.
 
-The app should prefer clear messages:
+Clear examples are:
 
 - helper missing
 - helper blocked
 - helper unsupported
 - metadata read failed
-- CHD action cannot continue without metadata
+- action requires metadata
 
-Avoid vague errors when the problem is only a missing helper.
+Avoid vague errors when the problem is only the helper.
 
 ## Packaging
 
-Public release packages should include only approved helper binaries and
-their matching legal notices.
+Public releases should include only approved helper binaries and their
+required notices.
 
-Source files for helper experiments do not belong under `docs/`.
-Implementation source should live in a real source or tool location, or
-not be shipped at all.
-
-Release packaging rules live in CONTRIBUTING.md. This page only
-describes the helper boundary.
+Helper source files do not belong under docs. Implementation files
+should live in a real source or tool location.
