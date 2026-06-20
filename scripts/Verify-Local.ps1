@@ -139,7 +139,7 @@ try {
     }
 
     Write-Host '[PASS] Local verification completed.' -ForegroundColor Green
-    exit 0
+
 }
 finally {
     Pop-Location
