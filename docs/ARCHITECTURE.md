@@ -1,19 +1,19 @@
 # Architecture
 
-Hakamiq CHD Tool is a Windows WPF app that manages local CHD
+Hakamiq CHD Tool is a Windows WPF app for managing local CHD
 workflows. It does not write CHD files by itself. The CHD engine is
 still chdman.
 
-The app handles the work around chdman: checking inputs, planning
-paths, preparing commands, tracking progress, handling cancellation,
-and cleaning temporary files.
+The app handles the workflow around chdman: input checks, output
+planning, temporary paths, command execution, progress, cancellation,
+and cleanup.
 
-That is the point of the project. Not replacing chdman. Making the
-workflow safer and easier to use.
+The goal is not to replace chdman. The goal is to make CHD work safer,
+clearer, and easier for normal users.
 
 ## Workflow
 
-A normal conversion moves through this path:
+A normal conversion moves through these stages:
 
 - intake and classification
 - source safety checks
@@ -24,9 +24,9 @@ A normal conversion moves through this path:
 - result mapping
 - cleanup
 
-Most problems should be caught before the external command starts.
-Bad input should not turn into a questionable CHD halfway through a
-long queue.
+Most problems should be caught before the external command starts. Bad
+input should not turn into a questionable CHD halfway through a long
+queue.
 
 ## Main parts
 
@@ -45,25 +45,25 @@ cleanup, and result shaping.
 
 ### Services
 
-Conversion, verification, archive intake, chdman process handling,
-storage checks, Redump display support, PS3 intake, and helper tool
-discovery.
+Services handle conversion, verification, archive intake, chdman
+process handling, storage checks, Redump display support, PS3 intake,
+and helper tool discovery.
 
 ### Tools
 
-Approved runtime helpers bundled with the release package.
+Tools are approved runtime helpers bundled with the release package.
 
 ### Scripts
 
-Local checks, release packaging, package validation, and repository
-convention checks.
+Scripts handle local checks, release packaging, package validation, and
+repository convention checks.
 
 Developer commands belong in CONTRIBUTING.md, not here.
 
 ## chdman boundary
 
-chdman owns the CHD format behavior. Hakamiq CHD Tool owns the
-workflow around it.
+chdman owns CHD format behavior. Hakamiq CHD Tool owns the workflow
+around it.
 
 The app should not expose every chdman switch just because chdman has
 one. Normal users need safe paths, clear results, and fewer ways to
@@ -71,13 +71,13 @@ produce broken output.
 
 ## Queue model
 
-Queue results must stay specific.
+Queue results must stay specific:
 
-Success means the operation finished and produced the expected result.
-Failed means a check, staging step, tool run, or post-process step did
-not complete. Cancelled means the user stopped it. Skipped means the
-item was intentionally not processed. Unsupported means the input is
-outside the current workflow.
+- Success means the operation finished and produced the expected result.
+- Failed means a check, staging step, tool run, or post-process failed.
+- Cancelled means the user stopped the item or queue.
+- Skipped means the item was intentionally not processed.
+- Unsupported means the input is outside the current workflow.
 
 Do not collapse these into one generic state. Users need to know what
 actually happened.
@@ -89,16 +89,16 @@ should live in controlled locations, use predictable names, and be
 cleaned after success, failure, or cancellation.
 
 If temporary output needs to be kept for debugging, make that an
-explicit developer path. Not normal user behavior.
+explicit developer path. It should not be normal user behavior.
 
 ## Helper tools
 
-The app may use small helper tools for narrow jobs.
+The app may use small helper tools for narrow jobs:
 
-chdman handles CHD conversion, verification, and extraction. Archive
-backends handle archive staging. Read-only CHD helpers can inspect
-metadata. CSO input may use a helper to prepare a temporary ISO before
-the normal CHD workflow continues.
+- chdman handles CHD conversion, verification, and extraction.
+- archive backends handle archive staging.
+- read-only CHD helpers can inspect metadata.
+- CSO input may use a helper to prepare a temporary ISO.
 
 These helpers are not the architecture. They are runtime dependencies
 around the WPF workflow.
@@ -117,9 +117,8 @@ documented as a CSO input helper only.
 
 Native helpers are allowed only for narrow, approved jobs.
 
-The app remains C# / WPF / .NET 8. CHD conversion remains
-chdman-based. No C++ rewrite. No second architecture hiding beside the
-desktop app.
+The app remains C# / WPF / .NET 8. CHD conversion remains chdman-based.
+No C++ rewrite. No second architecture hiding beside the desktop app.
 
 ## Release packaging
 
