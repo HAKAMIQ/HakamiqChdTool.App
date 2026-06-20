@@ -8,24 +8,24 @@ publish/
 publish-cli/
 artifacts/
 TestResults/
-.coverage/
 coverage/
+.coverage/
 *.nupkg
 *.snupkg
 
-# Visual Studio / Rider / local user files
+# IDE and local user files
 .vs/
-.vscode/.ropeproject/
 .idea/
+.vscode/.ropeproject/
+_ReSharper*/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 *.rsuser
-_ReSharper*/
 *.DotSettings.user
 
-# Logs, diagnostics, crash reports
+# Logs and crash files
 *.log
 logs/
 crash-reports/
@@ -33,28 +33,32 @@ crash-reports/
 *.mdmp
 *.etl
 
-# Temporary / backup / scratch files
+# Temporary files
 *.tmp
 *.temp
 *.bak
 *.backup
 *.orig
+*.bak_*
+*~
 testwrite*
 testroot.tmp
 **/testwrite
+_backups/
+**/_backups/
 
-# Runtime extraction / local app data mirrors
+# Local app files
 runtime-tools/
 RuntimeTools/
 portable/
 config.json
 
-# Disc images and large user data - never commit copyrighted/user media
+# Disc images and user media
 *.iso
-*.cue
-*.gdi
 *.chd
 *.cso
+*.zso
+*.dax
 *.pbp
 *.rvz
 *.wua
@@ -62,63 +66,44 @@ config.json
 *.img
 *.mdf
 *.nrg
+*.raw
+*.pkg
+
+# Disc descriptor and track side files
+*.cue
+*.gdi
+*.toc
+*.sbi
+*.lsd
+
+# Archives
 *.zip
 *.rar
 *.7z
-!MAME_GPL-2.0.txt
-!MAME_COPYING.txt
 
-# P0 repo hygiene: this is a C# WPF project; reject Visual Basic sources and
-# stray editor/sed leftovers. *.user, *.tmp, *.bak are already declared above
-# and intentionally not duplicated here.
-*.vb
-sed*
-*.lnk
+# Databases and imported verification data
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
 RedumpDB.sqlite
-_backups/
-
 *.dat
-# XML is intentionally NOT globally ignored — App.config, NuGet config.xml,
-# resource manifests, and ResX-adjacent files are legitimate XML in this repo.
-# Only block XML that ships inside Redump / Datfiles import folders.
-Redump/**/*.xml
-redump/**/*.xml
-Datfiles/**/*.xml
-datfiles/**/*.xml
-*.sbi
-*.lsd
-*.key
-*.dkey
-*.keys
-
-# Legal release safety (from LEGAL.md §6 — entries added on top of the
-# existing rules above; deliberate duplicates inside this block are harmless
-# to git and kept here for documentation continuity with LEGAL.md).
-*.rom
-*.raw
-_release/
-*.bak_*
-*~
-**/_backups/
-
-# Downloaded verification databases / cuesheets / keys / subchannels must
-# never be committed, even if a user creates these folders by name.
 Redump/
 redump/
 Datfiles/
 datfiles/
+Redump/**/*.xml
+redump/**/*.xml
+Datfiles/**/*.xml
+datfiles/**/*.xml
+
+# Keys and private material
+*.key
+*.dkey
+*.keys
 DiscKeys/
 disc-keys/
 Subchannels/
 subchannels/
-
-# Independent migration work - keep out of the WPF source repository
-docs/SOURCE_CLEAN_AUDIT.md
-
-# Signing/licensing private material must never be committed
 *.pfx
 *.p12
 *.pem
@@ -129,3 +114,14 @@ premium-license.json
 premium-license.txt
 license-private*
 private-key*
+
+# Source types that do not belong in this WPF C# repo
+*.vb
+sed*
+*.lnk
+
+# Local release folders
+_release/
+
+# Old audit scratch file
+docs/SOURCE_CLEAN_AUDIT.md
