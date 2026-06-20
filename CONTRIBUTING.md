@@ -34,8 +34,10 @@ Run this before you trust a change:
 ```
 
 This is the quick confidence pass. It restores, builds, and prints the
-manual smoke checklist. There is no real test project right now, so do
-not add fake `dotnet test` requirements.
+manual smoke checklist from `docs/SMOKE_TEST_CHECKLIST.md`.
+
+There is no real test project right now, so do not add fake `dotnet test`
+requirements.
 
 ## Release gate
 
@@ -55,6 +57,8 @@ Do not publish from `bin`, `obj`, or a hand-made folder.
 
 After a Release build, launch the app from `Release` and click through
 the important paths. Build passing is not enough for a desktop tool.
+
+Use `docs/SMOKE_TEST_CHECKLIST.md` as the maintained checklist.
 
 Check at least:
 
