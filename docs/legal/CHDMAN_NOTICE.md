@@ -1,31 +1,44 @@
-# chdman / MAME notice
+# chdman notice
 
-This project may include `Tools/chdman.exe` for user convenience.
+Hakamiq CHD Tool may include chdman.exe in the Tools folder so users do
+not need to download it separately.
 
-`chdman` is part of the MAME project. It is not created, owned, or maintained by Hakamiq CHD Tool.
+chdman is part of the MAME project. It is not made, owned, or maintained
+by Hakamiq CHD Tool.
 
-Bundled tool details:
+## Included tool
 
-- Tool: `chdman.exe`
+- Tool: chdman.exe
 - Project: MAME
-- Version: `0.286 (mame0286)`
-- Architecture: Windows x64
-- SHA-256: `a0ebe23efee237c29ce81f5436979b20ef9fba8d9605ddc77cad72c1db7e0c7a`
+- Version: 0.286
+- Build: mame0286
+- Platform: Windows x64
+- SHA-256:
+  a0ebe23efee237c29ce81f5436979b20ef9fba8d9605ddc77cad72c1db7e0c7a
 
-Required license files:
+## Required license files
 
-- `MAME_COPYING.txt`
-- `MAME_GPL-2.0.txt`
+The release package must include:
 
-Upstream sources:
+- MAME_COPYING.txt
+- MAME_GPL-2.0.txt
+
+## Upstream project
 
 - https://github.com/mamedev/mame
 - https://www.mamedev.org/
 
-Hakamiq CHD Tool is not affiliated with, sponsored by, or endorsed by MAMEdev.
+## Relationship to MAME
 
-This project does not include games, ROMs, BIOS files, disc images, Redump databases, keys, or copyrighted user media.
+Hakamiq CHD Tool is not affiliated with MAMEdev.
 
-Do not run Hakamiq CHD Tool or `chdman.exe` as Administrator unless you have a specific reason.
+MAMEdev does not sponsor, approve, or maintain Hakamiq CHD Tool.
 
-MAME and `chdman` are provided without warranty under their upstream license terms.
+## User files
+
+Hakamiq CHD Tool does not include games, ROMs, BIOS files, disc images,
+Redump files, keys, firmware, or private user media.
+
+## Warranty
+
+MAME and chdman are provided under their upstream license terms.
