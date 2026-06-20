@@ -1,30 +1,52 @@
 # Project direction
 
-Hakamiq CHD Tool is a Windows desktop CHD workflow app.
+Hakamiq CHD Tool is a Windows desktop app for CHD workflows.
 
-The current application direction is fixed:
+The current direction is:
 
 - WPF
 - C#
 - .NET 8
 - Windows x64
 - local processing
-- chdman-based CHD workflows
+- chdman-based convert, verify, and extract workflows
 
-## Out of direction
+## In scope
 
-The following are not part of the current application direction:
+The app focuses on practical CHD workflow tasks:
+
+- adding files and folders
+- checking input before conversion
+- staging supported archive input
+- running safe chdman workflows
+- showing clear queue results
+- keeping release packages predictable
+
+## Out of scope
+
+These are not part of the current direction:
 
 - Android builds
-- Avalonia rewrite
 - web UI
 - cloud conversion
 - server-side conversion
+- Avalonia rewrite
 - C++ rewrite of the WPF app
 - custom CHD encoder inside the app
+- emulator features
+- ROM, BIOS, or Redump database distribution
 
-A small native helper can be considered only when it solves a specific read-only probing problem. It should not replace the C# WPF architecture.
+## Native helpers
+
+Small native helpers are acceptable only when they solve a specific
+local task.
+
+A helper should be narrow, documented, and packaged deliberately. It
+should not replace the WPF app or the chdman workflow.
 
 ## Product boundary
 
-The app is for media preparation and CHD workflow management. It is not an emulator, a ROM downloader, a BIOS provider, a Redump database mirror, or a general-purpose archive manager.
+The app prepares and manages CHD work.
+
+It is not an emulator, ROM downloader, BIOS provider, Redump mirror, or
+general archive manager.
