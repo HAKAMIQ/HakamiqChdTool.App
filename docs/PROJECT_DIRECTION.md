@@ -1,52 +1,56 @@
 # Project direction
 
-Hakamiq CHD Tool is a Windows desktop app for CHD workflows.
+Hakamiq CHD Tool is a Windows desktop app.
 
-The current direction is:
+It helps users convert, check, and extract CHD files using chdman.
+
+## Current app
+
+The app stays on this path:
 
 - WPF
 - C#
 - .NET 8
 - Windows x64
-- local processing
-- chdman-based convert, verify, and extract workflows
+- runs on the user's PC
+- uses chdman for CHD work
 
-## In scope
+## What belongs here
 
-The app focuses on practical CHD workflow tasks:
+This project should focus on:
 
 - adding files and folders
-- checking input before conversion
-- staging supported archive input
-- running safe chdman workflows
+- checking source files before conversion
+- opening supported ZIP, RAR, and 7Z files before conversion
+- running chdman with safe choices
 - showing clear queue results
-- keeping release packages predictable
+- building clean release ZIP files
 
-## Out of scope
+## What does not belong here
 
-These are not part of the current direction:
+These are not part of this app:
 
-- Android builds
-- web UI
+- Android version
+- web version
 - cloud conversion
-- server-side conversion
+- server conversion
 - Avalonia rewrite
 - C++ rewrite of the WPF app
-- custom CHD encoder inside the app
+- CHD encoder written inside the app
 - emulator features
-- ROM, BIOS, or Redump database distribution
+- game, ROM, BIOS, or Redump file downloads
 
-## Native helpers
+## Small native tools
 
-Small native helpers are acceptable only when they solve a specific
-local task.
+A small C or C++ tool can be added only for a clear local task.
 
-A helper should be narrow, documented, and packaged deliberately. It
-should not replace the WPF app or the chdman workflow.
+Example: reading file details that are hard to read from C#.
 
-## Product boundary
+It must not replace the WPF app or chdman.
 
-The app prepares and manages CHD work.
+## Product limits
 
-It is not an emulator, ROM downloader, BIOS provider, Redump mirror, or
-general archive manager.
+The app manages CHD file work.
+
+It is not an emulator, downloader, BIOS provider, Redump file provider,
+or general archive manager.
