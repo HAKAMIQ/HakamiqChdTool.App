@@ -1,33 +1,43 @@
 # chdman integration
 
-Hakamiq CHD Tool does not implement a CHD encoder from scratch. It
-orchestrates chdman from a Windows WPF application.
+Hakamiq CHD Tool uses chdman for CHD work.
 
-This split is deliberate. chdman owns CHD format behavior. The app owns
-the workflow around it: intake, safety checks, queue state, progress,
-logging, cancellation, and cleanup.
+chdman handles the CHD format. The app prepares the job, starts the
+tool, reads its output, and reports the result to the user.
+
+## What chdman does
+
+chdman is used for:
+
+- creating CHD files
+- verifying existing CHD files
+- extracting supported CHD types
+- reporting tool-level errors and progress
+
+The app does not replace chdman.
 
 ## What the app prepares
 
-Before a job starts, the workflow resolves the details that users
-should not have to manage by hand:
+Before chdman starts, the app prepares the workflow.
 
-- source path
-- output path
-- operation profile
-- descriptor dependencies for CUE, GDI, and TOC
-- archive staging for supported archive input
-- disk-space estimates
-- source readability
-- path safety
-- process and cancellation guards
+This includes:
 
-Only after those checks does the app start chdman.
+- checking the source path
+- checking the output path
+- resolving CUE, GDI, and TOC track files
+- staging supported archive input
+- preparing supported CSO input
+- checking available disk space
+- building the command line
+- setting up progress and cancellation handling
 
-## Supported operation paths
+If these checks fail, the app should stop before running chdman.
 
-The app recognizes the main chdman operation paths used by the desktop
-workflow:
+## Operations
+
+The app uses the chdman operations needed by the desktop workflow.
+
+Common operation paths include:
 
 - createcd
 - createdvd
@@ -37,37 +47,27 @@ workflow:
 - extracthd
 - extractraw
 
-The app does not expose every chdman switch. That is intentional. A
-smaller surface is easier to test, document, and support.
+The app does not need to expose every chdman switch. The goal is to keep
+normal workflows clear and predictable.
 
 ## Progress and cancellation
 
-chdman output is redirected and parsed for progress where possible.
+The app reads chdman output when progress is available.
 
-If a job is cancelled, the process runner tries to stop the process
-tree and waits for background output handling to finish. Cancellation
-and failure must stay separate. A cancelled job should not look like a
-corrupted conversion.
+When a job is cancelled, the app should stop the running process and
+report the job as cancelled, not failed.
 
-## Bundled tool behavior
+## Bundled tool
 
-Official release packages may include chdman for convenience. When
-testing user-facing behavior, prefer the bundled tool from the official
-package.
+Release packages may include chdman so users do not need to install it
+separately.
 
-If chdman is missing, blocked, or replaced with an incompatible binary,
-the app should fail clearly before running a half-known conversion.
+If chdman is missing, blocked, or incompatible, the app should show a
+clear tool error.
 
-## Permissions
+## Release notes
 
-Do not run the app as Administrator unless there is a specific reason.
-Normal user permissions are the safer default for desktop conversion
-workflows.
+When chdman is bundled, the release package must include the required
+MAME license and notice files.
 
-## Release requirements
-
-When a release includes chdman, the package must include the matching
-MAME license files and the chdman notice.
-
-Release packaging is documented in CONTRIBUTING.md. This page only
-describes how the app integrates with chdman.
+Packaging details belong in [CONTRIBUTING.md](../CONTRIBUTING.md).
