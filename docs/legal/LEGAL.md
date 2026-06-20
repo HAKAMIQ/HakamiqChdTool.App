@@ -1,21 +1,46 @@
 # Legal notice
 
-Hakamiq CHD Tool does not include or distribute games, ROMs, BIOS files, disc images, Redump databases, decryption keys, platform firmware, or copyrighted user content.
+Hakamiq CHD Tool does not include games, ROMs, BIOS files, disc images,
+CHD files, Redump files, keys, firmware, or private user files.
 
 Use the app only with files you own or are legally allowed to process.
 
-## Third-party tools
+## Tools from other projects
 
-`chdman` is part of the MAME project and is not owned or maintained by Hakamiq CHD Tool. If `chdman.exe` is included in a release, include the required MAME license and notice files.
+Hakamiq CHD Tool may include tools from other projects.
 
-If 7-Zip tools are included, include the related 7-Zip license notice.
+If chdman.exe is included, the release package must include the required
+MAME license and notice files.
 
-If `hakamiq-cso.exe` is included, include `docs/legal/CSOKIT_NOTICE.md` and the bundled helper license/readme files for the exact binary being distributed.
+If 7-Zip tools are included, the release package must include the
+required 7-Zip license notice.
+
+If hakamiq-cso.exe is included, the release package must include the
+CsoKit notice and the required CsoKit files.
 
 ## Redump
 
-Redump support is optional and works only with user-provided or user-configured verification data. Hakamiq CHD Tool does not provide Redump databases or game files.
+Redump support is optional.
 
-Hakamiq CHD Tool is not affiliated with MAMEdev, Redump, console manufacturers, emulator projects, or game publishers.
+The app may use Redump files that the user provides. The app does not
+include Redump files or game files.
 
-Before publishing a release, verify that it does not contain games, ROMs, BIOS files, ISO/CHD images, Redump databases, keys, private logs, or copyrighted screenshots.
+## Project relationship
+
+Hakamiq CHD Tool is not connected to MAMEdev, Redump, console makers,
+emulator projects, or game publishers.
+
+## Before release
+
+Before publishing a release, check that the package does not include:
+
+- games
+- ROMs
+- BIOS files
+- ISO files
+- CHD files
+- Redump files
+- keys
+- firmware
+- private logs
+- copyrighted screenshots
