@@ -1,103 +1,101 @@
 # Architecture
 
-Hakamiq CHD Tool is a Windows WPF app for local CHD workflows.
+Hakamiq CHD Tool is a Windows WPF app.
 
-The app does not write CHD files directly. CHD conversion, verification,
-and extraction run through chdman.
+It helps users convert, check, and extract CHD files. The app uses
+chdman for the CHD work.
 
-The app is responsible for the workflow around that tool.
+The app does not write CHD files by itself.
 
-## Workflow
+## Job steps
 
-A normal job moves through these steps:
+A normal job uses these steps:
 
-- input intake
-- source checks
-- output path planning
-- command preparation
-- external tool execution
-- progress reporting
-- result handling
-- cleanup
+- add the source file
+- check the source file
+- choose the output path
+- prepare the chdman command
+- run chdman
+- show progress
+- show the final result
+- clean temporary files
 
-The app should catch clear problems before starting a long job.
+The app should catch clear problems before a long job starts.
 
-## Main layers
+## Main parts
 
 ### UI
 
-WPF windows, dialogs, layout, styling, and user interaction.
+WPF windows, dialogs, themes, layout, and user actions.
 
 ### ViewModels
 
-Screen state, commands, queue display, options, and user-facing flow.
+Screen data, buttons, queue rows, options, and user actions.
 
 ### Core
 
-Workflow state, queue item lifecycle, path planning, result mapping, and
-cleanup rules.
+Job rules, queue item data, output paths, result names, and cleanup
+rules.
 
 ### Services
 
-Local services handle conversion, verification, archive intake, storage
-checks, process execution, metadata lookup, and helper discovery.
+Code that runs app tasks, such as conversion, checking files, opening
+archives, checking free space, and starting tools.
 
 ### Tools
 
-Runtime tools are approved helpers used by the app.
+Tools are programs used by the app.
 
-chdman handles CHD operations. Archive tools handle archive staging.
-Small helpers may inspect metadata or prepare supported input.
+chdman handles CHD work. 7-Zip can open archives. CsoKit can prepare PSP
+CSO files before CHD conversion.
 
 ### Scripts
 
-Scripts are for local verification, packaging, and repository checks.
+Scripts are used for local checks, package checks, and release work.
 
 Developer commands belong in CONTRIBUTING.md.
 
-## chdman boundary
+## chdman
 
-chdman owns CHD format behavior.
+chdman handles CHD format details.
 
-Hakamiq CHD Tool owns the desktop workflow around it. The app should not
-expose every chdman switch by default. Normal users need clear and safe
-paths, not every low-level option.
+Hakamiq CHD Tool prepares safe chdman commands and shows clear results
+to the user.
+
+The app does not need to show every chdman option.
 
 ## Queue results
 
-Queue states should stay specific:
+Queue results should stay clear:
 
 - success
 - failed
 - cancelled
 - skipped
-- unsupported
+- not supported
 
-These states should not be collapsed into one generic result.
+The user should be able to see what happened to each item.
 
-## Temporary work
+## Temporary files
 
-Temporary files are part of the workflow, not final user output.
+Temporary files are not final user files.
 
-They should use controlled locations and be cleaned after success,
-failure, or cancellation.
+They should stay in the app work folder and should be cleaned after the
+job ends.
 
-Keeping temporary files should be an explicit developer choice, not the
-normal user path.
+Keeping temporary files should be a developer choice, not normal app
+behavior.
 
-## Helper policy
+## Small native tools
 
-Helper tools are allowed when they solve a narrow local task.
+Small C or C++ tools can be used only for clear local tasks.
 
-They should be documented, packaged deliberately, and kept behind the
-main WPF workflow.
-
-The app remains C#, WPF, .NET 8, Windows x64, and chdman-based.
+They must not replace the WPF app or chdman.
 
 ## Release packages
 
-Release packages should contain the published app, approved runtime
-helpers, and required legal notices.
+Release ZIP files should include the app, approved tools, and required
+license files.
 
-Source files, scripts, CI folders, local artifacts, debug files, and
-test material do not belong in user ZIP packages.
+They should not include source files, scripts, CI folders, local test
+files, or debug files.
