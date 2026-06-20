@@ -1,53 +1,77 @@
 # Errors and logs
 
-Most failures are local: the source cannot be read, the output path is unsafe, the disk is short on space, or the external tool exits with an error.
+Most errors come from the input file, the output path, missing helper
+tools, or low disk space.
 
-The goal is to catch the problem early. Better to stop before conversion than keep a CHD that was built from a bad read.
+The app should stop early when the problem is clear.
 
-## Common error areas
+## Source read errors
 
-### Source read errors
+CRC or I/O errors usually mean the source file, archive, drive, or
+storage path is not reliable enough.
 
-CRC or I/O errors usually mean the source file, archive, drive, or storage path is not reliable enough for conversion. Copy the file to a healthy local disk and try again.
+Copy the file to a local disk and try again.
 
-### Path problems
+## Path problems
 
-Very long paths, control characters, invalid names, or blocked folders can make `chdman` fail. Use a short local path for the first test.
+Very long paths, invalid characters, protected folders, or cloud-synced
+folders can cause tool failures.
 
-Example:
+For testing, use a short local path.
 
-```text
-D:\CHDWork\Game.iso
-D:\CHDOut\Game.chd
-```
+## Missing descriptor files
 
-Simple. Fewer moving parts.
+CUE, GDI, and TOC files usually reference other track files.
 
-### Missing descriptor dependencies
+Keep the descriptor and its referenced files in the same folder.
 
-CUE, GDI, and TOC files reference other track files. If those files are missing or renamed, conversion is blocked before `chdman` runs.
+## Archive failures
 
-### Archive failures
+Archives are staged before conversion.
 
-Archives are staged before conversion. Encrypted, damaged, incomplete, or nested archives may fail during preview or extraction.
+Encrypted, damaged, incomplete, or nested archives may fail before the
+conversion starts.
 
-### Storage pressure
+## Storage
 
-The app estimates work space, but storage can still change while a job runs. Keep extra free space for temporary files and final output.
+Keep enough free space for temporary files and the final output.
 
-### Cancellation
+A nearly full drive can make a normal job fail in a confusing way.
 
-A cancelled job is not the same as a failed job. The app separates cancellation, failure, and success so cleanup and final status stay readable.
+## External tools
 
-## Logs for issue reports
+chdman, archive tools, and helper probes are external processes.
 
-When opening an issue, include:
+If a tool is missing, blocked, or incompatible, the app should report
+that clearly.
+
+## Cancellation
+
+Cancelled jobs are not failed jobs.
+
+The app should keep cancelled, failed, skipped, unsupported, and
+successful jobs separate.
+
+## Logs
+
+Logs should help explain the failure without exposing private data.
+
+Useful details are:
 
 - app version
 - Windows version
-- input type, not the game file itself
-- operation selected: convert, verify, extract, or archive staging
-- short error text from the UI
-- relevant log excerpt with personal paths removed
+- input type
+- selected action
+- short error text
+- relevant log excerpt
 
-Do not attach games, ROMs, BIOS files, disc images, Redump databases, keys, or private media.
+Remove private paths, usernames, serials, and unrelated file names
+before sharing logs.
+
+## Issue reports
+
+When reporting an issue, include only what is needed to understand the
+problem.
+
+Do not attach games, ROMs, BIOS files, disc images, CHD files, Redump
+databases, keys, firmware, or private dumps.
