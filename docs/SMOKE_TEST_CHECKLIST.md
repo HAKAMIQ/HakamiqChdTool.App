@@ -1,52 +1,59 @@
 # Smoke test checklist
 
-Run this after a successful Release build and before publishing a public ZIP.
+Run this after a successful Release build and before publishing a public
+ZIP.
+
+This is a manual checklist. It is not a substitute for build or CI
+checks.
 
 ## Startup
 
-- [ ] App launches from local Release output
-- [ ] Main window opens without crash
-- [ ] Options window opens
-- [ ] About window opens
-- [ ] No XAML, resource, or binding errors appear in logs
+- [ ] App launches from local Release output.
+- [ ] Main window opens without a crash.
+- [ ] Options window opens.
+- [ ] About window opens.
+- [ ] No XAML, resource, or binding errors appear.
 
 ## UI
 
-- [ ] Light theme is readable
-- [ ] Dark theme is readable
-- [ ] HAKAMIQ theme is readable
-- [ ] Arabic UI is RTL where expected
-- [ ] Technical paths remain LTR and readable
-- [ ] Advanced Options is not clipped at normal scaling
+- [ ] Light theme is readable.
+- [ ] Dark theme is readable.
+- [ ] HAKAMIQ theme is readable.
+- [ ] Arabic UI is RTL where expected.
+- [ ] Technical paths remain LTR and readable.
+- [ ] Advanced Options is not clipped at normal scaling.
 
 ## Intake
 
-- [ ] Add a supported ISO
-- [ ] Add a supported CUE with its referenced tracks
-- [ ] Add a supported GDI with its referenced tracks
-- [ ] Add a CHD for verify/extract actions
-- [ ] Add an unsupported file and confirm it is blocked clearly
-- [ ] Add an archive and confirm preview/staging behavior is understandable
+- [ ] Supported ISO can be added.
+- [ ] Supported CUE can be added with its track files.
+- [ ] Supported GDI can be added with its track files.
+- [ ] CHD can be added for verify or extract.
+- [ ] Unsupported input is blocked clearly.
+- [ ] Archive preview or staging is understandable.
 
 ## Workflow
 
-- [ ] Convert a small supported image to CHD
-- [ ] Verify a CHD
-- [ ] Extract a CHD through one supported profile
-- [ ] Cancel a running job
-- [ ] Confirm failure and cancellation are reported differently
-- [ ] No orphan `chdman`, `7z`, `7za`, or approved helper process remains after close
+- [ ] Small supported image converts to CHD.
+- [ ] Existing CHD verifies.
+- [ ] Existing CHD extracts through one supported profile.
+- [ ] Running job can be cancelled.
+- [ ] Failed and cancelled jobs are shown differently.
+- [ ] No orphan chdman, 7z, 7za, or helper process remains.
 
 ## Packaging
 
-- [ ] Release ZIP does not contain source files
-- [ ] Release ZIP does not contain scripts or CI folders
-- [ ] Legal notices are present
-- [ ] No games, ROMs, BIOS files, disc images, Redump databases, keys, or private data are present
+- [ ] Release ZIP opens normally.
+- [ ] App launches from the extracted ZIP.
+- [ ] Legal notices are present.
+- [ ] Source files are not included.
+- [ ] Scripts and CI folders are not included.
+- [ ] Games, ROMs, BIOS files, disc images, keys, and private data are
+      not included.
 
 ## Performance
 
-- [ ] Queue scrolling remains responsive
-- [ ] CPU is not oversubscribed under normal queue settings
-- [ ] RAM returns near baseline after clearing queue
-- [ ] Logs do not grow while idle
+- [ ] Queue scrolling remains responsive.
+- [ ] CPU usage is reasonable under normal queue settings.
+- [ ] RAM returns near baseline after clearing the queue.
+- [ ] Logs do not grow while the app is idle.
