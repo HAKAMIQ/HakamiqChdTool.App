@@ -1,23 +1,40 @@
 # 7-Zip notice
 
-Hakamiq CHD Tool can use the 7-Zip command-line tool as an archive extraction backend for ZIP, RAR, and 7Z files.
+Hakamiq CHD Tool may use 7-Zip to open ZIP, RAR, and 7Z files.
 
-7-Zip is Copyright (C) Igor Pavlov.
+7-Zip is made by Igor Pavlov. Hakamiq CHD Tool does not own or maintain
+7-Zip.
 
-7-Zip is licensed mainly under the GNU LGPL. Some components may use additional BSD-style terms, and the unRAR component has additional restrictions.
+## Included files
 
-Hakamiq CHD Tool does not modify 7-Zip binaries.
+If a release includes 7-Zip, keep the files here:
 
-If a release bundles 7-Zip, use the official Windows command-line files and keep them under:
+- Tools\7zip\7z.exe
+- Tools\7zip\7z.dll
+- Tools\7zip\License.txt
 
-```text
-Tools\7zip\7z.exe
-Tools\7zip\7z.dll
-Tools\7zip\License.txt
-```
+Use official Windows command-line files.
 
-The project copies `Tools\7zip\**\*` to build and publish output when those files are present.
+## License
 
-If 7-Zip is not available at runtime, the application uses managed archive paths where supported.
+7-Zip is mainly licensed under the GNU LGPL.
 
-Hakamiq CHD Tool is not affiliated with, sponsored by, or endorsed by Igor Pavlov or the 7-Zip project.
+Some parts may use BSD-style terms. The unRAR part has extra limits.
+
+Keep the 7-Zip license file with the included 7-Zip files.
+
+## How the app uses it
+
+The app uses 7-Zip only to open supported archive files before
+conversion.
+
+Hakamiq CHD Tool does not modify 7-Zip files.
+
+If 7-Zip is not included, the app can use built-in archive support where
+available.
+
+## Project relationship
+
+Hakamiq CHD Tool is not connected to Igor Pavlov or the 7-Zip project.
+
+7-Zip is provided under its own license terms.
