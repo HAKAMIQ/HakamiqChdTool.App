@@ -3,9 +3,20 @@
 Hakamiq CHD Tool is a Windows WPF app.
 
 It helps users convert, check, and extract CHD files. The app uses
-chdman for the CHD work.
+chdman for CHD work.
 
 The app does not write CHD files by itself.
+
+## Current app
+
+The app stays on this path:
+
+- WPF
+- C#
+- .NET 8
+- Windows x64
+- runs on the user's PC
+- uses chdman for CHD work
 
 ## Job steps
 
@@ -39,15 +50,21 @@ rules.
 
 ### Services
 
-Code that runs app tasks, such as conversion, checking files, opening
-archives, checking free space, and starting tools.
+Code that runs app tasks, such as conversion, file checks, archive
+opening, free-space checks, and starting tools.
 
 ### Tools
 
 Tools are programs used by the app.
 
-chdman handles CHD work. 7-Zip can open archives. CsoKit can prepare PSP
-CSO files before CHD conversion.
+chdman handles CHD work.
+
+7-Zip can open ZIP, RAR, and 7Z files.
+
+CsoKit can prepare PSP CSO files before CHD conversion.
+
+The CHD reader tool can show CHD file details. It must not change CHD
+files.
 
 ### Scripts
 
@@ -86,15 +103,23 @@ job ends.
 Keeping temporary files should be a developer choice, not normal app
 behavior.
 
-## Small native tools
+## What does not belong here
 
-Small C or C++ tools can be used only for clear local tasks.
+These are not part of this app:
 
-They must not replace the WPF app or chdman.
+- Android version
+- web version
+- cloud conversion
+- server conversion
+- Avalonia rewrite
+- C++ rewrite of the WPF app
+- CHD encoder written inside the app
+- emulator features
+- game, ROM, BIOS, or Redump file downloads
 
 ## Release packages
 
-Release ZIP files should include the app, approved tools, and required
+Release ZIP files should include the app, needed tools, and required
 license files.
 
 They should not include source files, scripts, CI folders, local test
