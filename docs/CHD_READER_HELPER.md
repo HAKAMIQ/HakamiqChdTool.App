@@ -1,72 +1,60 @@
-# CHD reader helper
+# CHD reader tool
 
-The CHD reader helper is a read-only metadata tool.
+The CHD reader tool only reads details from an existing CHD file.
 
-It reads information from an existing CHD. It does not convert, verify,
-extract, repair, or replace chdman.
+It does not edit, repair, convert, verify, or extract CHD files. Those
+actions still belong to chdman.
 
-## Purpose
+## What it shows
 
-The helper gives the app useful details about a CHD without changing the
-file.
+The tool can show simple CHD details, such as:
 
-Typical details include:
+- CHD file size on disk
+- size after opening
+- block size
+- block count
+- compression type, when available
 
-- physical file size
-- logical size
-- hunk size
-- hunk count
-- compression hints
-- basic read-only metadata
+These details help the app show clearer file information.
 
-The app can use this information for display, diagnostics, and safer
-workflow decisions.
+## Size after opening
 
-## Logical size
+A CHD file can be smaller than the disc image it represents.
 
-Logical size is the virtual size represented by the CHD.
+For example, a 3 GB CHD may open as a 7 GB disc image. The reader tool
+can show both numbers so the user understands the file better.
 
-It is not the same as the physical size of the .chd file on disk. A CHD
-file can be small while representing a much larger source image.
+## What it must not do
 
-## Boundary
+The reader tool must not change CHD files.
 
-CHD conversion, verification, and extraction still belong to chdman.
+It must not:
 
-The helper should support the workflow, not become a second CHD engine
-inside the app.
+- repair files
+- rewrite files
+- recompress files
+- patch files
+- change CHD content
 
-If the helper is missing or fails, the app should continue where it can
-safely continue. Only actions that require that metadata should stop.
+Any tool that writes to CHD files must be reviewed separately.
 
-## Read-only rule
+## If the tool fails
 
-The helper must stay read-only.
+If the reader tool is missing or fails, the app should show a clear
+message.
 
-It should not repair, rewrite, recompress, patch, normalize, or change
-CHD content.
+Good messages are:
 
-Any write behavior belongs in a separate reviewed workflow.
+- CHD reader tool is missing
+- CHD reader tool is blocked
+- CHD type is not supported by the reader tool
+- CHD details could not be read
 
-## Failure behavior
-
-A helper failure should be reported as a helper problem unless there is
-direct evidence that the CHD itself is bad.
-
-Clear examples are:
-
-- helper missing
-- helper blocked
-- helper unsupported
-- metadata read failed
-- action requires metadata
-
-Avoid vague errors when the problem is only the helper.
+The app should not say the CHD is bad unless there is real proof.
 
 ## Packaging
 
-Public releases should include only approved helper binaries and their
-required notices.
+Public releases should include only approved tool files and required
+license notices.
 
-Helper source files do not belong under docs. Implementation files
-should live in a real source or tool location.
+Tool source files should not be placed under docs.
