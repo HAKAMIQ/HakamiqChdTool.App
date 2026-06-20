@@ -1,36 +1,30 @@
 # Architecture
 
-Hakamiq CHD Tool is a Windows WPF app for managing local CHD
-workflows. It does not write CHD files by itself. The CHD engine is
-still chdman.
+Hakamiq CHD Tool is a Windows WPF app for local CHD workflows.
 
-The app handles the workflow around chdman: input checks, output
-planning, temporary paths, command execution, progress, cancellation,
-and cleanup.
+The app does not write CHD files directly. CHD conversion, verification,
+and extraction run through chdman.
 
-The goal is not to replace chdman. The goal is to make CHD work safer,
-clearer, and easier for normal users.
+The app is responsible for the workflow around that tool.
 
 ## Workflow
 
-A normal conversion moves through these stages:
+A normal job moves through these steps:
 
-- intake and classification
-- source safety checks
+- input intake
+- source checks
 - output path planning
 - command preparation
 - external tool execution
 - progress reporting
-- result mapping
+- result handling
 - cleanup
 
-Most problems should be caught before the external command starts. Bad
-input should not turn into a questionable CHD halfway through a long
-queue.
+The app should catch clear problems before starting a long job.
 
-## Main parts
+## Main layers
 
-### Views and UI
+### UI
 
 WPF windows, dialogs, layout, styling, and user interaction.
 
@@ -40,93 +34,70 @@ Screen state, commands, queue display, options, and user-facing flow.
 
 ### Core
 
-Workflow state, item lifecycle, path planning, execution contracts,
-cleanup, and result shaping.
+Workflow state, queue item lifecycle, path planning, result mapping, and
+cleanup rules.
 
 ### Services
 
-Services handle conversion, verification, archive intake, chdman
-process handling, storage checks, Redump display support, PS3 intake,
-and helper tool discovery.
+Local services handle conversion, verification, archive intake, storage
+checks, process execution, metadata lookup, and helper discovery.
 
 ### Tools
 
-Tools are approved runtime helpers bundled with the release package.
+Runtime tools are approved helpers used by the app.
+
+chdman handles CHD operations. Archive tools handle archive staging.
+Small helpers may inspect metadata or prepare supported input.
 
 ### Scripts
 
-Scripts handle local checks, release packaging, package validation, and
-repository convention checks.
+Scripts are for local verification, packaging, and repository checks.
 
-Developer commands belong in CONTRIBUTING.md, not here.
+Developer commands belong in CONTRIBUTING.md.
 
 ## chdman boundary
 
-chdman owns CHD format behavior. Hakamiq CHD Tool owns the workflow
-around it.
+chdman owns CHD format behavior.
 
-The app should not expose every chdman switch just because chdman has
-one. Normal users need safe paths, clear results, and fewer ways to
-produce broken output.
+Hakamiq CHD Tool owns the desktop workflow around it. The app should not
+expose every chdman switch by default. Normal users need clear and safe
+paths, not every low-level option.
 
-## Queue model
+## Queue results
 
-Queue results must stay specific:
+Queue states should stay specific:
 
-- Success means the operation finished and produced the expected result.
-- Failed means a check, staging step, tool run, or post-process failed.
-- Cancelled means the user stopped the item or queue.
-- Skipped means the item was intentionally not processed.
-- Unsupported means the input is outside the current workflow.
+- success
+- failed
+- cancelled
+- skipped
+- unsupported
 
-Do not collapse these into one generic state. Users need to know what
-actually happened.
+These states should not be collapsed into one generic result.
 
 ## Temporary work
 
-Temporary files are part of the workflow, not final user output. They
-should live in controlled locations, use predictable names, and be
-cleaned after success, failure, or cancellation.
+Temporary files are part of the workflow, not final user output.
 
-If temporary output needs to be kept for debugging, make that an
-explicit developer path. It should not be normal user behavior.
+They should use controlled locations and be cleaned after success,
+failure, or cancellation.
 
-## Helper tools
+Keeping temporary files should be an explicit developer choice, not the
+normal user path.
 
-The app may use small helper tools for narrow jobs:
+## Helper policy
 
-- chdman handles CHD conversion, verification, and extraction.
-- archive backends handle archive staging.
-- read-only CHD helpers can inspect metadata.
-- CSO input may use a helper to prepare a temporary ISO.
+Helper tools are allowed when they solve a narrow local task.
 
-These helpers are not the architecture. They are runtime dependencies
-around the WPF workflow.
+They should be documented, packaged deliberately, and kept behind the
+main WPF workflow.
 
-## CSO input
+The app remains C#, WPF, .NET 8, Windows x64, and chdman-based.
 
-CSO handling is intentionally limited.
-
-A CSO file is prepared as an input step, usually into a temporary ISO.
-After that, the normal CHD workflow continues through chdman.
-
-CsoKit is not a CHD encoder and not a replacement for chdman. Keep it
-documented as a CSO input helper only.
-
-## Native code policy
-
-Native helpers are allowed only for narrow, approved jobs.
-
-The app remains C# / WPF / .NET 8. CHD conversion remains chdman-based.
-No C++ rewrite. No second architecture hiding beside the desktop app.
-
-## Release packaging
+## Release packages
 
 Release packages should contain the published app, approved runtime
-helpers, and legal notices.
+helpers, and required legal notices.
 
 Source files, scripts, CI folders, local artifacts, debug files, and
-test material do not belong in user packages.
-
-Packaging rules live in CONTRIBUTING.md. This page only explains the
-application architecture.
+test material do not belong in user ZIP packages.
