@@ -1,27 +1,41 @@
-# Hakamiq CsoKit bundled tool notice
+# CsoKit notice
 
-Hakamiq CHD Tool bundles `Hakamiq.CsoKit` for PSP CSO v1 inspection, verification, and decompression to a temporary ISO before `chdman createdvd`.
+Hakamiq CHD Tool may include Hakamiq.CsoKit so it can handle PSP CSO
+files.
 
-Bundled tool version:
+CsoKit is used before CHD conversion. It can read CSO file details,
+check a CSO file, and make a temporary ISO from it.
 
-```text
-Hakamiq.CsoKit 0.4.0-beta.1
-```
+After that, chdman creates the CHD.
 
-Runtime path:
+## Included tool
 
-```text
-Tools\hakamiq-cso\win-x64\hakamiq-cso.exe
-```
+- Tool: hakamiq-cso.exe
+- Project: Hakamiq.CsoKit
+- Version: 0.4.0-beta.1
+- Path: Tools\hakamiq-cso\win-x64\hakamiq-cso.exe
 
-Integration contract:
+## What it is used for
 
-```text
-hakamiq-cso.exe info input.cso --json
-hakamiq-cso.exe verify input.cso --json
-hakamiq-cso.exe decompress input.cso -o prepared.iso --force --json
-```
+- show CSO file details
+- check the CSO file
+- make a temporary ISO from the CSO file
 
-`Hakamiq.CsoKit` only prepares CSO to ISO. Hakamiq CHD Tool then runs the existing ISO to CHD conversion path.
+## What it does not do
 
-The bundled tool release includes `LICENSE.txt`, `README.md`, and `SHA256SUMS.txt` next to `hakamiq-cso.exe`.
+CsoKit does not create CHD files.
+
+It does not replace chdman.
+
+It does not include games, ROMs, BIOS files, keys, firmware, or private
+user files.
+
+## Required files
+
+The CsoKit folder should include:
+
+- LICENSE.txt
+- README.md
+- SHA256SUMS.txt
+
+Keep these files next to hakamiq-cso.exe in public releases.
