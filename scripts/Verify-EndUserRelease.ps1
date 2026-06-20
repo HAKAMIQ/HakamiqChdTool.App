@@ -812,4 +812,3 @@ Assert-ReleaseManifest
 Assert-NoSuspiciousNestedRelease
 
 Write-Host "[PASS] End-user release security gate passed: $OutputPath" -ForegroundColor Green
-exit 0
