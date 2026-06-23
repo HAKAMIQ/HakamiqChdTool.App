@@ -45,9 +45,11 @@ public partial class MainWindow
             }
 
             string operationPath = ResolveOperationModePath(row, selectedMode);
-            bool nextVisible = QueueModeResolver.IsPathVisibleForMode(
-                operationPath,
-                selectedMode);
+            bool isUnsupportedRow = string.Equals(row.RequestedAction, TaskActionCodes.Unsupported, StringComparison.Ordinal);
+            bool nextVisible = isUnsupportedRow
+                || QueueModeResolver.IsPathVisibleForMode(
+                    operationPath,
+                    selectedMode);
 
             bool canRetarget = CanRetargetQueuedRow(
                 row,

@@ -341,7 +341,12 @@ public partial class MainWindowViewModel
                 message += Environment.NewLine + ArabicUi.Get("LocQueueAdd_SkippedCorruptArchives");
             }
 
-            severity = skippedCorruptArchives ? "Warning" : "Success";
+            if (skippedUnsupportedOrDuplicate)
+            {
+                message += Environment.NewLine + ArabicUi.Get("LocQueueAdd_SkippedUnsupportedOrDuplicate");
+            }
+
+            severity = skippedCorruptArchives || skippedUnsupportedOrDuplicate ? "Warning" : "Success";
         }
         else
         {
@@ -557,29 +562,14 @@ public partial class MainWindowViewModel
         QueueIngestKind inputKind,
         SearchOption searchOption)
     {
-        foreach (string path in rawList)
+        foreach (MediaInputDescriptor descriptor in MediaInputPipelineStatic.Resolve(rawList, inputKind, searchOption))
         {
-            if (string.IsNullOrWhiteSpace(path))
+            if (descriptor.Kind == MediaInputKind.Folder)
             {
                 continue;
             }
 
-            if (inputKind == QueueIngestKind.FilesOnly)
-            {
-                yield return path;
-                continue;
-            }
-
-            if (File.Exists(path))
-            {
-                yield return path;
-                continue;
-            }
-
-            foreach (string resolvedPath in InputResolverStatic.Resolve(path, searchOption))
-            {
-                yield return resolvedPath;
-            }
+            yield return descriptor.FullPath;
         }
     }
 
