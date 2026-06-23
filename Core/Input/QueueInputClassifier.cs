@@ -42,19 +42,28 @@ public static class QueueInputClassifier
             return new QueueInputClassification(QueueInputRole.Unsupported, string.Empty);
         }
 
-        string extension = Path.GetExtension(path).ToLowerInvariant();
-        QueueInputRole role = extension switch
+        MediaInputDescriptor descriptor = MediaInputClassifier.Shared.Classify(path);
+        string extension = descriptor.Extension;
+
+        QueueInputRole role = descriptor.Kind switch
         {
-            ".cue" or ".gdi" or ".toc" or ".nrg" or ".iso" or ".cso" => QueueInputRole.ConvertibleDiscImage,
-            ".zip" or ".rar" or ".7z" => QueueInputRole.ArchiveContainer,
-            ".chd" => QueueInputRole.ChdImage,
-            ".bin" => QueueInputRole.BinCueRescueCandidate,
-            ".raw" => QueueInputRole.DependentTrackFile,
-            _ => QueueInputRole.Unsupported
+            MediaInputKind.CUE or MediaInputKind.GDI or MediaInputKind.ISO or MediaInputKind.CSO => QueueInputRole.ConvertibleDiscImage,
+            MediaInputKind.CHD => QueueInputRole.ChdImage,
+            MediaInputKind.BIN => QueueInputRole.BinCueRescueCandidate,
+            _ => ResolveLegacyRole(extension)
         };
 
         return new QueueInputClassification(role, extension);
     }
+
+
+    private static QueueInputRole ResolveLegacyRole(string extension) => extension switch
+    {
+        ".toc" or ".nrg" => QueueInputRole.ConvertibleDiscImage,
+        ".zip" or ".rar" or ".7z" => QueueInputRole.ArchiveContainer,
+        ".raw" => QueueInputRole.DependentTrackFile,
+        _ => QueueInputRole.Unsupported
+    };
 
     public static bool IsConvertibleDiscImagePath(string? path) =>
         Classify(path).IsConvertibleDiscImage;

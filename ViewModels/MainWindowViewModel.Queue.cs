@@ -23,6 +23,7 @@ namespace HakamiqChdTool.App.ViewModels;
 public partial class MainWindowViewModel
 {
     private static readonly IInputResolver InputResolverStatic = new Core.Input.InputResolver();
+    private static readonly IMediaInputPipeline MediaInputPipelineStatic = new MediaInputPipeline(MediaInputClassifier.Shared, InputResolverStatic);
     private static readonly ArchiveContentPreviewService ArchivePreviewService = new();
     private static readonly FormatSafetyAdvisor FormatSafetyAdvisorStatic = new();
 
@@ -138,6 +139,8 @@ public partial class MainWindowViewModel
                 () => BuildExistingPathSet(_session.QueueRows),
                 DispatcherPriority.Background);
 
+            HashSet<string> directRawFilePaths = BuildDirectRawFilePathSet(rawList);
+
             var seenImportedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var preparedCandidates = new List<PreparedIntakeCandidate>();
             var rejectedArchiveMessageKeys = new List<string>();
@@ -181,6 +184,18 @@ public partial class MainWindowViewModel
                     unsupportedFileCount++;
                     progress.SkippedUnsupportedOrDuplicate = true;
 
+                    if (ShouldCreateFailedIntakeRow(discoveredPath, directRawFilePaths)
+                        && TryAddUnsupportedIntakeCandidate(
+                            discoveredPath,
+                            mediaDecision.MessageKey,
+                            existingPaths,
+                            seenImportedPaths,
+                            preparedCandidates,
+                            ref duplicateFileCount))
+                    {
+                        progress.AcceptedCount = preparedCandidates.Count;
+                    }
+
                     continue;
                 }
 
@@ -190,6 +205,18 @@ public partial class MainWindowViewModel
                 {
                     unsupportedFileCount++;
                     progress.SkippedUnsupportedOrDuplicate = true;
+
+                    if (ShouldCreateFailedIntakeRow(effectiveDiscoveredPath, directRawFilePaths)
+                        && TryAddUnsupportedIntakeCandidate(
+                            effectiveDiscoveredPath,
+                            ChdWorkflowProfilePlanner.UnsupportedMessageKey,
+                            existingPaths,
+                            seenImportedPaths,
+                            preparedCandidates,
+                            ref duplicateFileCount))
+                    {
+                        progress.AcceptedCount = preparedCandidates.Count;
+                    }
 
                     continue;
                 }
@@ -430,6 +457,71 @@ public partial class MainWindowViewModel
         }
     }
 
+
+    private static HashSet<string> BuildDirectRawFilePathSet(IEnumerable<string> rawList)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string path in rawList)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                {
+                    set.Add(NormalizePathForAdvisoryKey(path));
+                }
+            }
+            catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
+            {
+            }
+        }
+
+        return set;
+    }
+
+    private static bool ShouldCreateFailedIntakeRow(
+        string path,
+        IReadOnlySet<string> directRawFilePaths)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        string normalizedPath = NormalizePathForAdvisoryKey(path);
+        return directRawFilePaths.Contains(normalizedPath);
+    }
+
+    private static bool TryAddUnsupportedIntakeCandidate(
+        string path,
+        string reasonKey,
+        HashSet<string> existingPaths,
+        HashSet<string> seenImportedPaths,
+        List<PreparedIntakeCandidate> preparedCandidates,
+        ref int duplicateFileCount)
+    {
+        string normalizedPath = NormalizePathForAdvisoryKey(path);
+        if (existingPaths.Contains(normalizedPath) || !seenImportedPaths.Add(normalizedPath))
+        {
+            duplicateFileCount++;
+            return false;
+        }
+
+        QueuePlatformView platform = BuildQueuePlatformView(path);
+        string detail = string.IsNullOrWhiteSpace(reasonKey)
+            ? MainWindowMessages.UnsupportedQueueFile
+            : reasonKey;
+
+        preparedCandidates.Add(new PreparedIntakeCandidate(
+            new PreparedQueueCandidate(
+                path,
+                TaskActionCodes.Unsupported,
+                platform.PlatformName,
+                detail),
+            Advisory: null));
+
+        return true;
+    }
 
     private static IReadOnlyList<PreparedQueueCandidate> ApplySiblingPlatformConsensus(
         IReadOnlyList<PreparedQueueCandidate> candidates)
@@ -686,7 +778,9 @@ public partial class MainWindowViewModel
         string initialDetail = action switch
         {
             TaskActionCodes.PendingSelection => MainWindowMessages.ChooseOperationForItem,
-            TaskActionCodes.Unsupported => MainWindowMessages.UnsupportedQueueFile,
+            TaskActionCodes.Unsupported => string.IsNullOrWhiteSpace(detectionReason)
+                ? MainWindowMessages.UnsupportedQueueFile
+                : detectionReason,
             TaskActionCodes.StageArchiveForConversion when !ArchivePreviewIntakePolicy.AllowsArchivePreview(intakeSource) => MainWindowMessages.ArchiveAwaitingPreviewAtStartup,
             TaskActionCodes.StageArchiveForConversion => MainWindowMessages.ArchiveWillUnpackThenConvertDetail,
             _ => MainWindowMessages.ReadyForProcessing
@@ -711,7 +805,8 @@ public partial class MainWindowViewModel
             StatusDetail = initialDetail,
             IsNamingCompliant = isCompliant,
             SuggestedStandardName = suggestedName,
-            IsVisibleInCurrentOperationMode = QueueModeResolver.IsPathVisibleForExecutionProfile(path, executionProfile)
+            IsVisibleInCurrentOperationMode = string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal)
+                || QueueModeResolver.IsPathVisibleForExecutionProfile(path, executionProfile)
         };
     }
 
