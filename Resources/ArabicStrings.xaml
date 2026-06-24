@@ -994,6 +994,7 @@
     <sys:String x:Key="LocIntakeAdvisory_Extract">سيتم استخراج الملف قبل المعالجة.</sys:String>
     <sys:String x:Key="LocIntakeAdvisory_Convert">الملف جاهز للتحويل.</sys:String>
 
+    <sys:String x:Key="LocPs2Advisory_DiscIdentitySummary">تم التعرف على قرص PS2:</sys:String>
     <sys:String x:Key="LocPs2Advisory_BinCuePreferred">تم التعرف على إدخال PS2 بنمط CD. لاستخدام PS3 PS2 Classics، إبقاء CUE/BIN قد يكون أأمن من فرض ISO.</sys:String>
     <sys:String x:Key="LocPs2Advisory_CueFileRecommended">تم التعرف على BIN منفرد لإدخال PS2 بنمط CD. استخدم ملف CUE المطابق عند توفره حتى لا تضيع بنية المسارات.</sys:String>
     <sys:String x:Key="LocPs2Advisory_CompactIsoMayNeedBinCue">يبدو هذا ISO صغيراً للـ PS2. إذا كان مصدره قرص PS2 أزرق CD، فقد يكون CUE/BIN أأمن لتوافق PS3 PS2 Classics.</sys:String>
