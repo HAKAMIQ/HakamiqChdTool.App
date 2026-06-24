@@ -9,6 +9,7 @@ $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $ScriptDir '..')).Path
 $Project = Join-Path $ProjectRoot 'HakamiqChdTool.App.csproj'
 $RepoCheck = Join-Path $ScriptDir 'Verify-RepoConventions.ps1'
 $Ps2AdvisoryTests = Join-Path $ScriptDir 'Run-Ps2AdvisoryValidationTests.ps1'
+$PackageCleanlinessGate = Join-Path $ScriptDir 'Run-PackageCleanlinessGate.ps1'
 $Checklist = Join-Path $ProjectRoot 'docs\SMOKE_TEST_CHECKLIST.md'
 $PowerShellExe = Join-Path $PSHOME 'powershell.exe'
 
@@ -87,9 +88,13 @@ try {
     Assert-FileExists -Path $Project -Message 'Project file was not found:'
     Assert-FileExists -Path $RepoCheck -Message 'Repository convention script was not found:'
     Assert-FileExists -Path $Ps2AdvisoryTests -Message 'PS2 advisory validation script was not found:'
+    Assert-FileExists -Path $PackageCleanlinessGate -Message 'Package cleanliness gate script was not found:'
 
     Write-Host 'Repository conventions ...' -ForegroundColor Cyan
     Invoke-PowerShellFile -ScriptPath $RepoCheck
+
+    Write-Host 'Package cleanliness gate ...' -ForegroundColor Cyan
+    Invoke-PowerShellFile -ScriptPath $PackageCleanlinessGate
 
     Write-Host 'dotnet restore ...' -ForegroundColor Cyan
     Invoke-NativeCommand -FilePath 'dotnet' -Arguments @(
