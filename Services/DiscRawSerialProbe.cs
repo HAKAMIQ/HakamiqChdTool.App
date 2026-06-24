@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using System;
 using System.Collections.Generic;
@@ -178,43 +179,8 @@ internal static class DiscRawSerialProbe
         }
     }
 
-    private static bool TryExtractCueFileName(string rawLine, out string fileName)
-    {
-        fileName = string.Empty;
-
-        ReadOnlySpan<char> span = rawLine.AsSpan().TrimStart();
-        if (span.Length < 4 || !span[..4].Equals("FILE".AsSpan(), StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (span.Length > 4 && !char.IsWhiteSpace(span[4]))
-        {
-            return false;
-        }
-
-        span = span[4..].TrimStart();
-        if (span.Length == 0)
-        {
-            return false;
-        }
-
-        if (span[0] == '"')
-        {
-            int closingQuote = span[1..].IndexOf('"');
-            if (closingQuote < 0)
-            {
-                return false;
-            }
-
-            fileName = span.Slice(1, closingQuote).ToString().Trim();
-            return fileName.Length > 0;
-        }
-
-        int separator = IndexOfWhiteSpace(span);
-        fileName = separator > 0 ? span[..separator].ToString().Trim() : span.ToString().Trim();
-        return fileName.Length > 0;
-    }
+    private static bool TryExtractCueFileName(string rawLine, out string fileName) =>
+        CueSheetFileStatementReader.TryRead(rawLine, out fileName, out _);
 
     private static bool TryExtractGdiFileName(string line, out string fileName)
     {

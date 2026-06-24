@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -362,41 +363,10 @@ public static class DiskSpacePreflightService
         }
     }
 
-    private static string? TryExtractCueFileName(string rawLine)
-    {
-        ReadOnlySpan<char> span = rawLine.AsSpan().TrimStart();
-        if (span.Length < 4 || !span[..4].Equals("FILE".AsSpan(), StringComparison.OrdinalIgnoreCase))
-        {
-            return null;
-        }
-
-        if (span.Length > 4 && !char.IsWhiteSpace(span[4]))
-        {
-            return null;
-        }
-
-        span = span[4..].TrimStart();
-        if (span.Length == 0)
-        {
-            return null;
-        }
-
-        if (span[0] == '"')
-        {
-            int closingQuote = span[1..].IndexOf('"');
-            if (closingQuote < 0)
-            {
-                return null;
-            }
-
-            string quoted = span.Slice(1, closingQuote).ToString().Trim();
-            return quoted.Length > 0 ? quoted : null;
-        }
-
-        int separator = IndexOfWhiteSpace(span);
-        string value = separator > 0 ? span[..separator].ToString().Trim() : span.ToString().Trim();
-        return value.Length > 0 ? value : null;
-    }
+    private static string? TryExtractCueFileName(string rawLine) =>
+        CueSheetFileStatementReader.TryRead(rawLine, out string fileName, out _)
+            ? fileName
+            : null;
 
     private static bool TryExtractGdiFileName(string line, out string fileName)
     {
