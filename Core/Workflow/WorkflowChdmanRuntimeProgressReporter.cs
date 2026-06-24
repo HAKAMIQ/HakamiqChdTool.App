@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Workflow.Progress;
 using HakamiqChdTool.App.Models;
 using System;
 using System.Diagnostics;
@@ -43,6 +44,30 @@ internal sealed class WorkflowChdmanRuntimeProgressReporter
             _percent = Math.Clamp(percent, 0, 100);
             _hasPercent = _percent > 0d;
             snapshot = TryBuildSnapshotLocked(force: percent >= 100);
+        }
+
+        Report(snapshot);
+    }
+
+
+    public void ReportEstimatedRuntime(WorkflowRuntimeProgressSample sample)
+    {
+        QueueRuntimeProgressSnapshot? snapshot;
+
+        lock (_gate)
+        {
+            _currentBytes = Math.Max(0L, sample.CurrentBytes);
+            _bytesPerSecond = double.IsFinite(sample.BytesPerSecond)
+                ? Math.Max(0d, sample.BytesPerSecond)
+                : 0d;
+
+            if (sample.Percent is double percent && double.IsFinite(percent) && percent > 0d)
+            {
+                _percent = Math.Clamp(percent, 0d, 99d);
+                _hasPercent = true;
+            }
+
+            snapshot = TryBuildSnapshotLocked(force: false);
         }
 
         Report(snapshot);
