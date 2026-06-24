@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
@@ -145,11 +146,12 @@ public sealed partial class DescriptorSafetyScanner
 
         if (extension.Equals(".cue", StringComparison.OrdinalIgnoreCase))
         {
-            foreach (Match match in CueFileRegex().Matches(descriptorText))
+            foreach (string line in descriptorText.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
             {
-                yield return match.Groups["q"].Success
-                    ? match.Groups["q"].Value
-                    : match.Groups["u"].Value;
+                if (CueSheetFileStatementReader.TryRead(line, out string reference, out _))
+                {
+                    yield return reference;
+                }
             }
 
             yield break;
@@ -245,11 +247,6 @@ public sealed partial class DescriptorSafetyScanner
             or System.Security.SecurityException;
     }
 
-    [GeneratedRegex(
-        "^\\s*FILE\\s+(?:\"(?<q>[^\"]+)\"|(?<u>\\S+))",
-        RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant,
-        RegexTimeoutMilliseconds)]
-    private static partial Regex CueFileRegex();
 
     [GeneratedRegex(
         "\"(?<file>[^\"]+)\"",
