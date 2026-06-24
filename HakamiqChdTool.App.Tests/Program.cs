@@ -146,6 +146,7 @@ internal static class Program
         AssertEqual("SLPM-65001", GetNullableString(advisory, "DiscGroupKey"), "Unexpected disc group key.");
 
         IReadOnlySet<string> codes = app.GetAdvisoryReasonCodes(advisory);
+        AssertContains(codes, "PS2_DISC_IDENTITY_SUMMARY");
         AssertContains(codes, "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT");
         AssertContains(codes, "PS2_CLASSICS_COMPACT_ISO_MAY_BE_PS2CD");
         AssertContains(codes, "PS2_CLASSICS_CONFIG_MAY_BE_REQUIRED");

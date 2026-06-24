@@ -3,6 +3,7 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MediaBrush = System.Windows.Media.Brush;
@@ -191,7 +192,7 @@ public sealed partial class TaskQueueItemViewModel
             QueueIntakeAdvisory? advisory = IntakeAdvisory;
             return advisory is null
                 ? string.Empty
-                : BuildReleaseSafeIntakeAdvisorySummary(advisory);
+                : BuildReleaseSafeIntakeAdvisorySummary(advisory, compact: true);
         }
     }
 
@@ -202,7 +203,7 @@ public sealed partial class TaskQueueItemViewModel
             QueueIntakeAdvisory? advisory = IntakeAdvisory;
             return advisory is null
                 ? string.Empty
-                : BuildReleaseSafeIntakeAdvisorySummary(advisory);
+                : BuildReleaseSafeIntakeAdvisorySummary(advisory, compact: false);
         }
     }
 
@@ -500,13 +501,18 @@ public sealed partial class TaskQueueItemViewModel
     private static bool IsChdExtension(string extension) =>
         extension.Equals(".chd", StringComparison.OrdinalIgnoreCase);
 
-    private static string BuildReleaseSafeIntakeAdvisorySummary(QueueIntakeAdvisory advisory)
+    private static string BuildReleaseSafeIntakeAdvisorySummary(QueueIntakeAdvisory advisory, bool compact)
     {
         QueueIntakeAdvisoryReason? primaryReason =
             advisory.Reasons.FirstOrDefault()
             ?? advisory.Warnings.FirstOrDefault();
 
         string reasonCode = primaryReason?.Code ?? string.Empty;
+
+        if (IsPs2Advisory(advisory))
+        {
+            return BuildPs2IntakeAdvisorySummary(advisory, compact);
+        }
 
         if (reasonCode.StartsWith("FORMAT_SAFETY_", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(primaryReason?.Message))
@@ -560,6 +566,88 @@ public sealed partial class TaskQueueItemViewModel
             QueueIntakeAdvisoryAction.Block => ArabicUi.Get("LocIntakeAdvisory_Blocked"),
             _ => string.Empty
         };
+    }
+
+    private static bool IsPs2Advisory(QueueIntakeAdvisory advisory) =>
+        string.Equals(advisory.Platform, "PlayStation 2", StringComparison.OrdinalIgnoreCase)
+        || advisory.Reasons.Any(static reason => reason.Code.StartsWith("PS2_", StringComparison.OrdinalIgnoreCase))
+        || advisory.Warnings.Any(static reason => reason.Code.StartsWith("PS2_", StringComparison.OrdinalIgnoreCase));
+
+    private static string BuildPs2IntakeAdvisorySummary(QueueIntakeAdvisory advisory, bool compact)
+    {
+        QueueIntakeAdvisoryReason? identityReason = FindPs2Reason(advisory, "PS2_DISC_IDENTITY_SUMMARY")
+            ?? FindPs2Reason(advisory, "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT")
+            ?? advisory.Reasons.FirstOrDefault(static reason => reason.Code.StartsWith("PS2_", StringComparison.OrdinalIgnoreCase));
+
+        string identityLine = BuildLocalizedReasonLine(identityReason, appendSource: true);
+        if (string.IsNullOrWhiteSpace(identityLine))
+        {
+            identityLine = ArabicUi.Get("LocPs2Advisory_DiscIdentitySummary");
+        }
+
+        if (compact)
+        {
+            return identityLine;
+        }
+
+        var lines = new List<string>();
+        AddDistinctLine(lines, identityLine);
+
+        QueueIntakeAdvisoryReason? mediaReason = advisory.Reasons.FirstOrDefault(static reason =>
+            string.Equals(reason.Code, "PS2_CLASSICS_BIN_CUE_PREFERRED", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(reason.Code, "PS2_CLASSICS_CUE_FILE_RECOMMENDED", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(reason.Code, "PS2_CLASSICS_COMPACT_ISO_MAY_BE_PS2CD", StringComparison.OrdinalIgnoreCase));
+        AddDistinctLine(lines, BuildLocalizedReasonLine(mediaReason, appendSource: false));
+
+        AddDistinctLine(lines, BuildLocalizedReasonLine(FindPs2Reason(advisory, "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT"), appendSource: true));
+        AddDistinctLine(lines, BuildLocalizedReasonLine(FindPs2Reason(advisory, "PS2_CLASSICS_CONFIG_MAY_BE_REQUIRED"), appendSource: false));
+        AddDistinctLine(lines, BuildLocalizedReasonLine(FindPs2Reason(advisory, "PS2_PS3_EMULATOR_PROFILE_DIFFERS"), appendSource: false));
+
+        return lines.Count == 0
+            ? identityLine
+            : string.Join(Environment.NewLine, lines);
+    }
+
+    private static QueueIntakeAdvisoryReason? FindPs2Reason(QueueIntakeAdvisory advisory, string code) =>
+        advisory.Reasons.FirstOrDefault(reason => string.Equals(reason.Code, code, StringComparison.OrdinalIgnoreCase))
+        ?? advisory.Warnings.FirstOrDefault(reason => string.Equals(reason.Code, code, StringComparison.OrdinalIgnoreCase));
+
+    private static string BuildLocalizedReasonLine(QueueIntakeAdvisoryReason? reason, bool appendSource)
+    {
+        if (reason is null || string.IsNullOrWhiteSpace(reason.Message))
+        {
+            return string.Empty;
+        }
+
+        string text = ArabicUi.Get(reason.Message).Trim();
+        if (!appendSource || string.IsNullOrWhiteSpace(reason.Source))
+        {
+            return text;
+        }
+
+        string source = reason.Source.Trim();
+        if (text.EndsWith(":", StringComparison.Ordinal))
+        {
+            return text + " " + source;
+        }
+
+        return text + " " + source;
+    }
+
+    private static void AddDistinctLine(List<string> lines, string? line)
+    {
+        if (string.IsNullOrWhiteSpace(line))
+        {
+            return;
+        }
+
+        string candidate = line.Trim();
+        if (lines.Any(existing => AreSameQueueUiText(existing, candidate)))
+        {
+            return;
+        }
+
+        lines.Add(candidate);
     }
 
     private static string FormatIntakeAdvisoryAction(QueueIntakeAdvisoryAction action)

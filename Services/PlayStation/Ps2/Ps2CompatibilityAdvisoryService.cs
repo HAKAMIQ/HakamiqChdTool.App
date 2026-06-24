@@ -16,7 +16,14 @@ internal static class Ps2CompatibilityAdvisoryService
 
         var reasons = new List<QueueIntakeAdvisoryReason>();
         string source = BuildSource(identity);
+        string summarySource = BuildSummarySource(identity);
         string structureSource = BuildStructureSource(identity);
+
+        reasons.Add(new QueueIntakeAdvisoryReason(
+            "PS2_DISC_IDENTITY_SUMMARY",
+            "LocPs2Advisory_DiscIdentitySummary",
+            QueueIntakeAdvisorySeverity.Info,
+            summarySource));
 
         switch (identity.MediaKind)
         {
@@ -88,6 +95,35 @@ internal static class Ps2CompatibilityAdvisoryService
             return string.IsNullOrWhiteSpace(identity.Region)
                 ? identity.Serial
                 : identity.Serial + " / " + identity.Region;
+        }
+
+        return identity.IsPathHintOnly
+            ? "PS2 path hint"
+            : "PS2 disc identity";
+    }
+
+    private static string BuildSummarySource(Ps2DiscIdentity identity)
+    {
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(identity.Serial))
+        {
+            parts.Add(identity.Serial);
+        }
+
+        if (!string.IsNullOrWhiteSpace(identity.Region))
+        {
+            parts.Add(identity.Region);
+        }
+
+        if (!string.IsNullOrWhiteSpace(identity.BootExecutable))
+        {
+            parts.Add("SYSTEM.CNF");
+        }
+
+        if (parts.Count > 0)
+        {
+            return string.Join(" / ", parts);
         }
 
         return identity.IsPathHintOnly
