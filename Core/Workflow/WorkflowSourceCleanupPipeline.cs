@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Services;
 using Serilog;
 using System;
@@ -356,17 +357,9 @@ internal sealed partial class WorkflowSourceCleanupPipeline
     {
         foreach (string line in ReadDescriptorLines(cuePath))
         {
-            Match match = CueFileReferenceRegex().Match(line);
-            if (match.Success)
+            if (CueSheetFileStatementReader.TryRead(line, out string path, out _))
             {
-                string path = match.Groups["quoted"].Success
-                    ? match.Groups["quoted"].Value
-                    : match.Groups["plain"].Value;
-
-                if (!string.IsNullOrWhiteSpace(path))
-                {
-                    yield return path;
-                }
+                yield return path;
             }
         }
     }
@@ -716,9 +709,6 @@ internal sealed partial class WorkflowSourceCleanupPipeline
             or PathTooLongException
             or System.Security.SecurityException;
     }
-
-    [GeneratedRegex("^\\s*FILE\\s+(?:\\\"(?<quoted>[^\\\"]+)\\\"|(?<plain>\\S+))", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, RegexTimeoutMilliseconds)]
-    private static partial Regex CueFileReferenceRegex();
 
     [GeneratedRegex("^\\s*(?:FILE|AUDIOFILE|DATAFILE)\\s+(?:\\\"(?<quoted>[^\\\"]+)\\\"|(?<plain>\\S+))", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, RegexTimeoutMilliseconds)]
     private static partial Regex TocFileReferenceRegex();

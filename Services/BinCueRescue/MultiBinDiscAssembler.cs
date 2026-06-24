@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Services.ConsoleMedia;
 
 namespace HakamiqChdTool.App.Services.BinCueRescue;
@@ -14,16 +15,6 @@ internal static class MultiBinDiscAssembler
 
     private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(RegexTimeoutMilliseconds);
     private static readonly StringComparer PathComparer = StringComparer.OrdinalIgnoreCase;
-
-    private static readonly Regex CueFileLineRegex = new(
-        @"^\s*FILE\s+(?:""(?<quoted>[^""]+)""|(?<plain>\S+))\s+\S+\s*$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline,
-        RegexTimeout);
-
-    private static readonly Regex CueFileKeywordRegex = new(
-        @"^\s*FILE\b",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline,
-        RegexTimeout);
 
     private static readonly Regex DiscPartNumberRegex = new(
         @"(?:^|[\s_\-\.\(\[])(?:disc|disk|cd|dvd|side|part)\s*0*\d{1,3}(?:$|[\s_\-\.\)\]])",
@@ -379,10 +370,10 @@ internal static class MultiBinDiscAssembler
             return false;
         }
 
-        string cueText;
+        string[] cueLines;
         try
         {
-            cueText = File.ReadAllText(cueFile.FullName);
+            cueLines = File.ReadAllLines(cueFile.FullName);
         }
         catch (Exception ex) when (IsIoOrPathFailure(ex))
         {
@@ -412,32 +403,31 @@ internal static class MultiBinDiscAssembler
             return false;
         }
 
-        Match[] fileLineMatches;
-        int fileKeywordCount;
-
-        try
+        List<string> referencedFiles = [];
+        foreach (string line in cueLines)
         {
-            fileLineMatches = CueFileLineRegex.Matches(cueText).Cast<Match>().ToArray();
-            fileKeywordCount = CueFileKeywordRegex.Matches(cueText).Count;
-        }
-        catch (RegexMatchTimeoutException)
-        {
-            return false;
+            if (!CueSheetFileStatementReader.TryRead(line, requireFileType: true, out string referenced, out bool hasFileStatement))
+            {
+                if (hasFileStatement)
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            referencedFiles.Add(referenced);
         }
 
-        if (fileLineMatches.Length == 0 || fileKeywordCount != fileLineMatches.Length)
+        if (referencedFiles.Count == 0)
         {
             return false;
         }
 
         bool referencesSelectedBin = false;
 
-        foreach (Match match in fileLineMatches)
+        foreach (string referenced in referencedFiles)
         {
-            string referenced = match.Groups["quoted"].Success
-                ? match.Groups["quoted"].Value
-                : match.Groups["plain"].Value;
-
             if (!TryResolveSafeCueReference(referenced, cueDirectoryPath, out string? resolved))
             {
                 return false;
