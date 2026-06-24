@@ -16,6 +16,7 @@ internal static class Ps2CompatibilityAdvisoryService
 
         var reasons = new List<QueueIntakeAdvisoryReason>();
         string source = BuildSource(identity);
+        string structureSource = BuildStructureSource(identity);
 
         switch (identity.MediaKind)
         {
@@ -44,13 +45,28 @@ internal static class Ps2CompatibilityAdvisoryService
                 break;
         }
 
+        if (!string.IsNullOrWhiteSpace(identity.BootExecutable))
+        {
+            reasons.Add(new QueueIntakeAdvisoryReason(
+                "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT",
+                "LocPs2Advisory_SystemCnfBootDetected",
+                QueueIntakeAdvisorySeverity.Info,
+                structureSource));
+        }
+
         reasons.Add(new QueueIntakeAdvisoryReason(
             "PS2_CLASSICS_CONFIG_MAY_BE_REQUIRED",
             "LocPs2Advisory_ConfigMayBeRequired",
             QueueIntakeAdvisorySeverity.Info,
             source));
 
-        int confidence = Math.Clamp(identity.Confidence, 60, 96);
+        reasons.Add(new QueueIntakeAdvisoryReason(
+            "PS2_PS3_EMULATOR_PROFILE_DIFFERS",
+            "LocPs2Advisory_EmulatorProfileDiffers",
+            QueueIntakeAdvisorySeverity.Info,
+            source));
+
+        int confidence = Math.Clamp(identity.Confidence, 60, 98);
 
         return new QueueIntakeAdvisory(
             QueueIntakeAdvisoryAction.ReportOnly,
@@ -77,5 +93,29 @@ internal static class Ps2CompatibilityAdvisoryService
         return identity.IsPathHintOnly
             ? "PS2 path hint"
             : "PS2 disc identity";
+    }
+
+    private static string BuildStructureSource(Ps2DiscIdentity identity)
+    {
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(identity.Serial))
+        {
+            parts.Add(identity.Serial);
+        }
+
+        if (!string.IsNullOrWhiteSpace(identity.Region))
+        {
+            parts.Add(identity.Region);
+        }
+
+        if (!string.IsNullOrWhiteSpace(identity.DetectionSource))
+        {
+            parts.Add(identity.DetectionSource);
+        }
+
+        return parts.Count == 0
+            ? "SYSTEM.CNF"
+            : string.Join(" / ", parts);
     }
 }

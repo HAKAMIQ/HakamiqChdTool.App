@@ -998,6 +998,8 @@
     <sys:String x:Key="LocPs2Advisory_CueFileRecommended">تم التعرف على BIN منفرد لإدخال PS2 بنمط CD. استخدم ملف CUE المطابق عند توفره حتى لا تضيع بنية المسارات.</sys:String>
     <sys:String x:Key="LocPs2Advisory_CompactIsoMayNeedBinCue">يبدو هذا ISO صغيراً للـ PS2. إذا كان مصدره قرص PS2 أزرق CD، فقد يكون CUE/BIN أأمن لتوافق PS3 PS2 Classics.</sys:String>
     <sys:String x:Key="LocPs2Advisory_ConfigMayBeRequired">بعض ألعاب PS2 تحتاج ملف PS2 Classics CONFIG لأفضل توافق على PS3. يمكن متابعة التحويل، لكن التشغيل غير مضمون.</sys:String>
+    <sys:String x:Key="LocPs2Advisory_SystemCnfBootDetected">تم التعرف على بنية قرص PS2 من ملف SYSTEM.CNF.</sys:String>
+    <sys:String x:Key="LocPs2Advisory_EmulatorProfileDiffers">توافق PS2 على PS3 يعتمد على نوع المحاكي المستهدف. سلوك ps2_netemu قد يختلف عن ps2_gxemu.</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_Extract">استخراج</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_Convert">تحويل</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_Block">حظر</sys:String>

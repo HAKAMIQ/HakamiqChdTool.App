@@ -6,7 +6,9 @@ internal sealed record Ps2DiscIdentity(
     string Serial,
     string Region,
     Ps2DiscMediaKind MediaKind,
-    bool IsPathHintOnly)
+    bool IsPathHintOnly,
+    string BootExecutable,
+    string DetectionSource)
 {
     public static Ps2DiscIdentity Unknown { get; } = new(
         IsPlayStation2: false,
@@ -14,5 +16,7 @@ internal sealed record Ps2DiscIdentity(
         Serial: string.Empty,
         Region: string.Empty,
         MediaKind: Ps2DiscMediaKind.Unknown,
-        IsPathHintOnly: false);
+        IsPathHintOnly: false,
+        BootExecutable: string.Empty,
+        DetectionSource: string.Empty);
 }

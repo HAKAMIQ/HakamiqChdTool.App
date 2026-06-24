@@ -514,10 +514,17 @@ public sealed partial class TaskQueueItemViewModel
             return ArabicUi.Get(primaryReason.Message);
         }
 
-        if (reasonCode.StartsWith("PS2_CLASSICS_", StringComparison.OrdinalIgnoreCase)
+        if (reasonCode.StartsWith("PS2_", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(primaryReason?.Message))
         {
-            return ArabicUi.Get(primaryReason.Message);
+            string text = ArabicUi.Get(primaryReason.Message);
+            if (string.Equals(reasonCode, "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(primaryReason.Source))
+            {
+                return text + " " + primaryReason.Source;
+            }
+
+            return text;
         }
 
         if (string.Equals(reasonCode, "INTAKE_ARCHIVE_EXTRACT_REQUIRED", StringComparison.OrdinalIgnoreCase))
