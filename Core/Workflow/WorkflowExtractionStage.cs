@@ -1,4 +1,6 @@
 using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Workflow.Extraction;
+using HakamiqChdTool.App.Core.Workflow.Progress;
 using HakamiqChdTool.App.Core.Chd.Commands;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
@@ -34,6 +36,7 @@ internal sealed class WorkflowExtractionStage(
     private readonly ILogger _log = log ?? throw new ArgumentNullException(nameof(log));
     private readonly IMetadataAwareChdExtractionPolicy _extractionPolicy = new MetadataAwareChdExtractionPolicy();
     private readonly IRestoreTargetPolicy _restoreTargetPolicy = new RestoreTargetPolicy();
+    private readonly ExtractionOutputBundleValidator _outputBundleValidator = new();
 
     public async Task<WorkflowExecutionResult> ExecuteAsync(
         ChdTaskRequest request,
@@ -167,6 +170,25 @@ internal sealed class WorkflowExtractionStage(
 
         if (settings.SkipExistingOutput && File.Exists(finalOutputPath))
         {
+            ExtractionOutputKind existingOutputKind = ResolveExpectedFinalOutputKind(extractionDecision);
+            if (!_outputBundleValidator.TryValidateExistingFinal(
+                    existingOutputKind,
+                    finalOutputPath,
+                    out _,
+                    out string existingOutputFailureKey))
+            {
+                string detail = string.IsNullOrWhiteSpace(existingOutputFailureKey)
+                    ? "LocWorkflow_ExtractedCueBinInvalid"
+                    : existingOutputFailureKey;
+
+                sink.ReportTerminalFailure(QueueItemFailureKind.FailedExtract, detail);
+                return WorkflowResultBuilder.Failure(
+                    QueueItemFailureKind.FailedExtract,
+                    detail,
+                    finalOutputPath,
+                    lastLogPath);
+            }
+
             sink.ReportTerminalSuccess(
                 QueueItemTerminalOutcome.SkippedExists,
                 OutputFileExistsDetailKey);
@@ -217,6 +239,11 @@ internal sealed class WorkflowExtractionStage(
                 pendingOutputPath,
                 finalOutputPath));
 
+        ExtractionOutputContract outputContract = ExtractionOutputContract.Create(
+            restoreTarget.FinalizationKind,
+            pendingOutputPath,
+            finalOutputPath);
+
         string extractionStageLine = string.IsNullOrWhiteSpace(extractionDecision.WarningMessageKey)
             ? extractionDecision.StatusLine
             : extractionDecision.WarningMessageKey;
@@ -232,7 +259,7 @@ internal sealed class WorkflowExtractionStage(
         }
 
         sink.ReportStage(QueueItemStage.Extracting, extractionStageLine);
-        sink.ReportProgress(14, indeterminate: false);
+        sink.ReportProgress(14, indeterminate: true);
         WorkflowPathUtilities.RaiseProgress(request, 14);
 
         var runtimeProgress = new WorkflowChdmanRuntimeProgressReporter(
@@ -244,6 +271,7 @@ internal sealed class WorkflowExtractionStage(
 
         bool extractionFinalizingNotified = false;
         int lastExtractionPercent = 0;
+        object extractionProgressGate = new();
 
         void ReportReliableExtractionPercent(int value)
         {
@@ -253,18 +281,27 @@ internal sealed class WorkflowExtractionStage(
             }
 
             value = Math.Clamp(value, 0, 100);
-            if (value < lastExtractionPercent)
+            bool shouldReportFinalizing;
+
+            lock (extractionProgressGate)
             {
-                return;
+                if (value < lastExtractionPercent)
+                {
+                    return;
+                }
+
+                lastExtractionPercent = value;
+                shouldReportFinalizing = value >= 100 && !extractionFinalizingNotified;
+                if (shouldReportFinalizing)
+                {
+                    extractionFinalizingNotified = true;
+                }
             }
 
-            lastExtractionPercent = value;
             runtimeProgress.ReportPercent(value);
 
-            if (value >= 100 && !extractionFinalizingNotified)
+            if (shouldReportFinalizing)
             {
-                extractionFinalizingNotified = true;
-
                 WorkflowProgressContract.ReportFinalizing(
                     sink,
                     request,
@@ -302,6 +339,14 @@ internal sealed class WorkflowExtractionStage(
             }
         });
 
+        using var estimatedRuntimeCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        Task estimatedRuntimeProgressTask = MonitorEstimatedExtractionProgressAsync(
+            outputContract,
+            runtimeProgress,
+            ReportReliableExtractionPercent,
+            infoResult.LogicalBytes ?? 0L,
+            estimatedRuntimeCts.Token);
+
         ChdConversionResult conversionResult;
         try
         {
@@ -332,6 +377,7 @@ internal sealed class WorkflowExtractionStage(
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            await StopEstimatedExtractionProgressAsync(estimatedRuntimeCts, estimatedRuntimeProgressTask).ConfigureAwait(false);
             CleanupPendingExtractionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
 
             sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, CancelledDetailKey);
@@ -342,6 +388,7 @@ internal sealed class WorkflowExtractionStage(
         }
         catch (Exception ex) when (IsExpectedExtractionStageException(ex))
         {
+            await StopEstimatedExtractionProgressAsync(estimatedRuntimeCts, estimatedRuntimeProgressTask).ConfigureAwait(false);
             CleanupPendingExtractionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
 
             string detail = RuntimeDiagnosticFormatter.SummarizeException(ex);
@@ -359,6 +406,8 @@ internal sealed class WorkflowExtractionStage(
                 pendingOutputPath,
                 lastLogPath);
         }
+
+        await StopEstimatedExtractionProgressAsync(estimatedRuntimeCts, estimatedRuntimeProgressTask).ConfigureAwait(false);
 
         if (conversionResult.WasCancelled || cancellationToken.IsCancellationRequested)
         {
@@ -412,10 +461,9 @@ internal sealed class WorkflowExtractionStage(
             WorkflowProgressContract.ExtractionFinalizingPercent,
             cancellationToken);
 
-        if (!WorkflowPathUtilities.TryFinalizeExtractedDiscImageOutput(
-                restoreTarget.FinalizationKind,
-                pendingOutputPath,
-                finalOutputPath,
+        if (!_outputBundleValidator.TryFinalize(
+                outputContract,
+                out ExtractionOutputBundle finalOutputBundle,
                 out string finalizeFailureMessageKey))
         {
             string detail = string.IsNullOrWhiteSpace(finalizeFailureMessageKey)
@@ -502,10 +550,10 @@ internal sealed class WorkflowExtractionStage(
             }
         }
 
-        sink.AttachArtifact(QueueItemArtifactKind.OutputFile, finalOutputPath);
+        sink.AttachArtifact(QueueItemArtifactKind.OutputFile, finalOutputBundle.PrimaryPath);
         sink.RecordInputOutputBytes(
             WorkflowPathUtilities.TryGetFileSize(chdPath),
-            WorkflowPathUtilities.TryGetFileSize(finalOutputPath));
+            finalOutputBundle.TotalBytes);
 
         string extractedDetail = string.IsNullOrWhiteSpace(restoreTarget.SuccessMessageKey)
             ? BuildExtractionSuccessDetail(restoreTarget.SuccessKind)
@@ -518,8 +566,64 @@ internal sealed class WorkflowExtractionStage(
         return WorkflowResultBuilder.Success(
             QueueItemTerminalOutcome.Extracted,
             extractedDetail,
-            finalOutputPath,
+            finalOutputBundle.PrimaryPath,
             lastLogPath);
+    }
+
+    private static async Task MonitorEstimatedExtractionProgressAsync(
+        ExtractionOutputContract outputContract,
+        WorkflowChdmanRuntimeProgressReporter runtimeProgress,
+        Action<int> reportReliableExtractionPercent,
+        long expectedOutputBytes,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(outputContract);
+        ArgumentNullException.ThrowIfNull(runtimeProgress);
+        ArgumentNullException.ThrowIfNull(reportReliableExtractionPercent);
+
+        var estimator = new ExtractionOutputByteProgressEstimator(outputContract, expectedOutputBytes);
+        long lastObservedBytes = 0L;
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            WorkflowRuntimeProgressSample sample = estimator.Capture();
+            runtimeProgress.ReportEstimatedRuntime(sample);
+
+            if (sample.CurrentBytes > lastObservedBytes && sample.Percent is double percent)
+            {
+                lastObservedBytes = sample.CurrentBytes;
+                reportReliableExtractionPercent((int)Math.Floor(percent));
+            }
+
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+        }
+    }
+
+    private static async Task StopEstimatedExtractionProgressAsync(
+        CancellationTokenSource cancellationTokenSource,
+        Task progressTask)
+    {
+        ArgumentNullException.ThrowIfNull(cancellationTokenSource);
+        ArgumentNullException.ThrowIfNull(progressTask);
+
+        try
+        {
+            cancellationTokenSource.Cancel();
+            await progressTask.ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (ObjectDisposedException)
+        {
+        }
     }
 
     private static void CleanupPendingExtractionOutput(
@@ -556,6 +660,21 @@ internal sealed class WorkflowExtractionStage(
         }
 
         return string.Empty;
+    }
+
+    private static ExtractionOutputKind ResolveExpectedFinalOutputKind(
+        MetadataAwareChdExtractionDecision extractionDecision)
+    {
+        ArgumentNullException.ThrowIfNull(extractionDecision);
+
+        if (extractionDecision.RestoreTargetMode == ChdRestoreTargetMode.LegacyCdProfileToIso)
+        {
+            return ExtractionOutputKind.SingleFile;
+        }
+
+        return extractionDecision.ExtractionKind == ChdmanExtractionKind.ExtractCd
+            ? ExtractionOutputKind.CueBinBundle
+            : ExtractionOutputKind.SingleFile;
     }
 
     private static string BuildExtractionSuccessDetail(ChdmanExtractionKind kind) => kind switch
