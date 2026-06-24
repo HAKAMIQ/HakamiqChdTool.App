@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace HakamiqChdTool.App.Services.PlayStation.Ps2;
@@ -33,6 +34,20 @@ internal static class Ps2DiscIdentityDetector
 
         Ps2DiscMediaKind mediaKind = DetectMediaKind(fullPath);
 
+        if (Ps2DiscStructureScanner.TryScan(fullPath, out Ps2DiscStructure structure)
+            && structure.IsPlayStation2)
+        {
+            return new Ps2DiscIdentity(
+                IsPlayStation2: true,
+                Confidence: 98,
+                Serial: structure.Serial,
+                Region: structure.Region,
+                MediaKind: mediaKind,
+                IsPathHintOnly: false,
+                BootExecutable: structure.BootExecutable,
+                DetectionSource: BuildStructureDetectionSource(structure));
+        }
+
         if (DiscRawSerialProbe.TryProbe(fullPath, out DiscRawSerialProbeResult serial)
             && IsPlayStation2Platform(serial.Platform))
         {
@@ -42,7 +57,9 @@ internal static class Ps2DiscIdentityDetector
                 Serial: serial.Serial,
                 Region: serial.Region,
                 MediaKind: mediaKind,
-                IsPathHintOnly: false);
+                IsPathHintOnly: false,
+                BootExecutable: string.Empty,
+                DetectionSource: serial.Reason);
         }
 
         PlatformDetectionResult platformDetection = PlatformDetectionResult.Create(
@@ -77,7 +94,33 @@ internal static class Ps2DiscIdentityDetector
             Serial: string.Empty,
             Region: string.Empty,
             MediaKind: mediaKind,
-            IsPathHintOnly: pathHintOnly);
+            IsPathHintOnly: pathHintOnly,
+            BootExecutable: string.Empty,
+            DetectionSource: platformDetection.Reason);
+    }
+
+    private static string BuildStructureDetectionSource(Ps2DiscStructure structure)
+    {
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(structure.SourceLayout))
+        {
+            parts.Add(structure.SourceLayout);
+        }
+
+        if (!string.IsNullOrWhiteSpace(structure.BootDirective))
+        {
+            parts.Add(structure.BootDirective);
+        }
+
+        if (!string.IsNullOrWhiteSpace(structure.BootExecutable))
+        {
+            parts.Add(structure.BootExecutable);
+        }
+
+        return parts.Count == 0
+            ? "SYSTEM.CNF"
+            : string.Join(" / ", parts);
     }
 
     private static Ps2DiscMediaKind DetectMediaKind(string fullPath)
