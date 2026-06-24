@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using DiscUtils.Iso9660;
 using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
@@ -773,41 +774,10 @@ public static class PlatformDetectionService
         return false;
     }
 
-    private static string? ParseCueFileReference(string line)
-    {
-        ReadOnlySpan<char> span = line.AsSpan().TrimStart();
-        if (span.Length < 4 || !span[..4].Equals("FILE".AsSpan(), StringComparison.OrdinalIgnoreCase))
-        {
-            return null;
-        }
-
-        if (span.Length > 4 && !char.IsWhiteSpace(span[4]))
-        {
-            return null;
-        }
-
-        span = span[4..].TrimStart();
-        if (span.Length == 0)
-        {
-            return null;
-        }
-
-        if (span[0] == '"')
-        {
-            int closingQuote = span[1..].IndexOf('"');
-            if (closingQuote < 0)
-            {
-                return null;
-            }
-
-            string quoted = span.Slice(1, closingQuote).ToString().Trim();
-            return quoted.Length > 0 ? quoted : null;
-        }
-
-        int separator = IndexOfWhiteSpace(span);
-        string value = separator > 0 ? span[..separator].ToString().Trim() : span.ToString().Trim();
-        return value.Length > 0 ? value : null;
-    }
+    private static string? ParseCueFileReference(string line) =>
+        CueSheetFileStatementReader.TryRead(line, out string fileName, out _)
+            ? fileName
+            : null;
 
     private static IEnumerable<string> ReadTextLines(string path)
     {
@@ -839,19 +809,6 @@ public static class PlatformDetectionService
         byte[] buffer = new byte[length];
         int read = stream.Read(buffer, 0, buffer.Length);
         return Encoding.ASCII.GetString(buffer, 0, read);
-    }
-
-    private static int IndexOfWhiteSpace(ReadOnlySpan<char> span)
-    {
-        for (int index = 0; index < span.Length; index++)
-        {
-            if (char.IsWhiteSpace(span[index]))
-            {
-                return index;
-            }
-        }
-
-        return -1;
     }
 
     private static bool IsApproximately(long actual, long expected, long tolerance) =>

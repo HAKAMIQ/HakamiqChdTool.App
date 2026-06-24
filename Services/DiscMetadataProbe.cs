@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using DiscUtils.Iso9660;
 using System.IO;
@@ -399,43 +400,8 @@ internal static class DiscMetadataProbe
         }
     }
 
-    private static bool TryExtractCueFileName(string rawLine, out string fileName)
-    {
-        fileName = string.Empty;
-
-        ReadOnlySpan<char> span = rawLine.AsSpan().TrimStart();
-        if (span.Length < 4 || !span[..4].Equals("FILE".AsSpan(), StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (span.Length > 4 && !char.IsWhiteSpace(span[4]))
-        {
-            return false;
-        }
-
-        span = span[4..].TrimStart();
-        if (span.Length == 0)
-        {
-            return false;
-        }
-
-        if (span[0] == '"')
-        {
-            int closingQuote = span[1..].IndexOf('"');
-            if (closingQuote < 0)
-            {
-                return false;
-            }
-
-            fileName = span.Slice(1, closingQuote).ToString().Trim();
-            return fileName.Length > 0;
-        }
-
-        int separator = IndexOfWhiteSpace(span);
-        fileName = separator > 0 ? span[..separator].ToString().Trim() : span.ToString().Trim();
-        return fileName.Length > 0;
-    }
+    private static bool TryExtractCueFileName(string rawLine, out string fileName) =>
+        CueSheetFileStatementReader.TryRead(rawLine, out fileName, out _);
 
     private static string DecodeAsciiLoose(ReadOnlySpan<byte> bytes)
     {
@@ -447,19 +413,6 @@ internal static class DiscMetadataProbe
         }
 
         return builder.ToString();
-    }
-
-    private static int IndexOfWhiteSpace(ReadOnlySpan<char> span)
-    {
-        for (int i = 0; i < span.Length; i++)
-        {
-            if (char.IsWhiteSpace(span[i]))
-            {
-                return i;
-            }
-        }
-
-        return -1;
     }
 
     private static bool IsExpectedReadException(Exception ex) =>

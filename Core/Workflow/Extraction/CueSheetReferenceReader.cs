@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -100,7 +101,7 @@ internal sealed class CueSheetReferenceReader
                 continue;
             }
 
-            if (TryReadFileStatement(line, out string reference, out bool hasFileStatement))
+            if (CueSheetFileStatementReader.TryRead(line, requireFileType: true, out string reference, out bool hasFileStatement))
             {
                 currentFile = new CueFileEntry(index, reference);
                 entries.Add(currentFile);
@@ -149,65 +150,6 @@ internal sealed class CueSheetReferenceReader
         ];
 
         return references.Count > 0;
-    }
-
-    private static bool TryReadFileStatement(
-        string line,
-        out string reference,
-        out bool hasFileStatement)
-    {
-        reference = string.Empty;
-        hasFileStatement = false;
-
-        if (string.IsNullOrWhiteSpace(line))
-        {
-            return false;
-        }
-
-        string trimmed = line.TrimStart();
-        if (!trimmed.StartsWith("FILE", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (trimmed.Length > 4 && !char.IsWhiteSpace(trimmed[4]))
-        {
-            return false;
-        }
-
-        hasFileStatement = true;
-        int index = 4;
-        while (index < trimmed.Length && char.IsWhiteSpace(trimmed[index]))
-        {
-            index++;
-        }
-
-        if (index >= trimmed.Length)
-        {
-            return false;
-        }
-
-        if (trimmed[index] == '"')
-        {
-            int closingQuote = trimmed.IndexOf('"', index + 1);
-            if (closingQuote <= index + 1)
-            {
-                return false;
-            }
-
-            reference = trimmed[(index + 1)..closingQuote].Trim();
-            return !string.IsNullOrWhiteSpace(reference);
-        }
-
-        string remainder = trimmed[index..].Trim();
-        int lastWhitespace = remainder.LastIndexOfAny([' ', '\t']);
-        if (lastWhitespace <= 0)
-        {
-            return false;
-        }
-
-        reference = remainder[..lastWhitespace].Trim();
-        return !string.IsNullOrWhiteSpace(reference);
     }
 
     private static bool TryReadTrackStatement(

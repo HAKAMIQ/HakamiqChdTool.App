@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Services;
 using System;
 using System.Collections.Generic;
@@ -101,7 +102,7 @@ internal static class Ps2DiscStructureScanner
 
         foreach (string line in ReadBoundedDescriptorLines(cuePath))
         {
-            if (!TryExtractCueFileName(line, out string fileName))
+            if (!CueSheetFileStatementReader.TryRead(line, out string fileName, out _))
             {
                 continue;
             }
@@ -548,44 +549,6 @@ internal static class Ps2DiscStructureScanner
         return Encoding.UTF8.GetString(content, 0, length);
     }
 
-    private static bool TryExtractCueFileName(string rawLine, out string fileName)
-    {
-        fileName = string.Empty;
-
-        ReadOnlySpan<char> span = rawLine.AsSpan().TrimStart();
-        if (span.Length < 4 || !span[..4].Equals("FILE".AsSpan(), StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (span.Length > 4 && !char.IsWhiteSpace(span[4]))
-        {
-            return false;
-        }
-
-        span = span[4..].TrimStart();
-        if (span.Length == 0)
-        {
-            return false;
-        }
-
-        if (span[0] == '"')
-        {
-            int closingQuote = span[1..].IndexOf('"');
-            if (closingQuote < 0)
-            {
-                return false;
-            }
-
-            fileName = span.Slice(1, closingQuote).ToString().Trim();
-            return fileName.Length > 0;
-        }
-
-        int separator = IndexOfWhiteSpace(span);
-        fileName = separator > 0 ? span[..separator].ToString().Trim() : span.ToString().Trim();
-        return fileName.Length > 0;
-    }
-
     private static IReadOnlyList<string> ReadBoundedDescriptorLines(string path)
     {
         try
@@ -657,19 +620,6 @@ internal static class Ps2DiscStructureScanner
 
         string path = Path.GetFullPath(candidate);
         return path.StartsWith(root, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static int IndexOfWhiteSpace(ReadOnlySpan<char> span)
-    {
-        for (int index = 0; index < span.Length; index++)
-        {
-            if (char.IsWhiteSpace(span[index]))
-            {
-                return index;
-            }
-        }
-
-        return -1;
     }
 
     private static bool IsExpectedPathException(Exception ex) =>

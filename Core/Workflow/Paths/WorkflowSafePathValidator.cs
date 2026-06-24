@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
@@ -6,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using static HakamiqChdTool.App.Core.Workflow.WorkflowOutputPathPlanner;
@@ -17,7 +17,6 @@ namespace HakamiqChdTool.App.Core.Workflow;
 internal static class WorkflowSafePathValidator
 {
     private const string ExtractedCueBinInvalidKey = "LocWorkflow_ExtractedCueBinInvalid";
-    private const int CueFileStatementRegexTimeoutMilliseconds = 100;
     private readonly record struct CueDependency(
         int LineIndex,
         string SourcePath,
@@ -133,7 +132,7 @@ internal static class WorkflowSafePathValidator
 
         for (int index = 0; index < lines.Length; index++)
         {
-            if (!TryReadCueFileStatement(lines[index], out string referencedFileName, out bool hasFileStatement))
+            if (!CueSheetFileStatementReader.TryRead(lines[index], out string referencedFileName, out bool hasFileStatement))
             {
                 if (hasFileStatement)
                 {
@@ -406,7 +405,7 @@ internal static class WorkflowSafePathValidator
 
         foreach (string line in lines)
         {
-            if (!TryReadCueFileStatement(line, out string referencedFileName, out bool hasFileStatement))
+            if (!CueSheetFileStatementReader.TryRead(line, out string referencedFileName, out bool hasFileStatement))
             {
                 if (hasFileStatement)
                 {
@@ -492,7 +491,7 @@ internal static class WorkflowSafePathValidator
         for (int index = 0; index < lines.Count; index++)
         {
             string line = lines[index];
-            if (!IsCueFileStatementLine(line))
+            if (!CueSheetFileStatementReader.IsFileStatementLine(line))
             {
                 continue;
             }
@@ -529,12 +528,6 @@ internal static class WorkflowSafePathValidator
         return true;
     }
 
-    private static bool IsCueFileStatementLine(string line)
-    {
-        _ = TryReadCueFileStatement(line, out _, out bool hasFileStatement);
-        return hasFileStatement;
-    }
-
     private static int FindFirstCueTrackLineIndex(List<string> lines)
     {
         for (int index = 0; index < lines.Count; index++)
@@ -568,7 +561,7 @@ internal static class WorkflowSafePathValidator
 
         foreach (string line in File.ReadLines(cuePath, Encoding.UTF8))
         {
-            if (!TryReadCueFileStatement(line, out string referencedFileName, out bool hasFileStatement))
+            if (!CueSheetFileStatementReader.TryRead(line, out string referencedFileName, out bool hasFileStatement))
             {
                 if (hasFileStatement)
                 {
@@ -590,58 +583,6 @@ internal static class WorkflowSafePathValidator
         }
 
         return foundFileStatement;
-    }
-
-    private static bool TryReadCueFileStatement(
-        string line,
-        out string referencedFileName,
-        out bool hasFileStatement)
-    {
-        referencedFileName = string.Empty;
-        hasFileStatement = false;
-
-        if (string.IsNullOrWhiteSpace(line))
-        {
-            return false;
-        }
-
-        string trimmed = line.TrimStart();
-        if (!trimmed.StartsWith("FILE", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (trimmed.Length > 4 && !char.IsWhiteSpace(trimmed[4]))
-        {
-            return false;
-        }
-
-        hasFileStatement = true;
-
-        Match match;
-        try
-        {
-            match = Regex.Match(
-                trimmed,
-                @"^FILE\s+(?:""(?<quoted>[^""]*)""|(?<plain>\S+))",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
-                TimeSpan.FromMilliseconds(CueFileStatementRegexTimeoutMilliseconds));
-        }
-        catch (RegexMatchTimeoutException)
-        {
-            return false;
-        }
-
-        if (!match.Success)
-        {
-            return false;
-        }
-
-        referencedFileName = match.Groups["quoted"].Success
-            ? match.Groups["quoted"].Value.Trim()
-            : match.Groups["plain"].Value.Trim();
-
-        return !string.IsNullOrWhiteSpace(referencedFileName);
     }
 
     private static bool IsCueReferenceUsable(
@@ -753,7 +694,6 @@ internal static class WorkflowSafePathValidator
         or NotSupportedException
         or PathTooLongException
         or InvalidOperationException
-        or RegexMatchTimeoutException
         or System.Security.SecurityException;
 
     private static bool ContainsParentTraversalSegment(string path)

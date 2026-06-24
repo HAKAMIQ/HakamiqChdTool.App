@@ -45,7 +45,9 @@ internal static class Program
                 new("PS2 advisory reports structure and emulator-profile notes", () => TestAdvisoryReasons(app, workDirectory)),
                 new("Standalone BIN warns that CUE is recommended", () => TestStandaloneBinAdvisory(app, workDirectory)),
                 new("BOOT-only SYSTEM.CNF is not treated as PS2", () => TestBootOnlyIsRejected(app, workDirectory)),
-                new("CUE references cannot escape their directory", () => TestCueReferenceTraversalIsRejected(app, workDirectory))
+                new("CUE references cannot escape their directory", () => TestCueReferenceTraversalIsRejected(app, workDirectory)),
+                new("Shared CUE parser accepts quoted BIN names with spaces", () => TestSharedCueParserAcceptsQuotedBinWithSpaces(app, workDirectory)),
+                new("Shared CUE parser rejects malformed FILE statements", () => TestSharedCueParserRejectsMalformedFileStatement(app, workDirectory))
             ];
 
             int passed = 0;
@@ -190,6 +192,38 @@ internal static class Program
 
         ReflectedStructure structure = app.ScanStructure(cuePath);
         AssertFalse(structure.Success, "CUE path traversal should not be scanned.");
+    }
+
+    private static void TestSharedCueParserAcceptsQuotedBinWithSpaces(AppReflection app, string workDirectory)
+    {
+        string cueDirectory = Path.Combine(workDirectory, "quoted-bin-name");
+        Directory.CreateDirectory(cueDirectory);
+
+        string binPath = Path.Combine(cueDirectory, "track one.bin");
+        string cuePath = Path.Combine(cueDirectory, "disc.cue");
+
+        File.WriteAllBytes(binPath, [1, 2, 3, 4]);
+        File.WriteAllText(cuePath, "FILE \"track one.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertTrue(
+            app.TryNormalizeCuePrimaryBinReference(cuePath, out string failureMessageKey),
+            "Expected quoted CUE/BIN reference with spaces to validate. Failure: " + failureMessageKey);
+    }
+
+    private static void TestSharedCueParserRejectsMalformedFileStatement(AppReflection app, string workDirectory)
+    {
+        string cueDirectory = Path.Combine(workDirectory, "malformed-file-statement");
+        Directory.CreateDirectory(cueDirectory);
+
+        string binPath = Path.Combine(cueDirectory, "track.bin");
+        string cuePath = Path.Combine(cueDirectory, "bad.cue");
+
+        File.WriteAllBytes(binPath, [1, 2, 3, 4]);
+        File.WriteAllText(cuePath, "FILE \"track.bin BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertFalse(
+            app.TryNormalizeCuePrimaryBinReference(cuePath, out _),
+            "Malformed CUE FILE statement should be rejected.");
     }
 
     private static string ReadRequiredArgument(string[] args, string name)
@@ -345,16 +379,19 @@ internal static class Program
         private readonly MethodInfo scannerTryScan;
         private readonly MethodInfo detectorDetect;
         private readonly MethodInfo advisoryBuild;
+        private readonly MethodInfo cueNormalize;
 
         public AppReflection(Assembly appAssembly)
         {
             Type scannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2DiscStructureScanner");
             Type detectorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2DiscIdentityDetector");
             Type advisoryType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2CompatibilityAdvisoryService");
+            Type safePathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSafePathValidator");
 
             scannerTryScan = GetRequiredMethod(scannerType, "TryScan");
             detectorDetect = GetRequiredMethod(detectorType, "Detect");
             advisoryBuild = GetRequiredMethod(advisoryType, "BuildQueueAdvisory");
+            cueNormalize = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(string).MakeByRefType()]);
         }
 
         public ReflectedStructure ScanStructure(string path)
@@ -372,6 +409,14 @@ internal static class Program
 
         public object? BuildAdvisory(string path, string? detectedPlatform) =>
             advisoryBuild.Invoke(null, [path, detectedPlatform]);
+
+        public bool TryNormalizeCuePrimaryBinReference(string cuePath, out string failureMessageKey)
+        {
+            object?[] arguments = [cuePath, null];
+            bool success = (bool)(cueNormalize.Invoke(null, arguments) ?? false);
+            failureMessageKey = arguments[1] as string ?? string.Empty;
+            return success;
+        }
 
         public IReadOnlySet<string> GetAdvisoryReasonCodes(object advisory)
         {
@@ -400,6 +445,15 @@ internal static class Program
 
         private static MethodInfo GetRequiredMethod(Type type, string methodName) =>
             type.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new MissingMethodException(type.FullName, methodName);
+
+        private static MethodInfo GetRequiredMethod(Type type, string methodName, Type[] parameterTypes) =>
+            type.GetMethod(
+                methodName,
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                binder: null,
+                types: parameterTypes,
+                modifiers: null)
             ?? throw new MissingMethodException(type.FullName, methodName);
     }
 
