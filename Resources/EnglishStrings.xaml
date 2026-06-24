@@ -1000,6 +1000,10 @@ Path:
     <sys:String x:Key="LocIntakeAdvisory_Extract">The file will be extracted before processing.</sys:String>
     <sys:String x:Key="LocIntakeAdvisory_Convert">The file can be converted.</sys:String>
 
+    <sys:String x:Key="LocPs2Advisory_BinCuePreferred">PS2 CD-style input detected. For PS3 PS2 Classics use, keeping CUE/BIN may be safer than forcing ISO.</sys:String>
+    <sys:String x:Key="LocPs2Advisory_CueFileRecommended">Standalone BIN detected for a PS2 CD-style input. Use the matching CUE file when available so track layout is preserved.</sys:String>
+    <sys:String x:Key="LocPs2Advisory_CompactIsoMayNeedBinCue">This looks like a compact PS2 ISO. If it came from a blue-disc PS2 CD, CUE/BIN may be safer for PS3 PS2 Classics compatibility.</sys:String>
+    <sys:String x:Key="LocPs2Advisory_ConfigMayBeRequired">Some PS2 titles need a PS2 Classics CONFIG file for best PS3 compatibility. Conversion can continue, but playback is not guaranteed.</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_Extract">Extract</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_Convert">Convert</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_Block">Block</sys:String>
