@@ -5,6 +5,7 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.MediaInputPolicy;
+using HakamiqChdTool.App.Services.PlayStation.Ps2;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using HakamiqChdTool.App.Views;
 using Serilog;
@@ -267,7 +268,11 @@ public partial class MainWindowViewModel
 
                 foreach (PreparedQueueCandidate candidate in prepared.Candidates)
                 {
-                    preparedCandidates.Add(new PreparedIntakeCandidate(candidate, Advisory: null));
+                    QueueIntakeAdvisory? advisory = Ps2CompatibilityAdvisoryService.BuildQueueAdvisory(
+                        candidate.Path,
+                        candidate.DetectedPlatform);
+
+                    preparedCandidates.Add(new PreparedIntakeCandidate(candidate, advisory));
                     progress.AcceptedCount = preparedCandidates.Count;
                 }
 
@@ -305,6 +310,7 @@ public partial class MainWindowViewModel
 
             IReadOnlyList<PreparedQueueCandidate> consensusCandidates = ApplySiblingPlatformConsensus(
                 preparedCandidates.Select(static item => item.Candidate).ToList());
+            Dictionary<string, QueueIntakeAdvisory?> advisoryByPath = BuildPreparedAdvisoryMap(preparedCandidates);
 
             await dispatcher.InvokeAsync(
                 () =>
@@ -328,7 +334,7 @@ public partial class MainWindowViewModel
                             candidate.DetectionReason,
                             executionProfile,
                             intakeSource,
-                            intakeAdvisory: null);
+                            intakeAdvisory: TryGetPreparedAdvisory(advisoryByPath, candidate.Path));
 
                         _session.QueueRows.Append(row);
                         currentExistingPaths.Add(normalizedCandidatePath);
@@ -490,6 +496,38 @@ public partial class MainWindowViewModel
 
         string normalizedPath = NormalizePathForAdvisoryKey(path);
         return directRawFilePaths.Contains(normalizedPath);
+    }
+
+    private static Dictionary<string, QueueIntakeAdvisory?> BuildPreparedAdvisoryMap(
+        IEnumerable<PreparedIntakeCandidate> preparedCandidates)
+    {
+        ArgumentNullException.ThrowIfNull(preparedCandidates);
+
+        var map = new Dictionary<string, QueueIntakeAdvisory?>(StringComparer.OrdinalIgnoreCase);
+        foreach (PreparedIntakeCandidate item in preparedCandidates)
+        {
+            string key = NormalizePathForAdvisoryKey(item.Candidate.Path);
+            if (key.Length == 0 || map.ContainsKey(key))
+            {
+                continue;
+            }
+
+            map.Add(key, item.Advisory);
+        }
+
+        return map;
+    }
+
+    private static QueueIntakeAdvisory? TryGetPreparedAdvisory(
+        IReadOnlyDictionary<string, QueueIntakeAdvisory?> advisories,
+        string path)
+    {
+        ArgumentNullException.ThrowIfNull(advisories);
+
+        string key = NormalizePathForAdvisoryKey(path);
+        return advisories.TryGetValue(key, out QueueIntakeAdvisory? advisory)
+            ? advisory
+            : null;
     }
 
     private static bool TryAddUnsupportedIntakeCandidate(

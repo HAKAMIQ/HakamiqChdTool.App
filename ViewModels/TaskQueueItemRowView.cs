@@ -514,6 +514,12 @@ public sealed partial class TaskQueueItemViewModel
             return ArabicUi.Get(primaryReason.Message);
         }
 
+        if (reasonCode.StartsWith("PS2_CLASSICS_", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(primaryReason?.Message))
+        {
+            return ArabicUi.Get(primaryReason.Message);
+        }
+
         if (string.Equals(reasonCode, "INTAKE_ARCHIVE_EXTRACT_REQUIRED", StringComparison.OrdinalIgnoreCase))
         {
             return ArabicUi.Get("LocIntakeAdvisory_ArchiveExtractRequired");
