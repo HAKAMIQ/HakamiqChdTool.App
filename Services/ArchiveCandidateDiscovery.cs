@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -427,13 +428,9 @@ public static partial class ArchiveCandidateDiscovery
         }
 
         List<string> results = [];
-        foreach (Match match in CueFileRegex().Matches(cueText))
+        foreach (string line in cueText.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
         {
-            string candidate = match.Groups["q"].Success
-                ? match.Groups["q"].Value
-                : match.Groups["u"].Value;
-
-            if (!string.IsNullOrWhiteSpace(candidate))
+            if (CueSheetFileStatementReader.TryRead(line, out string candidate, out _))
             {
                 results.Add(candidate);
             }
@@ -813,11 +810,6 @@ public static partial class ArchiveCandidateDiscovery
             or System.Security.SecurityException;
     }
 
-    [GeneratedRegex(
-        "^\\s*FILE\\s+(?:\"(?<q>[^\"]+)\"|(?<u>\\S+))",
-        RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant,
-        RegexTimeoutMilliseconds)]
-    private static partial Regex CueFileRegex();
 
     [GeneratedRegex(
         "\"(?<file>[^\"]+)\"",
