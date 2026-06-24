@@ -8,6 +8,7 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $ScriptDir '..')).Path
 $Project = Join-Path $ProjectRoot 'HakamiqChdTool.App.csproj'
 $RepoCheck = Join-Path $ScriptDir 'Verify-RepoConventions.ps1'
+$Ps2AdvisoryTests = Join-Path $ScriptDir 'Run-Ps2AdvisoryValidationTests.ps1'
 $Checklist = Join-Path $ProjectRoot 'docs\SMOKE_TEST_CHECKLIST.md'
 $PowerShellExe = Join-Path $PSHOME 'powershell.exe'
 
@@ -85,6 +86,7 @@ try {
     Assert-CommandExists 'dotnet'
     Assert-FileExists -Path $Project -Message 'Project file was not found:'
     Assert-FileExists -Path $RepoCheck -Message 'Repository convention script was not found:'
+    Assert-FileExists -Path $Ps2AdvisoryTests -Message 'PS2 advisory validation script was not found:'
 
     Write-Host 'Repository conventions ...' -ForegroundColor Cyan
     Invoke-PowerShellFile -ScriptPath $RepoCheck
@@ -117,7 +119,9 @@ try {
         '--no-restore'
     )
 
-    Write-Host 'No test project is currently present in this repository.' -ForegroundColor Yellow
+    Write-Host 'PS2 advisory validation tests ...' -ForegroundColor Cyan
+    Invoke-PowerShellFile -ScriptPath $Ps2AdvisoryTests -Arguments @('-SkipAppBuild')
+
     Write-Host ''
     Write-Host 'Manual smoke checklist:' -ForegroundColor Yellow
     Write-Host '  1) Launch app in Light theme.'
