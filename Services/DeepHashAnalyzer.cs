@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System.IO;
@@ -389,30 +390,9 @@ public static class DeepHashAnalyzer
 
         foreach (string line in File.ReadLines(cuePath, Encoding.UTF8))
         {
-            string text = line.Trim();
-            if (!text.StartsWith("FILE ", StringComparison.OrdinalIgnoreCase))
+            if (CueSheetFileStatementReader.TryRead(line, out string name, out _))
             {
-                continue;
-            }
-
-            string name;
-            int firstQuote = text.IndexOf('"');
-            int secondQuote = firstQuote >= 0 ? text.IndexOf('"', firstQuote + 1) : -1;
-
-            if (firstQuote >= 0 && secondQuote > firstQuote)
-            {
-                name = text.Substring(firstQuote + 1, secondQuote - firstQuote - 1);
-            }
-            else
-            {
-                ReadOnlySpan<char> span = text.AsSpan(5).TrimStart();
-                int separator = IndexOfWhiteSpace(span);
-                name = separator > 0 ? span[..separator].ToString() : span.ToString();
-            }
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                names.Add(name.Trim());
+                names.Add(name);
             }
         }
 

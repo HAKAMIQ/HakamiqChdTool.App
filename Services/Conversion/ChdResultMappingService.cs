@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
@@ -5,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using static HakamiqChdTool.App.Services.ChdConversionMessages;
@@ -129,10 +129,10 @@ public sealed class ChdResultMappingService : IChdResultMappingService
             yield break;
         }
 
-        string text;
+        string[] lines;
         try
         {
-            text = File.ReadAllText(cuePath);
+            lines = File.ReadAllLines(cuePath);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
@@ -140,15 +140,11 @@ public sealed class ChdResultMappingService : IChdResultMappingService
             yield break;
         }
 
-        foreach (Match match in CueFileReferenceRegex.Matches(text))
+        foreach (string line in lines)
         {
-            string value = match.Groups["q"].Success
-                ? match.Groups["q"].Value
-                : match.Groups["u"].Value;
-
-            if (!string.IsNullOrWhiteSpace(value))
+            if (CueSheetFileStatementReader.TryRead(line, out string value, out _))
             {
-                yield return value.Trim();
+                yield return value;
             }
         }
     }

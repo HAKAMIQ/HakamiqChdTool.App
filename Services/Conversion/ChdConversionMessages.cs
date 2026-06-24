@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace HakamiqChdTool.App.Services;
 
 internal static class ChdConversionMessages
@@ -24,8 +22,4 @@ internal static class ChdConversionMessages
     internal const string InvalidCdHunkSizeMessageKey = "LocConversion_InvalidCdHunkSize";
     internal const string InvalidCueBinDependencyMessageKey = "LocChdmanContract_InvalidCueBinDependency";
     internal const string DirectChdRecompressBlockedMessageKey = "LocChdPolicy_DirectChdRecompressBlocked";
-
-    internal static readonly Regex CueFileReferenceRegex = new(
-        "^\\s*FILE\\s+(?:\"(?<q>[^\"]+)\"|(?<u>\\S+))",
-        RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
 }
