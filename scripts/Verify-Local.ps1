@@ -10,6 +10,7 @@ $Project = Join-Path $ProjectRoot 'HakamiqChdTool.App.csproj'
 $RepoCheck = Join-Path $ScriptDir 'Verify-RepoConventions.ps1'
 $Ps2AdvisoryTests = Join-Path $ScriptDir 'Run-Ps2AdvisoryValidationTests.ps1'
 $PackageCleanlinessGate = Join-Path $ScriptDir 'Run-PackageCleanlinessGate.ps1'
+$ReleaseOutputGate = Join-Path $ScriptDir 'Run-ReleaseOutputGate.ps1'
 $Checklist = Join-Path $ProjectRoot 'docs\SMOKE_TEST_CHECKLIST.md'
 $PowerShellExe = Join-Path $PSHOME 'powershell.exe'
 
@@ -89,6 +90,7 @@ try {
     Assert-FileExists -Path $RepoCheck -Message 'Repository convention script was not found:'
     Assert-FileExists -Path $Ps2AdvisoryTests -Message 'PS2 advisory validation script was not found:'
     Assert-FileExists -Path $PackageCleanlinessGate -Message 'Package cleanliness gate script was not found:'
+    Assert-FileExists -Path $ReleaseOutputGate -Message 'Release output gate script was not found:'
 
     Write-Host 'Repository conventions ...' -ForegroundColor Cyan
     Invoke-PowerShellFile -ScriptPath $RepoCheck
@@ -138,6 +140,9 @@ try {
     Write-Host '  7) Switch Arabic and English once, then restart.'
     Write-Host '  8) Confirm no XAML parse errors.'
     Write-Host '  9) Confirm no resource lookup failures in logs/output.'
+    Write-Host ''
+    Write-Host 'Optional release output gate:' -ForegroundColor Yellow
+    Write-Host '  powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-ReleaseOutputGate.ps1'
     Write-Host ''
 
     if (Test-Path -LiteralPath $Checklist -PathType Leaf) {

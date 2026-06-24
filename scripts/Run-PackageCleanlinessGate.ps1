@@ -258,6 +258,7 @@ function Assert-SourcePackageLayout {
         'scripts\Verify-Local.ps1',
         'scripts\Verify-RepoConventions.ps1',
         'scripts\Verify-EndUserRelease.ps1',
+        'scripts\Run-ReleaseOutputGate.ps1',
         'scripts\Generate-ReleaseManifest.ps1',
         'docs\legal\LEGAL.md',
         'docs\legal\THIRD_PARTY_NOTICES.txt'
@@ -327,7 +328,7 @@ function Invoke-SourceArchiveGate {
 
 function Invoke-ReleaseOutputGateIfRequested {
     if ([string]::IsNullOrWhiteSpace($ReleaseOutput)) {
-        Write-Info 'Release output check skipped. Pass -ReleaseOutput to verify a built release folder.'
+        Write-Info 'Release output check skipped. Use scripts\Run-ReleaseOutputGate.ps1 to publish and verify a disposable release output, or pass -ReleaseOutput to verify an existing release folder.'
         return
     }
 
