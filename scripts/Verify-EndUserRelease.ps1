@@ -619,6 +619,12 @@ function Assert-NoSquashFsArtifacts {
         -Message "SquashFS directory must not be included in end-user release:"
 }
 
+function Assert-NoCrashDumpHelper {
+    Assert-NoFilesByNamePattern `
+        -Patterns @("createdump.exe") `
+        -Message "Crash dump helper must not be included in end-user release:"
+}
+
 function Assert-NoSuspiciousNestedRelease {
     $matches = Get-ChildItem -LiteralPath $OutputPath -Directory -Recurse -Force -ErrorAction SilentlyContinue |
         Where-Object {
@@ -807,6 +813,7 @@ Assert-OnlyApprovedToolFiles
 Assert-OnlyApprovedToolDirectories
 Assert-CsoKitBundledToolContract
 Assert-NoSquashFsArtifacts
+Assert-NoCrashDumpHelper
 Assert-ExecutableFilesAreNotEmpty
 Assert-ReleaseManifest
 Assert-NoSuspiciousNestedRelease
