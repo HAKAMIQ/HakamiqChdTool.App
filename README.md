@@ -11,10 +11,10 @@ https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/latest
 
 Choose one package:
 
-- `HakamiqChdTool-v1.0.8-win-x64-runtime-required.zip`  
+- `HakamiqChdTool-v1.0.8-win-x64-runtime-required.zip`
   Smaller download. Requires .NET 8 Desktop Runtime x64.
 
-- `HakamiqChdTool-v1.0.8-win-x64-self-contained.zip`  
+- `HakamiqChdTool-v1.0.8-win-x64-self-contained.zip`
   Larger download. Runs without installing .NET separately.
 
 ## Quick start
@@ -40,8 +40,8 @@ The tool does not include games, ROMs, or BIOS files. Use it only with files you
 
 ## Limitations
 
-Windows x64 only.  
-Not every disc layout is supported.  
+Windows x64 only.
+Not every disc layout is supported.
 CHD work still depends on chdman support.
 
 ## More documentation
