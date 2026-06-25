@@ -47,18 +47,6 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
         return Path.Combine(directory, $"{stem}.bin");
     }
 
-    private static string BuildSingleBinExtractCdBinOutputPath(string cueOutputPath)
-    {
-        string? directory = Path.GetDirectoryName(cueOutputPath);
-        if (string.IsNullOrWhiteSpace(directory))
-        {
-            throw new InvalidOperationException(BinOutputDirectoryMissingMessageKey);
-        }
-
-        string stem = Path.GetFileNameWithoutExtension(cueOutputPath);
-        stem = string.IsNullOrWhiteSpace(stem) ? "track" : stem;
-        return Path.Combine(directory, $"{stem}.bin");
-    }
 
     public string BuildSplitBinExtractCdBinOutputPath(string cueOutputPath)
     {
@@ -154,10 +142,6 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
         arguments.Add("-ob");
         arguments.Add(binOutputPath);
     }
-
-    private static bool ContainsTrackToken(string value) =>
-        !string.IsNullOrEmpty(value)
-        && value.Contains("%t", StringComparison.OrdinalIgnoreCase);
 
 
     public string ResolveCompressionSetting(string? compressionCodecs, string command) =>

@@ -766,17 +766,6 @@ public static class ChdWorkflowProfilePlanner
         };
     }
 
-    private static long TryGetFileLength(string path)
-    {
-        try
-        {
-            return new FileInfo(path).Length;
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
-        {
-            return 0L;
-        }
-    }
 
     private static ChdWorkflowProfilePlan BuildExtractionPlan(
         ChdMediaFormatKind mediaKind,
