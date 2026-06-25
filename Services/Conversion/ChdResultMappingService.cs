@@ -1,4 +1,4 @@
-﻿using HakamiqChdTool.App.Core.Disc;
+using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
