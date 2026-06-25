@@ -1,4 +1,4 @@
-﻿Hakamiq CsoKit
+Hakamiq CsoKit
 
 Copyright (c) 2026 HAKAMIQ.
 All rights reserved.
