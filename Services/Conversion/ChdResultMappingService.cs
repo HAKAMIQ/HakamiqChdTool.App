@@ -1,13 +1,10 @@
-using HakamiqChdTool.App.Core.Disc;
+﻿using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using static HakamiqChdTool.App.Services.ChdConversionMessages;
 using static HakamiqChdTool.App.Services.ChdOutputPathHelpers;
 
