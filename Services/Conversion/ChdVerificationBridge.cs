@@ -2,12 +2,9 @@ using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using static HakamiqChdTool.App.Services.ChdConversionMessages;
 using static HakamiqChdTool.App.Services.ChdOutputPathHelpers;
 
@@ -263,30 +260,6 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
             Log.Debug(ex, "Descriptor dependency preflight failed. Input={InputPath}; Command={Command}", inputPath, command);
             return false;
         }
-    }
-
-    private static async Task WritePreflightFailureLogAsync(
-        string logPath,
-        string command,
-        string inputPath,
-        string outputPath,
-        string messageKey,
-        CancellationToken cancellationToken)
-    {
-        var logBuilder = new StringBuilder();
-        logBuilder.AppendLine($"Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-        logBuilder.AppendLine($"Command: {command}");
-        logBuilder.AppendLine($"Input: {inputPath}");
-        logBuilder.AppendLine($"Output: {outputPath}");
-        logBuilder.AppendLine("ExitCode: 1");
-        logBuilder.AppendLine($"PreflightMessageKey: {messageKey}");
-        logBuilder.AppendLine("Success: False");
-        logBuilder.AppendLine();
-        logBuilder.AppendLine("=== PREFLIGHT ===");
-        logBuilder.AppendLine(messageKey);
-        logBuilder.AppendLine();
-
-        await File.WriteAllTextAsync(logPath, logBuilder.ToString(), cancellationToken).ConfigureAwait(false);
     }
 
     private static bool VerifyCueBinDependenciesStrict(string cuePath)
