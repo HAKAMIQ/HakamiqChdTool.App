@@ -162,39 +162,6 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
         return ChdCompressionResolution.NotApplicable;
     }
 
-    private static string ValidateExplicitCompressionCodecs(string value, bool isCd)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return string.Empty;
-        }
-
-        if (string.Equals(value, "none", StringComparison.OrdinalIgnoreCase))
-        {
-            return "none";
-        }
-
-        HashSet<string> allowed = isCd
-            ? new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "cdlz", "cdzl", "cdzs", "cdfl" }
-            : new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "lzma", "zlib", "zstd", "huff", "flac" };
-
-        string[] parts = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        if (parts.Length == 0 || parts.Length > 4)
-        {
-            throw new InvalidOperationException(InvalidCompressionSettingMessageKey);
-        }
-
-        foreach (string codec in parts)
-        {
-            if (!allowed.Contains(codec))
-            {
-                throw new InvalidOperationException(InvalidCompressionSettingMessageKey);
-            }
-        }
-
-        return string.Join(',', parts);
-    }
-
     public int ResolveHunkSizeSetting(int hunkSizeBytes, string command, string inputPath, out string policyNote)
     {
         policyNote = string.Empty;
