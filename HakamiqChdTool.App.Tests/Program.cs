@@ -48,6 +48,10 @@ internal static class Program
                 new("CUE references cannot escape their directory", () => TestCueReferenceTraversalIsRejected(app, workDirectory)),
                 new("Shared CUE parser accepts quoted BIN names with spaces", () => TestSharedCueParserAcceptsQuotedBinWithSpaces(app, workDirectory)),
                 new("Shared CUE parser rejects malformed FILE statements", () => TestSharedCueParserRejectsMalformedFileStatement(app, workDirectory)),
+                new("CUE absolute BIN references are rejected by default", () => TestCueAbsoluteBinReferenceRejectedByDefault(app, workDirectory)),
+                new("CUE absolute BIN references require explicit allowance", () => TestCueAbsoluteBinReferenceRequiresExplicitAllowance(app, workDirectory)),
+                new("Extracted CUE/BIN finalization rewrites single BIN name", () => TestExtractedCueBinFinalizationRewritesSingleBinName(app, workDirectory)),
+                new("Extracted CUE/BIN finalization rejects traversal references", () => TestExtractedCueBinFinalizationRejectsTraversal(app, workDirectory)),
                 new("Final extract output uses CHD stem and requested extension", () => TestFinalExtractOutputPathUsesChdStem(app, workDirectory)),
                 new("Final extract output can organize by platform", () => TestFinalExtractOutputPathCanOrganizeByPlatform(app, workDirectory)),
                 new("Verified CHD path is unchanged without organization", () => TestVerifiedChdPathIsUnchangedWithoutOrganization(app, workDirectory)),
@@ -232,6 +236,88 @@ internal static class Program
         AssertFalse(
             app.TryNormalizeCuePrimaryBinReference(cuePath, out _),
             "Malformed CUE FILE statement should be rejected.");
+    }
+
+    private static void TestCueAbsoluteBinReferenceRejectedByDefault(AppReflection app, string workDirectory)
+    {
+        string cueDirectory = Path.Combine(workDirectory, "absolute-bin-default");
+        Directory.CreateDirectory(cueDirectory);
+
+        string binPath = Path.Combine(cueDirectory, "track.bin");
+        string cuePath = Path.Combine(cueDirectory, "absolute.cue");
+
+        File.WriteAllBytes(binPath, [1, 2, 3, 4]);
+        File.WriteAllText(cuePath, $"FILE \"{Path.GetFullPath(binPath)}\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertFalse(
+            app.TryNormalizeCuePrimaryBinReference(cuePath, out string failureMessageKey),
+            "Absolute CUE/BIN reference should be rejected by default.");
+        AssertEqual("LocChdmanContract_InvalidCueBinDependency", failureMessageKey, "Unexpected absolute CUE/BIN failure key.");
+    }
+
+    private static void TestCueAbsoluteBinReferenceRequiresExplicitAllowance(AppReflection app, string workDirectory)
+    {
+        string cueDirectory = Path.Combine(workDirectory, "absolute-bin-allowed");
+        Directory.CreateDirectory(cueDirectory);
+
+        string binPath = Path.Combine(cueDirectory, "track.bin");
+        string cuePath = Path.Combine(cueDirectory, "absolute.cue");
+
+        File.WriteAllBytes(binPath, [1, 2, 3, 4]);
+        File.WriteAllText(cuePath, $"FILE \"{Path.GetFullPath(binPath)}\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertTrue(
+            app.TryNormalizeCuePrimaryBinReference(cuePath, allowConstrainedAbsoluteBinReference: true, out string failureMessageKey),
+            "Constrained absolute CUE/BIN reference should pass only when explicitly allowed. Failure: " + failureMessageKey);
+    }
+
+    private static void TestExtractedCueBinFinalizationRewritesSingleBinName(AppReflection app, string workDirectory)
+    {
+        string pendingDirectory = Path.Combine(workDirectory, "finalize-single", "pending");
+        string finalDirectory = Path.Combine(workDirectory, "finalize-single", "final");
+        Directory.CreateDirectory(pendingDirectory);
+        Directory.CreateDirectory(finalDirectory);
+
+        string pendingCuePath = Path.Combine(pendingDirectory, "output.cue");
+        string pendingBinPath = Path.Combine(pendingDirectory, "track.bin");
+        string finalCuePath = Path.Combine(finalDirectory, "Game Name.cue");
+        string finalBinPath = Path.Combine(finalDirectory, "Game Name.bin");
+
+        File.WriteAllBytes(pendingBinPath, [1, 2, 3, 4]);
+        File.WriteAllText(pendingCuePath, "FILE \"track.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertTrue(
+            app.TryFinalizeExtractedCueBinOutput(pendingCuePath, finalCuePath, out string failureMessageKey),
+            "Expected extracted CUE/BIN finalization to succeed. Failure: " + failureMessageKey);
+        AssertTrue(File.Exists(finalCuePath), "Expected final CUE to exist.");
+        AssertTrue(File.Exists(finalBinPath), "Expected final BIN to be renamed to the final CUE stem.");
+        AssertFalse(File.Exists(pendingCuePath), "Pending CUE should be promoted out of workspace.");
+        AssertFalse(File.Exists(pendingBinPath), "Pending BIN should be promoted out of workspace.");
+        AssertTrue(File.ReadAllText(finalCuePath, Encoding.UTF8).Contains("FILE \"Game Name.bin\" BINARY", StringComparison.Ordinal), "Expected final CUE to reference the renamed BIN.");
+    }
+
+    private static void TestExtractedCueBinFinalizationRejectsTraversal(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "finalize-traversal");
+        string pendingDirectory = Path.Combine(rootDirectory, "pending");
+        string finalDirectory = Path.Combine(rootDirectory, "final");
+        Directory.CreateDirectory(pendingDirectory);
+        Directory.CreateDirectory(finalDirectory);
+
+        string outsideBinPath = Path.Combine(rootDirectory, "outside.bin");
+        string pendingCuePath = Path.Combine(pendingDirectory, "output.cue");
+        string finalCuePath = Path.Combine(finalDirectory, "Game.cue");
+
+        File.WriteAllBytes(outsideBinPath, [1, 2, 3, 4]);
+        File.WriteAllText(pendingCuePath, "FILE \"..\\outside.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertFalse(
+            app.TryFinalizeExtractedCueBinOutput(pendingCuePath, finalCuePath, out string failureMessageKey),
+            "Traversal CUE reference must be rejected during extracted CUE/BIN finalization.");
+        AssertEqual("LocWorkflow_ExtractedCueBinInvalid", failureMessageKey, "Unexpected extracted CUE/BIN traversal failure key.");
+        AssertTrue(File.Exists(pendingCuePath), "Rejected pending CUE should remain in place for diagnostics.");
+        AssertTrue(File.Exists(outsideBinPath), "Rejected outside BIN should not be moved or deleted.");
+        AssertFalse(File.Exists(finalCuePath), "Rejected final CUE should not be created.");
     }
 
     private static void TestFinalExtractOutputPathUsesChdStem(AppReflection app, string workDirectory)
@@ -570,6 +656,8 @@ internal static class Program
         private readonly MethodInfo detectorDetect;
         private readonly MethodInfo advisoryBuild;
         private readonly MethodInfo cueNormalize;
+        private readonly MethodInfo cueNormalizeConstrained;
+        private readonly MethodInfo finalizeExtractedCueBinOutput;
         private readonly MethodInfo buildFinalExtractOutputPath;
         private readonly MethodInfo buildFinalVerifiedChdPath;
         private readonly MethodInfo buildPendingOutputPath;
@@ -597,6 +685,8 @@ internal static class Program
             detectorDetect = GetRequiredMethod(detectorType, "Detect");
             advisoryBuild = GetRequiredMethod(advisoryType, "BuildQueueAdvisory");
             cueNormalize = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(string).MakeByRefType()]);
+            cueNormalizeConstrained = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(bool), typeof(string).MakeByRefType()]);
+            finalizeExtractedCueBinOutput = GetRequiredMethod(safePathType, "TryFinalizeExtractedCueBinOutput", [typeof(string), typeof(string), typeof(string).MakeByRefType()]);
             buildFinalExtractOutputPath = GetRequiredMethod(outputPathType, "BuildFinalExtractOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
             buildFinalVerifiedChdPath = GetRequiredMethod(outputPathType, "BuildFinalVerifiedChdPath", [typeof(string), typeof(string), typeof(string), settingsType]);
             buildPendingOutputPath = GetRequiredMethod(outputPathType, "BuildPendingOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
@@ -626,6 +716,28 @@ internal static class Program
             object?[] arguments = [cuePath, null];
             bool success = (bool)(cueNormalize.Invoke(null, arguments) ?? false);
             failureMessageKey = arguments[1] as string ?? string.Empty;
+            return success;
+        }
+
+        public bool TryNormalizeCuePrimaryBinReference(
+            string cuePath,
+            bool allowConstrainedAbsoluteBinReference,
+            out string failureMessageKey)
+        {
+            object?[] arguments = [cuePath, allowConstrainedAbsoluteBinReference, null];
+            bool success = (bool)(cueNormalizeConstrained.Invoke(null, arguments) ?? false);
+            failureMessageKey = arguments[2] as string ?? string.Empty;
+            return success;
+        }
+
+        public bool TryFinalizeExtractedCueBinOutput(
+            string pendingCuePath,
+            string finalCuePath,
+            out string failureMessageKey)
+        {
+            object?[] arguments = [pendingCuePath, finalCuePath, null];
+            bool success = (bool)(finalizeExtractedCueBinOutput.Invoke(null, arguments) ?? false);
+            failureMessageKey = arguments[2] as string ?? string.Empty;
             return success;
         }
 
