@@ -2,64 +2,68 @@
 
 Hakamiq CHD Tool uses chdman for CHD work.
 
-chdman creates, checks, and extracts CHD files. Hakamiq CHD Tool prepares
-the command, runs chdman, shows progress, and shows the final result.
+The app is not a CHD encoder. It prepares the command, checks the surrounding files, runs chdman, reads progress, and turns the result into something useful on screen.
 
-The app does not replace chdman.
+## What chdman handles
 
-## What chdman does
-
-The app uses chdman to:
+chdman handles the CHD format itself:
 
 - create CHD files
-- check existing CHD files
+- verify existing CHD files
 - extract supported CHD files
-- report progress and tool errors
+- report tool-level errors and progress where available
+
+Hakamiq CHD Tool handles the user workflow around that.
 
 ## What the app checks first
 
-Before running chdman, the app checks:
+Before chdman starts, the app checks the parts that commonly waste time:
 
-- source file path
-- output file path
+- source path and readability
+- output path
 - required CUE, GDI, or TOC track files
-- supported archive files
-- supported CSO files
+- CUE/BIN path safety
+- archive staging
+- CSO preparation
 - free disk space
+- existing output files
 
-If a required file is missing, the app should stop before chdman starts.
+If a CUE points outside its folder, or a required track is missing, the app should stop before chdman runs.
 
-## Common chdman commands
+## Commands used by the app
 
-The app may use these chdman commands:
+The app may prepare these chdman commands:
 
-- createcd
-- createdvd
-- verify
-- extractcd
-- extractdvd
-- extracthd
-- extractraw
+- `createcd`
+- `createdvd`
+- `verify`
+- `extractcd`
+- `extractdvd`
+- `extracthd`
+- `extractraw`
 
-The app does not need to show every chdman option.
+Normal users should not need to type any of them.
 
-## Progress and cancel
+## Progress
 
-The app reads chdman output when progress is available.
+When chdman prints progress, the app reads it.
 
-If the user cancels a job, the app should stop chdman and show the job
-as cancelled, not failed.
+For some extraction paths, direct progress is limited. In those cases the app can still track pending output growth so the queue does not look frozen.
 
-## Included chdman
+## Cancellation
 
-A release package may include chdman so users do not need to install it.
+Cancelling a job should stop the running tool and mark the item as cancelled.
 
-If chdman is missing, blocked, or incompatible, the app should show a
-clear tool error.
+That result is kept separate from failure. The user asked to stop; that is not the same thing as a broken source.
 
-## License files
+## Bundled tools
 
-If chdman is included, the release package must include the required
-MAME license and notice files.
+Release packages may include chdman and related helper tools so users do not need to install them manually.
 
-Release package details are in CONTRIBUTING.md.
+If a required tool is missing, blocked, or incompatible, the app should show a tool error instead of a vague conversion failure.
+
+## Legal notices
+
+When a release includes third-party tools, the matching license and notice files must be included in the package.
+
+Release packaging rules are maintained in [CONTRIBUTING.md](../CONTRIBUTING.md).

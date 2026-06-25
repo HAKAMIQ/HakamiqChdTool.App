@@ -1,38 +1,29 @@
 # Documentation
 
-This folder has extra docs for Hakamiq CHD Tool.
+The main README is for normal use. This folder goes deeper: supported inputs, conversion behavior, chdman integration, logs, and project structure.
 
-Start with the main README if you only want to download and use the app.
+If you only want to convert a few files, start with the root README. Come here when something is unclear or when you need to report a problem.
 
-## User pages
+## User guides
 
-- [Supported formats](SUPPORTED_FORMATS.md)
-  Shows what the app can convert, check, extract, detect, or reject.
+- [Supported formats](SUPPORTED_FORMATS.md) — what the app can convert, verify, extract, detect, or reject.
+- [Conversion options](CONVERSION_OPTIONS.md) — Convert, Verify, Extract, queue results, output names, and temporary files.
+- [Errors and logs](ERRORS_AND_LOGS.md) — common failures and what to include in a useful report.
+- [PS3 experimental support](PS3_EXPERIMENTAL.md) — limited detection notes for PS3-related input.
 
-- [Conversion options](CONVERSION_OPTIONS.md)
-  Explains Convert, Verify, Extract, queue results, and output files.
+## Technical notes
 
-- [Errors and logs](ERRORS_AND_LOGS.md)
-  Explains common errors and what to include when reporting a problem.
+- [chdman integration](CHDMAN_INTEGRATION.md) — how the app prepares and runs chdman without exposing command lines to normal users.
+- [Architecture](ARCHITECTURE.md) — current app structure and boundaries.
+- [Architecture boundaries](architecture/ARCHITECTURE_BOUNDARIES.md) — the current decision around `Core/Workflow`.
 
-- [PS3 experimental support](PS3_EXPERIMENTAL.md)
-  Explains what PS3 support can detect and what it does not promise.
+## Release and legal
 
-## Technical pages
-
-- [Architecture](ARCHITECTURE.md)
-  Shows the main parts of the app and what belongs in the project.
-
-- [chdman integration](CHDMAN_INTEGRATION.md)
-  Explains how the app uses chdman.
-
-## Release and legal pages
-
+- [Changelog](release-notes/CHANGELOG.md)
 - [Legal notice](legal/LEGAL.md)
 - [Third-party notices](legal/THIRD_PARTY_NOTICES.txt)
-- [Changelog](release-notes/CHANGELOG.md)
 
 ## Development
 
+- [Contributing](../CONTRIBUTING.md)
 - [Smoke test checklist](SMOKE_TEST_CHECKLIST.md)
-- [Contributing guide](../CONTRIBUTING.md)
