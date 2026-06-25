@@ -51,7 +51,11 @@ internal static class Program
                 new("Final extract output uses CHD stem and requested extension", () => TestFinalExtractOutputPathUsesChdStem(app, workDirectory)),
                 new("Final extract output can organize by platform", () => TestFinalExtractOutputPathCanOrganizeByPlatform(app, workDirectory)),
                 new("Verified CHD path is unchanged without organization", () => TestVerifiedChdPathIsUnchangedWithoutOrganization(app, workDirectory)),
-                new("Pending output path is isolated under workspace root", () => TestPendingOutputPathIsolatedUnderWorkspaceRoot(app, workDirectory))
+                new("Pending output path is isolated under workspace root", () => TestPendingOutputPathIsolatedUnderWorkspaceRoot(app, workDirectory)),
+                new("Workflow planner maps extraction kinds", () => TestWorkflowPlannerExtractionKinds(app)),
+                new("Workflow planner maps CHD media types", () => TestWorkflowPlannerMediaTypes(app)),
+                new("Workflow planner creates CD command for CUE descriptor", () => TestWorkflowPlannerCueCreatesCd(app, workDirectory)),
+                new("Workflow planner creates DVD command for CSO input", () => TestWorkflowPlannerCsoCreatesDvd(app, workDirectory))
             ];
 
             int passed = 0;
@@ -328,6 +332,77 @@ internal static class Program
         AssertTrue(Path.GetFileName(pendingDirectory).StartsWith("Operation_", StringComparison.Ordinal), "Expected operation job directory prefix.");
     }
 
+
+    private static void TestWorkflowPlannerExtractionKinds(AppReflection app)
+    {
+        AssertPlan(app.PlanExtractionByKind("ExtractCd"), supported: true, command: "extractcd", profileKind: "ExtractCd", mediaKind: "CdChd", extractionKind: "ExtractCd", outputExtension: ".cue");
+        AssertPlan(app.PlanExtractionByKind("ExtractDvd"), supported: true, command: "extractdvd", profileKind: "ExtractDvd", mediaKind: "DvdChd", extractionKind: "ExtractDvd", outputExtension: ".iso");
+        AssertPlan(app.PlanExtractionByKind("ExtractHd"), supported: true, command: "extracthd", profileKind: "ExtractHd", mediaKind: "HdChd", extractionKind: "ExtractHd", outputExtension: ".img");
+        AssertPlan(app.PlanExtractionByKind("ExtractRaw"), supported: true, command: "extractraw", profileKind: "ExtractRaw", mediaKind: "RawChd", extractionKind: "ExtractRaw", outputExtension: ".raw");
+
+        object unsupported = app.PlanExtractionByKind("None");
+        AssertFalse(GetBool(unsupported, "IsSupported"), "Unknown extraction kind should be unsupported.");
+        AssertEqual("Unsupported", GetEnumName(unsupported, "ProfileKind"), "Unexpected unsupported extraction profile kind.");
+        AssertEqual("LocWorkflow_UnknownChdExtraction", GetString(unsupported, "FailureMessage"), "Unexpected unsupported extraction failure message.");
+    }
+
+    private static void TestWorkflowPlannerMediaTypes(AppReflection app)
+    {
+        AssertPlan(app.PlanExtractionFromChdMediaType("GD-ROM"), supported: true, command: "extractcd", profileKind: "ExtractCd", mediaKind: "CdChd", extractionKind: "ExtractCd", outputExtension: ".cue");
+        AssertPlan(app.PlanExtractionFromChdMediaType("CD-ROM"), supported: true, command: "extractcd", profileKind: "ExtractCd", mediaKind: "CdChd", extractionKind: "ExtractCd", outputExtension: ".cue");
+        AssertPlan(app.PlanExtractionFromChdMediaType("DVD-ROM"), supported: true, command: "extractdvd", profileKind: "ExtractDvd", mediaKind: "DvdChd", extractionKind: "ExtractDvd", outputExtension: ".iso");
+        AssertPlan(app.PlanExtractionFromChdMediaType("HD-ROM"), supported: true, command: "extracthd", profileKind: "ExtractHd", mediaKind: "HdChd", extractionKind: "ExtractHd", outputExtension: ".img");
+
+        object unsupported = app.PlanExtractionFromChdMediaType("Unknown");
+        AssertFalse(GetBool(unsupported, "IsSupported"), "Unknown CHD media type should be unsupported.");
+        AssertEqual("LocWorkflow_UnknownChdExtraction", GetString(unsupported, "FailureMessage"), "Unexpected unknown media type failure message.");
+    }
+
+    private static void TestWorkflowPlannerCueCreatesCd(AppReflection app, string workDirectory)
+    {
+        string cueDirectory = Path.Combine(workDirectory, "planner-cue");
+        Directory.CreateDirectory(cueDirectory);
+
+        string binPath = Path.Combine(cueDirectory, "track.bin");
+        string cuePath = Path.Combine(cueDirectory, "disc.cue");
+
+        File.WriteAllBytes(binPath, [1, 2, 3, 4]);
+        File.WriteAllText(cuePath, "FILE \"track.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        object plan = app.PlanCreateFromSource(cuePath);
+
+        AssertPlan(plan, supported: true, command: "createcd", profileKind: "CreateCd", mediaKind: "Cue", extractionKind: "None", outputExtension: string.Empty);
+        AssertTrue(GetBool(plan, "RequiresDescriptorDependencies"), "CUE plan should require descriptor dependencies.");
+    }
+
+    private static void TestWorkflowPlannerCsoCreatesDvd(AppReflection app, string workDirectory)
+    {
+        string csoPath = Path.Combine(workDirectory, "planner-cso.cso");
+        File.WriteAllBytes(csoPath, [1, 2, 3, 4]);
+
+        object plan = app.PlanCreateFromSource(csoPath);
+
+        AssertPlan(plan, supported: true, command: "createdvd", profileKind: "CreateDvd", mediaKind: "Cso", extractionKind: "None", outputExtension: string.Empty);
+        AssertFalse(GetBool(plan, "RequiresDescriptorDependencies"), "CSO plan should not require descriptor dependencies.");
+    }
+
+    private static void AssertPlan(
+        object plan,
+        bool supported,
+        string command,
+        string profileKind,
+        string mediaKind,
+        string extractionKind,
+        string outputExtension)
+    {
+        AssertEqual(supported, GetBool(plan, "IsSupported"), "Unexpected planner support state.");
+        AssertEqual(command, GetString(plan, "Command"), "Unexpected planner command.");
+        AssertEqual(profileKind, GetEnumName(plan, "ProfileKind"), "Unexpected planner profile kind.");
+        AssertEqual(mediaKind, GetEnumName(plan, "MediaKind"), "Unexpected planner media kind.");
+        AssertEqual(extractionKind, GetEnumName(plan, "ExtractionKind"), "Unexpected planner extraction kind.");
+        AssertEqual(outputExtension, GetString(plan, "OutputExtension"), "Unexpected planner output extension.");
+    }
+
     private static string ReadRequiredArgument(string[] args, string name)
     {
         for (int index = 0; index < args.Length - 1; index++)
@@ -498,6 +573,12 @@ internal static class Program
         private readonly MethodInfo buildFinalExtractOutputPath;
         private readonly MethodInfo buildFinalVerifiedChdPath;
         private readonly MethodInfo buildPendingOutputPath;
+        private readonly Type extractionKindType;
+        private readonly Type isoCreateOverrideType;
+        private readonly Type mediaContainerKindType;
+        private readonly MethodInfo planExtractionByKind;
+        private readonly MethodInfo planExtractionFromChdMediaType;
+        private readonly MethodInfo planCreateFromSource;
 
         public AppReflection(Assembly appAssembly)
         {
@@ -506,7 +587,11 @@ internal static class Program
             Type advisoryType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2CompatibilityAdvisoryService");
             Type safePathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSafePathValidator");
             Type outputPathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowOutputPathPlanner");
+            Type profilePlannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdWorkflowProfilePlanner");
             settingsType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.AppSettings");
+            extractionKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdmanExtractionKind");
+            isoCreateOverrideType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.IsoCreateCommandOverride");
+            mediaContainerKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdMediaContainerKind");
 
             scannerTryScan = GetRequiredMethod(scannerType, "TryScan");
             detectorDetect = GetRequiredMethod(detectorType, "Detect");
@@ -515,6 +600,9 @@ internal static class Program
             buildFinalExtractOutputPath = GetRequiredMethod(outputPathType, "BuildFinalExtractOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
             buildFinalVerifiedChdPath = GetRequiredMethod(outputPathType, "BuildFinalVerifiedChdPath", [typeof(string), typeof(string), typeof(string), settingsType]);
             buildPendingOutputPath = GetRequiredMethod(outputPathType, "BuildPendingOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
+            planExtractionByKind = GetRequiredMethod(profilePlannerType, "PlanExtractionByKind", [extractionKindType]);
+            planExtractionFromChdMediaType = GetRequiredMethod(profilePlannerType, "PlanExtractionFromChdMediaType", [typeof(string), typeof(string), GetOptionalPlatformDetectionType(appAssembly)]);
+            planCreateFromSource = GetRequiredMethod(profilePlannerType, "PlanCreateFromSource", [typeof(string), isoCreateOverrideType, mediaContainerKindType, typeof(string)]);
         }
 
         public ReflectedStructure ScanStructure(string path)
@@ -583,6 +671,25 @@ internal static class Program
             (string)(buildPendingOutputPath.Invoke(null, [finalOutputPath, workingInputPath, outputExtension, resolvedOutputRoot, settings])
                 ?? string.Empty);
 
+        public object PlanExtractionByKind(string extractionKindName)
+        {
+            object extractionKind = Enum.Parse(extractionKindType, extractionKindName, ignoreCase: false);
+            return planExtractionByKind.Invoke(null, [extractionKind])
+                ?? throw new InvalidOperationException("Planner returned null for extraction kind: " + extractionKindName);
+        }
+
+        public object PlanExtractionFromChdMediaType(string mediaType) =>
+            planExtractionFromChdMediaType.Invoke(null, [mediaType, null, null])
+                ?? throw new InvalidOperationException("Planner returned null for media type: " + mediaType);
+
+        public object PlanCreateFromSource(string inputPath)
+        {
+            object isoOverride = Enum.Parse(isoCreateOverrideType, "Auto", ignoreCase: false);
+            object containerKind = Enum.Parse(mediaContainerKindType, "DirectFile", ignoreCase: false);
+            return planCreateFromSource.Invoke(null, [inputPath, isoOverride, containerKind, null])
+                ?? throw new InvalidOperationException("Planner returned null for input: " + inputPath);
+        }
+
         public IReadOnlySet<string> GetAdvisoryReasonCodes(object advisory)
         {
             object? reasonsObject = ReadProperty(advisory, "Reasons");
@@ -611,6 +718,10 @@ internal static class Program
 
             property.SetValue(instance, value);
         }
+
+        private static Type GetOptionalPlatformDetectionType(Assembly assembly) =>
+            assembly.GetType("HakamiqChdTool.App.Models.PlatformDetectionResult", throwOnError: true, ignoreCase: false)
+            ?? throw new TypeLoadException("HakamiqChdTool.App.Models.PlatformDetectionResult");
 
         private static Type GetRequiredType(Assembly assembly, string typeName) =>
             assembly.GetType(typeName, throwOnError: true, ignoreCase: false)
