@@ -47,7 +47,11 @@ internal static class Program
                 new("BOOT-only SYSTEM.CNF is not treated as PS2", () => TestBootOnlyIsRejected(app, workDirectory)),
                 new("CUE references cannot escape their directory", () => TestCueReferenceTraversalIsRejected(app, workDirectory)),
                 new("Shared CUE parser accepts quoted BIN names with spaces", () => TestSharedCueParserAcceptsQuotedBinWithSpaces(app, workDirectory)),
-                new("Shared CUE parser rejects malformed FILE statements", () => TestSharedCueParserRejectsMalformedFileStatement(app, workDirectory))
+                new("Shared CUE parser rejects malformed FILE statements", () => TestSharedCueParserRejectsMalformedFileStatement(app, workDirectory)),
+                new("Final extract output uses CHD stem and requested extension", () => TestFinalExtractOutputPathUsesChdStem(app, workDirectory)),
+                new("Final extract output can organize by platform", () => TestFinalExtractOutputPathCanOrganizeByPlatform(app, workDirectory)),
+                new("Verified CHD path is unchanged without organization", () => TestVerifiedChdPathIsUnchangedWithoutOrganization(app, workDirectory)),
+                new("Pending output path is isolated under workspace root", () => TestPendingOutputPathIsolatedUnderWorkspaceRoot(app, workDirectory))
             ];
 
             int passed = 0;
@@ -226,6 +230,104 @@ internal static class Program
             "Malformed CUE FILE statement should be rejected.");
     }
 
+    private static void TestFinalExtractOutputPathUsesChdStem(AppReflection app, string workDirectory)
+    {
+        string originalPath = Path.Combine(workDirectory, "input", "Original Name.chd");
+        string chdPath = Path.Combine(workDirectory, "working", "Extract Source.chd");
+        string outputRoot = Path.Combine(workDirectory, "custom-output");
+        Directory.CreateDirectory(Path.GetDirectoryName(originalPath)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(chdPath)!);
+        Directory.CreateDirectory(outputRoot);
+        File.WriteAllBytes(originalPath, []);
+        File.WriteAllBytes(chdPath, []);
+
+        object settings = app.CreateSettings(useCustomOutputRoot: true, customOutputRoot: outputRoot);
+
+        string finalPath = app.BuildFinalExtractOutputPath(
+            detectedPlatform: string.Empty,
+            originalPath,
+            chdPath,
+            outputExtension: ".cue",
+            settings);
+
+        AssertEqual(Path.GetFullPath(Path.Combine(outputRoot, "Extract Source.cue")), finalPath, "Unexpected final extract output path.");
+        AssertTrue(Directory.Exists(outputRoot), "Expected output root to exist.");
+    }
+
+    private static void TestFinalExtractOutputPathCanOrganizeByPlatform(AppReflection app, string workDirectory)
+    {
+        string originalPath = Path.Combine(workDirectory, "platform-input", "disc.chd");
+        string chdPath = Path.Combine(workDirectory, "platform-working", "disc.chd");
+        string outputRoot = Path.Combine(workDirectory, "organized-output");
+        Directory.CreateDirectory(Path.GetDirectoryName(originalPath)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(chdPath)!);
+        Directory.CreateDirectory(outputRoot);
+        File.WriteAllBytes(originalPath, []);
+        File.WriteAllBytes(chdPath, []);
+
+        object settings = app.CreateSettings(
+            useCustomOutputRoot: true,
+            customOutputRoot: outputRoot,
+            organizeByPlatform: true);
+
+        string finalPath = app.BuildFinalExtractOutputPath(
+            detectedPlatform: "Sony PlayStation 2",
+            originalPath,
+            chdPath,
+            outputExtension: "cue",
+            settings);
+
+        AssertEqual(Path.GetFullPath(Path.Combine(outputRoot, "Sony PlayStation 2", "disc.cue")), finalPath, "Unexpected organized extract output path.");
+        AssertTrue(Directory.Exists(Path.Combine(outputRoot, "Sony PlayStation 2")), "Expected platform output directory to exist.");
+    }
+
+    private static void TestVerifiedChdPathIsUnchangedWithoutOrganization(AppReflection app, string workDirectory)
+    {
+        string originalPath = Path.Combine(workDirectory, "verified-original", "source.iso");
+        string chdPath = Path.Combine(workDirectory, "verified-output", "source.chd");
+        Directory.CreateDirectory(Path.GetDirectoryName(originalPath)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(chdPath)!);
+        File.WriteAllBytes(originalPath, []);
+        File.WriteAllBytes(chdPath, []);
+
+        object settings = app.CreateSettings();
+
+        string verifiedPath = app.BuildFinalVerifiedChdPath(
+            detectedPlatform: string.Empty,
+            originalPath,
+            chdPath,
+            settings);
+
+        AssertEqual(Path.GetFullPath(chdPath), verifiedPath, "Verified CHD path should remain unchanged when output organization is disabled.");
+    }
+
+    private static void TestPendingOutputPathIsolatedUnderWorkspaceRoot(AppReflection app, string workDirectory)
+    {
+        string outputRoot = Path.Combine(workDirectory, "pending-output-root");
+        string workingInputPath = Path.Combine(workDirectory, "pending-input", "Very Long Source Name With Spaces.iso");
+        Directory.CreateDirectory(Path.GetDirectoryName(workingInputPath)!);
+        Directory.CreateDirectory(outputRoot);
+        File.WriteAllBytes(workingInputPath, []);
+
+        object settings = app.CreateSettings();
+
+        string pendingPath = app.BuildPendingOutputPath(
+            finalOutputPath: Path.Combine(outputRoot, "final.cue"),
+            workingInputPath,
+            outputExtension: ".cue",
+            resolvedOutputRoot: outputRoot,
+            settings);
+
+        string workspaceRoot = Path.Combine(outputRoot, "Hakamiq Work", "Operations");
+        string pendingDirectory = Path.GetDirectoryName(pendingPath)
+            ?? throw new InvalidOperationException("Pending output path has no directory.");
+
+        AssertEqual("output.cue", Path.GetFileName(pendingPath), "Unexpected pending output file name.");
+        AssertTrue(Directory.Exists(pendingDirectory), "Expected pending job directory to exist.");
+        AssertTrue(IsSamePathOrChild(pendingDirectory, workspaceRoot), "Pending output must be under the workspace root.");
+        AssertTrue(Path.GetFileName(pendingDirectory).StartsWith("Operation_", StringComparison.Ordinal), "Expected operation job directory prefix.");
+    }
+
     private static string ReadRequiredArgument(string[] args, string name)
     {
         for (int index = 0; index < args.Length - 1; index++)
@@ -345,6 +447,18 @@ internal static class Program
         return property.GetValue(instance);
     }
 
+    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    {
+        string candidate = Path.GetFullPath(candidatePath);
+        string root = Path.GetFullPath(rootPath);
+        string rootWithSeparator = root.EndsWith(Path.DirectorySeparatorChar)
+            ? root
+            : root + Path.DirectorySeparatorChar;
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static void AssertTrue(bool condition, string message)
     {
         if (!condition)
@@ -376,10 +490,14 @@ internal static class Program
 
     private sealed class AppReflection
     {
+        private readonly Type settingsType;
         private readonly MethodInfo scannerTryScan;
         private readonly MethodInfo detectorDetect;
         private readonly MethodInfo advisoryBuild;
         private readonly MethodInfo cueNormalize;
+        private readonly MethodInfo buildFinalExtractOutputPath;
+        private readonly MethodInfo buildFinalVerifiedChdPath;
+        private readonly MethodInfo buildPendingOutputPath;
 
         public AppReflection(Assembly appAssembly)
         {
@@ -387,11 +505,16 @@ internal static class Program
             Type detectorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2DiscIdentityDetector");
             Type advisoryType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2CompatibilityAdvisoryService");
             Type safePathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSafePathValidator");
+            Type outputPathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowOutputPathPlanner");
+            settingsType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.AppSettings");
 
             scannerTryScan = GetRequiredMethod(scannerType, "TryScan");
             detectorDetect = GetRequiredMethod(detectorType, "Detect");
             advisoryBuild = GetRequiredMethod(advisoryType, "BuildQueueAdvisory");
             cueNormalize = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(string).MakeByRefType()]);
+            buildFinalExtractOutputPath = GetRequiredMethod(outputPathType, "BuildFinalExtractOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
+            buildFinalVerifiedChdPath = GetRequiredMethod(outputPathType, "BuildFinalVerifiedChdPath", [typeof(string), typeof(string), typeof(string), settingsType]);
+            buildPendingOutputPath = GetRequiredMethod(outputPathType, "BuildPendingOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
         }
 
         public ReflectedStructure ScanStructure(string path)
@@ -418,6 +541,48 @@ internal static class Program
             return success;
         }
 
+        public object CreateSettings(
+            bool useCustomOutputRoot = false,
+            string? customOutputRoot = null,
+            bool organizeByPlatform = false,
+            bool organizeByRegion = false)
+        {
+            object settings = Activator.CreateInstance(settingsType)
+                ?? throw new InvalidOperationException("Unable to create AppSettings.");
+
+            SetProperty(settings, "UseCustomOutputRoot", useCustomOutputRoot);
+            SetProperty(settings, "CustomOutputRoot", customOutputRoot ?? string.Empty);
+            SetProperty(settings, "OrganizeByPlatform", organizeByPlatform);
+            SetProperty(settings, "OrganizeByRegion", organizeByRegion);
+            return settings;
+        }
+
+        public string BuildFinalExtractOutputPath(
+            string detectedPlatform,
+            string originalPath,
+            string chdPath,
+            string outputExtension,
+            object settings) =>
+            (string)(buildFinalExtractOutputPath.Invoke(null, [detectedPlatform, originalPath, chdPath, outputExtension, settings])
+                ?? string.Empty);
+
+        public string BuildFinalVerifiedChdPath(
+            string detectedPlatform,
+            string originalPath,
+            string chdPath,
+            object settings) =>
+            (string)(buildFinalVerifiedChdPath.Invoke(null, [detectedPlatform, originalPath, chdPath, settings])
+                ?? string.Empty);
+
+        public string BuildPendingOutputPath(
+            string finalOutputPath,
+            string workingInputPath,
+            string outputExtension,
+            string resolvedOutputRoot,
+            object settings) =>
+            (string)(buildPendingOutputPath.Invoke(null, [finalOutputPath, workingInputPath, outputExtension, resolvedOutputRoot, settings])
+                ?? string.Empty);
+
         public IReadOnlySet<string> GetAdvisoryReasonCodes(object advisory)
         {
             object? reasonsObject = ReadProperty(advisory, "Reasons");
@@ -437,6 +602,14 @@ internal static class Program
             }
 
             return codes;
+        }
+
+        private static void SetProperty(object instance, string propertyName, object? value)
+        {
+            PropertyInfo property = instance.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?? throw new MissingMemberException(instance.GetType().FullName, propertyName);
+
+            property.SetValue(instance, value);
         }
 
         private static Type GetRequiredType(Assembly assembly, string typeName) =>
