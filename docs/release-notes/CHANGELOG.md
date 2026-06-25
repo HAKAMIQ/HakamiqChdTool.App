@@ -4,6 +4,34 @@ This file tracks source release notes.
 
 GitHub Releases remain the public download history.
 
+## v1.0.8 - 2026-06
+
+### Added
+
+- Added PS2 compatibility advisory notes for CD/CUE-BIN input, CONFIG
+  guidance, and emulator profile differences.
+- Added PS2 disc structure scanning from SYSTEM.CNF for ISO and CUE/BIN
+  input.
+- Added source package and release output cleanliness gates.
+
+### Changed
+
+- Unified CUE/BIN file reference parsing across intake, safety, metadata,
+  extraction, and workflow path checks.
+- Cleaned obsolete CUE and CHD workflow helper code after the shared parser
+  and release gates were added.
+- Kept release output verification as a disposable gate so generated files are
+  checked without staying in the source tree.
+
+## v1.0.7 - 2026-06
+
+### Changed
+
+- Improved CHD extraction output naming for CUE/BIN and Dreamcast-style disc
+  layouts.
+- Clarified supported input formats in user documentation.
+- Improved media intake failure handling for unsupported or unsafe inputs.
+
 ## v1.0.6 - 2026-06
 
 ### Added
