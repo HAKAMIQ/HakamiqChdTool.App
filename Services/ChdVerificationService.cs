@@ -1,4 +1,3 @@
-using HakamiqChdTool.App.Core.Contracts;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
-public sealed class ChdVerificationService : IChdVerificationService
+public sealed class ChdVerificationService
 {
     private const string ValidMessageKey = "LocChdVerify_Valid";
     private const string InvalidMessageKey = "LocChdVerify_Invalid";

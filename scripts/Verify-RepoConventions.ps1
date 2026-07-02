@@ -1118,10 +1118,7 @@ function Test-CoreServicesDependencyReduction {
         'Models\PlatformDetectionResult.cs',
         'Models\Chd\PerformanceSample.cs',
         'Models\Chd\ConversionPerformanceReport.cs',
-        'Models\Chd\ChdmanExtractionKind.cs',
-        'Core\Contracts\IChdInfoService.cs',
-        'Core\Contracts\IChdVerificationService.cs',
-        'Core\Contracts\IChdConversionService.cs')) {
+        'Models\Chd\ChdmanExtractionKind.cs')) {
         $candidate = Join-Path $root $requiredPath
         if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
             Add-Failure "Expected v1.0.5 P4 refactor file is missing: $requiredPath"
