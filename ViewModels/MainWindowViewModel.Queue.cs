@@ -128,7 +128,6 @@ public partial class MainWindowViewModel
                     rawList.Count)
                 .ConfigureAwait(false);
 
-            await dispatcher.InvokeAsync(() => { }, DispatcherPriority.ContextIdle);
 
             SearchOption searchOption = await dispatcher.InvokeAsync(
                 () => _session.IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly,
