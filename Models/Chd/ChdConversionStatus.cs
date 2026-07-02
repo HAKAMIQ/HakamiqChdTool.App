@@ -1,4 +1,4 @@
-namespace HakamiqChdTool.App.Core.Chd.Commands;
+namespace HakamiqChdTool.App.Models.Chd;
 
 public enum ChdConversionStatus
 {
