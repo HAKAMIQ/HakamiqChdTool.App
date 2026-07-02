@@ -1,4 +1,3 @@
-using HakamiqChdTool.App.Core.Contracts;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
-public sealed class ChdInfoService : IChdInfoService
+public sealed class ChdInfoService
 {
     private const string UserCancelledMessageKey = "LocStatus_UserCancelled";
     private const string InfoReadSuccessMessageKey = "LocChdInfo_ReadSuccess";

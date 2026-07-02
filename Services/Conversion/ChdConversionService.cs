@@ -1,4 +1,3 @@
-using HakamiqChdTool.App.Core.Contracts;
 using HakamiqChdTool.App.Core.Chd.Commands;
 using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Models;
@@ -11,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static HakamiqChdTool.App.Services.ChdConversionMessages;
 namespace HakamiqChdTool.App.Services;
-public sealed class ChdConversionService : IChdConversionService
+public sealed class ChdConversionService
 {
     // Compression truth log markers: RequestedPreset: ResolvedCompression: SameAsMameDefault: CHD compression preset resolved
     // Centralized CHD policy gate markers: ChdOperationPolicyRequest PlatformAwareChdProfileRequest policyDecision.IsAllowed
