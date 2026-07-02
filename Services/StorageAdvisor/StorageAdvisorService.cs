@@ -135,6 +135,21 @@ internal sealed class StorageAdvisorService
         StoragePathAnalysis? output,
         List<StorageAdvisorRecommendation> recommendations)
     {
+        bool sourceAndOutputSameHdd =
+            source?.DeviceKind == StorageDeviceKind.Hdd
+            && output?.DeviceKind == StorageDeviceKind.Hdd
+            && AreSameVolume(source, output);
+
+        if (sourceAndOutputSameHdd)
+        {
+            recommendations.Add(new StorageAdvisorRecommendation(
+                StorageAdvisorSeverity.Warning,
+                StorageAdvisorMessageCode.SourceAndOutputSameHdd,
+                output?.FullPath ?? source?.FullPath ?? string.Empty));
+
+            return;
+        }
+
         if (source?.DeviceKind == StorageDeviceKind.Hdd)
         {
             recommendations.Add(new StorageAdvisorRecommendation(
@@ -158,16 +173,6 @@ internal sealed class StorageAdvisorService
                 StorageAdvisorMessageCode.OutputIsFastStorage,
                 output.FullPath));
         }
-
-        if (source?.DeviceKind == StorageDeviceKind.Hdd
-            && output?.DeviceKind == StorageDeviceKind.Hdd
-            && AreSameVolume(source, output))
-        {
-            recommendations.Add(new StorageAdvisorRecommendation(
-                StorageAdvisorSeverity.Warning,
-                StorageAdvisorMessageCode.SourceAndOutputSameHdd,
-                output.FullPath));
-        }
     }
 
     private static void AddOutputPolicyRecommendations(
@@ -181,23 +186,20 @@ internal sealed class StorageAdvisorService
             return;
         }
 
+        if (sourceAndOutputSameVolume)
+        {
+            return;
+        }
+
         recommendations.Add(new StorageAdvisorRecommendation(
             StorageAdvisorSeverity.Info,
-            StorageAdvisorMessageCode.LargeOutputShouldBeWrittenDirectly,
+            StorageAdvisorMessageCode.OutputCrossVolumeIsAllowed,
             output.FullPath));
 
-        if (!sourceAndOutputSameVolume)
-        {
-            recommendations.Add(new StorageAdvisorRecommendation(
-                StorageAdvisorSeverity.Info,
-                StorageAdvisorMessageCode.OutputCrossVolumeIsAllowed,
-                output.FullPath));
-
-            recommendations.Add(new StorageAdvisorRecommendation(
-                StorageAdvisorSeverity.Recommendation,
-                StorageAdvisorMessageCode.CrossVolumeFinalMoveShouldBeAvoided,
-                output.FullPath));
-        }
+        recommendations.Add(new StorageAdvisorRecommendation(
+            StorageAdvisorSeverity.Recommendation,
+            StorageAdvisorMessageCode.CrossVolumeFinalMoveShouldBeAvoided,
+            output.FullPath));
     }
 
     private static void AddBinCueRescueRecommendations(

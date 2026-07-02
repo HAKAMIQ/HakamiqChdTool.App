@@ -1566,7 +1566,7 @@ Path:
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">This file type does not currently support a detailed verification report.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">Note: this result covers CHD file integrity or matching only. It does not guarantee game compatibility with the emulator or its settings.</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Title">Storage and performance warning</sys:String>
+    <sys:String x:Key="LocStorageAdvisor_Title">Before you start</sys:String>
     <sys:String x:Key="LocStorageAdvisor_Subtitle">Conversion may be slower than usual</sys:String>
     <sys:String x:Key="LocStorageAdvisor_SummaryTitle">Summary</sys:String>
     <sys:String x:Key="LocStorageAdvisor_SourceLabel">Source</sys:String>
@@ -1638,9 +1638,9 @@ Path:
     <sys:String x:Key="LocMeta_Target_Folder">Folder</sys:String>
     <sys:String x:Key="LocMeta_Target_SplitIso">ISO parts</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryTitle">Conversion may be slower than usual</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryText">The source and output are on the same HDD, so conversion may take longer with large files.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserRecommendationText">For better performance, use a temporary work folder or output folder on an SSD if available.</sys:String>
+    <sys:String x:Key="LocStorageAdvisor_UserSummaryTitle">Conversion may be slower</sys:String>
+    <sys:String x:Key="LocStorageAdvisor_UserSummaryText">The source and output are on the same HDD, so conversion may be slower with large files.</sys:String>
+    <sys:String x:Key="LocStorageAdvisor_UserRecommendationText">Use an SSD/NVMe or a different output folder if available. You can continue as-is if this is acceptable.</sys:String>
     <sys:String x:Key="LocStorageAdvisor_ShowDetails">Show details</sys:String>
     <sys:String x:Key="LocStorageAdvisor_UseRecommended">Use recommended setting</sys:String>
     <sys:String x:Key="LocStorageAdvisor_Continue">Continue</sys:String>
