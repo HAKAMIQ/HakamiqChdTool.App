@@ -7,7 +7,6 @@ using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.MediaInputPolicy;
 using HakamiqChdTool.App.Services.PlayStation.Ps2;
 using HakamiqChdTool.App.ViewModels.Virtualization;
-using HakamiqChdTool.App.Views;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Threading;
 
 namespace HakamiqChdTool.App.ViewModels;
@@ -882,12 +880,7 @@ public partial class MainWindowViewModel
             return;
         }
 
-        var dialog = new ClearTaskLogConfirmationDialog
-        {
-            Owner = _session.Owner
-        };
-
-        if (dialog.ShowDialog() != true)
+        if (!QueueClearConfirmation.Confirm(_session.Owner))
         {
             return;
         }
