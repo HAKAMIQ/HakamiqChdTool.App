@@ -170,10 +170,10 @@ internal sealed class WorkflowConversionStage(
                 cueRescueWorkflowAdapter = new HakamiqChdTool.App.Services.BinCueRescue.CueRescueWorkflowAdapter();
                 HakamiqChdTool.App.Services.BinCueRescue.CueRescueWorkflowPrepareResult cueRescue = cueRescueWorkflowAdapter.TryPrepare(
                     inputPath,
-                    operationWorkspaceDirectory,
-                    cancellationToken,
-                    HakamiqChdTool.App.Services.DiscLayout.DiscLayoutTrustMode.StrictEvidence,
-                    allowConstrainedAbsoluteBinFallback: true);
+                    processTempRoot: operationWorkspaceDirectory,
+                    trustMode: HakamiqChdTool.App.Services.DiscLayout.DiscLayoutTrustMode.StrictEvidence,
+                    allowConstrainedAbsoluteBinFallback: true,
+                    cancellationToken: cancellationToken);
 
                 if (cueRescue.IsFailed)
                 {
@@ -528,10 +528,10 @@ internal sealed class WorkflowConversionStage(
 
             var conversionPerformanceProgress = new Progress<PerformanceSample>(sample =>
             {
-                    if (!cancellationToken.IsCancellationRequested && !conversionSafetyCts.IsCancellationRequested)
-                    {
-                        runtimeProgress.ReportPerformance(sample);
-                    }
+                if (!cancellationToken.IsCancellationRequested && !conversionSafetyCts.IsCancellationRequested)
+                {
+                    runtimeProgress.ReportPerformance(sample);
+                }
             });
 
             ChdConversionResult conversionResult;
@@ -916,7 +916,6 @@ internal sealed class WorkflowConversionStage(
             cueRescueWorkflowAdapter?.Dispose();
         }
     }
-
 
     private static long ResolveConversionInputBytes(string inputPath, ChdConversionResult conversionResult)
     {

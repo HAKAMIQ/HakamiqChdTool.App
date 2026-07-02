@@ -1,10 +1,10 @@
-using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.ConsoleMedia;
-using HakamiqChdTool.App.Services.DiscLayout;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.ConsoleMedia;
+using HakamiqChdTool.App.Services.DiscLayout;
 
 namespace HakamiqChdTool.App.Services.BinCueRescue;
 
@@ -22,11 +22,11 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
     private int _disposed;
 
     internal CueRescueWorkflowPrepareResult TryPrepare(
-        string? inputPath,
-        string? processTempRoot = null,
-        CancellationToken cancellationToken = default,
-        DiscLayoutTrustMode trustMode = DiscLayoutTrustMode.StrictEvidence,
-        bool allowConstrainedAbsoluteBinFallback = false)
+    string? inputPath,
+    string? processTempRoot = null,
+    DiscLayoutTrustMode trustMode = DiscLayoutTrustMode.StrictEvidence,
+    bool allowConstrainedAbsoluteBinFallback = false,
+    CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
 
@@ -79,7 +79,8 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        ConsoleDiscIdentityResult consoleIdentity = ConsoleDiscIdentityService.Shared.Detect(fullInputPath);
+        string identityProbePath = GetConsoleIdentityProbePath(plan, fullInputPath);
+        ConsoleDiscIdentityResult consoleIdentity = ConsoleDiscIdentityService.Shared.Detect(identityProbePath);
         DiscLayoutDecision layoutDecision = DiscLayoutDecision.FromStandaloneBinPlan(
             plan,
             consoleIdentity,
@@ -265,6 +266,30 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
 
             TryDeleteDirectoryTree(cleanup.Directory, cleanup.ProcessTempRoot);
         }
+    }
+
+    private static string GetConsoleIdentityProbePath(
+        BinCueRescuePlan plan,
+        string fallbackInputPath)
+    {
+        foreach (BinCueRescueTrackPlan track in plan.OrderedTracks)
+        {
+            if (!track.IsDataTrack || string.IsNullOrWhiteSpace(track.SourceBinPath))
+            {
+                continue;
+            }
+
+            try
+            {
+                return NormalizeFullPath(track.SourceBinPath);
+            }
+            catch (Exception ex) when (IsPathFailure(ex))
+            {
+                return fallbackInputPath;
+            }
+        }
+
+        return fallbackInputPath;
     }
 
     private void RegisterTempDirectoryForCleanup(
