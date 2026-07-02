@@ -20,7 +20,7 @@ public partial class MainWindowViewModel
     {
         candidates = Array.Empty<PreparedIntakeCandidate>();
 
-        if (rawList.Count == 0 || inputKind != QueueIngestKind.FilesOnly)
+        if (rawList.Count == 0)
         {
             return false;
         }
@@ -30,7 +30,7 @@ public partial class MainWindowViewModel
 
         foreach (string rawPath in rawList)
         {
-            if (!IsExistingQueueInputPath(rawPath))
+            if (!System.IO.File.Exists(rawPath))
             {
                 return false;
             }
@@ -42,7 +42,7 @@ public partial class MainWindowViewModel
             }
 
             string effectivePath = mediaDecision.EffectivePath;
-            if (!IsExistingQueueInputPath(effectivePath))
+            if (!System.IO.File.Exists(effectivePath))
             {
                 return false;
             }
