@@ -49,22 +49,25 @@ public partial class MainWindowViewModel
                 return false;
             }
 
-            var classification = QueueInputClassifier.Classify(effectivePath);
-            if (!classification.IsSupported || classification.IsArchiveContainer)
-            {
-                return false;
-            }
-
             string normalizedPath = NormalizePathForAdvisoryKey(effectivePath);
             if (!seenPaths.Add(normalizedPath))
             {
                 continue;
             }
 
-            string action = ResolveRequestedAction(effectivePath, executionProfile);
-            if (string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal))
+            if (!TryResolveFastKnownDirectFileAction(effectivePath, executionProfile, out string action))
             {
-                return false;
+                var classification = QueueInputClassifier.Classify(effectivePath);
+                if (!classification.IsSupported || classification.IsArchiveContainer)
+                {
+                    return false;
+                }
+
+                action = ResolveRequestedAction(effectivePath, executionProfile);
+                if (string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal))
+                {
+                    return false;
+                }
             }
 
             prepared.Add(new PreparedIntakeCandidate(
@@ -139,6 +142,44 @@ public partial class MainWindowViewModel
             DispatcherPriority.Normal).Task;
     }
 
+    private static bool TryResolveFastKnownDirectFileAction(
+        string path,
+        QueueExecutionProfile executionProfile,
+        out string action)
+    {
+        action = string.Empty;
+
+        string extension = Path.GetExtension(path).ToLowerInvariant();
+        QueueOperationMode selectedMode = QueueModeResolver.FromExecutionProfile(executionProfile);
+
+        if (extension is ".iso" or ".cso" or ".cue" or ".gdi" or ".toc" or ".nrg")
+        {
+            if (selectedMode is QueueOperationMode.None or QueueOperationMode.Convert)
+            {
+                action = TaskActionCodes.ConvertToChd;
+                return true;
+            }
+
+            return false;
+        }
+
+        if (extension == ".chd")
+        {
+            if (selectedMode == QueueOperationMode.Extract)
+            {
+                action = TaskActionCodes.RestoreDiscImageFromChd;
+                return true;
+            }
+
+            if (selectedMode == QueueOperationMode.Verify)
+            {
+                action = TaskActionCodes.VerifyChd;
+                return true;
+            }
+        }
+
+        return false;
+    }
     private static QueueRowData BuildFastRowFromPath(
         string path,
         string action,
