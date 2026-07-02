@@ -1560,7 +1560,7 @@
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">هذا النوع من الملفات لا يدعم تقرير التحقق التفصيلي حالياً.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">ملاحظة: هذه النتيجة تتعلق بسلامة ملف CHD أو مطابقته فقط، ولا تضمن توافق اللعبة مع المحاكي أو إعداداته.</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Title">تنبيه التخزين والأداء</sys:String>
+    <sys:String x:Key="LocStorageAdvisor_Title">تنبيه قبل البدء</sys:String>
     <sys:String x:Key="LocStorageAdvisor_Subtitle">قد تكون سرعة التحويل أقل من المعتاد</sys:String>
     <sys:String x:Key="LocStorageAdvisor_SummaryTitle">الملخص</sys:String>
     <sys:String x:Key="LocStorageAdvisor_SourceLabel">المصدر</sys:String>
@@ -1632,7 +1632,7 @@
     <sys:String x:Key="LocMeta_Target_Folder">مجلد</sys:String>
     <sys:String x:Key="LocMeta_Target_SplitIso">أجزاء ISO</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryTitle">قد يكون التحويل أبطأ من المعتاد</sys:String>
+    <sys:String x:Key="LocStorageAdvisor_UserSummaryTitle">قد يكون التحويل أبطأ</sys:String>
     <sys:String x:Key="LocStorageAdvisor_UserSummaryText">المصدر والإخراج على نفس قرص HDD. قد يجعل هذا التحويل أبطأ مع الملفات الكبيرة.</sys:String>
     <sys:String x:Key="LocStorageAdvisor_UserRecommendationText">الأفضل أن تكون ملفات اللعبة ومجلد الإخراج على SSD. إذا كانت اللعبة على HDD، اختر مجلد إخراج على SSD لتقليل الضغط على القرص. لا ينقل البرنامج ملفات اللعبة تلقائيًا.</sys:String>
     <sys:String x:Key="LocStorageAdvisor_ShowDetails">عرض التفاصيل</sys:String>
