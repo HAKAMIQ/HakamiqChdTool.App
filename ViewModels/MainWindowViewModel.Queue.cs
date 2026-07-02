@@ -768,19 +768,6 @@ public partial class MainWindowViewModel
             or PathTooLongException;
     }
 
-    private static QueueIntakeAdvisory? TryGetAdvisoryForPath(
-        IReadOnlyDictionary<string, QueueIntakeAdvisory> advisories,
-        string path)
-    {
-        ArgumentNullException.ThrowIfNull(advisories);
-
-        string key = NormalizePathForAdvisoryKey(path);
-
-        return advisories.TryGetValue(key, out QueueIntakeAdvisory? advisory)
-            ? advisory
-            : null;
-    }
-
     private static string ResolveRequestedAction(string path, QueueExecutionProfile executionProfile)
     {
         return QueueModeResolver.ResolveInitialRequestedAction(path, executionProfile);
