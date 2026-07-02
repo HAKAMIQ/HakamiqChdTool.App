@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Core.Workflow.Paths;
 using HakamiqChdTool.App.Localization;
