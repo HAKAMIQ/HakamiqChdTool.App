@@ -262,12 +262,6 @@ public partial class MainWindowViewModel
                 IntakeWarningText = warningText;
                 IsIntakeWarningVisible = !string.IsNullOrWhiteSpace(warningText);
                 IntakeCanCancel = CanCancelAddingFiles();
-                _session.SetFooterIntakeProgress(
-                    stageText,
-                    progress.ScannedCount,
-                    Math.Max(progress.TotalCount, progress.ScannedCount),
-                    progress.AcceptedCount,
-                    progress.HasKnownTotal);
             },
             DispatcherPriority.Background);
 
