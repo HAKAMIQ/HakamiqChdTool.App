@@ -5,5 +5,7 @@ namespace HakamiqChdTool.App.Core.Workflow;
 
 public interface IChdWorkflowOrchestrator
 {
-    Task<WorkflowExecutionResult> ProcessAsync(ChdTaskRequest request, CancellationToken ct);
+    Task<WorkflowExecutionResult> ProcessAsync(
+        ChdTaskRequest request,
+        CancellationToken cancellationToken);
 }

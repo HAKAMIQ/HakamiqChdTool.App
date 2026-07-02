@@ -13,7 +13,7 @@ public sealed partial class ChdWorkflowOrchestrator
     private async Task<WorkflowExecutionResult> ProcessVerifyExistingWorkflowAsync(
         ChdTaskRequest request,
         ChdWorkflowTaskContext ctx,
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         IQueueItemStateSink sink = ctx.Sink;
         string cancelled = CancelledDetailKey;
@@ -21,10 +21,15 @@ public sealed partial class ChdWorkflowOrchestrator
         try
         {
             WorkflowExecutionResult result = await _verificationStage
-                .VerifyExistingAsync(request, ctx, ctx.Snapshot.SourcePath, ctx.Snapshot.DetectedPlatform, ct)
+                .VerifyExistingAsync(
+                    request,
+                    ctx,
+                    ctx.Snapshot.SourcePath,
+                    ctx.Snapshot.DetectedPlatform,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
-            if (ct.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
             {
                 sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, cancelled);
                 return WorkflowExecutionResult.Cancelled(cancelled, result.OutputPath, result.LogPath);
@@ -38,7 +43,7 @@ public sealed partial class ChdWorkflowOrchestrator
 
             return result;
         }
-        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, cancelled);
             _log.Information("Verify-only workflow cancelled. Input={Input}", request.InputPath);
@@ -85,7 +90,12 @@ public sealed partial class ChdWorkflowOrchestrator
 
             TaskActionCodes.RestoreDiscImageFromChd when currentClassification.IsChdImage
                 => await _extractionStage
-                    .ExecuteAsync(request, ctx, currentSourcePath, currentDetectedPlatform, cancellationToken)
+                    .ExecuteAsync(
+                        request,
+                        ctx,
+                        currentSourcePath,
+                        currentDetectedPlatform,
+                        cancellationToken)
                     .ConfigureAwait(false),
 
             _ => Unsupported(ctx.Sink)

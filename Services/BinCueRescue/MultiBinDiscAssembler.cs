@@ -54,14 +54,14 @@ internal static class MultiBinDiscAssembler
                 BinCueRescueDecision.UseAdjacentCue,
                 adjacentCue,
                 null,
-                Array.Empty<BinCueRescueTrackPlan>(),
+                [],
                 null,
                 false,
-                Array.Empty<BinCueRescueRefusalReason>(),
-                Array.Empty<BinCueRescueWarningCode>());
+                [],
+                []);
         }
 
-        IReadOnlyList<FileInfo> orderedBins = FindOrderedCandidateBins(selectedBin, out bool ambiguousOrder);
+        FileInfo[] orderedBins = FindOrderedCandidateBins(selectedBin, out bool ambiguousOrder);
         if (ambiguousOrder)
         {
             return Refuse(
@@ -69,7 +69,7 @@ internal static class MultiBinDiscAssembler
                 [BinCueRescueRefusalReason.AmbiguousOrder]);
         }
 
-        if (orderedBins.Count == 0)
+        if (orderedBins.Length == 0)
         {
             return Refuse(
                 leaderCueWriteTarget,
@@ -117,13 +117,13 @@ internal static class MultiBinDiscAssembler
             refusals.Add(BinCueRescueRefusalReason.AmbiguousOrder);
         }
 
-        if (orderedBins.Count > 1 && probes.Skip(1).Any(probe => probe.Kind is not BinTrackKind.Raw2352AudioCandidate))
+        if (orderedBins.Length > 1 && probes.Skip(1).Any(probe => probe.Kind is not BinTrackKind.Raw2352AudioCandidate))
         {
             refusals.Add(BinCueRescueRefusalReason.MixedSectorSizes);
         }
 
         List<BinCueRescueTrackPlan> trackPlans = [];
-        for (int i = 0; i < orderedBins.Count; i++)
+        for (int i = 0; i < orderedBins.Length; i++)
         {
             BinSectorProbeResult probe = probes[i];
             string cueTrackMode = ToCueTrackMode(probe.Kind);
@@ -143,7 +143,12 @@ internal static class MultiBinDiscAssembler
             warnings.Add(BinCueRescueWarningCode.MultipleOrderedBinTracksAssumed);
         }
 
-        ConsoleDiscIdentityResult identity = ConsoleDiscIdentityService.Shared.Detect(selectedBin.FullName);
+        string identityProbePath =
+            firstDataIndex >= 0 && firstDataIndex < orderedBins.Length
+                ? orderedBins[firstDataIndex].FullName
+                : selectedBin.FullName;
+
+        ConsoleDiscIdentityResult identity = ConsoleDiscIdentityService.Shared.Detect(identityProbePath);
         if (!identity.IsIdentified)
         {
             refusals.Add(BinCueRescueRefusalReason.UnsupportedPlatform);
@@ -162,8 +167,8 @@ internal static class MultiBinDiscAssembler
                 trackPlans,
                 InferPlatformHint(trackPlans),
                 true,
-                refusals.Distinct().ToArray(),
-                warnings.Distinct().ToArray());
+                [.. refusals.Distinct()],
+                [.. warnings.Distinct()]);
         }
 
         if (string.IsNullOrWhiteSpace(leaderCueWriteTarget))
@@ -178,7 +183,7 @@ internal static class MultiBinDiscAssembler
                 InferPlatformHint(trackPlans),
                 false,
                 [BinCueRescueRefusalReason.InsufficientSectorEvidence],
-                warnings.Distinct().ToArray());
+                [.. warnings.Distinct()]);
         }
 
         return new BinCueRescuePlan(
@@ -188,11 +193,11 @@ internal static class MultiBinDiscAssembler
             trackPlans,
             InferPlatformHint(trackPlans),
             false,
-            Array.Empty<BinCueRescueRefusalReason>(),
-            warnings.Distinct().ToArray());
+            [],
+            [.. warnings.Distinct()]);
     }
 
-    private static IReadOnlyList<FileInfo> FindOrderedCandidateBins(FileInfo selectedBin, out bool ambiguousOrder)
+    private static FileInfo[] FindOrderedCandidateBins(FileInfo selectedBin, out bool ambiguousOrder)
     {
         ambiguousOrder = false;
 
@@ -202,10 +207,12 @@ internal static class MultiBinDiscAssembler
             return [selectedBin];
         }
 
-        FileInfo[] allBins = directory
-            .EnumerateFiles("*.bin", SearchOption.TopDirectoryOnly)
-            .Where(file => file.Exists)
-            .ToArray();
+        FileInfo[] allBins =
+        [
+            .. directory
+                .EnumerateFiles("*.bin", SearchOption.TopDirectoryOnly)
+                .Where(file => file.Exists)
+        ];
 
         if (allBins.Length <= 1)
         {
@@ -213,25 +220,28 @@ internal static class MultiBinDiscAssembler
         }
 
         string selectedPrefix = BuildDiscPrefix(selectedBin);
-        List<FileInfo> grouped = allBins
-            .Where(file => PathComparer.Equals(BuildDiscPrefix(file), selectedPrefix))
-            .GroupBy(file => file.FullName, PathComparer)
-            .Select(group => group.First())
-            .ToList();
+        List<FileInfo> grouped =
+        [
+            .. allBins
+                .Where(file => PathComparer.Equals(BuildDiscPrefix(file), selectedPrefix))
+                .GroupBy(file => file.FullName, PathComparer)
+                .Select(group => group.First())
+        ];
 
         if (grouped.Count <= 1)
         {
             return [selectedBin];
         }
 
-        List<(FileInfo File, int? TrackNumber)> numbered = grouped
-            .Select(file => (File: file, TrackNumber: TryExtractTrackNumber(file)))
-            .ToList();
+        List<(FileInfo File, int? TrackNumber)> numbered =
+        [
+            .. grouped.Select(file => (File: file, TrackNumber: TryExtractTrackNumber(file)))
+        ];
 
         if (numbered.Any(item => item.TrackNumber is null))
         {
             ambiguousOrder = true;
-            return grouped.OrderBy(file => file.Name, StringComparer.OrdinalIgnoreCase).ToArray();
+            return [.. grouped.OrderBy(file => file.Name, StringComparer.OrdinalIgnoreCase)];
         }
 
         bool hasDuplicates = numbered
@@ -241,13 +251,15 @@ internal static class MultiBinDiscAssembler
         if (hasDuplicates)
         {
             ambiguousOrder = true;
-            return grouped.OrderBy(file => file.Name, StringComparer.OrdinalIgnoreCase).ToArray();
+            return [.. grouped.OrderBy(file => file.Name, StringComparer.OrdinalIgnoreCase)];
         }
 
-        int[] sortedNumbers = numbered
-            .Select(item => item.TrackNumber!.Value)
-            .Order()
-            .ToArray();
+        int[] sortedNumbers =
+        [
+            .. numbered
+                .Select(item => item.TrackNumber!.Value)
+                .Order()
+        ];
 
         for (int i = 0; i < sortedNumbers.Length; i++)
         {
@@ -258,10 +270,12 @@ internal static class MultiBinDiscAssembler
             }
         }
 
-        return numbered
-            .OrderBy(item => item.TrackNumber!.Value)
-            .Select(item => item.File)
-            .ToArray();
+        return
+        [
+            .. numbered
+                .OrderBy(item => item.TrackNumber!.Value)
+                .Select(item => item.File)
+        ];
     }
 
     private static string BuildDiscPrefix(FileInfo file)
@@ -535,11 +549,11 @@ internal static class MultiBinDiscAssembler
             BinCueRescueDecision.Refuse,
             null,
             leaderCueWriteTarget,
-            Array.Empty<BinCueRescueTrackPlan>(),
+            [],
             null,
             true,
             reasons,
-            Array.Empty<BinCueRescueWarningCode>());
+            []);
     }
 
     private static string SafeRegexReplace(

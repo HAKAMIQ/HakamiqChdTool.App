@@ -4,7 +4,7 @@ using System;
 
 namespace HakamiqChdTool.App.Core.Workflow;
 
-public sealed class ChdWorkflowTaskContext
+internal sealed class ChdWorkflowTaskContext
 {
     private QueueItemSnapshot? _snapshot;
     private IQueueItemStateSink? _sink;
