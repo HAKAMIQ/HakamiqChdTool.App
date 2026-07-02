@@ -110,16 +110,15 @@ public partial class MainWindowViewModel
         }
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (TryBuildFastSingleFileCandidate(
+        if (TryBuildFastDirectFileCandidates(
                 rawList,
                 inputKind,
                 executionProfile,
-                intakeSource,
-                out PreparedIntakeCandidate fastCandidate))
+                out IReadOnlyList<PreparedIntakeCandidate> fastCandidates))
         {
-            return await AddSinglePreparedCandidateFastAsync(
+            return await AddPreparedCandidatesFastAsync(
                     dispatcher,
-                    fastCandidate,
+                    fastCandidates,
                     executionProfile,
                     intakeSource)
                 .ConfigureAwait(false);
@@ -477,96 +476,130 @@ public partial class MainWindowViewModel
     }
 
 
-    private bool TryBuildFastSingleFileCandidate(
+    private bool TryBuildFastDirectFileCandidates(
         IReadOnlyList<string> rawList,
         QueueIngestKind inputKind,
         QueueExecutionProfile executionProfile,
-        QueueIntakeSource intakeSource,
-        out PreparedIntakeCandidate candidate)
+        out IReadOnlyList<PreparedIntakeCandidate> candidates)
     {
-        candidate = default!;
+        candidates = Array.Empty<PreparedIntakeCandidate>();
 
-        if (rawList.Count != 1 || inputKind != QueueIngestKind.FilesOnly)
+        if (rawList.Count == 0 || inputKind != QueueIngestKind.FilesOnly)
         {
             return false;
         }
 
-        string rawPath = rawList[0];
-        if (!IsExistingQueueInputPath(rawPath))
+        var prepared = new List<PreparedIntakeCandidate>(rawList.Count);
+        var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string rawPath in rawList)
+        {
+            if (!IsExistingQueueInputPath(rawPath))
+            {
+                return false;
+            }
+
+            MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(rawPath);
+            if (mediaDecision.IsBlocked)
+            {
+                return false;
+            }
+
+            string effectivePath = mediaDecision.EffectivePath;
+            if (!IsExistingQueueInputPath(effectivePath))
+            {
+                return false;
+            }
+
+            QueueInputClassification classification = QueueInputClassifier.Classify(effectivePath);
+            if (!classification.IsSupported || classification.IsArchiveContainer)
+            {
+                return false;
+            }
+
+            string normalizedPath = NormalizePathForAdvisoryKey(effectivePath);
+            if (!seenPaths.Add(normalizedPath))
+            {
+                continue;
+            }
+
+            string action = ResolveRequestedAction(effectivePath, executionProfile);
+            if (string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            prepared.Add(new PreparedIntakeCandidate(
+                new PreparedQueueCandidate(
+                    effectivePath,
+                    action,
+                    "Unknown Platform",
+                    string.Empty),
+                null));
+        }
+
+        if (prepared.Count == 0)
         {
             return false;
         }
 
-        MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(rawPath);
-        if (mediaDecision.IsBlocked)
-        {
-            return false;
-        }
-
-        string effectivePath = mediaDecision.EffectivePath;
-        if (!IsExistingQueueInputPath(effectivePath))
-        {
-            return false;
-        }
-
-        QueueInputClassification classification = QueueInputClassifier.Classify(effectivePath);
-        if (!classification.IsSupported || classification.IsArchiveContainer)
-        {
-            return false;
-        }
-
-        string action = ResolveRequestedAction(effectivePath, executionProfile);
-        if (string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        candidate = new PreparedIntakeCandidate(
-            new PreparedQueueCandidate(
-                effectivePath,
-                action,
-                "Unknown Platform",
-                string.Empty),
-            null);
-
+        candidates = prepared;
         return true;
     }
 
-    private Task<IReadOnlyList<Guid>> AddSinglePreparedCandidateFastAsync(
+    private Task<IReadOnlyList<Guid>> AddPreparedCandidatesFastAsync(
         Dispatcher dispatcher,
-        PreparedIntakeCandidate prepared,
+        IReadOnlyList<PreparedIntakeCandidate> preparedCandidates,
         QueueExecutionProfile executionProfile,
         QueueIntakeSource intakeSource)
     {
         return dispatcher.InvokeAsync<IReadOnlyList<Guid>>(
             () =>
             {
-                PreparedQueueCandidate candidate = prepared.Candidate;
-                string normalizedCandidatePath = NormalizePathForAdvisoryKey(candidate.Path);
                 HashSet<string> currentExistingPaths = BuildExistingPathSet(_session.QueueRows);
+                var addedIds = new List<Guid>(preparedCandidates.Count);
 
-                if (currentExistingPaths.Contains(normalizedCandidatePath) || !IsExistingQueueInputPath(candidate.Path))
+                foreach (PreparedIntakeCandidate prepared in preparedCandidates)
                 {
-                    _session.SetFooterStatus(ArabicUi.Get("LocQueueActivity_AddSkippedTitle"));
-                    _session.UpdateUiState();
-                    return Array.Empty<Guid>();
+                    PreparedQueueCandidate candidate = prepared.Candidate;
+                    string normalizedCandidatePath = NormalizePathForAdvisoryKey(candidate.Path);
+
+                    if (currentExistingPaths.Contains(normalizedCandidatePath) || !IsExistingQueueInputPath(candidate.Path))
+                    {
+                        continue;
+                    }
+
+                    QueueRowData row = BuildRowFromPath(
+                        candidate.Path,
+                        candidate.Action,
+                        candidate.DetectedPlatform,
+                        candidate.DetectionReason,
+                        executionProfile,
+                        intakeSource,
+                        prepared.Advisory);
+
+                    _session.QueueRows.Append(row);
+                    currentExistingPaths.Add(normalizedCandidatePath);
+                    addedIds.Add(row.ItemId);
                 }
 
-                QueueRowData row = BuildRowFromPath(
-                    candidate.Path,
-                    candidate.Action,
-                    candidate.DetectedPlatform,
-                    candidate.DetectionReason,
-                    executionProfile,
-                    intakeSource,
-                    prepared.Advisory);
+                if (addedIds.Count == 0)
+                {
+                    _session.SetFooterStatus(ArabicUi.Get("LocQueueActivity_AddSkippedTitle"));
+                }
+                else if (addedIds.Count == 1)
+                {
+                    _session.SetFooterStatus(MainWindowMessages.AddedOne);
+                }
+                else
+                {
+                    _session.SetFooterStatus(ArabicUi.Format(MainWindowMessages.Fmt_AddedMany, addedIds.Count));
+                }
 
-                _session.QueueRows.Append(row);
                 _session.RequestSelectFirstQueueRowIfNone();
-                _session.SetFooterStatus(MainWindowMessages.AddedOne);
                 _session.UpdateUiState();
 
-                return new[] { row.ItemId };
+                return addedIds;
             },
             DispatcherPriority.Normal).Task;
     }
