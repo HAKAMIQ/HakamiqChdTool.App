@@ -480,7 +480,7 @@ internal sealed class WorkflowExtractionStage(
                 lastLogPath);
         }
 
-        WorkflowPendingOutputCleaner.TryCleanupWorkspaceForPendingFile(pendingOutputPath);
+        WorkflowPendingOutputCleaner.TryCleanupWorkspaceForPendingFile(pendingOutputPath, settings);
         WorkflowPendingOutputCleaner.TryCleanupLegacyOutputRootPending(outputRoot);
 
         if (request.Verify)
