@@ -23,21 +23,6 @@ public static class ChdLogicalProbeReportFormatter
 {
     private static readonly char[] LineSeparators = ['\r', '\n'];
 
-    public static ChdProbeReportView? BuildView(ChdLogicalProbeResult result)
-    {
-        if (!result.HasLogicalGeometry)
-        {
-            return null;
-        }
-
-        return BuildViewCore(
-            result.PhysicalBytes,
-            result.LogicalBytes,
-            result.HunkBytes,
-            result.TotalHunks,
-            result.DecodedCacheBytes);
-    }
-
     public static ChdProbeReportView? BuildView(ChdInfoResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
@@ -53,12 +38,6 @@ public static class ChdLogicalProbeReportFormatter
             result.HunkBytes.Value,
             result.TotalHunks.Value,
             result.DecodedCacheBytes.GetValueOrDefault());
-    }
-
-    public static string BuildReport(ChdLogicalProbeResult result)
-    {
-        ChdProbeReportView? presentation = BuildView(result);
-        return BuildTextReport(presentation);
     }
 
     public static string BuildReport(ChdInfoResult result)
