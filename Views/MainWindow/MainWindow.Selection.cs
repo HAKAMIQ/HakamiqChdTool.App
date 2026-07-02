@@ -3,7 +3,6 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Chd;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using HakamiqChdTool.App.Views;
@@ -125,89 +124,14 @@ public partial class MainWindow
         _ = dialog.ShowDialog();
     }
 
-    private async Task<ChdProbeReportView?> BuildChdLogicalReportForQueueItemAsync(
+    private static Task<ChdProbeReportView?> BuildChdLogicalReportForQueueItemAsync(
         TaskQueueItemViewModel item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        string outputPath = ResolveQueueItemOutputPath(item);
-        if (IsReadableChdFile(outputPath))
-        {
-            try
-            {
-                ChdLogicalProbeResult probe = await ChdLogicalProbeReportService
-                    .ProbeAsync(outputPath, _windowLifetimeCts.Token)
-                    .ConfigureAwait(true);
-
-                ChdProbeReportView? report =
-                    ChdLogicalProbeReportFormatter.BuildView(probe);
-
-                if (report?.HasMetrics == true)
-                {
-                    return report;
-                }
-            }
-            catch (OperationCanceledException) when (_windowLifetimeCts.IsCancellationRequested)
-            {
-                return null;
-            }
-            catch (Exception ex) when (IsExpectedChdLogicalReportException(ex))
-            {
-                _ = ex;
-            }
-        }
-
-        return ChdLogicalProbeReportFormatter.TryBuildViewFromInfoLog(item.LogPath);
+        return Task.FromResult(ChdLogicalProbeReportFormatter.TryBuildViewFromInfoLog(item.LogPath));
     }
 
-    private string ResolveQueueItemOutputPath(TaskQueueItemViewModel item)
-    {
-        ArgumentNullException.ThrowIfNull(item);
-
-        QueueRowData? row = _queueRowStore.GetById(item.QueueItemId);
-        if (!string.IsNullOrWhiteSpace(row?.OutputPath))
-        {
-            return row.OutputPath.Trim();
-        }
-
-        return string.IsNullOrWhiteSpace(item.OutputPath)
-            ? string.Empty
-            : item.OutputPath.Trim();
-    }
-
-    private static bool IsReadableChdFile(string? path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return false;
-        }
-
-        try
-        {
-            string fullPath = Path.GetFullPath(path.Trim());
-
-            return File.Exists(fullPath) &&
-                string.Equals(
-                    Path.GetExtension(fullPath),
-                    ".chd",
-                    StringComparison.OrdinalIgnoreCase);
-        }
-        catch (Exception ex) when (IsExpectedChdLogicalReportException(ex))
-        {
-            return false;
-        }
-    }
-
-    private static bool IsExpectedChdLogicalReportException(Exception ex)
-    {
-        return ex is ArgumentException
-            or IOException
-            or NotSupportedException
-            or UnauthorizedAccessException
-            or System.Security.SecurityException
-            or PathTooLongException
-            or InvalidOperationException;
-    }
 
     private IReadOnlyList<string> ResolveQueueItemExplorerTargets(TaskQueueItemViewModel? item)
     {

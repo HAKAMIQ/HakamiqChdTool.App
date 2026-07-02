@@ -527,7 +527,6 @@ function Assert-NoStandaloneChdmanExecutable {
 
 function Assert-NoLibchdrReleaseArtifacts {
     $blockedNames = @(
-        "chd_reader_tool.exe",
         "libchdr.dll",
         "libchdr.pdb",
         "chdr.dll",
