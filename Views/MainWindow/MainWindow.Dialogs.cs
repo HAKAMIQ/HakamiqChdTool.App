@@ -25,32 +25,6 @@ public partial class MainWindow
         return dialog.ShowDialog() == true;
     }
 
-    private StorageAdvisorDialogResult ShowStorageAdvisorDialog(StorageAdvisorResult result)
-    {
-        ArgumentNullException.ThrowIfNull(result);
-
-        StorageAdvisorView presentation = StorageAdvisorPresenter.Present(result);
-        if (!presentation.ShouldShowDialog)
-        {
-            return StorageAdvisorDialogResult.ContinueRecommended;
-        }
-
-        var dialog = new StorageAdvisorDialog(presentation)
-        {
-            Owner = this
-        };
-
-        _ = dialog.ShowDialog();
-
-        if (dialog.DoNotShowAgain)
-        {
-            _settings.SuppressStorageAdvisorDialog = true;
-            PersistSettings();
-        }
-
-        return dialog.AdvisorResult;
-    }
-
     private void ShowNoticeDialog(string title, string message)
     {
         string resolvedTitle = ResolveDialogText(title);
