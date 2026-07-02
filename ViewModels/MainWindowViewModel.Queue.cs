@@ -521,18 +521,13 @@ public partial class MainWindowViewModel
             return false;
         }
 
-        QueuePlatformView platform = BuildQueuePlatformView(effectivePath);
-        QueueIntakeAdvisory? advisory = Ps2CompatibilityAdvisoryService.BuildQueueAdvisory(
-            effectivePath,
-            platform.PlatformName);
-
         candidate = new PreparedIntakeCandidate(
             new PreparedQueueCandidate(
                 effectivePath,
                 action,
-                platform.PlatformName,
-                platform.Reason),
-            advisory);
+                "Unknown Platform",
+                string.Empty),
+            null);
 
         return true;
     }
@@ -573,7 +568,7 @@ public partial class MainWindowViewModel
 
                 return new[] { row.ItemId };
             },
-            DispatcherPriority.Background).Task;
+            DispatcherPriority.Normal).Task;
     }
     private static HashSet<string> BuildDirectRawFilePathSet(IEnumerable<string> rawList)
     {
