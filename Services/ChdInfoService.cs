@@ -22,18 +22,6 @@ public sealed class ChdInfoService
 
     private static readonly char[] LineSeparators = ['\r', '\n'];
 
-    private readonly ChdLogicalProbeService _logicalProbe;
-
-    public ChdInfoService()
-        : this(new ChdLogicalProbeService())
-    {
-    }
-
-    public ChdInfoService(ChdLogicalProbeService logicalProbe)
-    {
-        _logicalProbe = logicalProbe ?? throw new ArgumentNullException(nameof(logicalProbe));
-    }
-
     public async Task<ChdInfoResult> ReadInfoAsync(
         string chdmanPath,
         string chdFilePath,
@@ -137,16 +125,10 @@ public sealed class ChdInfoService
 
         string combined = $"{output}{Environment.NewLine}{error}";
         long? logicalBytes = TryParseLogicalBytes(combined);
-        ChdLogicalProbeResult logicalProbeResult = await ProbeLogicalGeometryAsync(
-                resolvedChdPath,
-                logicalBytes,
-                cancellationToken)
-            .ConfigureAwait(false);
 
-        if (logicalProbeResult.HasLogicalGeometry)
-        {
-            logicalBytes = logicalProbeResult.LogicalBytes;
-        }
+        const bool logicalProbeAvailable = false;
+        const bool logicalProbeSucceeded = false;
+        const string logicalProbeMessageCode = "ChdLogicalProbeRemoved";
 
         string metadataType = DetectMediaTypeFromMetadata(combined);
         string mediaType;
@@ -189,13 +171,13 @@ public sealed class ChdInfoService
         logBuilder.AppendLine($"MediaType (metadata): {metadataType}");
         logBuilder.AppendLine($"MediaType (resolved): {mediaType}");
         logBuilder.AppendLine($"LogicalBytes: {(logicalBytes.HasValue ? logicalBytes.Value.ToString(CultureInfo.InvariantCulture) : "unknown")}");
-        logBuilder.AppendLine($"LogicalProbeAvailable: {logicalProbeResult.IsToolAvailable}");
-        logBuilder.AppendLine($"LogicalProbeSucceeded: {logicalProbeResult.IsSuccess}");
-        logBuilder.AppendLine($"LogicalProbeMessageCode: {logicalProbeResult.MessageCode}");
-        logBuilder.AppendLine($"PhysicalBytes: {(logicalProbeResult.PhysicalBytes > 0 ? logicalProbeResult.PhysicalBytes.ToString(CultureInfo.InvariantCulture) : "unknown")}");
-        logBuilder.AppendLine($"HunkBytes: {(logicalProbeResult.HunkBytes > 0 ? logicalProbeResult.HunkBytes.ToString(CultureInfo.InvariantCulture) : "unknown")}");
-        logBuilder.AppendLine($"TotalHunks: {(logicalProbeResult.TotalHunks > 0 ? logicalProbeResult.TotalHunks.ToString(CultureInfo.InvariantCulture) : "unknown")}");
-        logBuilder.AppendLine($"DecodedCacheBytes: {(logicalProbeResult.DecodedCacheBytes > 0 ? logicalProbeResult.DecodedCacheBytes.ToString(CultureInfo.InvariantCulture) : "unknown")}");
+        logBuilder.AppendLine($"LogicalProbeAvailable: {logicalProbeAvailable}");
+        logBuilder.AppendLine($"LogicalProbeSucceeded: {logicalProbeSucceeded}");
+        logBuilder.AppendLine($"LogicalProbeMessageCode: {logicalProbeMessageCode}");
+        logBuilder.AppendLine("PhysicalBytes: unknown");
+        logBuilder.AppendLine("HunkBytes: unknown");
+        logBuilder.AppendLine("TotalHunks: unknown");
+        logBuilder.AppendLine("DecodedCacheBytes: unknown");
         logBuilder.AppendLine();
 
         if (!string.IsNullOrWhiteSpace(output))
@@ -222,55 +204,19 @@ public sealed class ChdInfoService
             ExitCode = run.ExitCode,
             MediaType = mediaType,
             LogicalBytes = logicalBytes,
-            PhysicalBytes = logicalProbeResult.PhysicalBytes > 0 ? logicalProbeResult.PhysicalBytes : null,
-            HunkBytes = logicalProbeResult.HunkBytes > 0 ? logicalProbeResult.HunkBytes : null,
-            TotalHunks = logicalProbeResult.TotalHunks > 0 ? logicalProbeResult.TotalHunks : null,
-            DecodedCacheBytes = logicalProbeResult.DecodedCacheBytes > 0 ? logicalProbeResult.DecodedCacheBytes : null,
-            LogicalProbeAvailable = logicalProbeResult.IsToolAvailable,
-            LogicalProbeSucceeded = logicalProbeResult.IsSuccess,
-            LogicalProbeMessageCode = logicalProbeResult.MessageCode,
+            PhysicalBytes = null,
+            HunkBytes = null,
+            TotalHunks = null,
+            DecodedCacheBytes = null,
+            LogicalProbeAvailable = logicalProbeAvailable,
+            LogicalProbeSucceeded = logicalProbeSucceeded,
+            LogicalProbeMessageCode = logicalProbeMessageCode,
             CommandLine = displayCommandLine,
             Output = output,
             Error = error,
             Message = success ? InfoReadSuccessMessageKey : InfoReadFailedMessageKey,
             LogPath = logPath
         };
-    }
-
-    private async Task<ChdLogicalProbeResult> ProbeLogicalGeometryAsync(
-        string chdPath,
-        long? chdmanLogicalBytes,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            ChdLogicalProbeResult result = await _logicalProbe
-                .ProbeAsync(chdPath, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (result.HasLogicalGeometry
-                && chdmanLogicalBytes.HasValue
-                && chdmanLogicalBytes.Value > 0
-                && chdmanLogicalBytes.Value != result.LogicalBytes)
-            {
-                Log.Warning(
-                    "CHD logical size mismatch. File={File}, ChdmanLogicalBytes={ChdmanLogicalBytes}, ProbeLogicalBytes={ProbeLogicalBytes}",
-                    chdPath,
-                    chdmanLogicalBytes.Value,
-                    result.LogicalBytes);
-            }
-
-            return result;
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            Log.Debug(ex, "CHD logical probe enrichment failed. File={File}", chdPath);
-            return ChdLogicalProbeResult.Failed("ChdLogicalProbeFailed");
-        }
     }
 
     private static long? TryParseLogicalBytes(string text)
