@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Core.Input;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Services.MediaInputPolicy;
+using System.IO;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -24,9 +25,42 @@ internal static class QueueOperationCapabilityService
     public static IReadOnlyList<string> GetSupportedOperationCodes(string? path)
     {
         MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(path);
-        return mediaDecision.IsBlocked
-            ? NoOperations
+        if (mediaDecision.IsBlocked)
+        {
+            return NoOperations;
+        }
+
+        return TryGetKnownDirectFileOperations(mediaDecision.EffectivePath, out IReadOnlyList<string> operations)
+            ? operations
             : GetSupportedOperationCodes(QueueInputClassifier.Classify(mediaDecision.EffectivePath));
+    }
+
+    private static bool TryGetKnownDirectFileOperations(
+        string? path,
+        out IReadOnlyList<string> operations)
+    {
+        operations = NoOperations;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        string extension = Path.GetExtension(path).ToLowerInvariant();
+
+        if (extension is ".iso" or ".cso" or ".cue" or ".gdi" or ".toc" or ".nrg")
+        {
+            operations = ConvertibleDiscOperations;
+            return true;
+        }
+
+        if (extension == ".chd")
+        {
+            operations = ChdOperations;
+            return true;
+        }
+
+        return false;
     }
 
     public static IReadOnlyList<string> GetSupportedOperationCodes(QueueInputClassification classification) =>
