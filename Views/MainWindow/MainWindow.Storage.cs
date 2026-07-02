@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Core.Workflow.Paths;
 using HakamiqChdTool.App.Localization;
@@ -7,9 +8,7 @@ using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.M3u;
 using HakamiqChdTool.App.Services.StorageAdvisor;
-using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
-using HakamiqChdTool.App.Views;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -30,45 +29,9 @@ public partial class MainWindow
         IReadOnlyList<TaskQueueItemViewModel> items,
         bool processedSelectionOnly)
     {
-        ArgumentNullException.ThrowIfNull(items);
-        _ = processedSelectionOnly;
-
-        if (items.Count == 0 || _settings.SuppressStorageAdvisorDialog)
-        {
-            return true;
-        }
-
-        try
-        {
-            foreach (TaskQueueItemViewModel item in items)
-            {
-                if (!TryBuildStorageAdvisorRequest(item, out StorageAdvisorRequest? request) ||
-                    request is null)
-                {
-                    continue;
-                }
-
-                StorageAdvisorResult result = _storageAdvisorService.Analyze(
-                    request,
-                    _settings.SuppressStorageAdvisorDialog);
-
-                if (!result.ShouldShowDialog)
-                {
-                    continue;
-                }
-
-                StorageAdvisorDialogResult dialogResult = ShowStorageAdvisorDialog(result);
-                return HandleStorageAdvisorDialogResult(dialogResult);
-            }
-
-            return true;
-        }
-        catch (Exception ex) when (IsExpectedStorageAdvisorFailure(ex))
-        {
-            Log.Warning(ex, "Storage Advisor pre-processing check failed. Processing will continue.");
-            return true;
-        }
+        return true;
     }
+
 
 
     private bool TryBuildStorageAdvisorRequest(
@@ -163,23 +126,6 @@ public partial class MainWindow
         return PendingWorkspacePathPolicy.ResolvePendingWorkspaceRoot(
             outputDirectory,
             _settings);
-    }
-
-
-    private bool HandleStorageAdvisorDialogResult(StorageAdvisorDialogResult result)
-    {
-        if (result == StorageAdvisorDialogResult.ContinueRecommended)
-        {
-            return true;
-        }
-
-        if (result == StorageAdvisorDialogResult.OpenOptions)
-        {
-            OpenOptionsDialog();
-            return false;
-        }
-
-        return false;
     }
 
 
