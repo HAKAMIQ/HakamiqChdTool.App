@@ -3,8 +3,10 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels.Virtualization;
+using HakamiqChdTool.App.Ui.Queue;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
@@ -105,14 +107,11 @@ public partial class MainWindowViewModel
                         continue;
                     }
 
-                    QueueRowData row = BuildRowFromPath(
+                    QueueRowData row = BuildFastRowFromPath(
                         candidate.Path,
                         candidate.Action,
-                        candidate.DetectedPlatform,
-                        candidate.DetectionReason,
                         executionProfile,
-                        intakeSource,
-                        prepared.Advisory);
+                        intakeSource);
 
                     _session.QueueRows.Append(row);
                     currentExistingPaths.Add(normalizedCandidatePath);
@@ -138,5 +137,51 @@ public partial class MainWindowViewModel
                 return addedIds;
             },
             DispatcherPriority.Normal).Task;
+    }
+
+    private static QueueRowData BuildFastRowFromPath(
+        string path,
+        string action,
+        QueueExecutionProfile executionProfile,
+        QueueIntakeSource intakeSource)
+    {
+        string trimmedPath = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        string initialState = action switch
+        {
+            TaskActionCodes.PendingSelection => TaskQueueStateCodes.AwaitingOperationSelection,
+            TaskActionCodes.Unsupported => TaskQueueStateCodes.Failed,
+            _ => TaskQueueStateCodes.Pending
+        };
+
+        string initialDetail = action switch
+        {
+            TaskActionCodes.PendingSelection => MainWindowMessages.ChooseOperationForItem,
+            TaskActionCodes.Unsupported => MainWindowMessages.UnsupportedQueueFile,
+            _ => MainWindowMessages.ReadyForProcessing
+        };
+
+        string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
+
+        return new QueueRowData
+        {
+            ItemId = Guid.NewGuid(),
+            OriginalPath = path,
+            SourcePath = path,
+            InputType = string.IsNullOrWhiteSpace(extension) ? "FILE" : extension,
+            FileName = Path.GetFileName(trimmedPath),
+            DetectedPlatform = ArabicUi.Get("LocCommon_Unknown"),
+            DetectionReason = string.Empty,
+            RequestedAction = action,
+            ExecutionProfile = executionProfile,
+            IntakeSource = intakeSource,
+            IntakeAdvisory = null,
+            CurrentState = initialState,
+            StatusDetail = initialDetail,
+            IsNamingCompliant = true,
+            SuggestedStandardName = string.Empty,
+            IsVisibleInCurrentOperationMode = string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal)
+                || QueueModeResolver.IsPathVisibleForExecutionProfile(path, executionProfile)
+        };
     }
 }
