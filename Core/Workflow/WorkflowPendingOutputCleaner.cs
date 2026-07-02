@@ -42,7 +42,7 @@ internal static class WorkflowPendingOutputCleaner
             }
 
             DeleteKnownPendingJobDirectoryTree(jobDirectory);
-            CleanupWorkspaceParentsForJobDirectory(jobDirectory);
+            CleanupWorkspaceParentsForJobDirectory(jobDirectory, settings);
         }
         catch (Exception ex) when (IsExpectedCleanupException(ex))
         {
@@ -83,7 +83,7 @@ internal static class WorkflowPendingOutputCleaner
         }
     }
 
-    public static void TryCleanupWorkspaceForPendingFile(string? pendingOutputPath)
+    public static void TryCleanupWorkspaceForPendingFile(string? pendingOutputPath, AppSettings? settings = null)
     {
         if (string.IsNullOrWhiteSpace(pendingOutputPath))
         {
@@ -98,14 +98,22 @@ internal static class WorkflowPendingOutputCleaner
                 return;
             }
 
+            if (AppPaths.IsKnownPendingWorkspaceJobDirectory(jobDirectory, settings))
+            {
+                DeleteKnownPendingJobDirectoryTree(jobDirectory);
+                CleanupWorkspaceParentsForJobDirectory(jobDirectory, settings);
+                return;
+            }
+
             DeleteDirectoryIfEmpty(jobDirectory);
-            CleanupWorkspaceParentsForJobDirectory(jobDirectory);
+            CleanupWorkspaceParentsForJobDirectory(jobDirectory, settings);
         }
         catch (Exception ex) when (IsExpectedCleanupException(ex))
         {
             Logger.Debug(ex, "Failed to clean pending workspace directories. PendingOutputPath={PendingOutputPath}", pendingOutputPath);
         }
     }
+
 
     public static void TryCleanupLegacyOutputRootPending(string? outputRoot)
     {
@@ -148,10 +156,13 @@ internal static class WorkflowPendingOutputCleaner
         }
     }
 
-    private static void CleanupWorkspaceParentsForJobDirectory(string jobDirectory)
+    private static void CleanupWorkspaceParentsForJobDirectory(string jobDirectory, AppSettings? settings)
     {
         string? pendingRoot = Path.GetDirectoryName(jobDirectory);
-        DeleteDirectoryIfEmpty(pendingRoot);
+        if (!IsCustomPendingWorkspaceRoot(pendingRoot, settings))
+        {
+            DeleteDirectoryIfEmpty(pendingRoot);
+        }
 
         string? appRoot = string.IsNullOrWhiteSpace(pendingRoot) ? null : Path.GetDirectoryName(pendingRoot);
         if (!string.IsNullOrWhiteSpace(appRoot)
@@ -161,6 +172,31 @@ internal static class WorkflowPendingOutputCleaner
         }
     }
 
+
+    private static bool IsCustomPendingWorkspaceRoot(string? pendingRoot, AppSettings? settings)
+    {
+        if (string.IsNullOrWhiteSpace(pendingRoot)
+            || settings is null
+            || !settings.UseCustomPendingWorkspace
+            || settings.PendingWorkspaceMode != PendingWorkspaceMode.Custom
+            || string.IsNullOrWhiteSpace(settings.PendingWorkspaceCustomRoot))
+        {
+            return false;
+        }
+
+        try
+        {
+            return string.Equals(
+                Path.GetFullPath(pendingRoot).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                Path.GetFullPath(settings.PendingWorkspaceCustomRoot.Trim()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (IsExpectedCleanupException(ex))
+        {
+            Logger.Debug(ex, "Failed to compare custom pending workspace root. PendingRoot={PendingRoot}", pendingRoot);
+            return false;
+        }
+    }
     private static void DeleteKnownPendingJobDirectoryTree(string jobDirectory)
     {
         if (!Directory.Exists(jobDirectory))
