@@ -97,8 +97,36 @@ internal sealed partial class HqOptionsShell : IDisposable
         _owner.ViewModel.Load(_owner.ResultSettings);
         EnforceFeatureAvailabilityOnViewModel(showDialog: false);
         _owner.ResultSettings = _currentSettings.Clone();
-        _owner.ViewModel.IsDatabaseAvailable = false;
-        _owner.ViewModel.DatabaseStatusText = ResolveUiText(DatabaseInitialStatusKey);
+        InitializeDatabaseState();
+    }
+
+    private void InitializeDatabaseState()
+    {
+        try
+        {
+            bool isAvailable = LoadDatabaseAvailability();
+
+            _owner.ViewModel.IsDatabaseAvailable = isAvailable;
+            _owner.ViewModel.DatabaseStatusText = ResolveUiText(isAvailable ? DatabaseAvailableKey : DatabaseMissingKey);
+
+            if (isAvailable)
+            {
+                string databasePath = HakamiqChdTool.App.Services.RedumpSqliteManager.Default.DatabasePath;
+                if (System.IO.File.Exists(databasePath))
+                {
+                    _owner.ViewModel.SetDatabaseLastSyncedUtc(System.IO.File.GetLastWriteTimeUtc(databasePath).ToString(
+                        "O",
+                        System.Globalization.CultureInfo.InvariantCulture));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Warning(ex, "Failed to initialize Redump SQLite database state from the advanced options window.");
+
+            _owner.ViewModel.IsDatabaseAvailable = false;
+            _owner.ViewModel.DatabaseStatusText = ResolveUiText(DatabaseReadFailedKey);
+        }
     }
 
     public void OnLoaded()
