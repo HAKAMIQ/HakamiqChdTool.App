@@ -7,9 +7,9 @@
         mc:Ignorable="d"
         Title="{Binding WindowTitle, Mode=OneWay}"
         Width="620"
-        Height="360"
+        Height="380"
         MinWidth="600"
-        MinHeight="330"
+        MinHeight="360"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         WindowStyle="None"
@@ -23,7 +23,7 @@
         UseLayoutRounding="True"
         FontFamily="{DynamicResource FontFamily.Text}"
         d:DesignWidth="620"
-        d:DesignHeight="360">
+        d:DesignHeight="380">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -290,19 +290,11 @@
                 </Grid>
             </Border>
 
-            <ScrollViewer Grid.Row="1"
-                          HorizontalScrollBarVisibility="Disabled"
-                          VerticalScrollBarVisibility="Auto"
-                          CanContentScroll="False"
-                          PanningMode="VerticalOnly"
-                          Focusable="False"
-                          Background="{DynamicResource Brush.Transparent}"
-                          SnapsToDevicePixels="True">
-
-                <Grid Margin="{DynamicResource Inset.16.All}"
-                      FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
+            <Grid Grid.Row="1"
+                  Margin="{DynamicResource Inset.16.All}"
+                  FlowDirection="{DynamicResource App.FlowDirection}"
+                  Language="{DynamicResource App.XmlLanguage}"
+                  SnapsToDevicePixels="True">
 
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -450,8 +442,7 @@
                         </Grid>
                     </Border>
 
-                </Grid>
-            </ScrollViewer>
+            </Grid>
 
             <Border Grid.Row="2"
                     Background="{DynamicResource Brush.Layer.Card}"
