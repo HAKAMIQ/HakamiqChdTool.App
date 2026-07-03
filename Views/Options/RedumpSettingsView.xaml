@@ -129,50 +129,49 @@
                         </Grid>
 
                         <Border Grid.Row="1"
-                                Style="{StaticResource Win11SettingsRow}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                                Grid.RowSpan="3"
+                                Style="{StaticResource Win11SettingsLastRow}">
+                            <Grid Margin="{DynamicResource Inset.16.All}"
+                                  FlowDirection="{DynamicResource App.FlowDirection}"
+                                  Language="{DynamicResource App.XmlLanguage}"
+                                  SnapsToDevicePixels="True">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0"
+                                           Text="{DynamicResource LocRedumpSettings_LocalFolderTitle}"
+                                           ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
+                                           Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocRedumpSettings_LocalFolderTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                <TextBlock Grid.Row="2"
+                                           Text="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
+                                           ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
+                                           Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                           TextWrapping="Wrap"
+                                           TextTrimming="None" />
 
-                                    <TextBlock Grid.Row="2"
-                                               Text="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               TextWrapping="Wrap"
-                                               TextTrimming="None" />
-                                </Grid>
-
-                                <Grid Grid.Column="2"
-                                      Width="440"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
+                                <Grid Grid.Row="4"
                                       FlowDirection="{DynamicResource App.FlowDirection}"
                                       Language="{DynamicResource App.XmlLanguage}"
                                       SnapsToDevicePixels="True">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <Grid Grid.Row="0"
+                                    <Grid Grid.Column="0"
                                           SnapsToDevicePixels="True">
                                         <TextBox x:Name="RedumpLocalFolderTextBox"
                                                  Text="{Binding RedumpLocalLibraryRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
@@ -181,17 +180,7 @@
                                                  Language="en-US"
                                                  TextAlignment="Left"
                                                  Style="{StaticResource Win11SettingsTechnicalTextBox}"
-                                                 AutomationProperties.Name="{DynamicResource LocRedumpSettings_LocalFolderTitle}">
-                                            <TextBox.ToolTip>
-                                                <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                                    <TextBlock Text="{Binding RedumpLocalLibraryRoot}"
-                                                               FlowDirection="LeftToRight"
-                                                               TextAlignment="Left"
-                                                               Language="en-US"
-                                                               TextWrapping="NoWrap" />
-                                                </ToolTip>
-                                            </TextBox.ToolTip>
-                                        </TextBox>
+                                                 AutomationProperties.Name="{DynamicResource LocRedumpSettings_LocalFolderTitle}" />
 
                                         <TextBlock Margin="{DynamicResource Inset.12.0.12.0}"
                                                    VerticalAlignment="Center"
@@ -219,133 +208,51 @@
                                         </TextBlock>
                                     </Grid>
 
-                                    <Grid Grid.Row="2"
-                                          FlowDirection="{DynamicResource App.FlowDirection}"
-                                          Language="{DynamicResource App.XmlLanguage}"
-                                          SnapsToDevicePixels="True">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <Button Grid.Column="0"
-                                                Content="{DynamicResource LocRedumpSettings_BrowseLocalFolderButton}"
-                                                Command="{Binding BrowseRedumpLocalLibraryCommand}"
-                                                IsEnabled="{Binding CanUseRedumpDatabaseImport}"
-                                                ToolTip="{DynamicResource LocRedumpSettings_BrowseLocalFolderTooltip}"
-                                                AutomationProperties.Name="{DynamicResource LocRedumpSettings_BrowseLocalFolderButton}"
-                                                Style="{StaticResource Win11SettingsCompactButton}" />
-
-                                        <Button Grid.Column="2"
-                                                Content="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
-                                                Command="{Binding ScanRedumpLocalLibraryCommand}"
-                                                ToolTip="{DynamicResource LocRedumpSettings_ScanLocalFolderTooltip}"
-                                                AutomationProperties.Name="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
-                                                Style="{StaticResource Win11SettingsCompactButton}" />
-
-                                        <Button Grid.Column="4"
-                                                Content="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
-                                                Command="{Binding ImportRedumpLocalLibraryCommand}"
-                                                ToolTip="{DynamicResource LocRedumpSettings_PrepareLocalLibraryTooltip}"
-                                                AutomationProperties.Name="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
-                                                Style="{StaticResource Win11SettingsCompactButton}" />
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="2"
-                                Style="{StaticResource Win11SettingsRow}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocRedumpSettings_LocalFolderScanTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_LocalFolderScanDesc}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
-
-                                    <TextBlock Grid.Row="2"
-                                               Text="{DynamicResource LocRedumpSettings_LocalFolderScanDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_LocalFolderScanDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               TextWrapping="Wrap"
-                                               TextTrimming="None" />
+                                    <Button Grid.Column="2"
+                                            MinWidth="132"
+                                            Content="{DynamicResource LocRedumpSettings_BrowseLocalFolderButton}"
+                                            Command="{Binding BrowseRedumpLocalLibraryCommand}"
+                                            IsEnabled="{Binding CanUseRedumpDatabaseImport}"
+                                            ToolTip="{DynamicResource LocRedumpSettings_BrowseLocalFolderTooltip}"
+                                            AutomationProperties.Name="{DynamicResource LocRedumpSettings_BrowseLocalFolderButton}"
+                                            Style="{StaticResource Win11SettingsCompactButton}" />
                                 </Grid>
 
-                                <Border Grid.Column="2"
-                                        Width="440"
+                                <Grid Grid.Row="6"
+                                      HorizontalAlignment="Right"
+                                      FlowDirection="{DynamicResource App.FlowDirection}"
+                                      Language="{DynamicResource App.XmlLanguage}"
+                                      SnapsToDevicePixels="True">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Button Grid.Column="0"
+                                            MinWidth="132"
+                                            Content="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
+                                            Command="{Binding ScanRedumpLocalLibraryCommand}"
+                                            ToolTip="{DynamicResource LocRedumpSettings_ScanLocalFolderTooltip}"
+                                            AutomationProperties.Name="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
+                                            Style="{StaticResource Win11SettingsCompactButton}" />
+
+                                    <Button Grid.Column="2"
+                                            MinWidth="132"
+                                            Content="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
+                                            Command="{Binding ImportRedumpLocalLibraryCommand}"
+                                            ToolTip="{DynamicResource LocRedumpSettings_PrepareLocalLibraryTooltip}"
+                                            AutomationProperties.Name="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
+                                            Style="{StaticResource Win11SettingsCompactButton}" />
+                                </Grid>
+
+                                <Border Grid.Row="8"
                                         Background="{DynamicResource Brush.Layer.Surface}"
                                         BorderBrush="{DynamicResource Brush.Border.Subtle}"
                                         BorderThickness="{DynamicResource Inset.1.All}"
                                         CornerRadius="{DynamicResource Radius.Control}"
-                                        Padding="{DynamicResource Inset.8.All}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        SnapsToDevicePixels="True">
-                                    <TextBlock Text="{Binding RedumpLocalLibraryScanSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                               ToolTip="{Binding RedumpLocalLibraryScanSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               HorizontalAlignment="Stretch"
-                                               TextWrapping="Wrap"
-                                               TextTrimming="None" />
-                                </Border>
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="3"
-                                Style="{StaticResource Win11SettingsLastRow}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocRedumpSettings_LocalStatusTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
-
-                                    <TextBlock Grid.Row="2"
-                                               Text="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               TextWrapping="Wrap"
-                                               TextTrimming="None" />
-                                </Grid>
-
-                                <Border Grid.Column="2"
-                                        Width="440"
-                                        Background="{DynamicResource Brush.Layer.Surface}"
-                                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                                        BorderThickness="{DynamicResource Inset.1.All}"
-                                        CornerRadius="{DynamicResource Radius.Control}"
-                                        Padding="{DynamicResource Inset.8.All}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
+                                        Padding="{DynamicResource Inset.12.All}"
+                                        HorizontalAlignment="Stretch"
                                         SnapsToDevicePixels="True">
                                     <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                                           Language="{DynamicResource App.XmlLanguage}"
@@ -356,17 +263,56 @@
                                             <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
 
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{DynamicResource LocRedumpSettings_LocalFolderScanTitle}"
+                                                   ToolTip="{DynamicResource LocRedumpSettings_LocalFolderScanDesc}"
+                                                   Style="{StaticResource Win11SettingsRowTitleText}" />
+
+                                        <TextBlock Grid.Row="2"
+                                                   Text="{Binding RedumpLocalLibraryScanSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                                   ToolTip="{Binding RedumpLocalLibraryScanSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                                   Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextWrapping="Wrap"
+                                                   TextTrimming="None" />
+                                    </Grid>
+                                </Border>
+
+                                <Border Grid.Row="10"
+                                        Background="{DynamicResource Brush.Layer.Surface}"
+                                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                                        BorderThickness="{DynamicResource Inset.1.All}"
+                                        CornerRadius="{DynamicResource Radius.Control}"
+                                        Padding="{DynamicResource Inset.12.All}"
+                                        HorizontalAlignment="Stretch"
+                                        SnapsToDevicePixels="True">
+                                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                          Language="{DynamicResource App.XmlLanguage}"
+                                          SnapsToDevicePixels="True">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{DynamicResource LocRedumpSettings_LocalStatusTitle}"
+                                                   ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
+                                                   Style="{StaticResource Win11SettingsRowTitleText}" />
+
                                         <TextBlock x:Name="DatabaseStatusTextBlock"
-                                                   Grid.Row="0"
+                                                   Grid.Row="2"
                                                    Text="{Binding DatabaseStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
                                                    ToolTip="{Binding DatabaseStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                                   Style="{StaticResource Win11SettingsRowTitleText}"
+                                                   Style="{StaticResource Win11SettingsRowDescriptionText}"
                                                    HorizontalAlignment="Stretch"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   TextWrapping="NoWrap" />
+                                                   TextWrapping="Wrap"
+                                                   TextTrimming="None" />
 
                                         <TextBlock x:Name="DatabaseLastSyncedTextBlock"
-                                                   Grid.Row="2"
+                                                   Grid.Row="4"
                                                    Text="{Binding DatabaseLastSyncedDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
                                                    ToolTip="{Binding DatabaseLastSyncedDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
                                                    Style="{StaticResource Win11SettingsRowDescriptionText}"
