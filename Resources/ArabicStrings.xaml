@@ -881,8 +881,8 @@
     <sys:String x:Key="LocFilter_RedumpDatXmlFiles">ملفات DAT أو XML (*.dat;*.xml)|*.dat;*.xml|كل الملفات (*.*)|*.*</sys:String>
 
     <sys:String x:Key="LocAdv_DatabaseStatusUnavailable">الحالة: تعذر التحقق من قاعدة البيانات.</sys:String>
-    <sys:String x:Key="LocAdv_DatabaseLastSyncedEmpty">آخر مزامنة: —</sys:String>
-    <sys:String x:Key="LocAdv_DatabaseLastSyncedValue">آخر مزامنة: {0}</sys:String>
+    <sys:String x:Key="LocAdv_DatabaseLastSyncedEmpty">—</sys:String>
+    <sys:String x:Key="LocAdv_DatabaseLastSyncedValue">{0}</sys:String>
 
     <sys:String x:Key="LocAdv_CompressionPresetDefaultLabel">افتراضي MAME (موصى به)</sys:String>
     <sys:String x:Key="LocAdv_CompressionPresetDefaultDescription">يعتمد على إعدادات MAME التلقائية وفقاً لنوع الوسيط. بالنسبة لـ CD يستخدم غالباً خيار CD LZMA.</sys:String>

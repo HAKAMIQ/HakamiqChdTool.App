@@ -887,8 +887,8 @@ Path:
     <sys:String x:Key="LocFilter_RedumpDatXmlFiles">DAT or XML files (*.dat;*.xml)|*.dat;*.xml|All files (*.*)|*.*</sys:String>
 
     <sys:String x:Key="LocAdv_DatabaseStatusUnavailable">Status: Could not verify database.</sys:String>
-    <sys:String x:Key="LocAdv_DatabaseLastSyncedEmpty">Last sync: —</sys:String>
-    <sys:String x:Key="LocAdv_DatabaseLastSyncedValue">Last sync: {0}</sys:String>
+    <sys:String x:Key="LocAdv_DatabaseLastSyncedEmpty">—</sys:String>
+    <sys:String x:Key="LocAdv_DatabaseLastSyncedValue">{0}</sys:String>
 
     <sys:String x:Key="LocAdv_CompressionPresetDefaultLabel">MAME default (recommended)</sys:String>
     <sys:String x:Key="LocAdv_CompressionPresetDefaultDescription">Lets MAME choose by media type. For CD, this usually already uses CD LZMA, matching the LZMA option.</sys:String>

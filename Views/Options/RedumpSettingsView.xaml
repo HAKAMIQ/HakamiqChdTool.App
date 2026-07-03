@@ -300,6 +300,8 @@
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                                     <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                                    <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
 
                                                 <TextBlock x:Name="DatabaseStatusTextBlock"
@@ -317,8 +319,14 @@
                                                            Style="{StaticResource Win11SettingsRowDescriptionText}"
                                                            TextWrapping="NoWrap" />
 
+                                                <TextBlock Grid.Column="2"
+                                                           VerticalAlignment="Center"
+                                                           Text="{DynamicResource LocAdv_DatabaseLastSyncedPrefix}"
+                                                           Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                           TextWrapping="NoWrap" />
+
                                                 <TextBlock x:Name="DatabaseLastSyncedTextBlock"
-                                                           Grid.Column="2"
+                                                           Grid.Column="4"
                                                            VerticalAlignment="Center"
                                                            FlowDirection="LeftToRight"
                                                            Language="en-US"
@@ -333,7 +341,7 @@
 
                                         <Grid Grid.Row="2"
                                               HorizontalAlignment="Right"
-                                              FlowDirection="{DynamicResource App.FlowDirection}"
+                                              FlowDirection="LeftToRight"
                                               Language="{DynamicResource App.XmlLanguage}"
                                               SnapsToDevicePixels="True">
                                             <Grid.ColumnDefinitions>
@@ -345,19 +353,19 @@
                                             <Button Grid.Column="0"
                                                     MinWidth="140"
                                                     MinHeight="40"
-                                                    Content="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
-                                                    Command="{Binding ScanRedumpLocalLibraryCommand}"
-                                                    ToolTip="{DynamicResource LocRedumpSettings_ScanLocalFolderTooltip}"
-                                                    AutomationProperties.Name="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
+                                                    Content="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
+                                                    Command="{Binding ImportRedumpLocalLibraryCommand}"
+                                                    ToolTip="{DynamicResource LocRedumpSettings_PrepareLocalLibraryTooltip}"
+                                                    AutomationProperties.Name="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
                                                     Style="{StaticResource Win11SettingsCompactButton}" />
 
                                             <Button Grid.Column="2"
                                                     MinWidth="140"
                                                     MinHeight="40"
-                                                    Content="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
-                                                    Command="{Binding ImportRedumpLocalLibraryCommand}"
-                                                    ToolTip="{DynamicResource LocRedumpSettings_PrepareLocalLibraryTooltip}"
-                                                    AutomationProperties.Name="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
+                                                    Content="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
+                                                    Command="{Binding ScanRedumpLocalLibraryCommand}"
+                                                    ToolTip="{DynamicResource LocRedumpSettings_ScanLocalFolderTooltip}"
+                                                    AutomationProperties.Name="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
                                                     Style="{StaticResource Win11SettingsCompactButton}" />
                                         </Grid>
                                     </Grid>
