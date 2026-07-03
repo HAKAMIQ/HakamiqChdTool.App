@@ -828,8 +828,8 @@ Path:
     <sys:String x:Key="LocOptions_RedumpDownloadErrorTitle">Download error</sys:String>
 
     <sys:String x:Key="LocOptions_DatabaseChecking">Status: Checking database...</sys:String>
-    <sys:String x:Key="LocOptions_DatabaseAvailable">Status: Database is available and enabled.</sys:String>
-    <sys:String x:Key="LocOptions_DatabaseMissing">Status: Database is missing.</sys:String>
+    <sys:String x:Key="LocOptions_DatabaseAvailable">Status: Available and enabled.</sys:String>
+    <sys:String x:Key="LocOptions_DatabaseMissing">Status: Missing.</sys:String>
     <sys:String x:Key="LocOptions_DatabaseReadFailed">Status: Could not read database.</sys:String>
 
     <sys:String x:Key="LocRuntimeTools_UnsafeRuntimeRoot">The internal runtime path is outside the safe application folder.</sys:String>
@@ -1159,26 +1159,26 @@ Path:
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">Local Redump folder</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">Choose a folder on this device that contains DAT/XML files. No database is bundled with the app.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">Choose a Redump folder containing DAT/XML files</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">Choose a Redump folder</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">Browse...</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">Choose a local Redump folder from this device.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">Scan</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">Scans the folder and shows a summary only. No import or file changes are performed.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">Prepare DB</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">Imports the selected DAT/XML files into SQLite so game verification can match against Redump.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">Choose the local Redump folder.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">Scan folder</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">Shows DAT/XML and CUE counts before preparing the database.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">Prepare matching</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">Imports selected DAT/XML files into SQLite so game verification can match against Redump.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">Folder preview</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">Choose a local Redump folder, then scan it.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">Redump folder: {0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">Selected folder: {0}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">Scanning local Redump folder...</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">No Redump DAT/XML files were found in this folder.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">Redump ready: DAT {0:N0} • CUE {1:N0} • SBI/LSD {3:N0} • folders {5:N0} • updated {6}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0}&#x0A;Compact index: platforms {1:N0} • selected {2:N0} • older {3:N0} • duplicates {4:N0} • errors {6:N0}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderImportProgressFormat">Importing selected DAT files: {0:N0}/{1:N0} • imported {2:N0} • rows {3:N0}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexImportAppendFormat">{0}&#x0A;Compact index: platforms {1:N0} • selected {2:N0} • older {3:N0} • duplicates {4:N0} • errors {6:N0}&#x0A;SQLite import: files {7:N0} • rows {8:N0} • failed {9:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">Ready&#x0A;DAT/XML: {0:N0}&#x0A;CUE: {1:N0}&#x0A;GDI: {2:N0}&#x0A;SBI/LSD: {3:N0}&#x0A;Keys: {4:N0}&#x0A;Folders: {5:N0}&#x0A;Newest: {6}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0}&#x0A;Index&#x0A;Platforms: {1:N0} • selected: {2:N0}&#x0A;older: {3:N0} • duplicates: {4:N0} • errors: {6:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderImportProgressFormat">Preparing matching: {0:N0}/{1:N0}&#x0A;Imported files: {2:N0}&#x0A;Rows: {3:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexImportAppendFormat">{0}&#x0A;Index&#x0A;Platforms: {1:N0} • selected: {2:N0}&#x0A;older: {3:N0} • duplicates: {4:N0} • errors: {6:N0}&#x0A;SQLite database&#x0A;Files: {7:N0} • rows: {8:N0} • failed: {9:N0}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderIndexErrorAppendFormat">{0}&#x0A;Compact index failed: {1}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">Local Redump database</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">Local database status</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">Shows the local database state and last sync.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">Database status</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">SQLite readiness for matching and the last sync time.</sys:String>
     <sys:String x:Key="LocRedumpSettings_SystemNameTooltip">Optional. Leave empty to use the DAT file name.</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseDatButton">Browse...</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseDatTooltip">Choose a DAT or XML file from Redump.</sys:String>
@@ -1743,7 +1743,7 @@ Path:
     <sys:String x:Key="LocChdPolicy_UnknownIsoMediaKindRequired">The chdman command for an unknown ISO file cannot be selected from the extension alone. The operation was stopped until the media type is identified as CD or DVD.</sys:String>
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">Direct CHD-to-CHD recompression was blocked. The safe path is to extract the original media file first, then rebuild the CHD according to the platform policy.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">Shows a quick summary before any import.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">Quick file summary before preparing the matching database.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">Checking...</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">Setup note</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">The CHD file could not be verified.&#x0A;It may be damaged, incomplete, or in an unsupported format.</sys:String>
