@@ -18,19 +18,6 @@ public sealed class AboutInfo
     public Collection<AboutLinkInfo> Links { get; init; } = [];
 }
 
-public sealed class AboutCreditInfo
-{
-    public string DisplayName { get; init; } = string.Empty;
-    public string Handle { get; init; } = string.Empty;
-    public string BadgeText { get; init; } = string.Empty;
-    public string Contribution { get; init; } = string.Empty;
-    public string ProfileSummary { get; init; } = string.Empty;
-    public string AvatarImage { get; init; } = string.Empty;
-    public string ProfileCardImage { get; init; } = string.Empty;
-    public string AccentBrush { get; init; } = string.Empty;
-    public string AccentSoftBrush { get; init; } = string.Empty;
-}
-
 public sealed class AboutLinkInfo
 {
     public string Key { get; init; } = string.Empty;

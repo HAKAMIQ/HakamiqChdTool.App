@@ -12,7 +12,6 @@ namespace HakamiqChdTool.App.Views;
 
 public partial class AboutWindow : Window
 {
-    private const string QuantularityDiscordInviteUrl = "https://discord.gg/bside";
     private const string MohammedDiscordInviteUrl = "https://discord.gg/xEV5wutKXM";
 
     public AboutWindow(AboutWindowViewModel viewModel)
@@ -41,21 +40,6 @@ public partial class AboutWindow : Window
         catch (InvalidOperationException)
         {
         }
-    }
-
-    private void ContributorDiscordButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is not FrameworkElement { Tag: string url })
-        {
-            return;
-        }
-
-        if (!TryCreateAllowedDiscordInviteUri(url, out Uri? inviteUri))
-        {
-            return;
-        }
-
-        TryOpenExternalUri(inviteUri);
     }
 
     private static bool TryCreateAllowedDiscordInviteUri(
