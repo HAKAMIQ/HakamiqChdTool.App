@@ -20,7 +20,7 @@ public sealed class AppLanguageService
     private const string EnglishDictionaryPath = "Resources/EnglishStrings.xaml";
     private const string AppFlowDirectionResourceKey = "App.FlowDirection";
     private const string AppXmlLanguageResourceKey = "App.XmlLanguage";
-    private const string AppCaptionButtonsFlowDirectionResourceKey = "App.CaptionButtons.FlowDirection";
+    private const string AppCaptionButtonsFlowDirectionResourceKey = "App.CaptionButtonsFlowDirection";
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext<AppLanguageService>();
     private static readonly Lazy<AppLanguageService> LazyInstance = new(() => new AppLanguageService());
