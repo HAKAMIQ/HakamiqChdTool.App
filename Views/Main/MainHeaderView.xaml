@@ -160,6 +160,24 @@
             </Setter>
         </Style>
 
+        <Style x:Key="MainHeaderLanguageButton"
+               TargetType="{x:Type Button}"
+               BasedOn="{StaticResource MainHeaderGhostButton}">
+            <Setter Property="MinWidth" Value="46" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="FlowDirection" Value="LeftToRight" />
+            <Setter Property="Language" Value="en-US" />
+        </Style>
+
+        <Style x:Key="MainHeaderLanguageButtonText"
+               TargetType="{x:Type TextBlock}"
+               BasedOn="{StaticResource MainHeaderButtonText}">
+            <Setter Property="FlowDirection" Value="LeftToRight" />
+            <Setter Property="Language" Value="en-US" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        </Style>
+
         <Style x:Key="MainHeaderCaptionBtnStyle"
                TargetType="{x:Type Button}">
             <Setter Property="Width" Value="46" />
@@ -295,6 +313,8 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <Button x:Name="HeaderSettingsButton"
@@ -306,8 +326,20 @@
                                    Style="{StaticResource MainHeaderButtonText}" />
                     </Button>
 
-                    <Button x:Name="HeaderAboutButton"
+                    <Button x:Name="HeaderLanguageButton"
                             Grid.Column="2"
+                            Click="ForwardLanguageToggleRequested"
+                            Style="{StaticResource MainHeaderLanguageButton}"
+                            ToolTip="{DynamicResource LocGeneralSettings_LanguageTitle}"
+                            AutomationProperties.Name="{DynamicResource LocGeneralSettings_LanguageTitle}"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <TextBlock x:Name="HeaderLanguageText"
+                                   Text="EN"
+                                   Style="{StaticResource MainHeaderLanguageButtonText}" />
+                    </Button>
+
+                    <Button x:Name="HeaderAboutButton"
+                            Grid.Column="4"
                             Command="{Binding OpenAboutCommand}"
                             Style="{StaticResource MainHeaderGhostButton}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
