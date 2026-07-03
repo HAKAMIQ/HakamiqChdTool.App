@@ -1201,9 +1201,9 @@
     <sys:String x:Key="LocOptions_TabProcessing">المعالجة</sys:String>
     <sys:String x:Key="LocOptions_TabPerformance">الأداء</sys:String>
     <sys:String x:Key="LocExternalTools_Title">الأدوات الخارجية</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">Available</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">Missing</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">Failed</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">متاح</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">غير موجود</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">تعذر التحقق</sys:String>
     <sys:String x:Key="LocExternalTools_OpenFolder">فتح مجلد الأدوات</sys:String>
     <sys:String x:Key="LocExternalTools_Recheck">إعادة الفحص</sys:String>
     <sys:String x:Key="LocExternalTools_CopySetupInstructions">نسخ تعليمات الإعداد</sys:String>
@@ -1731,4 +1731,5 @@
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">تم منع إعادة ضغط ملف CHD إلى CHD مباشرة. المسار الآمن هو استخراج ملف الوسائط الأصلي أولًا، ثم إعادة بناء ملف CHD وفقًا لسياسة المنصة.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">يعرض ملخصًا سريعًا قبل أي استيراد.</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جارٍ إعادة الفحص...</sys:String>
 </ResourceDictionary>
