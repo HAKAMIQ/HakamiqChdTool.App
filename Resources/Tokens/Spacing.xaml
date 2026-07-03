@@ -244,10 +244,10 @@
     <sys:Double x:Key="Footer.Phase.MaxWidth">220</sys:Double>
     <sys:Double x:Key="Footer.Settings.MaxWidth">180</sys:Double>
 
-    <sys:Double x:Key="Window.About.Width">560</sys:Double>
-    <sys:Double x:Key="Window.About.Height">300</sys:Double>
-    <sys:Double x:Key="Window.About.MinWidth">520</sys:Double>
-    <sys:Double x:Key="Window.About.MinHeight">280</sys:Double>
+    <sys:Double x:Key="Window.About.Width">520</sys:Double>
+    <sys:Double x:Key="Window.About.Height">250</sys:Double>
+    <sys:Double x:Key="Window.About.MinWidth">500</sys:Double>
+    <sys:Double x:Key="Window.About.MinHeight">235</sys:Double>
     <sys:Double x:Key="Window.Options.Width">1000</sys:Double>
     <sys:Double x:Key="Window.Options.Height">760</sys:Double>
     <sys:Double x:Key="Window.Options.MinWidth">960</sys:Double>
