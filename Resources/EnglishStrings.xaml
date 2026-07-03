@@ -44,7 +44,7 @@
 
     <sys:String x:Key="LocUi_WindowTitle">HAKAMIQ CHD Tool</sys:String>
     <sys:String x:Key="LocUi_WindowSubtitle">Convert and manage CHD files</sys:String>
-    <sys:String x:Key="LocUi_QueueSection_Title">Processing queue</sys:String>
+    <sys:String x:Key="LocUi_QueueSection_Title">Task queue</sys:String>
     <sys:String x:Key="LocUi_QueueSection_Subtitle">No files added yet.</sys:String>
     <sys:String x:Key="LocUi_Header_About">About</sys:String>
     <sys:String x:Key="LocUi_Header_Help">Help</sys:String>
