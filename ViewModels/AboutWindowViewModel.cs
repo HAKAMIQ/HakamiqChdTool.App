@@ -145,27 +145,6 @@ public sealed partial class AboutWindowViewModel : ObservableObject
             : $"v{cleaned}";
     }
 
-    private static ObservableCollection<AboutCreditInfo> CreateCreditsCollection(
-        IEnumerable<AboutCreditInfo>? credits)
-    {
-        var result = new ObservableCollection<AboutCreditInfo>();
-
-        if (credits is null)
-        {
-            return result;
-        }
-
-        foreach (AboutCreditInfo? credit in credits)
-        {
-            if (credit is not null)
-            {
-                result.Add(credit);
-            }
-        }
-
-        return result;
-    }
-
     private static ObservableCollection<AboutLinkInfo> CreateLinksCollection(
         IEnumerable<AboutLinkInfo>? links)
     {
