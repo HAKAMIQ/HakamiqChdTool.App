@@ -18,6 +18,8 @@ public sealed class AppSettings
 
     public string RedumpDatXmlPath { get; set; } = string.Empty;
 
+    public string RedumpLocalLibraryRoot { get; set; } = string.Empty;
+
     public string RedumpSystemName { get; set; } = string.Empty;
 
     public string RedumpPlatformMode { get; set; } = "Auto";
@@ -138,6 +140,7 @@ public sealed class AppSettings
         Theme = other.Theme;
         UiLanguage = other.UiLanguage;
         RedumpDatXmlPath = other.RedumpDatXmlPath;
+        RedumpLocalLibraryRoot = other.RedumpLocalLibraryRoot;
         RedumpSystemName = other.RedumpSystemName;
         RedumpPlatformMode = other.RedumpPlatformMode;
         RedumpPlatformKey = other.RedumpPlatformKey;
@@ -195,6 +198,7 @@ public sealed class AppSettings
             Theme = Theme,
             UiLanguage = UiLanguage,
             RedumpDatXmlPath = RedumpDatXmlPath,
+            RedumpLocalLibraryRoot = RedumpLocalLibraryRoot,
             RedumpSystemName = RedumpSystemName,
             RedumpPlatformMode = RedumpPlatformMode,
             RedumpPlatformKey = RedumpPlatformKey,

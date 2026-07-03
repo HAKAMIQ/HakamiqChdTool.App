@@ -35,6 +35,7 @@ public sealed partial class OptionsViewModel
         UseCustomPendingWorkspace = settings.UseCustomPendingWorkspace || settings.PendingWorkspaceMode == PendingWorkspaceMode.Custom;
         PendingWorkspaceCustomRoot = settings.PendingWorkspaceCustomRoot?.Trim() ?? string.Empty;
         RedumpDatXmlPath = settings.RedumpDatXmlPath;
+        RedumpLocalLibraryRoot = settings.RedumpLocalLibraryRoot;
         RedumpSystemName = settings.RedumpSystemName;
         SelectedRedumpPlatformOption = ResolveRedumpPlatformOption(settings.RedumpPlatformMode, settings.RedumpPlatformKey);
         SelectedRedumpArtifactOption = ResolveRedumpArtifactOption(settings.RedumpArtifactKind);
@@ -91,6 +92,7 @@ public sealed partial class OptionsViewModel
         result.PendingWorkspaceCustomRoot = PendingWorkspaceCustomRoot.Trim();
         result.UseCustomPendingWorkspace = UseCustomPendingWorkspace;
         result.RedumpDatXmlPath = RedumpDatXmlPath.Trim();
+        result.RedumpLocalLibraryRoot = RedumpLocalLibraryRoot.Trim();
         result.RedumpSystemName = RedumpSystemName.Trim();
         result.RedumpPlatformMode = SelectedRedumpPlatformOption is null
             ? "Auto"

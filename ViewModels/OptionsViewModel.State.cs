@@ -88,6 +88,7 @@ public sealed partial class OptionsViewModel
             && StringEquals(PendingWorkspaceCustomRoot.Trim(), snapshot.PendingWorkspaceCustomRoot)
             && useCustomPendingWorkspace == snapshot.UseCustomPendingWorkspace
             && StringEquals(RedumpDatXmlPath.Trim(), snapshot.RedumpDatXmlPath)
+            && StringEquals(RedumpLocalLibraryRoot.Trim(), snapshot.RedumpLocalLibraryRoot)
             && StringEquals(RedumpSystemName.Trim(), snapshot.RedumpSystemName)
             && StringEquals(redumpPlatformMode, snapshot.RedumpPlatformMode)
             && StringEquals(redumpPlatformKey, snapshot.RedumpPlatformKey)
