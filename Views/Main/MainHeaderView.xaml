@@ -201,10 +201,16 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Border x:Name="Root"
+                                Width="{DynamicResource Space.32}"
+                                Height="{DynamicResource Space.32}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                SnapsToDevicePixels="True">
+                                CornerRadius="{DynamicResource Radius.HeaderButton}"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"
