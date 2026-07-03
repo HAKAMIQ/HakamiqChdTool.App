@@ -120,7 +120,9 @@ public sealed partial class OptionsViewModel
         if (!string.IsNullOrWhiteSpace(selected))
         {
             RedumpLocalLibraryRoot = selected;
-            RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanEmpty");
+            RedumpLocalLibraryScanSummary = ArabicUi.Format(
+                "LocRedumpSettings_LocalFolderSelectedFormat",
+                RedumpCompactDisplayFormatter.FormatRoot(selected));
         }
     }
 
