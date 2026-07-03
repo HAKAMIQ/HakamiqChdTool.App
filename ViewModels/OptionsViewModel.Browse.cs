@@ -16,6 +16,7 @@ public sealed partial class OptionsViewModel
     private IRelayCommand? _browseRedumpDatCommand;
     private IRelayCommand? _browseRedumpLocalLibraryCommand;
     private AsyncRelayCommand? _scanRedumpLocalLibraryCommand;
+    private AsyncRelayCommand? _importRedumpLocalLibraryCommand;
     private IRelayCommand? _browsePendingWorkspaceCommand;
     private readonly RedumpLocalLibraryScanner _redumpLocalLibraryScanner = new();
 
@@ -42,6 +43,10 @@ public sealed partial class OptionsViewModel
             ScanAndIndexRedumpLocalLibraryAsync,
             CanScanRedumpLocalLibrary);
 
+    public IAsyncRelayCommand ImportRedumpLocalLibraryCommand =>
+        _importRedumpLocalLibraryCommand ??= new AsyncRelayCommand(
+            PrepareRedumpLocalLibraryDatabaseAsync,
+            CanScanRedumpLocalLibrary);
     public IRelayCommand BrowsePendingWorkspaceCommand =>
         _browsePendingWorkspaceCommand ??= new RelayCommand(BrowsePendingWorkspace);
 
@@ -187,5 +192,6 @@ public sealed partial class OptionsViewModel
     partial void NotifyRedumpLocalLibraryScanCommandState()
     {
         _scanRedumpLocalLibraryCommand?.NotifyCanExecuteChanged();
+        _importRedumpLocalLibraryCommand?.NotifyCanExecuteChanged();
     }
 }
