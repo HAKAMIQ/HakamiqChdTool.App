@@ -1737,4 +1737,5 @@ Path:
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">Direct CHD-to-CHD recompression was blocked. The safe path is to extract the original media file first, then rebuild the CHD according to the platform policy.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">Shows a quick summary before any import.</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">Checking...</sys:String>
 </ResourceDictionary>

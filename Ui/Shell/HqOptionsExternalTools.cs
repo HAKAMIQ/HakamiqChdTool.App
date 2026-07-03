@@ -11,10 +11,12 @@ internal sealed partial class HqOptionsShell
     private const string ExternalToolsStatusAvailableKey = "LocExternalTools_CsoKitStatusAvailable";
     private const string ExternalToolsStatusMissingKey = "LocExternalTools_CsoKitStatusMissing";
     private const string ExternalToolsStatusFailedKey = "LocExternalTools_CsoKitStatusFailed";
+    private const string ExternalToolsStatusCheckingKey = "LocExternalTools_CsoKitStatusChecking";
     private const string ExternalToolsSetupInstructionsKey = "LocExternalTools_SetupInstructions";
     private const string OpenFolderFailedBodyKey = "LocDialog_OpenFolderFailedBody";
+    private const string ValueUnavailableKey = "LocValue_Unavailable";
 
-    public void RecheckExternalTools(object? sender, EventArgs e) => QueueExternalToolsRefresh();
+    public void RecheckExternalTools(object? sender, EventArgs e) => QueueExternalToolsRefresh(showCheckingState: true);
 
     public void OpenExternalToolsFolder(object? sender, EventArgs e)
     {
@@ -51,7 +53,9 @@ internal sealed partial class HqOptionsShell
         }
     }
 
-    private void QueueExternalToolsRefresh()
+    private void QueueExternalToolsRefresh() => QueueExternalToolsRefresh(showCheckingState: false);
+
+    private void QueueExternalToolsRefresh(bool showCheckingState)
     {
         if (_isClosed)
         {
@@ -64,6 +68,15 @@ internal sealed partial class HqOptionsShell
 
         int generation = ++_externalToolsRefreshGeneration;
         CancellationToken token = _externalToolsRefreshCts.Token;
+
+        if (showCheckingState)
+        {
+            string unavailableText = ResolveUiText(ValueUnavailableKey);
+            _owner.ViewModel.SetCsoKitExternalToolStatus(
+                ResolveUiText(ExternalToolsStatusCheckingKey),
+                unavailableText,
+                unavailableText);
+        }
 
         _ = Task.Run(
             async () =>
@@ -119,9 +132,12 @@ internal sealed partial class HqOptionsShell
             _ => ExternalToolsStatusMissingKey
         };
 
+        string unavailableText = ResolveUiText(ValueUnavailableKey);
+        bool isAvailable = result.Status == CsoToolStatus.Available;
+
         _owner.ViewModel.SetCsoKitExternalToolStatus(
             ResolveUiText(statusKey),
-            string.IsNullOrWhiteSpace(result.VersionText) ? "-" : result.VersionText,
-            string.IsNullOrWhiteSpace(result.ToolPath) ? new CsoToolLocator().BundledToolsFolderPath : result.ToolPath);
+            isAvailable && !string.IsNullOrWhiteSpace(result.VersionText) ? result.VersionText : unavailableText,
+            isAvailable && !string.IsNullOrWhiteSpace(result.ToolPath) ? result.ToolPath : unavailableText);
     }
 }
