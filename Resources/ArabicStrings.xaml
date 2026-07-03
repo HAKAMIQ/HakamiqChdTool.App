@@ -1151,28 +1151,28 @@
     <sys:String x:Key="LocRedumpSettings_DownloadButton">تنزيل قاعدة البيانات</sys:String>
     <sys:String x:Key="LocRedumpSettings_DownloadButtonTooltip">تنزيل قاعدة البيانات المختارة واستيرادها إلى قاعدة Redump المحلية.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">1) اختر مجلد Redump</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">اختر مجلد Redump الذي يحتوي ملفات DAT/XML من جهازك. لا يتم تضمين أي قاعدة بيانات مع البرنامج.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">اختر مجلد Redump الذي يحتوي ملفات DAT/XML</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">اختيار المجلد...</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختر مجلد Redump من جهازك.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص المجلد</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">يعرض ملخص المحتويات فقط دون استيراد أو تعديل.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">2) نتيجة فحص المجلد</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">اختر مجلد Redump ثم اضغط فحص المجلد.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">مجلد Redump المحلي</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">اختر مجلدًا من جهازك يحتوي على ملفات DAT/XML. لا يتم تضمين أي قاعدة بيانات مع البرنامج.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">اختر مجلد Redump يحتوي على ملفات DAT/XML</sys:String>
+    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">استعراض...</sys:String>
+    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختيار مجلد Redump محلي من الجهاز.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">فحص محتويات المجلد وعرض ملخص فقط دون استيراد أو تعديل.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">معاينة المجلد</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">لم يتم فحص مجلد Redump المحلي بعد.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">جارٍ فحص المجلد...</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">المجلد غير صالح أو لا يحتوي على ملفات DAT/XML قابلة للاستيراد.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">جاهز: DAT/XML {0:N0} • CUE {1:N0} • GDI {2:N0} • SBI/LSD {3:N0} • Keys {4:N0} • مجلدات {5:N0} • آخر تعديل {6}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">DAT/XML: {0:N0} • CUE: {1:N0} • GDI: {2:N0} • SBI/LSD: {3:N0} • Keys: {4:N0} • المجلدات: {5:N0} • آخر تعديل: {6}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">قاعدة Redump المحلية</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">3) حالة القاعدة المستوردة</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">عرض الحالة الراهنة لقاعدة بيانات Redump المستخدمة في عمليات الفحص.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">حالة القاعدة المحلية</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">يبين حالة قاعدة البيانات المحلية وآخر مزامنة.</sys:String>
     <sys:String x:Key="LocRedumpSettings_SystemNameTooltip">حقل اختياري: اتركه فارغاً ليتم اعتماد اسم ملف الـ DAT الأصلي.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseDatButton">اختيار ملف...</sys:String>
+    <sys:String x:Key="LocRedumpSettings_BrowseDatButton">استعراض...</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseDatTooltip">اختيار ملف DAT أو XML الخاص بقاعدة بيانات Redump.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ImportButton">استيراد الملف المحدد</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ImportButton">استيراد</sys:String>
     <sys:String x:Key="LocRedumpSettings_ImportButtonTooltip">قراءة الملف المحدد وتحديث قاعدة بيانات Redump المحلية.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DatFileTitle">اختياري — استيراد ملف DAT/XML منفرد</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DatFileDesc">استخدم هذا فقط إذا أردت استيراد ملف DAT/XML واحد بدل فحص مجلد كامل.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_DatFileTitle">ملف DAT/XML منفرد</sys:String>
+    <sys:String x:Key="LocRedumpSettings_DatFileDesc">اختيار ملف DAT أو XML واحد للاستيراد اليدوي.</sys:String>
 
     <sys:String x:Key="LocUi_Header_Appearance">المظهر</sys:String>
     <sys:String x:Key="LocUi_Header_AppearanceToolTip">تغيير مظهر التطبيق</sys:String>
@@ -1730,4 +1730,5 @@
     <sys:String x:Key="LocChdPolicy_UnknownIsoMediaKindRequired">لا يمكن اختيار أمر chdman لملف ISO مجهول النوع بالاعتماد على الامتداد فقط. تم إيقاف العملية حتى يتم تحديد نوع الوسيط كـ CD أو DVD.</sys:String>
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">تم منع إعادة ضغط ملف CHD إلى CHD مباشرة. المسار الآمن هو استخراج ملف الوسائط الأصلي أولًا، ثم إعادة بناء ملف CHD وفقًا لسياسة المنصة.</sys:String>
 
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">يعرض ملخصًا سريعًا قبل أي استيراد.</sys:String>
 </ResourceDictionary>
