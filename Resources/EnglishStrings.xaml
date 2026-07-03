@@ -290,9 +290,9 @@
     <sys:String x:Key="LocFooter_StoppedByUser">Processing stopped</sys:String>
     <sys:String x:Key="LocFooterFmt_QueuedReady">Ready: {0} of {1}</sys:String>
     <sys:String x:Key="LocFooterFmt_Processing">Task {0} of {1}: {2}</sys:String>
-    <sys:String x:Key="LocFooterFmt_Completed">Processing completed: {0} succeeded, {1} failed, {2} skipped</sys:String>
-    <sys:String x:Key="LocFooterFmt_CompletedWithErrors">Processing completed with errors: {0} succeeded, {1} failed, {2} skipped</sys:String>
-    <sys:String x:Key="LocFooterFmt_Failed">Processing failed: {0} succeeded, {1} failed, {2} skipped</sys:String>
+    <sys:String x:Key="LocFooterFmt_Completed">Processing completed — Succeeded: {0} • Failed: {1} • Skipped: {2}</sys:String>
+    <sys:String x:Key="LocFooterFmt_CompletedWithErrors">Processing completed with errors — Succeeded: {0} • Failed: {1} • Skipped: {2}</sys:String>
+    <sys:String x:Key="LocFooterFmt_Failed">Processing failed — Succeeded: {0} • Failed: {1} • Skipped: {2}</sys:String>
 
     <sys:String x:Key="LocFmt_FooterQueueStats">Waiting: {0} • Running: {1} • Completed: {2} • Failed: {3} • Skipped: {4}</sys:String>
     <sys:String x:Key="LocFmt_ToolbarQueueStats">Tasks: {0} • Waiting: {1} • Running: {2} • Completed: {3} • Failed: {4} • Skipped: {5}</sys:String>

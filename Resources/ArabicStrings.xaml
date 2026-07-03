@@ -290,9 +290,9 @@
     <sys:String x:Key="LocFooter_StoppedByUser">تم إيقاف المعالجة</sys:String>
     <sys:String x:Key="LocFooterFmt_QueuedReady">جاهز: {0} من {1}</sys:String>
     <sys:String x:Key="LocFooterFmt_Processing">المهمة {0} من {1} — {2}</sys:String>
-    <sys:String x:Key="LocFooterFmt_Completed">المعالجة مكتملة: {0} نجاح، {1} فشل، {2} تخطي</sys:String>
-    <sys:String x:Key="LocFooterFmt_CompletedWithErrors">اكتمل مع أخطاء: {0} نجاح، {1} فشل، {2} تخطي</sys:String>
-    <sys:String x:Key="LocFooterFmt_Failed">فشل المعالجة: {0} نجاح، {1} فشل، {2} تخطي</sys:String>
+    <sys:String x:Key="LocFooterFmt_Completed">اكتملت المعالجة — نجاح: {0} • فشل: {1} • تخطي: {2}</sys:String>
+    <sys:String x:Key="LocFooterFmt_CompletedWithErrors">اكتملت المعالجة مع أخطاء — نجاح: {0} • فشل: {1} • تخطي: {2}</sys:String>
+    <sys:String x:Key="LocFooterFmt_Failed">فشل المعالجة — نجاح: {0} • فشل: {1} • تخطي: {2}</sys:String>
 
     <sys:String x:Key="LocFmt_FooterQueueStats">انتظار: {0} • تشغيل: {1} • مكتمل: {2} • فشل: {3} • تخطي: {4}</sys:String>
     <sys:String x:Key="LocFmt_ToolbarQueueStats">المهام: {0} • انتظار: {1} • تشغيل: {2} • مكتمل: {3} • فشل: {4} • تخطي: {5}</sys:String>
