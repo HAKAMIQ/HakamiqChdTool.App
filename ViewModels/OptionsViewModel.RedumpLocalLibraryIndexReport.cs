@@ -46,11 +46,11 @@ public sealed partial class OptionsViewModel
             RedumpLocalLibraryScanSummary = ArabicUi.Format(
                 "LocRedumpSettings_LocalFolderIndexAppendFormat",
                 scanSummary,
-                indexResult.PlatformCount,
-                indexResult.SelectedCount,
-                indexResult.OlderCount,
-                indexResult.DuplicateCount,
-                indexResult.VariantCount,
+                FormatInvariantNumber(indexResult.PlatformCount),
+                FormatInvariantNumber(indexResult.SelectedCount),
+                FormatInvariantNumber(indexResult.OlderCount),
+                FormatInvariantNumber(indexResult.DuplicateCount),
+                FormatInvariantNumber(indexResult.VariantCount),
                 indexResult.ReadErrorCount);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -103,11 +103,11 @@ public sealed partial class OptionsViewModel
                 RedumpLocalLibraryScanSummary = ArabicUi.Format(
                     "LocRedumpSettings_LocalFolderIndexAppendFormat",
                     scanSummary,
-                    indexResult.PlatformCount,
-                    indexResult.SelectedCount,
-                    indexResult.OlderCount,
-                    indexResult.DuplicateCount,
-                    indexResult.VariantCount,
+                    FormatInvariantNumber(indexResult.PlatformCount),
+                    FormatInvariantNumber(indexResult.SelectedCount),
+                    FormatInvariantNumber(indexResult.OlderCount),
+                    FormatInvariantNumber(indexResult.DuplicateCount),
+                    FormatInvariantNumber(indexResult.VariantCount),
                     indexResult.ReadErrorCount);
 
                 return;
@@ -121,15 +121,15 @@ public sealed partial class OptionsViewModel
             RedumpLocalLibraryScanSummary = ArabicUi.Format(
                 "LocRedumpSettings_LocalFolderIndexImportAppendFormat",
                 scanSummary,
-                indexResult.PlatformCount,
-                indexResult.SelectedCount,
-                indexResult.OlderCount,
-                indexResult.DuplicateCount,
-                indexResult.VariantCount,
-                indexResult.ReadErrorCount,
-                importSummary.ImportedFileCount,
-                importSummary.ImportedRows,
-                importSummary.FailedFileCount);
+                FormatInvariantNumber(indexResult.PlatformCount),
+                FormatInvariantNumber(indexResult.SelectedCount),
+                FormatInvariantNumber(indexResult.OlderCount),
+                FormatInvariantNumber(indexResult.DuplicateCount),
+                FormatInvariantNumber(indexResult.VariantCount),
+                FormatInvariantNumber(indexResult.ReadErrorCount),
+                FormatInvariantNumber(importSummary.ImportedFileCount),
+                FormatInvariantNumber(importSummary.ImportedRows),
+                FormatInvariantNumber(importSummary.FailedFileCount));
 
             RefreshRedumpDatabaseStatusAfterLocalImport();
         }
@@ -163,10 +163,24 @@ public sealed partial class OptionsViewModel
         }
     }
 
+    private static string FormatInvariantNumber(int value)
+    {
+        return value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+    }
+    private static string FormatInvariantNumber(long value)
+    {
+        return value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatInvariantNumber(string value)
+    {
+        return value;
+    }
+
     private static string BuildRedumpLocalLibraryScanSummary(RedumpLocalLibraryScanResult result)
     {
         string newest = result.NewestModifiedLocal.HasValue
-            ? result.NewestModifiedLocal.Value.ToString("yyyy-MM-dd HH:mm")
+            ? result.NewestModifiedLocal.Value.ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture)
             : "—";
 
         return ArabicUi.Format(
@@ -207,10 +221,10 @@ public sealed partial class OptionsViewModel
 
             RedumpLocalLibraryScanSummary = ArabicUi.Format(
                 "LocRedumpSettings_LocalFolderImportProgressFormat",
-                index + 1,
-                selectedEntries.Length,
-                importedFileCount,
-                importedRows);
+                FormatInvariantNumber(index + 1),
+                FormatInvariantNumber(selectedEntries.Length),
+                FormatInvariantNumber(importedFileCount),
+                FormatInvariantNumber(importedRows));
 
             string systemName = FirstNonEmpty(
                 entry.Name,

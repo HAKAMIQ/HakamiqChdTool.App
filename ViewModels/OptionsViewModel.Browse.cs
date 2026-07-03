@@ -166,17 +166,17 @@ public sealed partial class OptionsViewModel
             }
 
             string newest = result.NewestModifiedLocal.HasValue
-                ? result.NewestModifiedLocal.Value.ToString("yyyy-MM-dd HH:mm")
+                ? result.NewestModifiedLocal.Value.ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture)
                 : "—";
 
             RedumpLocalLibraryScanSummary = ArabicUi.Format(
                 "LocRedumpSettings_LocalFolderScanReadyFormat",
-                result.DatXmlFileCount,
-                result.CueFileCount,
-                result.GdiFileCount,
-                result.SubchannelFileCount,
-                result.DiscKeyFileCount,
-                result.TopLevelFolderCount,
+                FormatInvariantNumber(result.DatXmlFileCount),
+                FormatInvariantNumber(result.CueFileCount),
+                FormatInvariantNumber(result.GdiFileCount),
+                FormatInvariantNumber(result.SubchannelFileCount),
+                FormatInvariantNumber(result.DiscKeyFileCount),
+                FormatInvariantNumber(result.TopLevelFolderCount),
                 newest);
         }
         catch (Exception ex)
