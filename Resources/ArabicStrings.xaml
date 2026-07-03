@@ -875,6 +875,7 @@
     <sys:String x:Key="LocAdv_Picker_SelectOutputFolderTitle">تحديد مجلد الإخراج</sys:String>
     <sys:String x:Key="LocAdv_Picker_SelectExternalChdmanTitle">تحديد ملف chdman.exe الخارجي</sys:String>
     <sys:String x:Key="LocAdv_Picker_SelectRedumpDatTitle">تحديد ملف Redump DAT</sys:String>
+    <sys:String x:Key="LocAdv_Picker_SelectRedumpLocalFolderTitle">تحديد مجلد Redump المحلي</sys:String>
 
     <sys:String x:Key="LocFilter_ExecutableFiles">ملفات تنفيذية (*.exe)|*.exe|كل الملفات (*.*)|*.*</sys:String>
     <sys:String x:Key="LocFilter_RedumpDatXmlFiles">ملفات DAT أو XML (*.dat;*.xml)|*.dat;*.xml|كل الملفات (*.*)|*.*</sys:String>
@@ -973,6 +974,8 @@
 
     <sys:String x:Key="LocAdv_ErrorRedumpDatValidationFailed">تعذر التحقق من ملف Redump المحدد.</sys:String>
     <sys:String x:Key="LocAdv_ErrorRedumpDatExtension">يرجى اختيار ملف بصيغة DAT أو XML.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderValidationFailed">تعذر التحقق من مجلد Redump المحلي.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderInvalid">يرجى اختيار مجلد Redump محلي صالح.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlValidationFailed">تعذر التحقق من رابط التنزيل.</sys:String>
     <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlInvalid">يرجى إدخال رابط صحيح يبدأ بـ http أو https.</sys:String>
@@ -1148,6 +1151,17 @@
     <sys:String x:Key="LocRedumpSettings_DownloadButton">تنزيل قاعدة البيانات</sys:String>
     <sys:String x:Key="LocRedumpSettings_DownloadButtonTooltip">تنزيل قاعدة البيانات المختارة واستيرادها إلى قاعدة Redump المحلية.</sys:String>
 
+    <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">مجلد Redump المحلي</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">اختيار مجلد يحتوي على ملفات Redump التي يملكها المستخدم لفحصها قبل الاستيراد.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">استعراض…</sys:String>
+    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختيار مجلد Redump محلي من الجهاز.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">فحص محتويات المجلد وعرض ملخص فقط دون استيراد أو تعديل.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">معاينة المجلد</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">لم يتم فحص مجلد Redump المحلي بعد.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">جارٍ فحص مجلد Redump المحلي...</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">المجلد غير صالح أو لا يحتوي على ملفات DAT/XML قابلة للاستيراد.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">DAT/XML: {0:N0} • CUE: {1:N0} • GDI: {2:N0} • SBI/LSD: {3:N0} • Keys: {4:N0} • الأنظمة: {5:N0} • آخر تعديل: {6}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">إعدادات الاستيراد المحلي</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">حالة قاعدة البيانات المحلية</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">عرض الحالة الراهنة لقاعدة بيانات Redump المستخدمة في عمليات الفحص.</sys:String>

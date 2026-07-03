@@ -881,6 +881,7 @@ Path:
     <sys:String x:Key="LocAdv_Picker_SelectOutputFolderTitle">Choose output folder</sys:String>
     <sys:String x:Key="LocAdv_Picker_SelectExternalChdmanTitle">Choose chdman.exe</sys:String>
     <sys:String x:Key="LocAdv_Picker_SelectRedumpDatTitle">Choose Redump DAT file</sys:String>
+    <sys:String x:Key="LocAdv_Picker_SelectRedumpLocalFolderTitle">Choose local Redump folder</sys:String>
 
     <sys:String x:Key="LocFilter_ExecutableFiles">Executable files (*.exe)|*.exe|All files (*.*)|*.*</sys:String>
     <sys:String x:Key="LocFilter_RedumpDatXmlFiles">DAT or XML files (*.dat;*.xml)|*.dat;*.xml|All files (*.*)|*.*</sys:String>
@@ -979,6 +980,8 @@ Path:
 
     <sys:String x:Key="LocAdv_ErrorRedumpDatValidationFailed">Could not validate the Redump file.</sys:String>
     <sys:String x:Key="LocAdv_ErrorRedumpDatExtension">Choose a DAT or XML file.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderValidationFailed">Could not validate the local Redump folder.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderInvalid">Choose a valid local Redump folder.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlValidationFailed">Could not validate the Redump URL.</sys:String>
     <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlInvalid">Enter a URL that starts with HTTP or HTTPS.</sys:String>
@@ -1154,6 +1157,17 @@ Path:
     <sys:String x:Key="LocRedumpSettings_DownloadButton">Download database</sys:String>
     <sys:String x:Key="LocRedumpSettings_DownloadButtonTooltip">Downloads the selected database and imports it into the local Redump database.</sys:String>
 
+    <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">Local Redump folder</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">Choose a user-provided Redump folder and preview its contents before importing.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">Browse...</sys:String>
+    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">Choose a local Redump folder from this device.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">Scan</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">Scans the folder and shows a summary only. No import or file changes are performed.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">Folder preview</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">The local Redump folder has not been scanned yet.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">Scanning local Redump folder...</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">The folder is invalid or does not contain importable DAT/XML files.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">DAT/XML: {0:N0} • CUE: {1:N0} • GDI: {2:N0} • SBI/LSD: {3:N0} • Keys: {4:N0} • Systems: {5:N0} • Newest: {6}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">Local import</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">Local database status</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">Shows the current status of the Redump database used for scans.</sys:String>

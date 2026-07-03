@@ -18,6 +18,7 @@ public sealed partial class OptionsViewModel
         ValidateProperty(PendingWorkspaceCustomRootValidationProxy, nameof(PendingWorkspaceCustomRootValidationProxy));
         ValidateProperty(CustomOutputRootValidationProxy, nameof(CustomOutputRootValidationProxy));
         ValidateProperty(RedumpDatXmlPathValidationProxy, nameof(RedumpDatXmlPathValidationProxy));
+        ValidateProperty(RedumpLocalLibraryRootValidationProxy, nameof(RedumpLocalLibraryRootValidationProxy));
         ValidateProperty(ExternalChdmanPathValidationProxy, nameof(ExternalChdmanPathValidationProxy));
         ValidateProperty(RedumpDatabaseDownloadUrlValidationProxy, nameof(RedumpDatabaseDownloadUrlValidationProxy));
         ValidateProperty(SelectedProcessorValueValidationProxy, nameof(SelectedProcessorValueValidationProxy));
@@ -44,6 +45,7 @@ public sealed partial class OptionsViewModel
             nameof(PendingWorkspaceCustomRootValidationProxy),
             nameof(CustomOutputRootValidationProxy),
             nameof(RedumpDatXmlPathValidationProxy),
+            nameof(RedumpLocalLibraryRootValidationProxy),
             nameof(ExternalChdmanPathValidationProxy),
             nameof(RedumpDatabaseDownloadUrlValidationProxy),
             nameof(SelectedProcessorValueValidationProxy),
@@ -132,6 +134,25 @@ public sealed partial class OptionsViewModel
             || extension.Equals(".xml", StringComparison.OrdinalIgnoreCase)
             ? ValidationResult.Success
             : Error("LocAdv_ErrorRedumpDatExtension", nameof(RedumpDatXmlPath));
+    }
+
+    public static ValidationResult? ValidateRedumpLocalLibraryRoot(string _, ValidationContext context)
+    {
+        if (context.ObjectInstance is not OptionsViewModel vm)
+        {
+            return Error("LocAdv_ErrorRedumpLocalFolderValidationFailed");
+        }
+
+        if (string.IsNullOrWhiteSpace(vm.RedumpLocalLibraryRoot))
+        {
+            return ValidationResult.Success;
+        }
+
+        string root = vm.RedumpLocalLibraryRoot.Trim();
+
+        return Path.IsPathFullyQualified(root) && Directory.Exists(root)
+            ? ValidationResult.Success
+            : Error("LocAdv_ErrorRedumpLocalFolderInvalid", nameof(RedumpLocalLibraryRoot));
     }
 
     public static ValidationResult? ValidateRedumpDatabaseDownloadUrl(string _, ValidationContext context)

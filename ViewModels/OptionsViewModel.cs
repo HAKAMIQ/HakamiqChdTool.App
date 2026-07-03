@@ -18,6 +18,9 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private string _uiLanguage = AppLanguageService.ArabicLanguageName;
     private string _customOutputRoot = string.Empty;
     private string _redumpDatXmlPath = string.Empty;
+    private string _redumpLocalLibraryRoot = string.Empty;
+    private string _redumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanEmpty");
+    private bool _isRedumpLocalLibraryScanRunning;
     private string _redumpSystemName = string.Empty;
     private string _redumpDatabaseDownloadUrl = string.Empty;
     private bool _useCustomOutputRoot;
@@ -146,6 +149,8 @@ public sealed partial class OptionsViewModel : ObservableValidator
         };
     }
 
+    partial void NotifyRedumpLocalLibraryScanCommandState();
+
     public string UiLanguage
     {
         get => _uiLanguage;
@@ -207,6 +212,38 @@ public sealed partial class OptionsViewModel : ObservableValidator
             {
                 ValidateProperty(RedumpDatXmlPathValidationProxy, nameof(RedumpDatXmlPathValidationProxy));
                 OnPropertyChanged(nameof(CanSave));
+            }
+        }
+    }
+
+    public string RedumpLocalLibraryRoot
+    {
+        get => _redumpLocalLibraryRoot;
+        set
+        {
+            if (SetProperty(ref _redumpLocalLibraryRoot, value))
+            {
+                ValidateProperty(RedumpLocalLibraryRootValidationProxy, nameof(RedumpLocalLibraryRootValidationProxy));
+                NotifyRedumpLocalLibraryScanCommandState();
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
+    }
+
+    public string RedumpLocalLibraryScanSummary
+    {
+        get => _redumpLocalLibraryScanSummary;
+        set => SetProperty(ref _redumpLocalLibraryScanSummary, value);
+    }
+
+    public bool IsRedumpLocalLibraryScanRunning
+    {
+        get => _isRedumpLocalLibraryScanRunning;
+        private set
+        {
+            if (SetProperty(ref _isRedumpLocalLibraryScanRunning, value))
+            {
+                NotifyRedumpLocalLibraryScanCommandState();
             }
         }
     }
@@ -540,6 +577,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
                 }
 
                 OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
+                NotifyRedumpLocalLibraryScanCommandState();
                 OnPropertyChanged(nameof(CanSave));
             }
         }
@@ -777,6 +815,9 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
     [CustomValidation(typeof(OptionsViewModel), nameof(ValidateRedumpDatXmlPath))]
     public string RedumpDatXmlPathValidationProxy => RedumpDatXmlPath;
+
+    [CustomValidation(typeof(OptionsViewModel), nameof(ValidateRedumpLocalLibraryRoot))]
+    public string RedumpLocalLibraryRootValidationProxy => RedumpLocalLibraryRoot;
 
     [CustomValidation(typeof(OptionsViewModel), nameof(ValidateRedumpDatabaseDownloadUrl))]
     public string RedumpDatabaseDownloadUrlValidationProxy => RedumpDatabaseDownloadUrl;

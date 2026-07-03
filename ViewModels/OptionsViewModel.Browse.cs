@@ -1,7 +1,10 @@
 using CommunityToolkit.Mvvm.Input;
+using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Services;
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.ViewModels;
 
@@ -11,7 +14,10 @@ public sealed partial class OptionsViewModel
     private IRelayCommand? _browseOutputFolderCommand;
     private IRelayCommand? _browseExternalChdmanCommand;
     private IRelayCommand? _browseRedumpDatCommand;
+    private IRelayCommand? _browseRedumpLocalLibraryCommand;
+    private AsyncRelayCommand? _scanRedumpLocalLibraryCommand;
     private IRelayCommand? _browsePendingWorkspaceCommand;
+    private readonly RedumpLocalLibraryScanner _redumpLocalLibraryScanner = new();
 
     internal IOptionsPickerService OptionsPickerService
     {
@@ -27,6 +33,14 @@ public sealed partial class OptionsViewModel
 
     public IRelayCommand BrowseRedumpDatCommand =>
         _browseRedumpDatCommand ??= new RelayCommand(BrowseRedumpDat);
+
+    public IRelayCommand BrowseRedumpLocalLibraryCommand =>
+        _browseRedumpLocalLibraryCommand ??= new RelayCommand(BrowseRedumpLocalLibrary);
+
+    public IAsyncRelayCommand ScanRedumpLocalLibraryCommand =>
+        _scanRedumpLocalLibraryCommand ??= new AsyncRelayCommand(
+            ScanRedumpLocalLibraryAsync,
+            CanScanRedumpLocalLibrary);
 
     public IRelayCommand BrowsePendingWorkspaceCommand =>
         _browsePendingWorkspaceCommand ??= new RelayCommand(BrowsePendingWorkspace);
@@ -92,5 +106,84 @@ public sealed partial class OptionsViewModel
         {
             RedumpDatXmlPath = selected;
         }
+    }
+
+    private void BrowseRedumpLocalLibrary()
+    {
+        string current = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
+        string fallback = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        string? selected = OptionsPickerService.PickFolder(
+            "LocAdv_Picker_SelectRedumpLocalFolderTitle",
+            Directory.Exists(current) ? current : fallback);
+
+        if (!string.IsNullOrWhiteSpace(selected))
+        {
+            RedumpLocalLibraryRoot = selected;
+            RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanEmpty");
+        }
+    }
+
+    private bool CanScanRedumpLocalLibrary()
+    {
+        string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
+
+        return CanUseRedumpDatabaseImport
+            && !IsRedumpLocalLibraryScanRunning
+            && Directory.Exists(root);
+    }
+
+    private async Task ScanRedumpLocalLibraryAsync()
+    {
+        string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
+
+        if (!Directory.Exists(root))
+        {
+            RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
+            return;
+        }
+
+        IsRedumpLocalLibraryScanRunning = true;
+        RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanRunning");
+
+        try
+        {
+            RedumpLocalLibraryScanResult result = await _redumpLocalLibraryScanner
+                .ScanAsync(root, CancellationToken.None)
+                .ConfigureAwait(true);
+
+            if (!result.HasImportableDatFiles)
+            {
+                RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
+                return;
+            }
+
+            string newest = result.NewestModifiedLocal.HasValue
+                ? result.NewestModifiedLocal.Value.ToString("yyyy-MM-dd HH:mm")
+                : "—";
+
+            RedumpLocalLibraryScanSummary = ArabicUi.Format(
+                "LocRedumpSettings_LocalFolderScanReadyFormat",
+                result.DatXmlFileCount,
+                result.CueFileCount,
+                result.GdiFileCount,
+                result.SubchannelFileCount,
+                result.DiscKeyFileCount,
+                result.TopLevelFolderCount,
+                newest);
+        }
+        catch (Exception ex)
+        {
+            RedumpLocalLibraryScanSummary = RuntimeDiagnosticFormatter.SummarizeException(ex);
+        }
+        finally
+        {
+            IsRedumpLocalLibraryScanRunning = false;
+        }
+    }
+
+    partial void NotifyRedumpLocalLibraryScanCommandState()
+    {
+        _scanRedumpLocalLibraryCommand?.NotifyCanExecuteChanged();
     }
 }
