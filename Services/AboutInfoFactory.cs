@@ -36,10 +36,7 @@ public static class AboutInfoFactory
             Description = ArabicUi.Get("LocAbout_DefaultDescription"),
             DeveloperLine = ArabicUi.Format("LocAbout_DeveloperLine", company, metadata.DeveloperLineSuffix),
             LicenseLine = ArabicUi.Get("LocAbout_LicenseLine"),
-            CreditsTitle = ArabicUi.Get("LocAbout_CreditsTitle"),
-            CreditsDescription = ArabicUi.Get("LocAbout_CreditsDescription"),
             WebsiteUrl = metadata.WebsiteUrl,
-            Credits = CreateCredits(),
             Links = LocalizeLinks(metadata.Links)
         };
     }
