@@ -133,35 +133,38 @@
                         <Border Grid.Row="3"
                                 Style="{StaticResource Win11SettingsLastRow}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
+                                <Grid Grid.Row="0"
+                                      FlowDirection="{DynamicResource App.FlowDirection}"
+                                      Language="{DynamicResource App.XmlLanguage}"
+                                      SnapsToDevicePixels="True">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Row="0"
+                                    <TextBlock Grid.Column="0"
                                                Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocGeneralSettings_PortableModeTitle}"
                                                ToolTip="{DynamicResource LocGeneralSettings_PortableModeTitle}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               Text="{DynamicResource LocGeneralSettings_PortableModeDescription}"
-                                               ToolTip="{DynamicResource LocGeneralSettings_PortableModeDescription}" />
+                                    <CheckBox Grid.Column="2"
+                                              IsChecked="{Binding PortableMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource Win11SettingsCheckBox}"
+                                              ToolTip="{DynamicResource LocGeneralSettings_PortableModeTitle}"
+                                              AutomationProperties.Name="{DynamicResource LocGeneralSettings_PortableModeTitle}" />
                                 </Grid>
 
-                                <CheckBox Grid.Column="2"
-                                          IsChecked="{Binding PortableMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocGeneralSettings_PortableModeTitle}"
-                                          AutomationProperties.Name="{DynamicResource LocGeneralSettings_PortableModeTitle}" />
+                                <TextBlock Grid.Row="1"
+                                           Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                           Text="{DynamicResource LocGeneralSettings_PortableModeDescription}"
+                                           ToolTip="{DynamicResource LocGeneralSettings_PortableModeDescription}" />
                             </Grid>
                         </Border>
                     </Grid>
