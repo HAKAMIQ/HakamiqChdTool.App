@@ -514,7 +514,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
             if (DateTimeOffset.TryParse(_redumpLastSyncedUtc, out DateTimeOffset parsed))
             {
-                return ArabicUi.Format("LocAdv_DatabaseLastSyncedValue", parsed.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
+                return ArabicUi.Format("LocAdv_DatabaseLastSyncedValue", parsed.ToLocalTime().ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture));
             }
 
             return ArabicUi.Format("LocAdv_DatabaseLastSyncedValue", _redumpLastSyncedUtc);

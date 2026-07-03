@@ -822,8 +822,8 @@
     <sys:String x:Key="LocOptions_RedumpDownloadErrorTitle">خطأ أثناء التحميل</sys:String>
 
     <sys:String x:Key="LocOptions_DatabaseChecking">الحالة: جارٍ التحقق من قاعدة البيانات.</sys:String>
-    <sys:String x:Key="LocOptions_DatabaseAvailable">الحالة: متوفرة ومفعّلة.</sys:String>
-    <sys:String x:Key="LocOptions_DatabaseMissing">الحالة: غير موجودة.</sys:String>
+    <sys:String x:Key="LocOptions_DatabaseAvailable">متوفرة ومفعّلة</sys:String>
+    <sys:String x:Key="LocOptions_DatabaseMissing">غير موجودة</sys:String>
     <sys:String x:Key="LocOptions_DatabaseReadFailed">الحالة: تعذر قراءة قاعدة البيانات.</sys:String>
 
     <sys:String x:Key="LocRuntimeTools_UnsafeRuntimeRoot">مسار بيئة التشغيل يقع خارج نطاق المجلد الآمن للتطبيق.</sys:String>
@@ -1166,10 +1166,10 @@
     <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">تم اختيار المجلد: {0}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">جارٍ فحص Redump المحلي...</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">لم يتم العثور على ملفات Redump DAT/XML في هذا المجلد.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">جاهز&#x0A;DAT/XML: {0:N0}&#x0A;CUE: {1:N0}&#x0A;GDI: {2:N0}&#x0A;SBI/LSD: {3:N0}&#x0A;مفاتيح: {4:N0}&#x0A;مجلدات: {5:N0}&#x0A;آخر تحديث: {6}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0}&#x0A;الفهرس&#x0A;منصات: {1:N0} • مختار: {2:N0}&#x0A;أقدم: {3:N0} • مكرر: {4:N0} • أخطاء: {6:N0}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderImportProgressFormat">جارٍ تجهيز المطابقة: {0:N0}/{1:N0}&#x0A;ملفات مستوردة: {2:N0}&#x0A;سجلات: {3:N0}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexImportAppendFormat">{0}&#x0A;الفهرس&#x0A;منصات: {1:N0} • مختار: {2:N0}&#x0A;أقدم: {3:N0} • مكرر: {4:N0} • أخطاء: {6:N0}&#x0A;قاعدة SQLite&#x0A;ملفات: {7:N0} • سجلات: {8:N0} • فشل: {9:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">جاهز&#x0A;DAT/XML: {0}&#x0A;CUE: {1}&#x0A;GDI: {2}&#x0A;SBI/LSD: {3}&#x0A;مفاتيح: {4}&#x0A;مجلدات: {5}&#x0A;آخر تحديث: {6}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0}&#x0A;الفهرس&#x0A;منصات: {1} • مختار: {2}&#x0A;أقدم: {3} • مكرر: {4} • أخطاء: {6}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderImportProgressFormat">جارٍ تجهيز المطابقة: {0}/{1}&#x0A;ملفات مستوردة: {2}&#x0A;سجلات: {3}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexImportAppendFormat">{0}&#x0A;الفهرس&#x0A;منصات: {1} • مختار: {2}&#x0A;أقدم: {3} • مكرر: {4} • أخطاء: {6}&#x0A;قاعدة SQLite&#x0A;ملفات: {7} • سجلات: {8} • فشل: {9}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderIndexErrorAppendFormat">{0}&#x0A;تعذر إنشاء الفهرس المختصر: {1}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">قاعدة Redump المحلية</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">حالة القاعدة</sys:String>

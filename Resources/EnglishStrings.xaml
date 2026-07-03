@@ -828,8 +828,8 @@ Path:
     <sys:String x:Key="LocOptions_RedumpDownloadErrorTitle">Download error</sys:String>
 
     <sys:String x:Key="LocOptions_DatabaseChecking">Status: Checking database...</sys:String>
-    <sys:String x:Key="LocOptions_DatabaseAvailable">Status: Available and enabled.</sys:String>
-    <sys:String x:Key="LocOptions_DatabaseMissing">Status: Missing.</sys:String>
+    <sys:String x:Key="LocOptions_DatabaseAvailable">Available and enabled</sys:String>
+    <sys:String x:Key="LocOptions_DatabaseMissing">Missing</sys:String>
     <sys:String x:Key="LocOptions_DatabaseReadFailed">Status: Could not read database.</sys:String>
 
     <sys:String x:Key="LocRuntimeTools_UnsafeRuntimeRoot">The internal runtime path is outside the safe application folder.</sys:String>
@@ -1172,10 +1172,10 @@ Path:
     <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">Selected folder: {0}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">Scanning local Redump folder...</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">No Redump DAT/XML files were found in this folder.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">Ready&#x0A;DAT/XML: {0:N0}&#x0A;CUE: {1:N0}&#x0A;GDI: {2:N0}&#x0A;SBI/LSD: {3:N0}&#x0A;Keys: {4:N0}&#x0A;Folders: {5:N0}&#x0A;Newest: {6}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0}&#x0A;Index&#x0A;Platforms: {1:N0} • selected: {2:N0}&#x0A;older: {3:N0} • duplicates: {4:N0} • errors: {6:N0}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderImportProgressFormat">Preparing matching: {0:N0}/{1:N0}&#x0A;Imported files: {2:N0}&#x0A;Rows: {3:N0}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexImportAppendFormat">{0}&#x0A;Index&#x0A;Platforms: {1:N0} • selected: {2:N0}&#x0A;older: {3:N0} • duplicates: {4:N0} • errors: {6:N0}&#x0A;SQLite database&#x0A;Files: {7:N0} • rows: {8:N0} • failed: {9:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">Ready&#x0A;DAT/XML: {0}&#x0A;CUE: {1}&#x0A;GDI: {2}&#x0A;SBI/LSD: {3}&#x0A;Keys: {4}&#x0A;Folders: {5}&#x0A;Newest: {6}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0}&#x0A;Index&#x0A;Platforms: {1} • selected: {2}&#x0A;older: {3} • duplicates: {4} • errors: {6}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderImportProgressFormat">Preparing matching: {0}/{1}&#x0A;Imported files: {2}&#x0A;Rows: {3}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexImportAppendFormat">{0}&#x0A;Index&#x0A;Platforms: {1} • selected: {2}&#x0A;older: {3} • duplicates: {4} • errors: {6}&#x0A;SQLite database&#x0A;Files: {7} • rows: {8} • failed: {9}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderIndexErrorAppendFormat">{0}&#x0A;Compact index failed: {1}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">Local Redump database</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">Database status</sys:String>
