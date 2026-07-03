@@ -30,6 +30,19 @@ public partial class MainWindow
         Close();
     }
 
+    private void MainHeader_LanguageToggleRequested(object sender, RoutedEventArgs e)
+    {
+        string nextLanguage = AppLanguageService.Instance.ToggleLanguage();
+        _settings.UiLanguage = nextLanguage;
+
+        ApplySettingsToUiWithoutLanguageChange();
+        UpdateHeaderModeText();
+        UpdateUiState();
+        PersistSettings();
+
+        MainHeader.RefreshLanguageToggleButton();
+    }
+
     private void ApplySettingsToUi()
     {
         AppLanguageService.Instance.SetLanguage(_settings.UiLanguage);
