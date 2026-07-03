@@ -122,7 +122,6 @@ internal sealed partial class HqOptionsShell : IDisposable
         _owner.RedumpPanelView.ImportRedumpDatabaseRequested -= ImportRedumpDatabase;
         _owner.ExternalToolsPanelView.RecheckRequested -= RecheckExternalTools;
         _owner.ExternalToolsPanelView.OpenToolsFolderRequested -= OpenExternalToolsFolder;
-        _owner.ExternalToolsPanelView.CopySetupInstructionsRequested -= CopyExternalToolsSetupInstructions;
 
         if (_isAttached)
         {

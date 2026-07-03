@@ -61,7 +61,6 @@ public partial class OptionsWindow : Window
         RedumpPanel.ImportRedumpDatabaseRequested += _coordinator.ImportRedumpDatabase;
         ExternalToolsPanel.RecheckRequested += _coordinator.RecheckExternalTools;
         ExternalToolsPanel.OpenToolsFolderRequested += _coordinator.OpenExternalToolsFolder;
-        ExternalToolsPanel.CopySetupInstructionsRequested += _coordinator.CopyExternalToolsSetupInstructions;
         Loaded += OptionsWindow_Loaded;
         Closed += OptionsWindow_Closed;
 
@@ -124,7 +123,6 @@ public partial class OptionsWindow : Window
         RedumpPanel.ImportRedumpDatabaseRequested -= _coordinator.ImportRedumpDatabase;
         ExternalToolsPanel.RecheckRequested -= _coordinator.RecheckExternalTools;
         ExternalToolsPanel.OpenToolsFolderRequested -= _coordinator.OpenExternalToolsFolder;
-        ExternalToolsPanel.CopySetupInstructionsRequested -= _coordinator.CopyExternalToolsSetupInstructions;
         _coordinator.Dispose();
         _coordinator = null;
     }
