@@ -1166,6 +1166,7 @@ Path:
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">Shows DAT/XML and CUE counts before preparing the database.</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">Prepare matching</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">Imports selected DAT/XML files into SQLite so game verification can match against Redump.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalActionsTitle">Actions</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">Folder preview</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">Choose a local Redump folder, then scan it.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">Selected folder: {0}</sys:String>
