@@ -822,8 +822,8 @@
     <sys:String x:Key="LocOptions_RedumpDownloadErrorTitle">خطأ أثناء التحميل</sys:String>
 
     <sys:String x:Key="LocOptions_DatabaseChecking">الحالة: جارٍ التحقق من قاعدة البيانات.</sys:String>
-    <sys:String x:Key="LocOptions_DatabaseAvailable">الحالة: قاعدة البيانات متوفرة ومفعّلة.</sys:String>
-    <sys:String x:Key="LocOptions_DatabaseMissing">الحالة: قاعدة البيانات غير موجودة.</sys:String>
+    <sys:String x:Key="LocOptions_DatabaseAvailable">الحالة: متوفرة ومفعّلة.</sys:String>
+    <sys:String x:Key="LocOptions_DatabaseMissing">الحالة: غير موجودة.</sys:String>
     <sys:String x:Key="LocOptions_DatabaseReadFailed">الحالة: تعذر قراءة قاعدة البيانات.</sys:String>
 
     <sys:String x:Key="LocRuntimeTools_UnsafeRuntimeRoot">مسار بيئة التشغيل يقع خارج نطاق المجلد الآمن للتطبيق.</sys:String>
@@ -1153,26 +1153,26 @@
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">مجلد Redump المحلي</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">اختر مجلدًا من جهازك يحتوي على ملفات DAT/XML. لا يتم تضمين أي قاعدة بيانات مع البرنامج.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">اختر مجلد Redump يحتوي على ملفات DAT/XML</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">اختر مجلد Redump</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">استعراض...</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختيار مجلد Redump محلي من الجهاز.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">فحص محتويات المجلد وعرض ملخص فقط دون استيراد أو تعديل.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">تجهيز القاعدة</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">استيراد ملفات DAT/XML المختارة إلى قاعدة SQLite لتفعيل فحص الألعاب.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختر مجلد Redump من جهازك.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص المجلد</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">يعرض أعداد DAT/XML و CUE قبل تجهيز القاعدة.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">تجهيز المطابقة</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">يستورد ملفات DAT/XML المختارة إلى SQLite لتفعيل فحص الألعاب.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">معاينة المجلد</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">اختر مجلد Redump المحلي ثم اضغط فحص.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">مجلد Redump: {0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">تم اختيار المجلد: {0}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">جارٍ فحص Redump المحلي...</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">لم يتم العثور على ملفات Redump DAT/XML في هذا المجلد.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">Redump جاهز: DAT {0:N0} • CUE {1:N0} • SBI/LSD {3:N0} • مجلدات {5:N0} • تحديث {6}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0}&#x0A;فهرس مختصر: منصات {1:N0} • مختار {2:N0} • أقدم {3:N0} • مكرر {4:N0} • أخطاء {6:N0}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderImportProgressFormat">جارٍ استيراد DAT المحددة: {0:N0}/{1:N0} • مستورد {2:N0} • سجلات {3:N0}</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexImportAppendFormat">{0}&#x0A;فهرس مختصر: منصات {1:N0} • مختار {2:N0} • أقدم {3:N0} • مكرر {4:N0} • أخطاء {6:N0}&#x0A;استيراد SQLite: ملفات {7:N0} • سجلات {8:N0} • فشل {9:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">جاهز&#x0A;DAT/XML: {0:N0}&#x0A;CUE: {1:N0}&#x0A;GDI: {2:N0}&#x0A;SBI/LSD: {3:N0}&#x0A;مفاتيح: {4:N0}&#x0A;مجلدات: {5:N0}&#x0A;آخر تحديث: {6}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0}&#x0A;الفهرس&#x0A;منصات: {1:N0} • مختار: {2:N0}&#x0A;أقدم: {3:N0} • مكرر: {4:N0} • أخطاء: {6:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderImportProgressFormat">جارٍ تجهيز المطابقة: {0:N0}/{1:N0}&#x0A;ملفات مستوردة: {2:N0}&#x0A;سجلات: {3:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexImportAppendFormat">{0}&#x0A;الفهرس&#x0A;منصات: {1:N0} • مختار: {2:N0}&#x0A;أقدم: {3:N0} • مكرر: {4:N0} • أخطاء: {6:N0}&#x0A;قاعدة SQLite&#x0A;ملفات: {7:N0} • سجلات: {8:N0} • فشل: {9:N0}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderIndexErrorAppendFormat">{0}&#x0A;تعذر إنشاء الفهرس المختصر: {1}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">قاعدة Redump المحلية</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">حالة القاعدة المحلية</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">يبين حالة قاعدة البيانات المحلية وآخر مزامنة.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">حالة القاعدة</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">جاهزية SQLite للمطابقة وآخر مزامنة.</sys:String>
     <sys:String x:Key="LocRedumpSettings_SystemNameTooltip">حقل اختياري: اتركه فارغاً ليتم اعتماد اسم ملف الـ DAT الأصلي.</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseDatButton">استعراض...</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseDatTooltip">اختيار ملف DAT أو XML الخاص بقاعدة بيانات Redump.</sys:String>
@@ -1737,7 +1737,7 @@
     <sys:String x:Key="LocChdPolicy_UnknownIsoMediaKindRequired">لا يمكن اختيار أمر chdman لملف ISO مجهول النوع بالاعتماد على الامتداد فقط. تم إيقاف العملية حتى يتم تحديد نوع الوسيط كـ CD أو DVD.</sys:String>
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">تم منع إعادة ضغط ملف CHD إلى CHD مباشرة. المسار الآمن هو استخراج ملف الوسائط الأصلي أولًا، ثم إعادة بناء ملف CHD وفقًا لسياسة المنصة.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">يعرض ملخصًا سريعًا قبل أي استيراد.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">ملخص سريع للملفات قبل تجهيز قاعدة المطابقة.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جارٍ إعادة الفحص...</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">معلومة الإعداد</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">تعذر التحقق من سلامة ملف CHD.&#x0A;قد يكون الملف تالفاً، غير مكتمل، أو بصيغة غير مدعومة.</sys:String>
