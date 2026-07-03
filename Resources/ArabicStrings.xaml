@@ -1165,6 +1165,8 @@
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">لم يتم العثور على ملفات Redump DAT/XML في هذا المجلد.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">Redump جاهز: DAT {0:N0} • CUE {1:N0} • SBI/LSD {3:N0} • مجلدات {5:N0} • تحديث {6}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0}&#x0A;فهرس مختصر: منصات {1:N0} • مختار {2:N0} • أقدم {3:N0} • مكرر {4:N0} • أخطاء {6:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderImportProgressFormat">جارٍ استيراد DAT المحددة: {0:N0}/{1:N0} • مستورد {2:N0} • سجلات {3:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexImportAppendFormat">{0}&#x0A;فهرس مختصر: منصات {1:N0} • مختار {2:N0} • أقدم {3:N0} • مكرر {4:N0} • أخطاء {6:N0}&#x0A;استيراد SQLite: ملفات {7:N0} • سجلات {8:N0} • فشل {9:N0}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderIndexErrorAppendFormat">{0}&#x0A;تعذر إنشاء الفهرس المختصر: {1}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">قاعدة Redump المحلية</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">حالة القاعدة المحلية</sys:String>

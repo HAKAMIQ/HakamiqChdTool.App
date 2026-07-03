@@ -3,6 +3,7 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Services;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,15 +44,38 @@ public sealed partial class OptionsViewModel
                 return;
             }
 
+            if (indexResult.SelectedCount <= 0)
+            {
+                RedumpLocalLibraryScanSummary = ArabicUi.Format(
+                    "LocRedumpSettings_LocalFolderIndexAppendFormat",
+                    scanSummary,
+                    indexResult.PlatformCount,
+                    indexResult.SelectedCount,
+                    indexResult.OlderCount,
+                    indexResult.DuplicateCount,
+                    indexResult.VariantCount,
+                    indexResult.ReadErrorCount);
+
+                return;
+            }
+
+            RedumpLocalLibraryImportSummary importSummary = await ImportSelectedRedumpLocalDatFilesAsync(
+                    indexResult,
+                    CancellationToken.None)
+                .ConfigureAwait(true);
+
             RedumpLocalLibraryScanSummary = ArabicUi.Format(
-                "LocRedumpSettings_LocalFolderIndexAppendFormat",
+                "LocRedumpSettings_LocalFolderIndexImportAppendFormat",
                 scanSummary,
                 indexResult.PlatformCount,
                 indexResult.SelectedCount,
                 indexResult.OlderCount,
                 indexResult.DuplicateCount,
                 indexResult.VariantCount,
-                indexResult.ReadErrorCount);
+                indexResult.ReadErrorCount,
+                importSummary.ImportedFileCount,
+                importSummary.ImportedRows,
+                importSummary.FailedFileCount);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -61,4 +85,80 @@ public sealed partial class OptionsViewModel
                 RuntimeDiagnosticFormatter.SummarizeException(ex));
         }
     }
+
+    private async Task<RedumpLocalLibraryImportSummary> ImportSelectedRedumpLocalDatFilesAsync(
+        RedumpLocalLibraryIndexResult indexResult,
+        CancellationToken cancellationToken)
+    {
+        RedumpLocalLibraryDatEntry[] selectedEntries = indexResult.Entries
+            .Where(entry => entry.IsSelected)
+            .Where(entry => !entry.Status.Equals(RedumpLocalLibraryIndexer.ReadErrorStatus, StringComparison.OrdinalIgnoreCase))
+            .Where(entry => File.Exists(entry.FilePath))
+            .ToArray();
+
+        if (selectedEntries.Length == 0)
+        {
+            return new RedumpLocalLibraryImportSummary(0, 0, 0);
+        }
+
+        int importedFileCount = 0;
+        int failedFileCount = 0;
+        int importedRows = 0;
+
+        for (int index = 0; index < selectedEntries.Length; index++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            RedumpLocalLibraryDatEntry entry = selectedEntries[index];
+
+            RedumpLocalLibraryScanSummary = ArabicUi.Format(
+                "LocRedumpSettings_LocalFolderImportProgressFormat",
+                index + 1,
+                selectedEntries.Length,
+                importedFileCount,
+                importedRows);
+
+            string systemName = FirstNonEmpty(
+                entry.Name,
+                entry.Description,
+                RedumpCompactDisplayFormatter.FormatFileName(entry.FileName));
+
+            RedumpImportResult result = await RedumpSqliteManager.Default
+                .ImportDatFileAsync(entry.FilePath, systemName, progress: null, cancellationToken)
+                .ConfigureAwait(true);
+
+            if (result.Success)
+            {
+                importedFileCount++;
+                importedRows += Math.Max(0, result.RowsImported);
+            }
+            else
+            {
+                failedFileCount++;
+            }
+        }
+
+        return new RedumpLocalLibraryImportSummary(
+            importedFileCount,
+            importedRows,
+            failedFileCount);
+    }
+
+    private static string FirstNonEmpty(params string?[] values)
+    {
+        foreach (string? value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return "Redump";
+    }
+
+    private readonly record struct RedumpLocalLibraryImportSummary(
+        int ImportedFileCount,
+        int ImportedRows,
+        int FailedFileCount);
 }
