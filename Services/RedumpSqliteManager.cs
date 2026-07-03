@@ -314,7 +314,7 @@ public sealed class RedumpSqliteManager
         {
             IgnoreComments = true,
             IgnoreWhitespace = true,
-            DtdProcessing = DtdProcessing.Prohibit,
+            DtdProcessing = DtdProcessing.Ignore,
             XmlResolver = null
         };
 
