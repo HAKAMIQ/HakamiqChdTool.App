@@ -36,11 +36,58 @@ public static class AboutInfoFactory
             Description = ArabicUi.Get("LocAbout_DefaultDescription"),
             DeveloperLine = ArabicUi.Format("LocAbout_DeveloperLine", company, metadata.DeveloperLineSuffix),
             LicenseLine = ArabicUi.Get("LocAbout_LicenseLine"),
+            CreditsTitle = ArabicUi.Get("LocAbout_CreditsTitle"),
+            CreditsDescription = ArabicUi.Get("LocAbout_CreditsDescription"),
             WebsiteUrl = metadata.WebsiteUrl,
+            Credits = CreateCredits(),
             Links = LocalizeLinks(metadata.Links)
         };
     }
 
+
+    private static Collection<AboutCreditInfo> CreateCredits()
+    {
+        return
+        [
+            new AboutCreditInfo
+            {
+                DisplayName = "¹مـحمدّ | 𒉭",
+                Handle = "hx11",
+                BadgeText = ArabicUi.Get("LocAbout_CreditBadgeContributor"),
+                Contribution = ArabicUi.Get("LocAbout_CreditMohammed"),
+                ProfileSummary = ArabicUi.Get("LocAbout_CreditMohammedSummary"),
+                AccentBrush = "#FF00D7C7",
+                AccentSoftBrush = "#2200D7C7"
+            },
+            new AboutCreditInfo
+            {
+                DisplayName = "Quantularity",
+                Handle = "quantularity",
+                BadgeText = ArabicUi.Get("LocAbout_CreditBadgeContributor"),
+                Contribution = ArabicUi.Get("LocAbout_CreditQuantularity"),
+                ProfileSummary = ArabicUi.Get("LocAbout_CreditQuantularitySummary"),
+                AccentBrush = "#FFFF2D67",
+                AccentSoftBrush = "#26FF2D67"
+            }
+        ];
+    }
+
+    private static string ResolveVersion(Assembly assembly, AssemblyName assemblyName)
+    {
+        string? informationalVersion = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+            .InformationalVersion;
+
+        if (!string.IsNullOrWhiteSpace(informationalVersion))
+        {
+            int metadataIndex = informationalVersion.IndexOf('+', StringComparison.Ordinal);
+            return metadataIndex > 0
+                ? informationalVersion[..metadataIndex]
+                : informationalVersion.Trim();
+        }
+
+        return assemblyName.Version?.ToString() ?? "?";
+    }
 
     private static Collection<AboutLinkInfo> LocalizeLinks(IEnumerable<AboutLinkInfo>? links)
     {

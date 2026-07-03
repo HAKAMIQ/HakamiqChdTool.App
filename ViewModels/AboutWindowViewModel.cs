@@ -27,7 +27,10 @@ public sealed partial class AboutWindowViewModel : ObservableObject
         Description = info.Description;
         DeveloperLine = info.DeveloperLine;
         LicenseLine = info.LicenseLine;
+        CreditsTitle = info.CreditsTitle;
+        CreditsDescription = info.CreditsDescription;
         WebsiteUrl = info.WebsiteUrl;
+        Credits = CreateCreditsCollection(info.Credits);
         Links = CreateLinksCollection(info.Links);
     }
 
@@ -45,10 +48,13 @@ public sealed partial class AboutWindowViewModel : ObservableObject
 
     public string LicenseLine { get; }
 
+    public string CreditsTitle { get; }
 
+    public string CreditsDescription { get; }
 
     public string WebsiteUrl { get; }
 
+    public ObservableCollection<AboutCreditInfo> Credits { get; }
 
     public ObservableCollection<AboutLinkInfo> Links { get; }
 
@@ -137,6 +143,27 @@ public sealed partial class AboutWindowViewModel : ObservableObject
         return cleaned.StartsWith("v", StringComparison.OrdinalIgnoreCase)
             ? cleaned
             : $"v{cleaned}";
+    }
+
+    private static ObservableCollection<AboutCreditInfo> CreateCreditsCollection(
+        IEnumerable<AboutCreditInfo>? credits)
+    {
+        var result = new ObservableCollection<AboutCreditInfo>();
+
+        if (credits is null)
+        {
+            return result;
+        }
+
+        foreach (AboutCreditInfo? credit in credits)
+        {
+            if (credit is not null)
+            {
+                result.Add(credit);
+            }
+        }
+
+        return result;
     }
 
     private static ObservableCollection<AboutLinkInfo> CreateLinksCollection(
