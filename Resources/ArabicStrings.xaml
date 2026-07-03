@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<sys:String x:Key="">أضف أو اسحب صورة قرص مدعومة للتحويل إلى CHD&#x0A;يدعم ISO، CSO، GDI، CUE، وأرشيف ZIP، 7Z، RAR يحتوي على صورة قرص واحدة.</sys:String><ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
