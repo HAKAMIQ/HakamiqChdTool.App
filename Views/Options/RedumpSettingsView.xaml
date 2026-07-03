@@ -64,10 +64,12 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="{DynamicResource LocRedumpSettings_ShowInMainTitle}"
-                                           ToolTip="{DynamicResource LocRedumpSettings_ShowInMainDesc}"
-                                           Style="{StaticResource Win11SettingsRowTitleText}" />
+                                <Grid Grid.Column="0"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <TextBlock Text="{DynamicResource LocRedumpSettings_ShowInMainTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_ShowInMainDesc}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                </Grid>
 
                                 <CheckBox x:Name="EnableDeepIntegrityCheckCheckBox"
                                           Grid.Column="2"
@@ -88,10 +90,12 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="{DynamicResource LocRedumpSettings_SuggestNameTitle}"
-                                           ToolTip="{DynamicResource LocRedumpSettings_SuggestNameDesc}"
-                                           Style="{StaticResource Win11SettingsRowTitleText}" />
+                                <Grid Grid.Column="0"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <TextBlock Text="{DynamicResource LocRedumpSettings_SuggestNameTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_SuggestNameDesc}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                </Grid>
 
                                 <CheckBox x:Name="ApplyStandardNamingBasedOnHashCheckBox"
                                           Grid.Column="2"
@@ -133,13 +137,29 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="{DynamicResource LocRedumpSettings_LocalFolderTitle}"
-                                           ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
-                                           Style="{StaticResource Win11SettingsRowTitleText}" />
+                                <Grid Grid.Column="0"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_LocalFolderTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
+                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                               TextWrapping="Wrap"
+                                               TextTrimming="None" />
+                                </Grid>
 
                                 <Grid Grid.Column="2"
-                                      Width="420"
+                                      Width="440"
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center"
                                       FlowDirection="{DynamicResource App.FlowDirection}"
@@ -152,7 +172,8 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
-                                    <Grid Grid.Row="0">
+                                    <Grid Grid.Row="0"
+                                          SnapsToDevicePixels="True">
                                         <TextBox x:Name="RedumpLocalFolderTextBox"
                                                  Text="{Binding RedumpLocalLibraryRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
                                                  IsEnabled="{Binding CanUseRedumpDatabaseImport}"
@@ -174,11 +195,11 @@
 
                                         <TextBlock Margin="{DynamicResource Inset.12.0.12.0}"
                                                    VerticalAlignment="Center"
-                                                   HorizontalAlignment="Stretch"
+                                                   HorizontalAlignment="Center"
                                                    IsHitTestVisible="False"
                                                    FlowDirection="{DynamicResource App.FlowDirection}"
                                                    Language="{DynamicResource App.XmlLanguage}"
-                                                   TextAlignment="{DynamicResource Options.SettingsTextAlignment}"
+                                                   TextAlignment="Center"
                                                    FontSize="{DynamicResource FontSize.CaptionSmall}"
                                                    Foreground="{DynamicResource Brush.Text.Muted}"
                                                    Text="{DynamicResource LocRedumpSettings_LocalFolderPlaceholder}"
@@ -236,13 +257,29 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="{DynamicResource LocRedumpSettings_LocalFolderScanTitle}"
-                                           ToolTip="{DynamicResource LocRedumpSettings_LocalFolderScanTitle}"
-                                           Style="{StaticResource Win11SettingsRowTitleText}" />
+                                <Grid Grid.Column="0"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_LocalFolderScanTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_LocalFolderScanDesc}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_LocalFolderScanDesc}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_LocalFolderScanDesc}"
+                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                               TextWrapping="Wrap"
+                                               TextTrimming="None" />
+                                </Grid>
 
                                 <Border Grid.Column="2"
-                                        Width="420"
+                                        Width="440"
                                         Background="{DynamicResource Brush.Layer.Surface}"
                                         BorderBrush="{DynamicResource Brush.Border.Subtle}"
                                         BorderThickness="{DynamicResource Inset.1.All}"
@@ -270,13 +307,29 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="{DynamicResource LocRedumpSettings_LocalStatusTitle}"
-                                           ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
-                                           Style="{StaticResource Win11SettingsRowTitleText}" />
+                                <Grid Grid.Column="0"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_LocalStatusTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
+                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                               TextWrapping="Wrap"
+                                               TextTrimming="None" />
+                                </Grid>
 
                                 <Border Grid.Column="2"
-                                        Width="420"
+                                        Width="440"
                                         Background="{DynamicResource Brush.Layer.Surface}"
                                         BorderBrush="{DynamicResource Brush.Border.Subtle}"
                                         BorderThickness="{DynamicResource Inset.1.All}"
@@ -342,7 +395,7 @@
                                  Visibility="Collapsed"
                                  Text="{Binding RedumpSystemName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <Border Grid.Row="2"
+                        <Border Grid.Row="1"
                                 Style="{StaticResource Win11SettingsRow}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>
@@ -351,13 +404,29 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
-                                           Text="{DynamicResource LocRedumpSettings_DatFileTitle}"
-                                           ToolTip="{DynamicResource LocRedumpSettings_DatFileDesc}"
-                                           Style="{StaticResource Win11SettingsRowTitleText}" />
+                                <Grid Grid.Column="0"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0"
+                                               Text="{DynamicResource LocRedumpSettings_DatFileTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_DatFileDesc}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+
+                                    <TextBlock Grid.Row="2"
+                                               Text="{DynamicResource LocRedumpSettings_DatFileDesc}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_DatFileDesc}"
+                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                               TextWrapping="Wrap"
+                                               TextTrimming="None" />
+                                </Grid>
 
                                 <Grid Grid.Column="2"
-                                      Width="420"
+                                      Width="440"
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center"
                                       FlowDirection="{DynamicResource App.FlowDirection}"
@@ -426,7 +495,7 @@
                         </Border>
 
                         <ProgressBar x:Name="RedumpImportProgressBar"
-                                     Grid.Row="3"
+                                     Grid.Row="2"
                                      Visibility="Collapsed"
                                      Height="{DynamicResource Space.4}"
                                      Maximum="100"
