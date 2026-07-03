@@ -6,9 +6,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="{Binding WindowTitle, Mode=OneWay}"
-        Width="760"
+        Width="620"
         Height="360"
-        MinWidth="700"
+        MinWidth="600"
         MinHeight="330"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
@@ -22,7 +22,7 @@
         SnapsToDevicePixels="True"
         UseLayoutRounding="True"
         FontFamily="{DynamicResource FontFamily.Text}"
-        d:DesignWidth="720"
+        d:DesignWidth="620"
         d:DesignHeight="360">
 
     <Window.Resources>
