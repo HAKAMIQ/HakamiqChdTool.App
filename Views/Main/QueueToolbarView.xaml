@@ -70,6 +70,7 @@
                                Text="{DynamicResource LocUi_QueueSection_Subtitle}"
                                TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap"
+                               Visibility="Collapsed"
                                ToolTip="{DynamicResource LocUi_QueueSection_Subtitle}" />
                 </StackPanel>
             </Grid>
