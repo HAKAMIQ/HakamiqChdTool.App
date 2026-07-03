@@ -725,9 +725,9 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
-        <Setter Property="Padding" Value="18,12,18,12" />
+        <Setter Property="Padding" Value="18,7,18,7" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.64}" />
+        <Setter Property="MinHeight" Value="48" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
