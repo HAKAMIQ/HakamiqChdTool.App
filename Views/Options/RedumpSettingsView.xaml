@@ -139,9 +139,13 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="{DynamicResource Grid.Space.4}" />
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="{DynamicResource Grid.Space.14}" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="{DynamicResource Grid.Space.14}" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.10}" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="{DynamicResource Grid.Space.8}" />
                                     <RowDefinition Height="Auto" />
@@ -153,8 +157,6 @@
                                            Style="{StaticResource Win11SettingsRowTitleText}" />
 
                                 <TextBlock Grid.Row="2"
-                                           MaxWidth="680"
-                                           HorizontalAlignment="Right"
                                            Text="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
                                            ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
                                            Style="{StaticResource Win11SettingsRowDescriptionText}"
@@ -220,25 +222,22 @@
                                             Style="{StaticResource Win11SettingsCompactButton}" />
                                 </Grid>
 
-                                <Grid Grid.Row="6"
+                                <TextBlock Grid.Row="6"
+                                           Text="{DynamicResource LocRedumpSettings_LocalActionsTitle}"
+                                           Style="{StaticResource Win11SettingsRowTitleText}" />
+
+                                <Grid Grid.Row="8"
+                                      HorizontalAlignment="Right"
                                       FlowDirection="{DynamicResource App.FlowDirection}"
                                       Language="{DynamicResource App.XmlLanguage}"
                                       SnapsToDevicePixels="True">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0"
-                                               VerticalAlignment="Center"
-                                               Text="{DynamicResource LocRedumpSettings_LocalActionsTitle}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               TextTrimming="CharacterEllipsis" />
-
-                                    <Button Grid.Column="2"
+                                    <Button Grid.Column="0"
                                             MinWidth="140"
                                             MinHeight="40"
                                             Content="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
@@ -247,7 +246,7 @@
                                             AutomationProperties.Name="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
                                             Style="{StaticResource Win11SettingsCompactButton}" />
 
-                                    <Button Grid.Column="4"
+                                    <Button Grid.Column="2"
                                             MinWidth="140"
                                             MinHeight="40"
                                             Content="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
@@ -257,94 +256,81 @@
                                             Style="{StaticResource Win11SettingsCompactButton}" />
                                 </Grid>
 
-                                <Grid Grid.Row="8"
-                                      FlowDirection="{DynamicResource App.FlowDirection}"
-                                      Language="{DynamicResource App.XmlLanguage}"
-                                      SnapsToDevicePixels="True">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
+                                <Border Grid.Row="10"
+                                        Background="{DynamicResource Brush.Layer.Surface}"
+                                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                                        BorderThickness="{DynamicResource Inset.1.All}"
+                                        CornerRadius="{DynamicResource Radius.Control}"
+                                        Padding="{DynamicResource Inset.12.All}"
+                                        HorizontalAlignment="Stretch"
+                                        SnapsToDevicePixels="True">
+                                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                          Language="{DynamicResource App.XmlLanguage}"
+                                          SnapsToDevicePixels="True">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
 
-                                    <Border Grid.Column="0"
-                                            Background="{DynamicResource Brush.Layer.Surface}"
-                                            BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                                            BorderThickness="{DynamicResource Inset.1.All}"
-                                            CornerRadius="{DynamicResource Radius.Control}"
-                                            Padding="{DynamicResource Inset.12.All}"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
-                                            SnapsToDevicePixels="True">
-                                        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                                              Language="{DynamicResource App.XmlLanguage}"
-                                              SnapsToDevicePixels="True">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="{DynamicResource Grid.Space.6}" />
-                                                <RowDefinition Height="Auto" />
-                                            </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{DynamicResource LocRedumpSettings_LocalFolderScanTitle}"
+                                                   ToolTip="{DynamicResource LocRedumpSettings_LocalFolderScanDesc}"
+                                                   Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                            <TextBlock Grid.Row="0"
-                                                       Text="{DynamicResource LocRedumpSettings_LocalFolderScanTitle}"
-                                                       ToolTip="{DynamicResource LocRedumpSettings_LocalFolderScanDesc}"
-                                                       Style="{StaticResource Win11SettingsRowTitleText}" />
+                                        <TextBlock Grid.Row="2"
+                                                   Text="{Binding RedumpLocalLibraryScanSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                                   ToolTip="{Binding RedumpLocalLibraryScanSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                                   Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextWrapping="Wrap"
+                                                   TextTrimming="None" />
+                                    </Grid>
+                                </Border>
 
-                                            <TextBlock Grid.Row="2"
-                                                       Text="{Binding RedumpLocalLibraryScanSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                                       ToolTip="{Binding RedumpLocalLibraryScanSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                                       Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                                       HorizontalAlignment="Stretch"
-                                                       TextWrapping="Wrap"
-                                                       TextTrimming="None" />
-                                        </Grid>
-                                    </Border>
+                                <Border Grid.Row="12"
+                                        Background="{DynamicResource Brush.Layer.Surface}"
+                                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                                        BorderThickness="{DynamicResource Inset.1.All}"
+                                        CornerRadius="{DynamicResource Radius.Control}"
+                                        Padding="{DynamicResource Inset.12.All}"
+                                        HorizontalAlignment="Stretch"
+                                        SnapsToDevicePixels="True">
+                                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                          Language="{DynamicResource App.XmlLanguage}"
+                                          SnapsToDevicePixels="True">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
 
-                                    <Border Grid.Column="2"
-                                            Background="{DynamicResource Brush.Layer.Surface}"
-                                            BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                                            BorderThickness="{DynamicResource Inset.1.All}"
-                                            CornerRadius="{DynamicResource Radius.Control}"
-                                            Padding="{DynamicResource Inset.12.All}"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
-                                            SnapsToDevicePixels="True">
-                                        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                                              Language="{DynamicResource App.XmlLanguage}"
-                                              SnapsToDevicePixels="True">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="{DynamicResource Grid.Space.6}" />
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="{DynamicResource Grid.Space.4}" />
-                                                <RowDefinition Height="Auto" />
-                                            </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{DynamicResource LocRedumpSettings_LocalStatusTitle}"
+                                                   ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
+                                                   Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                            <TextBlock Grid.Row="0"
-                                                       Text="{DynamicResource LocRedumpSettings_LocalStatusTitle}"
-                                                       ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
-                                                       Style="{StaticResource Win11SettingsRowTitleText}" />
+                                        <TextBlock x:Name="DatabaseStatusTextBlock"
+                                                   Grid.Row="2"
+                                                   Text="{Binding DatabaseStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                                   ToolTip="{Binding DatabaseStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                                   Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextWrapping="Wrap"
+                                                   TextTrimming="None" />
 
-                                            <TextBlock x:Name="DatabaseStatusTextBlock"
-                                                       Grid.Row="2"
-                                                       Text="{Binding DatabaseStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                                       ToolTip="{Binding DatabaseStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                                       Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                                       HorizontalAlignment="Stretch"
-                                                       TextWrapping="Wrap"
-                                                       TextTrimming="None" />
-
-                                            <TextBlock x:Name="DatabaseLastSyncedTextBlock"
-                                                       Grid.Row="4"
-                                                       Text="{Binding DatabaseLastSyncedDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                                       ToolTip="{Binding DatabaseLastSyncedDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                                       Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                                       HorizontalAlignment="Stretch"
-                                                       TextWrapping="Wrap"
-                                                       TextTrimming="None" />
-                                        </Grid>
-                                    </Border>
-                                </Grid>
+                                        <TextBlock x:Name="DatabaseLastSyncedTextBlock"
+                                                   Grid.Row="4"
+                                                   Text="{Binding DatabaseLastSyncedDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                                   ToolTip="{Binding DatabaseLastSyncedDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                                   Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextWrapping="Wrap"
+                                                   TextTrimming="None" />
+                                    </Grid>
+                                </Border>
                             </Grid>
                         </Border>
                     </Grid>
