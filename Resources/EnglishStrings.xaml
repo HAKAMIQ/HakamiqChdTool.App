@@ -1567,7 +1567,7 @@ Path:
     <sys:String x:Key="LocQueue_OpenOperationLogTooltip">Open the operation log for this row.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultButton">Show verification result</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultTooltip">Show this file's verification result in a clear format.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultDialogTitle">Verification result</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultDialogTitle">CHD verification result</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFileLine">File: {0}</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultStatusLine">Status: {0}</sys:String>
     <sys:String x:Key="LocQueue_VerificationBadgeInternallyValid">Internally valid</sys:String>
@@ -1575,13 +1575,13 @@ Path:
     <sys:String x:Key="LocQueue_VerificationBadgeMismatch">Mismatch</sys:String>
     <sys:String x:Key="LocQueue_VerificationBadgeInvalid">Invalid</sys:String>
 
-    <sys:String x:Key="LocQueue_VerificationResultScopeInternalOnly">The CHD file structure was verified internally. This means the CHD file is healthy and has no structural errors.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultScopeInternalOnly">The CHD file is internally valid and usable.&#x0A;No damage was found in the container structure during verification.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeRedumpMatched">The file matched the local Redump database. This is the most accurate verification result the app can provide.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultScopeMismatch">Verification failed or no match was found. The file may be modified, incomplete, or from a different known release.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultScopeMismatch">The CHD file could not be verified.&#x0A;It may be damaged, incomplete, or in an unsupported format.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoDat">No suitable Redump database is available for this file, so the app cannot confirm whether it matches the known standard release.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoRedumpMatch">The file did not match the local Redump database. This is a warning, not a read failure or a reason to block conversion.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">This file type does not currently support a detailed verification report.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">Note: this result covers CHD file integrity or matching only. It does not guarantee game compatibility with the emulator or its settings.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">A successful check does not guarantee that the game will run on every emulator or device; compatibility depends on platform support, settings, and launch method.</sys:String>
 
     <sys:String x:Key="LocStorageAdvisor_Title">Before you start</sys:String>
     <sys:String x:Key="LocStorageAdvisor_Subtitle">Conversion may be slower than usual</sys:String>
@@ -1741,4 +1741,12 @@ Path:
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">Shows a quick summary before any import.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">Checking...</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">Setup note</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultFailureDetails">The CHD file could not be verified.&#x0A;It may be damaged, incomplete, or in an unsupported format.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultWarningTitle">Note</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultDetailsTitle">Details</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultActionTitle">Suggested action</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultFileLabel">File</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultStatusLabel">Status</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultFailureAction">Recreate the CHD file from the original source, or try another copy.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultInternalDetails">The CHD file is internally valid and usable.&#x0A;No damage was found in the container structure during verification.</sys:String>
 </ResourceDictionary>

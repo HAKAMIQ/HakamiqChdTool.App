@@ -1561,7 +1561,7 @@
     <sys:String x:Key="LocQueue_OpenOperationLogTooltip">فتح سجل تفاصيل العملية لهذا العنصر.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultButton">عرض نتيجة التحقق</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultTooltip">عرض نتيجة التحقق من هذا الملف بلغة واضحة.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultDialogTitle">نتيجة التحقق</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultDialogTitle">نتيجة فحص CHD</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFileLine">الملف: {0}</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultStatusLine">الحالة: {0}</sys:String>
     <sys:String x:Key="LocQueue_VerificationBadgeInternallyValid">سليم داخلياً</sys:String>
@@ -1569,13 +1569,13 @@
     <sys:String x:Key="LocQueue_VerificationBadgeMismatch">غير مطابق</sys:String>
     <sys:String x:Key="LocQueue_VerificationBadgeInvalid">غير سليم</sys:String>
 
-    <sys:String x:Key="LocQueue_VerificationResultScopeInternalOnly">تم التحقق من بنية ملف CHD داخلياً. هذا يعني أن ملف CHD سليم ولا يحتوي على أخطاء برمجية في بنيته.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultScopeInternalOnly">ملف CHD سليم داخلياً وقابل للاستخدام.&#x0A;لم يتم العثور على تلف في بنية الحاوية أثناء الفحص.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeRedumpMatched">تمت مطابقة الملف مع قاعدة Redump المحلية. هذه هي نتيجة التحقق الأكثر دقة التي يوفرها التطبيق.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultScopeMismatch">فشل التحقق أو لم تتم المطابقة. قد يكون الملف معدلاً، ناقص البيانات، أو من إصدار مختلف عن النسخة القياسية المعروفة.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultScopeMismatch">تعذر التحقق من سلامة ملف CHD.&#x0A;قد يكون الملف تالفاً، غير مكتمل، أو بصيغة غير مدعومة.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoDat">لا توجد قاعدة بيانات Redump مناسبة لهذا الملف، لذا لا يمكننا تأكيد مطابقته للنسخة القياسية.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoRedumpMatch">لم تتم مطابقة الملف مع قاعدة بيانات Redump المحلية. هذا تنبيه عام وليس فشلاً في قراءة الملف أو خطأً يتطلب إيقاف المعالجة.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">هذا النوع من الملفات لا يدعم تقرير التحقق التفصيلي حالياً.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">ملاحظة: هذه النتيجة تتعلق بسلامة ملف CHD أو مطابقته فقط، ولا تضمن توافق اللعبة مع المحاكي أو إعداداته.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">نجاح الفحص لا يضمن تشغيل اللعبة على كل محاكي أو جهاز؛ التوافق يعتمد على دعم المنصة والإعدادات وطريقة التشغيل.</sys:String>
 
     <sys:String x:Key="LocStorageAdvisor_Title">تنبيه قبل البدء</sys:String>
     <sys:String x:Key="LocStorageAdvisor_Subtitle">قد تكون سرعة التحويل أقل من المعتاد</sys:String>
@@ -1735,4 +1735,12 @@
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">يعرض ملخصًا سريعًا قبل أي استيراد.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جارٍ إعادة الفحص...</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">معلومة الإعداد</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultFailureDetails">تعذر التحقق من سلامة ملف CHD.&#x0A;قد يكون الملف تالفاً، غير مكتمل، أو بصيغة غير مدعومة.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultWarningTitle">تنبيه</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultDetailsTitle">التفاصيل</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultActionTitle">الإجراء المقترح</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultFileLabel">الملف</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultStatusLabel">الحالة</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultFailureAction">أعد إنشاء ملف CHD من المصدر الأصلي، أو جرّب نسخة أخرى.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultInternalDetails">ملف CHD سليم داخلياً وقابل للاستخدام.&#x0A;لم يتم العثور على تلف في بنية الحاوية أثناء الفحص.</sys:String>
 </ResourceDictionary>
