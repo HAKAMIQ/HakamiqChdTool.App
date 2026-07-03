@@ -1212,7 +1212,7 @@
     <sys:String x:Key="LocExternalTools_StatusLabel">الحالة</sys:String>
     <sys:String x:Key="LocExternalTools_VersionLabel">الإصدار</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">المسار</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupInstructions">إذا ظهرت الأداة غير موجودة، افتح مجلد الأدوات وتأكد من وجود hakamiq-cso.exe داخل Tools\hakamiq-cso\win-x64. إذا كان الملف مفقوداً، أعد تثبيت الحزمة الرسمية. يستخدم Hakamiq CHD Tool الأداة المرفقة محلياً ولا يحمّل أدوات من الإنترنت.</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupInstructions">يستخدم Hakamiq CHD Tool الأداة المرفقة محلياً داخل Tools\hakamiq-cso\win-x64 ولا يستخدم PATH ولا يحمّل أدوات من الإنترنت. إذا ظهرت الحالة غير موجود، افتح مجلد الأدوات وتأكد من وجود hakamiq-cso.exe أو أعد تثبيت الحزمة الرسمية.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">استعادة الإعدادات الافتراضية</sys:String>
     <sys:String x:Key="LocGeneralSettings_Title">الإعدادات العامة</sys:String>
     <sys:String x:Key="LocGeneralSettings_Description">ضبط الإعدادات العامة التي تنطبق على واجهة التطبيق بالكامل.</sys:String>
@@ -1732,4 +1732,5 @@
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">يعرض ملخصًا سريعًا قبل أي استيراد.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جارٍ إعادة الفحص...</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupNoteTitle">معلومة الإعداد</sys:String>
 </ResourceDictionary>

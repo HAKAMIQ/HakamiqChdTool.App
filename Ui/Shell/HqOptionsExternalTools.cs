@@ -12,7 +12,6 @@ internal sealed partial class HqOptionsShell
     private const string ExternalToolsStatusMissingKey = "LocExternalTools_CsoKitStatusMissing";
     private const string ExternalToolsStatusFailedKey = "LocExternalTools_CsoKitStatusFailed";
     private const string ExternalToolsStatusCheckingKey = "LocExternalTools_CsoKitStatusChecking";
-    private const string ExternalToolsSetupInstructionsKey = "LocExternalTools_SetupInstructions";
     private const string OpenFolderFailedBodyKey = "LocDialog_OpenFolderFailedBody";
     private const string ValueUnavailableKey = "LocValue_Unavailable";
 
@@ -44,14 +43,6 @@ internal sealed partial class HqOptionsShell
         }
     }
 
-    public void CopyExternalToolsSetupInstructions(object? sender, EventArgs e)
-    {
-        string text = ResolveUiText(ExternalToolsSetupInstructionsKey);
-        if (!new ClipboardService().TrySetText(text))
-        {
-            ShowNoticeDialog(OperationErrorTitleKey, ExternalToolsSetupInstructionsKey);
-        }
-    }
 
     private void QueueExternalToolsRefresh() => QueueExternalToolsRefresh(showCheckingState: false);
 

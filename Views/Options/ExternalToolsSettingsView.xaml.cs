@@ -15,14 +15,13 @@ public partial class ExternalToolsSettingsView : UserControl
 
     public event EventHandler? OpenToolsFolderRequested;
 
-    public event EventHandler? CopySetupInstructionsRequested;
-
-    private void RecheckButton_Click(object sender, RoutedEventArgs e) =>
+    private void RecheckButton_Click(object sender, RoutedEventArgs e)
+    {
         RecheckRequested?.Invoke(this, EventArgs.Empty);
+    }
 
-    private void OpenToolsFolderButton_Click(object sender, RoutedEventArgs e) =>
+    private void OpenToolsFolderButton_Click(object sender, RoutedEventArgs e)
+    {
         OpenToolsFolderRequested?.Invoke(this, EventArgs.Empty);
-
-    private void CopySetupInstructionsButton_Click(object sender, RoutedEventArgs e) =>
-        CopySetupInstructionsRequested?.Invoke(this, EventArgs.Empty);
+    }
 }
