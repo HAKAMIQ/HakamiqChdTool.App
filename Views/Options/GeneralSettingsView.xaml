@@ -29,7 +29,6 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0"
@@ -80,7 +79,7 @@
                         </Border>
 
                         <Border Grid.Row="2"
-                                Style="{StaticResource Win11SettingsRow}">
+                                Style="{StaticResource Win11SettingsLastRow}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -122,39 +121,6 @@
                             </Grid>
                         </Border>
 
-                        <Border Grid.Row="3"
-                                Style="{StaticResource Win11SettingsLastRow}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <Grid Grid.Row="0"
-                                      FlowDirection="{DynamicResource App.FlowDirection}"
-                                      Language="{DynamicResource App.XmlLanguage}"
-                                      SnapsToDevicePixels="True">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocGeneralSettings_PortableModeTitle}"
-                                               ToolTip="{DynamicResource LocGeneralSettings_PortableModeDescription}" />
-
-                                    <CheckBox Grid.Column="2"
-                                              IsChecked="{Binding PortableMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                              Style="{StaticResource Win11SettingsCheckBox}"
-                                              ToolTip="{DynamicResource LocGeneralSettings_PortableModeDescription}"
-                                              AutomationProperties.Name="{DynamicResource LocGeneralSettings_PortableModeTitle}" />
-                                </Grid>
-
-                            </Grid>
-                        </Border>
                     </Grid>
                 </Border>
 
