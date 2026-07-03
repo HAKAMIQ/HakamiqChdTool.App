@@ -39,7 +39,7 @@ public sealed partial class OptionsViewModel
 
     public IAsyncRelayCommand ScanRedumpLocalLibraryCommand =>
         _scanRedumpLocalLibraryCommand ??= new AsyncRelayCommand(
-            ScanRedumpLocalLibraryAsync,
+            ScanAndIndexRedumpLocalLibraryAsync,
             CanScanRedumpLocalLibrary);
 
     public IRelayCommand BrowsePendingWorkspaceCommand =>

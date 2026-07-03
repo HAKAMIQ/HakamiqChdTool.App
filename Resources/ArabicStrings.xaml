@@ -1163,6 +1163,8 @@
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">جارٍ فحص المجلد...</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">المجلد غير صالح أو لا يحتوي على ملفات DAT/XML قابلة للاستيراد.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">DAT/XML: {0:N0} • CUE: {1:N0} • GDI: {2:N0} • SBI/LSD: {3:N0} • Keys: {4:N0} • المجلدات: {5:N0} • آخر تعديل: {6}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0} • فهرس DAT/XML: المنصات {1:N0} • المختار {2:N0} • الأقدم {3:N0} • المكرر {4:N0} • المتغيرات {5:N0} • أخطاء القراءة {6:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexErrorAppendFormat">{0} • فشل فهرس DAT/XML: {1}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">قاعدة Redump المحلية</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">حالة القاعدة المحلية</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">يبين حالة قاعدة البيانات المحلية وآخر مزامنة.</sys:String>

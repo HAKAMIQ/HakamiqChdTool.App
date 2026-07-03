@@ -1169,6 +1169,8 @@ Path:
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">Scanning folder...</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanInvalid">The folder is invalid or does not contain importable DAT/XML files.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanReadyFormat">DAT/XML: {0:N0} • CUE: {1:N0} • GDI: {2:N0} • SBI/LSD: {3:N0} • Keys: {4:N0} • Folders: {5:N0} • Newest: {6}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexAppendFormat">{0} • DAT/XML index: platforms {1:N0} • selected {2:N0} • older {3:N0} • duplicates {4:N0} • variants {5:N0} • read errors {6:N0}</sys:String>
+    <sys:String x:Key="LocRedumpSettings_LocalFolderIndexErrorAppendFormat">{0} • DAT/XML index failed: {1}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">Local Redump database</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">Local database status</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">Shows the local database state and last sync.</sys:String>
