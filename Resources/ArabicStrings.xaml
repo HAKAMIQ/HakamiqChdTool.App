@@ -182,7 +182,7 @@
     <sys:String x:Key="LocUi_Hub_Extract">استخراج</sys:String>
     <sys:String x:Key="LocUi_Hub_OpenFolder">فتح المجلد</sys:String>
     <sys:String x:Key="LocUi_Hub_RemoveSelected">إزالة المحدد</sys:String>
-    <sys:String x:Key="LocUi_Hub_ClearQueue">مسح قائمة المعالجة</sys:String>
+    <sys:String x:Key="LocUi_Hub_ClearQueue">مسح القائمة</sys:String>
     <sys:String x:Key="LocUi_Hub_Stop">إيقاف</sys:String>
 
     <sys:String x:Key="LocUi_Card_Input_Title">الإدخال</sys:String>
@@ -279,7 +279,7 @@
     <sys:String x:Key="LocFooter_IdleNoTasks">لا توجد مهام</sys:String>
     <sys:String x:Key="LocFooter_Ready">جاهز</sys:String>
     <sys:String x:Key="LocFooter_StateReady">جاهز</sys:String>
-    <sys:String x:Key="LocFooter_StateProcessing">قيد التشغيل</sys:String>
+    <sys:String x:Key="LocFooter_StateProcessing">نشط</sys:String>
     <sys:String x:Key="LocFooter_StateStopped">متوقف</sys:String>
     <sys:String x:Key="LocFooter_StateCompleted">مكتمل</sys:String>
     <sys:String x:Key="LocFooter_StateCompletedWithErrors">اكتمل مع أخطاء</sys:String>
@@ -289,7 +289,7 @@
     <sys:String x:Key="LocFooter_PhaseProcessing">قيد المعالجة</sys:String>
     <sys:String x:Key="LocFooter_StoppedByUser">تم إيقاف المعالجة</sys:String>
     <sys:String x:Key="LocFooterFmt_QueuedReady">جاهز: {0} من {1}</sys:String>
-    <sys:String x:Key="LocFooterFmt_Processing">قيد المعالجة: {0} من {1} — {2}</sys:String>
+    <sys:String x:Key="LocFooterFmt_Processing">المهمة {0} من {1} — {2}</sys:String>
     <sys:String x:Key="LocFooterFmt_Completed">المعالجة مكتملة: {0} نجاح، {1} فشل، {2} تخطي</sys:String>
     <sys:String x:Key="LocFooterFmt_CompletedWithErrors">اكتمل مع أخطاء: {0} نجاح، {1} فشل، {2} تخطي</sys:String>
     <sys:String x:Key="LocFooterFmt_Failed">فشل المعالجة: {0} نجاح، {1} فشل، {2} تخطي</sys:String>
@@ -385,9 +385,9 @@
     <sys:String x:Key="LocRowPhase_Waiting">بانتظار المعالجة</sys:String>
     <sys:String x:Key="LocRowPhase_ChooseOperation">بانتظار العملية</sys:String>
     <sys:String x:Key="LocRowPhase_Scanning">جارٍ الفحص...</sys:String>
-    <sys:String x:Key="LocRowPhase_Extracting">جارٍ الاستخراج...</sys:String>
-    <sys:String x:Key="LocRowPhase_Converting">جارٍ التحويل...</sys:String>
-    <sys:String x:Key="LocRowPhase_Verifying">جارٍ التحقق...</sys:String>
+    <sys:String x:Key="LocRowPhase_Extracting">استخراج</sys:String>
+    <sys:String x:Key="LocRowPhase_Converting">تحويل</sys:String>
+    <sys:String x:Key="LocRowPhase_Verifying">تحقق</sys:String>
     <sys:String x:Key="LocRowPhase_CleaningUp">جارٍ التنظيف...</sys:String>
     <sys:String x:Key="LocRowPhase_Processing">جارٍ التنفيذ...</sys:String>
     <sys:String x:Key="LocRowPhase_Completed">مكتمل</sys:String>

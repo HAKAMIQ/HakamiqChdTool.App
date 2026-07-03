@@ -182,7 +182,7 @@
     <sys:String x:Key="LocUi_Hub_Extract">Extract</sys:String>
     <sys:String x:Key="LocUi_Hub_OpenFolder">Open folder</sys:String>
     <sys:String x:Key="LocUi_Hub_RemoveSelected">Remove selected</sys:String>
-    <sys:String x:Key="LocUi_Hub_ClearQueue">Clear processing queue</sys:String>
+    <sys:String x:Key="LocUi_Hub_ClearQueue">Clear queue</sys:String>
     <sys:String x:Key="LocUi_Hub_Stop">Stop</sys:String>
 
     <sys:String x:Key="LocUi_Card_Input_Title">Input</sys:String>
@@ -279,7 +279,7 @@
     <sys:String x:Key="LocFooter_IdleNoTasks">No tasks</sys:String>
     <sys:String x:Key="LocFooter_Ready">Ready</sys:String>
     <sys:String x:Key="LocFooter_StateReady">Ready</sys:String>
-    <sys:String x:Key="LocFooter_StateProcessing">Processing</sys:String>
+    <sys:String x:Key="LocFooter_StateProcessing">Active</sys:String>
     <sys:String x:Key="LocFooter_StateStopped">Stopped</sys:String>
     <sys:String x:Key="LocFooter_StateCompleted">Completed</sys:String>
     <sys:String x:Key="LocFooter_StateCompletedWithErrors">Completed with errors</sys:String>
@@ -289,7 +289,7 @@
     <sys:String x:Key="LocFooter_PhaseProcessing">Processing</sys:String>
     <sys:String x:Key="LocFooter_StoppedByUser">Processing stopped</sys:String>
     <sys:String x:Key="LocFooterFmt_QueuedReady">Ready: {0} of {1}</sys:String>
-    <sys:String x:Key="LocFooterFmt_Processing">Processing {0} of {1}: {2}</sys:String>
+    <sys:String x:Key="LocFooterFmt_Processing">Task {0} of {1}: {2}</sys:String>
     <sys:String x:Key="LocFooterFmt_Completed">Processing completed: {0} succeeded, {1} failed, {2} skipped</sys:String>
     <sys:String x:Key="LocFooterFmt_CompletedWithErrors">Processing completed with errors: {0} succeeded, {1} failed, {2} skipped</sys:String>
     <sys:String x:Key="LocFooterFmt_Failed">Processing failed: {0} succeeded, {1} failed, {2} skipped</sys:String>
@@ -385,9 +385,9 @@
     <sys:String x:Key="LocRowPhase_Waiting">Waiting for operation</sys:String>
     <sys:String x:Key="LocRowPhase_ChooseOperation">Waiting for operation</sys:String>
     <sys:String x:Key="LocRowPhase_Scanning">Scanning...</sys:String>
-    <sys:String x:Key="LocRowPhase_Extracting">Extracting...</sys:String>
-    <sys:String x:Key="LocRowPhase_Converting">Converting...</sys:String>
-    <sys:String x:Key="LocRowPhase_Verifying">Verifying...</sys:String>
+    <sys:String x:Key="LocRowPhase_Extracting">Extracting</sys:String>
+    <sys:String x:Key="LocRowPhase_Converting">Converting</sys:String>
+    <sys:String x:Key="LocRowPhase_Verifying">Verifying</sys:String>
     <sys:String x:Key="LocRowPhase_CleaningUp">Cleaning up...</sys:String>
     <sys:String x:Key="LocRowPhase_Processing">Processing...</sys:String>
     <sys:String x:Key="LocRowPhase_Completed">Completed</sys:String>
