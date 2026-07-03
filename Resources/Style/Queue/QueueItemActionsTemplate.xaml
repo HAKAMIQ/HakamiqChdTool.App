@@ -121,7 +121,8 @@
                                MaxHeight="{DynamicResource Space.48}"
                                Style="{StaticResource FluentQueueCollapsibleDetailText}"
                                Text="{Binding QueueRowDisplayDetailArabic, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                               ToolTip="{Binding QueueRowExtendedTooltip}" />
+                               ToolTip="{Binding QueueRowExtendedTooltip}"
+                               Visibility="Collapsed" />
 
                     <Grid Grid.Column="2"
                           VerticalAlignment="Center"
