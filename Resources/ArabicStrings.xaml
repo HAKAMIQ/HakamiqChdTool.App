@@ -1158,6 +1158,8 @@
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختيار مجلد Redump محلي من الجهاز.</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">فحص محتويات المجلد وعرض ملخص فقط دون استيراد أو تعديل.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">تجهيز القاعدة</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">استيراد ملفات DAT/XML المختارة إلى قاعدة SQLite لتفعيل فحص الألعاب.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">معاينة المجلد</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">اختر مجلد Redump المحلي ثم اضغط فحص.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">مجلد Redump: {0}</sys:String>

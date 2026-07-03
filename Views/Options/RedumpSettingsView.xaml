@@ -227,6 +227,8 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                             <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                            <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
 
                                         <Button Grid.Column="0"
@@ -242,6 +244,13 @@
                                                 Command="{Binding ScanRedumpLocalLibraryCommand}"
                                                 ToolTip="{DynamicResource LocRedumpSettings_ScanLocalFolderTooltip}"
                                                 AutomationProperties.Name="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
+                                                Style="{StaticResource Win11SettingsCompactButton}" />
+
+                                        <Button Grid.Column="4"
+                                                Content="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
+                                                Command="{Binding ImportRedumpLocalLibraryCommand}"
+                                                ToolTip="{DynamicResource LocRedumpSettings_PrepareLocalLibraryTooltip}"
+                                                AutomationProperties.Name="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
                                                 Style="{StaticResource Win11SettingsCompactButton}" />
                                     </Grid>
                                 </Grid>

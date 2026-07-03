@@ -1164,6 +1164,8 @@ Path:
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">Choose a local Redump folder from this device.</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">Scan</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">Scans the folder and shows a summary only. No import or file changes are performed.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">Prepare DB</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">Imports the selected DAT/XML files into SQLite so game verification can match against Redump.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">Folder preview</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">Choose a local Redump folder, then scan it.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">Redump folder: {0}</sys:String>

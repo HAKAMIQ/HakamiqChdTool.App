@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.Input;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Services;
 using System;
@@ -35,6 +34,61 @@ public sealed partial class OptionsViewModel
 
         try
         {
+            RedumpLocalLibraryIndexResult indexResult = await _redumpLocalLibraryIndexer
+                .IndexAsync(root, CancellationToken.None)
+                .ConfigureAwait(true);
+
+            if (indexResult.TotalDatXmlFiles <= 0)
+            {
+                return;
+            }
+
+            RedumpLocalLibraryScanSummary = ArabicUi.Format(
+                "LocRedumpSettings_LocalFolderIndexAppendFormat",
+                scanSummary,
+                indexResult.PlatformCount,
+                indexResult.SelectedCount,
+                indexResult.OlderCount,
+                indexResult.DuplicateCount,
+                indexResult.VariantCount,
+                indexResult.ReadErrorCount);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            RedumpLocalLibraryScanSummary = ArabicUi.Format(
+                "LocRedumpSettings_LocalFolderIndexErrorAppendFormat",
+                scanSummary,
+                RuntimeDiagnosticFormatter.SummarizeException(ex));
+        }
+    }
+
+    private async Task PrepareRedumpLocalLibraryDatabaseAsync()
+    {
+        string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
+        {
+            RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
+            return;
+        }
+
+        IsRedumpLocalLibraryScanRunning = true;
+        RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanRunning");
+
+        try
+        {
+            RedumpLocalLibraryScanResult scanResult = await _redumpLocalLibraryScanner
+                .ScanAsync(root, CancellationToken.None)
+                .ConfigureAwait(true);
+
+            if (!scanResult.HasImportableDatFiles)
+            {
+                RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
+                return;
+            }
+
+            string scanSummary = BuildRedumpLocalLibraryScanSummary(scanResult);
+            RedumpLocalLibraryScanSummary = scanSummary;
+
             RedumpLocalLibraryIndexResult indexResult = await _redumpLocalLibraryIndexer
                 .IndexAsync(root, CancellationToken.None)
                 .ConfigureAwait(true);
@@ -81,9 +135,30 @@ public sealed partial class OptionsViewModel
         {
             RedumpLocalLibraryScanSummary = ArabicUi.Format(
                 "LocRedumpSettings_LocalFolderIndexErrorAppendFormat",
-                scanSummary,
+                RedumpLocalLibraryScanSummary,
                 RuntimeDiagnosticFormatter.SummarizeException(ex));
         }
+        finally
+        {
+            IsRedumpLocalLibraryScanRunning = false;
+        }
+    }
+
+    private static string BuildRedumpLocalLibraryScanSummary(RedumpLocalLibraryScanResult result)
+    {
+        string newest = result.NewestModifiedLocal.HasValue
+            ? result.NewestModifiedLocal.Value.ToString("yyyy-MM-dd HH:mm")
+            : "—";
+
+        return ArabicUi.Format(
+            "LocRedumpSettings_LocalFolderScanReadyFormat",
+            result.DatXmlFileCount,
+            result.CueFileCount,
+            result.GdiFileCount,
+            result.SubchannelFileCount,
+            result.DiscKeyFileCount,
+            result.TopLevelFolderCount,
+            newest);
     }
 
     private async Task<RedumpLocalLibraryImportSummary> ImportSelectedRedumpLocalDatFilesAsync(
