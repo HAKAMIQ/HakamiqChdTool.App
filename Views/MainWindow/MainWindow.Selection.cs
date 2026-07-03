@@ -147,6 +147,24 @@ public partial class MainWindow
 
         QueueRowData? row = _queueRowStore.GetById(item.QueueItemId);
 
+        string? sourcePath = !string.IsNullOrWhiteSpace(row?.OriginalPath)
+            ? row.OriginalPath
+            : !string.IsNullOrWhiteSpace(row?.SourcePath)
+                ? row.SourcePath
+                : !string.IsNullOrWhiteSpace(item.OriginalPath)
+                    ? item.OriginalPath
+                    : item.SourcePath;
+
+        if (string.Equals(item.QueueRowDisplayState, TaskQueueStateCodes.Cancelled, StringComparison.OrdinalIgnoreCase))
+        {
+            AddOutputExplorerTarget(
+                sourcePath,
+                result,
+                seen);
+
+            return result;
+        }
+
         string? outputPath = !string.IsNullOrWhiteSpace(row?.OutputPath)
             ? row.OutputPath
             : item.OutputPath;
@@ -158,14 +176,6 @@ public partial class MainWindow
 
         if (result.Count == 0)
         {
-            string? sourcePath = !string.IsNullOrWhiteSpace(row?.OriginalPath)
-                ? row.OriginalPath
-                : !string.IsNullOrWhiteSpace(row?.SourcePath)
-                    ? row.SourcePath
-                    : !string.IsNullOrWhiteSpace(item.OriginalPath)
-                        ? item.OriginalPath
-                        : item.SourcePath;
-
             AddOutputExplorerTarget(
                 sourcePath,
                 result,
