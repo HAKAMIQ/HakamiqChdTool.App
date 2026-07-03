@@ -57,12 +57,8 @@
                                     <TextBlock Grid.Row="0"
                                                Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocExternalTools_CsoKitTitle}"
-                                               ToolTip="{DynamicResource LocExternalTools_CsoKitTitle}" />
-
-                                    <TextBlock Grid.Row="1"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               Text="{DynamicResource LocExternalTools_CsoKitDescription}"
                                                ToolTip="{DynamicResource LocExternalTools_CsoKitDescription}" />
+
                                 </Grid>
 
                                 <Border Grid.Column="2"
