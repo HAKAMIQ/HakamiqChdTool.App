@@ -156,6 +156,22 @@ public partial class MainWindow
             result,
             seen);
 
+        if (result.Count == 0)
+        {
+            string? sourcePath = !string.IsNullOrWhiteSpace(row?.OriginalPath)
+                ? row.OriginalPath
+                : !string.IsNullOrWhiteSpace(row?.SourcePath)
+                    ? row.SourcePath
+                    : !string.IsNullOrWhiteSpace(item.OriginalPath)
+                        ? item.OriginalPath
+                        : item.SourcePath;
+
+            AddOutputExplorerTarget(
+                sourcePath,
+                result,
+                seen);
+        }
+
         return result;
     }
 
