@@ -11,10 +11,7 @@ public sealed class AboutInfo
     public string Description { get; init; } = string.Empty;
     public string DeveloperLine { get; init; } = string.Empty;
     public string LicenseLine { get; init; } = string.Empty;
-    public string CreditsTitle { get; init; } = string.Empty;
-    public string CreditsDescription { get; init; } = string.Empty;
     public string WebsiteUrl { get; init; } = string.Empty;
-    public Collection<AboutCreditInfo> Credits { get; init; } = [];
     public Collection<AboutLinkInfo> Links { get; init; } = [];
 }
 
