@@ -58,12 +58,8 @@
                                     <TextBlock Grid.Row="0"
                                                Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocGeneralSettings_LanguageTitle}"
- />
+                                               ToolTip="{DynamicResource LocGeneralSettings_LanguageDescription}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               Text="{DynamicResource LocGeneralSettings_LanguageDescription}"
- />
                                 </Grid>
 
                                 <ComboBox x:Name="UiLanguageComboBox"
@@ -72,7 +68,7 @@
                                           SelectedValuePath="Tag"
                                           IsTextSearchEnabled="True"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{DynamicResource LocGeneralSettings_LanguageTitle}"
+                                          ToolTip="{DynamicResource LocGeneralSettings_LanguageDescription}"
                                           AutomationProperties.Name="{DynamicResource LocGeneralSettings_LanguageTitle}">
                                     <ComboBoxItem Tag="ar-SA"
                                                   Content="{DynamicResource LocLanguage_Arabic}" />
@@ -102,12 +98,8 @@
                                     <TextBlock Grid.Row="0"
                                                Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocGeneralSettings_ThemeTitle}"
- />
+                                               ToolTip="{DynamicResource LocGeneralSettings_ThemeDescription}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               Text="{DynamicResource LocGeneralSettings_ThemeDescription}"
- />
                                 </Grid>
 
                                 <ComboBox x:Name="ThemeComboBox"
@@ -116,7 +108,7 @@
                                           SelectedValuePath="Tag"
                                           IsTextSearchEnabled="True"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{DynamicResource LocGeneralSettings_ThemeTitle}"
+                                          ToolTip="{DynamicResource LocGeneralSettings_ThemeDescription}"
                                           AutomationProperties.Name="{DynamicResource LocGeneralSettings_ThemeTitle}">
                                     <ComboBoxItem Tag="Light"
                                                   Content="{DynamicResource LocUi_Theme_Light}" />
@@ -152,19 +144,15 @@
                                     <TextBlock Grid.Column="0"
                                                Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocGeneralSettings_PortableModeTitle}"
- />
+                                               ToolTip="{DynamicResource LocGeneralSettings_PortableModeDescription}" />
 
                                     <CheckBox Grid.Column="2"
                                               IsChecked="{Binding PortableMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               Style="{StaticResource Win11SettingsCheckBox}"
-                                              ToolTip="{DynamicResource LocGeneralSettings_PortableModeTitle}"
+                                              ToolTip="{DynamicResource LocGeneralSettings_PortableModeDescription}"
                                               AutomationProperties.Name="{DynamicResource LocGeneralSettings_PortableModeTitle}" />
                                 </Grid>
 
-                                <TextBlock Grid.Row="1"
-                                           Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                           Text="{DynamicResource LocGeneralSettings_PortableModeDescription}"
- />
                             </Grid>
                         </Border>
                     </Grid>
