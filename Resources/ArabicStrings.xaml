@@ -45,7 +45,7 @@
     <sys:String x:Key="LocUi_WindowTitle">HAKAMIQ CHD Tool</sys:String>
     <sys:String x:Key="LocUi_WindowSubtitle">تحويل وإدارة ملفات CHD</sys:String>
     <sys:String x:Key="LocUi_QueueSection_Title">قائمة المعالجة</sys:String>
-    <sys:String x:Key="LocUi_QueueSection_Subtitle">أفلت الملفات هنا أو استخدم إضافة ملفات / إضافة مجلد.</sys:String>
+    <sys:String x:Key="LocUi_QueueSection_Subtitle">لا توجد ملفات مضافة حالياً.</sys:String>
     <sys:String x:Key="LocUi_Header_About">حول</sys:String>
     <sys:String x:Key="LocUi_Header_Help">مساعدة</sys:String>
     <sys:String x:Key="LocUi_Header_Settings">الإعدادات</sys:String>
@@ -89,9 +89,9 @@
     <sys:String x:Key="LocUi_PlaceholderDash">—</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line1">اختر وضع العملية لعرض الملفات المدعومة.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">أفلت الملفات هنا أو استخدم أزرار الإضافة.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Convert">أضف أو اسحب صورة قرص مدعومة للتحويل إلى CHD&#x0A;يدعم ISO، CSO، GDI، CUE، وأرشيف ZIP، 7Z، RAR يحتوي على صورة قرص واحدة.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Extract">أضف أو اسحب ملفات CHD لاستخراجها&#x0A;تُستخرج أقراص CD كملفات CUE + BIN، وأقراص DVD كملف ISO.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Verify">أضف أو اسحب ملفات CHD للتحقق من سلامتها&#x0A;يتحقق من سلامة الملف بدون استخراج محتواه.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Convert">اسحب صورة قرص مدعومة هنا للتحويل إلى CHD&#x0A;يدعم ISO، CSO، GDI، CUE، وأرشيف ZIP، 7Z، RAR يحتوي على صورة قرص واحدة.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Extract">اسحب ملفات CHD هنا لاستخراجها&#x0A;تُستخرج أقراص CD كملفات CUE + BIN، وأقراص DVD كملف ISO.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Verify">اسحب ملفات CHD هنا للتحقق من سلامتها&#x0A;يتحقق من سلامة الملف بدون استخراج محتواه.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">اختر مجلدًا لفحص ملفات CUE / GDI / ISO والأرشيفات المدعومة جزئيًا، ثم تحويل الصور الصالحة فقط إلى CHD.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanExtract">اختر مجلدًا لفحص ملفات CHD واستخراج الملفات المدعومة منها.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ActionHint">أفلت الملفات هنا أو استخدم أزرار الإضافة.</sys:String>

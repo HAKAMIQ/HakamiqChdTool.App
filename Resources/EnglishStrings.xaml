@@ -45,7 +45,7 @@
     <sys:String x:Key="LocUi_WindowTitle">HAKAMIQ CHD Tool</sys:String>
     <sys:String x:Key="LocUi_WindowSubtitle">Convert and manage CHD files</sys:String>
     <sys:String x:Key="LocUi_QueueSection_Title">Processing queue</sys:String>
-    <sys:String x:Key="LocUi_QueueSection_Subtitle">Drop files here, or select Add files or Add folder.</sys:String>
+    <sys:String x:Key="LocUi_QueueSection_Subtitle">No files added yet.</sys:String>
     <sys:String x:Key="LocUi_Header_About">About</sys:String>
     <sys:String x:Key="LocUi_Header_Help">Help</sys:String>
     <sys:String x:Key="LocUi_Header_Settings">Settings</sys:String>
@@ -89,9 +89,9 @@
     <sys:String x:Key="LocUi_PlaceholderDash">—</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line1">Select an operation mode to show supported files.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">Drop files here, or select Add files or Add folder.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Convert">Add or drag a supported disc image to convert it to CHD&#x0A;Supports ISO, CSO, GDI, CUE, and ZIP, 7Z, RAR archives containing a single disc image.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Extract">Add or drag CHD files to extract them&#x0A;CDs are extracted as CUE + BIN files, and DVDs as ISO files.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Verify">Add or drag CHD files to verify their integrity&#x0A;Checks the CHD file without extracting its contents.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Convert">Drag a supported disc image here to convert it to CHD&#x0A;Supports ISO, CSO, GDI, CUE, and ZIP, 7Z, RAR archives containing a single disc image.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Extract">Drag CHD files here to extract them&#x0A;CDs are extracted as CUE + BIN files, and DVDs as ISO files.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Verify">Drag CHD files here to verify their integrity&#x0A;Checks the CHD file without extracting its contents.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">Select a folder to scan CUE, GDI, ISO, and supported archive files, then convert valid disc images to CHD.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanExtract">Select a folder to scan CHD files and extract supported items.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ActionHint">Drop files here, or select Add files or Add folder.</sys:String>
