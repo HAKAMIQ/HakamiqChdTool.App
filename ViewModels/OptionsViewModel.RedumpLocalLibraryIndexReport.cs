@@ -130,6 +130,8 @@ public sealed partial class OptionsViewModel
                 importSummary.ImportedFileCount,
                 importSummary.ImportedRows,
                 importSummary.FailedFileCount);
+
+            RefreshRedumpDatabaseStatusAfterLocalImport();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -141,6 +143,23 @@ public sealed partial class OptionsViewModel
         finally
         {
             IsRedumpLocalLibraryScanRunning = false;
+        }
+    }
+
+    private void RefreshRedumpDatabaseStatusAfterLocalImport()
+    {
+        bool isAvailable = RedumpSqliteManager.Default.HasAnyRows();
+
+        IsDatabaseAvailable = isAvailable;
+        DatabaseStatusText = ArabicUi.Get(isAvailable
+            ? "LocOptions_DatabaseAvailable"
+            : "LocOptions_DatabaseMissing");
+
+        if (isAvailable)
+        {
+            SetDatabaseLastSyncedUtc(System.DateTimeOffset.UtcNow.ToString(
+                "O",
+                System.Globalization.CultureInfo.InvariantCulture));
         }
     }
 
