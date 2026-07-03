@@ -147,7 +147,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <main:QueueSummaryView Grid.Column="0" Visibility="Collapsed"
+                    <main:QueueSummaryView Grid.Column="0"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Center" />
 
