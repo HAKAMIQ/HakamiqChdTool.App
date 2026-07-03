@@ -45,7 +45,7 @@
     <sys:String x:Key="LocUi_WindowTitle">HAKAMIQ CHD Tool</sys:String>
     <sys:String x:Key="LocUi_WindowSubtitle">تحويل وإدارة ملفات CHD</sys:String>
     <sys:String x:Key="LocUi_QueueSection_Title">قائمة المهام</sys:String>
-    <sys:String x:Key="LocUi_QueueSection_Subtitle">لا توجد ملفات مضافة حالياً.</sys:String>
+    <sys:String x:Key="LocUi_QueueSection_Subtitle"></sys:String>
     <sys:String x:Key="LocUi_Header_About">حول</sys:String>
     <sys:String x:Key="LocUi_Header_Help">مساعدة</sys:String>
     <sys:String x:Key="LocUi_Header_Settings">الإعدادات</sys:String>
@@ -276,7 +276,7 @@
     <sys:String x:Key="LocUi_QueueSummary_Tasks">مهام</sys:String>
     <sys:String x:Key="LocUi_SelectFileToViewDetails">اختر ملفاً لعرض التفاصيل.</sys:String>
 
-    <sys:String x:Key="LocFooter_IdleNoTasks">لا توجد مهام</sys:String>
+    <sys:String x:Key="LocFooter_IdleNoTasks"></sys:String>
     <sys:String x:Key="LocFooter_Ready">جاهز</sys:String>
     <sys:String x:Key="LocFooter_StateReady">جاهز</sys:String>
     <sys:String x:Key="LocFooter_StateProcessing">نشط</sys:String>
