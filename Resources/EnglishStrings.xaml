@@ -1209,7 +1209,7 @@ Path:
     <sys:String x:Key="LocGeneralSettings_Description">Settings that apply to the whole app.</sys:String>
     <sys:String x:Key="LocGeneralSettings_AppearanceSection">Language and appearance</sys:String>
     <sys:String x:Key="LocGeneralSettings_LanguageTitle">Display language</sys:String>
-    <sys:String x:Key="LocGeneralSettings_LanguageDescription">Choose the display language. Restarting the app is required to apply the change.</sys:String>
+    <sys:String x:Key="LocGeneralSettings_LanguageDescription">Choose the app display language. The change is saved immediately; some open windows may need to be reopened to refresh all text.</sys:String>
 
     <sys:String x:Key="LocGeneralSettings_ThemeTitle">Appearance</sys:String>
     <sys:String x:Key="LocGeneralSettings_ThemeDescription">Choose the app appearance. The change is applied when you select Apply or OK.</sys:String>

@@ -1203,7 +1203,7 @@
     <sys:String x:Key="LocGeneralSettings_Description">ضبط الإعدادات العامة التي تنطبق على واجهة التطبيق بالكامل.</sys:String>
     <sys:String x:Key="LocGeneralSettings_AppearanceSection">اللغة والمظهر</sys:String>
     <sys:String x:Key="LocGeneralSettings_LanguageTitle">لغة الواجهة</sys:String>
-    <sys:String x:Key="LocGeneralSettings_LanguageDescription">تحديد لغة الواجهة. (يتطلب تطبيق التغيير إعادة تشغيل البرنامج).</sys:String>
+    <sys:String x:Key="LocGeneralSettings_LanguageDescription">تحديد لغة واجهة البرنامج. يتم حفظ التغيير فوراً، وقد تحتاج بعض النوافذ المفتوحة إلى إعادة فتحها لتحديث كامل النصوص.</sys:String>
 
     <sys:String x:Key="LocGeneralSettings_ThemeTitle">المظهر</sys:String>
     <sys:String x:Key="LocGeneralSettings_ThemeDescription">تحديد المظهر العام للتطبيق. (يُطبق التغيير فور الضغط على 'تطبيق' أو 'موافق').</sys:String>
