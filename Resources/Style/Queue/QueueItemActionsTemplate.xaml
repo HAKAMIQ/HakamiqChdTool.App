@@ -207,6 +207,9 @@
                                         <DataTrigger Binding="{Binding QueueRowDisplayState}" Value="Failed">
                                             <Setter Property="Visibility" Value="Visible" />
                                         </DataTrigger>
+                                        <DataTrigger Binding="{Binding QueueRowDisplayState}" Value="Cancelled">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
