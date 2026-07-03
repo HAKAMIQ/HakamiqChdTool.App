@@ -57,13 +57,9 @@
 
                                     <TextBlock Grid.Row="0"
                                                Text="{DynamicResource LocRedumpSettings_ShowInMainTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_ShowInMainTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_ShowInMainDesc}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Text="{DynamicResource LocRedumpSettings_ShowInMainDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_ShowInMainDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}" />
                                 </Grid>
 
                                 <CheckBox x:Name="EnableDeepIntegrityCheckCheckBox"
@@ -94,13 +90,9 @@
 
                                     <TextBlock Grid.Row="0"
                                                Text="{DynamicResource LocRedumpSettings_SuggestNameTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_SuggestNameTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_SuggestNameDesc}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Text="{DynamicResource LocRedumpSettings_SuggestNameDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_SuggestNameDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}" />
                                 </Grid>
 
                                 <CheckBox x:Name="ApplyStandardNamingBasedOnHashCheckBox"
@@ -150,13 +142,9 @@
 
                                     <TextBlock Grid.Row="0"
                                                Text="{DynamicResource LocRedumpSettings_PlatformTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_PlatformTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_PlatformDesc}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Text="{DynamicResource LocRedumpSettings_PlatformDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_PlatformDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}" />
                                 </Grid>
 
                                 <Grid Grid.Column="2"
@@ -188,13 +176,6 @@
                                               ToolTip="{Binding SelectedRedumpPlatformDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
                                               AutomationProperties.Name="{DynamicResource LocRedumpSettings_PlatformTitle}" />
 
-                                    <TextBlock Grid.Row="2"
-                                               Text="{Binding SelectedRedumpPlatformDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                               ToolTip="{Binding SelectedRedumpPlatformDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               HorizontalAlignment="Stretch"
-                                               TextWrapping="Wrap"
-                                               TextTrimming="None" />
                                 </Grid>
                             </Grid>
                         </Border>
@@ -240,13 +221,9 @@
 
                                     <TextBlock Grid.Row="0"
                                                Text="{DynamicResource LocRedumpSettings_ArtifactTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_ArtifactTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_ArtifactDesc}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Text="{DynamicResource LocRedumpSettings_ArtifactDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_ArtifactDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}" />
                                 </Grid>
 
                                 <Grid Grid.Column="2"
@@ -278,13 +255,6 @@
                                               ToolTip="{Binding SelectedRedumpArtifactDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
                                               AutomationProperties.Name="{DynamicResource LocRedumpSettings_ArtifactTitle}" />
 
-                                    <TextBlock Grid.Row="2"
-                                               Text="{Binding SelectedRedumpArtifactDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                               ToolTip="{Binding SelectedRedumpArtifactDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                               HorizontalAlignment="Stretch"
-                                               TextWrapping="Wrap"
-                                               TextTrimming="None" />
                                 </Grid>
                             </Grid>
                         </Border>
@@ -307,13 +277,9 @@
 
                                     <TextBlock Grid.Row="0"
                                                Text="{DynamicResource LocRedumpSettings_AutoSyncTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_AutoSyncTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_AutoSyncDesc}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Text="{DynamicResource LocRedumpSettings_AutoSyncDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_AutoSyncDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -343,13 +309,9 @@
 
                                     <TextBlock Grid.Row="0"
                                                Text="{DynamicResource LocRedumpSettings_DownloadUrlTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_DownloadUrlTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_DownloadUrlDesc}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Text="{DynamicResource LocRedumpSettings_DownloadUrlDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_DownloadUrlDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}" />
                                 </Grid>
 
                                 <Grid Grid.Column="2"
@@ -487,13 +449,9 @@
 
                                     <TextBlock Grid.Row="0"
                                                Text="{DynamicResource LocRedumpSettings_LocalStatusTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_LocalStatusTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Text="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_LocalStatusDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}" />
                                 </Grid>
 
                                 <Border Grid.Column="2"
@@ -556,13 +514,9 @@
 
                                     <TextBlock Grid.Row="0"
                                                Text="{DynamicResource LocRedumpSettings_DatFileTitle}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_DatFileTitle}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_DatFileDesc}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                    <TextBlock Grid.Row="1"
-                                               Text="{DynamicResource LocRedumpSettings_DatFileDesc}"
-                                               ToolTip="{DynamicResource LocRedumpSettings_DatFileDesc}"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}" />
                                 </Grid>
 
                                 <Grid Grid.Column="2"
