@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="{Binding Title, Mode=OneWay}"
-        Width="480"
-        MinWidth="440"
-        MaxHeight="380"
+        Width="560"
+        MinWidth="520"
+        MaxHeight="520"
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -50,22 +50,29 @@
 
             <Style x:Key="VerificationResultDialog.ContentHost"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="Padding" Value="20,14" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Canvas}" />
+                <Setter Property="Padding" Value="18,14" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
 
-            <Style x:Key="VerificationResultDialog.DetailRow"
+            <Style x:Key="VerificationResultDialog.Card"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="Padding" Value="8,6" />
-                <Setter Property="Margin" Value="0,0,0,6" />
+                <Setter Property="Padding" Value="12,10" />
+                <Setter Property="Margin" Value="0,0,0,10" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
+            </Style>
+
+            <Style x:Key="VerificationResultDialog.DetailRow"
+                   TargetType="{x:Type Border}"
+                   BasedOn="{StaticResource VerificationResultDialog.Card}">
+                <Setter Property="Padding" Value="8,6" />
+                <Setter Property="Margin" Value="0,0,0,6" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.GeneralText"
@@ -89,6 +96,16 @@
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
             </Style>
 
+            <Style x:Key="VerificationResultDialog.LabelText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
+
             <Style x:Key="VerificationResultDialog.BodyText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
@@ -101,48 +118,36 @@
                 <Setter Property="TextTrimming" Value="None" />
             </Style>
 
-            <Style x:Key="VerificationResultDialog.DetailHeaderText"
+            <Style x:Key="VerificationResultDialog.ValueText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-            </Style>
-
-            <Style x:Key="VerificationResultDialog.ReportLabelText"
-                   TargetType="{x:Type TextBlock}"
-                   BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-            </Style>
-
-            <Style x:Key="VerificationResultDialog.ReportValueText"
-                   TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Numeric}" />
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
                 <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
-                <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
+                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
+
+            <Style x:Key="VerificationResultDialog.TechnicalValueText"
+                   TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Numeric}" />
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="FlowDirection" Value="LeftToRight" />
+                <Setter Property="Language" Value="en-US" />
+                <Setter Property="TextAlignment" Value="Left" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="TextWrapping" Value="NoWrap" />
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.CompactPrimaryButton"
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource PrimaryButtonStyle}">
-                <Setter Property="MinWidth" Value="96" />
-                <Setter Property="Padding" Value="12,5" />
+                <Setter Property="MinWidth" Value="104" />
+                <Setter Property="Padding" Value="14,6" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
@@ -187,7 +192,6 @@
 
                     <TextBlock Grid.Column="0"
                                Text="{Binding Title, Mode=OneWay}"
-                               ToolTip="{Binding Title, Mode=OneWay}"
                                Style="{StaticResource VerificationResultDialog.TitleText}"
                                VerticalAlignment="Center" />
 
@@ -220,7 +224,7 @@
             <Border Grid.Row="1"
                     Style="{StaticResource VerificationResultDialog.ContentHost}">
 
-                <ScrollViewer MaxHeight="190"
+                <ScrollViewer MaxHeight="330"
                               VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               Focusable="False"
@@ -232,11 +236,100 @@
                     <StackPanel FlowDirection="{DynamicResource App.FlowDirection}"
                                 Language="{DynamicResource App.XmlLanguage}">
 
-                        <TextBlock Text="{Binding Message, Mode=OneWay}"
-                                   ToolTip="{Binding Message, Mode=OneWay}"
-                                   Style="{StaticResource VerificationResultDialog.BodyText}" />
+                        <Border Style="{StaticResource VerificationResultDialog.Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                        <Expander Margin="{DynamicResource Inset.0.10.0.0}"
+                                <TextBlock Grid.Row="0"
+                                           Text="{Binding FileLabel, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.LabelText}" />
+
+                                <TextBlock Grid.Row="2"
+                                           Text="{Binding FileName, Mode=OneWay}"
+                                           ToolTip="{Binding FileName, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.TechnicalValueText}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource VerificationResultDialog.Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.4}" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="{Binding StatusLabel, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.LabelText}" />
+
+                                <TextBlock Grid.Row="2"
+                                           Text="{Binding Status, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.ValueText}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource VerificationResultDialog.Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="{Binding DetailsTitle, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.LabelText}" />
+
+                                <TextBlock Grid.Row="2"
+                                           Text="{Binding Details, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.BodyText}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource VerificationResultDialog.Card}"
+                                Visibility="{Binding HasCaveat, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="{Binding CaveatTitle, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.LabelText}" />
+
+                                <TextBlock Grid.Row="2"
+                                           Text="{Binding Caveat, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.BodyText}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource VerificationResultDialog.Card}"
+                                Visibility="{Binding HasFailureAction, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="{Binding FailureActionTitle, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.LabelText}" />
+
+                                <TextBlock Grid.Row="2"
+                                           Text="{Binding FailureAction, Mode=OneWay}"
+                                           Style="{StaticResource VerificationResultDialog.BodyText}" />
+                            </Grid>
+                        </Border>
+
+                        <Expander Margin="{DynamicResource Inset.0.2.0.0}"
                                   IsExpanded="False"
                                   Visibility="{Binding HasChdLogicalReport, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}"
                                   FlowDirection="{DynamicResource App.FlowDirection}"
@@ -244,8 +337,7 @@
 
                             <Expander.Header>
                                 <TextBlock Text="{Binding ChdLogicalReport.Title, Mode=OneWay}"
-                                           ToolTip="{Binding ChdLogicalReport.Title, Mode=OneWay}"
-                                           Style="{StaticResource VerificationResultDialog.DetailHeaderText}" />
+                                           Style="{StaticResource VerificationResultDialog.LabelText}" />
                             </Expander.Header>
 
                             <ItemsControl Margin="{DynamicResource Inset.0.8.0.0}"
@@ -262,13 +354,12 @@
 
                                                 <TextBlock Grid.Column="0"
                                                            Text="{Binding Label}"
-                                                           ToolTip="{Binding Label}"
-                                                           Style="{StaticResource VerificationResultDialog.ReportLabelText}" />
+                                                           Style="{StaticResource VerificationResultDialog.LabelText}" />
 
                                                 <TextBlock Grid.Column="2"
                                                            Text="{Binding Value}"
                                                            ToolTip="{Binding Value}"
-                                                           Style="{StaticResource VerificationResultDialog.ReportValueText}" />
+                                                           Style="{StaticResource VerificationResultDialog.TechnicalValueText}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

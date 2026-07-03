@@ -10,8 +10,22 @@ namespace HakamiqChdTool.App.Services;
 public sealed record QueueVerifyView(
     string Title,
     string Message,
+    string FileLabel,
+    string FileName,
+    string StatusLabel,
+    string Status,
+    string DetailsTitle,
+    string Details,
+    string CaveatTitle,
+    string Caveat,
+    string FailureActionTitle,
+    string FailureAction,
     ChdProbeReportView? ChdLogicalReport)
 {
+    public bool HasCaveat => !string.IsNullOrWhiteSpace(Caveat);
+
+    public bool HasFailureAction => !string.IsNullOrWhiteSpace(FailureAction);
+
     public bool HasChdLogicalReport => ChdLogicalReport?.HasMetrics == true;
 }
 
@@ -126,41 +140,113 @@ public static class QueueVerificationResultPresenter
             ? fileTitleDisplay
             : fileName.Trim();
 
-        string scope = BuildVerificationScopeText(integrityState);
-        string detail = ResolvePrimaryDetail(
-            isVerificationReport: true,
+        bool isFailure = IsFailureResult(integrityState, status);
+
+        string details = BuildVerificationDetailsText(
+            isFailure,
+            integrityState,
             integrityStatusMessage,
             queueRowDisplayDetailArabic);
+
+        string caveat = isFailure
+            ? string.Empty
+            : ArabicUi.Get("LocQueue_VerificationResultPlayableCaveat");
+
+        string failureAction = isFailure
+            ? ArabicUi.Get("LocQueue_VerificationResultFailureAction")
+            : string.Empty;
 
         string message = BuildVerificationResultMessage(
             fileDisplay,
             status,
-            scope,
-            detail);
+            details,
+            caveat,
+            failureAction);
 
         return new QueueVerifyView(
             ArabicUi.Get("LocQueue_VerificationResultDialogTitle"),
             message,
+            ArabicUi.Get("LocQueue_VerificationResultFileLabel"),
+            fileDisplay,
+            ArabicUi.Get("LocQueue_VerificationResultStatusLabel"),
+            status,
+            ArabicUi.Get("LocQueue_VerificationResultDetailsTitle"),
+            details,
+            ArabicUi.Get("LocQueue_VerificationResultWarningTitle"),
+            caveat,
+            ArabicUi.Get("LocQueue_VerificationResultActionTitle"),
+            failureAction,
             chdLogicalReport);
     }
 
+    private static bool IsFailureResult(
+        IntegrityValidationState integrityState,
+        string status)
+    {
+        if (integrityState is IntegrityValidationState.Failed
+            or IntegrityValidationState.Error
+            or IntegrityValidationState.Unsupported)
+        {
+            return true;
+        }
+
+        string invalid = ArabicUi.Get("LocQueue_VerificationBadgeInvalid");
+        string mismatch = ArabicUi.Get("LocQueue_VerificationBadgeMismatch");
+
+        return string.Equals(status, invalid, StringComparison.Ordinal)
+            || string.Equals(status, mismatch, StringComparison.Ordinal);
+    }
+
+    private static string BuildVerificationDetailsText(
+        bool isFailure,
+        IntegrityValidationState integrityState,
+        string? integrityStatusMessage,
+        string queueRowDisplayDetailArabic)
+    {
+        if (isFailure)
+        {
+            return ArabicUi.Get("LocQueue_VerificationResultFailureDetails");
+        }
+
+        if (integrityState == IntegrityValidationState.Verified)
+        {
+            return ArabicUi.Get("LocQueue_VerificationResultScopeRedumpMatched");
+        }
+
+        if (integrityState is IntegrityValidationState.NoRedumpMatch
+            or IntegrityValidationState.NoDat
+            or IntegrityValidationState.NoDirectRedump
+            or IntegrityValidationState.Unsupported)
+        {
+            return BuildVerificationScopeText(integrityState);
+        }
+
+        return ArabicUi.Get("LocQueue_VerificationResultInternalDetails");
+    }
 
     private static string BuildVerificationResultMessage(
         string fileDisplay,
         string status,
-        string scope,
-        string detail)
+        string details,
+        string caveat,
+        string failureAction)
     {
         var sections = new List<string>
         {
             ArabicUi.Format("LocQueue_VerificationResultFileLine", fileDisplay),
             ArabicUi.Format("LocQueue_VerificationResultStatusLine", status),
-            scope,
-            detail
+            details
         };
 
+        if (!string.IsNullOrWhiteSpace(caveat))
+        {
+            sections.Add(caveat);
+        }
 
-        sections.Add(ArabicUi.Get("LocQueue_VerificationResultPlayableCaveat"));
+        if (!string.IsNullOrWhiteSpace(failureAction))
+        {
+            sections.Add(failureAction);
+        }
 
         return string.Join(Environment.NewLine + Environment.NewLine, sections);
     }
