@@ -354,7 +354,7 @@
                                 <TextBlock Margin="{DynamicResource Inset.6.0.0.0}"
                                            Text="{Binding VersionLabel, Mode=OneWay}"
                                            ToolTip="{Binding VersionLabel, Mode=OneWay}"
-                                           d:Text="v1.0.5"
+                                           d:Text="v1.0.8"
                                            FontFamily="{DynamicResource FontFamily.Text}"
                                            FontSize="{DynamicResource FontSize.Caption}"
                                            FontWeight="{DynamicResource FontWeight.SemiBold}"
