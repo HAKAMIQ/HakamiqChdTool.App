@@ -373,7 +373,7 @@ function Test-NoServiceConstructionInWindows {
     $windowFiles = Get-AllFiles @('*.xaml.cs', 'MainWindow*.cs') | Where-Object {
         $relativePath = Get-RepositoryRelativePath $_.FullName
 
-        (($_.Name -like 'MainWindow*') -and $_.Name -ne 'MainWindowBootstrap.cs') -or
+        (($_.Name -like 'MainWindow*') -and $_.Name -ne 'MainBoot.cs') -or
         ($relativePath -match '(^|[\\/])Views[\\/]')
     }
 
@@ -996,7 +996,7 @@ function Test-ConversionRuntimeReliabilityPolicy {
         }
     }
 
-    $safePathValidator = Join-Path $root 'Core\Workflow\Paths\WorkflowSafePathValidator.cs'
+    $safePathValidator = Join-Path $root 'Core\Workflow\Paths\SafePathValid.cs'
     if (Test-Path -LiteralPath $safePathValidator -PathType Leaf) {
         $content = Get-Content -LiteralPath $safePathValidator -Raw -Encoding UTF8
         if ($content -notmatch 'Path\.ChangeExtension\(finalCueFullPath, "\.bin"\)' -or $content -notmatch 'RelativeReference\s*=\s*finalBinName') {
@@ -1025,7 +1025,7 @@ function Test-CompressionPresetTruthLayer {
         Add-Failure 'ChdCommandPreparationService is required for compression preset truth resolution.'
     }
 
-    $resolutionModel = Join-Path $root 'Models\Chd\ChdCompressionResolution.cs'
+    $resolutionModel = Join-Path $root 'Models\Chd\ChdCompRes.cs'
     if (-not (Test-Path -LiteralPath $resolutionModel -PathType Leaf)) {
         Add-Failure 'ChdCompressionResolution model is required to report requested/resolved/effective compression truth.'
     }
@@ -1058,7 +1058,7 @@ function Test-CompressionPresetTruthLayer {
         }
     }
 
-    $performanceReport = Join-Path $root 'Models\Chd\ConversionPerformanceReport.cs'
+    $performanceReport = Join-Path $root 'Models\Chd\ConvPerfRep.cs'
     if (Test-Path -LiteralPath $performanceReport -PathType Leaf) {
         $content = Get-Content -LiteralPath $performanceReport -Raw -Encoding UTF8
         foreach ($required in @(
@@ -1103,7 +1103,7 @@ function Test-CoreServicesDependencyReduction {
         'Services\ChdInfoResult.cs',
         'Services\ChdVResult.cs',
         'Services\ChdConvResult.cs',
-        'Services\PlatformDetectionResult.cs',
+        'Services\PlatformResult.cs',
         'Services\ChdExtKind.cs')) {
         $candidate = Join-Path $root $relativePath
         if (Test-Path -LiteralPath $candidate -PathType Leaf) {
@@ -1115,9 +1115,9 @@ function Test-CoreServicesDependencyReduction {
         'Models\Chd\ChdInfoResult.cs',
         'Models\Chd\ChdVResult.cs',
         'Models\Chd\ChdConvResult.cs',
-        'Models\PlatformDetectionResult.cs',
+        'Models\PlatformResult.cs',
         'Models\Chd\PerfSample.cs',
-        'Models\Chd\ConversionPerformanceReport.cs',
+        'Models\Chd\ConvPerfRep.cs',
         'Models\Chd\ChdExtKind.cs')) {
         $candidate = Join-Path $root $requiredPath
         if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
@@ -1511,7 +1511,7 @@ function Test-ChdmanCapabilityPolicyGates {
         }
     }
 
-    $capabilitySnapshot = Join-Path $root 'Models\Chd\ChdmanCapabilitySnapshot.cs'
+    $capabilitySnapshot = Join-Path $root 'Models\Chd\ChdCapsSnap.cs'
     if (-not (Test-Path -LiteralPath $capabilitySnapshot -PathType Leaf)) {
         Add-Failure 'ChdmanCapabilitySnapshot model is required for centralized CHD capability decisions.'
     }
@@ -1696,7 +1696,7 @@ function Test-ChdmanCapabilityPolicyGates {
         }
     }
 
-    $cleanupPipeline = Join-Path $root 'Core\Workflow\WorkflowSourceCleanupPipeline.cs'
+    $cleanupPipeline = Join-Path $root 'Core\Workflow\FlowSrcClean.cs'
     if (Test-Path -LiteralPath $cleanupPipeline -PathType Leaf) {
         $content = Get-Content -LiteralPath $cleanupPipeline -Raw -Encoding UTF8
         foreach ($required in @(
@@ -1763,7 +1763,7 @@ function Test-SafeRecompressPipelinePolicy {
         }
     }
 
-    $reportModel = Join-Path $root 'Models\Chd\ConversionPerformanceReport.cs'
+    $reportModel = Join-Path $root 'Models\Chd\ConvPerfRep.cs'
     if (Test-Path -LiteralPath $reportModel -PathType Leaf) {
         $content = Get-Content -LiteralPath $reportModel -Raw -Encoding UTF8
         foreach ($required in @(
