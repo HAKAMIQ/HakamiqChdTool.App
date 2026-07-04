@@ -54,7 +54,6 @@ jobs:
                   "🚀 **تم إطلاق إصدار جديد**\n\n"
                   f"**المشروع:** {repo_name}\n"
                   f"**الإصدار:** {release_name}\n"
-                  f"**الوسم:** {release_tag}\n\n"
                   f"🔗 **رابط التحميل والتفاصيل:**\n{release_url}"
               ),
               "allowed_mentions": {

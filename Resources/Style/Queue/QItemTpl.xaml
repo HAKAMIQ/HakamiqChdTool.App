@@ -2,13 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Resources/Style/Queue/QueueItemBaseStyles.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QueueWorkspaceSharedStyles.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QueueItemHeaderTemplate.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QueueItemStatusTemplate.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QueueItemProgressTemplate.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QueueItemActionsTemplate.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QueueItemTechnicalFieldsTemplate.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QItemBase.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QWShared.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QIHeaderTpl.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QIStatusTpl.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QIProgTpl.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QIActionsTpl.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QITechTpl.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <DataTemplate x:Key="FluentQueueRowTemplate">

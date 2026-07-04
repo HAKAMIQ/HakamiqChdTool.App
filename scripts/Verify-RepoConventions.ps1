@@ -187,7 +187,7 @@ function Test-RefactoredFileSizeThresholds {
         'Services\Conversion\ChdConvSvc.cs' = 700
         'Core\Workflow\Paths\FlowPathUtil.cs' = 180
         'Core\Queue\QueueManager.cs' = 180
-        'Resources\Style\QueueItemTemplate.xaml' = 80
+        'Resources\Style\QItemTpl.xaml' = 80
     }
 
     foreach ($entry in $limits.GetEnumerator()) {
@@ -793,7 +793,7 @@ function Test-RefactorCompositionCompletion {
         }
     }
 
-    $queueItemTemplate = Join-Path $root 'Resources\Style\Queue\QueueItemTemplate.xaml'
+    $queueItemTemplate = Join-Path $root 'Resources\Style\Queue\QItemTpl.xaml'
     if (Test-Path -LiteralPath $queueItemTemplate -PathType Leaf) {
         $content = Get-Content -LiteralPath $queueItemTemplate -Raw -Encoding UTF8
         foreach ($templateKey in @(
@@ -803,26 +803,26 @@ function Test-RefactorCompositionCompletion {
             'QueueItemActionsFieldsTemplate',
             'QueueItemTechnicalFieldsTemplate')) {
             if ($content -notmatch [regex]::Escape($templateKey)) {
-                Add-Failure "QueueItemTemplate.xaml does not compose required subtemplate: $templateKey"
+                Add-Failure "QItemTpl.xaml does not compose required subtemplate: $templateKey"
             }
         }
     }
 
     foreach ($subTemplate in @(
-        'Resources\Style\Queue\QueueItemHeaderTemplate.xaml',
-        'Resources\Style\Queue\QueueItemStatusTemplate.xaml',
-        'Resources\Style\Queue\QueueItemProgressTemplate.xaml',
-        'Resources\Style\Queue\QueueItemActionsTemplate.xaml',
-        'Resources\Style\Queue\QueueItemTechnicalFieldsTemplate.xaml')) {
+        'Resources\Style\Queue\QIHeaderTpl.xaml',
+        'Resources\Style\Queue\QIStatusTpl.xaml',
+        'Resources\Style\Queue\QIProgTpl.xaml',
+        'Resources\Style\Queue\QIActionsTpl.xaml',
+        'Resources\Style\Queue\QITechTpl.xaml')) {
         $templatePath = Join-Path $root $subTemplate
         if (Test-Path -LiteralPath $templatePath -PathType Leaf) {
             $templateContent = Get-Content -LiteralPath $templatePath -Raw -Encoding UTF8
-            if ($templateContent -notmatch 'QueueItemBaseStyles\.xaml') {
-                Add-Failure "$subTemplate must merge QueueItemBaseStyles.xaml so subtemplate StaticResource lookups are self-contained."
+            if ($templateContent -notmatch 'QItemBase\.xaml') {
+                Add-Failure "$subTemplate must merge QItemBase.xaml so subtemplate StaticResource lookups are self-contained."
             }
 
-            if ($templateContent -notmatch 'QueueWorkspaceSharedStyles\.xaml') {
-                Add-Failure "$subTemplate must merge QueueWorkspaceSharedStyles.xaml so subtemplate StaticResource lookups are self-contained."
+            if ($templateContent -notmatch 'QWShared\.xaml') {
+                Add-Failure "$subTemplate must merge QWShared.xaml so subtemplate StaticResource lookups are self-contained."
             }
         }
     }
