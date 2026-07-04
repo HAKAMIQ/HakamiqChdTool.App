@@ -167,7 +167,7 @@ function Assert-RootIsClean {
         "LEGAL.md",
         "THIRD_PARTY_NOTICES.txt",
         "CHDMAN_NOTICE.md",
-        "SEVENZIP_NOTICE.md",
+        "7ZIP_NOTICE.md",
         "MAME_COPYING.txt",
         "MAME_GPL-2.0.txt",
         "SECURITY.md",
@@ -341,7 +341,7 @@ function Assert-RequiredReleaseFiles {
         "docs\legal\CHDMAN_NOTICE.md",
         "docs\legal\MAME_COPYING.txt",
         "docs\legal\MAME_GPL-2.0.txt",
-        "docs\legal\SEVENZIP_NOTICE.md",
+        "7ZIP_NOTICE.md",
         "docs\legal\CSOKIT_NOTICE.md"
     )) {
         Assert-FileExists $required
@@ -369,7 +369,7 @@ function Assert-RequiredReleaseFiles {
         "docs\legal\CHDMAN_NOTICE.md",
         "docs\legal\MAME_COPYING.txt",
         "docs\legal\MAME_GPL-2.0.txt",
-        "docs\legal\SEVENZIP_NOTICE.md",
+        "7ZIP_NOTICE.md",
         "docs\legal\CSOKIT_NOTICE.md"
     )) {
         Assert-FileIsNotEmpty $required

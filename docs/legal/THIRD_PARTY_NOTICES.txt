@@ -36,7 +36,7 @@ Hakamiq CHD Tool is not connected to MAMEdev.
 Hakamiq CHD Tool may include 7-Zip to open ZIP, RAR, and 7Z files.
 
 Related file:
-SEVENZIP_NOTICE.md
+7ZIP_NOTICE.md
 
 Hakamiq CHD Tool is not connected to Igor Pavlov or the 7-Zip project.
 

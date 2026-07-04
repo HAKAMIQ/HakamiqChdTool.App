@@ -82,7 +82,7 @@ PS3 support is experimental and mostly detection-oriented.
 
 The app may detect PS3 folders, PS3 ISO evidence, package-style input, or existing CHD files for information and verification paths. Detection does not mean the selected action is valid.
 
-See [PS3 experimental support](PS3_EXPERIMENTAL.md).
+See [PS3 experimental support](PS3_EXP.md).
 
 ## Redump data
 
