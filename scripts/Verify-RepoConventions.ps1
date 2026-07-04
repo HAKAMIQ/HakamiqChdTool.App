@@ -967,9 +967,9 @@ function Test-ConversionRuntimeReliabilityPolicy {
         }
     }
 
-    $metricsResolver = Join-Path $root 'Services\Conversion\ConversionMetricsResolver.cs'
+    $metricsResolver = Join-Path $root 'Services\Conversion\ConvMetrics.cs'
     if (-not (Test-Path -LiteralPath $metricsResolver -PathType Leaf)) {
-        Add-Failure 'ConversionMetricsResolver.cs is required for logical media-size based conversion reports.'
+        Add-Failure 'ConvMetrics.cs is required for logical media-size based conversion reports.'
     }
 
     $resultModel = Join-Path $root 'Models\Chd\ChdConvResult.cs'
@@ -1008,7 +1008,7 @@ function Test-ConversionRuntimeReliabilityPolicy {
 
 
 function Test-CompressionPresetTruthLayer {
-    $commandPreparation = Join-Path $root 'Services\Conversion\ChdCommandPreparationService.cs'
+    $commandPreparation = Join-Path $root 'Services\Conversion\ChdCmdPrep.cs'
     if (Test-Path -LiteralPath $commandPreparation -PathType Leaf) {
         $content = Get-Content -LiteralPath $commandPreparation -Raw -Encoding UTF8
         foreach ($required in @(
@@ -1171,7 +1171,7 @@ function Test-OptionsWindowEarlyEventSafety {
 function Test-RedumpAutoSyncStartupPolicy {
     $settingsPath = Join-Path $root 'Services\Configuration\AppSettings.cs'
     $startupPath = Join-Path $root 'Startup\MainWindowStartupCoordinator.cs'
-    $autoSyncPath = Join-Path $root 'Services\RedumpAutoSyncStartupService.cs'
+    $autoSyncPath = Join-Path $root 'Services\RedAutoSync.cs'
 
     if (Test-Path -LiteralPath $settingsPath -PathType Leaf) {
         $settings = Get-Content -LiteralPath $settingsPath -Raw -Encoding UTF8
@@ -1394,10 +1394,10 @@ function Test-ShowRedumpDetailsReturnsTask {
 function Test-BinCueConsoleIdentityArchitecture {
     $serviceRoot = Join-Path $root 'Services\ConsoleMedia'
     $requiredFiles = @(
-        'ConsoleDiscIdentityResult.cs',
-        'ConsoleDiscScanContext.cs',
-        'IConsoleDiscIdentityProbe.cs',
-        'ConsoleDiscIdentityService.cs'
+        'DiscIdResult.cs',
+        'DiscScanCtx.cs',
+        'IDiscIdProbe.cs',
+        'DiscIdSvc.cs'
     )
 
     foreach ($file in $requiredFiles) {
@@ -1407,7 +1407,7 @@ function Test-BinCueConsoleIdentityArchitecture {
         }
     }
 
-    $identityService = Join-Path $serviceRoot 'ConsoleDiscIdentityService.cs'
+    $identityService = Join-Path $serviceRoot 'DiscIdSvc.cs'
     if (Test-Path -LiteralPath $identityService -PathType Leaf) {
         $content = Get-Content -LiteralPath $identityService -Raw -Encoding UTF8
         foreach ($probe in @(
@@ -1424,7 +1424,7 @@ function Test-BinCueConsoleIdentityArchitecture {
         }
     }
 
-    $platformDetection = Join-Path $root 'Services\PlatformDetectionService.cs'
+    $platformDetection = Join-Path $root 'Services\PlatformSvc.cs'
     if (Test-Path -LiteralPath $platformDetection -PathType Leaf) {
         $content = Get-Content -LiteralPath $platformDetection -Raw -Encoding UTF8
         if ($content -notmatch 'ConsoleDiscIdentityService\.Shared\.Detect') {
@@ -1480,7 +1480,7 @@ function Test-BinCueConsoleIdentityArchitecture {
         }
     }
 
-    $capability = Join-Path $root 'Services\QueueOperationCapabilityService.cs'
+    $capability = Join-Path $root 'Services\QOpCapsSvc.cs'
     if (Test-Path -LiteralPath $capability -PathType Leaf) {
         $content = Get-Content -LiteralPath $capability -Raw -Encoding UTF8
         if ($content -notmatch 'MediaInputPolicy\.Evaluate') {
@@ -1491,7 +1491,7 @@ function Test-BinCueConsoleIdentityArchitecture {
 
 
 function Test-ChdmanCapabilityPolicyGates {
-    $capabilityService = Join-Path $root 'Services\Conversion\ChdmanCapabilityService.cs'
+    $capabilityService = Join-Path $root 'Services\Conversion\ChdCapsSvc.cs'
     if (-not (Test-Path -LiteralPath $capabilityService -PathType Leaf)) {
         Add-Failure 'ChdmanCapabilityService is required to inspect the actual chdman binary before CHD execution.'
     }
@@ -1552,7 +1552,7 @@ function Test-ChdmanCapabilityPolicyGates {
 
 
 
-    $profilePolicy = Join-Path $root 'Services\Conversion\PlatformAwareChdProfilePolicy.cs'
+    $profilePolicy = Join-Path $root 'Services\Conversion\PlatformChd.cs'
     if (-not (Test-Path -LiteralPath $profilePolicy -PathType Leaf)) {
         Add-Failure 'PlatformAwareChdProfilePolicy is required to centralize platform-aware CHD profile selection.'
     }
@@ -1584,7 +1584,7 @@ function Test-ChdmanCapabilityPolicyGates {
         }
     }
 
-    $mediaSpecificPolicy = Join-Path $root 'Services\Conversion\ChdMediaSpecificProfilePolicies.cs'
+    $mediaSpecificPolicy = Join-Path $root 'Services\Conversion\ChdMediaPol.cs'
     if (-not (Test-Path -LiteralPath $mediaSpecificPolicy -PathType Leaf)) {
         Add-Failure 'ChdMediaSpecificProfilePolicies is required to separate CHD CD/DVD compression and hunk decisions internally.'
     }
@@ -1645,7 +1645,7 @@ function Test-ChdmanCapabilityPolicyGates {
         }
     }
 
-    $metadataExtractionPolicy = Join-Path $root 'Services\Conversion\MetadataAwareChdExtractionPolicy.cs'
+    $metadataExtractionPolicy = Join-Path $root 'Services\Conversion\MetaExtract.cs'
     if (-not (Test-Path -LiteralPath $metadataExtractionPolicy -PathType Leaf)) {
         Add-Failure 'MetadataAwareChdExtractionPolicy is required for metadata-based CHD extraction routing.'
     }
