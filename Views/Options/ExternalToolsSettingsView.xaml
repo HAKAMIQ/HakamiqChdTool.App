@@ -43,18 +43,7 @@
                                         SnapsToDevicePixels="True">
 
                                 <Grid Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="{DynamicResource Grid.Space.4}" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocExternalTools_CsoKitTitle}" />
-
-                                    <TextBlock Grid.Row="2"
-                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowDescriptionText}"
                                                Text="{DynamicResource LocExternalTools_CsoKitDescription}"
                                                TextWrapping="Wrap"
                                                TextTrimming="None" />
