@@ -886,7 +886,7 @@ function Test-NoWpfShellUnderServices {
 
 
 function Test-RedumpDetailsViewModelPurity {
-    $viewModel = Join-Path $root 'ViewModels\Dialogs\RedumpDetailsDialogViewModel.cs'
+    $viewModel = Join-Path $root 'ViewModels\Dialogs\RedDlgVM.cs'
     if (-not (Test-Path -LiteralPath $viewModel -PathType Leaf)) {
         return
     }
@@ -1170,7 +1170,7 @@ function Test-OptionsWindowEarlyEventSafety {
 
 function Test-RedumpAutoSyncStartupPolicy {
     $settingsPath = Join-Path $root 'Services\Configuration\AppSettings.cs'
-    $startupPath = Join-Path $root 'Startup\MainWindowStartupCoordinator.cs'
+    $startupPath = Join-Path $root 'Startup\MainStartup.cs'
     $autoSyncPath = Join-Path $root 'Services\RedAutoSync.cs'
 
     if (Test-Path -LiteralPath $settingsPath -PathType Leaf) {
@@ -1461,7 +1461,7 @@ function Test-BinCueConsoleIdentityArchitecture {
         }
     }
 
-    $planner = Join-Path $root 'Services\ChdWorkflowProfilePlanner.cs'
+    $planner = Join-Path $root 'Services\ChdProfPlan.cs'
     if (Test-Path -LiteralPath $planner -PathType Leaf) {
         $content = Get-Content -LiteralPath $planner -Raw -Encoding UTF8
         if ($content -match '"\.bin"\s*=>\s*ChdWorkflowProfilePlan\.Unsupported') {
