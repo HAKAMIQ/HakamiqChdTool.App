@@ -45,13 +45,13 @@
 
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
