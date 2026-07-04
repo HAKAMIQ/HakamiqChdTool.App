@@ -4,6 +4,7 @@ using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
 using System;
+using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App;
 

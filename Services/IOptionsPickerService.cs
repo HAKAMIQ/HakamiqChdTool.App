@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Ui.WpfAdapters;
 namespace HakamiqChdTool.App.Services;
 
 public interface IOptionsPickerService

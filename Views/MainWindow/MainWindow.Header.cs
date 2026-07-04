@@ -6,6 +6,7 @@ using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
+using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App;
 

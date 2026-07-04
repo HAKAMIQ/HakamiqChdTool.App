@@ -6,8 +6,9 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
+using HakamiqChdTool.App.Services;
 
-namespace HakamiqChdTool.App.Services;
+namespace HakamiqChdTool.App.Ui.WpfAdapters;
 
 public sealed class ApplicationRestartContext
 {

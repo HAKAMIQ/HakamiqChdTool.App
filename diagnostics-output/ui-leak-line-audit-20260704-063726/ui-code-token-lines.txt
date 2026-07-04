@@ -1,0 +1,84 @@
+﻿UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L10	\bApplication\b	using AppHost = System.Windows.Application;
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L38	\bFlowDirection\b	public FlowDirection CurrentFlowDirection =>
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L39	\bFlowDirection\b	IsArabic(CurrentLanguageName) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L55	\bWindow\b	public static void ApplyToWindow(Window window)
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L57	\bWindow\b	ArgumentNullException.ThrowIfNull(window);
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L59	\bWindow\b	window.SetResourceReference(FrameworkElement.FlowDirectionProperty, AppFlowDirectionResourceKey);
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L60	\bWindow\b	window.SetResourceReference(FrameworkElement.LanguageProperty, AppXmlLanguageResourceKey);
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L129	\bDispatcher\b	Dispatcher dispatcher = app.Dispatcher;
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L130	\bDispatcher\b	if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L136	\bDispatcher\b	if (dispatcher.CheckAccess())
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L144	\bDispatcher\b	dispatcher.Invoke(
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L148	\bDispatcher\b	catch (TaskCanceledException) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L152	\bDispatcher\b	catch (InvalidOperationException) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L176	\bResourceDictionary\b	ResourceDictionary dictionary = CreateLanguageDictionary(normalized);
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L209	\bFlowDirection\b	app.Resources[AppCaptionButtonsFlowDirectionResourceKey] = FlowDirection.RightToLeft;
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L214	\bWindow\b	foreach (Window window in app.Windows.OfType<Window>())
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L216	\bWindow\b	ApplyToWindow(window);
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L217	\bWindow\b	window.InvalidateProperty(FrameworkElement.FlowDirectionProperty);
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L218	\bWindow\b	window.InvalidateProperty(FrameworkElement.LanguageProperty);
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L222	\bResourceDictionary\b	private static ResourceDictionary CreateLanguageDictionary(string languageName)
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L226	\bResourceDictionary\b	return new ResourceDictionary
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L232	\bResourceDictionary\b	private static void RemoveExistingLanguageDictionaries(Collection<ResourceDictionary> dictionaries)
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L247	\bResourceDictionary\b	Collection<ResourceDictionary> dictionaries,
+UI_CODE_TOKEN	Localization	Localization/AppLanguageService.cs	L248	\bResourceDictionary\b	ResourceDictionary dictionary)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L22	\bApplication\b	if (System.Windows.Application.Current?.TryFindResource(resourceKey) is string s)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L22	\bApplication\.Current\b	if (System.Windows.Application.Current?.TryFindResource(resourceKey) is string s)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L41	\bApplication\b	if (System.Windows.Application.Current?.TryFindResource(t) is string fromResource)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L41	\bApplication\.Current\b	if (System.Windows.Application.Current?.TryFindResource(t) is string fromResource)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L101	\bApplication\b	if (System.Windows.Application.Current?.TryFindResource(t) is string fromDict)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L101	\bApplication\.Current\b	if (System.Windows.Application.Current?.TryFindResource(t) is string fromDict)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L141	\bApplication\b	if (System.Windows.Application.Current?.TryFindResource(t) is string s)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L141	\bApplication\.Current\b	if (System.Windows.Application.Current?.TryFindResource(t) is string s)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L178	\bApplication\b	if (System.Windows.Application.Current?.TryFindResource(t) is string s)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L178	\bApplication\.Current\b	if (System.Windows.Application.Current?.TryFindResource(t) is string s)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L297	\bApplication\b	if (msg.StartsWith("Loc", StringComparison.Ordinal) && System.Windows.Application.Current?.TryFindResource(msg) is string fromKey)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L297	\bApplication\.Current\b	if (msg.StartsWith("Loc", StringComparison.Ordinal) && System.Windows.Application.Current?.TryFindResource(msg) is string fromKey)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L430	\bApplication\b	if (System.Windows.Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L430	\bApplication\.Current\b	if (System.Windows.Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L430	\bFlowDirection\b	if (System.Windows.Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
+UI_CODE_TOKEN	Localization	Localization/ArabicUi.cs	L432	\bFlowDirection\b	return flowDirection == FlowDirection.RightToLeft;
+UI_CODE_TOKEN	Localization	Localization/BidiText.cs	L101	\bApplication\b	if (System.Windows.Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
+UI_CODE_TOKEN	Localization	Localization/BidiText.cs	L101	\bApplication\.Current\b	if (System.Windows.Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
+UI_CODE_TOKEN	Localization	Localization/BidiText.cs	L101	\bFlowDirection\b	if (System.Windows.Application.Current?.TryFindResource("App.FlowDirection") is FlowDirection flowDirection)
+UI_CODE_TOKEN	Localization	Localization/BidiText.cs	L103	\bFlowDirection\b	return flowDirection == FlowDirection.RightToLeft;
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L48	\bWindow\b	Window mainWindow,
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L164	\bWindow\b	public static bool TryRestoreMainWindowBounds(Window mainWindow, ApplicationRestartContext context)
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L323	\bApplication\b	System.Windows.Application? application = System.Windows.Application.Current;
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L323	\bApplication\.Current\b	System.Windows.Application? application = System.Windows.Application.Current;
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L324	\bApplication\b	if (application is null)
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L331	\bApplication\b	if (application.Dispatcher.HasShutdownStarted || application.Dispatcher.HasShutdownFinished)
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L331	\bDispatcher\b	if (application.Dispatcher.HasShutdownStarted || application.Dispatcher.HasShutdownFinished)
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L336	\bApplication\b	if (application.Dispatcher.CheckAccess())
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L336	\bDispatcher\b	if (application.Dispatcher.CheckAccess())
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L338	\bApplication\b	application.Shutdown();
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L342	\bApplication\b	_ = application.Dispatcher.BeginInvoke(new Action(application.Shutdown));
+UI_CODE_TOKEN	Services	Services/ApplicationRestartService.cs	L342	\bDispatcher\b	_ = application.Dispatcher.BeginInvoke(new Action(application.Shutdown));
+UI_CODE_TOKEN	Services	Services/ExplorerLaunchHelper.cs	L146	\bWindow\b	foreach (object window in windows)
+UI_CODE_TOKEN	Services	Services/ExplorerLaunchHelper.cs	L148	\bWindow\b	if (!TryGetExplorerWindowFolderPath(window, out string? windowFolderPath)
+UI_CODE_TOKEN	Services	Services/ExplorerLaunchHelper.cs	L151	\bWindow\b	|| !TryGetExplorerWindowHandle(window, out IntPtr handle))
+UI_CODE_TOKEN	Services	Services/ExplorerLaunchHelper.cs	L174	\bWindow\b	private static bool TryGetExplorerWindowFolderPath(object window, out string? folderPath)
+UI_CODE_TOKEN	Services	Services/ExplorerLaunchHelper.cs	L180	\bWindow\b	object? document = ((dynamic)window).Document;
+UI_CODE_TOKEN	Services	Services/ExplorerLaunchHelper.cs	L200	\bWindow\b	private static bool TryGetExplorerWindowHandle(object window, out IntPtr handle)
+UI_CODE_TOKEN	Services	Services/ExplorerLaunchHelper.cs	L206	\bWindow\b	object? rawWindowHandle = ((dynamic)window).HWND;
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L23	\bWindow\b	Window? owner = GetActiveOwner();
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L33	\bOpenFileDialog\b	var dialog = new OpenFileDialog
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L41	\bWindow\b	Window? owner = GetActiveOwner();
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L66	\bWindow\b	private static Window? GetActiveOwner()
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L68	\bApplication\b	System.Windows.Application? application = System.Windows.Application.Current;
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L68	\bApplication\.Current\b	System.Windows.Application? application = System.Windows.Application.Current;
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L69	\bApplication\b	if (application is null)
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L74	\bApplication\b	return application.Windows
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L75	\bWindow\b	.OfType<Window>()
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L76	\bWindow\b	.FirstOrDefault(static window => window.IsActive && window.IsVisible)
+UI_CODE_TOKEN	Services	Services/OptionsPickerService.cs	L77	\bApplication\b	?? (application.MainWindow?.IsVisible == true ? application.MainWindow : null);
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L6	\bApplication\b	using AppHost = System.Windows.Application;
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L89	\bDispatcher\b	Dispatcher? dispatcher = app?.Dispatcher;
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L91	\bDispatcher\b	if (dispatcher is null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L96	\bDispatcher\b	if (dispatcher.CheckAccess())
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L104	\bDispatcher\b	dispatcher.Invoke(action);
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L106	\bDispatcher\b	catch (TaskCanceledException) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L109	\bDispatcher\b	catch (InvalidOperationException) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L122	\bResourceDictionary\b	IList<ResourceDictionary> merged = app.Resources.MergedDictionaries;
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L150	\bResourceDictionary\b	var next = new ResourceDictionary
+UI_CODE_TOKEN	Services	Services/ThemeService.cs	L245	\bResourceDictionary\b	private static int FindInsertIndexBeforeFluentControls(IList<ResourceDictionary> merged)

@@ -24,6 +24,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Shapes;
 using System.Windows.Shell;
+using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App;
 
