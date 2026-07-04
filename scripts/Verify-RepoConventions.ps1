@@ -184,8 +184,8 @@ function Test-RefactoredFileSizeThresholds {
     $limits = @{
         'Views\RedDetails.xaml.cs' = 120
         'Views\OptionsWindow.xaml.cs' = 180
-        'Services\Conversion\ChdConversionService.cs' = 700
-        'Core\Workflow\Paths\WorkflowPathUtilities.cs' = 180
+        'Services\Conversion\ChdConvSvc.cs' = 700
+        'Core\Workflow\Paths\FlowPathUtil.cs' = 180
         'Core\Queue\QueueManager.cs' = 180
         'Resources\Style\QueueItemTemplate.xaml' = 80
     }
@@ -929,7 +929,7 @@ function Test-ChdProgressParserImplementation {
         Add-Failure "ChdProgressParser must not be a placeholder."
     }
 
-    $runner = Join-Path $root 'Services\ChdmanProcessRunner.cs'
+    $runner = Join-Path $root 'Services\ChdProcRun.cs'
     if (Test-Path -LiteralPath $runner -PathType Leaf) {
         $runnerContent = Get-Content -LiteralPath $runner -Raw -Encoding UTF8
         if ($runnerContent -notmatch 'IChdProgressParser') {
@@ -953,7 +953,7 @@ function Test-ConversionRuntimeReliabilityPolicy {
         }
     }
 
-    $conversionService = Join-Path $root 'Services\Conversion\ChdConversionService.cs'
+    $conversionService = Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
     if (Test-Path -LiteralPath $conversionService -PathType Leaf) {
         $content = Get-Content -LiteralPath $conversionService -Raw -Encoding UTF8
         if ($content -notmatch 'ChdProgressPolicy\.ShouldParseRawPercent\(arguments\)') {
@@ -972,7 +972,7 @@ function Test-ConversionRuntimeReliabilityPolicy {
         Add-Failure 'ConversionMetricsResolver.cs is required for logical media-size based conversion reports.'
     }
 
-    $resultModel = Join-Path $root 'Models\Chd\ChdConversionResult.cs'
+    $resultModel = Join-Path $root 'Models\Chd\ChdConvResult.cs'
     if (Test-Path -LiteralPath $resultModel -PathType Leaf) {
         $content = Get-Content -LiteralPath $resultModel -Raw -Encoding UTF8
         if ($content -notmatch 'LogicalInputBytes') {
@@ -980,7 +980,7 @@ function Test-ConversionRuntimeReliabilityPolicy {
         }
     }
 
-    $conversionStage = Join-Path $root 'Core\Workflow\WorkflowConversionStage.cs'
+    $conversionStage = Join-Path $root 'Core\Workflow\FlowConv.cs'
     if (Test-Path -LiteralPath $conversionStage -PathType Leaf) {
         $content = Get-Content -LiteralPath $conversionStage -Raw -Encoding UTF8
         if ($content -notmatch 'ResolveConversionInputBytes' -or $content -notmatch 'conversionResult\.LogicalInputBytes') {
@@ -988,7 +988,7 @@ function Test-ConversionRuntimeReliabilityPolicy {
         }
     }
 
-    $extractionStage = Join-Path $root 'Core\Workflow\WorkflowExtractionStage.cs'
+    $extractionStage = Join-Path $root 'Core\Workflow\FlowExtract.cs'
     if (Test-Path -LiteralPath $extractionStage -PathType Leaf) {
         $content = Get-Content -LiteralPath $extractionStage -Raw -Encoding UTF8
         if ($content -notmatch 'ReportReliableExtractionPercent' -or $content -notmatch 'sample\.OutputBytes \* 100d / logicalBytes') {
@@ -1030,7 +1030,7 @@ function Test-CompressionPresetTruthLayer {
         Add-Failure 'ChdCompressionResolution model is required to report requested/resolved/effective compression truth.'
     }
 
-    $resultModel = Join-Path $root 'Models\Chd\ChdConversionResult.cs'
+    $resultModel = Join-Path $root 'Models\Chd\ChdConvResult.cs'
     if (Test-Path -LiteralPath $resultModel -PathType Leaf) {
         $content = Get-Content -LiteralPath $resultModel -Raw -Encoding UTF8
         foreach ($required in @(
@@ -1044,7 +1044,7 @@ function Test-CompressionPresetTruthLayer {
         }
     }
 
-    $conversionService = Join-Path $root 'Services\Conversion\ChdConversionService.cs'
+    $conversionService = Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
     if (Test-Path -LiteralPath $conversionService -PathType Leaf) {
         $content = Get-Content -LiteralPath $conversionService -Raw -Encoding UTF8
         foreach ($required in @(
@@ -1101,10 +1101,10 @@ function Test-CoreServicesDependencyReduction {
 
     foreach ($relativePath in @(
         'Services\ChdInfoResult.cs',
-        'Services\ChdVerificationResult.cs',
-        'Services\ChdConversionResult.cs',
+        'Services\ChdVResult.cs',
+        'Services\ChdConvResult.cs',
         'Services\PlatformDetectionResult.cs',
-        'Services\ChdmanExtractionKind.cs')) {
+        'Services\ChdExtKind.cs')) {
         $candidate = Join-Path $root $relativePath
         if (Test-Path -LiteralPath $candidate -PathType Leaf) {
             Add-Failure "Neutral DTO/model must not remain under Services: $relativePath"
@@ -1113,12 +1113,12 @@ function Test-CoreServicesDependencyReduction {
 
     foreach ($requiredPath in @(
         'Models\Chd\ChdInfoResult.cs',
-        'Models\Chd\ChdVerificationResult.cs',
-        'Models\Chd\ChdConversionResult.cs',
+        'Models\Chd\ChdVResult.cs',
+        'Models\Chd\ChdConvResult.cs',
         'Models\PlatformDetectionResult.cs',
         'Models\Chd\PerfSample.cs',
         'Models\Chd\ConversionPerformanceReport.cs',
-        'Models\Chd\ChdmanExtractionKind.cs')) {
+        'Models\Chd\ChdExtKind.cs')) {
         $candidate = Join-Path $root $requiredPath
         if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
             Add-Failure "Expected v1.0.5 P4 refactor file is missing: $requiredPath"
@@ -1432,7 +1432,7 @@ function Test-BinCueConsoleIdentityArchitecture {
         }
     }
 
-    $assembler = Join-Path $root 'Services\BinCueRescue\MultiBinDiscAssembler.cs'
+    $assembler = Join-Path $root 'Services\BinCueRescue\MultiBinAsm.cs'
     if (Test-Path -LiteralPath $assembler -PathType Leaf) {
         $content = Get-Content -LiteralPath $assembler -Raw -Encoding UTF8
         if ($content -notmatch 'ConsoleDiscIdentityService\.Shared\.Detect') {
@@ -1529,7 +1529,7 @@ function Test-ChdmanCapabilityPolicyGates {
         }
     }
 
-    $policyGate = Join-Path $root 'Services\Conversion\ChdOperationPolicyGate.cs'
+    $policyGate = Join-Path $root 'Services\Conversion\ChdOpGate.cs'
     if (-not (Test-Path -LiteralPath $policyGate -PathType Leaf)) {
         Add-Failure 'ChdOperationPolicyGate is required to centralize CHD command decisions.'
     }
@@ -1614,7 +1614,7 @@ function Test-ChdmanCapabilityPolicyGates {
         }
     }
 
-    $conversion = Join-Path $root 'Services\Conversion\ChdConversionService.cs'
+    $conversion = Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
     if (Test-Path -LiteralPath $conversion -PathType Leaf) {
         $content = Get-Content -LiteralPath $conversion -Raw -Encoding UTF8
         foreach ($required in @(
@@ -1630,7 +1630,7 @@ function Test-ChdmanCapabilityPolicyGates {
         }
     }
 
-    $extractionStage = Join-Path $root 'Core\Workflow\WorkflowExtractionStage.cs'
+    $extractionStage = Join-Path $root 'Core\Workflow\FlowExtract.cs'
     if (Test-Path -LiteralPath $extractionStage -PathType Leaf) {
         $content = Get-Content -LiteralPath $extractionStage -Raw -Encoding UTF8
         foreach ($required in @(
@@ -1665,7 +1665,7 @@ function Test-ChdmanCapabilityPolicyGates {
         }
     }
 
-    $restoreTargetPolicy = Join-Path $root 'Services\Conversion\RestoreTargetPolicy.cs'
+    $restoreTargetPolicy = Join-Path $root 'Services\Conversion\RestorePolicy.cs'
     if (-not (Test-Path -LiteralPath $restoreTargetPolicy -PathType Leaf)) {
         Add-Failure 'RestoreTargetPolicy is required for Legacy CD-profile CHD restore targets.'
     }
@@ -1683,7 +1683,7 @@ function Test-ChdmanCapabilityPolicyGates {
         }
     }
 
-    $cleanupStage = Join-Path $root 'Core\Workflow\WorkflowCleanupStage.cs'
+    $cleanupStage = Join-Path $root 'Core\Workflow\FlowCleanup.cs'
     if (Test-Path -LiteralPath $cleanupStage -PathType Leaf) {
         $content = Get-Content -LiteralPath $cleanupStage -Raw -Encoding UTF8
         foreach ($required in @(
@@ -1712,7 +1712,7 @@ function Test-ChdmanCapabilityPolicyGates {
 
 
 function Test-SafeRecompressPipelinePolicy {
-    $pipeline = Join-Path $root 'Services\Conversion\SafeRecompressPipeline.cs'
+    $pipeline = Join-Path $root 'Services\Conversion\SafeRecomp.cs'
     if (-not (Test-Path -LiteralPath $pipeline -PathType Leaf)) {
         Add-Failure 'SafeRecompressPipeline is required so CHD recompression uses CHD -> original-like extraction -> platform-aware rebuild.'
     }
@@ -1732,7 +1732,7 @@ function Test-SafeRecompressPipelinePolicy {
         }
     }
 
-    $conversion = Join-Path $root 'Services\Conversion\ChdConversionService.cs'
+    $conversion = Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
     if (Test-Path -LiteralPath $conversion -PathType Leaf) {
         $content = Get-Content -LiteralPath $conversion -Raw -Encoding UTF8
         foreach ($required in @(
@@ -1744,7 +1744,7 @@ function Test-SafeRecompressPipelinePolicy {
         }
     }
 
-    $resultModel = Join-Path $root 'Models\Chd\ChdConversionResult.cs'
+    $resultModel = Join-Path $root 'Models\Chd\ChdConvResult.cs'
     if (Test-Path -LiteralPath $resultModel -PathType Leaf) {
         $content = Get-Content -LiteralPath $resultModel -Raw -Encoding UTF8
         foreach ($required in @(
