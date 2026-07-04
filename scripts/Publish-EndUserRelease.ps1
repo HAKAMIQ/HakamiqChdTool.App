@@ -201,7 +201,7 @@ function Invoke-ReleaseComplianceChecks {
         "docs\legal\CHDMAN_NOTICE.md",
         "docs\legal\MAME_COPYING.txt",
         "docs\legal\MAME_GPL-2.0.txt",
-        "docs\legal\SEVENZIP_NOTICE.md",
+        "7ZIP_NOTICE.md",
         "docs\legal\CSOKIT_NOTICE.md",
         "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe",
         "Tools\hakamiq-cso\win-x64\LICENSE.txt",
@@ -372,7 +372,7 @@ try {
         @{ Source = "docs\legal\CHDMAN_NOTICE.md"; Destination = "docs\legal\CHDMAN_NOTICE.md" },
         @{ Source = "docs\legal\MAME_COPYING.txt"; Destination = "docs\legal\MAME_COPYING.txt" },
         @{ Source = "docs\legal\MAME_GPL-2.0.txt"; Destination = "docs\legal\MAME_GPL-2.0.txt" },
-        @{ Source = "docs\legal\SEVENZIP_NOTICE.md"; Destination = "docs\legal\SEVENZIP_NOTICE.md" },
+        @{ Source = "7ZIP_NOTICE.md"; Destination = "7ZIP_NOTICE.md" },
         @{ Source = "docs\legal\CSOKIT_NOTICE.md"; Destination = "docs\legal\CSOKIT_NOTICE.md" }
     )) {
         $sourcePath = Join-Path $ProjectRoot $doc.Source

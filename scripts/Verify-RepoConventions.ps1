@@ -174,7 +174,7 @@ function Test-PublishPackagingPolicy {
         }
 
         $segments = $relative -split '[\\/]'
-        if ($segments.Count -eq 1 -and $segments[0] -in @('LEGAL.md', 'THIRD_PARTY_NOTICES.txt', 'CHDMAN_NOTICE.md', 'SEVENZIP_NOTICE.md', 'MAME_COPYING.txt', 'MAME_GPL-2.0.txt')) {
+        if ($segments.Count -eq 1 -and $segments[0] -in @('LEGAL.md', 'THIRD_PARTY_NOTICES.txt', 'CHDMAN_NOTICE.md', '7ZIP_NOTICE.md', 'MAME_COPYING.txt', 'MAME_GPL-2.0.txt')) {
             Add-Failure "Legal document is not allowed in Release root; it must remain under docs/legal: $($_.FullName)"
         }
     }
@@ -907,9 +907,9 @@ function Test-RedumpDetailsViewModelPurity {
 
 
 function Test-ChdProgressParserImplementation {
-    $parser = Join-Path $root 'Services\Conversion\ChdProgressParser.cs'
+    $parser = Join-Path $root 'Services\Conversion\ChdProgParse.cs'
     if (-not (Test-Path -LiteralPath $parser -PathType Leaf)) {
-        Add-Failure "ChdProgressParser.cs is missing."
+        Add-Failure "ChdProgParse.cs is missing."
         return
     }
 
@@ -942,9 +942,9 @@ function Test-ChdProgressParserImplementation {
 
 
 function Test-ConversionRuntimeReliabilityPolicy {
-    $progressPolicy = Join-Path $root 'Services\Conversion\ChdProgressPolicy.cs'
+    $progressPolicy = Join-Path $root 'Services\Conversion\ChdProgPolicy.cs'
     if (-not (Test-Path -LiteralPath $progressPolicy -PathType Leaf)) {
-        Add-Failure 'ChdProgressPolicy.cs is required to prevent unreliable extractcd raw percent from driving UI progress.'
+        Add-Failure 'ChdProgPolicy.cs is required to prevent unreliable extractcd raw percent from driving UI progress.'
     }
     else {
         $content = Get-Content -LiteralPath $progressPolicy -Raw -Encoding UTF8
@@ -1116,7 +1116,7 @@ function Test-CoreServicesDependencyReduction {
         'Models\Chd\ChdVerificationResult.cs',
         'Models\Chd\ChdConversionResult.cs',
         'Models\PlatformDetectionResult.cs',
-        'Models\Chd\PerformanceSample.cs',
+        'Models\Chd\PerfSample.cs',
         'Models\Chd\ConversionPerformanceReport.cs',
         'Models\Chd\ChdmanExtractionKind.cs')) {
         $candidate = Join-Path $root $requiredPath
@@ -1356,7 +1356,7 @@ function Test-ShutdownBackgroundTimeouts {
 function Test-ShowRedumpDetailsReturnsTask {
     $commands = Join-Path $root 'Views\MainWindow\MW.Cmds.cs'
     $session = Join-Path $root 'Views\MainWindow\MW.Session.cs'
-    $sessionInterface = Join-Path $root 'ViewModels\IMainWindowSession.cs'
+    $sessionInterface = Join-Path $root 'ViewModels\IMainSession.cs'
     $mainVm = Join-Path $root 'ViewModels\MainVM.cs'
 
     if (Test-Path -LiteralPath $commands -PathType Leaf) {
@@ -1443,7 +1443,7 @@ function Test-BinCueConsoleIdentityArchitecture {
         }
     }
 
-    $mediaPolicy = Join-Path $root 'Services\MediaInputPolicy\MediaInputPolicy.cs'
+    $mediaPolicy = Join-Path $root 'Services\MediaInputPolicy\MediaPolicy.cs'
     if (-not (Test-Path -LiteralPath $mediaPolicy -PathType Leaf)) {
         Add-Failure 'MediaInputPolicy is required to centralize standalone BIN/CUE intake decisions.'
     }

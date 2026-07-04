@@ -150,8 +150,8 @@
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
-		<Content Include="docs\legal\SEVENZIP_NOTICE.md">
-			<TargetPath>SEVENZIP_NOTICE.md</TargetPath>
+		<Content Include="7ZIP_NOTICE.md">
+			<TargetPath>7ZIP_NOTICE.md</TargetPath>
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
