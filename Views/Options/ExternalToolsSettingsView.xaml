@@ -161,14 +161,14 @@
                         MinHeight="32"
                         Content="{DynamicResource LocExternalTools_Recheck}"
                         Click="RecheckButton_Click"
-                        Style="{StaticResource Win11SettingsCompactButton}" />
+                        />
 
                 <Button Grid.Column="2"
                         MinWidth="128"
                         MinHeight="32"
                         Content="{DynamicResource LocExternalTools_OpenFolder}"
                         Click="OpenToolsFolderButton_Click"
-                        Style="{StaticResource Win11SettingsCompactButton}" />
+                        />
             </Grid>
         </Grid>
     </Border>
