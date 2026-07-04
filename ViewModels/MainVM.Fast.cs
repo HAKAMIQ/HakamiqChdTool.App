@@ -117,6 +117,7 @@ public partial class MainWindowViewModel
                         intakeSource);
 
                     _session.QueueRows.Append(row);
+                    QueueConsoleIdentityEnrichment(row);
                     currentExistingPaths.Add(normalizedCandidatePath);
                     addedIds.Add(row.ItemId);
                 }

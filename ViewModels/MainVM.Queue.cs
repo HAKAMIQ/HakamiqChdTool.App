@@ -834,18 +834,21 @@ public partial class MainWindowViewModel
             return;
         }
 
-        row.ConsoleIdentityPlatform = result.PlatformName;
-        row.ConsoleIdentityReason = result.Reason;
-
-        foreach (object entry in QueueItems)
+        _session.QueueRows.Mutate(row.ItemId, target =>
         {
-            if (entry is TaskQueueItemViewModel item && item.QueueItemId == row.ItemId)
+            if (!string.Equals(target.OriginalPath, result.InputPath, StringComparison.OrdinalIgnoreCase))
             {
-                item.ConsoleIdentityPlatform = result.PlatformName;
-                item.ConsoleIdentityReason = result.Reason;
-                break;
+                return;
             }
-        }
+
+            if (!ShouldApplyConsoleIdentity(target.DetectedPlatform, target.ConsoleIdentityPlatform, result.PlatformName))
+            {
+                return;
+            }
+
+            target.ConsoleIdentityPlatform = result.PlatformName;
+            target.ConsoleIdentityReason = result.Reason;
+        });
 
         _session.UpdateUiState();
     }
