@@ -3,7 +3,7 @@
                     xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore">
 
 	<ResourceDictionary.MergedDictionaries>
-		<ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/FluentBaseStyles.xaml" />
+		<ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/BaseStyles.xaml" />
 	</ResourceDictionary.MergedDictionaries>
 
 	<SolidColorBrush x:Key="FluentButton.Danger.RestBrush" Color="#FFC50F1F" />

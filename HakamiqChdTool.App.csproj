@@ -52,57 +52,57 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Page Remove="Views\Options\GeneralSettingsView.xaml" />
-		<Page Remove="Views\Options\PathsSettingsView.xaml" />
-		<Page Remove="Views\Options\RedumpSettingsView.xaml" />
-		<Page Remove="Views\Options\ProcessingSettingsView.xaml" />
-		<Page Remove="Views\Options\PerformanceSettingsView.xaml" />
-		<Compile Remove="Views\Options\GeneralSettingsView.xaml.cs" />
-		<Compile Remove="Views\Options\PathsSettingsView.xaml.cs" />
-		<Compile Remove="Views\Options\RedumpSettingsView.xaml.cs" />
-		<Compile Remove="Views\Options\ProcessingSettingsView.xaml.cs" />
-		<Compile Remove="Views\Options\PerformanceSettingsView.xaml.cs" />
+		<Page Remove="Views\Options\GenView.xaml" />
+		<Page Remove="Views\Options\PathsView.xaml" />
+		<Page Remove="Views\Options\RedumpView.xaml" />
+		<Page Remove="Views\Options\ProcView.xaml" />
+		<Page Remove="Views\Options\PerfView.xaml" />
+		<Compile Remove="Views\Options\GenView.xaml.cs" />
+		<Compile Remove="Views\Options\PathsView.xaml.cs" />
+		<Compile Remove="Views\Options\RedumpView.xaml.cs" />
+		<Compile Remove="Views\Options\ProcView.xaml.cs" />
+		<Compile Remove="Views\Options\PerfView.xaml.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Page Include="Views\Options\GeneralSettingsView.xaml">
+		<Page Include="Views\Options\GenView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\Options\PathsSettingsView.xaml">
+		<Page Include="Views\Options\PathsView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\Options\RedumpSettingsView.xaml">
+		<Page Include="Views\Options\RedumpView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\Options\ProcessingSettingsView.xaml">
+		<Page Include="Views\Options\ProcView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\Options\PerformanceSettingsView.xaml">
+		<Page Include="Views\Options\PerfView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Compile Include="Views\Options\GeneralSettingsView.xaml.cs">
-			<DependentUpon>GeneralSettingsView.xaml</DependentUpon>
+		<Compile Include="Views\Options\GenView.xaml.cs">
+			<DependentUpon>GenView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\Options\PathsSettingsView.xaml.cs">
-			<DependentUpon>PathsSettingsView.xaml</DependentUpon>
+		<Compile Include="Views\Options\PathsView.xaml.cs">
+			<DependentUpon>PathsView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\Options\RedumpSettingsView.xaml.cs">
-			<DependentUpon>RedumpSettingsView.xaml</DependentUpon>
+		<Compile Include="Views\Options\RedumpView.xaml.cs">
+			<DependentUpon>RedumpView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\Options\ProcessingSettingsView.xaml.cs">
-			<DependentUpon>ProcessingSettingsView.xaml</DependentUpon>
+		<Compile Include="Views\Options\ProcView.xaml.cs">
+			<DependentUpon>ProcView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\Options\PerformanceSettingsView.xaml.cs">
-			<DependentUpon>PerformanceSettingsView.xaml</DependentUpon>
+		<Compile Include="Views\Options\PerfView.xaml.cs">
+			<DependentUpon>PerfView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
 	</ItemGroup>

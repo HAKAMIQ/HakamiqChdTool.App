@@ -24,7 +24,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/OptionsWindowStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="OptionsWindow.RootFrame"
