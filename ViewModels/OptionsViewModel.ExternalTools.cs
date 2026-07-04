@@ -35,12 +35,41 @@ public sealed partial class OptionsViewModel
             ? ArabicUi.Get("LocExternalTools_CsoKitStatusMissing")
             : statusText;
 
-        ExternalToolsCsoKitVersion = string.IsNullOrWhiteSpace(version)
-            ? ArabicUi.Get("LocValue_Unavailable")
-            : version;
+        ExternalToolsCsoKitVersion = NormalizeExternalToolsVersion(version);
 
         ExternalToolsCsoKitPath = string.IsNullOrWhiteSpace(path)
             ? ArabicUi.Get("LocValue_Unavailable")
             : path;
+    }
+
+    private static string NormalizeExternalToolsVersion(string? version)
+    {
+        if (string.IsNullOrWhiteSpace(version))
+        {
+            return ArabicUi.Get("LocValue_Unavailable");
+        }
+
+        string text = version.Trim();
+
+        string[] prefixes =
+        [
+            "Hakamiq.CsoKit ",
+            "Hakamiq CsoKit ",
+            "Hakamiq.CsoKit",
+            "Hakamiq CsoKit"
+        ];
+
+        foreach (string prefix in prefixes)
+        {
+            if (text.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase))
+            {
+                text = text.Substring(prefix.Length).Trim();
+                break;
+            }
+        }
+
+        return string.IsNullOrWhiteSpace(text)
+            ? ArabicUi.Get("LocValue_Unavailable")
+            : text;
     }
 }

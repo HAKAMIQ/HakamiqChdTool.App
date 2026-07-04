@@ -1216,11 +1216,11 @@
     <sys:String x:Key="LocExternalTools_Recheck">إعادة الفحص</sys:String>
     <sys:String x:Key="LocExternalTools_CopySetupInstructions">نسخ تعليمات الإعداد</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitTitle">Hakamiq CsoKit</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitDescription">محرك Hakamiq الرسمي لفحص ملفات PSP CSO وفكها إلى ISO مؤقت قبل تحويلها إلى CHD.</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitDescription">فحص وفك CSO إلى ISO مؤقت قبل تحويله إلى CHD.</sys:String>
     <sys:String x:Key="LocExternalTools_StatusLabel">الحالة</sys:String>
     <sys:String x:Key="LocExternalTools_VersionLabel">الإصدار</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">المسار</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupInstructions">يستخدم Hakamiq CHD Tool الأداة المرفقة محلياً داخل Tools\hakamiq-cso\win-x64 ولا يستخدم PATH ولا يحمّل أدوات من الإنترنت. إذا ظهرت الحالة غير موجود، افتح مجلد الأدوات وتأكد من وجود hakamiq-cso.exe أو أعد تثبيت الحزمة الرسمية.</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupInstructions">الأداة مرفقة داخل Tools\hakamiq-cso\win-x64. إذا ظهرت غير موجودة، افتح مجلد الأدوات وتأكد من وجود hakamiq-cso.exe أو أعد تثبيت الحزمة الرسمية.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">استعادة الإعدادات الافتراضية</sys:String>
     <sys:String x:Key="LocGeneralSettings_Title">الإعدادات العامة</sys:String>
     <sys:String x:Key="LocGeneralSettings_Description">ضبط الإعدادات العامة التي تنطبق على واجهة التطبيق بالكامل.</sys:String>

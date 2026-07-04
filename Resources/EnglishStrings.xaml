@@ -1222,11 +1222,11 @@ Path:
     <sys:String x:Key="LocExternalTools_Recheck">Recheck</sys:String>
     <sys:String x:Key="LocExternalTools_CopySetupInstructions">Copy Setup Instructions</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitTitle">Hakamiq CsoKit</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitDescription">The official Hakamiq engine for inspecting PSP CSO files and decompressing them to a temporary ISO before CHD conversion.</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitDescription">Checks PSP CSO files and extracts them to a temporary ISO before CHD conversion.</sys:String>
     <sys:String x:Key="LocExternalTools_StatusLabel">Status</sys:String>
     <sys:String x:Key="LocExternalTools_VersionLabel">Version</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">Path</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupInstructions">Hakamiq CHD Tool uses the bundled local tool under Tools\hakamiq-cso\win-x64. It does not use PATH and does not download tools from the internet. If the status appears as missing, open the tools folder and make sure hakamiq-cso.exe exists, or reinstall the official package.</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupInstructions">The bundled tool lives under Tools\hakamiq-cso\win-x64. If it is missing, open the tools folder and confirm hakamiq-cso.exe exists, or reinstall the official package.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">Restore defaults</sys:String>
     <sys:String x:Key="LocGeneralSettings_Title">General settings</sys:String>
     <sys:String x:Key="LocGeneralSettings_Description">Settings that apply to the whole app.</sys:String>
