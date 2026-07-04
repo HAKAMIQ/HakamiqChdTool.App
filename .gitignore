@@ -125,3 +125,5 @@ _release/
 
 # Old audit scratch file
 docs/SOURCE_CLEAN_AUDIT.md
+
+diagnostics-output/
