@@ -51,23 +51,17 @@
                     ToolTip="{Binding ExternalToolsCsoKitPath}"
                     HorizontalAlignment="Stretch"
                     SnapsToDevicePixels="True">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="{DynamicResource Grid.Space.6}" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0"
-                          FlowDirection="{DynamicResource App.FlowDirection}"
+                <StackPanel HorizontalAlignment="Right"
+                            FlowDirection="{DynamicResource App.FlowDirection}"
+                            Language="{DynamicResource App.XmlLanguage}"
+                            SnapsToDevicePixels="True">
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                           Language="{DynamicResource App.XmlLanguage}"
                           SnapsToDevicePixels="True">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0"
@@ -85,14 +79,14 @@
                                    TextTrimming="CharacterEllipsis" />
                     </Grid>
 
-                    <Grid Grid.Row="2"
+                    <Grid Margin="{DynamicResource Inset.0.6.0.0}"
                           FlowDirection="{DynamicResource App.FlowDirection}"
                           Language="{DynamicResource App.XmlLanguage}"
                           SnapsToDevicePixels="True">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0"
@@ -102,17 +96,17 @@
                                    TextWrapping="NoWrap" />
 
                         <TextBlock Grid.Column="2"
-                                   FlowDirection="LeftToRight"
-                                   TextAlignment="Left"
-                                   Language="en-US"
                                    VerticalAlignment="Center"
+                                   FlowDirection="LeftToRight"
+                                   Language="en-US"
+                                   TextAlignment="Left"
                                    Text="{Binding ExternalToolsCsoKitVersion}"
                                    ToolTip="{Binding ExternalToolsCsoKitVersion}"
                                    Style="{DynamicResource Win11SettingsRowDescriptionText}"
                                    TextWrapping="NoWrap"
                                    TextTrimming="CharacterEllipsis" />
                     </Grid>
-                </Grid>
+                </StackPanel>
             </Border>
 
             <Border Grid.Row="6"
