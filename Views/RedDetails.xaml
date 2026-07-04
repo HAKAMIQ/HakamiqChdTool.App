@@ -25,7 +25,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/OptionsWindowStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Storyboard x:Key="RedumpDetails.ToastShowStoryboard">

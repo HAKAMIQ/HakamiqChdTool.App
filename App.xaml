@@ -16,12 +16,12 @@
 
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Light.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Resources/FluentSystemIcons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/FluentIcons.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/CardStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/ButtonStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/TextStyles.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/FluentWorkspaceStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/Workspace.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Fluent/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Style/Win11UiPolish.xaml" />
 

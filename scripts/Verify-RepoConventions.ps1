@@ -182,7 +182,7 @@ function Test-PublishPackagingPolicy {
 
 function Test-RefactoredFileSizeThresholds {
     $limits = @{
-        'Views\RedumpDetailsDialog.xaml.cs' = 120
+        'Views\RedDetails.xaml.cs' = 120
         'Views\OptionsWindow.xaml.cs' = 180
         'Services\Conversion\ChdConversionService.cs' = 700
         'Core\Workflow\Paths\WorkflowPathUtilities.cs' = 180
@@ -783,12 +783,12 @@ function Test-ReleaseScriptConventions {
 }
 
 function Test-RefactorCompositionCompletion {
-    $queueWorkspace = Join-Path $root 'Views\Main\QueueWorkspaceView.xaml'
+    $queueWorkspace = Join-Path $root 'Views\Main\QueueView.xaml'
     if (Test-Path -LiteralPath $queueWorkspace -PathType Leaf) {
         $content = Get-Content -LiteralPath $queueWorkspace -Raw -Encoding UTF8
         foreach ($viewName in @('QueueToolbarView', 'QueueSummaryView', 'QueueEmptyStateView', 'QueueListView')) {
             if ($content -notmatch ('main:' + [regex]::Escape($viewName) + '\b')) {
-                Add-Failure "QueueWorkspaceView.xaml does not compose required subview: $viewName"
+                Add-Failure "QueueView.xaml does not compose required subview: $viewName"
             }
         }
     }
@@ -1311,7 +1311,7 @@ function Test-SingleInstanceGuard {
 }
 
 function Test-OptionsConstructorGuard {
-    $modals = Join-Path $root 'Views\MainWindow\MainWindow.Modals.cs'
+    $modals = Join-Path $root 'Views\MainWindow\MW.Modals.cs'
     if (-not (Test-Path -LiteralPath $modals -PathType Leaf)) {
         return
     }
@@ -1331,7 +1331,7 @@ function Test-OptionsConstructorGuard {
 }
 
 function Test-ShutdownBackgroundTimeouts {
-    $lifecycle = Join-Path $root 'Views\MainWindow\MainWindow.Lifecycle.cs'
+    $lifecycle = Join-Path $root 'Views\MainWindow\MW.Life.cs'
     if (-not (Test-Path -LiteralPath $lifecycle -PathType Leaf)) {
         return
     }
@@ -1354,10 +1354,10 @@ function Test-ShutdownBackgroundTimeouts {
 }
 
 function Test-ShowRedumpDetailsReturnsTask {
-    $commands = Join-Path $root 'Views\MainWindow\MainWindow.Commands.cs'
-    $session = Join-Path $root 'Views\MainWindow\MainWindow.Session.cs'
+    $commands = Join-Path $root 'Views\MainWindow\MW.Cmds.cs'
+    $session = Join-Path $root 'Views\MainWindow\MW.Session.cs'
     $sessionInterface = Join-Path $root 'ViewModels\IMainWindowSession.cs'
-    $mainVm = Join-Path $root 'ViewModels\MainWindowViewModel.cs'
+    $mainVm = Join-Path $root 'ViewModels\MainVM.cs'
 
     if (Test-Path -LiteralPath $commands -PathType Leaf) {
         $content = Get-Content -LiteralPath $commands -Raw -Encoding UTF8
