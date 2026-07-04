@@ -5,8 +5,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using HakamiqChdTool.App.Services;
 
-namespace HakamiqChdTool.App.Services;
+namespace HakamiqChdTool.App.Ui.WpfAdapters;
 
 public sealed class OptionsPickerService : IOptionsPickerService
 {

@@ -16,6 +16,7 @@ using LanguageService = HakamiqChdTool.App.Localization.AppLanguageService;
 using WpfApplication = System.Windows.Application;
 using WpfExitEventArgs = System.Windows.ExitEventArgs;
 using WpfStartupEventArgs = System.Windows.StartupEventArgs;
+using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App;
 

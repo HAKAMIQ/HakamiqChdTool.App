@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using AppHost = System.Windows.Application;
+using HakamiqChdTool.App.Services;
 
-namespace HakamiqChdTool.App.Services;
+namespace HakamiqChdTool.App.Ui.WpfAdapters;
 
 public sealed class ThemeService : IThemeManager
 {

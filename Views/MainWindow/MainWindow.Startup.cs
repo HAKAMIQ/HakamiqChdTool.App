@@ -5,6 +5,7 @@ using System.Windows.Threading;
 
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App;
 
