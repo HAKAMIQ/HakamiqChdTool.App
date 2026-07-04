@@ -55,7 +55,7 @@ Input classification and intake rules. This is the closest part to pure core log
 
 Despite the folder name, this is currently an application workflow layer.
 
-It plans and coordinates work, and it depends on Services. Treating it as pure domain core would be misleading. This decision is documented in [Architecture boundaries](architecture/ARCHITECTURE_BOUNDARIES.md).
+It plans and coordinates work, and it depends on Services. Treating it as pure domain core would be misleading. This decision is documented in [Architecture boundaries](architecture/ARCH_BOUND.md).
 
 ### Services
 

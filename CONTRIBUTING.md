@@ -38,7 +38,7 @@ This checks repository conventions, package cleanliness, Debug build, Release bu
 The app has a lightweight validation test project:
 
 ```powershell
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-Ps2AdvisoryValidationTests.ps1
+PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Ps2AdvTests.ps1
 ```
 
 These tests cover PS2 advisory behavior, CUE/BIN safety, output path contracts, and workflow planning. If you add tests and the count does not change, clean the test `bin` and `obj` folders and rebuild.
@@ -48,7 +48,7 @@ These tests cover PS2 advisory behavior, CUE/BIN safety, output path contracts, 
 Before uploading a public ZIP, run:
 
 ```powershell
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-ReleaseOutputGate.ps1
+PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\RelOutGate.ps1
 ```
 
 This publishes a disposable release output, verifies the end-user package, checks package cleanliness, then removes the disposable folder. Good release scripts should leave the repo clean.
@@ -58,8 +58,8 @@ This publishes a disposable release output, verifies the end-user package, check
 Use the release script, not `bin` or a hand-made folder:
 
 ```powershell
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Publish-EndUserRelease.ps1 -Output .\Release\v1.0.8
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-PackageCleanlinessGate.ps1 -ReleaseOutput .\Release\v1.0.8
+PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\PublishRel.ps1 -Output .\Release\v1.0.8
+PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\PkgCleanGate.ps1 -ReleaseOutput .\Release\v1.0.8
 ```
 
 Then create the ZIP from that folder and verify SHA256. Do not include source, scripts, test output, or build folders in the release asset.
@@ -77,7 +77,7 @@ After a Release build, launch the app and check:
 - Verify and Extract paths still show clear results.
 - No XAML parse errors or resource lookup failures appear.
 
-Use `docs/SMOKE_TEST_CHECKLIST.md` when preparing a public release.
+Use `docs/SMOKE.md` when preparing a public release.
 
 ## Before commit
 
@@ -92,7 +92,7 @@ PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify-Local.ps1
 For release-facing changes, also run:
 
 ```powershell
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-ReleaseOutputGate.ps1
+PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\RelOutGate.ps1
 ```
 
 Keep commits focused. Do not mix documentation rewrite, behavior change, and release packaging in one commit.
@@ -105,7 +105,7 @@ Do not add top-level media input kinds for internal PSX/PS2 asset files such as 
 
 Do not change queue behavior, cancel behavior, retry behavior, or conversion defaults without a dedicated stage and tests.
 
-`Core/Workflow` is currently treated as an application workflow layer, not pure domain core. See `docs/architecture/ARCHITECTURE_BOUNDARIES.md`.
+`Core/Workflow` is currently treated as an application workflow layer, not pure domain core. See `docs/architecture/ARCH_BOUND.md`.
 
 ## GitHub Actions
 

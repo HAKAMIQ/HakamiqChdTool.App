@@ -15,15 +15,15 @@ If you only want to convert a few files, start with the root README. Come here w
 
 - [chdman integration](CHDMAN.md) — how the app prepares and runs chdman without exposing command lines to normal users.
 - [Architecture](ARCHITECTURE.md) — current app structure and boundaries.
-- [Architecture boundaries](architecture/ARCHITECTURE_BOUNDARIES.md) — the current decision around `Core/Workflow`.
+- [Architecture boundaries](architecture/ARCH_BOUND.md) — the current decision around `Core/Workflow`.
 
 ## Release and legal
 
 - [Changelog](release-notes/CHANGELOG.md)
 - [Legal notice](legal/LEGAL.md)
-- [Third-party notices](legal/THIRD_PARTY_NOTICES.txt)
+- [Third-party notices](legal/3P_NOTICE.txt)
 
 ## Development
 
 - [Contributing](../CONTRIBUTING.md)
-- [Smoke test checklist](SMOKE_TEST_CHECKLIST.md)
+- [Smoke test checklist](SMOKE.md)

@@ -7,11 +7,11 @@ $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $ScriptDir '..')).Path
 $Project = Join-Path $ProjectRoot 'HakamiqChdTool.App.csproj'
-$RepoCheck = Join-Path $ScriptDir 'Verify-RepoConventions.ps1'
-$Ps2AdvisoryTests = Join-Path $ScriptDir 'Run-Ps2AdvisoryValidationTests.ps1'
-$PackageCleanlinessGate = Join-Path $ScriptDir 'Run-PackageCleanlinessGate.ps1'
-$ReleaseOutputGate = Join-Path $ScriptDir 'Run-ReleaseOutputGate.ps1'
-$Checklist = Join-Path $ProjectRoot 'docs\SMOKE_TEST_CHECKLIST.md'
+$RepoCheck = Join-Path $ScriptDir 'VerifyRepo.ps1'
+$Ps2AdvisoryTests = Join-Path $ScriptDir 'Ps2AdvTests.ps1'
+$PackageCleanlinessGate = Join-Path $ScriptDir 'PkgCleanGate.ps1'
+$ReleaseOutputGate = Join-Path $ScriptDir 'RelOutGate.ps1'
+$Checklist = Join-Path $ProjectRoot 'docs\SMOKE.md'
 $PowerShellExe = Join-Path $PSHOME 'powershell.exe'
 
 if (-not (Test-Path -LiteralPath $PowerShellExe -PathType Leaf)) {
@@ -142,7 +142,7 @@ try {
     Write-Host '  9) Confirm no resource lookup failures in logs/output.'
     Write-Host ''
     Write-Host 'Optional release output gate:' -ForegroundColor Yellow
-    Write-Host '  powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Run-ReleaseOutputGate.ps1'
+    Write-Host '  powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\RelOutGate.ps1'
     Write-Host ''
 
     if (Test-Path -LiteralPath $Checklist -PathType Leaf) {
