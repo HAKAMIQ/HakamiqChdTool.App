@@ -47,12 +47,13 @@
                        Style="{StaticResource ExternalToolsCardTitleText}"
                        TextWrapping="NoWrap" />
 
-            <TextBlock Grid.Row="2"
-                       HorizontalAlignment="Right"
-                       Text="{DynamicResource LocExternalTools_CsoKitDescription}"
-                       Style="{StaticResource ExternalToolsCardDescriptionText}"
-                       TextWrapping="Wrap"
-                       TextTrimming="None" />
+        <TextBlock Grid.Row="2"
+                   Text="{DynamicResource LocExternalTools_CsoKitDescription}"
+                   Style="{StaticResource ExternalToolsCardDescriptionText}"
+                   FlowDirection="RightToLeft"
+                   TextAlignment="Right"
+                   HorizontalAlignment="Stretch"
+                   TextWrapping="Wrap" />
 
             <Border Grid.Row="4"
                     Background="{DynamicResource Brush.Layer.Surface}"
@@ -63,56 +64,48 @@
                     ToolTip="{Binding ExternalToolsCsoKitPath}"
                     HorizontalAlignment="Stretch"
                     SnapsToDevicePixels="True">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+            <Grid FlowDirection="RightToLeft">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Column="0"
-                               VerticalAlignment="Center"
-                               Text="{DynamicResource LocExternalTools_StatusLabel}"
-                               Style="{StaticResource ExternalToolsCardTitleText}"
-                               TextWrapping="NoWrap" />
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="{DynamicResource LocExternalTools_StatusLabel}"
+                           Style="{StaticResource ExternalToolsCardTitleText}"
+                           FlowDirection="RightToLeft"
+                           TextAlignment="Right" />
 
-                    <TextBlock Grid.Column="2"
-                               VerticalAlignment="Center"
-                               Text="|"
-                               Style="{StaticResource ExternalToolsCardDescriptionText}"
-                               TextWrapping="NoWrap" />
+                <TextBlock Grid.Row="0"
+                           Grid.Column="2"
+                           Text="{Binding ExternalToolsCsoKitStatusText}"
+                           Style="{StaticResource ExternalToolsCardDescriptionText}"
+                           FlowDirection="RightToLeft"
+                           TextAlignment="Right"
+                           HorizontalAlignment="Right" />
 
-                    <TextBlock Grid.Column="4"
-                               VerticalAlignment="Center"
-                               Text="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                               ToolTip="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                               Style="{StaticResource ExternalToolsCardDescriptionText}"
-                               TextWrapping="NoWrap"
-                               TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Text="{DynamicResource LocExternalTools_VersionLabel}"
+                           Style="{StaticResource ExternalToolsCardTitleText}"
+                           FlowDirection="RightToLeft"
+                           TextAlignment="Right" />
 
-                    <TextBlock Grid.Column="5"
-                               VerticalAlignment="Center"
-                               Text="{DynamicResource LocExternalTools_VersionLabel}"
-                               Style="{StaticResource ExternalToolsCardTitleText}"
-                               TextWrapping="NoWrap" />
-
-                    <TextBlock Grid.Column="6"
-                               VerticalAlignment="Center"
-                               FlowDirection="LeftToRight"
-                               Language="en-US"
-                               TextAlignment="Left"
-                               Text="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                               ToolTip="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                               Style="{StaticResource ExternalToolsCardDescriptionText}"
-                               TextWrapping="NoWrap"
-                               TextTrimming="CharacterEllipsis" />
-                </Grid>
+                <TextBlock Grid.Row="2"
+                           Grid.Column="2"
+                           Text="{Binding ExternalToolsCsoKitVersion}"
+                           Style="{StaticResource ExternalToolsCardDescriptionText}"
+                           FlowDirection="LeftToRight"
+                           TextAlignment="Right"
+                           HorizontalAlignment="Right" />
+            </Grid>
             </Border>
 
             <Border Grid.Row="6"
@@ -123,26 +116,28 @@
                     Padding="{DynamicResource Inset.12.All}"
                     HorizontalAlignment="Stretch"
                     SnapsToDevicePixels="True">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="{DynamicResource Grid.Space.6}" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+            <Grid FlowDirection="RightToLeft">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0"
-                               Text="{DynamicResource LocExternalTools_SetupNoteTitle}"
-                               Style="{StaticResource ExternalToolsCardTitleText}"
-                               TextWrapping="NoWrap" />
+                <TextBlock Grid.Row="0"
+                           Text="{DynamicResource LocExternalTools_SetupNoteTitle}"
+                           Style="{StaticResource ExternalToolsCardTitleText}"
+                           FlowDirection="RightToLeft"
+                           TextAlignment="Right"
+                           HorizontalAlignment="Right" />
 
-                    <TextBlock Grid.Row="2"
-                               Text="{DynamicResource LocExternalTools_SetupInstructions}"
-                               Style="{StaticResource ExternalToolsCardDescriptionText}"
-                               TextWrapping="Wrap"
-                               TextTrimming="None" />
-                </Grid>
+                <TextBlock Grid.Row="2"
+                           Text="{DynamicResource LocExternalTools_SetupInstructions}"
+                           Style="{StaticResource ExternalToolsCardDescriptionText}"
+                           FlowDirection="RightToLeft"
+                           TextAlignment="Right"
+                           HorizontalAlignment="Stretch"
+                           TextWrapping="Wrap" />
+            </Grid>
             </Border>
 
             <Grid Grid.Row="8"
