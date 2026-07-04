@@ -13,12 +13,33 @@ public sealed class CsoToolLocator
 {
     public const string ToolExecutableName = "hakamiq-cso.exe";
 
+    private readonly string _preferredToolPath;
+
+    public CsoToolLocator()
+        : this(TryLoadPreferredToolPathFromSettings())
+    {
+    }
+
+    public CsoToolLocator(string? preferredToolPath)
+    {
+        _preferredToolPath = preferredToolPath?.Trim() ?? string.Empty;
+    }
+
     public string BundledToolsFolderPath => Path.Combine(AppContext.BaseDirectory, "Tools", "hakamiq-cso", "win-x64");
 
-    public IReadOnlyList<string> EnumerateCandidatePaths() =>
-    [
-        Path.Combine(BundledToolsFolderPath, ToolExecutableName)
-    ];
+    public IReadOnlyList<string> EnumerateCandidatePaths()
+    {
+        List<string> candidates = new(capacity: 2);
+
+        if (!string.IsNullOrWhiteSpace(_preferredToolPath))
+        {
+            candidates.Add(_preferredToolPath);
+        }
+
+        candidates.Add(Path.Combine(BundledToolsFolderPath, ToolExecutableName));
+
+        return candidates;
+    }
 
     public CsoToolLocation Locate()
     {
@@ -31,6 +52,25 @@ public sealed class CsoToolLocator
         }
 
         return new CsoToolLocation(false, string.Empty, BundledToolsFolderPath);
+    }
+
+    private static string TryLoadPreferredToolPathFromSettings()
+    {
+        try
+        {
+            using AppSettingsService settingsService = new();
+            return settingsService.Load().ExternalCsoKitPath?.Trim() ?? string.Empty;
+        }
+        catch (Exception ex) when (ex is IOException
+                                  or UnauthorizedAccessException
+                                  or ArgumentException
+                                  or InvalidOperationException
+                                  or NotSupportedException
+                                  or PathTooLongException
+                                  or System.Security.SecurityException)
+        {
+            return string.Empty;
+        }
     }
 
     private static bool TryValidateCandidate(string candidatePath, out string normalized)

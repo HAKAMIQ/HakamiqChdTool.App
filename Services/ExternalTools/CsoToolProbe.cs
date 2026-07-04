@@ -40,6 +40,11 @@ public sealed class CsoToolProbe
     {
     }
 
+    public CsoToolProbe(string? preferredToolPath)
+        : this(new CsoToolLocator(preferredToolPath), new ExternalToolProcessRunner())
+    {
+    }
+
     public CsoToolProbe(CsoToolLocator locator, ExternalToolProcessRunner runner)
     {
         _locator = locator ?? throw new ArgumentNullException(nameof(locator));

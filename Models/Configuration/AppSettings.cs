@@ -82,6 +82,8 @@ public sealed class AppSettings
 
     public string ExternalChdmanPath { get; set; } = string.Empty;
 
+    public string ExternalCsoKitPath { get; set; } = string.Empty;
+
     public bool PortableMode { get; set; } = false;
 
     public bool HasSeenAdministratorWarning { get; set; } = false;
@@ -172,6 +174,7 @@ public sealed class AppSettings
         EnableRedumpAutoSync = other.EnableRedumpAutoSync;
         UseBundledChdman = other.UseBundledChdman;
         ExternalChdmanPath = other.ExternalChdmanPath;
+        ExternalCsoKitPath = other.ExternalCsoKitPath;
         PortableMode = other.PortableMode;
         HasSeenAdministratorWarning = other.HasSeenAdministratorWarning;
         DiscordSupportUrl = other.DiscordSupportUrl;
@@ -230,6 +233,7 @@ public sealed class AppSettings
             EnableRedumpAutoSync = EnableRedumpAutoSync,
             UseBundledChdman = UseBundledChdman,
             ExternalChdmanPath = ExternalChdmanPath,
+            ExternalCsoKitPath = ExternalCsoKitPath,
             PortableMode = PortableMode,
             HasSeenAdministratorWarning = HasSeenAdministratorWarning,
             DiscordSupportUrl = DiscordSupportUrl,

@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Services;
+using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Threading;
@@ -14,12 +15,15 @@ internal sealed partial class HqOptionsShell
     private const string ExternalToolsStatusCheckingKey = "LocExternalTools_CsoKitStatusChecking";
     private const string OpenFolderFailedBodyKey = "LocDialog_OpenFolderFailedBody";
     private const string ValueUnavailableKey = "LocValue_Unavailable";
+    private const string SelectCsoKitToolTitleKey = "LocExternalTools_SelectCsoKitToolTitle";
+    private const string CsoKitToolFilterKey = "LocExternalTools_CsoKitToolFilter";
+    private const string InvalidCsoKitToolSelectionKey = "LocExternalTools_InvalidCsoKitToolSelection";
 
     public void RecheckExternalTools(object? sender, EventArgs e) => QueueExternalToolsRefresh(showCheckingState: true);
 
     public void OpenExternalToolsFolder(object? sender, EventArgs e)
     {
-        string folderPath = new CsoToolLocator().BundledToolsFolderPath;
+        string folderPath = ResolvePreferredToolsFolder();
 
         try
         {
@@ -41,6 +45,109 @@ internal sealed partial class HqOptionsShell
         {
             ShowNoticeDialog(OperationErrorTitleKey, OpenFolderFailedBodyKey);
         }
+    }
+
+    public void BrowseCsoKitTool(object? sender, EventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = ResolveUiText(SelectCsoKitToolTitleKey),
+            Filter = ResolveUiText(CsoKitToolFilterKey),
+            CheckFileExists = true,
+            CheckPathExists = true,
+            Multiselect = false,
+            FileName = CsoToolLocator.ToolExecutableName
+        };
+
+        string currentPath = _currentSettings.ExternalCsoKitPath;
+        if (!string.IsNullOrWhiteSpace(currentPath))
+        {
+            try
+            {
+                string currentFullPath = Path.GetFullPath(currentPath);
+                string? currentDirectory = Path.GetDirectoryName(currentFullPath);
+                if (!string.IsNullOrWhiteSpace(currentDirectory) && Directory.Exists(currentDirectory))
+                {
+                    dialog.InitialDirectory = currentDirectory;
+                }
+            }
+            catch (Exception ex) when (ex is IOException
+                                      or UnauthorizedAccessException
+                                      or ArgumentException
+                                      or NotSupportedException
+                                      or PathTooLongException
+                                      or System.Security.SecurityException)
+            {
+                Logger.Debug(ex, "Ignored invalid Hakamiq CsoKit preferred path before browse. Path={Path}", currentPath);
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(dialog.InitialDirectory))
+        {
+            string bundledFolder = new CsoToolLocator(_currentSettings.ExternalCsoKitPath).BundledToolsFolderPath;
+            if (Directory.Exists(bundledFolder))
+            {
+                dialog.InitialDirectory = bundledFolder;
+            }
+        }
+
+        bool? result = dialog.ShowDialog(_owner);
+        if (result != true)
+        {
+            return;
+        }
+
+        string selectedPath;
+        try
+        {
+            selectedPath = Path.GetFullPath(dialog.FileName);
+        }
+        catch (Exception ex) when (ex is IOException
+                                  or UnauthorizedAccessException
+                                  or ArgumentException
+                                  or NotSupportedException
+                                  or PathTooLongException
+                                  or System.Security.SecurityException)
+        {
+            Logger.Debug(ex, "Invalid Hakamiq CsoKit selected path. Path={Path}", dialog.FileName);
+            ShowNoticeDialog(OperationErrorTitleKey, InvalidCsoKitToolSelectionKey);
+            return;
+        }
+
+        if (!string.Equals(Path.GetFileName(selectedPath), CsoToolLocator.ToolExecutableName, StringComparison.OrdinalIgnoreCase)
+            || !File.Exists(selectedPath))
+        {
+            ShowNoticeDialog(OperationErrorTitleKey, InvalidCsoKitToolSelectionKey);
+            return;
+        }
+
+        _currentSettings.ExternalCsoKitPath = selectedPath;
+        _owner.ResultSettings.ExternalCsoKitPath = selectedPath;
+
+        try
+        {
+            using AppSettingsService settingsService = new();
+            settingsService.Save(_currentSettings);
+        }
+        catch (Exception ex) when (ex is IOException
+                                  or UnauthorizedAccessException
+                                  or ArgumentException
+                                  or InvalidOperationException
+                                  or NotSupportedException
+                                  or PathTooLongException
+                                  or System.Security.SecurityException)
+        {
+            Logger.Warning(ex, "Failed to persist Hakamiq CsoKit selected path. Path={Path}", selectedPath);
+        }
+
+        string unavailableText = ResolveUiText(ValueUnavailableKey);
+        _owner.ViewModel.SetCsoKitExternalToolStatus(
+            ResolveUiText(ExternalToolsStatusCheckingKey),
+            unavailableText,
+            selectedPath,
+            showSetupNote: false);
+
+        QueueExternalToolsRefresh(showCheckingState: false);
     }
 
     private void QueueExternalToolsRefresh() => QueueExternalToolsRefresh(showCheckingState: false);
@@ -75,7 +182,7 @@ internal sealed partial class HqOptionsShell
                 CsoToolProbeResult result;
                 try
                 {
-                    result = await new CsoToolProbe().CheckAsync(token).ConfigureAwait(false);
+                    result = await new CsoToolProbe(_currentSettings.ExternalCsoKitPath).CheckAsync(token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested)
                 {
@@ -129,7 +236,35 @@ internal sealed partial class HqOptionsShell
         _owner.ViewModel.SetCsoKitExternalToolStatus(
             ResolveUiText(statusKey),
             isAvailable && !string.IsNullOrWhiteSpace(result.VersionText) ? result.VersionText : unavailableText,
-            isAvailable && !string.IsNullOrWhiteSpace(result.ToolPath) ? result.ToolPath : unavailableText,
+            isAvailable && !string.IsNullOrWhiteSpace(result.ToolPath) ? result.ToolPath : ResolvePreferredToolsFolder(),
             showSetupNote: !isAvailable);
+    }
+
+    private string ResolvePreferredToolsFolder()
+    {
+        string preferredPath = _currentSettings.ExternalCsoKitPath;
+        if (!string.IsNullOrWhiteSpace(preferredPath))
+        {
+            try
+            {
+                string fullPath = Path.GetFullPath(preferredPath);
+                string? directory = Path.GetDirectoryName(fullPath);
+                if (!string.IsNullOrWhiteSpace(directory))
+                {
+                    return directory;
+                }
+            }
+            catch (Exception ex) when (ex is IOException
+                                      or UnauthorizedAccessException
+                                      or ArgumentException
+                                      or NotSupportedException
+                                      or PathTooLongException
+                                      or System.Security.SecurityException)
+            {
+                Logger.Debug(ex, "Ignored invalid Hakamiq CsoKit preferred folder path. Path={Path}", preferredPath);
+            }
+        }
+
+        return new CsoToolLocator(preferredPath).BundledToolsFolderPath;
     }
 }

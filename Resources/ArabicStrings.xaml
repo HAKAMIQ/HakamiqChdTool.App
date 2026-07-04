@@ -1749,4 +1749,8 @@
     <sys:String x:Key="LocQueue_VerificationResultStatusLabel">الحالة</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureAction">أعد إنشاء ملف CHD من المصدر الأصلي، أو جرّب نسخة أخرى.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultInternalDetails">ملف CHD سليم داخلياً وقابل للاستخدام.&#x0A;لم يتم العثور على تلف في بنية الحاوية أثناء الفحص.</sys:String>
+    <sys:String x:Key="LocExternalTools_SelectCsoKitToolTitle">تحديد hakamiq-cso.exe</sys:String>
+    <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">اختر ملف hakamiq-cso.exe فقط.</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitToolFilter">Hakamiq CsoKit (hakamiq-cso.exe)|hakamiq-cso.exe|ملفات تنفيذية (*.exe)|*.exe</sys:String>
+    <sys:String x:Key="LocExternalTools_Browse">استعراض</sys:String>
 </ResourceDictionary>
