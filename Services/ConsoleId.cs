@@ -214,6 +214,11 @@ internal static class ConsoleIdSvc
 
     private static ConsoleIdResult DetectFromPathHint(string path)
     {
+        if (ConsoleAlias.TryDetect(path, out ConsoleIdResult redumpAliasResult))
+        {
+            return redumpAliasResult;
+        }
+
         string normalized = Normalize(path);
 
         bool Has(params string[] tokens)
