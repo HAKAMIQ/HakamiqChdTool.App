@@ -1208,7 +1208,7 @@
     <sys:String x:Key="LocOptions_TabRedump">Redump</sys:String>
     <sys:String x:Key="LocOptions_TabProcessing">المعالجة</sys:String>
     <sys:String x:Key="LocOptions_TabPerformance">الأداء</sys:String>
-    <sys:String x:Key="LocExternalTools_Title">الأدوات الخارجية</sys:String>
+    <sys:String x:Key="LocExternalTools_Title">Hakamiq-CsoKit</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">متاح</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">غير موجود</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">تعذر التحقق</sys:String>
@@ -1220,7 +1220,7 @@
     <sys:String x:Key="LocExternalTools_StatusLabel">الحالة</sys:String>
     <sys:String x:Key="LocExternalTools_VersionLabel">الإصدار</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">المسار</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupInstructions">الأداة مرفقة داخل Tools\hakamiq-cso\win-x64. إذا ظهرت غير موجودة، افتح مجلد الأدوات وتأكد من وجود hakamiq-cso.exe أو أعد تثبيت الحزمة الرسمية.</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupInstructions">الأداة مرفقة مع البرنامج. إذا ظهرت غير موجودة، افتح مجلد الأدوات وتأكد من وجود hakamiq-cso.exe أو أعد تثبيت الحزمة الرسمية.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">استعادة الإعدادات الافتراضية</sys:String>
     <sys:String x:Key="LocGeneralSettings_Title">الإعدادات العامة</sys:String>
     <sys:String x:Key="LocGeneralSettings_Description">ضبط الإعدادات العامة التي تنطبق على واجهة التطبيق بالكامل.</sys:String>
@@ -1740,7 +1740,7 @@
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">ملخص سريع للملفات قبل تجهيز قاعدة المطابقة.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جارٍ إعادة الفحص...</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupNoteTitle">معلومة الإعداد</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupNoteTitle">ملاحظة</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">تعذر التحقق من سلامة ملف CHD.&#x0A;قد يكون الملف تالفاً، غير مكتمل، أو بصيغة غير مدعومة.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">تنبيه</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultDetailsTitle">التفاصيل</sys:String>

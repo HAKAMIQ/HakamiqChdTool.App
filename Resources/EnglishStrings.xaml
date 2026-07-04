@@ -1214,7 +1214,7 @@ Path:
     <sys:String x:Key="LocOptions_TabRedump">Redump</sys:String>
     <sys:String x:Key="LocOptions_TabProcessing">Processing</sys:String>
     <sys:String x:Key="LocOptions_TabPerformance">Performance</sys:String>
-    <sys:String x:Key="LocExternalTools_Title">External Tools</sys:String>
+    <sys:String x:Key="LocExternalTools_Title">Hakamiq-CsoKit</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">Available</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">Missing</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">Failed</sys:String>
@@ -1226,7 +1226,7 @@ Path:
     <sys:String x:Key="LocExternalTools_StatusLabel">Status</sys:String>
     <sys:String x:Key="LocExternalTools_VersionLabel">Version</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">Path</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupInstructions">The bundled tool lives under Tools\hakamiq-cso\win-x64. If it is missing, open the tools folder and confirm hakamiq-cso.exe exists, or reinstall the official package.</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupInstructions">The tool is bundled with the app. If it is missing, open the tools folder and confirm hakamiq-cso.exe exists, or reinstall the official package.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">Restore defaults</sys:String>
     <sys:String x:Key="LocGeneralSettings_Title">General settings</sys:String>
     <sys:String x:Key="LocGeneralSettings_Description">Settings that apply to the whole app.</sys:String>
@@ -1746,7 +1746,7 @@ Path:
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">Quick file summary before preparing the matching database.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">Checking...</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupNoteTitle">Setup note</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupNoteTitle">Note</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">The CHD file could not be verified.&#x0A;It may be damaged, incomplete, or in an unsupported format.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">Note</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultDetailsTitle">Details</sys:String>
