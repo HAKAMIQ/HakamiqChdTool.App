@@ -10,7 +10,7 @@ public sealed record ShellQueueItem(
     bool IsRejected = false,
     bool RequiresReview = false,
     string SourcePath = "",
-    string InputKind = "غير معروف",
+    string InputKind = "Unknown",
     string IntakeDisposition = "مرفوض",
     string IntakeSummaryText = "",
     double ProgressPercent = 0,
