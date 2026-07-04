@@ -27,6 +27,8 @@ internal sealed partial class HqOptionsShell
             return;
         }
 
+        _owner.ViewModel.RefLang();
+
         _ = _owner.Dispatcher.BeginInvoke(
             new Action(RefreshLayoutAfterLanguageSwitch),
             DispatcherPriority.Loaded);
