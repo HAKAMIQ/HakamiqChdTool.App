@@ -102,9 +102,10 @@
                                    TextWrapping="NoWrap" />
 
                         <TextBlock Grid.Column="2"
+                                   Language="en-US"
                                    VerticalAlignment="Center"
-                                   Text="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                   ToolTip="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   Text="{Binding ExternalToolsCsoKitVersion}"
+                                   ToolTip="{Binding ExternalToolsCsoKitVersion}"
                                    Style="{DynamicResource Win11SettingsRowDescriptionText}"
                                    TextWrapping="NoWrap"
                                    TextTrimming="CharacterEllipsis" />
