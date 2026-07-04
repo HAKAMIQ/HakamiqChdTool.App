@@ -25,7 +25,7 @@
                 <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Fluent/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources/Style/Win11UiPolish.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/QueueItemTemplate.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources/Style/QItemTpl.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <FlowDirection x:Key="App.FlowDirection">RightToLeft</FlowDirection>
