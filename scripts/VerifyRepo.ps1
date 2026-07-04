@@ -174,7 +174,7 @@ function Test-PublishPackagingPolicy {
         }
 
         $segments = $relative -split '[\\/]'
-        if ($segments.Count -eq 1 -and $segments[0] -in @('LEGAL.md', '3P_NOTICE.txt', 'CHDMAN_NOTICE.md', '7ZIP_NOTICE.md', 'MAME_COPYING.txt', 'MAME_GPL-2.0.txt')) {
+        if ($segments.Count -eq 1 -and $segments[0] -in @('LEGAL.md', '3P_NOTICE.txt', 'CHDMAN_NOTICE.md', '7ZIP.md', 'MAME_COPYING.txt', 'MAME_GPL-2.0.txt')) {
             Add-Failure "Legal document is not allowed in Release root; it must remain under docs/legal: $($_.FullName)"
         }
     }
