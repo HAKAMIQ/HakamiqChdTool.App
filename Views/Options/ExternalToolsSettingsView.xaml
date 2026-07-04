@@ -141,22 +141,44 @@
                                                Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocExternalTools_PathLabel}" />
 
-                                    <Border Grid.Row="2"
-                                            Background="{DynamicResource Brush.Layer.Surface}"
-                                            BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                                            BorderThickness="{DynamicResource Inset.1.All}"
-                                            CornerRadius="{DynamicResource Radius.Control}"
-                                            Padding="{DynamicResource Inset.10.All}"
-                                            SnapsToDevicePixels="True">
-                                        <TextBlock FlowDirection="LeftToRight"
-                                                   Language="en-US"
-                                                   TextAlignment="Left"
-                                                   Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                                   Text="{Binding ExternalToolsCsoKitPath}"
-                                                   ToolTip="{Binding ExternalToolsCsoKitPath}"
-                                                   TextWrapping="NoWrap"
-                                                   TextTrimming="CharacterEllipsis" />
-                                    </Border>
+                                    <Grid Grid.Row="2"
+                                          FlowDirection="{DynamicResource App.FlowDirection}"
+                                          Language="{DynamicResource App.XmlLanguage}"
+                                          SnapsToDevicePixels="True">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Grid.Column="0"
+                                                Background="{DynamicResource Brush.Layer.Surface}"
+                                                BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                                                BorderThickness="{DynamicResource Inset.1.All}"
+                                                CornerRadius="{DynamicResource Radius.Control}"
+                                                Padding="{DynamicResource Inset.10.All}"
+                                                SnapsToDevicePixels="True">
+                                            <TextBlock FlowDirection="LeftToRight"
+                                                       Language="en-US"
+                                                       TextAlignment="Left"
+                                                       Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                       Text="{Binding ExternalToolsCsoKitPath}"
+                                                       ToolTip="{Binding ExternalToolsCsoKitPath}"
+                                                       TextWrapping="NoWrap"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </Border>
+
+                                        <Button x:Name="BrowseCsoKitToolButton"
+                                                Grid.Column="2"
+                                                MinWidth="{DynamicResource Space.120}"
+                                                HorizontalAlignment="Stretch"
+                                                Click="BrowseCsoKitToolButton_Click"
+                                                ToolTip="{DynamicResource LocExternalTools_Browse}"
+                                                AutomationProperties.Name="{DynamicResource LocExternalTools_Browse}"
+                                                Style="{StaticResource SecondaryButtonStyle}">
+                                            <TextBlock Text="{DynamicResource LocExternalTools_Browse}" />
+                                        </Button>
+                                    </Grid>
                                 </Grid>
 
                                 <Border Margin="{DynamicResource Inset.0.10.0.0}"

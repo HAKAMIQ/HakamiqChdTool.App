@@ -1755,4 +1755,8 @@ Path:
     <sys:String x:Key="LocQueue_VerificationResultStatusLabel">Status</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureAction">Recreate the CHD file from the original source, or try another copy.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultInternalDetails">The CHD file is internally valid and usable.&#x0A;No damage was found in the container structure during verification.</sys:String>
+    <sys:String x:Key="LocExternalTools_SelectCsoKitToolTitle">Select hakamiq-cso.exe</sys:String>
+    <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">Select hakamiq-cso.exe only.</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitToolFilter">Hakamiq CsoKit (hakamiq-cso.exe)|hakamiq-cso.exe|Executable files (*.exe)|*.exe</sys:String>
+    <sys:String x:Key="LocExternalTools_Browse">Browse</sys:String>
 </ResourceDictionary>
