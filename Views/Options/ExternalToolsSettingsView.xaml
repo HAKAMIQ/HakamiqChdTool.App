@@ -118,21 +118,35 @@
                                             CornerRadius="{DynamicResource Radius.Control}"
                                             Padding="{DynamicResource Inset.10.All}"
                                             SnapsToDevicePixels="True">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto" />
-                                                <RowDefinition Height="{DynamicResource Grid.Space.4}" />
-                                                <RowDefinition Height="Auto" />
-                                            </Grid.RowDefinitions>
+                                        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                              Language="{DynamicResource App.XmlLanguage}"
+                                              SnapsToDevicePixels="True">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Row="0"
+                                            <TextBlock Grid.Column="0"
+                                                       VerticalAlignment="Center"
                                                        Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                                       Text="{DynamicResource LocExternalTools_VersionLabel}" />
+                                                       Text="{DynamicResource LocExternalTools_VersionLabel}"
+                                                       TextWrapping="NoWrap" />
 
-                                            <TextBlock Grid.Row="2"
+                                            <TextBlock Grid.Column="2"
+                                                       VerticalAlignment="Center"
+                                                       Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                       Text=":"
+                                                       TextWrapping="NoWrap" />
+
+                                            <TextBlock Grid.Column="4"
                                                        FlowDirection="LeftToRight"
                                                        Language="en-US"
                                                        TextAlignment="Left"
+                                                       VerticalAlignment="Center"
                                                        Style="{StaticResource Win11SettingsRowTitleText}"
                                                        Text="{Binding ExternalToolsCsoKitVersion}"
                                                        ToolTip="{Binding ExternalToolsCsoKitVersion}"
