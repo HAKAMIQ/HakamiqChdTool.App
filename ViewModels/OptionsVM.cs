@@ -149,6 +149,126 @@ public sealed partial class OptionsViewModel : ObservableValidator
         };
     }
 
+    public void RefLang()
+    {
+        string? processorKey = SelectedProcessorOption?.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        string? concurrentKey = SelectedConcurrentConversionOption?.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        string? performanceKey = SelectedPerformanceMode?.Key;
+        string? priorityKey = SelectedPriorityMode?.Key;
+        string? compressionKey = SelectedCompressionPreset?.Key;
+        string? hunkKey = SelectedHunkPreset?.Key;
+        string? isoKey = SelectedIsoCreateOverride?.Key;
+        string? profileKey = SelectedChdPlatformProfile?.Key;
+        string? redumpPlatformKey = SelectedRedumpPlatformOption?.Key;
+        string? redumpArtifactKey = SelectedRedumpArtifactOption?.Key;
+
+        LoadProcessorChoices();
+        LoadConcurrentConversionChoices();
+        LoadRedumpCatalogChoices();
+
+        RefList(
+            PerformanceModeOptions,
+            new[]
+            {
+                new ChoiceOption("Safe", ArabicUi.Get("LocAdv_PerformanceModeSafeLabel"), ArabicUi.Get("LocAdv_PerformanceModeSafeDescription")),
+                new ChoiceOption("Balanced", ArabicUi.Get("LocAdv_PerformanceModeBalancedLabel"), ArabicUi.Get("LocAdv_PerformanceModeBalancedDescription")),
+                new ChoiceOption("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription")),
+                new ChoiceOption("Manual", ArabicUi.Get("LocAdv_PerformanceModeManualLabel"), ArabicUi.Get("LocAdv_PerformanceModeManualDescription"))
+            });
+
+        RefList(
+            PriorityModeOptions,
+            new[]
+            {
+                new ChoiceOption("Quiet", ArabicUi.Get("LocAdv_ProcessPriorityQuietLabel"), ArabicUi.Get("LocAdv_ProcessPriorityQuietDescription")),
+                new ChoiceOption("Normal", ArabicUi.Get("LocAdv_ProcessPriorityNormalLabel"), ArabicUi.Get("LocAdv_ProcessPriorityNormalDescription"))
+            });
+
+        RefList(
+            CompressionPresetOptions,
+            new[]
+            {
+                new ChoiceOption("default", ArabicUi.Get("LocAdv_CompressionPresetDefaultLabel"), ArabicUi.Get("LocAdv_CompressionPresetDefaultDescription")),
+                new ChoiceOption("fast", ArabicUi.Get("LocAdv_CompressionPresetFastLabel"), ArabicUi.Get("LocAdv_CompressionPresetFastDescription")),
+                new ChoiceOption("balanced", ArabicUi.Get("LocAdv_CompressionPresetBalancedLabel"), ArabicUi.Get("LocAdv_CompressionPresetBalancedDescription")),
+                new ChoiceOption("max", ArabicUi.Get("LocAdv_CompressionPresetMaxLabel"), ArabicUi.Get("LocAdv_CompressionPresetMaxDescription"))
+            });
+
+        RefList(
+            HunkPresetOptions,
+            new[]
+            {
+                new ChoiceOption("default", ArabicUi.Get("LocAdv_HunkPresetDefaultLabel"), ArabicUi.Get("LocAdv_HunkPresetDefaultDescription")),
+                new ChoiceOption("small", ArabicUi.Get("LocAdv_HunkPresetSmallLabel"), ArabicUi.Get("LocAdv_HunkPresetSmallDescription")),
+                new ChoiceOption("balanced", ArabicUi.Get("LocAdv_HunkPresetBalancedLabel"), ArabicUi.Get("LocAdv_HunkPresetBalancedDescription")),
+                new ChoiceOption("large", ArabicUi.Get("LocAdv_HunkPresetLargeLabel"), ArabicUi.Get("LocAdv_HunkPresetLargeDescription"))
+            });
+
+        RefList(
+            IsoCreateOverrideOptions,
+            new[]
+            {
+                new ChoiceOption("Auto", ArabicUi.Get("LocAdv_IsoCreateOverrideAutoLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideAutoDescription")),
+                new ChoiceOption("CreateCd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdDescription")),
+                new ChoiceOption("CreateDvd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdDescription"))
+            });
+
+        RefList(
+            ChdPlatformProfileOptions,
+            new[]
+            {
+                new ChoiceOption(ChdPlatformProfiles.AutoDetectPlatformId, ArabicUi.Get("LocChdProfile_AutoDetectLabel"), ArabicUi.Get("LocChdProfile_AutoDetectDescription")),
+                new ChoiceOption(ChdPlatformProfiles.Ps1.PlatformId, ArabicUi.Get("LocChdProfile_Ps1Label"), ArabicUi.Get("LocChdProfile_Ps1Description")),
+                new ChoiceOption(ChdPlatformProfiles.Ps2Cd.PlatformId, ArabicUi.Get("LocChdProfile_Ps2CdLabel"), ArabicUi.Get("LocChdProfile_Ps2CdDescription")),
+                new ChoiceOption(ChdPlatformProfiles.Ps2Dvd.PlatformId, ArabicUi.Get("LocChdProfile_Ps2DvdLabel"), ArabicUi.Get("LocChdProfile_Ps2DvdDescription")),
+                new ChoiceOption(ChdPlatformProfiles.PspIso.PlatformId, ArabicUi.Get("LocChdProfile_PspLabel"), ArabicUi.Get("LocChdProfile_PspDescription")),
+                new ChoiceOption(ChdPlatformProfiles.SegaSaturn.PlatformId, ArabicUi.Get("LocChdProfile_SaturnLabel"), ArabicUi.Get("LocChdProfile_SaturnDescription")),
+                new ChoiceOption(ChdPlatformProfiles.DreamcastGdi.PlatformId, ArabicUi.Get("LocChdProfile_DreamcastLabel"), ArabicUi.Get("LocChdProfile_DreamcastDescription"))
+            });
+
+        SelectedProcessorOption = ProcessorOptions.FirstOrDefault(x => x.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) == processorKey) ?? ProcessorOptions.FirstOrDefault();
+        SelectedConcurrentConversionOption = ConcurrentConversionOptions.FirstOrDefault(x => x.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) == concurrentKey) ?? ConcurrentConversionOptions.FirstOrDefault();
+        SelectedPerformanceMode = SelChoice(PerformanceModeOptions, performanceKey);
+        SelectedPriorityMode = SelChoice(PriorityModeOptions, priorityKey);
+        SelectedCompressionPreset = SelChoice(CompressionPresetOptions, compressionKey);
+        SelectedHunkPreset = SelChoice(HunkPresetOptions, hunkKey);
+        SelectedIsoCreateOverride = SelChoice(IsoCreateOverrideOptions, isoKey);
+        SelectedChdPlatformProfile = SelChoice(ChdPlatformProfileOptions, profileKey);
+        SelectedRedumpPlatformOption = RedumpPlatformOptions.FirstOrDefault(x => string.Equals(x.Key, redumpPlatformKey, StringComparison.OrdinalIgnoreCase)) ?? RedumpPlatformOptions.FirstOrDefault();
+        SelectedRedumpArtifactOption = RedumpArtifactOptions.FirstOrDefault(x => string.Equals(x.Key, redumpArtifactKey, StringComparison.OrdinalIgnoreCase)) ?? RedumpArtifactOptions.FirstOrDefault();
+
+        OnPropertyChanged(nameof(ProcessorSummary));
+        OnPropertyChanged(nameof(ProcessorHint));
+        OnPropertyChanged(nameof(ConcurrentConversionDescription));
+        OnPropertyChanged(nameof(PerformanceModeDescription));
+        OnPropertyChanged(nameof(PriorityModeDescription));
+        OnPropertyChanged(nameof(CompressionPresetDescription));
+        OnPropertyChanged(nameof(HunkPresetDescription));
+        OnPropertyChanged(nameof(IsoCreateOverrideDescription));
+        OnPropertyChanged(nameof(ChdPlatformProfileDescription));
+        OnPropertyChanged(nameof(ProcessorSelectionDescription));
+        OnPropertyChanged(nameof(PendingWorkspaceModeDisplay));
+        OnPropertyChanged(nameof(DatabaseLastSyncedDisplay));
+        OnPropertyChanged(nameof(SelectedRedumpPlatformDescription));
+        OnPropertyChanged(nameof(SelectedRedumpArtifactDescription));
+        OnPropertyChanged(nameof(CanSave));
+    }
+
+    private static void RefList(ObservableCollection<ChoiceOption> list, IEnumerable<ChoiceOption> items)
+    {
+        list.Clear();
+
+        foreach (ChoiceOption item in items)
+        {
+            list.Add(item);
+        }
+    }
+
+    private static ChoiceOption? SelChoice(ObservableCollection<ChoiceOption> list, string? key)
+    {
+        return list.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase))
+            ?? list.FirstOrDefault();
+    }
     partial void NotifyRedumpLocalLibraryScanCommandState();
 
     public string UiLanguage

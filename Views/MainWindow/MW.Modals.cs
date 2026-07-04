@@ -58,12 +58,11 @@ public partial class MainWindow
                 UpdateUiState();
                 PersistSettings();
 
-                ApplicationRestartContext restartContext = ApplicationRestartService.CreateRestartContext(
-                    this,
-                    ApplicationRestartContext.OptionsWindowName,
+                global::Serilog.Log.Information(
+                    "Options language changed live. PreviousLanguage={PreviousLanguage}, CurrentLanguage={CurrentLanguage}, ActiveTab={ActiveTab}",
+                    previousLanguage,
+                    _settings.UiLanguage,
                     dialog.ActiveTabKey);
-
-                _ = ApplicationRestartService.TryRestartCurrentApplication(restartContext);
             }
             else
             {
