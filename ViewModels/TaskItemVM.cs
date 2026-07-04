@@ -37,6 +37,8 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
 
     private string _detectedPlatform = string.Empty;
     private string _detectionReason = string.Empty;
+    private string _consoleIdentityPlatform = string.Empty;
+    private string _consoleIdentityReason = string.Empty;
 
     private string _requestedAction = string.Empty;
     private string _currentState = TaskQueueStateCodes.Pending;
@@ -370,17 +372,44 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
         }
     }
 
+    public string ConsoleIdentityPlatform
+    {
+        get => _consoleIdentityPlatform;
+        set
+        {
+            if (SetField(ref _consoleIdentityPlatform, value))
+            {
+                NotifyPlatformDisplayChanged();
+            }
+        }
+    }
+
+    public string ConsoleIdentityReason
+    {
+        get => _consoleIdentityReason;
+        set
+        {
+            if (SetField(ref _consoleIdentityReason, value))
+            {
+                NotifyPlatformDisplayChanged();
+            }
+        }
+    }
+
+    private void NotifyPlatformDisplayChanged()
+    {
+        OnPropertyChanged(nameof(PlatformDisplayText));
+        OnPropertyChanged(nameof(PlatformNameGridDisplay));
+        OnPropertyChanged(nameof(ConsoleType));
+        OnPropertyChanged(nameof(HasPlatformBadge));
+        OnPropertyChanged(nameof(PlatformBadgeDisplay));
+    }
     public string PlatformDisplayText
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(DetectedPlatform))
-            {
-                return ArabicUi.Get("LocCommon_Unknown");
-            }
-
-            string value = DetectedPlatform.Trim();
-            return IsGenericOrDuplicatePlatformBadge(value)
+            string value = ResolvePlatformDisplaySource();
+            return string.IsNullOrWhiteSpace(value)
                 ? ArabicUi.Get("LocCommon_Unknown")
                 : value;
         }
@@ -394,18 +423,19 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(DetectedPlatform))
+            string value = ResolvePlatformDisplaySource();
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return string.Empty;
             }
 
-            string value = DetectedPlatform.Trim();
-            if (IsRawConflictBadge(value, DetectionReason))
+            string reason = ResolvePlatformDisplayReason(value);
+            if (IsRawConflictBadge(value, reason))
             {
                 return ArabicUi.Get("LocQueue_RawConflictBadge");
             }
 
-            if (IsLowConfidencePlatformDetection(value, DetectionReason) || IsAmbiguousPlatformName(value))
+            if (IsLowConfidencePlatformDetection(value, reason) || IsAmbiguousPlatformName(value))
             {
                 return string.Empty;
             }
@@ -446,7 +476,14 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
         }
     }
 
-    public string ConsoleType => string.IsNullOrWhiteSpace(DetectedPlatform) ? "-" : DetectedPlatform;
+    public string ConsoleType
+    {
+        get
+        {
+            string value = ResolvePlatformDisplaySource();
+            return string.IsNullOrWhiteSpace(value) ? "-" : value;
+        }
+    }
 
     public string SourceExtensionDisplay
     {
@@ -887,6 +924,33 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
     public override string ToString() =>
         !string.IsNullOrEmpty(FileName) ? FileName : SourcePath ?? string.Empty;
 
+    private string ResolvePlatformDisplaySource()
+    {
+        string detected = DetectedPlatform.Trim();
+        string console = ConsoleIdentityPlatform.Trim();
+
+        if (!string.IsNullOrWhiteSpace(console)
+            && !IsGenericOrDuplicatePlatformBadge(console)
+            && (string.IsNullOrWhiteSpace(detected) || IsGenericOrDuplicatePlatformBadge(detected)))
+        {
+            return console;
+        }
+
+        return IsGenericOrDuplicatePlatformBadge(detected)
+            ? string.Empty
+            : detected;
+    }
+
+    private string ResolvePlatformDisplayReason(string displayValue)
+    {
+        if (!string.IsNullOrWhiteSpace(displayValue)
+            && string.Equals(displayValue.Trim(), ConsoleIdentityPlatform.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            return ConsoleIdentityReason;
+        }
+
+        return DetectionReason;
+    }
     private bool IsRawConflictBadge(string value, string reason)
     {
         return value.Contains("تعارض RAW", StringComparison.OrdinalIgnoreCase)

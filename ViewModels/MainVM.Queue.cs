@@ -24,6 +24,7 @@ public partial class MainWindowViewModel
     private static readonly IInputResolver InputResolverStatic = new Core.Input.InputResolver();
     private static readonly IMediaInputPipeline MediaInputPipelineStatic = new MediaInputPipeline(MediaInputClassifier.Shared, InputResolverStatic);
     private static readonly ArchiveContentPreviewService ArchivePreviewService = new();
+    private static readonly global::HakamiqChdTool.App.Services.ConsoleIdBg ConsoleIdentityEnricher = new();
     private static readonly FormatSafetyAdvisor FormatSafetyAdvisorStatic = new();
 
     private readonly record struct QueuePlatformView(string PlatformName, string Reason);
@@ -351,6 +352,7 @@ public partial class MainWindowViewModel
                         _session.QueueRows.Append(row);
                         currentExistingPaths.Add(normalizedCandidatePath);
                         addedIds.Add(row.ItemId);
+                        QueueConsoleIdentityEnrichment(row);
                         addedTotal++;
                     }
 
@@ -787,6 +789,87 @@ public partial class MainWindowViewModel
         return QueueModeResolver.ResolveInitialRequestedAction(path, executionProfile);
     }
 
+    private void QueueConsoleIdentityEnrichment(QueueRowData row)
+    {
+        ArgumentNullException.ThrowIfNull(row);
+
+        ConsoleIdentityEnricher.Enqueue(
+            row.ItemId,
+            row.OriginalPath,
+            row.DetectedPlatform,
+            row.DetectionReason,
+            (_, result) => ApplyConsoleIdentityEnrichment(row, result));
+    }
+
+    private void ApplyConsoleIdentityEnrichment(
+        QueueRowData row,
+        global::HakamiqChdTool.App.Services.ConsoleIdResult result)
+    {
+        if (!result.IsIdentified)
+        {
+            return;
+        }
+
+        System.Windows.Application.Current?.Dispatcher.BeginInvoke(
+            new Action(() => ApplyConsoleIdentityEnrichmentOnUi(row, result)),
+            System.Windows.Threading.DispatcherPriority.Background);
+    }
+
+    private void ApplyConsoleIdentityEnrichmentOnUi(
+        QueueRowData row,
+        global::HakamiqChdTool.App.Services.ConsoleIdResult result)
+    {
+        if (!result.IsIdentified)
+        {
+            return;
+        }
+
+        if (!string.Equals(row.OriginalPath, result.InputPath, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (!ShouldApplyConsoleIdentity(row.DetectedPlatform, row.ConsoleIdentityPlatform, result.PlatformName))
+        {
+            return;
+        }
+
+        row.ConsoleIdentityPlatform = result.PlatformName;
+        row.ConsoleIdentityReason = result.Reason;
+
+        foreach (object entry in QueueItems)
+        {
+            if (entry is TaskQueueItemViewModel item && item.QueueItemId == row.ItemId)
+            {
+                item.ConsoleIdentityPlatform = result.PlatformName;
+                item.ConsoleIdentityReason = result.Reason;
+                break;
+            }
+        }
+
+        _session.UpdateUiState();
+    }
+
+    private static bool ShouldApplyConsoleIdentity(
+        string detectedPlatform,
+        string currentConsoleIdentity,
+        string nextConsoleIdentity)
+    {
+        if (!global::HakamiqChdTool.App.Services.PlatformDetectionService.IsActionablePlatformName(nextConsoleIdentity))
+        {
+            return false;
+        }
+
+        if (global::HakamiqChdTool.App.Services.PlatformDetectionService.IsActionablePlatformName(detectedPlatform))
+        {
+            return false;
+        }
+
+        return !string.Equals(
+            currentConsoleIdentity?.Trim(),
+            nextConsoleIdentity?.Trim(),
+            StringComparison.OrdinalIgnoreCase);
+    }
     private QueueRowData BuildRowFromPath(
         string path,
         string action,
@@ -831,7 +914,7 @@ public partial class MainWindowViewModel
             InputType = ResolveInputTypeDisplay(path),
             FileName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
             DetectedPlatform = string.IsNullOrWhiteSpace(detectedPlatform)
-                ? ArabicUi.Get("LocCommon_Unknown")
+                ? "Unknown Platform"
                 : detectedPlatform,
             DetectionReason = detectionReason ?? string.Empty,
             RequestedAction = action,

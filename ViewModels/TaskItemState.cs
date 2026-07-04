@@ -118,6 +118,8 @@ public sealed partial class TaskQueueItemViewModel
         DetectedPlatform = detectedPlatform;
 
         DetectionReason = string.Empty;
+        ConsoleIdentityPlatform = string.Empty;
+        ConsoleIdentityReason = string.Empty;
         DisplayName = Path.GetFileNameWithoutExtension(path);
         CanonicalName = string.Empty;
         TitleId = string.Empty;
@@ -267,6 +269,8 @@ public sealed partial class TaskQueueItemViewModel
         FileName = row.FileName;
         DetectedPlatform = row.DetectedPlatform;
         DetectionReason = row.DetectionReason;
+        ConsoleIdentityPlatform = row.ConsoleIdentityPlatform;
+        ConsoleIdentityReason = row.ConsoleIdentityReason;
         RequestedAction = row.RequestedAction;
         ExecutionProfile = row.ExecutionProfile;
 

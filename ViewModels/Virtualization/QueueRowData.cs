@@ -16,6 +16,8 @@ public sealed class QueueRowData
     public string FileName { get; set; } = string.Empty;
     public string DetectedPlatform { get; set; } = string.Empty;
     public string DetectionReason { get; set; } = string.Empty;
+    public string ConsoleIdentityPlatform { get; set; } = string.Empty;
+    public string ConsoleIdentityReason { get; set; } = string.Empty;
     public string RequestedAction { get; set; } = string.Empty;
     public QueueExecutionProfile ExecutionProfile { get; set; } = QueueExecutionProfile.Standard;
     public QueueIntakeSource IntakeSource { get; set; } = QueueIntakeSource.UserInitiatedAdd;
