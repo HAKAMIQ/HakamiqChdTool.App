@@ -141,7 +141,7 @@ function Test-PublishPackagingPolicy {
 
     $publishScripts = Get-RepositoryFiles | Where-Object {
         $_.Extension -eq '.ps1' -and
-        $_.Name -ne 'Verify-RepoConventions.ps1' -and
+        $_.Name -ne 'VerifyRepo.ps1' -and
         ($_.Name -like '*Publish*' -or $_.Name -like '*Release*')
     }
 
@@ -174,7 +174,7 @@ function Test-PublishPackagingPolicy {
         }
 
         $segments = $relative -split '[\\/]'
-        if ($segments.Count -eq 1 -and $segments[0] -in @('LEGAL.md', 'THIRD_PARTY_NOTICES.txt', 'CHDMAN_NOTICE.md', '7ZIP_NOTICE.md', 'MAME_COPYING.txt', 'MAME_GPL-2.0.txt')) {
+        if ($segments.Count -eq 1 -and $segments[0] -in @('LEGAL.md', '3P_NOTICE.txt', 'CHDMAN_NOTICE.md', '7ZIP_NOTICE.md', 'MAME_COPYING.txt', 'MAME_GPL-2.0.txt')) {
             Add-Failure "Legal document is not allowed in Release root; it must remain under docs/legal: $($_.FullName)"
         }
     }
@@ -727,14 +727,14 @@ function Test-ReleaseScriptConventions {
         }
     }
 
-    $releaseManifestScript = Join-Path $root 'scripts\Generate-ReleaseManifest.ps1'
+    $releaseManifestScript = Join-Path $root 'scripts\GenManifest.ps1'
     if (-not (Test-Path -LiteralPath $releaseManifestScript -PathType Leaf)) {
-        Add-Failure "Generate-ReleaseManifest.ps1 is required for end-user release hardening."
+        Add-Failure "GenManifest.ps1 is required for end-user release hardening."
     }
 
-    $endUserGate = Join-Path $root 'scripts\Verify-EndUserRelease.ps1'
+    $endUserGate = Join-Path $root 'scripts\VerifyRelease.ps1'
     if (-not (Test-Path -LiteralPath $endUserGate -PathType Leaf)) {
-        Add-Failure "Verify-EndUserRelease.ps1 is required for end-user release hardening."
+        Add-Failure "VerifyRelease.ps1 is required for end-user release hardening."
     }
     else {
         $gateText = Get-Content -LiteralPath $endUserGate -Raw -Encoding UTF8
@@ -752,33 +752,33 @@ function Test-ReleaseScriptConventions {
         }
     }
 
-    $currentPublishScript = Join-Path $root 'scripts\Publish-EndUserRelease.ps1'
+    $currentPublishScript = Join-Path $root 'scripts\PublishRel.ps1'
     if (-not (Test-Path -LiteralPath $currentPublishScript -PathType Leaf)) {
-        Add-Failure "Publish-EndUserRelease.ps1 is required as the canonical end-user release script."
+        Add-Failure "PublishRel.ps1 is required as the canonical end-user release script."
     }
     else {
         $publishText = Get-Content -LiteralPath $currentPublishScript -Raw -Encoding UTF8
 
-        if ($publishText -notmatch 'Generate-ReleaseManifest\.ps1') {
-            Add-Failure "Publish-EndUserRelease.ps1 must generate release-manifest.json before the end-user release gate."
+        if ($publishText -notmatch 'GenManifest\.ps1') {
+            Add-Failure "PublishRel.ps1 must generate release-manifest.json before the end-user release gate."
         }
 
-        if ($publishText -notmatch 'Verify-EndUserRelease\.ps1') {
-            Add-Failure "Publish-EndUserRelease.ps1 must run Verify-EndUserRelease.ps1 after publish."
+        if ($publishText -notmatch 'VerifyRelease\.ps1') {
+            Add-Failure "PublishRel.ps1 must run VerifyRelease.ps1 after publish."
         }
 
         if ($publishText -match '\$LASTEXITCODE:') {
-            Add-Failure "Publish-EndUserRelease.ps1 must use `${LASTEXITCODE}` before ':' inside interpolated strings."
+            Add-Failure "PublishRel.ps1 must use `${LASTEXITCODE}` before ':' inside interpolated strings."
         }
 
         if ($publishText -match '"Tools\\chdman\.exe"') {
-            Add-Failure "Publish-EndUserRelease.ps1 must not require standalone Tools\chdman.exe in the end-user Release output."
+            Add-Failure "PublishRel.ps1 must not require standalone Tools\chdman.exe in the end-user Release output."
         }
     }
 
     $legacyPublishScript = Join-Path $root 'scripts\publish-release.ps1'
     if (Test-Path -LiteralPath $legacyPublishScript -PathType Leaf) {
-        Add-Failure "Legacy scripts\publish-release.ps1 is not allowed. Use scripts\Publish-EndUserRelease.ps1."
+        Add-Failure "Legacy scripts\publish-release.ps1 is not allowed. Use scripts\PublishRel.ps1."
     }
 }
 

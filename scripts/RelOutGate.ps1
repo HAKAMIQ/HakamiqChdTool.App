@@ -13,8 +13,8 @@ $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $ScriptDir '..')).Path
 $ReleaseRoot = [System.IO.Path]::GetFullPath((Join-Path $ProjectRoot 'Release'))
-$PublishScript = Join-Path $ScriptDir 'Publish-EndUserRelease.ps1'
-$PackageCleanlinessGateScript = Join-Path $ScriptDir 'Run-PackageCleanlinessGate.ps1'
+$PublishScript = Join-Path $ScriptDir 'PublishRel.ps1'
+$PackageCleanlinessGateScript = Join-Path $ScriptDir 'PkgCleanGate.ps1'
 $PowerShellExe = Join-Path $PSHOME 'powershell.exe'
 
 if (-not (Test-Path -LiteralPath $PowerShellExe -PathType Leaf)) {

@@ -138,8 +138,8 @@
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 
-		<Content Include="docs\legal\THIRD_PARTY_NOTICES.txt">
-			<TargetPath>THIRD_PARTY_NOTICES.txt</TargetPath>
+		<Content Include="docs\legal\3P_NOTICE.txt">
+			<TargetPath>3P_NOTICE.txt</TargetPath>
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>

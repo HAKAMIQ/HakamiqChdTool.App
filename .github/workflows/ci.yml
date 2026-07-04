@@ -27,7 +27,7 @@ jobs:
 
       - name: Repository conventions
         shell: pwsh
-        run: .\scripts\Verify-RepoConventions.ps1
+        run: .\scripts\VerifyRepo.ps1
 
       - name: Restore Debug
         run: dotnet restore .\HakamiqChdTool.App.csproj
@@ -43,7 +43,7 @@ jobs:
 
       - name: Publish end-user release gate
         shell: pwsh
-        run: .\scripts\Publish-EndUserRelease.ps1
+        run: .\scripts\PublishRel.ps1
 
       - name: Upload release output artifact
         uses: actions/upload-artifact@v6

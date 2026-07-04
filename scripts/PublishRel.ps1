@@ -13,9 +13,9 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $ScriptDir "..")).Path
 $ReleaseRoot = [System.IO.Path]::GetFullPath((Join-Path $ProjectRoot "Release"))
 $MainProject = Join-Path $ProjectRoot "HakamiqChdTool.App.csproj"
-$RepoConventionsScript = Join-Path $ProjectRoot "scripts\Verify-RepoConventions.ps1"
-$EndUserReleaseGateScript = Join-Path $ProjectRoot "scripts\Verify-EndUserRelease.ps1"
-$ReleaseManifestScript = Join-Path $ProjectRoot "scripts\Generate-ReleaseManifest.ps1"
+$RepoConventionsScript = Join-Path $ProjectRoot "scripts\VerifyRepo.ps1"
+$EndUserReleaseGateScript = Join-Path $ProjectRoot "scripts\VerifyRelease.ps1"
+$ReleaseManifestScript = Join-Path $ProjectRoot "scripts\GenManifest.ps1"
 $StopProcessesScript = Join-Path $ProjectRoot "scripts\Stop-RepoProcesses.ps1"
 $PowerShellExe = Join-Path $PSHOME "powershell.exe"
 
@@ -197,7 +197,7 @@ function Invoke-ReleaseComplianceChecks {
         "SECURITY.md",
         "docs\release-notes\CHANGELOG.md",
         "docs\legal\LEGAL.md",
-        "docs\legal\THIRD_PARTY_NOTICES.txt",
+        "docs\legal\3P_NOTICE.txt",
         "docs\legal\CHDMAN_NOTICE.md",
         "docs\legal\MAME_COPYING.txt",
         "docs\legal\MAME_GPL-2.0.txt",
@@ -213,9 +213,9 @@ function Invoke-ReleaseComplianceChecks {
         "Resources\HakamiqLogo.ico",
         "App.xaml",
         "HakamiqChdTool.App.csproj",
-        "scripts\Verify-RepoConventions.ps1",
-        "scripts\Verify-EndUserRelease.ps1",
-        "scripts\Generate-ReleaseManifest.ps1"
+        "scripts\VerifyRepo.ps1",
+        "scripts\VerifyRelease.ps1",
+        "scripts\GenManifest.ps1"
     )) {
         Assert-FileExists $required
     }
@@ -368,7 +368,7 @@ try {
         @{ Source = "docs\release-notes\CHANGELOG.md"; Destination = "docs\CHANGELOG.md" },
         @{ Source = "LICENSE"; Destination = "docs\legal\LICENSE" },
         @{ Source = "docs\legal\LEGAL.md"; Destination = "docs\legal\LEGAL.md" },
-        @{ Source = "docs\legal\THIRD_PARTY_NOTICES.txt"; Destination = "docs\legal\THIRD_PARTY_NOTICES.txt" },
+        @{ Source = "docs\legal\3P_NOTICE.txt"; Destination = "docs\legal\3P_NOTICE.txt" },
         @{ Source = "docs\legal\CHDMAN_NOTICE.md"; Destination = "docs\legal\CHDMAN_NOTICE.md" },
         @{ Source = "docs\legal\MAME_COPYING.txt"; Destination = "docs\legal\MAME_COPYING.txt" },
         @{ Source = "docs\legal\MAME_GPL-2.0.txt"; Destination = "docs\legal\MAME_GPL-2.0.txt" },

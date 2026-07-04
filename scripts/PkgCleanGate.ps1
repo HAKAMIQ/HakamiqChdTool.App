@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $ScriptDir '..')).Path
-$EndUserReleaseGateScript = Join-Path $ScriptDir 'Verify-EndUserRelease.ps1'
+$EndUserReleaseGateScript = Join-Path $ScriptDir 'VerifyRelease.ps1'
 $PowerShellExe = Join-Path $PSHOME 'powershell.exe'
 
 if (-not (Test-Path -LiteralPath $PowerShellExe -PathType Leaf)) {
@@ -256,12 +256,12 @@ function Assert-SourcePackageLayout {
         'LICENSE',
         'SECURITY.md',
         'scripts\Verify-Local.ps1',
-        'scripts\Verify-RepoConventions.ps1',
-        'scripts\Verify-EndUserRelease.ps1',
-        'scripts\Run-ReleaseOutputGate.ps1',
-        'scripts\Generate-ReleaseManifest.ps1',
+        'scripts\VerifyRepo.ps1',
+        'scripts\VerifyRelease.ps1',
+        'scripts\RelOutGate.ps1',
+        'scripts\GenManifest.ps1',
         'docs\legal\LEGAL.md',
-        'docs\legal\THIRD_PARTY_NOTICES.txt'
+        'docs\legal\3P_NOTICE.txt'
     )) {
         Assert-RequiredFile -RootPath $RootPath -RelativePath $required
     }
@@ -328,7 +328,7 @@ function Invoke-SourceArchiveGate {
 
 function Invoke-ReleaseOutputGateIfRequested {
     if ([string]::IsNullOrWhiteSpace($ReleaseOutput)) {
-        Write-Info 'Release output check skipped. Use scripts\Run-ReleaseOutputGate.ps1 to publish and verify a disposable release output, or pass -ReleaseOutput to verify an existing release folder.'
+        Write-Info 'Release output check skipped. Use scripts\RelOutGate.ps1 to publish and verify a disposable release output, or pass -ReleaseOutput to verify an existing release folder.'
         return
     }
 
