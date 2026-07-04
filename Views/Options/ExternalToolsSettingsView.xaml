@@ -123,6 +123,7 @@
                     BorderThickness="{DynamicResource Inset.1.All}"
                     CornerRadius="{DynamicResource Radius.Control}"
                     Padding="{DynamicResource Inset.12.All}"
+                    Visibility="{Binding ExternalToolsCsoKitShowSetupNote, Converter={StaticResource BooleanToVisibilityConverter}}"
                     HorizontalAlignment="Stretch"
                     SnapsToDevicePixels="True">
                 <Grid FlowDirection="{DynamicResource App.FlowDirection}"

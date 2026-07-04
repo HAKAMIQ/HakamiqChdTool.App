@@ -66,7 +66,8 @@ internal sealed partial class HqOptionsShell
             _owner.ViewModel.SetCsoKitExternalToolStatus(
                 ResolveUiText(ExternalToolsStatusCheckingKey),
                 unavailableText,
-                unavailableText);
+                unavailableText,
+                showSetupNote: false);
         }
 
         _ = Task.Run(
@@ -129,6 +130,7 @@ internal sealed partial class HqOptionsShell
         _owner.ViewModel.SetCsoKitExternalToolStatus(
             ResolveUiText(statusKey),
             isAvailable && !string.IsNullOrWhiteSpace(result.VersionText) ? result.VersionText : unavailableText,
-            isAvailable && !string.IsNullOrWhiteSpace(result.ToolPath) ? result.ToolPath : unavailableText);
+            isAvailable && !string.IsNullOrWhiteSpace(result.ToolPath) ? result.ToolPath : unavailableText,
+            showSetupNote: !isAvailable);
     }
 }
