@@ -54,49 +54,61 @@
                 <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                       Language="{DynamicResource App.XmlLanguage}"
                       SnapsToDevicePixels="True">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Column="0"
-                               VerticalAlignment="Center"
-                               Text="{DynamicResource LocExternalTools_StatusLabel}"
-                               Style="{DynamicResource Win11SettingsRowTitleText}"
-                               TextWrapping="NoWrap" />
+                    <Grid Grid.Row="0"
+                          FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}"
+                          SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="2"
-                               VerticalAlignment="Center"
-                               Text="|"
-                               Style="{DynamicResource Win11SettingsRowDescriptionText}"
-                               TextWrapping="NoWrap" />
+                        <TextBlock Grid.Column="0"
+                                   VerticalAlignment="Center"
+                                   Text="{DynamicResource LocExternalTools_StatusLabel}"
+                                   Style="{DynamicResource Win11SettingsRowTitleText}"
+                                   TextWrapping="NoWrap" />
 
-                    <TextBlock Grid.Column="4"
-                               VerticalAlignment="Center"
-                               Text="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                               ToolTip="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                               Style="{DynamicResource Win11SettingsRowDescriptionText}"
-                               TextWrapping="NoWrap"
-                               TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Column="2"
+                                   VerticalAlignment="Center"
+                                   Text="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                   ToolTip="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                   Style="{DynamicResource Win11SettingsRowDescriptionText}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Grid>
 
-                    <TextBlock Grid.Column="5"
-                               VerticalAlignment="Center"
-                               Text="{DynamicResource LocExternalTools_VersionLabel}"
-                               Style="{DynamicResource Win11SettingsRowTitleText}"
-                               TextWrapping="NoWrap" />
+                    <Grid Grid.Row="2"
+                          FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}"
+                          SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="6"
-                               VerticalAlignment="Center"
-                               Text="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                               ToolTip="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                               Style="{DynamicResource Win11SettingsRowDescriptionText}"
-                               TextWrapping="NoWrap"
-                               TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Column="0"
+                                   VerticalAlignment="Center"
+                                   Text="{DynamicResource LocExternalTools_VersionLabel}"
+                                   Style="{DynamicResource Win11SettingsRowTitleText}"
+                                   TextWrapping="NoWrap" />
+
+                        <TextBlock Grid.Column="2"
+                                   VerticalAlignment="Center"
+                                   Text="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   ToolTip="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   Style="{DynamicResource Win11SettingsRowDescriptionText}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Grid>
                 </Grid>
             </Border>
 
