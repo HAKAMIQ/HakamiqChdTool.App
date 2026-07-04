@@ -43,7 +43,6 @@ internal sealed partial class HqOptionsShell
         }
     }
 
-
     private void QueueExternalToolsRefresh() => QueueExternalToolsRefresh(showCheckingState: false);
 
     private void QueueExternalToolsRefresh(bool showCheckingState)
