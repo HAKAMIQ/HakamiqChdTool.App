@@ -451,6 +451,8 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
                 value = value[..slash].Trim();
             }
 
+            value = CompactPlatformBadge(value);
+
             if (value.Length > 32)
             {
                 value = value[..32].TrimEnd() + "…";
@@ -924,6 +926,195 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
     public override string ToString() =>
         !string.IsNullOrEmpty(FileName) ? FileName : SourcePath ?? string.Empty;
 
+    private static string CompactPlatformBadge(string value)
+    {
+        string platform = value.Trim();
+        if (string.IsNullOrWhiteSpace(platform))
+        {
+            return string.Empty;
+        }
+
+        if (EqualsAny(platform, "Sony PlayStation", "PlayStation 1"))
+        {
+            return "PS1";
+        }
+
+        if (EqualsAny(platform, "Sony PlayStation 2", "PlayStation 2"))
+        {
+            return "PS2";
+        }
+
+        if (EqualsAny(platform, "Sony PlayStation 3", "PlayStation 3"))
+        {
+            return "PS3";
+        }
+
+        if (EqualsAny(platform, "Sony PlayStation 4", "PlayStation 4"))
+        {
+            return "PS4";
+        }
+
+        if (EqualsAny(platform, "Sony PlayStation 5", "PlayStation 5"))
+        {
+            return "PS5";
+        }
+
+        if (EqualsAny(platform, "Sony PlayStation Portable", "PlayStation Portable"))
+        {
+            return "PSP";
+        }
+
+        if (EqualsAny(platform, "Nintendo GameCube"))
+        {
+            return "GameCube";
+        }
+
+        if (EqualsAny(platform, "Nintendo Wii U"))
+        {
+            return "Wii U";
+        }
+
+        if (EqualsAny(platform, "Nintendo Wii"))
+        {
+            return "Wii";
+        }
+
+        if (EqualsAny(platform, "Microsoft Xbox"))
+        {
+            return "Xbox";
+        }
+
+        if (EqualsAny(platform, "Microsoft Xbox 360"))
+        {
+            return "Xbox 360";
+        }
+
+        if (EqualsAny(platform, "Microsoft Xbox One"))
+        {
+            return "Xbox One";
+        }
+
+        if (EqualsAny(platform, "Microsoft Xbox Series X"))
+        {
+            return "Xbox Series X";
+        }
+
+        if (EqualsAny(platform, "Sega Dreamcast"))
+        {
+            return "Dreamcast";
+        }
+
+        if (EqualsAny(platform, "Sega Saturn"))
+        {
+            return "Saturn";
+        }
+
+        if (EqualsAny(platform, "Sega Mega CD & Sega CD"))
+        {
+            return "Mega CD";
+        }
+
+        if (EqualsAny(platform, "Sega Naomi"))
+        {
+            return "NAOMI";
+        }
+
+        if (EqualsAny(platform, "Sega Naomi 2"))
+        {
+            return "NAOMI 2";
+        }
+
+        if (EqualsAny(platform, "Sega Chihiro"))
+        {
+            return "Chihiro";
+        }
+
+        if (platform.Contains("Triforce", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Triforce";
+        }
+
+        if (EqualsAny(platform, "NEC PC Engine CD & TurboGrafx CD"))
+        {
+            return "PC Engine CD";
+        }
+
+        if (EqualsAny(platform, "NEC PC-FX & PC-FXGA"))
+        {
+            return "PC-FX";
+        }
+
+        if (EqualsAny(platform, "Neo Geo CD"))
+        {
+            return "Neo Geo CD";
+        }
+
+        if (EqualsAny(platform, "Panasonic 3DO Interactive Multiplayer"))
+        {
+            return "3DO";
+        }
+
+        if (EqualsAny(platform, "Philips CD-i"))
+        {
+            return "CD-i";
+        }
+
+        if (EqualsAny(platform, "Fujitsu FM Towns series"))
+        {
+            return "FM Towns";
+        }
+
+        if (EqualsAny(platform, "Sharp X68000"))
+        {
+            return "X68000";
+        }
+
+        if (EqualsAny(platform, "IBM PC compatible"))
+        {
+            return "PC";
+        }
+
+        if (EqualsAny(platform, "BD-Video"))
+        {
+            return "BD-Video";
+        }
+
+        if (EqualsAny(platform, "DVD-Video"))
+        {
+            return "DVD-Video";
+        }
+
+        if (EqualsAny(platform, "Audio CD"))
+        {
+            return "Audio CD";
+        }
+
+        if (EqualsAny(platform, "Video CD"))
+        {
+            return "VCD";
+        }
+
+        int separator = platform.IndexOf(" & ", StringComparison.Ordinal);
+        if (separator > 0 && platform.Length > 18)
+        {
+            return platform[..separator].Trim();
+        }
+
+        return platform;
+    }
+
+    private static bool EqualsAny(string value, params string[] candidates)
+    {
+        foreach (string candidate in candidates)
+        {
+            if (value.Equals(candidate, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
     private string ResolvePlatformDisplaySource()
     {
         string detected = DetectedPlatform.Trim();
