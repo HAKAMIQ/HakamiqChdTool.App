@@ -32,13 +32,13 @@
             <TextBlock Grid.Row="0"
                        HorizontalAlignment="Center"
                        Text="{DynamicResource LocExternalTools_Title}"
-                       Style="{StaticResource Win11SettingsRowTitleText}"
+                       Style="{DynamicResource Win11SettingsRowTitleText}"
                        TextWrapping="NoWrap" />
 
             <TextBlock Grid.Row="2"
                        HorizontalAlignment="Right"
                        Text="{DynamicResource LocExternalTools_CsoKitDescription}"
-                       Style="{StaticResource Win11SettingsRowDescriptionText}"
+                       Style="{DynamicResource Win11SettingsRowDescriptionText}"
                        TextWrapping="Wrap"
                        TextTrimming="None" />
 
@@ -67,27 +67,27 @@
                     <TextBlock Grid.Column="0"
                                VerticalAlignment="Center"
                                Text="{DynamicResource LocExternalTools_StatusLabel}"
-                               Style="{StaticResource Win11SettingsRowTitleText}"
+                               Style="{DynamicResource Win11SettingsRowTitleText}"
                                TextWrapping="NoWrap" />
 
                     <TextBlock Grid.Column="2"
                                VerticalAlignment="Center"
                                Text="|"
-                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                               Style="{DynamicResource Win11SettingsRowDescriptionText}"
                                TextWrapping="NoWrap" />
 
                     <TextBlock Grid.Column="4"
                                VerticalAlignment="Center"
                                Text="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
                                ToolTip="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                               Style="{DynamicResource Win11SettingsRowDescriptionText}"
                                TextWrapping="NoWrap"
                                TextTrimming="CharacterEllipsis" />
 
                     <TextBlock Grid.Column="5"
                                VerticalAlignment="Center"
                                Text="{DynamicResource LocExternalTools_VersionLabel}"
-                               Style="{StaticResource Win11SettingsRowTitleText}"
+                               Style="{DynamicResource Win11SettingsRowTitleText}"
                                TextWrapping="NoWrap" />
 
                     <TextBlock Grid.Column="6"
@@ -97,7 +97,7 @@
                                TextAlignment="Left"
                                Text="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
                                ToolTip="{Binding ExternalToolsCsoKitVersion, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                               Style="{DynamicResource Win11SettingsRowDescriptionText}"
                                TextWrapping="NoWrap"
                                TextTrimming="CharacterEllipsis" />
                 </Grid>
@@ -122,12 +122,12 @@
 
                     <TextBlock Grid.Row="0"
                                Text="{DynamicResource LocExternalTools_SetupNoteTitle}"
-                               Style="{StaticResource Win11SettingsRowTitleText}"
+                               Style="{DynamicResource Win11SettingsRowTitleText}"
                                TextWrapping="NoWrap" />
 
                     <TextBlock Grid.Row="2"
                                Text="{DynamicResource LocExternalTools_SetupInstructions}"
-                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                               Style="{DynamicResource Win11SettingsRowDescriptionText}"
                                TextWrapping="Wrap"
                                TextTrimming="None" />
                 </Grid>
