@@ -370,9 +370,21 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
         }
     }
 
-    public string PlatformDisplayText => string.IsNullOrWhiteSpace(DetectedPlatform)
-        ? ArabicUi.Get("LocCommon_Unknown")
-        : DetectedPlatform;
+    public string PlatformDisplayText
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(DetectedPlatform))
+            {
+                return ArabicUi.Get("LocCommon_Unknown");
+            }
+
+            string value = DetectedPlatform.Trim();
+            return IsGenericOrDuplicatePlatformBadge(value)
+                ? ArabicUi.Get("LocCommon_Unknown")
+                : value;
+        }
+    }
 
     public string PlatformNameGridDisplay => PlatformBadgeDisplay;
 

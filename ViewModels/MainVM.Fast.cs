@@ -211,7 +211,7 @@ public partial class MainWindowViewModel
             SourcePath = path,
             InputType = string.IsNullOrWhiteSpace(extension) ? "FILE" : extension,
             FileName = Path.GetFileName(trimmedPath),
-            DetectedPlatform = ArabicUi.Get("LocCommon_Unknown"),
+            DetectedPlatform = "Unknown Platform",
             DetectionReason = string.Empty,
             RequestedAction = action,
             ExecutionProfile = executionProfile,
