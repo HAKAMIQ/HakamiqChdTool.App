@@ -233,11 +233,42 @@ internal sealed partial class HqOptionsShell
         string unavailableText = ResolveUiText(ValueUnavailableKey);
         bool isAvailable = result.Status == CsoToolStatus.Available;
 
+        string versionDisplayText = isAvailable && !string.IsNullOrWhiteSpace(result.VersionText)
+            ? FormatCsoKitVersionForSettings(result.VersionText)
+            : unavailableText;
+
         _owner.ViewModel.SetCsoKitExternalToolStatus(
             ResolveUiText(statusKey),
-            isAvailable && !string.IsNullOrWhiteSpace(result.VersionText) ? result.VersionText : unavailableText,
+            versionDisplayText,
             isAvailable && !string.IsNullOrWhiteSpace(result.ToolPath) ? result.ToolPath : ResolvePreferredToolsFolder(),
             showSetupNote: !isAvailable);
+    }
+
+    private static string FormatCsoKitVersionForSettings(string versionText)
+    {
+        string value = versionText.Trim();
+        const string productName = "Hakamiq.CsoKit";
+
+        if (value.StartsWith(productName, StringComparison.OrdinalIgnoreCase))
+        {
+            value = value.Substring(productName.Length).Trim();
+        }
+
+        if (value.StartsWith("version ", StringComparison.OrdinalIgnoreCase))
+        {
+            value = value.Substring("version ".Length).Trim();
+        }
+
+        if (value.StartsWith("v", StringComparison.OrdinalIgnoreCase)
+            && value.Length > 1
+            && char.IsDigit(value[1]))
+        {
+            value = value.Substring(1).Trim();
+        }
+
+        return string.IsNullOrWhiteSpace(value)
+            ? versionText.Trim()
+            : value;
     }
 
     private string ResolvePreferredToolsFolder()
