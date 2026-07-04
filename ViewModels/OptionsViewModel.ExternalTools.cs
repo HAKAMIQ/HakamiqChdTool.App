@@ -7,6 +7,7 @@ public sealed partial class OptionsViewModel
     private string _externalToolsCsoKitStatusText = ArabicUi.Get("LocExternalTools_CsoKitStatusMissing");
     private string _externalToolsCsoKitVersion = ArabicUi.Get("LocValue_Unavailable");
     private string _externalToolsCsoKitPath = ArabicUi.Get("LocValue_Unavailable");
+    private bool _externalToolsCsoKitShowSetupNote = true;
 
     public string ExternalToolsCsoKitStatusText
     {
@@ -26,50 +27,30 @@ public sealed partial class OptionsViewModel
         private set => SetProperty(ref _externalToolsCsoKitPath, value);
     }
 
+    public bool ExternalToolsCsoKitShowSetupNote
+    {
+        get => _externalToolsCsoKitShowSetupNote;
+        private set => SetProperty(ref _externalToolsCsoKitShowSetupNote, value);
+    }
+
     public void SetCsoKitExternalToolStatus(
         string statusText,
         string version,
-        string path)
+        string path,
+        bool showSetupNote)
     {
         ExternalToolsCsoKitStatusText = string.IsNullOrWhiteSpace(statusText)
             ? ArabicUi.Get("LocExternalTools_CsoKitStatusMissing")
             : statusText;
 
-        ExternalToolsCsoKitVersion = NormalizeExternalToolsVersion(version);
+        ExternalToolsCsoKitVersion = string.IsNullOrWhiteSpace(version)
+            ? ArabicUi.Get("LocValue_Unavailable")
+            : version;
 
         ExternalToolsCsoKitPath = string.IsNullOrWhiteSpace(path)
             ? ArabicUi.Get("LocValue_Unavailable")
             : path;
-    }
 
-    private static string NormalizeExternalToolsVersion(string? version)
-    {
-        if (string.IsNullOrWhiteSpace(version))
-        {
-            return ArabicUi.Get("LocValue_Unavailable");
-        }
-
-        string text = version.Trim();
-
-        string[] prefixes =
-        [
-            "Hakamiq.CsoKit ",
-            "Hakamiq CsoKit ",
-            "Hakamiq.CsoKit",
-            "Hakamiq CsoKit"
-        ];
-
-        foreach (string prefix in prefixes)
-        {
-            if (text.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase))
-            {
-                text = text.Substring(prefix.Length).Trim();
-                break;
-            }
-        }
-
-        return string.IsNullOrWhiteSpace(text)
-            ? ArabicUi.Get("LocValue_Unavailable")
-            : text;
+        ExternalToolsCsoKitShowSetupNote = showSetupNote;
     }
 }

@@ -1226,7 +1226,7 @@ Path:
     <sys:String x:Key="LocExternalTools_StatusLabel">Status</sys:String>
     <sys:String x:Key="LocExternalTools_VersionLabel">Version</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">Path</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupInstructions">The tool is bundled with the app. If it is missing, open the tools folder and confirm hakamiq-cso.exe exists, or reinstall the official package.</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupInstructions">If the tool appears as missing, open the tools folder and make sure hakamiq-cso.exe exists, or reinstall the official package.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">Restore defaults</sys:String>
     <sys:String x:Key="LocGeneralSettings_Title">General settings</sys:String>
     <sys:String x:Key="LocGeneralSettings_Description">Settings that apply to the whole app.</sys:String>
