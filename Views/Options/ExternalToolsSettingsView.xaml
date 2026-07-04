@@ -102,6 +102,8 @@
                                    TextWrapping="NoWrap" />
 
                         <TextBlock Grid.Column="2"
+                                   FlowDirection="LeftToRight"
+                                   TextAlignment="Left"
                                    Language="en-US"
                                    VerticalAlignment="Center"
                                    Text="{Binding ExternalToolsCsoKitVersion}"
