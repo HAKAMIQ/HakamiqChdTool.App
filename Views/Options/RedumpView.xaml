@@ -154,12 +154,22 @@
                                            ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
                                            Style="{StaticResource Win11SettingsRowTitleText}" />
 
-                                <TextBlock Grid.Row="2"
-                                           Text="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
-                                           ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
-                                           Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                           TextWrapping="Wrap"
-                                           TextTrimming="None" />
+                                <StackPanel Grid.Row="2"
+                                            Orientation="Vertical"
+                                            SnapsToDevicePixels="True">
+                                    <TextBlock Text="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_LocalFolderDesc}"
+                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                               TextWrapping="Wrap"
+                                               TextTrimming="None" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
+                                               Text="{DynamicResource LocRedumpSettings_ComplianceNotice}"
+                                               ToolTip="{DynamicResource LocRedumpSettings_ComplianceNotice}"
+                                               Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                               TextWrapping="Wrap"
+                                               TextTrimming="None" />
+                                </StackPanel>
 
                                 <Grid Grid.Row="4"
                                       FlowDirection="{DynamicResource App.FlowDirection}"

@@ -14,6 +14,8 @@ public readonly record struct RedumpRomHit(
     string RomName,
     long? SizeBytes,
     string? Crc,
+    string? Region,
+    string? Version,
     string MatchSource);
 
 public readonly record struct RedumpImportProgress(
@@ -64,7 +66,7 @@ public sealed class RedumpSqliteManager
             "HakamiqChdTool");
 
         Directory.CreateDirectory(root);
-        return Path.Combine(root, "RedumpDB.sqlite");
+        return Path.Combine(root, "redump.db");
     }
 
     public void EnsureInitialized()
@@ -91,7 +93,9 @@ public sealed class RedumpSqliteManager
                         MD5 TEXT,
                         SHA1 TEXT,
                         SizeBytes INTEGER,
-                        CRC TEXT
+                        CRC TEXT,
+                        Region TEXT,
+                        Version TEXT
                     );
                     """;
                 command.ExecuteNonQuery();
@@ -99,11 +103,15 @@ public sealed class RedumpSqliteManager
 
             EnsureColumn(connection, "SizeBytes", "ALTER TABLE RomHashes ADD COLUMN SizeBytes INTEGER;");
             EnsureColumn(connection, "CRC", "ALTER TABLE RomHashes ADD COLUMN CRC TEXT;");
+            EnsureColumn(connection, "Region", "ALTER TABLE RomHashes ADD COLUMN Region TEXT;");
+            EnsureColumn(connection, "Version", "ALTER TABLE RomHashes ADD COLUMN Version TEXT;");
 
             ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_MD5 ON RomHashes(MD5);");
             ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_SHA1 ON RomHashes(SHA1);");
+            ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_CRC ON RomHashes(CRC);");
             ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_MD5_Size ON RomHashes(MD5, SizeBytes);");
             ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_SHA1_Size ON RomHashes(SHA1, SizeBytes);");
+            ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_CRC_Size ON RomHashes(CRC, SizeBytes);");
             ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_Game ON RomHashes(SystemName, GameName);");
         }
     }
@@ -182,16 +190,25 @@ public sealed class RedumpSqliteManager
     }
 
     public bool TryMatchHash(string md5LowerHex, string sha1LowerHex, out RedumpRomHit hit) =>
-        TryMatchHash(md5LowerHex, sha1LowerHex, sizeBytes: null, out hit);
+        TryMatchHash(md5LowerHex, sha1LowerHex, null, null, out hit);
 
     public bool TryMatchHash(string md5LowerHex, string sha1LowerHex, long? sizeBytes, out RedumpRomHit hit)
+        => TryMatchHash(md5LowerHex, sha1LowerHex, null, sizeBytes, out hit);
+
+    public bool TryMatchHash(
+        string md5LowerHex,
+        string sha1LowerHex,
+        string? crcLowerHex,
+        long? sizeBytes,
+        out RedumpRomHit hit)
     {
         hit = default;
 
         string md5 = NormalizeHex(md5LowerHex) ?? string.Empty;
         string sha1 = NormalizeHex(sha1LowerHex) ?? string.Empty;
+        string crc = NormalizeHex(crcLowerHex) ?? string.Empty;
 
-        if (md5.Length == 0 && sha1.Length == 0)
+        if (md5.Length == 0 && sha1.Length == 0 && crc.Length == 0)
         {
             return false;
         }
@@ -205,15 +222,27 @@ public sealed class RedumpSqliteManager
 
             if (sizeBytes.HasValue)
             {
-                if (TryQueryHit(connection, "MD5", md5, sizeBytes.Value, "MD5+Size", out hit))
+                if (TryQueryHit(connection, "SHA1", sha1, sizeBytes.Value, "Size+SHA1", out hit))
                 {
                     return true;
                 }
 
-                if (TryQueryHit(connection, "SHA1", sha1, sizeBytes.Value, "SHA1+Size", out hit))
+                if (TryQueryHit(connection, "MD5", md5, sizeBytes.Value, "Size+MD5", out hit))
                 {
                     return true;
                 }
+
+                if (TryQueryHit(connection, "CRC", crc, sizeBytes.Value, "Size+CRC32", out hit))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            if (TryQueryHit(connection, "SHA1", sha1, sizeBytes: null, "SHA1", out hit))
+            {
+                return true;
             }
 
             if (TryQueryHit(connection, "MD5", md5, sizeBytes: null, "MD5", out hit))
@@ -221,7 +250,7 @@ public sealed class RedumpSqliteManager
                 return true;
             }
 
-            if (TryQueryHit(connection, "SHA1", sha1, sizeBytes: null, "SHA1", out hit))
+            if (TryQueryHit(connection, "CRC", crc, sizeBytes: null, "CRC32", out hit))
             {
                 return true;
             }
@@ -298,6 +327,8 @@ public sealed class RedumpSqliteManager
                     SqliteParameter pSha1 = insert.Parameters["$sha1"];
                     SqliteParameter pSize = insert.Parameters["$size"];
                     SqliteParameter pCrc = insert.Parameters["$crc"];
+                    SqliteParameter pRegion = insert.Parameters["$region"];
+                    SqliteParameter pVersion = insert.Parameters["$version"];
 
                     int totalInserted = 0;
 
@@ -309,6 +340,7 @@ public sealed class RedumpSqliteManager
                             entry.Name,
                             entry.Description,
                             Path.GetFileNameWithoutExtension(entry.FilePath)));
+                        systemName = ResolveSystemNameFromDatHeader(entry.FilePath, systemName, cancellationToken);
 
                         int inserted = ImportRows(
                             entry.FilePath,
@@ -321,6 +353,8 @@ public sealed class RedumpSqliteManager
                             pSha1,
                             pSize,
                             pCrc,
+                            pRegion,
+                            pVersion,
                             progress: null,
                             cancellationToken);
 
@@ -387,6 +421,7 @@ public sealed class RedumpSqliteManager
         {
             EnsureInitialized();
             cancellationToken.ThrowIfCancellationRequested();
+            resolvedSystemName = ResolveSystemNameFromDatHeader(fullDatPath, resolvedSystemName, cancellationToken);
 
             lock (_dbLock)
             {
@@ -408,6 +443,8 @@ public sealed class RedumpSqliteManager
                     SqliteParameter pSha1 = insert.Parameters["$sha1"];
                     SqliteParameter pSize = insert.Parameters["$size"];
                     SqliteParameter pCrc = insert.Parameters["$crc"];
+                    SqliteParameter pRegion = insert.Parameters["$region"];
+                    SqliteParameter pVersion = insert.Parameters["$version"];
 
                     int inserted = ImportRows(
                         fullDatPath,
@@ -420,6 +457,8 @@ public sealed class RedumpSqliteManager
                         pSha1,
                         pSize,
                         pCrc,
+                        pRegion,
+                        pVersion,
                         progress,
                         cancellationToken);
 
@@ -461,6 +500,8 @@ public sealed class RedumpSqliteManager
         SqliteParameter pSha1,
         SqliteParameter pSize,
         SqliteParameter pCrc,
+        SqliteParameter pRegion,
+        SqliteParameter pVersion,
         IProgress<RedumpImportProgress>? progress,
         CancellationToken cancellationToken)
     {
@@ -475,6 +516,8 @@ public sealed class RedumpSqliteManager
         int inserted = 0;
         string? currentGameName = null;
         string? currentDescription = null;
+        string? currentRegion = null;
+        string? currentVersion = null;
         bool insideGame = false;
         const int progressEvery = 2000;
 
@@ -497,6 +540,8 @@ public sealed class RedumpSqliteManager
                 insideGame = false;
                 currentGameName = null;
                 currentDescription = null;
+                currentRegion = null;
+                currentVersion = null;
                 continue;
             }
 
@@ -511,6 +556,8 @@ public sealed class RedumpSqliteManager
             {
                 insideGame = true;
                 currentGameName = reader.GetAttribute("name");
+                currentRegion = FirstNonEmptyOrNull(reader.GetAttribute("region"), reader.GetAttribute("regions"));
+                currentVersion = FirstNonEmptyOrNull(reader.GetAttribute("version"), reader.GetAttribute("ver"), reader.GetAttribute("rev"));
                 currentDescription = null;
                 continue;
             }
@@ -529,13 +576,13 @@ public sealed class RedumpSqliteManager
 
             string? md5 = NormalizeHex(reader.GetAttribute("md5"));
             string? sha1 = NormalizeHex(reader.GetAttribute("sha1"));
+            string? crc = NormalizeHex(reader.GetAttribute("crc"));
 
-            if (string.IsNullOrEmpty(md5) && string.IsNullOrEmpty(sha1))
+            if (string.IsNullOrEmpty(md5) && string.IsNullOrEmpty(sha1) && string.IsNullOrEmpty(crc))
             {
                 continue;
             }
 
-            string? crc = NormalizeHex(reader.GetAttribute("crc"));
             long? sizeBytes = ParseLong(reader.GetAttribute("size"));
             string? romName = reader.GetAttribute("name");
 
@@ -543,6 +590,18 @@ public sealed class RedumpSqliteManager
             string resolvedRomName = string.IsNullOrWhiteSpace(romName)
                 ? elementName
                 : romName.Trim();
+            string? region = FirstNonEmptyOrNull(
+                reader.GetAttribute("region"),
+                reader.GetAttribute("regions"),
+                currentRegion,
+                ExtractRegion(gameName));
+            string? version = FirstNonEmptyOrNull(
+                reader.GetAttribute("version"),
+                reader.GetAttribute("ver"),
+                reader.GetAttribute("rev"),
+                currentVersion,
+                ExtractVersion(gameName),
+                ExtractVersion(resolvedRomName));
 
             pSystem.Value = systemName;
             pGame.Value = gameName;
@@ -551,6 +610,8 @@ public sealed class RedumpSqliteManager
             pSha1.Value = string.IsNullOrEmpty(sha1) ? DBNull.Value : sha1;
             pSize.Value = sizeBytes.HasValue ? sizeBytes.Value : DBNull.Value;
             pCrc.Value = string.IsNullOrEmpty(crc) ? DBNull.Value : crc;
+            pRegion.Value = string.IsNullOrWhiteSpace(region) ? DBNull.Value : region;
+            pVersion.Value = string.IsNullOrWhiteSpace(version) ? DBNull.Value : version;
 
             insert.ExecuteNonQuery();
             inserted++;
@@ -575,6 +636,99 @@ public sealed class RedumpSqliteManager
             : resolved;
     }
 
+    private static string ResolveSystemNameFromDatHeader(
+        string datFilePath,
+        string fallbackSystemName,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var settings = new XmlReaderSettings
+            {
+                IgnoreComments = true,
+                IgnoreWhitespace = true,
+                DtdProcessing = DtdProcessing.Ignore,
+                XmlResolver = null,
+                MaxCharactersFromEntities = 1024,
+                MaxCharactersInDocument = 1024 * 1024
+            };
+
+            using FileStream stream = new(
+                datFilePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete,
+                bufferSize: 16 * 1024,
+                FileOptions.SequentialScan);
+
+            using XmlReader reader = XmlReader.Create(stream, settings);
+
+            bool insideHeader = false;
+            int headerDepth = -1;
+            string? headerName = null;
+            string? headerDescription = null;
+
+            while (reader.Read())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    string localName = reader.LocalName;
+
+                    if (localName.Equals("header", StringComparison.OrdinalIgnoreCase))
+                    {
+                        insideHeader = true;
+                        headerDepth = reader.Depth;
+                        continue;
+                    }
+
+                    if (!insideHeader)
+                    {
+                        continue;
+                    }
+
+                    if (headerName is null && localName.Equals("name", StringComparison.OrdinalIgnoreCase))
+                    {
+                        headerName = reader.ReadElementContentAsString()?.Trim();
+                        continue;
+                    }
+
+                    if (headerDescription is null && localName.Equals("description", StringComparison.OrdinalIgnoreCase))
+                    {
+                        headerDescription = reader.ReadElementContentAsString()?.Trim();
+                        continue;
+                    }
+                }
+
+                if (insideHeader
+                    && reader.NodeType == XmlNodeType.EndElement
+                    && reader.Depth == headerDepth
+                    && reader.LocalName.Equals("header", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+            }
+
+            return NormalizeRedumpSystemName(FirstNonEmpty(
+                headerName,
+                headerDescription,
+                fallbackSystemName,
+                Path.GetFileNameWithoutExtension(datFilePath)));
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (IsExpectedImportException(ex))
+        {
+            Logger.Debug(ex, "Could not read Redump DAT header. Path={Path}", datFilePath);
+            return NormalizeRedumpSystemName(FirstNonEmpty(
+                fallbackSystemName,
+                Path.GetFileNameWithoutExtension(datFilePath)));
+        }
+    }
+
     private static string ResolveGameName(string? description, string? gameName, string systemName)
     {
         if (!string.IsNullOrWhiteSpace(description))
@@ -589,6 +743,106 @@ public sealed class RedumpSqliteManager
 
         return string.IsNullOrWhiteSpace(systemName) ? "Redump" : systemName;
     }
+
+    private static string? FirstNonEmptyOrNull(params string?[] values)
+    {
+        foreach (string? value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return null;
+    }
+
+    private static string? ExtractRegion(string value)
+    {
+        foreach (string token in EnumerateParenthesisTokens(value))
+        {
+            string normalized = token.Trim();
+            if (normalized.Length == 0)
+            {
+                continue;
+            }
+
+            string comparable = normalized.Replace('-', ' ').Replace('_', ' ');
+
+            if (ContainsRegionWord(comparable, "USA")
+                || ContainsRegionWord(comparable, "Europe")
+                || ContainsRegionWord(comparable, "Japan")
+                || ContainsRegionWord(comparable, "World")
+                || ContainsRegionWord(comparable, "Asia")
+                || ContainsRegionWord(comparable, "Australia")
+                || ContainsRegionWord(comparable, "Korea")
+                || ContainsRegionWord(comparable, "China")
+                || ContainsRegionWord(comparable, "Taiwan")
+                || ContainsRegionWord(comparable, "Brazil"))
+            {
+                return normalized;
+            }
+        }
+
+        return null;
+    }
+
+    private static string? ExtractVersion(string value)
+    {
+        foreach (string token in EnumerateParenthesisTokens(value))
+        {
+            string normalized = token.Trim();
+            if (normalized.Length == 0)
+            {
+                continue;
+            }
+
+            if (normalized.StartsWith("Rev ", StringComparison.OrdinalIgnoreCase)
+                || normalized.StartsWith("Revision ", StringComparison.OrdinalIgnoreCase)
+                || normalized.StartsWith("Version ", StringComparison.OrdinalIgnoreCase)
+                || normalized.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+            {
+                return normalized;
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<string> EnumerateParenthesisTokens(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            yield break;
+        }
+
+        int searchStart = 0;
+        while (searchStart < value.Length)
+        {
+            int open = value.IndexOf('(', searchStart);
+            if (open < 0)
+            {
+                yield break;
+            }
+
+            int close = value.IndexOf(')', open + 1);
+            if (close < 0)
+            {
+                yield break;
+            }
+
+            yield return value.Substring(open + 1, close - open - 1);
+            searchStart = close + 1;
+        }
+    }
+
+    private static bool ContainsRegionWord(string value, string region) =>
+        value.Equals(region, StringComparison.OrdinalIgnoreCase)
+        || value.Contains(region + ",", StringComparison.OrdinalIgnoreCase)
+        || value.Contains(region + " ", StringComparison.OrdinalIgnoreCase)
+        || value.Contains(", " + region, StringComparison.OrdinalIgnoreCase)
+        || value.Contains("/" + region, StringComparison.OrdinalIgnoreCase)
+        || value.Contains(region + "/", StringComparison.OrdinalIgnoreCase);
 
     private static void DeleteSystemRows(
         SqliteConnection connection,
@@ -673,8 +927,8 @@ public sealed class RedumpSqliteManager
         SqliteCommand insert = connection.CreateCommand();
         insert.Transaction = transaction;
         insert.CommandText = """
-            INSERT INTO RomHashes (SystemName, GameName, RomName, MD5, SHA1, SizeBytes, CRC)
-            VALUES ($system, $game, $rom, $md5, $sha1, $size, $crc);
+            INSERT INTO RomHashes (SystemName, GameName, RomName, MD5, SHA1, SizeBytes, CRC, Region, Version)
+            VALUES ($system, $game, $rom, $md5, $sha1, $size, $crc, $region, $version);
             """;
 
         insert.Parameters.Add("$system", SqliteType.Text);
@@ -684,6 +938,8 @@ public sealed class RedumpSqliteManager
         insert.Parameters.Add("$sha1", SqliteType.Text);
         insert.Parameters.Add("$size", SqliteType.Integer);
         insert.Parameters.Add("$crc", SqliteType.Text);
+        insert.Parameters.Add("$region", SqliteType.Text);
+        insert.Parameters.Add("$version", SqliteType.Text);
 
         return insert;
     }
@@ -765,7 +1021,7 @@ public sealed class RedumpSqliteManager
         if (sizeBytes.HasValue)
         {
             command.CommandText = $"""
-                SELECT SystemName, GameName, RomName, SizeBytes, CRC
+                SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
                 FROM RomHashes
                 WHERE {columnName} = $h AND SizeBytes = $size
                 LIMIT 1;
@@ -775,7 +1031,7 @@ public sealed class RedumpSqliteManager
         else
         {
             command.CommandText = $"""
-                SELECT SystemName, GameName, RomName, SizeBytes, CRC
+                SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
                 FROM RomHashes
                 WHERE {columnName} = $h
                 LIMIT 1;
@@ -792,6 +1048,8 @@ public sealed class RedumpSqliteManager
 
         long? size = reader.IsDBNull(3) ? null : reader.GetInt64(3);
         string? crc = reader.IsDBNull(4) ? null : reader.GetString(4);
+        string? region = reader.IsDBNull(5) ? null : reader.GetString(5);
+        string? version = reader.IsDBNull(6) ? null : reader.GetString(6);
 
         hit = new RedumpRomHit(
             reader.GetString(0),
@@ -799,6 +1057,8 @@ public sealed class RedumpSqliteManager
             reader.GetString(2),
             size,
             crc,
+            region,
+            version,
             source);
 
         return true;
@@ -936,7 +1196,8 @@ public sealed class RedumpSqliteManager
 
     private static bool IsAllowedHashColumn(string columnName) =>
         string.Equals(columnName, "MD5", StringComparison.Ordinal)
-        || string.Equals(columnName, "SHA1", StringComparison.Ordinal);
+        || string.Equals(columnName, "SHA1", StringComparison.Ordinal)
+        || string.Equals(columnName, "CRC", StringComparison.Ordinal);
 
     private static bool IsGameElement(string name) =>
         name.Equals("game", StringComparison.OrdinalIgnoreCase)
