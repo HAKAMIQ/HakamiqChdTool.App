@@ -561,7 +561,6 @@ Path:
     <sys:String x:Key="LocDeepHash_TipPartialMatch">{0:N0} of {1:N0} files matched. The disc is not considered fully matched until all files match.</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnmatchedFilesHeader">Unmatched files:</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoRedumpMatch">The file didn't match the local Redump database.</sys:String>
-    <sys:String x:Key="LocDeepHash_TipCsoVirtualIsoNoRedumpMatch">The CSO file was read successfully as a virtual ISO image in memory. The displayed size and MD5/SHA1 belong to the decompressed ISO data, not the compressed CSO file. Result: no match was found in the local Redump database.</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoHashableFiles">No files that can be hashed were found.</sys:String>
     <sys:String x:Key="LocDeepHash_TipHashFilesHeader">Scanned files:</sys:String>
     <sys:String x:Key="LocDeepHash_TipTotalFiles">Total files: {0:N0}</sys:String>
@@ -1765,5 +1764,4 @@ Path:
     <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">Select hakamiq-cso.exe only.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitToolFilter">Hakamiq CsoKit (hakamiq-cso.exe)|hakamiq-cso.exe|Executable files (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_Browse">Browse</sys:String>
-    <sys:String x:Key="LocDeepHash_StatusCsoVirtualIsoNoRedumpMatch">CSO read as virtual ISO — no Redump match</sys:String>
 </ResourceDictionary>
