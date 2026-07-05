@@ -8,7 +8,7 @@
         <ResourceDictionary Source="/Resources/Style/Queue/QIStatusTpl.xaml" />
         <ResourceDictionary Source="/Resources/Style/Queue/QIProgTpl.xaml" />
         <ResourceDictionary Source="/Resources/Style/Queue/QIActionsTpl.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QITechTpl.xaml" />
+        <ResourceDictionary Source="/Resources/Style/Queue/QIRedTpl.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <DataTemplate x:Key="FluentQueueRowTemplate">
@@ -51,7 +51,7 @@
 
                     <ContentControl Grid.Row="4"
                                     Content="{Binding}"
-                                    ContentTemplate="{StaticResource QueueItemTechnicalFieldsTemplate}"
+                                    ContentTemplate="{StaticResource QueueItemRedumpFieldsTemplate}"
                                     Focusable="False" />
                 </Grid>
             </Border>

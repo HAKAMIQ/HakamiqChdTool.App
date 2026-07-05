@@ -211,7 +211,7 @@
                 </Border>
             </Border>
 
-            <Border Grid.Row="2"
+                        <Border Grid.Row="2"
                     Style="{StaticResource RedumpNotice.HeaderFooter}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}">
 
@@ -222,13 +222,25 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="CloseButton"
+                    <Button x:Name="ConfirmButton"
                             Grid.Column="1"
-                            Content="{DynamicResource LocCommon_Close}"
-                            ToolTip="{DynamicResource LocCommon_Close}"
-                            AutomationProperties.Name="{DynamicResource LocCommon_Close}"
+                            Content="{Binding ConfirmText, Mode=OneWay}"
+                            ToolTip="{Binding ConfirmText, Mode=OneWay}"
+                            AutomationProperties.Name="{Binding ConfirmText, Mode=OneWay}"
+                            Visibility="{Binding ConfirmVisibility, Mode=OneWay}"
+                            IsDefault="True"
+                            Click="ConfirmButton_Click"
+                            Style="{StaticResource RedumpNotice.CompactPrimaryButton}" />
+
+                    <Button x:Name="CloseButton"
+                            Grid.Column="3"
+                            Content="{Binding CloseText, Mode=OneWay}"
+                            ToolTip="{Binding CloseText, Mode=OneWay}"
+                            AutomationProperties.Name="{Binding CloseText, Mode=OneWay}"
                             IsCancel="True"
                             Click="CloseButton_Click"
                             Style="{StaticResource RedumpNotice.CompactPrimaryButton}" />
