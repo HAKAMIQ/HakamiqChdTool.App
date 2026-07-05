@@ -801,7 +801,7 @@ function Test-RefactorCompositionCompletion {
             'QueueItemStatusFieldsTemplate',
             'QueueItemProgressFieldsTemplate',
             'QueueItemActionsFieldsTemplate',
-            'QueueItemTechnicalFieldsTemplate')) {
+            'QueueItemRedumpFieldsTemplate')) {
             if ($content -notmatch [regex]::Escape($templateKey)) {
                 Add-Failure "QItemTpl.xaml does not compose required subtemplate: $templateKey"
             }
@@ -813,7 +813,7 @@ function Test-RefactorCompositionCompletion {
         'Resources\Style\Queue\QIStatusTpl.xaml',
         'Resources\Style\Queue\QIProgTpl.xaml',
         'Resources\Style\Queue\QIActionsTpl.xaml',
-        'Resources\Style\Queue\QITechTpl.xaml')) {
+        'Resources\Style\Queue\QIRedTpl.xaml')) {
         $templatePath = Join-Path $root $subTemplate
         if (Test-Path -LiteralPath $templatePath -PathType Leaf) {
             $templateContent = Get-Content -LiteralPath $templatePath -Raw -Encoding UTF8
