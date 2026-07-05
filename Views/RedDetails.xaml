@@ -544,7 +544,8 @@
                                     <TextBlock Text="{Binding SuggestedName, Mode=OneWay}"
                                                ToolTip="{Binding SuggestedName, Mode=OneWay}"
                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                               Style="{StaticResource RedumpDetails.TechnicalText}" />
+                                               Style="{StaticResource RedumpDetails.BodyText}"
+                                               Foreground="{DynamicResource Brush.Text.Primary}" />
                                 </Border>
                             </Grid>
                         </Border>
