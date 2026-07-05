@@ -209,47 +209,39 @@ public sealed partial class OptionsViewModel
             return new RedumpLocalLibraryImportSummary(0, 0, 0);
         }
 
-        int importedFileCount = 0;
-        int failedFileCount = 0;
-        int importedRows = 0;
+        RedumpLocalLibraryScanSummary = ArabicUi.Format(
+            "LocRedumpSettings_LocalFolderImportProgressFormat",
+            FormatInvariantNumber(0),
+            FormatInvariantNumber(selectedEntries.Length),
+            FormatInvariantNumber(0),
+            FormatInvariantNumber(0));
 
-        for (int index = 0; index < selectedEntries.Length; index++)
+        Progress<RedumpImportProgress> progress = new(progressValue =>
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            RedumpLocalLibraryDatEntry entry = selectedEntries[index];
-
             RedumpLocalLibraryScanSummary = ArabicUi.Format(
                 "LocRedumpSettings_LocalFolderImportProgressFormat",
-                FormatInvariantNumber(index + 1),
                 FormatInvariantNumber(selectedEntries.Length),
-                FormatInvariantNumber(importedFileCount),
-                FormatInvariantNumber(importedRows));
+                FormatInvariantNumber(selectedEntries.Length),
+                FormatInvariantNumber(0),
+                FormatInvariantNumber(progressValue.RowsInserted));
+        });
 
-            string systemName = FirstNonEmpty(
-                entry.Name,
-                entry.Description,
-                RedumpCompactDisplayFormatter.FormatFileName(entry.FileName));
+        RedumpImportResult result = await RedumpSqliteManager.Default
+            .CleanRebuildFromDatFilesAsync(selectedEntries, progress, cancellationToken)
+            .ConfigureAwait(true);
 
-            RedumpImportResult result = await RedumpSqliteManager.Default
-                .ImportDatFileAsync(entry.FilePath, systemName, progress: null, cancellationToken)
-                .ConfigureAwait(true);
-
-            if (result.Success)
-            {
-                importedFileCount++;
-                importedRows += Math.Max(0, result.RowsImported);
-            }
-            else
-            {
-                failedFileCount++;
-            }
+        if (!result.Success)
+        {
+            return new RedumpLocalLibraryImportSummary(
+                0,
+                0,
+                selectedEntries.Length);
         }
 
         return new RedumpLocalLibraryImportSummary(
-            importedFileCount,
-            importedRows,
-            failedFileCount);
+            selectedEntries.Length,
+            Math.Max(0, result.RowsImported),
+            0);
     }
 
     private static string FirstNonEmpty(params string?[] values)
