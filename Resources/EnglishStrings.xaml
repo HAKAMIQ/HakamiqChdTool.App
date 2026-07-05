@@ -1241,21 +1241,21 @@ Path:
     <sys:String x:Key="LocGeneralSettings_PortableModeDescription">Saves settings and logs inside a .portable folder next to the app path instead of system folders.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_Title">Redump details</sys:String>
-    <sys:String x:Key="LocRedumpDetails_Subtitle">Review the scan result, suggested name, and hash values for the file.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_Subtitle">Review the Redump match result, detected platform, file size, suggested name, and hashes.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_StatusTitle">Match status</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusDescription">Shows the result of matching this file with the local Redump database.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_SuggestedNameTitle">Suggested name</sys:String>
-    <sys:String x:Key="LocRedumpDetails_SuggestedNameDescription">Shows the standard name when a match is available.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_SuggestedNameDescription">Shows the standard Redump name when a match is available. If there is no match, the rename action stays disabled.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_SystemSizeTitle">System and size</sys:String>
     <sys:String x:Key="LocRedumpDetails_SystemSizeDescription">Shows the file platform and size after verification.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_SystemLabel">Redump platform</sys:String>
-    <sys:String x:Key="LocRedumpDetails_SizeLabel">Size</sys:String>
+    <sys:String x:Key="LocRedumpDetails_SizeLabel">File size</sys:String>
     <sys:String x:Key="LocRedumpDetails_ManufacturerLabel">Manufacturer</sys:String>
-    <sys:String x:Key="LocRedumpDetails_ConsoleTypeLabel">Console type</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ConsoleTypeLabel">Detected device</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_GameFileTitle">Game and file</sys:String>
     <sys:String x:Key="LocRedumpDetails_GameFileDescription">Shows the game name and file name used for verification.</sys:String>
@@ -1270,8 +1270,9 @@ Path:
     <sys:String x:Key="LocRedumpDetails_NotesDescription">Shows an additional summary that can be selected and copied.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_ApplyName">Apply suggested name</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ApplyNameTooltip">Rename the source file using the suggested Redump name when a match is available.</sys:String>
 
-    <sys:String x:Key="LocRedumpDetails_CopyNameUnavailable">No name is available to copy.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_CopyNameUnavailable">No matching Redump name is available to copy.</sys:String>
     <sys:String x:Key="LocRedumpDetails_CopyNameSuccess">Name copied.</sys:String>
     <sys:String x:Key="LocRedumpDetails_CopyNameFailed">Could not copy the name right now.</sys:String>
 
@@ -1425,7 +1426,7 @@ Path:
 
     <sys:String x:Key="LocRedumpDetails_Value_Unknown">Unknown</sys:String>
     <sys:String x:Key="LocRedumpDetails_Value_Unavailable">Unavailable</sys:String>
-    <sys:String x:Key="LocRedumpDetails_NoSuggestedName">No Redump name is available.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_NoSuggestedName">No matching Redump name was found for this file.</sys:String>
     <sys:String x:Key="LocRedumpDetails_NoUsefulHashes">No useful hashes are available for this item yet.</sys:String>
     <sys:String x:Key="LocRedumpDetails_UnnamedFile">Unnamed file</sys:String>
 

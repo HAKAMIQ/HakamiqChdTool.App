@@ -1235,21 +1235,21 @@
     <sys:String x:Key="LocGeneralSettings_PortableModeDescription">حفظ الإعدادات والسجلات داخل مجلد '.portable' بجوار مسار التطبيق بدلاً من مجلدات النظام.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_Title">تفاصيل Redump</sys:String>
-    <sys:String x:Key="LocRedumpDetails_Subtitle">مراجعة نتيجة الفحص، والاسم المقترح، وقيم الهاش الخاصة بالملف.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_Subtitle">مراجعة نتيجة Redump، والمنصة المكتشفة، وحجم الملف، والاسم المقترح، وقيم الهاش.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_StatusTitle">حالة المطابقة</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusDescription">عرض نتيجة مطابقة الملف مع قاعدة Redump المحلية.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_SuggestedNameTitle">الاسم المقترح</sys:String>
-    <sys:String x:Key="LocRedumpDetails_SuggestedNameDescription">عرض الاسم القياسي عند توفر مطابقة.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_SuggestedNameDescription">يعرض اسم Redump القياسي عند وجود مطابقة. إذا لم توجد مطابقة، يبقى زر إعادة التسمية معطلاً.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_SystemSizeTitle">المنصة والحجم</sys:String>
     <sys:String x:Key="LocRedumpDetails_SystemSizeDescription">عرض منصة الملف وحجمه بعد إتمام الفحص.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_SystemLabel">منصة Redump</sys:String>
-    <sys:String x:Key="LocRedumpDetails_SizeLabel">الحجم</sys:String>
-    <sys:String x:Key="LocRedumpDetails_ManufacturerLabel">الشركة المصنعة</sys:String>
-    <sys:String x:Key="LocRedumpDetails_ConsoleTypeLabel">نوع الجهاز</sys:String>
+    <sys:String x:Key="LocRedumpDetails_SizeLabel">حجم الملف</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ManufacturerLabel">الشركة</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ConsoleTypeLabel">الجهاز المكتشف</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_GameFileTitle">اللعبة والملف</sys:String>
     <sys:String x:Key="LocRedumpDetails_GameFileDescription">عرض اسم اللعبة واسم الملف المستخدم في الفحص.</sys:String>
@@ -1264,8 +1264,9 @@
     <sys:String x:Key="LocRedumpDetails_NotesDescription">عرض ملخص إضافي قابل للتحديد والنسخ.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_ApplyName">تطبيق الاسم المقترح</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ApplyNameTooltip">إعادة تسمية ملف المصدر باستخدام اسم Redump المقترح عند توفر مطابقة.</sys:String>
 
-    <sys:String x:Key="LocRedumpDetails_CopyNameUnavailable">لا يوجد اسم متاح للنسخ.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_CopyNameUnavailable">لا يوجد اسم Redump مطابق لنسخه.</sys:String>
     <sys:String x:Key="LocRedumpDetails_CopyNameSuccess">تم نسخ الاسم بنجاح.</sys:String>
     <sys:String x:Key="LocRedumpDetails_CopyNameFailed">تعذر نسخ الاسم حالياً.</sys:String>
 
@@ -1419,7 +1420,7 @@
 
     <sys:String x:Key="LocRedumpDetails_Value_Unknown">غير معروف</sys:String>
     <sys:String x:Key="LocRedumpDetails_Value_Unavailable">غير متوفر</sys:String>
-    <sys:String x:Key="LocRedumpDetails_NoSuggestedName">لا يوجد اسم Redump مقترح.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_NoSuggestedName">لم يتم العثور على اسم Redump مطابق لهذا الملف.</sys:String>
     <sys:String x:Key="LocRedumpDetails_NoUsefulHashes">لا توجد قيم هاش متاحة لهذا العنصر بعد.</sys:String>
     <sys:String x:Key="LocRedumpDetails_UnnamedFile">ملف بدون اسم</sys:String>
 
