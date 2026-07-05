@@ -767,7 +767,7 @@ public sealed class RedumpSqliteManager
             command.CommandText = $"""
                 SELECT SystemName, GameName, RomName, SizeBytes, CRC
                 FROM RomHashes
-                WHERE {columnName} COLLATE NOCASE = $h AND SizeBytes = $size
+                WHERE {columnName} = $h AND SizeBytes = $size
                 LIMIT 1;
                 """;
             command.Parameters.AddWithValue("$size", sizeBytes.Value);
@@ -777,7 +777,7 @@ public sealed class RedumpSqliteManager
             command.CommandText = $"""
                 SELECT SystemName, GameName, RomName, SizeBytes, CRC
                 FROM RomHashes
-                WHERE {columnName} COLLATE NOCASE = $h
+                WHERE {columnName} = $h
                 LIMIT 1;
                 """;
         }
@@ -827,13 +827,9 @@ public sealed class RedumpSqliteManager
             }
         }
 
-        if (normalized.Contains("playstation portable", StringComparison.Ordinal)
-            || string.Equals(normalized, "psp", StringComparison.Ordinal))
+        if (normalized.Contains("playstation portable", StringComparison.Ordinal))
         {
-            Add("Sony - PlayStation Portable");
             Add("Sony PlayStation Portable");
-            Add("PlayStation Portable");
-            Add("PSP");
         }
 
         if (normalized.Contains("playstation 5", StringComparison.Ordinal))
@@ -846,35 +842,23 @@ public sealed class RedumpSqliteManager
             Add("Sony PlayStation 4");
         }
 
-        if (normalized.Contains("playstation 3", StringComparison.Ordinal)
-            || string.Equals(normalized, "ps3", StringComparison.Ordinal))
+        if (normalized.Contains("playstation 3", StringComparison.Ordinal))
         {
-            Add("Sony - PlayStation 3");
             Add("Sony PlayStation 3");
-            Add("PlayStation 3");
-            Add("PS3");
         }
 
-        if (normalized.Contains("playstation 2", StringComparison.Ordinal)
-            || string.Equals(normalized, "ps2", StringComparison.Ordinal))
+        if (normalized.Contains("playstation 2", StringComparison.Ordinal))
         {
-            Add("Sony - PlayStation 2");
             Add("Sony PlayStation 2");
-            Add("PlayStation 2");
-            Add("PS2");
         }
 
         if (normalized.Contains("playstation 1", StringComparison.Ordinal)
             || string.Equals(normalized, "psx", StringComparison.Ordinal)
             || string.Equals(normalized, "ps1", StringComparison.Ordinal))
         {
-            Add("Sony - PlayStation");
             Add("Sony PlayStation");
             Add("Sony PlayStation 1");
             Add("PlayStation");
-            Add("PlayStation 1");
-            Add("PSX");
-            Add("PS1");
         }
 
         if (normalized.Contains("dreamcast", StringComparison.Ordinal))

@@ -558,7 +558,6 @@
     <sys:String x:Key="LocDeepHash_TipPartialMatch">تمت مطابقة {0:N0} من {1:N0} ملف. لا يُعد القرص مطابقاً بالكامل حتى تتطابق كافة الملفات.</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnmatchedFilesHeader">الملفات غير المطابقة:</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoRedumpMatch">لم يتم العثور على مطابقة في قاعدة بيانات Redump المحلية.</sys:String>
-    <sys:String x:Key="LocDeepHash_TipCsoVirtualIsoNoRedumpMatch">تمت قراءة ملف CSO بنجاح كـ ISO افتراضي داخل الذاكرة. الحجم و MD5/SHA1 المعروضة تخص بيانات ISO المفكوكة، وليست ملف CSO المضغوط. النتيجة: لا توجد مطابقة في قاعدة Redump المحلية.</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoHashableFiles">لا توجد ملفات قابلة للفحص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipHashFilesHeader">الملفات التي تم فحصها:</sys:String>
     <sys:String x:Key="LocDeepHash_TipTotalFiles">إجمالي الملفات: {0:N0}</sys:String>
@@ -1759,5 +1758,4 @@
     <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">اختر ملف hakamiq-cso.exe فقط.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitToolFilter">Hakamiq CsoKit (hakamiq-cso.exe)|hakamiq-cso.exe|ملفات تنفيذية (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_Browse">استعراض</sys:String>
-    <sys:String x:Key="LocDeepHash_StatusCsoVirtualIsoNoRedumpMatch">تمت قراءة CSO كـ ISO افتراضي — لا توجد مطابقة Redump</sys:String>
 </ResourceDictionary>

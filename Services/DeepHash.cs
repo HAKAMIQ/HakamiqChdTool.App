@@ -1,7 +1,5 @@
 using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
-using System.Buffers.Binary;
-using System.IO.Compression;
 using Serilog;
 using System.IO;
 using System.Security.Cryptography;
@@ -65,7 +63,6 @@ public static class DeepHashAnalyzer
     private const string StatusVerifiedCompleteKey = "LocDeepHash_StatusVerifiedComplete";
     private const string StatusIncompleteKey = "LocDeepHash_StatusIncomplete";
     private const string StatusModifiedKey = "LocDeepHash_StatusModified";
-    private const string StatusCsoVirtualIsoNoRedumpMatchKey = "LocDeepHash_StatusCsoVirtualIsoNoRedumpMatch";
 
     private const string TipNoPathKey = "LocDeepHash_TipNoPath";
     private const string TipInvalidPathKey = "LocDeepHash_TipInvalidPath";
@@ -85,7 +82,6 @@ public static class DeepHashAnalyzer
     private const string TipVerifiedHeaderKey = "LocDeepHash_TipVerifiedHeader";
     private const string TipPartialMatchKey = "LocDeepHash_TipPartialMatch";
     private const string TipNoRedumpMatchKey = "LocDeepHash_TipNoRedumpMatch";
-    private const string TipCsoVirtualIsoNoRedumpMatchKey = "LocDeepHash_TipCsoVirtualIsoNoRedumpMatch";
 
     private static readonly HashSet<string> HashableExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -136,11 +132,11 @@ public static class DeepHashAnalyzer
 
         if (string.Equals(extension, ".cso", StringComparison.OrdinalIgnoreCase))
         {
-            return await AnalyzeCsoVirtualIsoAsync(
-                    fullPath,
-                    redumpDatabase,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            return Result(
+                IntegrityValidationState.NoDirectRedump,
+                StatusRequiresRawImageKey,
+                TipCsoNeedsIsoKey,
+                [fullPath]);
         }
 
         if (ArchiveNoDirectExtensions.Contains(extension))
@@ -264,340 +260,6 @@ public static class DeepHashAnalyzer
             TipNoRedumpMatchKey,
             hashedFiles: hashed);
     }
-
-    private static async Task<DeepHashAnalysisResult> AnalyzeCsoVirtualIsoAsync(
-        string fullPath,
-        RedumpSqliteManager? redumpDatabase,
-        CancellationToken cancellationToken)
-    {
-        if (redumpDatabase is null)
-        {
-            return Result(
-                IntegrityValidationState.NoDirectRedump,
-                StatusRequiresRawImageKey,
-                TipCsoNeedsIsoKey,
-                [fullPath]);
-        }
-
-        if (!redumpDatabase.HasAnyRows())
-        {
-            return Result(
-                IntegrityValidationState.NoDat,
-                StatusNoDatabaseKey,
-                TipNoDatabaseKey);
-        }
-
-        List<DeepHashFileDigest> hashed;
-
-        try
-        {
-            DeepHashFileDigest digest = await Task.Run(
-                    () => HashCsoVirtualIso(fullPath, cancellationToken),
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            hashed = [digest];
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex) when (IsInputReadFailureException(ex))
-        {
-            Log.Warning(ex, "DeepHashAnalyzer: CSO input read failed while hashing virtual ISO. Path={Path}; FailureCode={FailureCode}", fullPath, InputReadCrcOrIoFailureCode);
-            return InputReadFailure();
-        }
-        catch (Exception ex) when (ex is InvalidDataException or CryptographicException or ArgumentException or NotSupportedException)
-        {
-            Log.Debug(ex, "DeepHashAnalyzer: CSO virtual ISO hashing failed. Path={Path}", fullPath);
-            return Error(TipHashFailedKey);
-        }
-
-        var matches = new List<DeepHashMatch>();
-
-        foreach (DeepHashFileDigest file in hashed)
-        {
-            if (redumpDatabase.TryMatchHash(file.Md5, file.Sha1, file.SizeBytes, out RedumpRomHit hit))
-            {
-                matches.Add(ToMatch(file, hit));
-            }
-        }
-
-        if (matches.Count == hashed.Count)
-        {
-            return BuildFullMatchResult(fullPath, hashed, matches);
-        }
-
-
-        return Result(
-            IntegrityValidationState.NoRedumpMatch,
-            StatusCsoVirtualIsoNoRedumpMatchKey,
-            TipCsoVirtualIsoNoRedumpMatchKey,
-            hashedFiles: hashed);
-    }
-
-    private static DeepHashFileDigest HashCsoVirtualIso(
-        string csoPath,
-        CancellationToken cancellationToken)
-    {
-        using FileStream stream = new(
-            csoPath,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.Read,
-            bufferSize: BufferSize,
-            FileOptions.SequentialScan);
-
-        CsoHeader header = ReadCsoHeader(stream);
-
-        long blockCount64 = checked((long)((header.TotalBytes + header.BlockSize - 1UL) / header.BlockSize));
-        if (blockCount64 <= 0 || blockCount64 > int.MaxValue - 1)
-        {
-            throw new InvalidDataException("Unsupported CSO block count.");
-        }
-
-        int blockCount = (int)blockCount64;
-        uint[] index = ReadCsoIndex(stream, blockCount);
-
-        using var md5 = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
-        using var sha1 = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
-
-        byte[] output = new byte[checked((int)header.BlockSize)];
-        ulong logicalOffset = 0;
-
-        for (int block = 0; block < blockCount; block++)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            CsoBlockLocation location = ResolveCsoBlockLocation(
-                index,
-                block,
-                header.AlignmentShift,
-                stream.Length);
-
-            int expectedBytes = checked((int)Math.Min(
-                (ulong)header.BlockSize,
-                header.TotalBytes - logicalOffset));
-
-            if (expectedBytes <= 0)
-            {
-                throw new InvalidDataException("Invalid CSO logical block size.");
-            }
-
-            if (location.IsPlain)
-            {
-                stream.Position = location.Offset;
-                ReadExactly(stream, output, expectedBytes);
-            }
-            else
-            {
-                if (location.Length <= 0 || location.Length > int.MaxValue)
-                {
-                    throw new InvalidDataException("Invalid CSO compressed block size.");
-                }
-
-                byte[] compressed = new byte[(int)location.Length];
-                stream.Position = location.Offset;
-                ReadExactly(stream, compressed, compressed.Length);
-                DecompressCsoBlock(compressed, output, expectedBytes);
-            }
-
-            ReadOnlySpan<byte> span = output.AsSpan(0, expectedBytes);
-            md5.AppendData(span);
-            sha1.AppendData(span);
-
-            logicalOffset += (ulong)expectedBytes;
-        }
-
-        if (logicalOffset != header.TotalBytes)
-        {
-            throw new InvalidDataException("CSO logical size mismatch.");
-        }
-
-        string md5Hex = Convert.ToHexString(md5.GetHashAndReset()).ToLowerInvariant();
-        string sha1Hex = Convert.ToHexString(sha1.GetHashAndReset()).ToLowerInvariant();
-
-        if (header.TotalBytes > long.MaxValue)
-        {
-            throw new InvalidDataException("CSO logical size is too large.");
-        }
-
-        return new DeepHashFileDigest(
-            BuildCsoVirtualIsoDisplayPath(csoPath),
-            (long)header.TotalBytes,
-            md5Hex,
-            sha1Hex);
-    }
-
-    private static string BuildCsoVirtualIsoDisplayPath(string csoPath)
-    {
-        string? directory = Path.GetDirectoryName(csoPath);
-        string nameWithoutExtension = Path.GetFileNameWithoutExtension(csoPath);
-
-        string displayName = string.IsNullOrWhiteSpace(nameWithoutExtension)
-            ? "CSO virtual ISO.iso"
-            : $"{nameWithoutExtension} [CSO virtual ISO].iso";
-
-        return string.IsNullOrWhiteSpace(directory)
-            ? displayName
-            : Path.Combine(directory, displayName);
-    }
-    private static CsoHeader ReadCsoHeader(FileStream stream)
-    {
-        byte[] header = new byte[24];
-        ReadExactly(stream, header, header.Length);
-
-        if (header[0] != (byte)'C'
-            || header[1] != (byte)'I'
-            || header[2] != (byte)'S'
-            || header[3] != (byte)'O')
-        {
-            throw new InvalidDataException("Invalid CSO magic.");
-        }
-
-        uint headerSize = BinaryPrimitives.ReadUInt32LittleEndian(header.AsSpan(4, 4));
-        ulong totalBytes = BinaryPrimitives.ReadUInt64LittleEndian(header.AsSpan(8, 8));
-        uint blockSize = BinaryPrimitives.ReadUInt32LittleEndian(header.AsSpan(16, 4));
-        byte alignmentShift = header[21];
-
-        if (headerSize < 24 || headerSize > stream.Length)
-        {
-            throw new InvalidDataException("Invalid CSO header size.");
-        }
-
-        if (totalBytes == 0 || blockSize == 0 || blockSize > 1024 * 1024)
-        {
-            throw new InvalidDataException("Invalid CSO logical geometry.");
-        }
-
-        if (alignmentShift > 31)
-        {
-            throw new InvalidDataException("Invalid CSO alignment shift.");
-        }
-
-        stream.Position = headerSize;
-
-        return new CsoHeader(
-            totalBytes,
-            blockSize,
-            alignmentShift);
-    }
-
-    private static uint[] ReadCsoIndex(
-        FileStream stream,
-        int blockCount)
-    {
-        uint[] index = new uint[blockCount + 1];
-        byte[] raw = new byte[checked((blockCount + 1) * sizeof(uint))];
-
-        ReadExactly(stream, raw, raw.Length);
-
-        for (int i = 0; i < index.Length; i++)
-        {
-            index[i] = BinaryPrimitives.ReadUInt32LittleEndian(
-                raw.AsSpan(i * sizeof(uint), sizeof(uint)));
-        }
-
-        return index;
-    }
-
-    private static CsoBlockLocation ResolveCsoBlockLocation(
-        uint[] index,
-        int block,
-        byte alignmentShift,
-        long streamLength)
-    {
-        uint rawCurrent = index[block];
-        uint rawNext = index[block + 1];
-
-        bool isPlain = (rawCurrent & 0x80000000U) != 0;
-
-        long current = checked((long)(rawCurrent & 0x7FFFFFFFU) << alignmentShift);
-        long next = checked((long)(rawNext & 0x7FFFFFFFU) << alignmentShift);
-
-        if (current < 0 || next < current || next > streamLength)
-        {
-            throw new InvalidDataException("Invalid CSO block index.");
-        }
-
-        return new CsoBlockLocation(
-            current,
-            next - current,
-            isPlain);
-    }
-
-    private static void DecompressCsoBlock(
-        byte[] compressed,
-        byte[] output,
-        int expectedBytes)
-    {
-        if (TryDecompressCsoBlock(compressed, output, expectedBytes, useZLib: true))
-        {
-            return;
-        }
-
-        if (TryDecompressCsoBlock(compressed, output, expectedBytes, useZLib: false))
-        {
-            return;
-        }
-
-        throw new InvalidDataException("CSO compressed block could not be decompressed.");
-    }
-
-    private static bool TryDecompressCsoBlock(
-        byte[] compressed,
-        byte[] output,
-        int expectedBytes,
-        bool useZLib)
-    {
-        try
-        {
-            using var input = new MemoryStream(compressed, writable: false);
-            using Stream inflater = useZLib
-                ? new ZLibStream(input, CompressionMode.Decompress, leaveOpen: false)
-                : new DeflateStream(input, CompressionMode.Decompress, leaveOpen: false);
-
-            ReadExactly(inflater, output, expectedBytes);
-            return true;
-        }
-        catch (InvalidDataException)
-        {
-            return false;
-        }
-        catch (IOException)
-        {
-            return false;
-        }
-    }
-
-    private static void ReadExactly(
-        Stream stream,
-        byte[] buffer,
-        int count)
-    {
-        int offset = 0;
-
-        while (offset < count)
-        {
-            int read = stream.Read(buffer, offset, count - offset);
-            if (read == 0)
-            {
-                throw new EndOfStreamException("Unexpected end of stream.");
-            }
-
-            offset += read;
-        }
-    }
-
-    private readonly record struct CsoHeader(
-        ulong TotalBytes,
-        uint BlockSize,
-        byte AlignmentShift);
-
-    private readonly record struct CsoBlockLocation(
-        long Offset,
-        long Length,
-        bool IsPlain);
 
     private static async Task<DeepHashAnalysisResult?> TryBuildMissingPlatformDatabaseResultAsync(
         string fullPath,
