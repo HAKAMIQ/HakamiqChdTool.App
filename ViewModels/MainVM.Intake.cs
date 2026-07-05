@@ -8,6 +8,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
@@ -551,19 +552,52 @@ public partial class MainWindowViewModel
             || string.Equals(messageResourceKey, "LocQueueAdd_ArchivePreviewCancelled", StringComparison.Ordinal);
     }
 
-    private static IEnumerable<string> EnumerateInputPaths(
+    private static async IAsyncEnumerable<string> EnumerateInputPathsAsync(
         IReadOnlyList<string> rawList,
         QueueIngestKind inputKind,
-        SearchOption searchOption)
+        SearchOption searchOption,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        foreach (MediaInputDescriptor descriptor in MediaInputPipelineStatic.Resolve(rawList, inputKind, searchOption))
+        foreach (string rawPath in rawList)
         {
-            if (descriptor.Kind == MediaInputKind.Folder)
+            if (string.IsNullOrWhiteSpace(rawPath))
             {
                 continue;
             }
 
-            yield return descriptor.FullPath;
+            MediaInputDescriptor descriptor = await MediaInputPipelineStatic
+                .IntakeAsync(rawPath, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (inputKind != QueueIngestKind.FilesOnly
+                && descriptor.Kind == MediaInputKind.Folder
+                && descriptor.Exists
+                && descriptor.IsDirectory
+                && !string.IsNullOrWhiteSpace(descriptor.FullPath))
+            {
+                foreach (string resolvedPath in InputResolverStatic.Resolve(descriptor.FullPath, searchOption))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    MediaInputDescriptor resolvedDescriptor = await MediaInputPipelineStatic
+                        .IntakeAsync(resolvedPath, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    if (resolvedDescriptor.Kind != MediaInputKind.Folder
+                        && !string.IsNullOrWhiteSpace(resolvedDescriptor.FullPath))
+                    {
+                        yield return resolvedDescriptor.FullPath;
+                    }
+                }
+
+                continue;
+            }
+
+            if (descriptor.Kind != MediaInputKind.Folder
+                && !string.IsNullOrWhiteSpace(descriptor.FullPath))
+            {
+                yield return descriptor.FullPath;
+            }
         }
     }
 

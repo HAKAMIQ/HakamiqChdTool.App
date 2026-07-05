@@ -1,13 +1,11 @@
-using HakamiqChdTool.App.Models;
-using System.Collections.Generic;
-using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Core.Input;
 
 public interface IMediaInputPipeline
 {
-    IEnumerable<MediaInputDescriptor> Resolve(
-        IReadOnlyList<string> rawPaths,
-        QueueIngestKind inputKind,
-        SearchOption searchOption);
+    ValueTask<MediaInputDescriptor> IntakeAsync(
+        string path,
+        CancellationToken cancellationToken);
 }

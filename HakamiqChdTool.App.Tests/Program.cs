@@ -59,7 +59,8 @@ internal static class Program
                 new("Workflow planner maps extraction kinds", () => TestWorkflowPlannerExtractionKinds(app)),
                 new("Workflow planner maps CHD media types", () => TestWorkflowPlannerMediaTypes(app)),
                 new("Workflow planner creates CD command for CUE descriptor", () => TestWorkflowPlannerCueCreatesCd(app, workDirectory)),
-                new("Workflow planner creates DVD command for CSO input", () => TestWorkflowPlannerCsoCreatesDvd(app, workDirectory))
+                new("Workflow planner creates DVD command for CSO input", () => TestWorkflowPlannerCsoCreatesDvd(app, workDirectory)),
+                new("Media input classifier covers P0 descriptors", () => TestMediaInputClassifierP0(app, workDirectory))
             ];
 
             int passed = 0;
@@ -472,6 +473,67 @@ internal static class Program
         AssertFalse(GetBool(plan, "RequiresDescriptorDependencies"), "CSO plan should not require descriptor dependencies.");
     }
 
+    private static void TestMediaInputClassifierP0(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "media-input-p0");
+        Directory.CreateDirectory(root);
+
+        object empty = app.ClassifyMediaInput(string.Empty);
+        AssertMediaKind(empty, "Unknown");
+        AssertFalse(GetBool(empty, "Exists"), "Empty path should not exist.");
+
+        string missingPath = Path.Combine(root, "missing.iso");
+        object missing = app.ClassifyMediaInput(missingPath);
+        AssertMediaKind(missing, "Unknown");
+        AssertFalse(GetBool(missing, "Exists"), "Missing path should not exist.");
+
+        string directoryPath = Path.Combine(root, "folder");
+        Directory.CreateDirectory(directoryPath);
+        object directory = app.ClassifyMediaInput(directoryPath);
+        AssertMediaKind(directory, "Folder");
+        AssertTrue(GetBool(directory, "IsDirectory"), "Existing directory should be marked as directory.");
+        AssertEqual<long?>(null, GetNullableLong(directory, "SizeBytes"), "Directory should not have a file size.");
+
+        string isoPath = WriteMediaFile(root, "disc.iso", [0, 1, 2, 3]);
+        AssertMediaKind(app.ClassifyMediaInput(isoPath), "ISO");
+
+        string pkgPath = WriteMediaFile(root, "package.pkg", [0x7F, 0x50, 0x4B, 0x47, 0]);
+        AssertMediaKind(app.ClassifyMediaInput(pkgPath), "PKG");
+
+        string chdPath = WriteMediaFile(root, "disc.chd", Encoding.ASCII.GetBytes("MComprHD"));
+        AssertMediaKind(app.ClassifyMediaInput(chdPath), "CHD");
+
+        string csoPath = WriteMediaFile(root, "disc.cso", Encoding.ASCII.GetBytes("CISO"));
+        AssertMediaKind(app.ClassifyMediaInput(csoPath), "CSO");
+
+        string cuePath = WriteMediaFile(root, "disc.cue", Encoding.ASCII.GetBytes("FILE \"track.bin\" BINARY\r\n"));
+        AssertMediaKind(app.ClassifyMediaInput(cuePath), "CUE");
+
+        string binPath = WriteMediaFile(root, "track.bin", [1, 2, 3, 4]);
+        AssertMediaKind(app.ClassifyMediaInput(binPath), "BIN");
+
+        string gdiPath = WriteMediaFile(root, "disc.gdi", Encoding.ASCII.GetBytes("1\r\n"));
+        AssertMediaKind(app.ClassifyMediaInput(gdiPath), "GDI");
+
+        string otherPath = WriteMediaFile(root, "notes.txt", Encoding.ASCII.GetBytes("not media"));
+        object other = app.ClassifyMediaInput(otherPath);
+        AssertMediaKind(other, "Other");
+        AssertEqual("file-other", GetString(other, "DetectionReason"), "Unknown extension should use file-other reason.");
+
+        string lockedChdPath = WriteMediaFile(root, "locked.chd", Encoding.ASCII.GetBytes("MComprHD"));
+        using FileStream lockStream = new(
+            lockedChdPath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.None);
+
+        object lockedChd = app.ClassifyMediaInput(lockedChdPath);
+        AssertMediaKind(lockedChd, "CHD");
+        AssertTrue(
+            GetString(lockedChd, "DetectionReason").Contains("probe-failed", StringComparison.Ordinal),
+            "Locked CHD should fall back to extension with a probe-failed reason.");
+    }
+
     private static void AssertPlan(
         object plan,
         bool supported,
@@ -585,6 +647,13 @@ internal static class Program
         buffer[offset + 3] = (byte)value;
     }
 
+    private static string WriteMediaFile(string directoryPath, string fileName, byte[] bytes)
+    {
+        string path = Path.Combine(directoryPath, fileName);
+        File.WriteAllBytes(path, bytes);
+        return path;
+    }
+
     private static bool GetBool(object instance, string propertyName) =>
         (bool)(ReadProperty(instance, propertyName) ?? false);
 
@@ -596,6 +665,17 @@ internal static class Program
 
     private static string? GetNullableString(object instance, string propertyName) =>
         (string?)ReadProperty(instance, propertyName);
+
+    private static long? GetNullableLong(object instance, string propertyName)
+    {
+        object? value = ReadProperty(instance, propertyName);
+        return value switch
+        {
+            null => null,
+            long number => number,
+            _ => throw new InvalidOperationException("Expected nullable long property: " + propertyName)
+        };
+    }
 
     private static string GetEnumName(object instance, string propertyName) =>
         ReadProperty(instance, propertyName)?.ToString() ?? string.Empty;
@@ -639,6 +719,9 @@ internal static class Program
         }
     }
 
+    private static void AssertMediaKind(object descriptor, string expectedKind) =>
+        AssertEqual(expectedKind, GetEnumName(descriptor, "Kind"), "Unexpected media input kind.");
+
     private static void AssertContains(IReadOnlySet<string> values, string expected)
     {
         if (!values.Contains(expected))
@@ -667,6 +750,8 @@ internal static class Program
         private readonly MethodInfo planExtractionByKind;
         private readonly MethodInfo planExtractionFromChdMediaType;
         private readonly MethodInfo planCreateFromSource;
+        private readonly object mediaInputClassifier;
+        private readonly MethodInfo mediaInputClassifyAsync;
 
         public AppReflection(Assembly appAssembly)
         {
@@ -676,10 +761,13 @@ internal static class Program
             Type safePathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSafePathValidator");
             Type outputPathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowOutputPathPlanner");
             Type profilePlannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdWorkflowProfilePlanner");
+            Type mediaInputClassifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputClassifier");
             settingsType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.AppSettings");
             extractionKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdmanExtractionKind");
             isoCreateOverrideType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.IsoCreateCommandOverride");
             mediaContainerKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdMediaContainerKind");
+            mediaInputClassifier = Activator.CreateInstance(mediaInputClassifierType)
+                ?? throw new InvalidOperationException("Unable to create media input classifier.");
 
             scannerTryScan = GetRequiredMethod(scannerType, "TryScan");
             detectorDetect = GetRequiredMethod(detectorType, "Detect");
@@ -693,6 +781,7 @@ internal static class Program
             planExtractionByKind = GetRequiredMethod(profilePlannerType, "PlanExtractionByKind", [extractionKindType]);
             planExtractionFromChdMediaType = GetRequiredMethod(profilePlannerType, "PlanExtractionFromChdMediaType", [typeof(string), typeof(string), GetOptionalPlatformDetectionType(appAssembly)]);
             planCreateFromSource = GetRequiredMethod(profilePlannerType, "PlanCreateFromSource", [typeof(string), isoCreateOverrideType, mediaContainerKindType, typeof(string)]);
+            mediaInputClassifyAsync = GetRequiredInstanceMethod(mediaInputClassifierType, "ClassifyAsync", [typeof(string), typeof(CancellationToken)]);
         }
 
         public ReflectedStructure ScanStructure(string path)
@@ -802,6 +891,22 @@ internal static class Program
                 ?? throw new InvalidOperationException("Planner returned null for input: " + inputPath);
         }
 
+        public object ClassifyMediaInput(string path)
+        {
+            object valueTask = mediaInputClassifyAsync.Invoke(mediaInputClassifier, [path, CancellationToken.None])
+                ?? throw new InvalidOperationException("Media input classifier returned null.");
+
+            MethodInfo asTask = valueTask.GetType().GetMethod("AsTask", BindingFlags.Instance | BindingFlags.Public)
+                ?? throw new MissingMethodException(valueTask.GetType().FullName, "AsTask");
+
+            Task task = (Task)(asTask.Invoke(valueTask, null)
+                ?? throw new InvalidOperationException("Unable to convert classifier result to Task."));
+            task.GetAwaiter().GetResult();
+
+            return task.GetType().GetProperty("Result", BindingFlags.Instance | BindingFlags.Public)?.GetValue(task)
+                ?? throw new InvalidOperationException("Classifier task did not expose a result.");
+        }
+
         public IReadOnlySet<string> GetAdvisoryReasonCodes(object advisory)
         {
             object? reasonsObject = ReadProperty(advisory, "Reasons");
@@ -847,6 +952,15 @@ internal static class Program
             type.GetMethod(
                 methodName,
                 BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                binder: null,
+                types: parameterTypes,
+                modifiers: null)
+            ?? throw new MissingMethodException(type.FullName, methodName);
+
+        private static MethodInfo GetRequiredInstanceMethod(Type type, string methodName, Type[] parameterTypes) =>
+            type.GetMethod(
+                methodName,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 binder: null,
                 types: parameterTypes,
                 modifiers: null)

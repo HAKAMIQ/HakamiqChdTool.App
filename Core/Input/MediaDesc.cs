@@ -2,12 +2,13 @@ namespace HakamiqChdTool.App.Core.Input;
 
 public sealed record MediaInputDescriptor(
     string OriginalPath,
-    string FullPath,
+    string? FullPath,
     MediaInputKind Kind,
-    string Extension,
     bool Exists,
     bool IsDirectory,
-    string FailureMessageKey)
+    long? SizeBytes,
+    string? Extension,
+    string DetectionReason)
 {
     public bool IsFile => Exists && !IsDirectory;
 
