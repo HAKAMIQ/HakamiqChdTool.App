@@ -104,7 +104,12 @@ public static class QueueVerificationResultPresenter
             return ArabicUi.Get("LocDeepHash_StatusModified");
         }
 
-        if (integrityState is IntegrityValidationState.NoDat or IntegrityValidationState.NoDirectRedump)
+        if (integrityState == IntegrityValidationState.NoDirectRedump)
+        {
+            return ArabicUi.Get("LocDeepHash_StatusUnsupportedDirect");
+        }
+
+        if (integrityState == IntegrityValidationState.NoDat)
         {
             return ArabicUi.Get("LocDeepHash_StatusNoDatabase");
         }
@@ -273,7 +278,8 @@ public static class QueueVerificationResultPresenter
             IntegrityValidationState.Verified => ArabicUi.Get("LocQueue_VerificationResultScopeRedumpMatched"),
             IntegrityValidationState.Failed or IntegrityValidationState.Error => ArabicUi.Get("LocQueue_VerificationResultScopeMismatch"),
             IntegrityValidationState.NoRedumpMatch => ArabicUi.Get("LocQueue_VerificationResultScopeNoRedumpMatch"),
-            IntegrityValidationState.NoDat or IntegrityValidationState.NoDirectRedump => ArabicUi.Get("LocQueue_VerificationResultScopeNoDat"),
+            IntegrityValidationState.NoDat => ArabicUi.Get("LocQueue_VerificationResultScopeNoDat"),
+            IntegrityValidationState.NoDirectRedump => ArabicUi.Get("LocQueue_VerificationResultScopeNoDirectRedump"),
             IntegrityValidationState.Unsupported => ArabicUi.Get("LocQueue_VerificationResultScopeUnsupported"),
             _ => ArabicUi.Get("LocQueue_VerificationResultScopeInternalOnly")
         };

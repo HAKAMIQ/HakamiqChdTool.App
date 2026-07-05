@@ -69,6 +69,7 @@ public static class DeepHashAnalyzer
     private const string TipFileNotFoundKey = "LocDeepHash_TipFileNotFound";
     private const string TipChdNeedsExtractionKey = "LocDeepHash_TipChdNeedsExtraction";
     private const string TipArchiveNeedsExtractionKey = "LocDeepHash_TipArchiveNeedsExtraction";
+    private const string TipCsoNeedsIsoKey = "LocDeepHash_TipCsoNeedsIso";
     private const string TipUnsupportedExtensionKey = "LocDeepHash_TipUnsupportedExtension";
     private const string TipNoTrackFilesKey = "LocDeepHash_TipNoTrackFiles";
     private const string TipResolveFailedKey = "LocDeepHash_TipResolveFailed";
@@ -82,7 +83,7 @@ public static class DeepHashAnalyzer
 
     private static readonly HashSet<string> HashableExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".cue", ".gdi", ".iso", ".bin", ".img", ".raw", ".cso"
+        ".cue", ".gdi", ".iso", ".bin", ".img", ".raw"
     };
 
     private static readonly HashSet<string> ArchiveNoDirectExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -124,6 +125,15 @@ public static class DeepHashAnalyzer
                 IntegrityValidationState.NoDirectRedump,
                 StatusRequiresRawImageKey,
                 TipChdNeedsExtractionKey,
+                [fullPath]);
+        }
+
+        if (string.Equals(extension, ".cso", StringComparison.OrdinalIgnoreCase))
+        {
+            return Result(
+                IntegrityValidationState.NoDirectRedump,
+                StatusRequiresRawImageKey,
+                TipCsoNeedsIsoKey,
                 [fullPath]);
         }
 
@@ -372,7 +382,7 @@ public static class DeepHashAnalyzer
         {
             ".cue" => ResolveCueBinFiles(normalized),
             ".gdi" => ResolveGdiTrackFiles(normalized),
-            ".iso" or ".bin" or ".img" or ".raw" or ".cso" => [normalized],
+            ".iso" or ".bin" or ".img" or ".raw" => [normalized],
             _ => []
         };
     }
