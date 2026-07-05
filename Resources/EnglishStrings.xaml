@@ -536,6 +536,7 @@
     <sys:String x:Key="LocDeepHash_StatusUnsupported">Unsupported</sys:String>
     <sys:String x:Key="LocDeepHash_StatusInputReadFailure">Source read failed</sys:String>
     <sys:String x:Key="LocDeepHash_StatusNoDatabase">No database</sys:String>
+    <sys:String x:Key="LocDeepHash_StatusMissingPlatformDatabase">Redump platform database is missing</sys:String>
     <sys:String x:Key="LocDeepHash_StatusConflictingMatch">Conflicting match</sys:String>
     <sys:String x:Key="LocDeepHash_StatusVerified">Matched</sys:String>
     <sys:String x:Key="LocDeepHash_StatusVerifiedComplete">Fully matched</sys:String>
@@ -554,6 +555,7 @@ Path:
     <sys:String x:Key="LocDeepHash_TipUnsupportedExtension">This file type is not supported in Redump verification.&#x0a;{1}</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoTrackFiles">No valid track files were found.</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoDatabase">The Redump database is unavailable. Update the database or import a DAT/XML file from Advanced options.</sys:String>
+    <sys:String x:Key="LocDeepHash_TipMissingPlatformDatabase">The file appears to belong to {0}, but this platform has no rows in the local Redump database. Import the DAT for this platform, then scan again.</sys:String>
     <sys:String x:Key="LocDeepHash_TipConflictingMatches">Redump results don't belong to the same game or system.</sys:String>
     <sys:String x:Key="LocDeepHash_TipVerifiedHeader">Redump match:</sys:String>
     <sys:String x:Key="LocDeepHash_TipPartialMatch">{0:N0} of {1:N0} files matched. The disc is not considered fully matched until all files match.</sys:String>

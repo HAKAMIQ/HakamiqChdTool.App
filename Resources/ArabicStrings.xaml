@@ -536,6 +536,7 @@
     <sys:String x:Key="LocDeepHash_StatusUnsupported">غير مدعوم</sys:String>
     <sys:String x:Key="LocDeepHash_StatusInputReadFailure">تعذر قراءة المصدر</sys:String>
     <sys:String x:Key="LocDeepHash_StatusNoDatabase">لا توجد قاعدة بيانات</sys:String>
+    <sys:String x:Key="LocDeepHash_StatusMissingPlatformDatabase">قاعدة Redump الخاصة بهذه المنصة غير مستوردة</sys:String>
     <sys:String x:Key="LocDeepHash_StatusConflictingMatch">تعارض في المطابقة</sys:String>
     <sys:String x:Key="LocDeepHash_StatusVerified">مطابق</sys:String>
     <sys:String x:Key="LocDeepHash_StatusVerifiedComplete">مطابق بالكامل</sys:String>
@@ -551,6 +552,7 @@
     <sys:String x:Key="LocDeepHash_TipUnsupportedExtension">نوع الملف غير مدعوم في فحص Redump.&#x0a;{1}</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoTrackFiles">تعذر العثور على ملفات مسارات صالحة للفحص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoDatabase">قاعدة بيانات Redump غير متاحة. يُرجى تحديث القاعدة أو استيراد ملف DAT/XML من الإعدادات المتقدمة.</sys:String>
+    <sys:String x:Key="LocDeepHash_TipMissingPlatformDatabase">يبدو أن الملف تابع لمنصة {0}، لكن هذه المنصة لا تحتوي على أي صفوف في قاعدة Redump المحلية. استورد DAT الخاص بهذه المنصة ثم أعد الفحص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipConflictingMatches">نتائج Redump لا تنتمي لنفس اللعبة أو المنصة.</sys:String>
     <sys:String x:Key="LocDeepHash_TipVerifiedHeader">مطابقة Redump:</sys:String>
     <sys:String x:Key="LocDeepHash_TipPartialMatch">تمت مطابقة {0:N0} من {1:N0} ملف. لا يُعد القرص مطابقاً بالكامل حتى تتطابق كافة الملفات.</sys:String>
