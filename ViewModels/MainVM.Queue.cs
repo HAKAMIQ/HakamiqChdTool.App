@@ -22,7 +22,7 @@ namespace HakamiqChdTool.App.ViewModels;
 public partial class MainWindowViewModel
 {
     private static readonly IInputResolver InputResolverStatic = new Core.Input.InputResolver();
-    private static readonly IMediaInputPipeline MediaInputPipelineStatic = new MediaInputPipeline(MediaInputClassifier.Shared, InputResolverStatic);
+    private static readonly IMediaInputPipeline MediaInputPipelineStatic = new MediaInputPipeline(MediaInputClassifier.Shared);
     private static readonly ArchiveContentPreviewService ArchivePreviewService = new();
     private static readonly global::HakamiqChdTool.App.Services.ConsoleIdBg ConsoleIdentityEnricher = new();
     private static readonly FormatSafetyAdvisor FormatSafetyAdvisorStatic = new();
@@ -176,7 +176,12 @@ public partial class MainWindowViewModel
 
             await UpdateQueueAddProgressAsync(dispatcher, intakeUiVersion, progress, force: true).ConfigureAwait(false);
 
-            foreach (string discoveredPath in EnumerateInputPaths(rawList, inputKind, searchOption))
+            await foreach (string discoveredPath in EnumerateInputPathsAsync(
+                    rawList,
+                    inputKind,
+                    searchOption,
+                    intakeToken)
+                .ConfigureAwait(false))
             {
                 intakeToken.ThrowIfCancellationRequested();
 

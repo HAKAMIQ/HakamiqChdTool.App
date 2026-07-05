@@ -43,7 +43,7 @@ public static class QueueInputClassifier
         }
 
         MediaInputDescriptor descriptor = MediaInputClassifier.Shared.Classify(path);
-        string extension = descriptor.Extension;
+        string extension = descriptor.Extension ?? string.Empty;
 
         QueueInputRole role = descriptor.Kind switch
         {
@@ -59,6 +59,9 @@ public static class QueueInputClassifier
 
     private static QueueInputRole ResolveLegacyRole(string extension) => extension switch
     {
+        ".cue" or ".gdi" or ".iso" or ".cso" => QueueInputRole.ConvertibleDiscImage,
+        ".chd" => QueueInputRole.ChdImage,
+        ".bin" => QueueInputRole.BinCueRescueCandidate,
         ".toc" or ".nrg" => QueueInputRole.ConvertibleDiscImage,
         ".zip" or ".rar" or ".7z" => QueueInputRole.ArchiveContainer,
         ".raw" => QueueInputRole.DependentTrackFile,
