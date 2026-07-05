@@ -120,7 +120,7 @@
     <sys:String x:Key="LocIntegrity_NoDatabase">قاعدة البيانات غير متوفرة</sys:String>
     <sys:String x:Key="LocIntegrity_ErrorGeneric">حدث خطأ</sys:String>
     <sys:String x:Key="LocIntegrity_DeepVerifyDisabledHint">لم يتم تفعيل التحقق العميق من الإعدادات المتقدمة.</sys:String>
-    <sys:String x:Key="LocIntegrity_NoDatHint">استورد قاعدة Redump أو حمّلها من الإعدادات المتقدمة.</sys:String>
+    <sys:String x:Key="LocIntegrity_NoDatHint">اختر مجلد ملفات Redump DAT أولاً.</sys:String>
     <sys:String x:Key="LocIntegrity_CancelledDetail">تم إلغاء العملية.</sys:String>
 
     <sys:String x:Key="LocDialog_ErrorTitle">حدث خطأ</sys:String>
@@ -551,7 +551,7 @@
     <sys:String x:Key="LocDeepHash_TipCsoNeedsIso">لا يمكن مطابقة ملفات CSO مباشرة مع Redump لأن Redump يعتمد على هاش صورة ISO الأصلية. فك ملف CSO إلى ISO ثم أعد الفحص.&#x0a;&#x0a;المسار:&#x0a;{0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnsupportedExtension">نوع الملف غير مدعوم في فحص Redump.&#x0a;{1}</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoTrackFiles">تعذر العثور على ملفات مسارات صالحة للفحص.</sys:String>
-    <sys:String x:Key="LocDeepHash_TipNoDatabase">قاعدة بيانات Redump غير متاحة. يُرجى تحديث القاعدة أو استيراد ملف DAT/XML من الإعدادات المتقدمة.</sys:String>
+    <sys:String x:Key="LocDeepHash_TipNoDatabase">اختر مجلد ملفات Redump DAT أولاً.</sys:String>
     <sys:String x:Key="LocDeepHash_TipMissingPlatformDatabase">يبدو أن الملف تابع لمنصة {0}، لكن هذه المنصة لا تحتوي على أي صفوف في قاعدة Redump المحلية. استورد DAT الخاص بهذه المنصة ثم أعد الفحص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipConflictingMatches">نتائج Redump لا تنتمي لنفس اللعبة أو المنصة.</sys:String>
     <sys:String x:Key="LocDeepHash_TipVerifiedHeader">مطابقة Redump:</sys:String>
@@ -569,6 +569,8 @@
     <sys:String x:Key="LocDeepHash_TipRecordName">اسم السجل: {0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipMatchSource">طريقة التحقق: {0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipCrc">CRC: {0}</sys:String>
+    <sys:String x:Key="LocDeepHash_TipRegion">المنطقة: {0}</sys:String>
+    <sys:String x:Key="LocDeepHash_TipVersion">الإصدار: {0}</sys:String>
     <sys:String x:Key="LocDeepHash_MissingOutsideDescriptorFolder">{0} خارج مجلد ملف الوصف</sys:String>
     <sys:String x:Key="LocDeepHash_DescriptorMissingPaths">ملف الوصف يشير إلى مسارات مفقودة:&#x0a;{0}&#x0a;&#x0a;{1}</sys:String>
 
@@ -1156,6 +1158,7 @@
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">مجلد Redump المحلي</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">اختر مجلدًا من جهازك يحتوي على ملفات DAT/XML. لا يتم تضمين أي قاعدة بيانات مع البرنامج.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ComplianceNotice">لا يحتوي البرنامج على ملفات Redump أو ألعاب. يجب على المستخدم توفير ملفات DAT بنفسه واستخدامها فقط للتحقق من نسخه القانونية.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">اختر مجلد Redump</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">استعراض...</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختر مجلد Redump من جهازك.</sys:String>
@@ -1758,4 +1761,17 @@
     <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">اختر ملف hakamiq-cso.exe فقط.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitToolFilter">Hakamiq CsoKit (hakamiq-cso.exe)|hakamiq-cso.exe|ملفات تنفيذية (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_Browse">استعراض</sys:String>
+
+    <sys:String x:Key="LocDeepHash_CsoStageTool">فحص أداة CSO...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageInfo">قراءة معلومات CSO...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageVerify">التحقق من سلامة CSO...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageSpace">فحص المساحة المؤقتة...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageDecompress">تحويل CSO إلى tmp.iso...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageHashRedump">حساب MD5/SHA1/CRC32 ومطابقة Redump...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageSave">حفظ بيانات المطابقة...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageCleanup">تنظيف ملفات CSO المؤقتة...</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempTitle">فحص CSO عبر Redump</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempBody">ملف CSO مضغوط، وRedump يطابق صورة ISO الأصلية وليس ملف CSO نفسه. سيستخدم البرنامج مساراً مؤقتاً لإنشاء tmp.iso للفحص فقط، ثم يحفظ بيانات المطابقة ويحذف الملف المؤقت بعد انتهاء الفحص.</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempConfirm">تحويل وفحص</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoCacheSaved">تم حفظ بيانات مطابقة CSO للمراجعة لاحقاً.</sys:String>
 </ResourceDictionary>

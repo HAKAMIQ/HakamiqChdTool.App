@@ -25,7 +25,8 @@ public interface ICsoPreprocessor
     Task<CsoPreprocessResult> PreprocessAsync(
         string inputCsoPath,
         string temporaryIsoPath,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        Func<string, Task>? progress = null);
 }
 
 public sealed record CsoIntakeResult(
@@ -100,11 +101,14 @@ public sealed class CsoPreprocessor : ICsoPreprocessor
     public async Task<CsoPreprocessResult> PreprocessAsync(
         string inputCsoPath,
         string temporaryIsoPath,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Func<string, Task>? progress = null)
     {
         string inputPath = NormalizeExistingCsoPath(inputCsoPath);
         string outputPath = NormalizeTemporaryIsoPath(temporaryIsoPath);
         EnsureTemporaryOutputReady(outputPath);
+
+        await ReportProgressAsync(progress, "LocDeepHash_CsoStageInfo").ConfigureAwait(false);
 
         CsoToolProbeResult tool = await InspectAsync(cancellationToken).ConfigureAwait(false);
         if (!tool.IsAvailable)
@@ -140,6 +144,8 @@ public sealed class CsoPreprocessor : ICsoPreprocessor
             return BuildResult(false, false, outputPath, UnsupportedMessageKey, info, null, null, null, tool, string.Empty, CsoPreprocessStatus.Unsupported);
         }
 
+        await ReportProgressAsync(progress, "LocDeepHash_CsoStageVerify").ConfigureAwait(false);
+
         CsoIntakeResult verify = await RunJsonCommandAsync(
                 tool.ToolPath,
                 ["verify", inputPath, "--json"],
@@ -162,6 +168,8 @@ public sealed class CsoPreprocessor : ICsoPreprocessor
                 : CsoPreprocessStatus.Failed;
             return BuildResult(false, false, outputPath, messageKey, verify, info, verify, null, tool, string.Empty, status);
         }
+
+        await ReportProgressAsync(progress, "LocDeepHash_CsoStageSpace").ConfigureAwait(false);
 
         CsoTempSpaceCheck tempSpace = CheckTemporaryStorage(outputPath, info.HeaderUncompressedSize);
         if (!tempSpace.CanContinue)
@@ -198,6 +206,8 @@ public sealed class CsoPreprocessor : ICsoPreprocessor
             outputPath,
             tempSpace.EstimatedIsoBytes,
             tempSpace.AvailableFreeBytes);
+
+        await ReportProgressAsync(progress, "LocDeepHash_CsoStageDecompress").ConfigureAwait(false);
 
         CsoIntakeResult decompress = await RunJsonCommandAsync(
                 tool.ToolPath,
@@ -267,6 +277,9 @@ public sealed class CsoPreprocessor : ICsoPreprocessor
             tempSpace.EstimatedIsoBytes,
             tempSpace.AvailableFreeBytes);
     }
+
+    private static Task ReportProgressAsync(Func<string, Task>? progress, string messageKey) =>
+        progress is null ? Task.CompletedTask : progress(messageKey);
 
     private async Task<CsoIntakeResult> RunJsonCommandAsync(
         string toolPath,

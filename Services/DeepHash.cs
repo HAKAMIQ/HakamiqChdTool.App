@@ -33,18 +33,22 @@ public sealed record DeepHashFileDigest(
     string Path,
     long SizeBytes,
     string Md5,
-    string Sha1);
+    string Sha1,
+    string Crc32);
 
 public sealed record DeepHashMatch(
     string FilePath,
     long SizeBytes,
     string Md5,
     string Sha1,
+    string Crc32,
     string SystemName,
     string GameName,
     string RomName,
     string MatchSource,
-    string Crc);
+    string Crc,
+    string Region,
+    string Version);
 
 public static class DeepHashAnalyzer
 {
@@ -215,7 +219,7 @@ public static class DeepHashAnalyzer
 
         foreach (DeepHashFileDigest file in hashed)
         {
-            if (redumpDatabase.TryMatchHash(file.Md5, file.Sha1, file.SizeBytes, out RedumpRomHit hit))
+            if (redumpDatabase.TryMatchHash(file.Md5, file.Sha1, file.Crc32, file.SizeBytes, out RedumpRomHit hit))
             {
                 matches.Add(ToMatch(file, hit));
             }
@@ -377,20 +381,21 @@ public static class DeepHashAnalyzer
             cancellationToken.ThrowIfCancellationRequested();
 
             FileInfo info = new(file);
-            (string md5, string sha1) = ComputeMd5Sha1Sequential(file, cancellationToken);
-            result.Add(new DeepHashFileDigest(file, info.Length, md5, sha1));
+            (string md5, string sha1, string crc32) = ComputeHashesSequential(file, cancellationToken);
+            result.Add(new DeepHashFileDigest(file, info.Length, md5, sha1, crc32));
         }
 
         return result;
     }
 
-    private static (string Md5Lower, string Sha1Lower) ComputeMd5Sha1Sequential(
+    private static (string Md5Lower, string Sha1Lower, string Crc32Lower) ComputeHashesSequential(
         string filePath,
         CancellationToken cancellationToken)
     {
         using var md5 = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
         using var sha1 = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
         var buffer = new byte[BufferSize];
+        uint crc32 = uint.MaxValue;
 
         using var stream = new FileStream(
             filePath,
@@ -408,11 +413,48 @@ public static class DeepHashAnalyzer
             ReadOnlySpan<byte> span = buffer.AsSpan(0, read);
             md5.AppendData(span);
             sha1.AppendData(span);
+            crc32 = UpdateCrc32(crc32, span);
         }
 
         string md5Hex = Convert.ToHexString(md5.GetHashAndReset()).ToLowerInvariant();
         string sha1Hex = Convert.ToHexString(sha1.GetHashAndReset()).ToLowerInvariant();
-        return (md5Hex, sha1Hex);
+        string crc32Hex = (crc32 ^ uint.MaxValue).ToString("x8", System.Globalization.CultureInfo.InvariantCulture);
+        return (md5Hex, sha1Hex, crc32Hex);
+    }
+
+    private static uint UpdateCrc32(uint crc, ReadOnlySpan<byte> data)
+    {
+        ReadOnlySpan<uint> table = Crc32Table;
+
+        foreach (byte value in data)
+        {
+            crc = (crc >> 8) ^ table[(int)((crc ^ value) & 0xFFu)];
+        }
+
+        return crc;
+    }
+
+    private static uint[] Crc32Table { get; } = BuildCrc32Table();
+
+    private static uint[] BuildCrc32Table()
+    {
+        uint[] table = new uint[256];
+
+        for (uint index = 0; index < table.Length; index++)
+        {
+            uint value = index;
+
+            for (int bit = 0; bit < 8; bit++)
+            {
+                value = (value & 1) == 1
+                    ? (value >> 1) ^ 0xEDB88320u
+                    : value >> 1;
+            }
+
+            table[index] = value;
+        }
+
+        return table;
     }
 
     private static IReadOnlyList<string> ResolveFilesToHash(string fullProbePath)
@@ -597,11 +639,14 @@ public static class DeepHashAnalyzer
         file.SizeBytes,
         file.Md5,
         file.Sha1,
+        file.Crc32,
         hit.SystemName,
         hit.GameName,
         hit.RomName,
         hit.MatchSource,
-        hit.Crc ?? string.Empty);
+        hit.Crc ?? string.Empty,
+        hit.Region ?? string.Empty,
+        hit.Version ?? string.Empty);
 
     private static string BuildSuggestedStandardFileName(string redumpGameName, string originalPath)
     {

@@ -7,6 +7,7 @@ using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +25,10 @@ public partial class MainWindow
     private const string RedumpAllScanCompletedWithFailuresFooterFormatKey = "LocRedump_AllScanCompletedWithFailuresFooterFormat";
     private const string RedumpAllScanCompletedFooterFormatKey = "LocRedump_AllScanCompletedFooterFormat";
     private const string CommonCancelKey = "LocCommon_Cancel";
+
+    private sealed record RedumpScanCandidate(
+        Guid ItemId,
+        string Path);
 
     private async Task RunIntegrityContextAsync(TaskQueueItemViewModel? item)
     {
@@ -135,7 +140,27 @@ public partial class MainWindow
             return;
         }
 
-        int eligibleCount = 0;
+        RedumpScanCandidate[] candidates = BuildRedumpScanCandidates(itemIds);
+        if (candidates.Length == 0)
+        {
+            SetFooterStatus(MainWindowMessages.IntegrityNoDiskFileFooter);
+            return;
+        }
+
+        bool batchRequiresCsoPreparation = candidates.Any(candidate =>
+            RequiresCsoRedumpCanonicalPreparation(candidate.Path));
+
+        if (batchRequiresCsoPreparation)
+        {
+            bool confirmed = await ConfirmCsoRedumpTempIsoAsync().ConfigureAwait(true);
+            if (!confirmed)
+            {
+                SetFooterStatus(Ui(RedumpScanCancelledFooterKey));
+                return;
+            }
+        }
+
+        int eligibleCount = candidates.Length;
         int scannedCount = 0;
         int failedCount = 0;
 
@@ -143,19 +168,19 @@ public partial class MainWindow
 
         try
         {
-            foreach (Guid itemId in itemIds)
+            foreach (RedumpScanCandidate candidate in candidates)
             {
                 if (_windowLifetimeCts.IsCancellationRequested || IsQueueInteractionLocked)
                 {
                     break;
                 }
 
-                TaskQueueItemViewModel? item = _viewport.TryGetMaterialized(itemId);
+                TaskQueueItemViewModel? item = _viewport.TryGetMaterialized(candidate.ItemId);
                 bool realizedForScan = false;
 
                 if (item is null)
                 {
-                    int rowIndex = _queueRowStore.IndexOf(itemId);
+                    int rowIndex = _queueRowStore.IndexOf(candidate.ItemId);
                     if (rowIndex >= 0)
                     {
                         item = _viewport.Realize(rowIndex);
@@ -170,17 +195,14 @@ public partial class MainWindow
                         continue;
                     }
 
-                    string path = ResolveRedumpProbePath(item);
-                    if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-                    {
-                        continue;
-                    }
-
-                    eligibleCount++;
-
                     try
                     {
-                        await RunDeepIntegrityValidationAsync(item, path).ConfigureAwait(true);
+                        await RunDeepIntegrityValidationAsync(
+                                item,
+                                candidate.Path,
+                                csoRedumpTempIsoAlreadyConfirmed: batchRequiresCsoPreparation)
+                            .ConfigureAwait(true);
+
                         scannedCount++;
                     }
                     catch (OperationCanceledException)
@@ -197,7 +219,7 @@ public partial class MainWindow
                 {
                     if (realizedForScan)
                     {
-                        _viewport.ReleaseById(itemId);
+                        _viewport.ReleaseById(candidate.ItemId);
                     }
                 }
             }
@@ -229,6 +251,59 @@ public partial class MainWindow
         SetFooterStatus(UiFormat(RedumpAllScanCompletedFooterFormatKey, scannedCount));
     }
 
+    private RedumpScanCandidate[] BuildRedumpScanCandidates(IReadOnlyList<Guid> itemIds)
+    {
+        var candidates = new List<RedumpScanCandidate>(itemIds.Count);
+
+        foreach (Guid itemId in itemIds)
+        {
+            TaskQueueItemViewModel? item = _viewport.TryGetMaterialized(itemId);
+            bool realizedForScan = false;
+
+            if (item is null)
+            {
+                int rowIndex = _queueRowStore.IndexOf(itemId);
+                if (rowIndex >= 0)
+                {
+                    item = _viewport.Realize(rowIndex);
+                    realizedForScan = item is not null;
+                }
+            }
+
+            try
+            {
+                if (item is null)
+                {
+                    continue;
+                }
+
+                string path = ResolveRedumpProbePath(item);
+                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                {
+                    continue;
+                }
+
+                candidates.Add(new RedumpScanCandidate(itemId, path));
+            }
+            finally
+            {
+                if (realizedForScan)
+                {
+                    _viewport.ReleaseById(itemId);
+                }
+            }
+        }
+
+        return [.. candidates];
+    }
+
+    private static bool RequiresCsoRedumpCanonicalPreparation(string path)
+    {
+        return string.Equals(
+            Path.GetExtension(path),
+            ".cso",
+            StringComparison.OrdinalIgnoreCase);
+    }
     private void ShowRedumpNotice(string titleKey, string message)
     {
         if (string.IsNullOrWhiteSpace(message))

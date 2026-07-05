@@ -120,7 +120,7 @@
     <sys:String x:Key="LocIntegrity_NoDatabase">Database unavailable</sys:String>
     <sys:String x:Key="LocIntegrity_ErrorGeneric">Error</sys:String>
     <sys:String x:Key="LocIntegrity_DeepVerifyDisabledHint">Deep verification is not turned on in Advanced options.</sys:String>
-    <sys:String x:Key="LocIntegrity_NoDatHint">Import or download a Redump database from Advanced options.</sys:String>
+    <sys:String x:Key="LocIntegrity_NoDatHint">Choose a Redump DAT folder first.</sys:String>
     <sys:String x:Key="LocIntegrity_CancelledDetail">Operation canceled.</sys:String>
 
     <sys:String x:Key="LocDialog_ErrorTitle">Error</sys:String>
@@ -554,7 +554,7 @@ Path:
     <sys:String x:Key="LocDeepHash_TipCsoNeedsIso">CSO files cannot be matched directly with Redump because Redump uses the original ISO image hash. Decompress the CSO to ISO, then scan it again.&#x0a;&#x0a;Path:&#x0a;{0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnsupportedExtension">This file type is not supported in Redump verification.&#x0a;{1}</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoTrackFiles">No valid track files were found.</sys:String>
-    <sys:String x:Key="LocDeepHash_TipNoDatabase">The Redump database is unavailable. Update the database or import a DAT/XML file from Advanced options.</sys:String>
+    <sys:String x:Key="LocDeepHash_TipNoDatabase">Choose a Redump DAT folder first.</sys:String>
     <sys:String x:Key="LocDeepHash_TipMissingPlatformDatabase">The file appears to belong to {0}, but this platform has no rows in the local Redump database. Import the DAT for this platform, then scan again.</sys:String>
     <sys:String x:Key="LocDeepHash_TipConflictingMatches">Redump results don't belong to the same game or system.</sys:String>
     <sys:String x:Key="LocDeepHash_TipVerifiedHeader">Redump match:</sys:String>
@@ -572,6 +572,8 @@ Path:
     <sys:String x:Key="LocDeepHash_TipRecordName">Record name: {0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipMatchSource">Verification method: {0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipCrc">CRC: {0}</sys:String>
+    <sys:String x:Key="LocDeepHash_TipRegion">Region: {0}</sys:String>
+    <sys:String x:Key="LocDeepHash_TipVersion">Version: {0}</sys:String>
     <sys:String x:Key="LocDeepHash_MissingOutsideDescriptorFolder">{0} is outside the descriptor folder</sys:String>
     <sys:String x:Key="LocDeepHash_DescriptorMissingPaths">The descriptor references missing paths:
 {0}
@@ -1162,6 +1164,7 @@ Path:
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">Local Redump folder</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">Choose a folder on this device that contains DAT/XML files. No database is bundled with the app.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ComplianceNotice">The app does not contain Redump files or games. Users must provide DAT files themselves and use them only to verify their legal copies.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">Choose a Redump folder</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">Browse...</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">Choose the local Redump folder.</sys:String>
@@ -1764,4 +1767,17 @@ Path:
     <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">Select hakamiq-cso.exe only.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitToolFilter">Hakamiq CsoKit (hakamiq-cso.exe)|hakamiq-cso.exe|Executable files (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_Browse">Browse</sys:String>
+
+    <sys:String x:Key="LocDeepHash_CsoStageTool">Checking CSO tool...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageInfo">Reading CSO information...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageVerify">Verifying CSO integrity...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageSpace">Checking temporary space...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageDecompress">Converting CSO to tmp.iso...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageHashRedump">Calculating MD5/SHA1/CRC32 and matching Redump...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageSave">Saving match data...</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoStageCleanup">Cleaning CSO temporary files...</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempTitle">Redump CSO verification</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempBody">This CSO file is compressed, while Redump matches the original ISO image rather than the CSO container. The app will use a temporary path to create tmp.iso for verification only, then save the match data and delete the temporary file after verification.</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempConfirm">Convert and verify</sys:String>
+    <sys:String x:Key="LocDeepHash_CsoCacheSaved">CSO Redump match data was saved for later review.</sys:String>
 </ResourceDictionary>

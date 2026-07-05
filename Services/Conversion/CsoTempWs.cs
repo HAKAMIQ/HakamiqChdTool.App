@@ -25,8 +25,8 @@ internal sealed class CsoTempWorkspace : IDisposable
 
     public static CsoTempWorkspace Create()
     {
-        string directory = AppPaths.CombineProcessTemp("CsoPrepare_" + Guid.NewGuid().ToString("N"));
-        string preparedIso = Path.Combine(directory, "prepared.iso");
+        string directory = AppPaths.CombineProcessTemp("c" + Guid.NewGuid().ToString("N")[..8]);
+        string preparedIso = Path.Combine(directory, "tmp.iso");
 
         directory = Path.GetFullPath(directory);
         preparedIso = Path.GetFullPath(preparedIso);
