@@ -3,11 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="{DynamicResource LocRedumpDetails_Title}"
-        Width="760"
-        MinWidth="700"
-        Height="540"
-        MinHeight="480"
-        MaxHeight="620"
+        Width="880"
+        MinWidth="780"
+        Height="620"
+        MinHeight="540"
+        MaxHeight="760"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         WindowStyle="None"
@@ -190,8 +190,8 @@
                 <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="None" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -267,8 +267,8 @@
                 <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
                 <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Success}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="None" />
                 <Setter Property="VerticalAlignment" Value="Center" />
 
                 <Style.Triggers>
@@ -420,17 +420,20 @@
                               Language="{DynamicResource App.XmlLanguage}"
                               SnapsToDevicePixels="True">
 
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0"
+                            <Border Grid.Row="0"
+                                    Grid.Column="0"
                                     Style="{StaticResource RedumpDetails.InfoTile}">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource LocRedumpDetails_SystemLabel}"
@@ -444,7 +447,8 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="2"
+                            <Border Grid.Row="0"
+                                    Grid.Column="2"
                                     Style="{StaticResource RedumpDetails.InfoTile}">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource LocRedumpDetails_ConsoleTypeLabel}"
@@ -458,7 +462,8 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="4"
+                            <Border Grid.Row="2"
+                                    Grid.Column="0"
                                     Style="{StaticResource RedumpDetails.InfoTile}">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource LocRedumpDetails_ManufacturerLabel}"
@@ -472,7 +477,8 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="6"
+                            <Border Grid.Row="2"
+                                    Grid.Column="2"
                                     Style="{StaticResource RedumpDetails.InfoTile}">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource LocRedumpDetails_SizeLabel}"
@@ -685,7 +691,7 @@
 
                     <Button Grid.Column="4"
                             Content="{DynamicResource LocRedumpDetails_ApplyName}"
-                            ToolTip="{DynamicResource LocRedumpDetails_ApplyName}"
+                            ToolTip="{DynamicResource LocRedumpDetails_ApplyNameTooltip}"
                             AutomationProperties.Name="{DynamicResource LocRedumpDetails_ApplyName}"
                             IsEnabled="{Binding CanApplyName, Mode=OneWay}"
                             Command="{Binding ApplyNameCommand}"
