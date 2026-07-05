@@ -142,6 +142,45 @@ public sealed class RedumpSqliteManager
         }
     }
 
+    public bool HasSystemRowsForDetectedPlatform(string detectedPlatformName)
+    {
+        string[] candidates = BuildDetectedPlatformCandidates(detectedPlatformName);
+
+        if (candidates.Length == 0)
+        {
+            return false;
+        }
+
+        EnsureInitialized();
+
+        lock (_dbLock)
+        {
+            using SqliteConnection connection = OpenConnectionCore();
+            ApplyPragmas(connection);
+
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT DISTINCT SystemName FROM RomHashes;";
+
+            using SqliteDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                string systemName = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
+                string normalizedSystem = NormalizeComparableSystemName(systemName);
+
+                foreach (string candidate in candidates)
+                {
+                    if (IsComparableSystemMatch(normalizedSystem, candidate))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     public bool TryMatchHash(string md5LowerHex, string sha1LowerHex, out RedumpRomHit hit) =>
         TryMatchHash(md5LowerHex, sha1LowerHex, sizeBytes: null, out hit);
 
@@ -763,6 +802,136 @@ public sealed class RedumpSqliteManager
             source);
 
         return true;
+    }
+
+    private static string[] BuildDetectedPlatformCandidates(string detectedPlatformName)
+    {
+        string normalized = NormalizeComparableSystemName(detectedPlatformName);
+
+        if (normalized.Length == 0)
+        {
+            return [];
+        }
+
+        HashSet<string> values = new(StringComparer.OrdinalIgnoreCase)
+        {
+            normalized
+        };
+
+        void Add(string value)
+        {
+            string candidate = NormalizeComparableSystemName(value);
+            if (candidate.Length > 0)
+            {
+                values.Add(candidate);
+            }
+        }
+
+        if (normalized.Contains("playstation portable", StringComparison.Ordinal))
+        {
+            Add("Sony PlayStation Portable");
+        }
+
+        if (normalized.Contains("playstation 5", StringComparison.Ordinal))
+        {
+            Add("Sony PlayStation 5");
+        }
+
+        if (normalized.Contains("playstation 4", StringComparison.Ordinal))
+        {
+            Add("Sony PlayStation 4");
+        }
+
+        if (normalized.Contains("playstation 3", StringComparison.Ordinal))
+        {
+            Add("Sony PlayStation 3");
+        }
+
+        if (normalized.Contains("playstation 2", StringComparison.Ordinal))
+        {
+            Add("Sony PlayStation 2");
+        }
+
+        if (normalized.Contains("playstation 1", StringComparison.Ordinal)
+            || string.Equals(normalized, "psx", StringComparison.Ordinal)
+            || string.Equals(normalized, "ps1", StringComparison.Ordinal))
+        {
+            Add("Sony PlayStation");
+            Add("Sony PlayStation 1");
+            Add("PlayStation");
+        }
+
+        if (normalized.Contains("dreamcast", StringComparison.Ordinal))
+        {
+            Add("Sega Dreamcast");
+        }
+
+        if (normalized.Contains("saturn", StringComparison.Ordinal))
+        {
+            Add("Sega Saturn");
+        }
+
+        if (normalized.Contains("gamecube", StringComparison.Ordinal)
+            || normalized.Contains("game cube", StringComparison.Ordinal))
+        {
+            Add("Nintendo GameCube");
+        }
+
+        if (string.Equals(normalized, "wii", StringComparison.Ordinal)
+            || normalized.Contains("nintendo wii", StringComparison.Ordinal))
+        {
+            Add("Nintendo Wii");
+        }
+
+        if (normalized.Contains("xbox series", StringComparison.Ordinal))
+        {
+            Add("Microsoft Xbox Series X");
+        }
+
+        if (normalized.Contains("xbox one", StringComparison.Ordinal))
+        {
+            Add("Microsoft Xbox One");
+        }
+
+        if (normalized.Contains("xbox 360", StringComparison.Ordinal))
+        {
+            Add("Microsoft Xbox 360");
+        }
+
+        if (string.Equals(normalized, "xbox", StringComparison.Ordinal)
+            || normalized.Contains("original xbox", StringComparison.Ordinal))
+        {
+            Add("Microsoft Xbox");
+        }
+
+        return [.. values];
+    }
+
+    private static bool IsComparableSystemMatch(string knownSystem, string candidate)
+    {
+        if (knownSystem.Length == 0 || candidate.Length == 0)
+        {
+            return false;
+        }
+
+        return string.Equals(knownSystem, candidate, StringComparison.Ordinal)
+            || knownSystem.EndsWith(" " + candidate, StringComparison.Ordinal)
+            || candidate.EndsWith(" " + knownSystem, StringComparison.Ordinal);
+    }
+
+    private static string NormalizeComparableSystemName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        char[] chars = value.Trim().ToLowerInvariant().Select(static character =>
+            char.IsLetterOrDigit(character) ? character : ' ').ToArray();
+
+        return string.Join(
+            " ",
+            new string(chars).Split(' ', StringSplitOptions.RemoveEmptyEntries));
     }
 
     private static bool IsAllowedHashColumn(string columnName) =>

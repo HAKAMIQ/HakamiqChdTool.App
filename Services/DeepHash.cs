@@ -75,7 +75,9 @@ public static class DeepHashAnalyzer
     private const string TipResolveFailedKey = "LocDeepHash_TipResolveFailed";
     private const string TipHashFailedKey = "LocDeepHash_TipHashFailed";
     private const string TipInputReadCrcOrIoFailureKey = "LocDeepHash_TipInputReadCrcOrIoFailure";
+    private const string StatusMissingPlatformDatabaseKey = "LocDeepHash_StatusMissingPlatformDatabase";
     private const string TipNoDatabaseKey = "LocDeepHash_TipNoDatabase";
+    private const string TipMissingPlatformDatabaseKey = "LocDeepHash_TipMissingPlatformDatabase";
     private const string TipConflictingMatchesKey = "LocDeepHash_TipConflictingMatches";
     private const string TipVerifiedHeaderKey = "LocDeepHash_TipVerifiedHeader";
     private const string TipPartialMatchKey = "LocDeepHash_TipPartialMatch";
@@ -240,10 +242,50 @@ public static class DeepHashAnalyzer
                 misses);
         }
 
+        DeepHashAnalysisResult? missingPlatformDatabase = await TryBuildMissingPlatformDatabaseResultAsync(
+                fullPath,
+                redumpDatabase,
+                hashed,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (missingPlatformDatabase is not null)
+        {
+            return missingPlatformDatabase;
+        }
+
         return Result(
             IntegrityValidationState.NoRedumpMatch,
             StatusModifiedKey,
             TipNoRedumpMatchKey,
+            hashedFiles: hashed);
+    }
+
+    private static async Task<DeepHashAnalysisResult?> TryBuildMissingPlatformDatabaseResultAsync(
+        string fullPath,
+        RedumpSqliteManager redumpDatabase,
+        IReadOnlyList<DeepHashFileDigest> hashed,
+        CancellationToken cancellationToken)
+    {
+        ConsoleIdResult detected = await ConsoleIdSvc
+            .DetectAsync(fullPath, TimeSpan.FromSeconds(5), cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!detected.IsIdentified)
+        {
+            return null;
+        }
+
+        if (redumpDatabase.HasSystemRowsForDetectedPlatform(detected.PlatformName))
+        {
+            return null;
+        }
+
+        return Result(
+            IntegrityValidationState.NoDat,
+            StatusMissingPlatformDatabaseKey,
+            TipMissingPlatformDatabaseKey,
+            [detected.PlatformName],
             hashedFiles: hashed);
     }
 
