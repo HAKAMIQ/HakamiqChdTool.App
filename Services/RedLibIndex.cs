@@ -319,6 +319,7 @@ public sealed class RedumpLocalLibraryIndexer
 
         foreach (IGrouping<string, RedumpLocalLibraryDatEntry> group in groups) {
             List<RedumpLocalLibraryDatEntry> ordered = group
+                .OrderBy(entry => LooksLikeSerialVersionVariant(entry) ? 1 : 0)
                 .OrderByDescending(entry => entry.DatDateUtc.HasValue)
                 .ThenByDescending(entry => entry.DatDateUtc)
                 .ThenByDescending(entry => entry.LastWriteTimeUtc)
@@ -331,6 +332,18 @@ public sealed class RedumpLocalLibraryIndexer
 
             foreach (RedumpLocalLibraryDatEntry entry in ordered) {
                 string signature = BuildDuplicateSignature(entry);
+
+                if (LooksLikeUnsupportedRedumpArtifact(entry)) {
+                    byPath[entry.FilePath] = entry with
+                    {
+                        IsSelected = false,
+                        Status = VariantStatus,
+                        Reason = "Non-game Redump artifact kept out of the automatic import."
+                    };
+
+                    seenSignatures.Add(signature);
+                    continue;
+                }
 
                 if (!selectedFirst) {
                     byPath[entry.FilePath] = entry with
@@ -563,6 +576,29 @@ public sealed class RedumpLocalLibraryIndexer
             entry.Description ?? string.Empty,
             entry.Version ?? string.Empty,
             entry.FileSizeBytes.ToString(CultureInfo.InvariantCulture));
+    }
+
+    private static bool LooksLikeUnsupportedRedumpArtifact(RedumpLocalLibraryDatEntry entry)
+    {
+        string combined = string.Join(
+            " ",
+            entry.FileName,
+            entry.Name ?? string.Empty,
+            entry.Description ?? string.Empty);
+
+        if (ContainsOrdinalIgnoreCase(combined, "bios datfile")) {
+            return true;
+        }
+
+        if (ContainsOrdinalIgnoreCase(combined, "bios images")) {
+            return true;
+        }
+
+        if (ContainsOrdinalIgnoreCase(combined, " - bios")) {
+            return true;
+        }
+
+        return false;
     }
 
     private static bool LooksLikeSerialVersionVariant(RedumpLocalLibraryDatEntry entry)

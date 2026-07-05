@@ -1,7 +1,9 @@
 using Microsoft.Data.Sqlite;
 using Serilog;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Xml;
 
 namespace HakamiqChdTool.App.Services;
@@ -198,6 +200,119 @@ public sealed class RedumpSqliteManager
         return Task.Run(
             () => ImportDatFileCore(datFilePath, systemName, progress, cancellationToken),
             cancellationToken);
+    }
+
+    public Task<RedumpImportResult> CleanRebuildFromDatFilesAsync(
+        IReadOnlyList<RedumpLocalLibraryDatEntry> entries,
+        IProgress<RedumpImportProgress>? progress,
+        CancellationToken cancellationToken = default)
+    {
+        return Task.Run(
+            () => CleanRebuildFromDatFilesCore(entries, progress, cancellationToken),
+            cancellationToken);
+    }
+
+    private RedumpImportResult CleanRebuildFromDatFilesCore(
+        IReadOnlyList<RedumpLocalLibraryDatEntry> entries,
+        IProgress<RedumpImportProgress>? progress,
+        CancellationToken cancellationToken)
+    {
+        if (entries is null || entries.Count == 0)
+        {
+            return new RedumpImportResult(false, FileNotFoundMessageKey, 0);
+        }
+
+        RedumpLocalLibraryDatEntry[] importableEntries = entries
+            .Where(entry => entry.IsSelected)
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.FilePath))
+            .Where(entry => File.Exists(entry.FilePath))
+            .ToArray();
+
+        if (importableEntries.Length == 0)
+        {
+            return new RedumpImportResult(false, FileNotFoundMessageKey, 0);
+        }
+
+        try
+        {
+            EnsureInitialized();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            lock (_dbLock)
+            {
+                using SqliteConnection connection = OpenConnectionCore();
+                ApplyPragmas(connection);
+
+                using SqliteTransaction transaction = connection.BeginTransaction();
+
+                try
+                {
+                    DeleteAllRows(connection, transaction);
+                    ResetRomHashesSequence(connection, transaction);
+
+                    using SqliteCommand insert = CreateInsertCommand(connection, transaction);
+
+                    SqliteParameter pSystem = insert.Parameters["$system"];
+                    SqliteParameter pGame = insert.Parameters["$game"];
+                    SqliteParameter pRom = insert.Parameters["$rom"];
+                    SqliteParameter pMd5 = insert.Parameters["$md5"];
+                    SqliteParameter pSha1 = insert.Parameters["$sha1"];
+                    SqliteParameter pSize = insert.Parameters["$size"];
+                    SqliteParameter pCrc = insert.Parameters["$crc"];
+
+                    int totalInserted = 0;
+
+                    foreach (RedumpLocalLibraryDatEntry entry in importableEntries)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        string systemName = NormalizeRedumpSystemName(FirstNonEmpty(
+                            entry.Name,
+                            entry.Description,
+                            Path.GetFileNameWithoutExtension(entry.FilePath)));
+
+                        int inserted = ImportRows(
+                            entry.FilePath,
+                            systemName,
+                            insert,
+                            pSystem,
+                            pGame,
+                            pRom,
+                            pMd5,
+                            pSha1,
+                            pSize,
+                            pCrc,
+                            progress: null,
+                            cancellationToken);
+
+                        totalInserted += inserted;
+                        progress?.Report(new RedumpImportProgress(totalInserted, null));
+                    }
+
+                    transaction.Commit();
+                    progress?.Report(new RedumpImportProgress(totalInserted, totalInserted));
+
+                    return new RedumpImportResult(
+                        true,
+                        SuccessMessageKey,
+                        totalInserted);
+                }
+                catch
+                {
+                    RollbackSafely(transaction, "Redump clean rebuild");
+                    throw;
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (IsExpectedImportException(ex))
+        {
+            Logger.Warning(ex, "Redump clean rebuild failed.");
+            return new RedumpImportResult(false, FailedMessageKey, 0);
+        }
     }
 
     private RedumpImportResult ImportDatFileCore(
@@ -446,6 +561,70 @@ public sealed class RedumpSqliteManager
         command.CommandText = "DELETE FROM RomHashes WHERE SystemName = $sys;";
         command.Parameters.AddWithValue("$sys", systemName);
         command.ExecuteNonQuery();
+    }
+
+    private static void DeleteAllRows(
+        SqliteConnection connection,
+        SqliteTransaction transaction)
+    {
+        using SqliteCommand command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = "DELETE FROM RomHashes;";
+        command.ExecuteNonQuery();
+    }
+
+    private static void ResetRomHashesSequence(
+        SqliteConnection connection,
+        SqliteTransaction transaction)
+    {
+        using SqliteCommand command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = "DELETE FROM sqlite_sequence WHERE name = 'RomHashes';";
+        command.ExecuteNonQuery();
+    }
+
+    private static string FirstNonEmpty(params string?[] values)
+    {
+        foreach (string? value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return "Redump";
+    }
+
+    private static string NormalizeRedumpSystemName(string value)
+    {
+        string result = value.Trim();
+
+        string[] cuts =
+        {
+            " - Datfile",
+            " - Cuesheets",
+            " - GDI",
+            " - Subchannels",
+            " - Disc Keys",
+            " - BIOS Datfile"
+        };
+
+        foreach (string cut in cuts)
+        {
+            int index = result.IndexOf(cut, StringComparison.OrdinalIgnoreCase);
+            if (index >= 0)
+            {
+                result = result[..index].Trim();
+            }
+        }
+
+        while (result.Contains("  ", StringComparison.Ordinal))
+        {
+            result = result.Replace("  ", " ", StringComparison.Ordinal);
+        }
+
+        return result;
     }
 
     private static SqliteCommand CreateInsertCommand(
