@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Input;
 
@@ -9,9 +9,23 @@ namespace HakamiqChdTool.App.Views;
 public partial class RedumpNoticeDialog : Window
 {
     public RedumpNoticeDialog(string title, string message)
+        : this(
+            title,
+            message,
+            ArabicUi.Get("LocCommon_Close"),
+            string.Empty)
+    {
+    }
+
+    public RedumpNoticeDialog(
+        string title,
+        string message,
+        string closeText,
+        string confirmText)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         ArgumentException.ThrowIfNullOrWhiteSpace(message);
+        ArgumentException.ThrowIfNullOrWhiteSpace(closeText);
 
         InitializeComponent();
         HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
@@ -19,8 +33,14 @@ public partial class RedumpNoticeDialog : Window
 
         DataContext = new RedumpNoticeDialogViewModel(
             title.Trim(),
-            message.Trim());
+            message.Trim(),
+            closeText.Trim(),
+            confirmText?.Trim() ?? string.Empty);
     }
+
+    private bool IsConfirmation =>
+        DataContext is RedumpNoticeDialogViewModel viewModel &&
+        !string.IsNullOrWhiteSpace(viewModel.ConfirmText);
 
     private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -41,14 +61,19 @@ public partial class RedumpNoticeDialog : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        CloseAsConfirmed();
+        CloseAsConfirmed(!IsConfirmation);
     }
 
-    private void CloseAsConfirmed()
+    private void ConfirmButton_Click(object sender, RoutedEventArgs e)
+    {
+        CloseAsConfirmed(true);
+    }
+
+    private void CloseAsConfirmed(bool result)
     {
         try
         {
-            DialogResult = true;
+            DialogResult = result;
         }
         catch (InvalidOperationException)
         {
@@ -58,5 +83,11 @@ public partial class RedumpNoticeDialog : Window
 
     private sealed record RedumpNoticeDialogViewModel(
         string Title,
-        string Message);
+        string Message,
+        string CloseText,
+        string ConfirmText)
+    {
+        public Visibility ConfirmVisibility =>
+            string.IsNullOrWhiteSpace(ConfirmText) ? Visibility.Collapsed : Visibility.Visible;
+    }
 }

@@ -24,6 +24,8 @@ public static class DeepHashAnalysisPresenter
     private const string TipRecordNameKey = "LocDeepHash_TipRecordName";
     private const string TipMatchSourceKey = "LocDeepHash_TipMatchSource";
     private const string TipCrcKey = "LocDeepHash_TipCrc";
+    private const string TipRegionKey = "LocDeepHash_TipRegion";
+    private const string TipVersionKey = "LocDeepHash_TipVersion";
     private const string ValueUnavailableKey = "LocValue_Unavailable";
     private const string ByteUnitKey = "LocUnit_Byte";
     private const string ByteCountKey = "LocDeepHash_ByteCount";
@@ -116,6 +118,7 @@ public static class DeepHashAnalysisPresenter
             lines.Add(F(TipFileSizeKey, FormatByteSize(file.SizeBytes)));
             lines.Add($"  MD5:  {BidiText.Hash(file.Md5)}");
             lines.Add($"  SHA1: {BidiText.Hash(file.Sha1)}");
+            lines.Add($"  CRC32: {BidiText.Hash(file.Crc32)}");
             lines.Add(string.Empty);
         }
 
@@ -136,6 +139,16 @@ public static class DeepHashAnalysisPresenter
             lines.Add(F(TipPlatformKey, BidiText.Technical(match.SystemName)));
             lines.Add(F(TipStandardNameKey, BidiText.Mixed(match.GameName)));
             lines.Add(F(TipRecordNameKey, BidiText.FileName(match.RomName)));
+            if (!string.IsNullOrWhiteSpace(match.Region))
+            {
+                lines.Add(F(TipRegionKey, BidiText.Mixed(match.Region)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(match.Version))
+            {
+                lines.Add(F(TipVersionKey, BidiText.Mixed(match.Version)));
+            }
+
             lines.Add(F(TipMatchSourceKey, BidiText.Technical(match.MatchSource)));
             lines.Add(F(TipCrcKey, crc));
             lines.Add(string.Empty);

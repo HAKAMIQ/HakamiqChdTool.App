@@ -6,7 +6,7 @@
         <ResourceDictionary Source="QWShared.xaml" />
 </ResourceDictionary.MergedDictionaries>
 
-    <DataTemplate x:Key="QueueItemTechnicalFieldsTemplate">
+    <DataTemplate x:Key="QueueItemRedumpFieldsTemplate">
         <Border Margin="{DynamicResource Inset.0.8.0.0}"
                 ToolTip="{DynamicResource LocQueue_RedumpValidatingTooltip}">
             <Border.Style>
