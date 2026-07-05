@@ -550,6 +550,7 @@
 Path:
 {0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipArchiveNeedsExtraction">Archives cannot be matched directly with Redump. Extract ISO or CUE/GDI files first, then scan again.&#x0a;&#x0a;Path:&#x0a;{0}</sys:String>
+    <sys:String x:Key="LocDeepHash_TipCsoNeedsIso">CSO files cannot be matched directly with Redump because Redump uses the original ISO image hash. Decompress the CSO to ISO, then scan it again.&#x0a;&#x0a;Path:&#x0a;{0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnsupportedExtension">This file type is not supported in Redump verification.&#x0a;{1}</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoTrackFiles">No valid track files were found.</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoDatabase">The Redump database is unavailable. Update the database or import a DAT/XML file from Advanced options.</sys:String>
@@ -1586,6 +1587,7 @@ Path:
     <sys:String x:Key="LocQueue_VerificationResultScopeRedumpMatched">The file matched the local Redump database. This is the most accurate verification result the app can provide.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeMismatch">The CHD file could not be verified.&#x0A;It may be damaged, incomplete, or in an unsupported format.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoDat">No suitable Redump database is available for this file, so the app cannot confirm whether it matches the known standard release.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultScopeNoDirectRedump">This input type is not matched directly with Redump. Use an extracted ISO/CUE/GDI image for Redump matching.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoRedumpMatch">The file did not match the local Redump database. This is a warning, not a read failure or a reason to block conversion.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">This file type does not currently support a detailed verification report.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">A successful check does not guarantee that the game will run on every emulator or device; compatibility depends on platform support, settings, and launch method.</sys:String>

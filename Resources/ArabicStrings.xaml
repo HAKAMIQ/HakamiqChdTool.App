@@ -547,6 +547,7 @@
     <sys:String x:Key="LocDeepHash_TipFileNotFound">الملف غير موجود على القرص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipChdNeedsExtraction">لا يمكن إجراء المطابقة المباشرة لملفات CHD مع قاعدة بيانات Redump. يرجى استخراج الملف إلى ISO أو CUE ثم أعد المحاولة.&#x0a;&#x0a;المسار:&#x0a;{0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipArchiveNeedsExtraction">لا يمكن مطابقة الأرشيف مباشرة مع قاعدة بيانات Redump. يرجى استخراج ملفات ISO أو CUE/GDI أولاً ثم إعادة الفحص.&#x0a;&#x0a;المسار:&#x0a;{0}</sys:String>
+    <sys:String x:Key="LocDeepHash_TipCsoNeedsIso">لا يمكن مطابقة ملفات CSO مباشرة مع Redump لأن Redump يعتمد على هاش صورة ISO الأصلية. فك ملف CSO إلى ISO ثم أعد الفحص.&#x0a;&#x0a;المسار:&#x0a;{0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnsupportedExtension">نوع الملف غير مدعوم في فحص Redump.&#x0a;{1}</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoTrackFiles">تعذر العثور على ملفات مسارات صالحة للفحص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoDatabase">قاعدة بيانات Redump غير متاحة. يُرجى تحديث القاعدة أو استيراد ملف DAT/XML من الإعدادات المتقدمة.</sys:String>
@@ -1580,6 +1581,7 @@
     <sys:String x:Key="LocQueue_VerificationResultScopeRedumpMatched">تمت مطابقة الملف مع قاعدة Redump المحلية. هذه هي نتيجة التحقق الأكثر دقة التي يوفرها التطبيق.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeMismatch">تعذر التحقق من سلامة ملف CHD.&#x0A;قد يكون الملف تالفاً، غير مكتمل، أو بصيغة غير مدعومة.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoDat">لا توجد قاعدة بيانات Redump مناسبة لهذا الملف، لذا لا يمكننا تأكيد مطابقته للنسخة القياسية.</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultScopeNoDirectRedump">هذا النوع لا تتم مطابقته مباشرة مع Redump. استخدم صورة ISO/CUE/GDI مستخرجة لمطابقة Redump.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeNoRedumpMatch">لم تتم مطابقة الملف مع قاعدة بيانات Redump المحلية. هذا تنبيه عام وليس فشلاً في قراءة الملف أو خطأً يتطلب إيقاف المعالجة.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">هذا النوع من الملفات لا يدعم تقرير التحقق التفصيلي حالياً.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">نجاح الفحص لا يضمن تشغيل اللعبة على كل محاكي أو جهاز؛ التوافق يعتمد على دعم المنصة والإعدادات وطريقة التشغيل.</sys:String>
