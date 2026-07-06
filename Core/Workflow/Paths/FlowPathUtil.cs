@@ -2,6 +2,7 @@ using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +13,17 @@ internal static class WorkflowPathUtilities
     public static void RaiseProgress(ChdTaskRequest request, double percent)
     {
         ArgumentNullException.ThrowIfNull(request);
-        request.OnProgress?.Invoke(Math.Clamp(percent, 0, 100));
+        double safePercent = Math.Clamp(percent, 0, 100);
+        request.OnProgress?.Invoke(safePercent);
+        request.OnProgressEvent?.Invoke(new ProgressEvent
+        {
+            OperationId = request.OperationId,
+            OperationType = ProgressOperationType.Conversion,
+            ItemName = Path.GetFileName(request.InputPath),
+            Percent = safePercent,
+            MessageKey = string.Empty,
+            CanCancel = true
+        });
     }
 
     public static (ChdmanExtractionKind Kind, string OutputExtension) GetChdExtractRoute(string mediaType)

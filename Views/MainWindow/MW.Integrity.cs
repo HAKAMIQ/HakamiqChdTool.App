@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using HakamiqChdTool.App.Localization;
@@ -9,7 +7,6 @@ using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
-using HakamiqChdTool.App.Views;
 using Serilog;
 
 namespace HakamiqChdTool.App;
@@ -18,8 +15,7 @@ public partial class MainWindow
 {
     private async Task RunDeepIntegrityValidationAsync(
         TaskQueueItemViewModel item,
-        string probePath,
-        bool csoRedumpTempIsoAlreadyConfirmed = false)
+        string probePath)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -59,30 +55,6 @@ public partial class MainWindow
             return;
         }
 
-        bool requiresCsoPreparation = string.Equals(
-            Path.GetExtension(probePath),
-            ".cso",
-            StringComparison.OrdinalIgnoreCase);
-
-        if (requiresCsoPreparation && !csoRedumpTempIsoAlreadyConfirmed)
-        {
-            bool confirmed = await ConfirmCsoRedumpTempIsoAsync().ConfigureAwait(false);
-            if (!confirmed)
-            {
-                await InvokeOnUiIfAvailableAsync(() =>
-                {
-                    ApplyIntegrityAndSync(
-                        item,
-                        IntegrityValidationState.None,
-                        ArabicUi.Get(MainWindowMessages.IntegrityCancelledDetail),
-                        ArabicUi.Get(MainWindowMessages.IntegrityCancelledDetail));
-                }).ConfigureAwait(false);
-
-                return;
-            }
-        }
-
-        CsoTempWorkspace? csoWorkspace = null;
         bool blockingOperationRegistered = false;
 
         try
@@ -110,9 +82,7 @@ public partial class MainWindow
                             return false;
                         }
 
-                        string validatingMessage = requiresCsoPreparation
-                            ? ArabicUi.Get("LocDeepHash_CsoStageInfo")
-                            : ArabicUi.Get(MainWindowMessages.DeepIntegrityScanning);
+                        string validatingMessage = ArabicUi.Get(MainWindowMessages.DeepIntegrityScanning);
 
                         ApplyIntegrityAndSync(
                             item,
@@ -157,23 +127,18 @@ public partial class MainWindow
                 return;
             }
 
-            DeepHashAnalysisResult? cachedResult = null;
-
-            if (!requiresCsoPreparation)
-            {
-                cachedResult = await InvokeOnUiIfAvailableAsync(
-                        () =>
+            DeepHashAnalysisResult? cachedResult = await InvokeOnUiIfAvailableAsync(
+                    () =>
+                    {
+                        if (string.Equals(item.DeepHashCachePath, probeKey, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (string.Equals(item.DeepHashCachePath, probeKey, StringComparison.OrdinalIgnoreCase))
-                            {
-                                return item.DeepHashCachedResult;
-                            }
+                            return item.DeepHashCachedResult;
+                        }
 
-                            return null;
-                        },
-                        fallback: null)
-                    .ConfigureAwait(false);
-            }
+                        return null;
+                    },
+                    fallback: null)
+                .ConfigureAwait(false);
 
             DeepHashAnalysisResult result;
             bool usedCachedResult = cachedResult is not null;
@@ -184,78 +149,17 @@ public partial class MainWindow
             }
             else
             {
-                string effectiveProbePath = probePath;
-
-                if (requiresCsoPreparation)
-                {
-                    csoWorkspace = CsoTempWorkspace.Create();
-
-                    CsoPreprocessResult csoPreparation = await new CsoPreprocessor()
-                        .PreprocessAsync(
-                            probePath,
-                            csoWorkspace.PreparedIsoPath,
-                            cancellationToken,
-                            messageKey => ApplyCsoRedumpStageAsync(item, messageKey, probePath))
-                        .ConfigureAwait(false);
-
-                    if (!csoPreparation.IsSuccess)
-                    {
-                        string message = ArabicUi.Get(csoPreparation.MessageKey);
-
-                        await InvokeOnUiIfAvailableAsync(() =>
-                        {
-                            ApplyIntegrityAndSync(
-                                item,
-                                csoPreparation.WasCancelled ? IntegrityValidationState.None : IntegrityValidationState.Error,
-                                message,
-                                message);
-
-                            ApplyCsoRedumpProgressAndSync(
-                                item,
-                                message,
-                                0d,
-                                isProgressActive: false,
-                                isIndeterminate: false);
-                        }).ConfigureAwait(false);
-
-                        return;
-                    }
-
-                    effectiveProbePath = csoPreparation.PreparedIsoPath;
-
-                    await ApplyCsoRedumpStageAsync(
-                            item,
-                            "LocDeepHash_CsoStageHashRedump",
-                            effectiveProbePath)
-                        .ConfigureAwait(false);
-                }
+                var redumpProgress = new Progress<ProgressEvent>(
+                    progressEvent => _ = ApplyRedumpProgressEventAsync(item, progressEvent, probePath));
 
                 result = await DeepHashAnalyzer
-                    .DeepHashAnalyzeAsync(effectiveProbePath, database, cancellationToken)
+                    .DeepHashAnalyzeAsync(
+                        probePath,
+                        database,
+                        cancellationToken,
+                        new RedumpV2ScanOptions(GetChdmanPath(), _settings),
+                        redumpProgress)
                     .ConfigureAwait(false);
-
-                if (requiresCsoPreparation)
-                {
-                    await ApplyCsoRedumpStageAsync(
-                            item,
-                            "LocDeepHash_CsoStageSave",
-                            probePath)
-                        .ConfigureAwait(false);
-
-                    SaveCsoRedumpCache(probePath, result);
-
-                    if (csoWorkspace is not null)
-                    {
-                        await ApplyCsoRedumpStageAsync(
-                                item,
-                                "LocDeepHash_CsoStageCleanup",
-                                csoWorkspace.PreparedIsoPath)
-                            .ConfigureAwait(false);
-
-                        csoWorkspace.Dispose();
-                        csoWorkspace = null;
-                    }
-                }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -272,15 +176,12 @@ public partial class MainWindow
 
                 DeepHashAnalysisView presentation = DeepHashAnalysisPresenter.Format(result);
 
-                if (requiresCsoPreparation)
-                {
-                    ApplyCsoRedumpProgressAndSync(
-                        item,
-                        presentation.StatusMessage,
-                        100d,
-                        isProgressActive: false,
-                        isIndeterminate: false);
-                }
+                ApplyRedumpProgressAndSync(
+                    item,
+                    presentation.StatusMessage,
+                    100d,
+                    isProgressActive: false,
+                    isIndeterminate: false);
 
                 SetFooterStatus(ArabicUi.Format(
                     MainWindowMessages.Fmt_DeepIntegrityDone,
@@ -302,15 +203,12 @@ public partial class MainWindow
                     ArabicUi.Get(MainWindowMessages.IntegrityCancelledDetail),
                     ArabicUi.Get(MainWindowMessages.IntegrityCancelledDetail));
 
-                if (requiresCsoPreparation)
-                {
-                    ApplyCsoRedumpProgressAndSync(
-                        item,
-                        ArabicUi.Get(MainWindowMessages.IntegrityCancelledDetail),
-                        0d,
-                        isProgressActive: false,
-                        isIndeterminate: false);
-                }
+                ApplyRedumpProgressAndSync(
+                    item,
+                    ArabicUi.Get(MainWindowMessages.IntegrityCancelledDetail),
+                    0d,
+                    isProgressActive: false,
+                    isIndeterminate: false);
 
                 SetFooterStatus(ArabicUi.Get(MainWindowMessages.IntegrityCancelledDetail));
             }).ConfigureAwait(false);
@@ -323,7 +221,7 @@ public partial class MainWindow
                 probePath);
 
             await ApplyDeepIntegrityErrorAsync(item).ConfigureAwait(false);
-            await ClearCsoProgressAfterErrorIfNeededAsync(item, requiresCsoPreparation).ConfigureAwait(false);
+            await ClearRedumpProgressAfterErrorAsync(item).ConfigureAwait(false);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -333,7 +231,7 @@ public partial class MainWindow
                 probePath);
 
             await ApplyDeepIntegrityErrorAsync(item).ConfigureAwait(false);
-            await ClearCsoProgressAfterErrorIfNeededAsync(item, requiresCsoPreparation).ConfigureAwait(false);
+            await ClearRedumpProgressAfterErrorAsync(item).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -343,16 +241,10 @@ public partial class MainWindow
                 probePath);
 
             await ApplyDeepIntegrityErrorAsync(item).ConfigureAwait(false);
-            await ClearCsoProgressAfterErrorIfNeededAsync(item, requiresCsoPreparation).ConfigureAwait(false);
+            await ClearRedumpProgressAfterErrorAsync(item).ConfigureAwait(false);
         }
         finally
         {
-            if (csoWorkspace is not null)
-            {
-                AppendExecutionLog($"{item.FileName}: {ArabicUi.Get("LocDeepHash_CsoStageCleanup")}");
-                csoWorkspace.Dispose();
-            }
-
             if (blockingOperationRegistered)
             {
                 Interlocked.Decrement(ref _blockingBackgroundOps);
@@ -361,12 +253,26 @@ public partial class MainWindow
         }
     }
 
-    private Task ApplyCsoRedumpStageAsync(
+    private Task ApplyRedumpProgressEventAsync(
         TaskQueueItemViewModel item,
-        string messageKey,
+        ProgressEvent progressEvent,
         string detailPath)
     {
-        string message = ArabicUi.Get(messageKey);
+        string message = ArabicUi.Get(progressEvent.MessageKey);
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            message = progressEvent.MessageKey;
+        }
+
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            message = ArabicUi.Get(MainWindowMessages.DeepIntegrityScanning);
+        }
+
+        double overallProgress = CalculateRedumpOverallProgress(progressEvent);
+        bool isIndeterminate = progressEvent.TotalBytes <= 0
+            && progressEvent.Percent <= 0
+            && progressEvent.OperationType is ProgressOperationType.TemporaryNormalization or ProgressOperationType.RedumpScan;
 
         AppendExecutionLog($"{item.FileName}: {message}");
 
@@ -378,18 +284,31 @@ public partial class MainWindow
                 message,
                 detailPath);
 
-            ApplyCsoRedumpProgressAndSync(
+            ApplyRedumpProgressAndSync(
                 item,
                 message,
-                0d,
+                overallProgress,
                 isProgressActive: true,
-                isIndeterminate: true);
+                isIndeterminate: isIndeterminate);
 
             SetFooterStatus(message);
         });
     }
 
-    private void ApplyCsoRedumpProgressAndSync(
+    private static double CalculateRedumpOverallProgress(ProgressEvent progressEvent)
+    {
+        if (progressEvent.TotalSteps <= 0 || progressEvent.CurrentStep <= 0)
+        {
+            return Math.Clamp(progressEvent.Percent, 0d, 100d);
+        }
+
+        double stepSize = 100d / progressEvent.TotalSteps;
+        double completedSteps = Math.Clamp(progressEvent.CurrentStep - 1, 0, progressEvent.TotalSteps) * stepSize;
+        double currentStepProgress = Math.Clamp(progressEvent.Percent, 0d, 100d) / 100d * stepSize;
+        return Math.Clamp(completedSteps + currentStepProgress, 0d, 99d);
+    }
+
+    private void ApplyRedumpProgressAndSync(
         TaskQueueItemViewModel item,
         string statusDetail,
         double progress,
@@ -414,187 +333,12 @@ public partial class MainWindow
         RequestUiStateRefresh();
     }
 
-    private Task<bool> ConfirmCsoRedumpTempIsoAsync()
+    private Task ClearRedumpProgressAfterErrorAsync(TaskQueueItemViewModel item)
     {
-        return InvokeOnUiIfAvailableAsync(
-            () =>
-            {
-                var dialog = new RedumpNoticeDialog(
-                    ArabicUi.Get("LocRedump_CsoTempTitle"),
-                    ArabicUi.Get("LocRedump_CsoTempBody"),
-                    ArabicUi.Get("LocCommon_Cancel"),
-                    ArabicUi.Get("LocRedump_CsoTempConfirm"))
-                {
-                    Owner = this
-                };
-
-                return dialog.ShowDialog() == true;
-            },
-            fallback: false);
-    }
-
-    private static bool SaveCsoRedumpCache(
-        string sourceCsoPath,
-        DeepHashAnalysisResult result)
-    {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(sourceCsoPath))
-            {
-                return false;
-            }
-
-            FileInfo source = new(sourceCsoPath);
-            if (!source.Exists)
-            {
-                return false;
-            }
-
-            DeepHashFileDigest? hash = result.HashedFiles.FirstOrDefault();
-            if (hash is null)
-            {
-                return false;
-            }
-
-            DeepHashMatch? match = result.Matches.FirstOrDefault();
-
-            string root = AppPaths.LocalAppRoot;
-            string cachePath = Path.Combine(root, "cso.json");
-            DateTime savedUtc = DateTime.UtcNow;
-
-            var cacheRecord = new
-            {
-                SourcePath = source.FullName,
-                SourceBytes = source.Length,
-                SourceModifiedUtc = source.LastWriteTimeUtc,
-                NormalizedFormat = "ISO",
-                TemporaryFormatUsed = "tmp.iso",
-                ComputedSize = hash.SizeBytes,
-                ComputedCRC32 = hash.Crc32,
-                ComputedMD5 = hash.Md5,
-                ComputedSHA1 = hash.Sha1,
-                IsoSize = hash.SizeBytes,
-                IsoMD5 = hash.Md5,
-                IsoSHA1 = hash.Sha1,
-                ResultState = result.State.ToString(),
-                StatusKey = result.StatusMessageKey,
-                RedumpSystem = match?.SystemName ?? string.Empty,
-                RedumpGameName = match?.GameName ?? string.Empty,
-                RedumpRomName = match?.RomName ?? string.Empty,
-                RedumpMatchSource = match?.MatchSource ?? string.Empty,
-                RedumpCrc = match?.Crc ?? string.Empty,
-                Region = match?.Region ?? string.Empty,
-                Version = match?.Version ?? string.Empty,
-                SuggestedName = result.SuggestedStandardName,
-                MatchedAtUtc = savedUtc,
-                SavedUtc = savedUtc
-            };
-
-            List<JsonElement> records = ReadCsoCacheRecords(cachePath);
-            using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(cacheRecord));
-            records.Add(document.RootElement.Clone());
-
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-
-            using FileStream stream = new(
-                cachePath,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.Read);
-
-            JsonSerializer.Serialize(stream, records, options);
-            return true;
-        }
-        catch (Exception ex) when (ex is IOException
-                                  or UnauthorizedAccessException
-                                  or ArgumentException
-                                  or NotSupportedException
-                                  or PathTooLongException
-                                  or JsonException
-                                  or System.Security.SecurityException)
-        {
-            Log.Debug(ex, "Could not persist CSO Redump cache.");
-            return false;
-        }
-    }
-
-    private static List<JsonElement> ReadCsoCacheRecords(string cachePath)
-    {
-        var records = new List<JsonElement>();
-
-        if (!File.Exists(cachePath))
-        {
-            return records;
-        }
-
-        string text = File.ReadAllText(cachePath);
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return records;
-        }
-
-        try
-        {
-            using JsonDocument document = JsonDocument.Parse(text);
-            if (document.RootElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement element in document.RootElement.EnumerateArray())
-                {
-                    if (element.ValueKind == JsonValueKind.Object)
-                    {
-                        records.Add(element.Clone());
-                    }
-                }
-
-                return records;
-            }
-
-            if (document.RootElement.ValueKind == JsonValueKind.Object)
-            {
-                records.Add(document.RootElement.Clone());
-                return records;
-            }
-        }
-        catch (JsonException)
-        {
-        }
-
-        foreach (string line in text.Split(
-                     [Environment.NewLine, "\n"],
-                     StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-        {
-            try
-            {
-                using JsonDocument lineDocument = JsonDocument.Parse(line);
-                if (lineDocument.RootElement.ValueKind == JsonValueKind.Object)
-                {
-                    records.Add(lineDocument.RootElement.Clone());
-                }
-            }
-            catch (JsonException)
-            {
-            }
-        }
-
-        return records;
-    }
-
-    private Task ClearCsoProgressAfterErrorIfNeededAsync(
-        TaskQueueItemViewModel item,
-        bool requiresCsoPreparation)
-    {
-        if (!requiresCsoPreparation)
-        {
-            return Task.CompletedTask;
-        }
-
         string message = ArabicUi.Get(MainWindowMessages.IntegrityErrorShort);
         return InvokeOnUiIfAvailableAsync(() =>
         {
-            ApplyCsoRedumpProgressAndSync(
+            ApplyRedumpProgressAndSync(
                 item,
                 message,
                 0d,

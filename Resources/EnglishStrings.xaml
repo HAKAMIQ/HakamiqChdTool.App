@@ -540,6 +540,7 @@
     <sys:String x:Key="LocDeepHash_StatusConflictingMatch">Conflicting match</sys:String>
     <sys:String x:Key="LocDeepHash_StatusVerified">Matched</sys:String>
     <sys:String x:Key="LocDeepHash_StatusVerifiedComplete">Fully matched</sys:String>
+    <sys:String x:Key="LocDeepHash_StatusVerifiedNormalized">Matched after temporary normalization</sys:String>
     <sys:String x:Key="LocDeepHash_StatusIncomplete">Incomplete</sys:String>
     <sys:String x:Key="LocDeepHash_StatusModified">Not matching</sys:String>
 
@@ -558,6 +559,19 @@ Path:
     <sys:String x:Key="LocDeepHash_TipMissingPlatformDatabase">The file appears to belong to {0}, but this platform has no rows in the local Redump database. Import the DAT for this platform, then scan again.</sys:String>
     <sys:String x:Key="LocDeepHash_TipConflictingMatches">Redump results don't belong to the same game or system.</sys:String>
     <sys:String x:Key="LocDeepHash_TipVerifiedHeader">Redump match:</sys:String>
+    <sys:String x:Key="LocRedumpV2_DetailNormalizedFormat">Source: {0}&#x0a;Temporary normalized format: {1}&#x0a;Required temp space: {2}&#x0a;Result: {3}</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepClassifySource">Classify source</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepNormalize">Prepare temporary Redump-original representation</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepHash">Calculating SHA1</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepMatch">Matching Redump</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepCleanup">Cleaning temporary files</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepReturnResult">Returning verification result</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeCsoIso">Preparing temporary ISO for verification</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeChdCd">Extracting CHD temporarily to CUE/BIN</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeChdDvd">Extracting CHD temporarily to ISO</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeArchive">Extracting archive temporarily for verification</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">This source requires temporary normalization to ISO/GCM, but the normalization tool is not available yet.</sys:String>
+    <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">PS3 JB folders are not converted into Redump ISO; this is IRD-only.</sys:String>
     <sys:String x:Key="LocDeepHash_TipPartialMatch">{0:N0} of {1:N0} files matched. The disc is not considered fully matched until all files match.</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnmatchedFilesHeader">Unmatched files:</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoRedumpMatch">The file didn't match the local Redump database.</sys:String>
@@ -1168,9 +1182,9 @@ Path:
     <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">Choose a Redump folder</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">Browse...</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">Choose the local Redump folder.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">Scan folder</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">Scan Redump DAT folder</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">Shows DAT/XML and CUE counts before preparing the database.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">Prepare matching</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">Prepare matching database</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">Imports selected DAT/XML files into SQLite so game verification can match against Redump.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalActionsTitle">Actions</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">Folder preview</sys:String>
@@ -1202,10 +1216,11 @@ Path:
     <sys:String x:Key="LocUi_Card_Tools_Subtitle">Manage the processing task queue and open file paths.</sys:String>
     <sys:String x:Key="LocRedump_Tool_Title">Redump</sys:String>
     <sys:String x:Key="LocRedump_Tool_Subtitle">Optional verification. The result appears next to the file in the queue.</sys:String>
-    <sys:String x:Key="LocRedump_Tool_VerifySelected">Verify selected</sys:String>
+    <sys:String x:Key="LocRedump_Tool_VerifySelected">Scan selected</sys:String>
     <sys:String x:Key="LocRedump_Tool_VerifySelectedTooltip">Verifies the selected item using the local Redump database.</sys:String>
-    <sys:String x:Key="LocRedump_Tool_VerifyAll">Verify all</sys:String>
+    <sys:String x:Key="LocRedump_Tool_VerifyAll">Scan all</sys:String>
     <sys:String x:Key="LocRedump_Tool_VerifyAllTooltip">Verifies all scannable items.</sys:String>
+    <sys:String x:Key="LocRedumpV2_AllProgressFormat">Redump scan: {0} / {1} - {2}</sys:String>
 
     <sys:String x:Key="LocCommon_Ok">OK</sys:String>
     <sys:String x:Key="LocCommon_Cancel">Cancel</sys:String>
@@ -1776,8 +1791,5 @@ Path:
     <sys:String x:Key="LocDeepHash_CsoStageHashRedump">Calculating MD5/SHA1/CRC32 and matching Redump...</sys:String>
     <sys:String x:Key="LocDeepHash_CsoStageSave">Saving match data...</sys:String>
     <sys:String x:Key="LocDeepHash_CsoStageCleanup">Cleaning CSO temporary files...</sys:String>
-    <sys:String x:Key="LocRedump_CsoTempTitle">Redump CSO verification</sys:String>
-    <sys:String x:Key="LocRedump_CsoTempBody">This CSO file is compressed, while Redump matches the original ISO image rather than the CSO container. The app will use a temporary path to create tmp.iso for verification only, then save the match data and delete the temporary file after verification.</sys:String>
-    <sys:String x:Key="LocRedump_CsoTempConfirm">Convert and verify</sys:String>
     <sys:String x:Key="LocDeepHash_CsoCacheSaved">CSO Redump match data was saved for later review.</sys:String>
 </ResourceDictionary>

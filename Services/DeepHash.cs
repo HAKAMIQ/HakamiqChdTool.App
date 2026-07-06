@@ -65,6 +65,7 @@ public static class DeepHashAnalyzer
     private const string StatusConflictingMatchKey = "LocDeepHash_StatusConflictingMatch";
     private const string StatusVerifiedKey = "LocDeepHash_StatusVerified";
     private const string StatusVerifiedCompleteKey = "LocDeepHash_StatusVerifiedComplete";
+    private const string StatusVerifiedNormalizedKey = "LocDeepHash_StatusVerifiedNormalized";
     private const string StatusIncompleteKey = "LocDeepHash_StatusIncomplete";
     private const string StatusModifiedKey = "LocDeepHash_StatusModified";
 
@@ -79,9 +80,7 @@ public static class DeepHashAnalyzer
     private const string TipResolveFailedKey = "LocDeepHash_TipResolveFailed";
     private const string TipHashFailedKey = "LocDeepHash_TipHashFailed";
     private const string TipInputReadCrcOrIoFailureKey = "LocDeepHash_TipInputReadCrcOrIoFailure";
-    private const string StatusMissingPlatformDatabaseKey = "LocDeepHash_StatusMissingPlatformDatabase";
     private const string TipNoDatabaseKey = "LocDeepHash_TipNoDatabase";
-    private const string TipMissingPlatformDatabaseKey = "LocDeepHash_TipMissingPlatformDatabase";
     private const string TipConflictingMatchesKey = "LocDeepHash_TipConflictingMatches";
     private const string TipVerifiedHeaderKey = "LocDeepHash_TipVerifiedHeader";
     private const string TipPartialMatchKey = "LocDeepHash_TipPartialMatch";
@@ -89,7 +88,7 @@ public static class DeepHashAnalyzer
 
     private static readonly HashSet<string> HashableExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".cue", ".gdi", ".iso", ".bin", ".img", ".raw"
+        ".cue", ".gdi", ".iso", ".gcm", ".bin", ".img", ".raw"
     };
 
     private static readonly HashSet<string> ArchiveNoDirectExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -100,7 +99,9 @@ public static class DeepHashAnalyzer
     public static async Task<DeepHashAnalysisResult> DeepHashAnalyzeAsync(
         string probePath,
         RedumpSqliteManager? redumpDatabase,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        RedumpV2ScanOptions? redumpV2Options = null,
+        IProgress<ProgressEvent>? progress = null)
     {
         if (string.IsNullOrWhiteSpace(probePath))
         {
@@ -116,6 +117,15 @@ public static class DeepHashAnalyzer
         {
             Log.Debug(ex, "DeepHashAnalyzer: invalid probe path. Path={Path}", probePath);
             return Error(TipInvalidPathKey);
+        }
+
+        if (redumpDatabase is not null && redumpV2Options is not null)
+        {
+            RedumpV2ScanResult v2Result = await RedumpV2Engine.Default
+                .ScanAsync(fullPath, redumpDatabase, redumpV2Options, progress, cancellationToken)
+                .ConfigureAwait(false);
+
+            return FromRedumpV2(v2Result);
         }
 
         if (!File.Exists(fullPath))
@@ -246,18 +256,6 @@ public static class DeepHashAnalyzer
                 misses);
         }
 
-        DeepHashAnalysisResult? missingPlatformDatabase = await TryBuildMissingPlatformDatabaseResultAsync(
-                fullPath,
-                redumpDatabase,
-                hashed,
-                cancellationToken)
-            .ConfigureAwait(false);
-
-        if (missingPlatformDatabase is not null)
-        {
-            return missingPlatformDatabase;
-        }
-
         return Result(
             IntegrityValidationState.NoRedumpMatch,
             StatusModifiedKey,
@@ -265,32 +263,38 @@ public static class DeepHashAnalyzer
             hashedFiles: hashed);
     }
 
-    private static async Task<DeepHashAnalysisResult?> TryBuildMissingPlatformDatabaseResultAsync(
-        string fullPath,
-        RedumpSqliteManager redumpDatabase,
-        IReadOnlyList<DeepHashFileDigest> hashed,
-        CancellationToken cancellationToken)
+    private static DeepHashAnalysisResult FromRedumpV2(RedumpV2ScanResult result)
     {
-        ConsoleIdResult detected = await ConsoleIdSvc
-            .DetectAsync(fullPath, TimeSpan.FromSeconds(5), cancellationToken)
-            .ConfigureAwait(false);
-
-        if (!detected.IsIdentified)
+        IntegrityValidationState state = result.State switch
         {
-            return null;
-        }
+            RedumpV2ResultState.Verified => IntegrityValidationState.Verified,
+            RedumpV2ResultState.VerifiedNormalized => IntegrityValidationState.Verified,
+            RedumpV2ResultState.NoRedumpMatch => IntegrityValidationState.NoRedumpMatch,
+            RedumpV2ResultState.NoDatabase => IntegrityValidationState.NoDat,
+            RedumpV2ResultState.Unsupported => IntegrityValidationState.Unsupported,
+            RedumpV2ResultState.Failed => IntegrityValidationState.Failed,
+            RedumpV2ResultState.Error => IntegrityValidationState.Error,
+            _ => IntegrityValidationState.Error
+        };
 
-        if (redumpDatabase.HasSystemRowsForDetectedPlatform(detected.PlatformName))
-        {
-            return null;
-        }
+        string statusKey = result.State == RedumpV2ResultState.VerifiedNormalized
+            ? StatusVerifiedNormalizedKey
+            : result.StatusMessageKey;
 
-        return Result(
-            IntegrityValidationState.NoDat,
-            StatusMissingPlatformDatabaseKey,
-            TipMissingPlatformDatabaseKey,
-            [detected.PlatformName],
-            hashedFiles: hashed);
+        return new DeepHashAnalysisResult(
+            state,
+            string.IsNullOrWhiteSpace(statusKey) ? StatusErrorKey : statusKey,
+            string.IsNullOrWhiteSpace(result.DetailMessageKey) ? TipHashFailedKey : result.DetailMessageKey,
+            result.DetailArgs,
+            result.HashedFiles,
+            result.Matches,
+            result.UnmatchedFileNames,
+            result.SuggestedStandardName,
+            result.MatchedSystemName,
+            result.MatchedGameName,
+            result.MatchedFileCount,
+            result.HashedFileCount,
+            result.FailureCode);
     }
 
     private static DeepHashAnalysisResult BuildFullMatchResult(
@@ -466,7 +470,7 @@ public static class DeepHashAnalyzer
         {
             ".cue" => ResolveCueBinFiles(normalized),
             ".gdi" => ResolveGdiTrackFiles(normalized),
-            ".iso" or ".bin" or ".img" or ".raw" => [normalized],
+            ".iso" or ".gcm" or ".bin" or ".img" or ".raw" => [normalized],
             _ => []
         };
     }
