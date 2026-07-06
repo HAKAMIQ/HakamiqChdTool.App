@@ -314,19 +314,53 @@ public sealed class ArchiveSafetyScanner
         }
 
         using var reader = new StringReader(output);
+
+        string? currentPath = null;
+        bool? currentIsDirectory = null;
+
         while (reader.ReadLine() is { } line)
         {
-            if (!line.StartsWith("Path = ", StringComparison.Ordinal))
+            if (line.StartsWith("Path = ", StringComparison.Ordinal))
             {
+                if (!string.IsNullOrWhiteSpace(currentPath) && currentIsDirectory == false)
+                {
+                    yield return currentPath;
+                }
+
+                currentPath = line["Path = ".Length..].Trim();
+                currentIsDirectory = null;
                 continue;
             }
 
-            string value = line[7..].Trim();
-            if (!string.IsNullOrWhiteSpace(value))
+            if (line.StartsWith("Folder = ", StringComparison.Ordinal))
             {
-                yield return value;
+                currentIsDirectory = ParseSevenZipFolderFlag(line["Folder = ".Length..].Trim());
             }
         }
+
+        if (!string.IsNullOrWhiteSpace(currentPath) && currentIsDirectory == false)
+        {
+            yield return currentPath;
+        }
+    }
+
+    private static bool? ParseSevenZipFolderFlag(string value)
+    {
+        if (value.Equals("+", StringComparison.Ordinal)
+            || value.Equals("1", StringComparison.Ordinal)
+            || value.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (value.Equals("-", StringComparison.Ordinal)
+            || value.Equals("0", StringComparison.Ordinal)
+            || value.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return null;
     }
 
     private static bool ShouldUseSevenZipListingFallback(string archivePath)

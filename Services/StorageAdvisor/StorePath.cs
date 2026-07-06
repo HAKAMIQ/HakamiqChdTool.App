@@ -7,10 +7,14 @@ using HakamiqChdTool.App.Services.Storage;
 
 namespace HakamiqChdTool.App.Services.StorageAdvisor;
 
-internal sealed class StoragePathAnalyzer
+internal sealed class StoragePathAnalyzer(
+    bool rejectReparsePoints,
+    StorageDeviceResolver deviceResolver)
 {
-    private readonly bool _rejectReparsePoints;
-    private readonly StorageDeviceResolver _deviceResolver;
+    private readonly bool _rejectReparsePoints = rejectReparsePoints;
+
+    private readonly StorageDeviceResolver _deviceResolver =
+        deviceResolver ?? throw new ArgumentNullException(nameof(deviceResolver));
 
     public StoragePathAnalyzer()
         : this(rejectReparsePoints: true, new StorageDeviceResolver())
@@ -20,14 +24,6 @@ internal sealed class StoragePathAnalyzer
     internal StoragePathAnalyzer(bool rejectReparsePoints)
         : this(rejectReparsePoints, new StorageDeviceResolver())
     {
-    }
-
-    internal StoragePathAnalyzer(
-        bool rejectReparsePoints,
-        StorageDeviceResolver deviceResolver)
-    {
-        _rejectReparsePoints = rejectReparsePoints;
-        _deviceResolver = deviceResolver ?? throw new ArgumentNullException(nameof(deviceResolver));
     }
 
     public StoragePathAnalysis Analyze(
