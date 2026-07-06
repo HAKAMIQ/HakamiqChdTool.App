@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Services.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
