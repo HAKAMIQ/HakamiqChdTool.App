@@ -361,7 +361,7 @@ public sealed class M3uPlaylistGenerator : IM3uPlaylistGenerator
     private static bool IsSafeRelativePlaylistEntry(string relative)
     {
         if (string.IsNullOrWhiteSpace(relative)
-            || relative.Contains('\0', StringComparison.Ordinal)
+            || relative.Contains('\0')
             || relative.Contains("//", StringComparison.Ordinal)
             || relative.StartsWith('/')
             || Path.IsPathRooted(relative))

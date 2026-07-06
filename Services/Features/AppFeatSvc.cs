@@ -3,10 +3,7 @@ using System;
 
 namespace HakamiqChdTool.App.Services.Features;
 
-/// <summary>
-/// Public feature policy for the unified build.
-/// All product features are available to every user without a separate enablement step.
-/// </summary>
+
 public sealed class AppFeatureService : IAppFeatureService
 {
     public bool IsEnabled(AppFeature feature) =>
