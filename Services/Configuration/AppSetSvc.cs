@@ -1,11 +1,15 @@
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Services;
 using Serilog;
+using System;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace HakamiqChdTool.App.Services;
+namespace HakamiqChdTool.App.Services.Configuration;
 
 public sealed class AppSettingsService : IDisposable
 {

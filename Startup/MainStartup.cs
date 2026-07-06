@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.Configuration;
 using HakamiqChdTool.App.Views;
 using HakamiqChdTool.App.Ui.Shell;
 using Serilog;

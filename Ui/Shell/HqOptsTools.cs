@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.Configuration;
 using Microsoft.Win32;
 using System;
 using System.IO;

@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Core.Workflow;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.Configuration;
 using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.PostProcessing;
 using HakamiqChdTool.App.Ui.Shell;
