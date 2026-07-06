@@ -1,3 +1,5 @@
+using System;
+
 namespace HakamiqChdTool.App.Services.Power;
 
 internal interface IConversionPowerGuard : IDisposable
@@ -6,4 +8,3 @@ internal interface IConversionPowerGuard : IDisposable
 
     void EndCriticalConversionSession();
 }
-
