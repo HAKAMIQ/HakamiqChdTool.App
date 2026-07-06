@@ -4,14 +4,16 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
-using static HakamiqChdTool.App.Services.ChdConversionMessages;
-using static HakamiqChdTool.App.Services.ChdOutputPathHelpers;
 
 namespace HakamiqChdTool.App.Services;
 
 public sealed class ChdResultMappingService : IChdResultMappingService
 {
+    private const long MaxDescriptorReadBytes = 256 * 1024;
+    private const int MaxTrackPatternCleanupCandidates = 256;
+
     public void TryDeleteIncompleteOutputs(string outputPath, bool isExtractCommand, string reason)
     {
         if (string.IsNullOrWhiteSpace(outputPath))
@@ -24,7 +26,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
         {
             fullOutputPath = Path.GetFullPath(outputPath);
         }
-        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        catch (Exception ex) when (IsExpectedPathException(ex))
         {
             Log.Warning(ex, "Could not resolve incomplete output path for cleanup. Output={OutputPath}, Reason={Reason}", outputPath, reason);
             return;
@@ -32,7 +34,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
 
         IReadOnlyList<string> knownCompanions = isExtractCommand
             ? ResolveKnownExtractionCompanions(fullOutputPath)
-            : Array.Empty<string>();
+            : [];
 
         TryDeleteIncompleteFile(fullOutputPath, reason);
         TryDeleteIncompleteFile(Path.ChangeExtension(fullOutputPath, ".sbi"), reason);
@@ -42,7 +44,6 @@ public sealed class ChdResultMappingService : IChdResultMappingService
             TryDeleteIncompleteFile(companion, reason);
         }
     }
-
 
     private static IReadOnlyList<string> ResolveKnownExtractionCompanions(string outputPath)
     {
@@ -58,7 +59,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
 
         if (string.Equals(extension, ".cue", StringComparison.OrdinalIgnoreCase))
         {
-            result.Add(BuildSingleBinExtractCdBinOutputPath(outputPath));
+            result.Add(ChdOutputPathHelpers.BuildSingleBinExtractCdBinOutputPath(outputPath));
 
             foreach (string trackOutput in EnumerateExtractCdTrackPatternOutputs(directory, stem))
             {
@@ -67,7 +68,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
 
             foreach (string referenced in TryReadCueReferencedFiles(outputPath))
             {
-                if (TryResolveCompanionPathWithinDirectory(directory, referenced, out string? companion)
+                if (ChdOutputPathHelpers.TryResolveCompanionPathWithinDirectory(directory, referenced, out string? companion)
                     && !string.IsNullOrWhiteSpace(companion))
                 {
                     result.Add(companion);
@@ -78,7 +79,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
         {
             foreach (string referenced in TryReadGdiReferencedFiles(outputPath))
             {
-                if (TryResolveCompanionPathWithinDirectory(directory, referenced, out string? companion)
+                if (ChdOutputPathHelpers.TryResolveCompanionPathWithinDirectory(directory, referenced, out string? companion)
                     && !string.IsNullOrWhiteSpace(companion))
                 {
                     result.Add(companion);
@@ -98,17 +99,26 @@ public sealed class ChdResultMappingService : IChdResultMappingService
             yield break;
         }
 
+        var candidates = new List<string>();
         string pattern = $"{stem} (Track *).bin";
-        IEnumerable<string> candidates;
+
         try
         {
-            candidates = Directory.EnumerateFiles(directory, pattern, SearchOption.TopDirectoryOnly).ToArray();
+            foreach (string candidate in Directory.EnumerateFiles(directory, pattern, SearchOption.TopDirectoryOnly))
+            {
+                candidates.Add(candidate);
+                if (candidates.Count >= MaxTrackPatternCleanupCandidates)
+                {
+                    Log.Warning(
+                        "Stopped enumerating extractcd track-pattern outputs after cleanup candidate limit. Directory={Directory}; Stem={Stem}; Limit={Limit}",
+                        directory,
+                        stem,
+                        MaxTrackPatternCleanupCandidates);
+                    break;
+                }
+            }
         }
-        catch (Exception ex) when (ex is IOException
-                                  or UnauthorizedAccessException
-                                  or ArgumentException
-                                  or NotSupportedException
-                                  or PathTooLongException)
+        catch (Exception ex) when (IsExpectedPathOrIoException(ex))
         {
             yield break;
         }
@@ -121,23 +131,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
 
     private static IEnumerable<string> TryReadCueReferencedFiles(string cuePath)
     {
-        if (!File.Exists(cuePath))
-        {
-            yield break;
-        }
-
-        string[] lines;
-        try
-        {
-            lines = File.ReadAllLines(cuePath);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
-        {
-            Log.Debug(ex, "Could not read incomplete CUE file for companion cleanup. CuePath={CuePath}", cuePath);
-            yield break;
-        }
-
-        foreach (string line in lines)
+        foreach (string line in TryReadSmallDescriptorLines(cuePath, "CUE"))
         {
             if (CueSheetFileStatementReader.TryRead(line, out string value, out _))
             {
@@ -148,23 +142,8 @@ public sealed class ChdResultMappingService : IChdResultMappingService
 
     private static IEnumerable<string> TryReadGdiReferencedFiles(string gdiPath)
     {
-        if (!File.Exists(gdiPath))
-        {
-            yield break;
-        }
-
-        string[] lines;
-        try
-        {
-            lines = File.ReadAllLines(gdiPath);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
-        {
-            Log.Debug(ex, "Could not read incomplete GDI file for companion cleanup. GdiPath={GdiPath}", gdiPath);
-            yield break;
-        }
-
-        for (int i = 1; i < lines.Length; i++)
+        IReadOnlyList<string> lines = TryReadSmallDescriptorLines(gdiPath, "GDI");
+        for (int i = 1; i < lines.Count; i++)
         {
             string line = lines[i].Trim();
             if (string.IsNullOrWhiteSpace(line))
@@ -172,7 +151,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
                 continue;
             }
 
-            string[] parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length >= 5 && !string.IsNullOrWhiteSpace(parts[4]))
             {
                 yield return parts[4].Trim();
@@ -180,40 +159,62 @@ public sealed class ChdResultMappingService : IChdResultMappingService
         }
     }
 
-    private static bool TryResolveCompanionPathWithinDirectory(
-        string directory,
-        string referencedFileName,
-        out string? companionPath)
+    private static IReadOnlyList<string> TryReadSmallDescriptorLines(string descriptorPath, string descriptorKind)
     {
-        companionPath = null;
-
-        if (string.IsNullOrWhiteSpace(directory) || string.IsNullOrWhiteSpace(referencedFileName))
+        if (string.IsNullOrWhiteSpace(descriptorPath))
         {
-            return false;
-        }
-
-        if (Path.IsPathRooted(referencedFileName))
-        {
-            return false;
+            return [];
         }
 
         try
         {
-            string fullDirectory = EnsureTrailingDirectorySeparator(Path.GetFullPath(directory));
-            string combined = Path.GetFullPath(Path.Combine(fullDirectory, referencedFileName));
+            string fullPath = Path.GetFullPath(descriptorPath);
+            FileInfo fileInfo = new(fullPath);
 
-            if (!combined.StartsWith(fullDirectory, StringComparison.OrdinalIgnoreCase))
+            if (!fileInfo.Exists || fileInfo.Length <= 0)
             {
-                return false;
+                return [];
             }
 
-            companionPath = combined;
-            return true;
+            if (fileInfo.Length > MaxDescriptorReadBytes)
+            {
+                Log.Debug(
+                    "Skipped oversized descriptor during result mapping. Kind={Kind}; Path={Path}; Bytes={Bytes}; Limit={Limit}",
+                    descriptorKind,
+                    fullPath,
+                    fileInfo.Length,
+                    MaxDescriptorReadBytes);
+                return [];
+            }
+
+            var lines = new List<string>();
+
+            using FileStream stream = new(
+                fullPath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete,
+                bufferSize: 4096,
+                FileOptions.SequentialScan);
+
+            using StreamReader reader = new(
+                stream,
+                Encoding.UTF8,
+                detectEncodingFromByteOrderMarks: true,
+                bufferSize: 4096,
+                leaveOpen: false);
+
+            while (reader.ReadLine() is { } line)
+            {
+                lines.Add(line);
+            }
+
+            return lines;
         }
-        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        catch (Exception ex) when (IsExpectedPathOrIoException(ex))
         {
-            Log.Debug(ex, "Rejected invalid companion output path. Directory={Directory}, Reference={Reference}", directory, referencedFileName);
-            return false;
+            Log.Debug(ex, "Could not read descriptor file for result mapping. Kind={Kind}; Path={Path}", descriptorKind, descriptorPath);
+            return [];
         }
     }
 
@@ -234,7 +235,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
             {
                 fullPath = Path.GetFullPath(path);
             }
-            catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+            catch (Exception ex) when (IsExpectedPathException(ex))
             {
                 Log.Debug(ex, "Rejected invalid cleanup path candidate. Path={Path}", path);
                 continue;
@@ -247,18 +248,6 @@ public sealed class ChdResultMappingService : IChdResultMappingService
         }
 
         return result;
-    }
-
-    private static string EnsureTrailingDirectorySeparator(string path)
-    {
-        if (string.IsNullOrEmpty(path))
-        {
-            return path;
-        }
-
-        return Path.EndsInDirectorySeparator(path)
-            ? path
-            : path + Path.DirectorySeparatorChar;
     }
 
     private static void TryDeleteIncompleteFile(string? path, string reason)
@@ -349,7 +338,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
 
         foreach (string referenced in TryReadCueReferencedFiles(cuePath))
         {
-            if (!TryResolveCompanionPathWithinDirectory(directory, referenced, out string? candidate)
+            if (!ChdOutputPathHelpers.TryResolveCompanionPathWithinDirectory(directory, referenced, out string? candidate)
                 || string.IsNullOrWhiteSpace(candidate))
             {
                 return false;
@@ -375,26 +364,16 @@ public sealed class ChdResultMappingService : IChdResultMappingService
     private static bool VerifyGdiBundle(string gdiPath)
     {
         string directory = Path.GetDirectoryName(gdiPath) ?? string.Empty;
+        IReadOnlyList<string> lines = TryReadSmallDescriptorLines(gdiPath, "GDI");
 
-        string[] lines;
-        try
-        {
-            lines = File.ReadAllLines(gdiPath);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
-        {
-            Log.Debug(ex, "Could not read GDI file for verification. GdiPath={GdiPath}", gdiPath);
-            return false;
-        }
-
-        if (lines.Length < 2)
+        if (lines.Count < 2)
         {
             return false;
         }
 
         bool foundReferencedTrack = false;
 
-        for (int i = 1; i < lines.Length; i++)
+        for (int i = 1; i < lines.Count; i++)
         {
             string line = lines[i].Trim();
             if (string.IsNullOrWhiteSpace(line))
@@ -402,7 +381,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
                 continue;
             }
 
-            string[] parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length < 5 || string.IsNullOrWhiteSpace(parts[4]))
             {
                 return false;
@@ -410,7 +389,7 @@ public sealed class ChdResultMappingService : IChdResultMappingService
 
             string referenced = parts[4].Trim();
 
-            if (!TryResolveCompanionPathWithinDirectory(directory, referenced, out string? candidate)
+            if (!ChdOutputPathHelpers.TryResolveCompanionPathWithinDirectory(directory, referenced, out string? candidate)
                 || string.IsNullOrWhiteSpace(candidate))
             {
                 return false;
@@ -433,5 +412,15 @@ public sealed class ChdResultMappingService : IChdResultMappingService
         return foundReferencedTrack;
     }
 
+    private static bool IsExpectedPathException(Exception ex) =>
+        ex is ArgumentException
+        or NotSupportedException
+        or PathTooLongException
+        or System.Security.SecurityException;
 
+    private static bool IsExpectedPathOrIoException(Exception ex) =>
+        IsExpectedPathException(ex)
+        || ex is IOException
+        or UnauthorizedAccessException
+        or InvalidDataException;
 }

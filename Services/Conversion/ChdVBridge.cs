@@ -3,6 +3,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using static HakamiqChdTool.App.Services.ChdConversionMessages;
@@ -12,6 +13,14 @@ namespace HakamiqChdTool.App.Services;
 
 public sealed class ChdVerificationBridge : IChdVerificationBridge
 {
+    private const long MaxCueDescriptorBytes = 256 * 1024;
+    private const int CueFileStatementRegexTimeoutMilliseconds = 100;
+
+    private static readonly Regex CueFileStatementRegex = new(
+        "^FILE\\s+(?:\"(?<quoted>[^\"]*)\"|(?<plain>\\S+))\\s+\\S+",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        TimeSpan.FromMilliseconds(CueFileStatementRegexTimeoutMilliseconds));
+
     public bool TryNormalizeExtractedCueBinOutput(string cueOutputPath)
     {
         if (string.IsNullOrWhiteSpace(cueOutputPath)
@@ -45,7 +54,11 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
                 return false;
             }
 
-            string[] lines = File.ReadAllLines(cueOutputPath, Encoding.UTF8);
+            if (!TryReadSmallCueLines(cueOutputPath, out string[] lines))
+            {
+                return false;
+            }
+
             string binFileName = Path.GetFileName(binOutputPath);
             bool foundFileStatement = false;
             bool changed = false;
@@ -54,6 +67,7 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
             {
                 string line = lines[index];
                 string trimmed = line.TrimStart();
+
                 if (!trimmed.StartsWith("FILE", StringComparison.OrdinalIgnoreCase)
                     || trimmed.Length > 4 && !char.IsWhiteSpace(trimmed[4]))
                 {
@@ -91,12 +105,7 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
 
             return VerifyCueBinDependenciesStrict(cueOutputPath);
         }
-        catch (Exception ex) when (ex is IOException
-                                  or UnauthorizedAccessException
-                                  or ArgumentException
-                                  or NotSupportedException
-                                  or PathTooLongException
-                                  or InvalidOperationException)
+        catch (Exception ex) when (IsExpectedPathOrIoException(ex))
         {
             Log.Warning(ex, "Could not normalize extractcd CUE/BIN output contract. Cue={CuePath}", cueOutputPath);
             return false;
@@ -113,7 +122,11 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
                 return false;
             }
 
-            string[] lines = File.ReadAllLines(cueOutputPath, Encoding.UTF8);
+            if (!TryReadSmallCueLines(cueOutputPath, out string[] lines))
+            {
+                return false;
+            }
+
             var tokenLineIndexes = new List<int>();
             var tokenSourcePaths = new List<string>();
 
@@ -197,12 +210,7 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
 
             return true;
         }
-        catch (Exception ex) when (ex is IOException
-                                  or UnauthorizedAccessException
-                                  or ArgumentException
-                                  or NotSupportedException
-                                  or PathTooLongException
-                                  or InvalidOperationException)
+        catch (Exception ex) when (IsExpectedPathOrIoException(ex))
         {
             Log.Warning(ex, "Could not repair literal extractcd track token. Cue={CuePath}", cueOutputPath);
             return false;
@@ -221,7 +229,6 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
 
         return -1;
     }
-
 
     public bool TryValidateDescriptorDependenciesBeforeChdman(
         string inputPath,
@@ -248,13 +255,7 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
             failureMessageKey = InvalidCueBinDependencyMessageKey;
             return false;
         }
-        catch (Exception ex) when (ex is IOException
-                                  or UnauthorizedAccessException
-                                  or ArgumentException
-                                  or NotSupportedException
-                                  or PathTooLongException
-                                  or InvalidOperationException
-                                  or System.Security.SecurityException)
+        catch (Exception ex) when (IsExpectedPathOrIoException(ex))
         {
             failureMessageKey = InvalidCueBinDependencyMessageKey;
             Log.Debug(ex, "Descriptor dependency preflight failed. Input={InputPath}; Command={Command}", inputPath, command);
@@ -279,7 +280,7 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
             fullCuePath = Path.GetFullPath(cuePath);
             cueDirectory = Path.GetDirectoryName(fullCuePath);
         }
-        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException or System.Security.SecurityException)
+        catch (Exception ex) when (IsExpectedPathException(ex))
         {
             return false;
         }
@@ -289,10 +290,15 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
             return false;
         }
 
+        if (!TryReadSmallCueLines(fullCuePath, out string[] lines))
+        {
+            return false;
+        }
+
         string safeCueDirectory = EnsureTrailingDirectorySeparator(Path.GetFullPath(cueDirectory));
         bool foundFileStatement = false;
 
-        foreach (string line in File.ReadLines(fullCuePath, Encoding.UTF8))
+        foreach (string line in lines)
         {
             if (!TryReadCueFileStatementStrict(line, out string referencedFileName, out bool hasFileStatement))
             {
@@ -329,6 +335,40 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
         return foundFileStatement;
     }
 
+    private static bool TryReadSmallCueLines(string cuePath, out string[] lines)
+    {
+        lines = [];
+
+        try
+        {
+            string fullPath = Path.GetFullPath(cuePath);
+            FileInfo fileInfo = new(fullPath);
+
+            if (!fileInfo.Exists || fileInfo.Length <= 0)
+            {
+                return false;
+            }
+
+            if (fileInfo.Length > MaxCueDescriptorBytes)
+            {
+                Log.Debug(
+                    "Rejected oversized CUE descriptor during verification bridge operation. Cue={CuePath}; Bytes={Bytes}; Limit={Limit}",
+                    fullPath,
+                    fileInfo.Length,
+                    MaxCueDescriptorBytes);
+                return false;
+            }
+
+            lines = File.ReadAllLines(fullPath, Encoding.UTF8);
+            return lines.Length > 0;
+        }
+        catch (Exception ex) when (IsExpectedPathOrIoException(ex))
+        {
+            Log.Debug(ex, "Could not read CUE descriptor during verification bridge operation. Cue={CuePath}", cuePath);
+            return false;
+        }
+    }
+
     private static bool TryReadCueFileStatementStrict(
         string line,
         out string referencedFileName,
@@ -355,11 +395,15 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
 
         hasFileStatement = true;
 
-        Match match = Regex.Match(
-            trimmed,
-            "^FILE\\s+(?:\"(?<quoted>[^\"]*)\"|(?<plain>\\S+))\\s+\\S+",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
-            TimeSpan.FromMilliseconds(100));
+        Match match;
+        try
+        {
+            match = CueFileStatementRegex.Match(trimmed);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
 
         if (!match.Success)
         {
@@ -390,5 +434,17 @@ public sealed class ChdVerificationBridge : IChdVerificationBridge
         return false;
     }
 
+    private static bool IsExpectedPathException(Exception ex) =>
+        ex is ArgumentException
+        or NotSupportedException
+        or PathTooLongException
+        or System.Security.SecurityException;
 
+    private static bool IsExpectedPathOrIoException(Exception ex) =>
+        IsExpectedPathException(ex)
+        || ex is IOException
+        or UnauthorizedAccessException
+        or InvalidDataException
+        or InvalidOperationException
+        or RegexMatchTimeoutException;
 }

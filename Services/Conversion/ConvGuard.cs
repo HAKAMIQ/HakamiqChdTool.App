@@ -16,7 +16,6 @@ internal sealed class ConversionSessionGuard
 {
     private readonly IConversionPowerGuard _powerGuard;
     private readonly IStorageTemperatureMonitor _temperatureMonitor;
-    private readonly StorageHealthPolicy _healthPolicy;
     private readonly ILogger _log;
 
     public ConversionSessionGuard(
@@ -27,7 +26,7 @@ internal sealed class ConversionSessionGuard
     {
         _powerGuard = powerGuard ?? throw new ArgumentNullException(nameof(powerGuard));
         _temperatureMonitor = temperatureMonitor ?? throw new ArgumentNullException(nameof(temperatureMonitor));
-        _healthPolicy = healthPolicy ?? throw new ArgumentNullException(nameof(healthPolicy));
+        ArgumentNullException.ThrowIfNull(healthPolicy);
         _log = log ?? throw new ArgumentNullException(nameof(log));
     }
 
@@ -45,7 +44,6 @@ internal sealed class ConversionSessionGuard
         return new ConversionSessionScope(
             _powerGuard,
             _temperatureMonitor,
-            _healthPolicy,
             device,
             temperaturePolicy,
             onNotification,
@@ -58,7 +56,6 @@ internal sealed class ConversionSessionScope : IAsyncDisposable
 {
     private readonly IConversionPowerGuard _powerGuard;
     private readonly IStorageTemperatureMonitor _temperatureMonitor;
-    private readonly StorageHealthPolicy _healthPolicy;
     private readonly StorageDeviceIdentity _device;
     private readonly StorageTemperaturePolicy _temperaturePolicy;
     private readonly Action<ConversionSessionNotification>? _onNotification;
@@ -76,7 +73,6 @@ internal sealed class ConversionSessionScope : IAsyncDisposable
     public ConversionSessionScope(
         IConversionPowerGuard powerGuard,
         IStorageTemperatureMonitor temperatureMonitor,
-        StorageHealthPolicy healthPolicy,
         StorageDeviceIdentity device,
         StorageTemperaturePolicy temperaturePolicy,
         Action<ConversionSessionNotification>? onNotification,
@@ -85,7 +81,6 @@ internal sealed class ConversionSessionScope : IAsyncDisposable
     {
         _powerGuard = powerGuard ?? throw new ArgumentNullException(nameof(powerGuard));
         _temperatureMonitor = temperatureMonitor ?? throw new ArgumentNullException(nameof(temperatureMonitor));
-        _healthPolicy = healthPolicy ?? throw new ArgumentNullException(nameof(healthPolicy));
         _device = device ?? throw new ArgumentNullException(nameof(device));
         _temperaturePolicy = temperaturePolicy ?? throw new ArgumentNullException(nameof(temperaturePolicy));
         _onNotification = onNotification;
@@ -172,7 +167,7 @@ internal sealed class ConversionSessionScope : IAsyncDisposable
             LogTemperatureCapabilityOnce(reading);
         }
 
-        StorageHealthDecision decision = _healthPolicy.Evaluate(reading, _temperaturePolicy);
+        StorageHealthDecision decision = StorageHealthPolicy.Evaluate(reading, _temperaturePolicy);
         if (decision.Severity == StorageHealthSeverity.Normal)
         {
             return true;

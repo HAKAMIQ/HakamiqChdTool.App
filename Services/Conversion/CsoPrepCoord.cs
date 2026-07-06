@@ -84,11 +84,6 @@ internal sealed class ChdCsoInputPreparationCoordinator
                     resolvedHunkSizeBytes,
                     executionReportContext));
         }
-        catch
-        {
-            tempWorkspace?.Dispose();
-            throw;
-        }
         finally
         {
             tempWorkspace?.Dispose();

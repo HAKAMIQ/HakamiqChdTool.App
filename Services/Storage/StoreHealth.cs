@@ -18,7 +18,7 @@ internal sealed record StorageHealthDecision(
 
 internal sealed class StorageHealthPolicy
 {
-    public StorageHealthDecision Evaluate(
+    public static StorageHealthDecision Evaluate(
         StorageTemperatureReading reading,
         StorageTemperaturePolicy policy)
     {
@@ -64,4 +64,3 @@ internal sealed class StorageHealthPolicy
         return new StorageHealthDecision(StorageHealthSeverity.Normal, string.Empty, current);
     }
 }
-

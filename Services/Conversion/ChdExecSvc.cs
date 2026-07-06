@@ -9,6 +9,10 @@ namespace HakamiqChdTool.App.Services;
 
 public sealed class ChdProcessExecutionService : IChdProcessExecutionService
 {
+    private static readonly Regex HunkSizeMultipleErrorRegex = new(
+        @"Hunk size\s+(?<hunk>\d+)\s+bytes\s+is\s+not\s+a\s+whole\s+multiple\s+of\s+(?<sector>\d+)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        TimeSpan.FromMilliseconds(250));
 
     public string FormatCommandLineForDisplay(string executablePath, IReadOnlyList<string> arguments) =>
         ChdmanCliRunner.FormatCommandLineForDisplay(executablePath, arguments);
@@ -35,6 +39,7 @@ public sealed class ChdProcessExecutionService : IChdProcessExecutionService
             monitoredOutputPath: monitoredOutputPath,
             performanceProgress: performanceProgress,
             priorityMode: priorityMode);
+
     public bool IsCreateCdHunkSizeMultipleError(ChdmanCliRunner.Result run, out int rejectedHunkSize, out int requiredSectorSize)
     {
         string text = string.Concat(run.StandardOutput, Environment.NewLine, run.StandardError);
@@ -45,16 +50,13 @@ public sealed class ChdProcessExecutionService : IChdProcessExecutionService
     {
         rejectedHunkSize = 0;
         requiredSectorSize = 0;
+
         if (string.IsNullOrWhiteSpace(text))
         {
             return false;
         }
 
-        Match match = Regex.Match(
-            text,
-            @"Hunk size\s+(?<hunk>\d+)\s+bytes\s+is\s+not\s+a\s+whole\s+multiple\s+of\s+(?<sector>\d+)",
-            RegexOptions.IgnoreCase);
-
+        Match match = HunkSizeMultipleErrorRegex.Match(text);
         if (!match.Success)
         {
             return false;
@@ -65,6 +67,4 @@ public sealed class ChdProcessExecutionService : IChdProcessExecutionService
                && rejectedHunkSize > 0
                && requiredSectorSize > 0;
     }
-
-
 }

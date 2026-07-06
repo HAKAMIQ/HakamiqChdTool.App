@@ -8,7 +8,8 @@ internal static class ConversionMetricsResolver
 {
     private static readonly Regex LogicalSizeRegex = new(
         @"\bLogical\s+size:\s*([0-9][0-9,]*)\s*(?:bytes)?\b",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase,
+        TimeSpan.FromMilliseconds(250));
 
     public static bool TryParseLogicalSizeBytes(string? text, out long bytes)
     {
@@ -19,7 +20,16 @@ internal static class ConversionMetricsResolver
             return false;
         }
 
-        MatchCollection matches = LogicalSizeRegex.Matches(text);
+        MatchCollection matches;
+        try
+        {
+            matches = LogicalSizeRegex.Matches(text);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
+
         if (matches.Count == 0)
         {
             return false;

@@ -73,12 +73,28 @@ internal static class BinSectorProbe
                 bufferSize: RawSectorSize,
                 FileOptions.SequentialScan);
 
-            if (length % RawSectorSize == 0)
+            bool canBeRaw2352 = length % RawSectorSize == 0;
+            bool canBeCooked2048 = length % CookedSectorSize == 0;
+
+            if (canBeRaw2352)
             {
-                return ProbeRaw2352(fullPath, length, stream);
+                BinSectorProbeResult rawResult = ProbeRaw2352(fullPath, length, stream);
+
+                if (canBeCooked2048
+                    && rawResult.Kind is BinTrackKind.Raw2352AudioCandidate or BinTrackKind.Unknown)
+                {
+                    BinSectorProbeResult cookedResult = ProbeCooked2048(fullPath, length, stream);
+                    if (cookedResult.ConfidenceReasons.Contains(
+                            BinSectorProbeReasonCode.Iso9660PrimaryVolumeDescriptorObserved))
+                    {
+                        return cookedResult;
+                    }
+                }
+
+                return rawResult;
             }
 
-            if (length % CookedSectorSize == 0)
+            if (canBeCooked2048)
             {
                 return ProbeCooked2048(fullPath, length, stream);
             }
