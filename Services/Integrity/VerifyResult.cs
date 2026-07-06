@@ -98,7 +98,7 @@ public sealed class IntegrityVerificationResult
         string normalized = value.Trim().Replace('\\', '/');
 
         if (Path.IsPathRooted(normalized)
-            || normalized.Contains('\0', StringComparison.Ordinal)
+            || normalized.Contains('\0')
             || normalized.Contains("//", StringComparison.Ordinal)
             || ContainsParentTraversalSegment(normalized))
         {
