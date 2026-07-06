@@ -1,3 +1,4 @@
+using Microsoft.Win32.SafeHandles;
 using Serilog;
 using System;
 using System.Runtime.InteropServices;
@@ -6,13 +7,15 @@ namespace HakamiqChdTool.App.Services.Power;
 
 internal sealed class WindowsConversionPowerGuard : IConversionPowerGuard
 {
-    private const ExecutionState EsContinuous = ExecutionState.Continuous;
-    private const ExecutionState EsSystemRequired = ExecutionState.SystemRequired;
+    private const uint PowerRequestContextVersion = 0;
+    private const string PowerRequestReason = "Hakamiq CHD conversion is running.";
 
     private readonly object _gate = new();
     private readonly ILogger _log;
     private int _activeCount;
+    private bool _powerRequestActive;
     private bool _disposed;
+    private SafePowerRequestHandle? _powerRequestHandle;
 
     public WindowsConversionPowerGuard()
         : this(Log.ForContext<WindowsConversionPowerGuard>())
@@ -41,15 +44,26 @@ internal sealed class WindowsConversionPowerGuard : IConversionPowerGuard
                 return;
             }
 
-            ExecutionState previous = SetThreadExecutionState(EsContinuous | EsSystemRequired);
-            if (previous == 0)
+            SafePowerRequestHandle handle = CreatePowerRequestHandle();
+            if (handle.IsInvalid)
             {
-                _log.Warning("Power guard could not request ES_SYSTEM_REQUIRED for conversion.");
+                int error = Marshal.GetLastWin32Error();
+                handle.Dispose();
+                _log.Warning("Power guard could not create conversion power request. Win32Error={Win32Error}", error);
+                return;
             }
-            else
+
+            if (!PowerSetRequest(handle, PowerRequestType.SystemRequired))
             {
-                _log.Information("Power guard enabled for conversion session.");
+                int error = Marshal.GetLastWin32Error();
+                handle.Dispose();
+                _log.Warning("Power guard could not request system-required state for conversion. Win32Error={Win32Error}", error);
+                return;
             }
+
+            _powerRequestHandle = handle;
+            _powerRequestActive = true;
+            _log.Information("Power guard enabled for conversion session.");
         }
     }
 
@@ -68,7 +82,7 @@ internal sealed class WindowsConversionPowerGuard : IConversionPowerGuard
                 return;
             }
 
-            ClearExecutionState();
+            ClearPowerRequest();
         }
     }
 
@@ -82,36 +96,134 @@ internal sealed class WindowsConversionPowerGuard : IConversionPowerGuard
             }
 
             _activeCount = 0;
-            ClearExecutionState();
+            ClearPowerRequest();
             _disposed = true;
         }
     }
 
-    private void ClearExecutionState()
+    private void ClearPowerRequest()
     {
+        SafePowerRequestHandle? handle = _powerRequestHandle;
+        _powerRequestHandle = null;
+
+        if (!_powerRequestActive)
+        {
+            handle?.Dispose();
+            return;
+        }
+
+        _powerRequestActive = false;
+
         if (!OperatingSystem.IsWindows())
         {
+            handle?.Dispose();
             return;
         }
 
-        ExecutionState previous = SetThreadExecutionState(EsContinuous);
-        if (previous == 0)
+        try
         {
-            _log.Warning("Power guard could not clear conversion execution state.");
-            return;
+            if (handle is not null && !handle.IsInvalid)
+            {
+                if (!PowerClearRequest(handle, PowerRequestType.SystemRequired))
+                {
+                    int error = Marshal.GetLastWin32Error();
+                    _log.Warning("Power guard could not clear conversion power request. Win32Error={Win32Error}", error);
+                }
+                else
+                {
+                    _log.Information("Power guard disabled for conversion session.");
+                }
+            }
         }
+        finally
+        {
+            handle?.Dispose();
+        }
+    }
 
-        _log.Information("Power guard disabled for conversion session.");
+    private static SafePowerRequestHandle CreatePowerRequestHandle()
+    {
+        IntPtr reason = IntPtr.Zero;
+
+        try
+        {
+            reason = Marshal.StringToHGlobalUni(PowerRequestReason);
+
+            PowerRequestContext context = new()
+            {
+                Version = PowerRequestContextVersion,
+                Flags = PowerRequestContextFlags.SimpleString,
+                SimpleReasonString = reason,
+                DetailedReason = IntPtr.Zero
+            };
+
+            return PowerCreateRequest(ref context);
+        }
+        finally
+        {
+            if (reason != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(reason);
+            }
+        }
     }
 
     [Flags]
-    private enum ExecutionState : uint
+    private enum PowerRequestContextFlags : uint
     {
-        Continuous = 0x80000000,
-        SystemRequired = 0x00000001
+        SimpleString = 0x00000001
     }
 
-    [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern ExecutionState SetThreadExecutionState(ExecutionState esFlags);
-}
+    private enum PowerRequestType
+    {
+        DisplayRequired = 0,
+        SystemRequired = 1,
+        AwayModeRequired = 2,
+        ExecutionRequired = 3
+    }
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PowerRequestContext
+    {
+        public uint Version;
+        public PowerRequestContextFlags Flags;
+        public IntPtr SimpleReasonString;
+        public IntPtr DetailedReason;
+    }
+
+    private sealed class SafePowerRequestHandle : SafeHandleZeroOrMinusOneIsInvalid
+    {
+        private SafePowerRequestHandle()
+            : base(ownsHandle: true)
+        {
+        }
+
+        protected override bool ReleaseHandle()
+        {
+            return CloseHandle(handle);
+        }
+    }
+
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern SafePowerRequestHandle PowerCreateRequest(ref PowerRequestContext context);
+
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool PowerSetRequest(
+        SafePowerRequestHandle powerRequest,
+        PowerRequestType requestType);
+
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool PowerClearRequest(
+        SafePowerRequestHandle powerRequest,
+        PowerRequestType requestType);
+
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool CloseHandle(IntPtr handle);
+}
