@@ -320,7 +320,7 @@ public sealed class RedumpLocalLibraryIndexer
         foreach (IGrouping<string, RedumpLocalLibraryDatEntry> group in groups) {
             List<RedumpLocalLibraryDatEntry> ordered = group
                 .OrderBy(entry => LooksLikeSerialVersionVariant(entry) ? 1 : 0)
-                .OrderByDescending(entry => entry.DatDateUtc.HasValue)
+                .ThenByDescending(entry => entry.DatDateUtc.HasValue)
                 .ThenByDescending(entry => entry.DatDateUtc)
                 .ThenByDescending(entry => entry.LastWriteTimeUtc)
                 .ThenByDescending(entry => entry.FileSizeBytes)
@@ -446,8 +446,9 @@ public sealed class RedumpLocalLibraryIndexer
 
     private static string ReadSmallElementText(XmlReader reader)
     {
-        string value = reader.ReadElementContentAsString();
-        return value.Trim();
+        using XmlReader subtree = reader.ReadSubtree();
+        subtree.Read();
+        return subtree.ReadElementContentAsString().Trim();
     }
 
     private static bool IsGameElement(string localName)

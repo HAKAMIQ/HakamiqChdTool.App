@@ -444,6 +444,7 @@
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Description">الفحص مقابل كافة قواعد DAT المحلية دون تحديد منصة معينة.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_Unknown_Label">غير معروف</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_Unknown_Description">استخدم هذا الخيار عند عدم معرفة المنصة؛ سيتم الفحص مقابل كافة قواعد DAT المحلية المتاحة.</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Platform_System_Description">استخدم موارد Redump الخاصة بهذه المنصة.</sys:String>
 
     <sys:String x:Key="LocRedumpCatalog_Artifact_Datfile_Label">Datfile — قاعدة بيانات المطابقة</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_Cuesheet_Label">Cuesheets — ملفات CUE</sys:String>
@@ -451,6 +452,8 @@
     <sys:String x:Key="LocRedumpCatalog_Artifact_Subchannel_Label">Subchannels — ملفات SBI/LSD</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_DiscKey_Label">Disc Keys — مفاتيح الأقراص</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_BiosDatfile_Label">BIOS Datfile — قاعدة بيانات BIOS</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Artifact_SerialVersionDatfile_Label">DAT للأرقام التسلسلية والإصدارات</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Artifact_TrackOnlyDatfile_Label">DAT للمسارات فقط</sys:String>
 
     <sys:String x:Key="LocRedumpCatalog_Artifact_Datfile_Description">قاعدة بيانات DAT هي المصدر الافتراضي للمطابقة. لا تحتوي على ملفات ألعاب أو BIOS فعلية.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_Cuesheet_Description">ملفات CUE مساعدة للأقراص متعددة المسارات. لا تستخدم كبديل لقاعدة بيانات DAT.</sys:String>
@@ -458,6 +461,8 @@
     <sys:String x:Key="LocRedumpCatalog_Artifact_Subchannel_Description">مورد متقدم. لا يتم تحميله افتراضيًا لتجنب التعقيد غير الضروري.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_DiscKey_Description">مورد حساس ومتقدم. لا يُفعل افتراضيًا ولا يُدرج ضمن حزم التوزيع.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_BiosDatfile_Description">قاعدة بيانات BIOS للفهرسة فقط. لا يقوم البرنامج بتوزيع أو تضمين ملفات BIOS.</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Artifact_SerialVersionDatfile_Description">نوع DAT إضافي من Redump يحتوي بيانات الرقم التسلسلي والإصدار.</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Artifact_TrackOnlyDatfile_Description">نوع DAT إضافي من Redump يركز على إدخالات المسارات.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_Datfile_DefaultDescription">الخيار الافتراضي والآمن للفحص باستخدام MD5/SHA1 وحجم الملف.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_NoCustomLinks">لا توجد روابط مخصصة لهذه المنصة في الكتالوج الحالي.</sys:String>
 

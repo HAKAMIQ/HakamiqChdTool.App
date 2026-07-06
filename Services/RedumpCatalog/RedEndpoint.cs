@@ -9,7 +9,7 @@ internal sealed record RedumpArtifactEndpoint
         Uri primaryUri,
         Uri? mirrorUri = null)
     {
-        if (!Enum.IsDefined(kind))
+        if (!Enum.IsDefined(kind) || kind is RedumpArtifactKind.Unknown or RedumpArtifactKind.Unsupported)
         {
             throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
         }
@@ -40,8 +40,8 @@ internal sealed record RedumpArtifactEndpoint
     private static bool IsSafeEndpointUri(Uri uri)
     {
         return uri.IsAbsoluteUri
-               && string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
-               && !string.IsNullOrWhiteSpace(uri.Host)
-               && string.IsNullOrEmpty(uri.UserInfo);
+            && string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(uri.Host)
+            && string.IsNullOrEmpty(uri.UserInfo);
     }
 }
