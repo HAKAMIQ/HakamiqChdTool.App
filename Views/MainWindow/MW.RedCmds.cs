@@ -69,7 +69,7 @@ public partial class MainWindow
         }
 
         string path = ResolveRedumpProbePath(item);
-        return !string.IsNullOrWhiteSpace(path) && File.Exists(path);
+        return !string.IsNullOrWhiteSpace(path) && IsRedumpProbePathAvailable(path);
     }
 
     public async Task RunRedumpIntegrityForSelectedQueueItemAsync(TaskQueueItemViewModel? item)
@@ -87,7 +87,7 @@ public partial class MainWindow
         }
 
         string path = ResolveRedumpProbePath(item);
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        if (string.IsNullOrWhiteSpace(path) || !IsRedumpProbePathAvailable(path))
         {
             SetFooterStatus(MainWindowMessages.IntegrityNoDiskFileFooter);
             return;
@@ -147,19 +147,6 @@ public partial class MainWindow
             return;
         }
 
-        bool batchRequiresCsoPreparation = candidates.Any(candidate =>
-            RequiresCsoRedumpCanonicalPreparation(candidate.Path));
-
-        if (batchRequiresCsoPreparation)
-        {
-            bool confirmed = await ConfirmCsoRedumpTempIsoAsync().ConfigureAwait(true);
-            if (!confirmed)
-            {
-                SetFooterStatus(Ui(RedumpScanCancelledFooterKey));
-                return;
-            }
-        }
-
         int eligibleCount = candidates.Length;
         int scannedCount = 0;
         int failedCount = 0;
@@ -197,10 +184,11 @@ public partial class MainWindow
 
                     try
                     {
+                        SetFooterStatus(UiFormat("LocRedumpV2_AllProgressFormat", scannedCount + 1, eligibleCount, Path.GetFileName(candidate.Path)));
+
                         await RunDeepIntegrityValidationAsync(
                                 item,
-                                candidate.Path,
-                                csoRedumpTempIsoAlreadyConfirmed: batchRequiresCsoPreparation)
+                                candidate.Path)
                             .ConfigureAwait(true);
 
                         scannedCount++;
@@ -278,7 +266,7 @@ public partial class MainWindow
                 }
 
                 string path = ResolveRedumpProbePath(item);
-                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                if (string.IsNullOrWhiteSpace(path) || !IsRedumpProbePathAvailable(path))
                 {
                     continue;
                 }
@@ -297,13 +285,9 @@ public partial class MainWindow
         return [.. candidates];
     }
 
-    private static bool RequiresCsoRedumpCanonicalPreparation(string path)
-    {
-        return string.Equals(
-            Path.GetExtension(path),
-            ".cso",
-            StringComparison.OrdinalIgnoreCase);
-    }
+    private static bool IsRedumpProbePathAvailable(string path) =>
+        File.Exists(path) || Directory.Exists(path);
+
     private void ShowRedumpNotice(string titleKey, string message)
     {
         if (string.IsNullOrWhiteSpace(message))

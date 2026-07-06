@@ -144,6 +144,25 @@ internal sealed class QueueTransitionService
 
                     _notifications.PublishItemUpdated(item);
                 },
+                OnProgressEvent = progressEvent =>
+                {
+                    if (itemToken.IsCancellationRequested || IsTerminalStatus(item.Status))
+                    {
+                        return;
+                    }
+
+                    sink.ReportRuntimeProgress(new QueueRuntimeProgressSnapshot
+                    {
+                        Kind = QueueRuntimeProgressKind.ChdmanOperation,
+                        PrimaryMessageKey = progressEvent.MessageKey,
+                        CurrentBytes = progressEvent.CurrentBytes,
+                        TotalBytes = progressEvent.TotalBytes,
+                        BytesPerSecond = progressEvent.SpeedBytesPerSecond,
+                        Percent = progressEvent.Percent,
+                        EstimatedRemaining = progressEvent.Eta ?? TimeSpan.Zero,
+                        ShowActivitySpinner = progressEvent.TotalBytes <= 0
+                    });
+                },
                 Options = new ChdWorkflowTaskContext
                 {
                     Snapshot = snapshot,

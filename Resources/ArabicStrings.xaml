@@ -540,6 +540,7 @@
     <sys:String x:Key="LocDeepHash_StatusConflictingMatch">تعارض في المطابقة</sys:String>
     <sys:String x:Key="LocDeepHash_StatusVerified">مطابق</sys:String>
     <sys:String x:Key="LocDeepHash_StatusVerifiedComplete">مطابق بالكامل</sys:String>
+    <sys:String x:Key="LocDeepHash_StatusVerifiedNormalized">مطابق بعد تطبيع مؤقت</sys:String>
     <sys:String x:Key="LocDeepHash_StatusIncomplete">غير مكتمل</sys:String>
     <sys:String x:Key="LocDeepHash_StatusModified">غير مطابق</sys:String>
 
@@ -558,6 +559,19 @@
     <sys:String x:Key="LocDeepHash_TipPartialMatch">تمت مطابقة {0:N0} من {1:N0} ملف. لا يُعد القرص مطابقاً بالكامل حتى تتطابق كافة الملفات.</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnmatchedFilesHeader">الملفات غير المطابقة:</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoRedumpMatch">لم يتم العثور على مطابقة في قاعدة بيانات Redump المحلية.</sys:String>
+    <sys:String x:Key="LocRedumpV2_DetailNormalizedFormat">المصدر: {0}&#x0a;التمثيل المؤقت: {1}&#x0a;المساحة المؤقتة المطلوبة: {2}&#x0a;النتيجة: {3}</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepClassifySource">تصنيف المصدر</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepNormalize">تجهيز تمثيل Redump الأصلي مؤقتًا</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepHash">حساب SHA1</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepMatch">مطابقة Redump</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepCleanup">تنظيف الملفات المؤقتة</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepReturnResult">إرجاع نتيجة التحقق</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeCsoIso">تجهيز ISO مؤقت للفحص</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeChdCd">استخراج CHD مؤقتًا إلى CUE/BIN</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeChdDvd">استخراج CHD مؤقتًا إلى ISO</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeArchive">استخراج الأرشيف مؤقتًا للفحص</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">هذه الصيغة تحتاج تطبيعًا مؤقتًا إلى ISO/GCM، لكن أداة التطبيع غير متاحة حاليًا.</sys:String>
+    <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">مجلد PS3 JB لا يتحول إلى Redump ISO؛ هذا مسار IRD فقط.</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoHashableFiles">لا توجد ملفات قابلة للفحص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipHashFilesHeader">الملفات التي تم فحصها:</sys:String>
     <sys:String x:Key="LocDeepHash_TipTotalFiles">إجمالي الملفات: {0:N0}</sys:String>
@@ -1162,9 +1176,9 @@
     <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">اختر مجلد Redump</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">استعراض...</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختر مجلد Redump من جهازك.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص المجلد</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص مجلد Redump DAT</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">يعرض أعداد DAT/XML و CUE قبل تجهيز القاعدة.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">تجهيز المطابقة</sys:String>
+    <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">تجهيز قاعدة المطابقة</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">يستورد ملفات DAT/XML المختارة إلى SQLite لتفعيل فحص الألعاب.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalActionsTitle">الإجراءات</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">معاينة المجلد</sys:String>
@@ -1200,6 +1214,7 @@
     <sys:String x:Key="LocRedump_Tool_VerifySelectedTooltip">فحص العنصر المحدد باستخدام قاعدة Redump المحلية.</sys:String>
     <sys:String x:Key="LocRedump_Tool_VerifyAll">فحص الكل</sys:String>
     <sys:String x:Key="LocRedump_Tool_VerifyAllTooltip">فحص جميع العناصر القابلة للفحص باستخدام قاعدة Redump المحلية.</sys:String>
+    <sys:String x:Key="LocRedumpV2_AllProgressFormat">فحص Redump: {0} / {1} - {2}</sys:String>
 
     <sys:String x:Key="LocCommon_Ok">موافق</sys:String>
     <sys:String x:Key="LocCommon_Cancel">إلغاء</sys:String>
@@ -1770,8 +1785,5 @@
     <sys:String x:Key="LocDeepHash_CsoStageHashRedump">حساب MD5/SHA1/CRC32 ومطابقة Redump...</sys:String>
     <sys:String x:Key="LocDeepHash_CsoStageSave">حفظ بيانات المطابقة...</sys:String>
     <sys:String x:Key="LocDeepHash_CsoStageCleanup">تنظيف ملفات CSO المؤقتة...</sys:String>
-    <sys:String x:Key="LocRedump_CsoTempTitle">فحص CSO عبر Redump</sys:String>
-    <sys:String x:Key="LocRedump_CsoTempBody">ملف CSO مضغوط، وRedump يطابق صورة ISO الأصلية وليس ملف CSO نفسه. سيستخدم البرنامج مساراً مؤقتاً لإنشاء tmp.iso للفحص فقط، ثم يحفظ بيانات المطابقة ويحذف الملف المؤقت بعد انتهاء الفحص.</sys:String>
-    <sys:String x:Key="LocRedump_CsoTempConfirm">تحويل وفحص</sys:String>
     <sys:String x:Key="LocDeepHash_CsoCacheSaved">تم حفظ بيانات مطابقة CSO للمراجعة لاحقاً.</sys:String>
 </ResourceDictionary>
