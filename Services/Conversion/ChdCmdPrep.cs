@@ -3,6 +3,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using static HakamiqChdTool.App.Services.ChdConversionMessages;
 
@@ -11,11 +12,26 @@ namespace HakamiqChdTool.App.Services;
 public sealed class ChdCommandPreparationService : IChdCommandPreparationService
 {
     // Compression truth markers: MameCreateCdDefaultCompression EffectiveCompression SameAsMameDefault
+    private const long MaxDescriptorProbeBytes = 256 * 1024;
+    private const int RegexTimeoutMilliseconds = 250;
+
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(RegexTimeoutMilliseconds);
+
+    private static readonly Regex CueTrackSectorSizeRegex = new(
+        @"/(?<sector>\d{3,5})",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant,
+        RegexTimeout);
+
     public string BuildExtractOutputPathReplacingChdExtension(string chdPath, string newExtensionWithDot)
     {
         if (string.IsNullOrWhiteSpace(chdPath))
         {
             throw new ArgumentException(InvalidChdPathMessageKey, nameof(chdPath));
+        }
+
+        if (string.IsNullOrWhiteSpace(newExtensionWithDot))
+        {
+            throw new ArgumentException(InvalidChdPathMessageKey, nameof(newExtensionWithDot));
         }
 
         string withoutDot = newExtensionWithDot.StartsWith('.')
@@ -43,7 +59,6 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
         return Path.Combine(directory, $"{stem}.bin");
     }
 
-
     public string BuildSplitBinExtractCdBinOutputPath(string cueOutputPath)
     {
         if (string.IsNullOrWhiteSpace(cueOutputPath))
@@ -67,6 +82,8 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
         ChdmanExtractionKind extractionKind = ChdmanExtractionKind.None,
         IsoCreateCommandOverride isoCreateCommandOverride = IsoCreateCommandOverride.Auto)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(inputPath);
+
         string ext = Path.GetExtension(inputPath).ToLowerInvariant();
         return ResolveTwoWayCommandWithOptionalIsoDiagnostics(ext, extractionKind, inputPath, isoCreateCommandOverride).Command;
     }
@@ -128,6 +145,9 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
 
     public void ReplaceExtractCdBinOutputArgument(List<string> arguments, string binOutputPath)
     {
+        ArgumentNullException.ThrowIfNull(arguments);
+        ArgumentException.ThrowIfNullOrWhiteSpace(binOutputPath);
+
         int optionIndex = arguments.FindIndex(static arg => string.Equals(arg, "-ob", StringComparison.OrdinalIgnoreCase));
         if (optionIndex >= 0 && optionIndex + 1 < arguments.Count)
         {
@@ -138,7 +158,6 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
         arguments.Add("-ob");
         arguments.Add(binOutputPath);
     }
-
 
     public string ResolveCompressionSetting(string? compressionCodecs, string command) =>
         ResolveCompressionSettingWithTruth(compressionCodecs, command).ResolvedCompression;
@@ -294,7 +313,19 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
     private static bool TryResolveCdSectorUnitSize(string inputPath, out int sectorSize)
     {
         sectorSize = 0;
-        string extension = Path.GetExtension(inputPath).ToLowerInvariant();
+
+        if (string.IsNullOrWhiteSpace(inputPath))
+        {
+            return false;
+        }
+
+        string extension = Path.GetExtension(inputPath);
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            return false;
+        }
+
+        extension = extension.ToLowerInvariant();
 
         try
         {
@@ -302,7 +333,7 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
             {
                 ".gdi" => ParseGdiSectorSizes(inputPath),
                 ".cue" => ParseCueSectorSizes(inputPath),
-                _ => new HashSet<int>()
+                _ => []
             };
 
             if (sizes.Count == 0)
@@ -323,7 +354,15 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
             sectorSize = (int)lcm;
             return sectorSize > 0;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        catch (Exception ex) when (ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException
+            or PathTooLongException
+            or InvalidOperationException
+            or OverflowException
+            or RegexMatchTimeoutException
+            or System.Security.SecurityException)
         {
             Log.Debug(ex, "Could not resolve CD sector size before createcd. Input={InputPath}", inputPath);
             return false;
@@ -333,7 +372,8 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
     private static HashSet<int> ParseGdiSectorSizes(string gdiPath)
     {
         var sizes = new HashSet<int>();
-        foreach (string rawLine in File.ReadLines(gdiPath))
+
+        foreach (string rawLine in ReadSmallDescriptorLines(gdiPath))
         {
             string line = rawLine.Trim();
             if (line.Length == 0 || !char.IsDigit(line[0]))
@@ -341,8 +381,10 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
                 continue;
             }
 
-            string[] parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length >= 4 && int.TryParse(parts[3], out int sectorSize) && IsPlausibleCdSectorSize(sectorSize))
+            string[] parts = line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 4
+                && int.TryParse(parts[3], out int sectorSize)
+                && IsPlausibleCdSectorSize(sectorSize))
             {
                 sizes.Add(sectorSize);
             }
@@ -354,30 +396,65 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
     private static HashSet<int> ParseCueSectorSizes(string cuePath)
     {
         var sizes = new HashSet<int>();
-        foreach (string rawLine in File.ReadLines(cuePath))
+
+        foreach (string rawLine in ReadSmallDescriptorLines(cuePath))
         {
             string line = rawLine.Trim();
-            if (line.Length == 0)
+            if (line.Length == 0 || !line.StartsWith("TRACK ", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            foreach (Match match in Regex.Matches(line, @"/(\d{3,5})"))
+            foreach (Match match in CueTrackSectorSizeRegex.Matches(line))
             {
-                if (int.TryParse(match.Groups[1].Value, out int sectorSize) && IsPlausibleCdSectorSize(sectorSize))
+                if (int.TryParse(match.Groups["sector"].Value, out int sectorSize)
+                    && IsPlausibleCdSectorSize(sectorSize))
                 {
                     sizes.Add(sectorSize);
                 }
             }
 
-            if (line.StartsWith("TRACK ", StringComparison.OrdinalIgnoreCase)
-                && line.IndexOf("AUDIO", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (line.Contains("AUDIO", StringComparison.OrdinalIgnoreCase))
             {
                 sizes.Add(2352);
             }
         }
 
         return sizes;
+    }
+
+    private static IEnumerable<string> ReadSmallDescriptorLines(string descriptorPath)
+    {
+        string fullPath = NormalizeFullPath(descriptorPath);
+
+        FileInfo fileInfo = new(fullPath);
+        if (!fileInfo.Exists
+            || fileInfo.Length <= 0
+            || fileInfo.Length > MaxDescriptorProbeBytes
+            || HasReparsePointInExistingPathFromVolumeRoot(fileInfo.FullName))
+        {
+            yield break;
+        }
+
+        using FileStream stream = new(
+            fileInfo.FullName,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite | FileShare.Delete,
+            bufferSize: 4096,
+            FileOptions.SequentialScan);
+
+        using StreamReader reader = new(
+            stream,
+            Encoding.UTF8,
+            detectEncodingFromByteOrderMarks: true,
+            bufferSize: 4096,
+            leaveOpen: false);
+
+        while (reader.ReadLine() is { } line)
+        {
+            yield return line;
+        }
     }
 
     private static bool IsPlausibleCdSectorSize(int sectorSize) => sectorSize is >= 2048 and <= 2448;
@@ -406,9 +483,10 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
         return checked((left / GreatestCommonDivisor(left, right)) * right);
     }
 
-
     public void ReplaceOrAddHunkSizeArgument(List<string> arguments, int hunkSizeBytes)
     {
+        ArgumentNullException.ThrowIfNull(arguments);
+
         for (int i = 0; i < arguments.Count; i++)
         {
             if (!string.Equals(arguments[i], "-hs", StringComparison.OrdinalIgnoreCase)
@@ -441,6 +519,8 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
 
     public string SanitizeFileName(string value)
     {
+        value ??= string.Empty;
+
         foreach (char invalid in Path.GetInvalidFileNameChars())
         {
             value = value.Replace(invalid, '_');
@@ -451,4 +531,133 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
 
     public string NormalizePathForCli(string path) => FilePathExclusiveGate.NormalizePathForExclusiveLock(path);
 
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = NormalizeFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedPathOrIoException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = NormalizeFullPath(candidatePath);
+            string root = NormalizeFullPath(rootPath);
+
+            if (!IsSamePathOrChild(candidate, root))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsExistingPathReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = NormalizeFullPath(parent);
+            }
+        }
+        catch (Exception ex) when (IsExpectedPathOrIoException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsExistingPathReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedPathOrIoException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    {
+        string candidate = NormalizeFullPath(candidatePath);
+        string root = NormalizeFullPath(rootPath);
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            NormalizeFullPath(left),
+            NormalizeFullPath(right),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizeFullPath(string path)
+    {
+        string fullPath = Path.GetFullPath(path);
+        string? root = Path.GetPathRoot(fullPath);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && fullPath.Equals(root, StringComparison.OrdinalIgnoreCase))
+        {
+            return fullPath;
+        }
+
+        return fullPath.TrimEnd(
+            Path.DirectorySeparatorChar,
+            Path.AltDirectorySeparatorChar);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+               || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static bool IsExpectedPathOrIoException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException
+            or PathTooLongException
+            or InvalidOperationException
+            or System.Security.SecurityException;
+    }
 }

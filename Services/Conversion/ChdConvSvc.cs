@@ -9,7 +9,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using static HakamiqChdTool.App.Services.ChdConversionMessages;
+
 namespace HakamiqChdTool.App.Services;
+
 public sealed class ChdConversionService
 {
     // Compression truth log markers: RequestedPreset: ResolvedCompression: SameAsMameDefault: CHD compression preset resolved
@@ -22,10 +24,12 @@ public sealed class ChdConversionService
     private readonly IChdmanCapabilityService _capabilityService;
     private readonly IPlatformAwareChdProfilePolicy _profilePolicy;
     private readonly ChdCsoInputPreparationCoordinator _csoInputPreparation;
+
     public ChdConversionService()
         : this(new ChdCommandPreparationService(), new ChdProcessExecutionService(), new ChdResultMappingService(), new ChdVerificationBridge())
     {
     }
+
     public ChdConversionService(
         IChdCommandPreparationService commandPreparation,
         IChdProcessExecutionService processExecution,
@@ -34,6 +38,7 @@ public sealed class ChdConversionService
         : this(commandPreparation, processExecution, resultMapping, verificationBridge, new ChdmanCapabilityService(), null, new PlatformAwareChdProfilePolicy())
     {
     }
+
     public ChdConversionService(
         IChdCommandPreparationService commandPreparation,
         IChdProcessExecutionService processExecution,
@@ -43,6 +48,7 @@ public sealed class ChdConversionService
         : this(commandPreparation, processExecution, resultMapping, verificationBridge, new ChdmanCapabilityService(), operationPolicyGate, new PlatformAwareChdProfilePolicy())
     {
     }
+
     public ChdConversionService(
         IChdCommandPreparationService commandPreparation,
         IChdProcessExecutionService processExecution,
@@ -62,6 +68,7 @@ public sealed class ChdConversionService
         _profilePolicy = profilePolicy ?? throw new ArgumentNullException(nameof(profilePolicy));
         _csoInputPreparation = new ChdCsoInputPreparationCoordinator(csoPreprocessor ?? new CsoPreprocessor());
     }
+
     public string BuildCommand(
         string inputPath,
         ChdmanExtractionKind extractionKind = ChdmanExtractionKind.None,
@@ -98,16 +105,19 @@ public sealed class ChdConversionService
         string? platformProfileId = null)
     {
         ChdConversionRequestGuard.ValidateToChdInputs(chdmanPath, inputPath, outputPath);
+
         string resolvedInputPath = _commandPreparation.NormalizePathForCli(inputPath);
         string resolvedOutputPath = _commandPreparation.NormalizePathForCli(outputPath);
         string resolvedExtractCdCueOutputPath = ChdConversionServiceSupport.NormalizeOptionalExtractCdOutputPath(extractCdCueOutputPath, _commandPreparation);
         string resolvedExtractCdBinOutputPath = ChdConversionServiceSupport.NormalizeOptionalExtractCdOutputPath(extractCdBinOutputPath, _commandPreparation);
+
         if ((!string.IsNullOrWhiteSpace(resolvedExtractCdCueOutputPath)
                 || !string.IsNullOrWhiteSpace(resolvedExtractCdBinOutputPath))
             && extractionKind != ChdmanExtractionKind.ExtractCd)
         {
             throw new InvalidOperationException(InvalidCueOutputPathMessageKey);
         }
+
         string inputExtension = Path.GetExtension(resolvedInputPath).ToLowerInvariant();
         if (string.Equals(inputExtension, ".chd", StringComparison.OrdinalIgnoreCase)
             && extractionKind == ChdmanExtractionKind.None)
@@ -116,17 +126,20 @@ public sealed class ChdConversionService
                 "Direct CHD to CHD recompression was blocked. Input={InputPath}; Output={OutputPath}; RequiredPipeline=extract-original-like-then-rebuild",
                 resolvedInputPath,
                 resolvedOutputPath);
+
             return ChdConversionServiceSupport.BuildPreExecutionFailureResult(
                 inputPath,
                 outputPath,
                 ChdConversionMessages.DirectChdRecompressBlockedMessageKey);
         }
+
         (string command, IsoChdmanCreateDiagnostics? isoDiagnostics) =
             _commandPreparation.ResolveTwoWayCommandWithOptionalIsoDiagnostics(
                 inputExtension,
                 extractionKind,
                 resolvedInputPath,
                 isoCreateCommandOverride);
+
         ChdRequestedCreateProfileSelection requestedProfileSelection =
             ChdPlatformProfileExecutionPolicy.ApplyRequestedCreateProfile(
                 command,
@@ -135,15 +148,19 @@ public sealed class ChdConversionService
                 extractionKind,
                 inputPath,
                 outputPath);
+
         if (requestedProfileSelection.FailureResult is not null)
         {
             return requestedProfileSelection.FailureResult;
         }
+
         command = requestedProfileSelection.Command;
+
         string logsDirectory = _commandPreparation.BuildLogsDirectory();
         string logPath = Path.Combine(
             logsDirectory,
             $"convert_{DateTime.Now:yyyyMMdd_HHmmss}_{_commandPreparation.SanitizeFileName(Path.GetFileNameWithoutExtension(resolvedInputPath))}.log");
+
         if (isoDiagnostics.HasValue)
         {
             IsoChdmanCreateDiagnostics diagnostics = isoDiagnostics.Value;
@@ -157,6 +174,7 @@ public sealed class ChdConversionService
                 diagnostics.OverrideMode,
                 diagnostics.Command);
         }
+
         if (!_verificationBridge.TryValidateDescriptorDependenciesBeforeChdman(resolvedInputPath, command, out string descriptorFailureMessageKey))
         {
             Log.Warning(
@@ -164,8 +182,10 @@ public sealed class ChdConversionService
                 resolvedInputPath,
                 command,
                 descriptorFailureMessageKey);
+
             return ChdConversionServiceSupport.BuildPreExecutionFailureResult(inputPath, outputPath, descriptorFailureMessageKey);
         }
+
         ChdConversionServiceSupport.ChdPreparedPolicyContext preparedPolicy = await ChdConversionServiceSupport
             .PreparePolicyContextAsync(
                 chdmanPath,
@@ -185,10 +205,12 @@ public sealed class ChdConversionService
                 _operationPolicyGate,
                 cancellationToken)
             .ConfigureAwait(false);
+
         if (preparedPolicy.FailureResult is not null)
         {
             return preparedPolicy.FailureResult;
         }
+
         command = preparedPolicy.Command;
         bool isExtractCommand = preparedPolicy.IsExtractCommand;
         ChdCompressionResolution compressionResolution = preparedPolicy.CompressionResolution;
@@ -196,6 +218,7 @@ public sealed class ChdConversionService
         int resolvedHunkSizeBytes = preparedPolicy.ResolvedHunkSizeBytes;
         ChdConversionServiceSupport.ChdExecutionReportContext executionReportContext = preparedPolicy.ExecutionReportContext;
         string resolvedProfilePlatform = ChdConversionServiceSupport.ResolveProfilePlatform(resolvedInputPath, isoDiagnostics);
+
         ChdPlatformProfile? createProfile = ChdPlatformProfileExecutionPolicy.ResolveCreateProfile(
             isExtractCommand,
             requestedProfileSelection.Profile,
@@ -237,205 +260,327 @@ public sealed class ChdConversionService
 
         using (csoPreparationOutcome.Lease)
         {
-        ChdConversionResult? sectorAlignmentFailure = ChdPlatformProfileExecutionPolicy.ValidateDvdSectorAlignment(
-            createProfile,
-            resolvedInputPath,
-            inputPath,
-            outputPath,
-            compressionResolution,
-            resolvedHunkSizeBytes,
-            executionReportContext);
-        if (sectorAlignmentFailure is not null)
-        {
-            return sectorAlignmentFailure;
-        }
-        string diskPreflightMessageKey;
-        string diskPreflightOperationKey;
-        DiskPreflightMode diskPreflightMode = isExtractCommand
-            ? DiskPreflightMode.ExtractFromChd
-            : DiskPreflightMode.CreateChd;
-        if (enableDiskSpaceGuard)
-        {
-            DiskPreflightResult diskPreflight = DiskSpacePreflightService.CheckOrThrow(
+            ChdConversionResult? sectorAlignmentFailure = ChdPlatformProfileExecutionPolicy.ValidateDvdSectorAlignment(
+                createProfile,
                 resolvedInputPath,
-                resolvedOutputPath,
-                command,
-                expectedOutputBytes);
-            diskPreflightMessageKey = diskPreflight.MessageKey;
-            diskPreflightOperationKey = diskPreflight.OperationKey;
-            Log.Information(
-                "Disk preflight passed. Root={Root}, InputBytes={InputBytes}, EstimatedRequiredBytes={EstimatedRequiredBytes}, AvailableFreeBytes={AvailableFreeBytes}, MessageKey={MessageKey}, OperationKey={OperationKey}",
-                diskPreflight.TargetRoot,
-                diskPreflight.InputBytes,
-                diskPreflight.EstimatedRequiredBytes,
-                diskPreflight.AvailableFreeBytes,
-                diskPreflight.MessageKey,
-                diskPreflight.OperationKey);
-        }
-        else
-        {
-            diskPreflightMessageKey = "DiskPreflightDisabled";
-            diskPreflightOperationKey = DiskSpacePreflightService.DescribeOperationKey(command, diskPreflightMode);
-            Log.Information(
-                "Disk preflight skipped because EnableDiskSpaceGuard is disabled. Input={InputPath}, Output={OutputPath}, Command={Command}, OperationKey={OperationKey}",
-                resolvedInputPath,
-                resolvedOutputPath,
-                command,
-                diskPreflightOperationKey);
-        }
-        FileHashResult? inputSha1 = null;
-        if (computeInputSha1)
-        {
-            inputSha1 = await FileHashService.ComputeAsync(resolvedInputPath, FileHashAlgorithm.SHA1, cancellationToken).ConfigureAwait(false);
-            Log.Information("Input SHA1 computed before chdman. Path={Path}, SHA1={SHA1}, Bytes={Bytes}", inputSha1.Path, inputSha1.Hex, inputSha1.BytesRead);
-        }
-        string? outputDirectory = Path.GetDirectoryName(resolvedOutputPath);
-        if (string.IsNullOrWhiteSpace(outputDirectory))
-        {
-            throw new InvalidOperationException(OutputDirectoryMissingMessageKey);
-        }
-        Directory.CreateDirectory(outputDirectory);
-
-        string extractCdCueOutputPathForArgument = extractionKind == ChdmanExtractionKind.ExtractCd
-            ? (!string.IsNullOrWhiteSpace(resolvedExtractCdCueOutputPath) ? resolvedExtractCdCueOutputPath : resolvedOutputPath)
-            : string.Empty;
-        string extractCdBinOutputPathForArgument = extractionKind == ChdmanExtractionKind.ExtractCd
-            ? (!string.IsNullOrWhiteSpace(resolvedExtractCdBinOutputPath)
-                ? resolvedExtractCdBinOutputPath
-                : _commandPreparation.BuildExtractCdBinOutputPath(extractCdCueOutputPathForArgument))
-            : string.Empty;
-
-        if (extractionKind == ChdmanExtractionKind.ExtractCd)
-        {
-            string? cueDirectory = Path.GetDirectoryName(extractCdCueOutputPathForArgument);
-            string? binDirectory = Path.GetDirectoryName(extractCdBinOutputPathForArgument);
-            if (string.IsNullOrWhiteSpace(cueDirectory) || string.IsNullOrWhiteSpace(binDirectory))
-            {
-                throw new InvalidOperationException(BinOutputDirectoryMissingMessageKey);
-            }
-
-            Directory.CreateDirectory(cueDirectory);
-            Directory.CreateDirectory(binDirectory);
-        }
-
-        int availableLogicalProcessors = ProcessorTopologyService.GetAvailableLogicalProcessorCount();
-        int normalizedProcessorLimit = ProcessorTopologyService.ResolveChdmanProcessorCount(
-            maxProcessorCount,
-            enableAutoResourceLimiter,
-            reservedLogicalCores,
-            performanceMode);
-        int passedProcessorLimit = isExtractCommand ? 0 : normalizedProcessorLimit;
-        List<string> arguments = !isExtractCommand && createProfile is not null
-            ? ChdmanCommandBuilder
-                .BuildCreateArgs(createProfile, resolvedInputPath, resolvedOutputPath, passedProcessorLimit)
-                .ToList()
-            : new List<string>
-            {
-                command,
-                "-i",
-                resolvedInputPath,
-                "-o",
-                extractionKind == ChdmanExtractionKind.ExtractCd ? extractCdCueOutputPathForArgument : resolvedOutputPath
-            };
-        if (extractionKind == ChdmanExtractionKind.ExtractCd)
-        {
-            arguments.Add("-ob");
-            arguments.Add(extractCdBinOutputPathForArgument);
-        }
-        if (allowOverwriteOutput && (isExtractCommand || _commandPreparation.IsCreateCommand(command)))
-        {
-            arguments.Add("-f");
-        }
-        if (!isExtractCommand)
-        {
-            if (!string.IsNullOrWhiteSpace(resolvedCompression))
-            {
-                arguments.Add("-c");
-                arguments.Add(resolvedCompression);
-            }
-            if (resolvedHunkSizeBytes > 0)
-            {
-                arguments.Add("-hs");
-                arguments.Add(resolvedHunkSizeBytes.ToString());
-            }
-        }
-        string monitoredOutputPath = extractionKind == ChdmanExtractionKind.ExtractCd
-            ? extractCdBinOutputPathForArgument
-            : resolvedOutputPath;
-        string displayCommandLine = _processExecution.FormatCommandLineForDisplay(chdmanPath, arguments);
-        Log.Information(
-            "CHD conversion starting. Input={InputPath}, Output={OutputPath}, Command={Command}, RequestedProcessors={RequestedProcessors}, PassedProcessors={PassedProcessors}, AutoLimiter={AutoLimiter}, ReservedLogicalCores={ReservedLogicalCores}, AvailableLogicalProcessors={AvailableLogicalProcessors}, PerformanceMode={PerformanceMode}, PriorityMode={PriorityMode}",
-            resolvedInputPath,
-            resolvedOutputPath,
-            command,
-            maxProcessorCount,
-            passedProcessorLimit,
-            enableAutoResourceLimiter,
-            reservedLogicalCores,
-            availableLogicalProcessors,
-            performanceMode,
-            priorityMode);
-        Log.Information("CHDMAN CMD: {Args}", displayCommandLine);
-        ChdmanCliRunner.Result run;
-        string? resultMessageKeyOverride = null;
-        var chdmanStopwatch = Stopwatch.StartNew();
-        try
-        {
-            run = await _processExecution.ExecuteAsync(
-                executablePath: chdmanPath,
-                arguments: arguments,
-                parseProgressPercent: progress is not null && ChdProgressPolicy.ShouldParseRawPercent(arguments),
-                progress: progress,
-                onProcessStarted: onProcessStarted,
-                cancellationToken: cancellationToken,
-                exclusiveFileAccessPath: resolvedInputPath,
-                monitoredOutputPath: monitoredOutputPath,
-                performanceProgress: performanceProgress,
-                priorityMode: priorityMode);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            chdmanStopwatch.Stop();
-            _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "operation cancelled before result was returned");
-            ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
-            Log.Debug("CHD conversion cancelled. Input: {InputPath}", inputPath);
-            return ChdConversionServiceSupport.BuildCancelledConversionResult(
                 inputPath,
                 outputPath,
-                displayCommandLine,
-                string.Empty,
-                string.Empty,
-                logPath,
-                chdmanStopwatch.Elapsed,
-                ChdmanProcessRunner.CanceledExitCode,
-                passedProcessorLimit,
                 compressionResolution,
                 resolvedHunkSizeBytes,
                 executionReportContext);
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "CHD conversion threw. Input: {InputPath}", inputPath);
-            throw;
-        }
-        if (!run.WasCancelled
-            && run.ExitCode != 0
-            && _processExecution.IsCreateCdHunkSizeMultipleError(run, out int incompatibleHunkSize, out int requiredSectorSize))
-        {
-            const string hunkFailureTechnicalMessage = "CreateCD hunk size is not aligned with the media sector size.";
-            if (_commandPreparation.TryBuildCreateCdHunkRetrySize(hunkSizeBytes, requiredSectorSize, resolvedHunkSizeBytes, out int retryHunkSizeBytes))
+
+            if (sectorAlignmentFailure is not null)
             {
-                _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "createcd hunk-size retry");
+                return sectorAlignmentFailure;
+            }
+
+            string diskPreflightMessageKey;
+            string diskPreflightOperationKey;
+            DiskPreflightMode diskPreflightMode = isExtractCommand
+                ? DiskPreflightMode.ExtractFromChd
+                : DiskPreflightMode.CreateChd;
+
+            if (enableDiskSpaceGuard)
+            {
+                DiskPreflightResult diskPreflight = DiskSpacePreflightService.CheckOrThrow(
+                    resolvedInputPath,
+                    resolvedOutputPath,
+                    command,
+                    expectedOutputBytes);
+
+                diskPreflightMessageKey = diskPreflight.MessageKey;
+                diskPreflightOperationKey = diskPreflight.OperationKey;
+
+                Log.Information(
+                    "Disk preflight passed. Root={Root}, InputBytes={InputBytes}, EstimatedRequiredBytes={EstimatedRequiredBytes}, AvailableFreeBytes={AvailableFreeBytes}, MessageKey={MessageKey}, OperationKey={OperationKey}",
+                    diskPreflight.TargetRoot,
+                    diskPreflight.InputBytes,
+                    diskPreflight.EstimatedRequiredBytes,
+                    diskPreflight.AvailableFreeBytes,
+                    diskPreflight.MessageKey,
+                    diskPreflight.OperationKey);
+            }
+            else
+            {
+                diskPreflightMessageKey = "DiskPreflightDisabled";
+                diskPreflightOperationKey = DiskSpacePreflightService.DescribeOperationKey(command, diskPreflightMode);
+
+                Log.Information(
+                    "Disk preflight skipped because EnableDiskSpaceGuard is disabled. Input={InputPath}, Output={OutputPath}, Command={Command}, OperationKey={OperationKey}",
+                    resolvedInputPath,
+                    resolvedOutputPath,
+                    command,
+                    diskPreflightOperationKey);
+            }
+
+            FileHashResult? inputSha1 = null;
+            if (computeInputSha1)
+            {
+                inputSha1 = await FileHashService.ComputeAsync(resolvedInputPath, FileHashAlgorithm.SHA1, cancellationToken).ConfigureAwait(false);
+                Log.Information("Input SHA1 computed before chdman. Path={Path}, SHA1={SHA1}, Bytes={Bytes}", inputSha1.Path, inputSha1.Hex, inputSha1.BytesRead);
+            }
+
+            string? outputDirectory = Path.GetDirectoryName(resolvedOutputPath);
+            if (string.IsNullOrWhiteSpace(outputDirectory))
+            {
+                throw new InvalidOperationException(OutputDirectoryMissingMessageKey);
+            }
+
+            Directory.CreateDirectory(outputDirectory);
+
+            string extractCdCueOutputPathForArgument = extractionKind == ChdmanExtractionKind.ExtractCd
+                ? (!string.IsNullOrWhiteSpace(resolvedExtractCdCueOutputPath) ? resolvedExtractCdCueOutputPath : resolvedOutputPath)
+                : string.Empty;
+
+            string extractCdBinOutputPathForArgument = extractionKind == ChdmanExtractionKind.ExtractCd
+                ? (!string.IsNullOrWhiteSpace(resolvedExtractCdBinOutputPath)
+                    ? resolvedExtractCdBinOutputPath
+                    : _commandPreparation.BuildExtractCdBinOutputPath(extractCdCueOutputPathForArgument))
+                : string.Empty;
+
+            if (extractionKind == ChdmanExtractionKind.ExtractCd)
+            {
+                string? cueDirectory = Path.GetDirectoryName(extractCdCueOutputPathForArgument);
+                string? binDirectory = Path.GetDirectoryName(extractCdBinOutputPathForArgument);
+
+                if (string.IsNullOrWhiteSpace(cueDirectory) || string.IsNullOrWhiteSpace(binDirectory))
+                {
+                    throw new InvalidOperationException(BinOutputDirectoryMissingMessageKey);
+                }
+
+                Directory.CreateDirectory(cueDirectory);
+                Directory.CreateDirectory(binDirectory);
+            }
+
+            int availableLogicalProcessors = ProcessorTopologyService.GetAvailableLogicalProcessorCount();
+            int normalizedProcessorLimit = ProcessorTopologyService.ResolveChdmanProcessorCount(
+                maxProcessorCount,
+                enableAutoResourceLimiter,
+                reservedLogicalCores,
+                performanceMode);
+
+            int passedProcessorLimit = isExtractCommand ? 0 : normalizedProcessorLimit;
+
+            List<string> arguments = !isExtractCommand && createProfile is not null
+                ? ChdmanCommandBuilder
+                    .BuildCreateArgs(createProfile, resolvedInputPath, resolvedOutputPath, passedProcessorLimit)
+                    .ToList()
+                : new List<string>
+                {
+                    command,
+                    "-i",
+                    resolvedInputPath,
+                    "-o",
+                    extractionKind == ChdmanExtractionKind.ExtractCd ? extractCdCueOutputPathForArgument : resolvedOutputPath
+                };
+
+            if (extractionKind == ChdmanExtractionKind.ExtractCd)
+            {
+                arguments.Add("-ob");
+                arguments.Add(extractCdBinOutputPathForArgument);
+            }
+
+            if (allowOverwriteOutput && (isExtractCommand || _commandPreparation.IsCreateCommand(command)))
+            {
+                arguments.Add("-f");
+            }
+
+            if (!isExtractCommand)
+            {
+                if (!string.IsNullOrWhiteSpace(resolvedCompression))
+                {
+                    arguments.Add("-c");
+                    arguments.Add(resolvedCompression);
+                }
+
+                if (resolvedHunkSizeBytes > 0)
+                {
+                    arguments.Add("-hs");
+                    arguments.Add(resolvedHunkSizeBytes.ToString());
+                }
+            }
+
+            string monitoredOutputPath = extractionKind == ChdmanExtractionKind.ExtractCd
+                ? extractCdBinOutputPathForArgument
+                : resolvedOutputPath;
+
+            string displayCommandLine = _processExecution.FormatCommandLineForDisplay(chdmanPath, arguments);
+
+            Log.Information(
+                "CHD conversion starting. Input={InputPath}, Output={OutputPath}, Command={Command}, RequestedProcessors={RequestedProcessors}, PassedProcessors={PassedProcessors}, AutoLimiter={AutoLimiter}, ReservedLogicalCores={ReservedLogicalCores}, AvailableLogicalProcessors={AvailableLogicalProcessors}, PerformanceMode={PerformanceMode}, PriorityMode={PriorityMode}",
+                resolvedInputPath,
+                resolvedOutputPath,
+                command,
+                maxProcessorCount,
+                passedProcessorLimit,
+                enableAutoResourceLimiter,
+                reservedLogicalCores,
+                availableLogicalProcessors,
+                performanceMode,
+                priorityMode);
+
+            Log.Information("CHDMAN CMD: {Args}", displayCommandLine);
+
+            ChdmanCliRunner.Result run;
+            string? resultMessageKeyOverride = null;
+            var chdmanStopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                run = await _processExecution.ExecuteAsync(
+                    executablePath: chdmanPath,
+                    arguments: arguments,
+                    parseProgressPercent: progress is not null && ChdProgressPolicy.ShouldParseRawPercent(arguments),
+                    progress: progress,
+                    onProcessStarted: onProcessStarted,
+                    cancellationToken: cancellationToken,
+                    exclusiveFileAccessPath: resolvedInputPath,
+                    monitoredOutputPath: monitoredOutputPath,
+                    performanceProgress: performanceProgress,
+                    priorityMode: priorityMode);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                chdmanStopwatch.Stop();
+                _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "operation cancelled before result was returned");
                 ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
-                _commandPreparation.ReplaceOrAddHunkSizeArgument(arguments, retryHunkSizeBytes);
-                resolvedHunkSizeBytes = retryHunkSizeBytes;
+                Log.Debug("CHD conversion cancelled. Input: {InputPath}", inputPath);
+
+                return ChdConversionServiceSupport.BuildCancelledConversionResult(
+                    inputPath,
+                    outputPath,
+                    displayCommandLine,
+                    string.Empty,
+                    string.Empty,
+                    logPath,
+                    chdmanStopwatch.Elapsed,
+                    ChdmanProcessRunner.CanceledExitCode,
+                    passedProcessorLimit,
+                    compressionResolution,
+                    resolvedHunkSizeBytes,
+                    executionReportContext);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "CHD conversion threw. Input: {InputPath}", inputPath);
+                throw;
+            }
+
+            if (!run.WasCancelled
+                && run.ExitCode != 0
+                && _processExecution.IsCreateCdHunkSizeMultipleError(run, out int incompatibleHunkSize, out int requiredSectorSize))
+            {
+                const string hunkFailureTechnicalMessage = "CreateCD hunk size is not aligned with the media sector size.";
+
+                if (_commandPreparation.TryBuildCreateCdHunkRetrySize(hunkSizeBytes, requiredSectorSize, resolvedHunkSizeBytes, out int retryHunkSizeBytes))
+                {
+                    _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "createcd hunk-size retry");
+                    ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
+                    _commandPreparation.ReplaceOrAddHunkSizeArgument(arguments, retryHunkSizeBytes);
+                    resolvedHunkSizeBytes = retryHunkSizeBytes;
+                    displayCommandLine = _processExecution.FormatCommandLineForDisplay(chdmanPath, arguments);
+
+                    Log.Warning(
+                        "Retrying createcd with media-aligned hunk size after chdman rejected HunkSize={RejectedHunkSize} for SectorSize={SectorSize}. RetryHunkSize={RetryHunkSize}. Input={InputPath}",
+                        incompatibleHunkSize,
+                        requiredSectorSize,
+                        retryHunkSizeBytes,
+                        resolvedInputPath);
+
+                    try
+                    {
+                        run = await _processExecution.ExecuteAsync(
+                            executablePath: chdmanPath,
+                            arguments: arguments,
+                            parseProgressPercent: progress is not null && ChdProgressPolicy.ShouldParseRawPercent(arguments),
+                            progress: progress,
+                            onProcessStarted: onProcessStarted,
+                            cancellationToken: cancellationToken,
+                            exclusiveFileAccessPath: resolvedInputPath,
+                            monitoredOutputPath: monitoredOutputPath,
+                            performanceProgress: performanceProgress,
+                            priorityMode: priorityMode).ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                    {
+                        chdmanStopwatch.Stop();
+                        _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "createcd hunk-size retry cancelled");
+                        ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
+                        Log.Debug("CHD conversion cancelled during createcd hunk-size retry. Input: {InputPath}", inputPath);
+
+                        return ChdConversionServiceSupport.BuildCancelledConversionResult(
+                            inputPath,
+                            outputPath,
+                            displayCommandLine,
+                            run.StandardOutput,
+                            run.StandardError,
+                            logPath,
+                            chdmanStopwatch.Elapsed,
+                            ChdmanProcessRunner.CanceledExitCode,
+                            passedProcessorLimit,
+                            compressionResolution,
+                            resolvedHunkSizeBytes,
+                            executionReportContext);
+                    }
+                }
+                else if (hunkSizeBytes > 0)
+                {
+                    resultMessageKeyOverride = InvalidCdHunkSizeMessageKey;
+                    run = new ChdmanCliRunner.Result
+                    {
+                        ExitCode = run.ExitCode,
+                        WasCancelled = false,
+                        StandardOutput = run.StandardOutput,
+                        StandardError = string.IsNullOrWhiteSpace(run.StandardError)
+                            ? hunkFailureTechnicalMessage
+                            : hunkFailureTechnicalMessage + Environment.NewLine + run.StandardError
+                    };
+                }
+            }
+
+            if (run.WasCancelled)
+            {
+                chdmanStopwatch.Stop();
+                _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "cancelled");
+                ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
+                Log.Debug("CHD conversion cancelled. Input: {InputPath}", inputPath);
+
+                return ChdConversionServiceSupport.BuildCancelledConversionResult(
+                    inputPath,
+                    outputPath,
+                    displayCommandLine,
+                    run.StandardOutput,
+                    run.StandardError,
+                    logPath,
+                    chdmanStopwatch.Elapsed,
+                    run.ExitCode,
+                    passedProcessorLimit,
+                    compressionResolution,
+                    resolvedHunkSizeBytes,
+                    executionReportContext);
+            }
+
+            if (!run.WasCancelled
+                && run.ExitCode != 0
+                && extractionKind == ChdmanExtractionKind.ExtractCd
+                && verifyExtractCdCueBinContract
+                && _commandPreparation.IsExtractCdSplitbinPatternRequired(run))
+            {
+                _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "extractcd splitbin retry");
+                ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
+
+                string splitBinOutputPath = _commandPreparation.BuildSplitBinExtractCdBinOutputPath(extractCdCueOutputPathForArgument);
+                _commandPreparation.ReplaceExtractCdBinOutputArgument(arguments, splitBinOutputPath);
+                monitoredOutputPath = splitBinOutputPath;
                 displayCommandLine = _processExecution.FormatCommandLineForDisplay(chdmanPath, arguments);
+
                 Log.Warning(
-                    "Retrying createcd with media-aligned hunk size after chdman rejected HunkSize={RejectedHunkSize} for SectorSize={SectorSize}. RetryHunkSize={RetryHunkSize}. Input={InputPath}",
-                    incompatibleHunkSize,
-                    requiredSectorSize,
-                    retryHunkSizeBytes,
-                    resolvedInputPath);
+                    "Retrying extractcd with track-number output pattern after chdman required splitbin naming. Input={InputPath}; Output={OutputPath}",
+                    resolvedInputPath,
+                    resolvedOutputPath);
+
+                Log.Information("CHDMAN CMD: {Args}", displayCommandLine);
+
                 try
                 {
                     run = await _processExecution.ExecuteAsync(
@@ -453,9 +598,10 @@ public sealed class ChdConversionService
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     chdmanStopwatch.Stop();
-                    _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "createcd hunk-size retry cancelled");
+                    _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "extractcd splitbin retry cancelled");
                     ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
-                    Log.Debug("CHD conversion cancelled during createcd hunk-size retry. Input: {InputPath}", inputPath);
+                    Log.Debug("CHD conversion cancelled during extractcd splitbin retry. Input: {InputPath}", inputPath);
+
                     return ChdConversionServiceSupport.BuildCancelledConversionResult(
                         inputPath,
                         outputPath,
@@ -471,75 +617,14 @@ public sealed class ChdConversionService
                         executionReportContext);
                 }
             }
-            else if (hunkSizeBytes > 0)
-            {
-                resultMessageKeyOverride = InvalidCdHunkSizeMessageKey;
-                run = new ChdmanCliRunner.Result
-                {
-                    ExitCode = run.ExitCode,
-                    WasCancelled = false,
-                    StandardOutput = run.StandardOutput,
-                    StandardError = string.IsNullOrWhiteSpace(run.StandardError)
-                        ? hunkFailureTechnicalMessage
-                        : hunkFailureTechnicalMessage + Environment.NewLine + run.StandardError
-                };
-            }
-        }
-        if (run.WasCancelled)
-        {
-            chdmanStopwatch.Stop();
-            _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "cancelled");
-            ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
-            Log.Debug("CHD conversion cancelled. Input: {InputPath}", inputPath);
-            return ChdConversionServiceSupport.BuildCancelledConversionResult(
-                inputPath,
-                outputPath,
-                displayCommandLine,
-                run.StandardOutput,
-                run.StandardError,
-                logPath,
-                chdmanStopwatch.Elapsed,
-                run.ExitCode,
-                passedProcessorLimit,
-                compressionResolution,
-                resolvedHunkSizeBytes,
-                executionReportContext);
-        }
-        if (!run.WasCancelled
-            && run.ExitCode != 0
-            && extractionKind == ChdmanExtractionKind.ExtractCd
-            && verifyExtractCdCueBinContract
-            && _commandPreparation.IsExtractCdSplitbinPatternRequired(run))
-        {
-            _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "extractcd splitbin retry");
-            ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
-            _commandPreparation.ReplaceExtractCdBinOutputArgument(arguments, _commandPreparation.BuildSplitBinExtractCdBinOutputPath(extractCdCueOutputPathForArgument));
-            displayCommandLine = _processExecution.FormatCommandLineForDisplay(chdmanPath, arguments);
-            Log.Warning(
-                "Retrying extractcd with track-number output pattern after chdman required splitbin naming. Input={InputPath}; Output={OutputPath}",
-                resolvedInputPath,
-                resolvedOutputPath);
-            Log.Information("CHDMAN CMD: {Args}", displayCommandLine);
-            try
-            {
-                run = await _processExecution.ExecuteAsync(
-                    executablePath: chdmanPath,
-                    arguments: arguments,
-                    parseProgressPercent: progress is not null && ChdProgressPolicy.ShouldParseRawPercent(arguments),
-                    progress: progress,
-                    onProcessStarted: onProcessStarted,
-                    cancellationToken: cancellationToken,
-                    exclusiveFileAccessPath: resolvedInputPath,
-                    monitoredOutputPath: monitoredOutputPath,
-                    performanceProgress: performanceProgress,
-                    priorityMode: priorityMode).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+
+            if (run.WasCancelled)
             {
                 chdmanStopwatch.Stop();
-                _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "extractcd splitbin retry cancelled");
+                _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "cancelled");
                 ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
-                Log.Debug("CHD conversion cancelled during extractcd splitbin retry. Input: {InputPath}", inputPath);
+                Log.Debug("CHD conversion cancelled. Input: {InputPath}", inputPath);
+
                 return ChdConversionServiceSupport.BuildCancelledConversionResult(
                     inputPath,
                     outputPath,
@@ -548,149 +633,137 @@ public sealed class ChdConversionService
                     run.StandardError,
                     logPath,
                     chdmanStopwatch.Elapsed,
-                    ChdmanProcessRunner.CanceledExitCode,
+                    run.ExitCode,
                     passedProcessorLimit,
                     compressionResolution,
                     resolvedHunkSizeBytes,
                     executionReportContext);
             }
-        }
-        if (run.WasCancelled)
-        {
-            chdmanStopwatch.Stop();
-            _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "cancelled");
-            ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "cleanup companion cue");
-            Log.Debug("CHD conversion cancelled. Input: {InputPath}", inputPath);
-            return ChdConversionServiceSupport.BuildCancelledConversionResult(
-                inputPath,
-                outputPath,
-                displayCommandLine,
-                run.StandardOutput,
-                run.StandardError,
-                logPath,
-                chdmanStopwatch.Elapsed,
-                run.ExitCode,
-                passedProcessorLimit,
-                compressionResolution,
-                resolvedHunkSizeBytes,
-                executionReportContext);
-        }
-        chdmanStopwatch.Stop();
-        string output = run.StandardOutput;
-        string error = run.StandardError;
-        long logicalInputBytes = ConversionMetricsResolver.TryParseLogicalSizeBytes(output, out long parsedLogicalInputBytes)
-            ? parsedLogicalInputBytes
-            : 0L;
-        bool extractCdCueContractValid = true;
-        if (run.ExitCode == 0
-            && extractionKind == ChdmanExtractionKind.ExtractCd
-            && verifyExtractCdCueBinContract)
-        {
-            extractCdCueContractValid = _verificationBridge.TryNormalizeExtractedCueBinOutput(extractCdCueOutputPathForArgument);
-            if (!extractCdCueContractValid)
-            {
-                resultMessageKeyOverride = InvalidCueBinDependencyMessageKey;
-                error = string.Empty;
-                Log.Warning(
-                    "extractcd output failed CUE/BIN contract validation after chdman succeeded. Cue={CuePath}",
-                    extractCdCueOutputPathForArgument);
-            }
-        }
-        ChdConversionStatus classifiedStatus = ChdmanResultClassifier.Classify(
-            run.ExitCode,
-            run.WasCancelled,
-            string.Concat(output, Environment.NewLine, error));
-        bool outputAlreadyExistsSkipped = classifiedStatus == ChdConversionStatus.SkippedOutputExists;
-        bool success = classifiedStatus == ChdConversionStatus.Success
-            && extractCdCueContractValid
-            && _resultMapping.VerifyOutputExists(resolvedOutputPath, isExtractCommand);
-        if (!success && classifiedStatus == ChdConversionStatus.Success)
-        {
-            classifiedStatus = ChdConversionStatus.Failed;
-        }
-        if (outputAlreadyExistsSkipped)
-        {
-            resultMessageKeyOverride = "LocStatus_OutputFileExists";
-        }
 
-        if (success)
-        {
-            ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "extractcd auxiliary cue after success");
-            progress?.Report(100);
-            Log.Information("chdman finished successfully. Command: {Command}, Input: {InputPath}", command, inputPath);
-        }
-        else
-        {
-            if (!outputAlreadyExistsSkipped)
+            chdmanStopwatch.Stop();
+
+            string output = run.StandardOutput;
+            string error = run.StandardError;
+            long logicalInputBytes = ConversionMetricsResolver.TryParseLogicalSizeBytes(output, out long parsedLogicalInputBytes)
+                ? parsedLogicalInputBytes
+                : 0L;
+
+            bool extractCdCueContractValid = true;
+            if (run.ExitCode == 0
+                && extractionKind == ChdmanExtractionKind.ExtractCd
+                && verifyExtractCdCueBinContract)
             {
-                _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "failed");
+                extractCdCueContractValid = _verificationBridge.TryNormalizeExtractedCueBinOutput(extractCdCueOutputPathForArgument);
+                if (!extractCdCueContractValid)
+                {
+                    resultMessageKeyOverride = InvalidCueBinDependencyMessageKey;
+                    error = string.Empty;
+
+                    Log.Warning(
+                        "extractcd output failed CUE/BIN contract validation after chdman succeeded. Cue={CuePath}",
+                        extractCdCueOutputPathForArgument);
+                }
             }
-            ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "failed");
+
+            ChdConversionStatus classifiedStatus = ChdmanResultClassifier.Classify(
+                run.ExitCode,
+                run.WasCancelled,
+                string.Concat(output, Environment.NewLine, error));
+
+            bool outputAlreadyExistsSkipped = classifiedStatus == ChdConversionStatus.SkippedOutputExists;
+            bool success = classifiedStatus == ChdConversionStatus.Success
+                && extractCdCueContractValid
+                && _resultMapping.VerifyOutputExists(resolvedOutputPath, isExtractCommand);
+
+            if (!success && classifiedStatus == ChdConversionStatus.Success)
+            {
+                classifiedStatus = ChdConversionStatus.Failed;
+            }
+
             if (outputAlreadyExistsSkipped)
             {
-                Log.Warning(
-                    "chdman skipped because output already exists. Command={Command}, Input={InputPath}, Output={OutputPath}, ExitCode={ExitCode}",
-                    command,
-                    inputPath,
-                    resolvedOutputPath,
-                    run.ExitCode);
+                resultMessageKeyOverride = "LocStatus_OutputFileExists";
+            }
+
+            if (success)
+            {
+                ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "extractcd auxiliary cue after success");
+                progress?.Report(100);
+                Log.Information("chdman finished successfully. Command: {Command}, Input: {InputPath}", command, inputPath);
             }
             else
             {
-                Log.Error(
-                    "chdman failed. Command: {Command}, Input: {InputPath}, ExitCode: {ExitCode}, StdErr: {StdErr}",
-                    command,
-                    inputPath,
-                    run.ExitCode,
-                error);
+                if (!outputAlreadyExistsSkipped)
+                {
+                    _resultMapping.TryDeleteIncompleteOutputs(resolvedOutputPath, isExtractCommand, "failed");
+                }
+
+                ChdConversionServiceSupport.TryDeleteAuxiliaryOutputFile(resolvedExtractCdCueOutputPath, "failed");
+
+                if (outputAlreadyExistsSkipped)
+                {
+                    Log.Warning(
+                        "chdman skipped because output already exists. Command={Command}, Input={InputPath}, Output={OutputPath}, ExitCode={ExitCode}",
+                        command,
+                        inputPath,
+                        resolvedOutputPath,
+                        run.ExitCode);
+                }
+                else
+                {
+                    Log.Error(
+                        "chdman failed. Command: {Command}, Input: {InputPath}, ExitCode: {ExitCode}, StdErr: {StdErr}",
+                        command,
+                        inputPath,
+                        run.ExitCode,
+                        error);
+                }
             }
-        }
-        csoPreparationOutcome.Lease?.Dispose();
-        inputPreparationReport = csoPreparationOutcome.Lease?.Report ?? inputPreparationReport;
-        await ChdConversionServiceSupport.WriteConversionLogAsync(
-            logPath,
-            command,
-            inputPath,
-            outputPath,
-            run.ExitCode,
-            output,
-            error,
-            success,
-            compressionResolution,
-            resolvedHunkSizeBytes,
-            availableLogicalProcessors,
-            maxProcessorCount,
-            enableAutoResourceLimiter,
-            reservedLogicalCores,
-            passedProcessorLimit,
-            performanceMode,
-            priorityMode,
-            chdmanStopwatch.Elapsed,
-            logicalInputBytes,
-            diskPreflightMessageKey,
-            diskPreflightOperationKey,
-            inputSha1,
-            inputPreparationReport,
-            executionReportContext);
-        return ChdConversionServiceSupport.BuildCompletedConversionResult(
-            inputPath,
-            outputPath,
-            displayCommandLine,
-            output,
-            error,
-            logPath,
-            chdmanStopwatch.Elapsed,
-            run,
-            success,
-            classifiedStatus,
-            isExtractCommand,
-            resultMessageKeyOverride,
-            passedProcessorLimit,
-            compressionResolution,
-            resolvedHunkSizeBytes,
-            logicalInputBytes,
-            executionReportContext);
+
+            await ChdConversionServiceSupport.WriteConversionLogAsync(
+                logPath,
+                command,
+                inputPath,
+                outputPath,
+                run.ExitCode,
+                output,
+                error,
+                success,
+                compressionResolution,
+                resolvedHunkSizeBytes,
+                availableLogicalProcessors,
+                maxProcessorCount,
+                enableAutoResourceLimiter,
+                reservedLogicalCores,
+                passedProcessorLimit,
+                performanceMode,
+                priorityMode,
+                chdmanStopwatch.Elapsed,
+                logicalInputBytes,
+                diskPreflightMessageKey,
+                diskPreflightOperationKey,
+                inputSha1,
+                inputPreparationReport,
+                executionReportContext);
+
+            return ChdConversionServiceSupport.BuildCompletedConversionResult(
+                inputPath,
+                outputPath,
+                displayCommandLine,
+                output,
+                error,
+                logPath,
+                chdmanStopwatch.Elapsed,
+                run,
+                success,
+                classifiedStatus,
+                isExtractCommand,
+                resultMessageKeyOverride,
+                passedProcessorLimit,
+                compressionResolution,
+                resolvedHunkSizeBytes,
+                logicalInputBytes,
+                executionReportContext);
         }
     }
-
 }

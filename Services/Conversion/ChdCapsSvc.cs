@@ -36,7 +36,7 @@ public sealed class ChdmanCapabilityService : IChdmanCapabilityService
         string fullPath;
         try
         {
-            fullPath = Path.GetFullPath(chdmanPath);
+            fullPath = Path.GetFullPath(chdmanPath.Trim());
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
@@ -44,7 +44,7 @@ public sealed class ChdmanCapabilityService : IChdmanCapabilityService
             return ChdmanCapabilitySnapshot.Unavailable(chdmanPath, ChdmanNotFoundMessageKey);
         }
 
-        if (!File.Exists(fullPath))
+        if (!File.Exists(fullPath) || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
         {
             return ChdmanCapabilitySnapshot.Unavailable(fullPath, ChdmanNotFoundMessageKey);
         }
@@ -365,6 +365,125 @@ public sealed class ChdmanCapabilityService : IChdmanCapabilityService
         {
             return fullPath;
         }
+    }
+
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = NormalizeFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex) || ex is IOException or UnauthorizedAccessException)
+        {
+            return true;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = NormalizeFullPath(candidatePath);
+            string root = NormalizeFullPath(rootPath);
+
+            if (!IsSamePathOrChild(candidate, root))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsExistingPathReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = NormalizeFullPath(parent);
+            }
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex) || ex is IOException or UnauthorizedAccessException)
+        {
+            return true;
+        }
+    }
+
+    private static bool IsExistingPathReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex) || ex is IOException or UnauthorizedAccessException)
+        {
+            return true;
+        }
+    }
+
+    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    {
+        string candidate = NormalizeFullPath(candidatePath);
+        string root = NormalizeFullPath(rootPath);
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            NormalizeFullPath(left),
+            NormalizeFullPath(right),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizeFullPath(string path)
+    {
+        string fullPath = Path.GetFullPath(path);
+        string? root = Path.GetPathRoot(fullPath);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && fullPath.Equals(root, StringComparison.OrdinalIgnoreCase))
+        {
+            return fullPath;
+        }
+
+        return fullPath.TrimEnd(
+            Path.DirectorySeparatorChar,
+            Path.AltDirectorySeparatorChar);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+               || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
     }
 
     private static bool IsExpectedPathException(Exception ex) =>

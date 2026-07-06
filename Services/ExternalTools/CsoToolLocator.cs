@@ -48,7 +48,10 @@ public sealed class CsoToolLocator
         {
             if (TryValidateCandidate(candidate, out string normalized))
             {
-                return new CsoToolLocation(true, normalized, Path.GetDirectoryName(normalized) ?? BundledToolsFolderPath);
+                return new CsoToolLocation(
+                    true,
+                    normalized,
+                    Path.GetDirectoryName(normalized) ?? BundledToolsFolderPath);
             }
         }
 
@@ -86,12 +89,14 @@ public sealed class CsoToolLocator
         try
         {
             string fullPath = Path.GetFullPath(candidatePath.Trim());
+
             if (!File.Exists(fullPath)
-                || !string.Equals(Path.GetFileName(fullPath), ToolExecutableName, StringComparison.OrdinalIgnoreCase)
-                || IsReparsePoint(fullPath))
+                || !string.Equals(Path.GetFileName(fullPath), ToolExecutableName, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(candidatePath));
 
             FileInfo info = new(fullPath);
             if (info.Length <= 0)
@@ -105,27 +110,12 @@ public sealed class CsoToolLocator
         catch (Exception ex) when (ex is IOException
                                   or UnauthorizedAccessException
                                   or ArgumentException
+                                  or InvalidOperationException
                                   or NotSupportedException
                                   or PathTooLongException
                                   or System.Security.SecurityException)
         {
             return false;
-        }
-    }
-
-    private static bool IsReparsePoint(string path)
-    {
-        try
-        {
-            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
-        }
-        catch (Exception ex) when (ex is IOException
-                                  or UnauthorizedAccessException
-                                  or ArgumentException
-                                  or NotSupportedException
-                                  or PathTooLongException)
-        {
-            return true;
         }
     }
 }

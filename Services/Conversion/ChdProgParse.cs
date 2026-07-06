@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,19 +8,26 @@ namespace HakamiqChdTool.App.Services;
 
 public sealed class ChdProgressParser : IChdProgressParser
 {
+    private const int RegexTimeoutMilliseconds = 250;
+
     public static ChdProgressParser Shared { get; } = new();
+
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(RegexTimeoutMilliseconds);
 
     private static readonly Regex PercentTokenRegex = new(
         @"\b(100(?:\.0+)?|\d{1,2}(?:\.\d+)?)\s*%",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant,
+        RegexTimeout);
 
     private static readonly Regex ProgressCompletePercentRegex = new(
         @"\b(100(?:\.0+)?|\d{1,2}(?:\.\d+)?)\s*%\s*complete\b",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase,
+        RegexTimeout);
 
     private static readonly Regex ControlChars = new(
         @"[\u0000-\u0008\u000B\u000C\u000E-\u001F]",
-        RegexOptions.Compiled);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant,
+        RegexTimeout);
 
     public ChdmanProgressSnapshot ParseSnapshot(
         string? line,
@@ -65,22 +73,29 @@ public sealed class ChdProgressParser : IChdProgressParser
             return false;
         }
 
-        MatchCollection matches = PercentTokenRegex.Matches(text);
-        if (matches.Count == 0)
+        try
+        {
+            MatchCollection matches = PercentTokenRegex.Matches(text);
+            if (matches.Count == 0)
+            {
+                return false;
+            }
+
+            Match last = matches[^1];
+            string raw = last.Groups[1].Value;
+            if (!double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed))
+            {
+                return false;
+            }
+
+            percent = (int)Math.Round(parsed, MidpointRounding.AwayFromZero);
+            percent = Math.Clamp(percent, 0, 100);
+            return true;
+        }
+        catch (RegexMatchTimeoutException)
         {
             return false;
         }
-
-        Match last = matches[^1];
-        string raw = last.Groups[1].Value;
-        if (!double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed))
-        {
-            return false;
-        }
-
-        percent = (int)Math.Round(parsed, MidpointRounding.AwayFromZero);
-        percent = Math.Clamp(percent, 0, 100);
-        return true;
     }
 
     public bool TryParseProgressCompletePercent(string? text, out int percent)
@@ -91,24 +106,31 @@ public sealed class ChdProgressParser : IChdProgressParser
             return false;
         }
 
-        MatchCollection matches = ProgressCompletePercentRegex.Matches(text);
-        if (matches.Count == 0)
+        try
+        {
+            MatchCollection matches = ProgressCompletePercentRegex.Matches(text);
+            if (matches.Count == 0)
+            {
+                return false;
+            }
+
+            Match last = matches[^1];
+            if (!double.TryParse(
+                    last.Groups[1].Value,
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    out double parsed))
+            {
+                return false;
+            }
+
+            percent = Math.Clamp((int)Math.Round(parsed, MidpointRounding.AwayFromZero), 0, 100);
+            return true;
+        }
+        catch (RegexMatchTimeoutException)
         {
             return false;
         }
-
-        Match last = matches[^1];
-        if (!double.TryParse(
-                last.Groups[1].Value,
-                NumberStyles.Float,
-                CultureInfo.InvariantCulture,
-                out double parsed))
-        {
-            return false;
-        }
-
-        percent = Math.Clamp((int)Math.Round(parsed, MidpointRounding.AwayFromZero), 0, 100);
-        return true;
     }
 
     public bool TryParseLastPercent(StringBuilder rolling, out int percent) =>
@@ -156,7 +178,14 @@ public sealed class ChdProgressParser : IChdProgressParser
             return string.Empty;
         }
 
-        return PercentTokenRegex.Replace(detail, string.Empty).Trim();
+        try
+        {
+            return PercentTokenRegex.Replace(detail, string.Empty).Trim();
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return detail.Trim();
+        }
     }
 
     public string ToCleanLogLine(string? line)
@@ -167,7 +196,16 @@ public sealed class ChdProgressParser : IChdProgressParser
         }
 
         string clean = line.Replace("\r", " ", StringComparison.Ordinal).Trim();
-        clean = ControlChars.Replace(clean, string.Empty);
+
+        try
+        {
+            clean = ControlChars.Replace(clean, string.Empty);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return clean.Trim();
+        }
+
         return clean.Trim();
     }
 

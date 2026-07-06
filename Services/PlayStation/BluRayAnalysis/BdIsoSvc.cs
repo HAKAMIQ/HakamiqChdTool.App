@@ -1,7 +1,10 @@
 using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
+using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace HakamiqChdTool.App.Services.PlayStation.BluRayAnalysis;
 
@@ -116,6 +119,10 @@ public sealed class BluRayIsoAnalysisService
             result = Analyze(path, profile, null, cancellationToken);
             return true;
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex) when (IsExpectedAnalysisException(ex))
         {
             return false;
@@ -205,7 +212,13 @@ public sealed class BluRayIsoAnalysisService
         return LooksLikeTitleId(text) ? text : string.Empty;
     }
 
-    private static long FindPs3DiscSfb(FileStream stream, long maxBytes, IProgress<BluRayAnalysisProgress>? progress, double startPercent, double endPercent, CancellationToken cancellationToken)
+    private static long FindPs3DiscSfb(
+        FileStream stream,
+        long maxBytes,
+        IProgress<BluRayAnalysisProgress>? progress,
+        double startPercent,
+        double endPercent,
+        CancellationToken cancellationToken)
     {
         long[] likelyOffsets = [0x310000, 0x300000, 0x320000];
         long found = FindPatternAtLikelyOffsets(stream, Ps3DiscSfbPattern, likelyOffsets, cancellationToken);
@@ -214,7 +227,13 @@ public sealed class BluRayIsoAnalysisService
             : FindPatternPosition(stream, Ps3DiscSfbPattern, maxBytes, progress, BluRayAnalysisStage.CheckingDiscStructure, startPercent, endPercent, cancellationToken);
     }
 
-    private static long FindParamSfo(FileStream stream, long maxBytes, IProgress<BluRayAnalysisProgress>? progress, double startPercent, double endPercent, CancellationToken cancellationToken)
+    private static long FindParamSfo(
+        FileStream stream,
+        long maxBytes,
+        IProgress<BluRayAnalysisProgress>? progress,
+        double startPercent,
+        double endPercent,
+        CancellationToken cancellationToken)
     {
         long[] likelyOffsets = [0x310800, 0x300800, 0x320800];
         long found = FindPatternAtLikelyOffsets(stream, ParamSfoPattern, likelyOffsets, cancellationToken);
@@ -223,7 +242,11 @@ public sealed class BluRayIsoAnalysisService
             : FindPatternPosition(stream, ParamSfoPattern, maxBytes, progress, BluRayAnalysisStage.CheckingDiscStructure, startPercent, endPercent, cancellationToken);
     }
 
-    private static long FindPatternAtLikelyOffsets(FileStream stream, byte[] pattern, IReadOnlyList<long> offsets, CancellationToken cancellationToken)
+    private static long FindPatternAtLikelyOffsets(
+        FileStream stream,
+        byte[] pattern,
+        IReadOnlyList<long> offsets,
+        CancellationToken cancellationToken)
     {
         foreach (long offset in offsets)
         {
@@ -294,7 +317,14 @@ public sealed class BluRayIsoAnalysisService
         return total;
     }
 
-    private static long FindAnyPatternPosition(FileStream stream, long maxBytes, IProgress<BluRayAnalysisProgress>? progress, double startPercent, double endPercent, CancellationToken cancellationToken, params byte[][] patterns)
+    private static long FindAnyPatternPosition(
+        FileStream stream,
+        long maxBytes,
+        IProgress<BluRayAnalysisProgress>? progress,
+        double startPercent,
+        double endPercent,
+        CancellationToken cancellationToken,
+        params byte[][] patterns)
     {
         long best = -1;
 
@@ -313,7 +343,15 @@ public sealed class BluRayIsoAnalysisService
         return best;
     }
 
-    private static long FindPatternPosition(FileStream stream, byte[] pattern, long maxBytes, IProgress<BluRayAnalysisProgress>? progress, BluRayAnalysisStage stage, double startPercent, double endPercent, CancellationToken cancellationToken)
+    private static long FindPatternPosition(
+        FileStream stream,
+        byte[] pattern,
+        long maxBytes,
+        IProgress<BluRayAnalysisProgress>? progress,
+        BluRayAnalysisStage stage,
+        double startPercent,
+        double endPercent,
+        CancellationToken cancellationToken)
     {
         if (pattern.Length == 0 || maxBytes <= 0)
         {
@@ -393,7 +431,10 @@ public sealed class BluRayIsoAnalysisService
         ReadOnlySpan<byte> source = buffer.AsSpan();
         for (int i = 0; i < source.Length - 8; i++)
         {
-            if (!IsAsciiUpperLetter(source[i]) || !IsAsciiUpperLetter(source[i + 1]) || !IsAsciiUpperLetter(source[i + 2]) || !IsAsciiUpperLetter(source[i + 3]))
+            if (!IsAsciiUpperLetter(source[i])
+                || !IsAsciiUpperLetter(source[i + 1])
+                || !IsAsciiUpperLetter(source[i + 2])
+                || !IsAsciiUpperLetter(source[i + 3]))
             {
                 continue;
             }
@@ -423,7 +464,10 @@ public sealed class BluRayIsoAnalysisService
             return false;
         }
 
-        string normalized = value.Trim().Replace("-", string.Empty, StringComparison.Ordinal).Replace(" ", string.Empty, StringComparison.Ordinal);
+        string normalized = value.Trim()
+            .Replace("-", string.Empty, StringComparison.Ordinal)
+            .Replace(" ", string.Empty, StringComparison.Ordinal);
+
         if (normalized.Length != 9)
         {
             return false;
@@ -472,12 +516,22 @@ public sealed class BluRayIsoAnalysisService
         return true;
     }
 
-    private static void Report(IProgress<BluRayAnalysisProgress>? progress, BluRayAnalysisStage stage, double percent, string detail)
+    private static void Report(
+        IProgress<BluRayAnalysisProgress>? progress,
+        BluRayAnalysisStage stage,
+        double percent,
+        string detail)
     {
         progress?.Report(new BluRayAnalysisProgress(stage, percent, detail));
     }
 
-    private static void ReportRange(IProgress<BluRayAnalysisProgress>? progress, BluRayAnalysisStage stage, double startPercent, double endPercent, long completed, long total)
+    private static void ReportRange(
+        IProgress<BluRayAnalysisProgress>? progress,
+        BluRayAnalysisStage stage,
+        double startPercent,
+        double endPercent,
+        long completed,
+        long total)
     {
         if (total <= 0)
         {
@@ -499,7 +553,12 @@ public sealed class BluRayIsoAnalysisService
         return $"0x{offset:X}";
     }
 
-    private static BluRayCompressionEstimate EstimateCompression(FileStream stream, long length, AnalysisProfileSettings settings, IProgress<BluRayAnalysisProgress>? progress, CancellationToken cancellationToken)
+    private static BluRayCompressionEstimate EstimateCompression(
+        FileStream stream,
+        long length,
+        AnalysisProfileSettings settings,
+        IProgress<BluRayAnalysisProgress>? progress,
+        CancellationToken cancellationToken)
     {
         if (length <= 0)
         {
@@ -708,7 +767,6 @@ public sealed class BluRayIsoAnalysisService
         or UnauthorizedAccessException
         or IOException
         or InvalidDataException
-        or OperationCanceledException
         or OverflowException;
 
     private sealed record AnalysisProfileSettings(
@@ -729,9 +787,16 @@ public sealed class BluRayIsoAnalysisService
         }
     }
 
-    private readonly record struct SampleCompressionMetrics(long EstimatedCompressedBytes, double SavedPercent, bool IsZeroOrPattern);
+    private readonly record struct SampleCompressionMetrics(
+        long EstimatedCompressedBytes,
+        double SavedPercent,
+        bool IsZeroOrPattern);
 
-    private sealed record ParamSfoData(string TitleId, string Title, string AppVersion, string SystemVersion)
+    private sealed record ParamSfoData(
+        string TitleId,
+        string Title,
+        string AppVersion,
+        string SystemVersion)
     {
         public static ParamSfoData Empty { get; } = new(string.Empty, string.Empty, string.Empty, string.Empty);
 
@@ -754,6 +819,7 @@ public sealed class BluRayIsoAnalysisService
 
             Dictionary<string, string> values = new(StringComparer.OrdinalIgnoreCase);
             const int table = 20;
+
             for (uint i = 0; i < entryCount; i++)
             {
                 int entryOffset = table + (int)i * 16;
@@ -765,8 +831,9 @@ public sealed class BluRayIsoAnalysisService
                 ushort keyOffset = BinaryPrimitives.ReadUInt16LittleEndian(data.Slice(entryOffset, 2));
                 uint dataLength = BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(entryOffset + 4, 4));
                 uint dataOffset = BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(entryOffset + 12, 4));
-                long keyStart = keyTableOffset + keyOffset;
-                long valueStart = dataTableOffset + dataOffset;
+
+                long keyStart = (long)keyTableOffset + keyOffset;
+                long valueStart = (long)dataTableOffset + dataOffset;
 
                 if (keyStart < 0 || keyStart >= data.Length || valueStart < 0 || valueStart >= data.Length)
                 {
@@ -779,7 +846,7 @@ public sealed class BluRayIsoAnalysisService
                     continue;
                 }
 
-                int safeLength = (int)Math.Min(dataLength, data.Length - valueStart);
+                int safeLength = (int)Math.Min((long)dataLength, data.Length - valueStart);
                 string value = safeLength > 0
                     ? ReadNullTerminatedString(data.Slice((int)valueStart, safeLength))
                     : string.Empty;
