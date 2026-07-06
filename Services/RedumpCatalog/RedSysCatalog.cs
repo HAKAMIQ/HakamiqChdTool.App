@@ -111,7 +111,7 @@ internal static class RedumpSystemCatalog
             result.Add(new RedumpCatalogOption(
                 entry.Key,
                 entry.LabelKey,
-                entry.LabelKey,
+                "LocRedumpCatalog_Platform_System_Description",
                 technicalDescription: BuildTechnicalDescription(entry)));
         }
 
@@ -184,6 +184,8 @@ internal static class RedumpSystemCatalog
             RedumpArtifactKind.Subchannel => "LocRedumpCatalog_Artifact_Subchannel_Label",
             RedumpArtifactKind.DiscKey => "LocRedumpCatalog_Artifact_DiscKey_Label",
             RedumpArtifactKind.BiosDatfile => "LocRedumpCatalog_Artifact_BiosDatfile_Label",
+            RedumpArtifactKind.SerialVersionDatfile => "LocRedumpCatalog_Artifact_SerialVersionDatfile_Label",
+            RedumpArtifactKind.TrackOnlyDatfile => "LocRedumpCatalog_Artifact_TrackOnlyDatfile_Label",
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
         };
     }
@@ -198,6 +200,8 @@ internal static class RedumpSystemCatalog
             RedumpArtifactKind.Subchannel => "LocRedumpCatalog_Artifact_Subchannel_Description",
             RedumpArtifactKind.DiscKey => "LocRedumpCatalog_Artifact_DiscKey_Description",
             RedumpArtifactKind.BiosDatfile => "LocRedumpCatalog_Artifact_BiosDatfile_Description",
+            RedumpArtifactKind.SerialVersionDatfile => "LocRedumpCatalog_Artifact_SerialVersionDatfile_Description",
+            RedumpArtifactKind.TrackOnlyDatfile => "LocRedumpCatalog_Artifact_TrackOnlyDatfile_Description",
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
         };
     }

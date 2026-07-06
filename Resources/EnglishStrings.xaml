@@ -444,6 +444,7 @@
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Description">Checks against imported local DAT databases without forcing a specific platform.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_Unknown_Label">Unknown</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_Unknown_Description">Use this if you do not know the platform. Verification uses all local DAT databases.</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Platform_System_Description">Use this platform's Redump resources.</sys:String>
 
     <sys:String x:Key="LocRedumpCatalog_Artifact_Datfile_Label">DAT file — matching database</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_Cuesheet_Label">Cuesheets — CUE files</sys:String>
@@ -451,6 +452,8 @@
     <sys:String x:Key="LocRedumpCatalog_Artifact_Subchannel_Label">Subchannels — SBI/LSD files</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_DiscKey_Label">Disc Keys — disc keys</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_BiosDatfile_Label">BIOS Datfile — BIOS database</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Artifact_SerialVersionDatfile_Label">Serial/version DAT file</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Artifact_TrackOnlyDatfile_Label">Track-only DAT file</sys:String>
 
     <sys:String x:Key="LocRedumpCatalog_Artifact_Datfile_Description">DAT is the default source for matching. The app does not include games or BIOS files.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_Cuesheet_Description">CUE files help with multi-track discs. They are not a replacement for DAT matching.</sys:String>
@@ -458,6 +461,8 @@
     <sys:String x:Key="LocRedumpCatalog_Artifact_Subchannel_Description">Advanced resource. It is not downloaded by default to avoid unnecessary complexity.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_DiscKey_Description">Sensitive advanced resource. It is not used by default and is not included in the repository or releases.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_BiosDatfile_Description">BIOS database for indexing only. The app does not distribute BIOS files.</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Artifact_SerialVersionDatfile_Description">Supplemental Redump DAT variant with serial and version metadata.</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Artifact_TrackOnlyDatfile_Description">Supplemental Redump DAT variant focused on track-level entries.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_Datfile_DefaultDescription">Default safe option for MD5/SHA1 and size matching.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Artifact_NoCustomLinks">No custom links are available for this platform in the current catalog.</sys:String>
 
