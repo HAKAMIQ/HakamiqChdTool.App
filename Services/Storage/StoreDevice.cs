@@ -1,6 +1,7 @@
 using Serilog;
 using System;
 using System.IO;
+using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
 

@@ -48,6 +48,42 @@ public sealed partial class DescriptorSafetyScanner
             return InputSafetyScanResult.Empty;
         }
 
+        long descriptorLength;
+        try
+        {
+            FileInfo descriptorInfo = new(fullDescriptorPath);
+            if (!descriptorInfo.Exists || descriptorInfo.Length <= 0)
+            {
+                return InputSafetyScanResult.Empty;
+            }
+
+            descriptorLength = descriptorInfo.Length;
+        }
+        catch (Exception ex) when (IsExpectedDescriptorException(ex))
+        {
+            _logger.Debug(ex, "Descriptor safety scanner could not stat descriptor. Descriptor={Descriptor}", fullDescriptorPath);
+            return InputSafetyScanResult.Empty;
+        }
+
+        if (descriptorLength > MaxDescriptorBytes)
+        {
+            _logger.Debug(
+                "Descriptor safety scanner blocked oversized descriptor. Descriptor={Descriptor}; Length={Length}; MaxBytes={MaxBytes}",
+                fullDescriptorPath,
+                descriptorLength,
+                MaxDescriptorBytes);
+
+            return InputSafetyScanResult.FromArtifacts(
+            [
+                new SuspiciousArtifact(
+                    fullDescriptorPath,
+                    fullDescriptorPath,
+                    SuspiciousArtifactKind.UnsafeDescriptorReference,
+                    QueueIntakeAdvisorySeverity.Blocker,
+                    "LocInputSafety_UnsafeDescriptorReference")
+            ]);
+        }
+
         string descriptorText;
         try
         {
@@ -174,7 +210,7 @@ public sealed partial class DescriptorSafetyScanner
                     continue;
                 }
 
-                string[] parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                string[] parts = SplitDescriptorFields(line);
                 if (parts.Length >= 5)
                 {
                     yield return parts[4];
@@ -227,6 +263,11 @@ public sealed partial class DescriptorSafetyScanner
         return segments.Length > 0;
     }
 
+    private static string[] SplitDescriptorFields(string line)
+    {
+        return line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+    }
+
     private static bool IsDescriptorExtension(string extension)
     {
         return extension.Equals(".cue", StringComparison.OrdinalIgnoreCase)
@@ -246,7 +287,6 @@ public sealed partial class DescriptorSafetyScanner
             or RegexMatchTimeoutException
             or System.Security.SecurityException;
     }
-
 
     [GeneratedRegex(
         "\"(?<file>[^\"]+)\"",

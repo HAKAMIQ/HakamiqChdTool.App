@@ -5,7 +5,6 @@ using HakamiqChdTool.App.Services.Storage;
 
 namespace HakamiqChdTool.App.Services.StorageAdvisor;
 
-
 internal enum StoragePathRole
 {
     Unknown = 0,
@@ -149,8 +148,8 @@ internal sealed record StorageAdvisorResult(
         false,
         false,
         false,
-        Array.Empty<StorageAdvisorIssue>(),
-        Array.Empty<StorageAdvisorRecommendation>());
+        [],
+        []);
 
     public static StorageAdvisorResult Create(
         StorageAdvisorOperationKind operationKind,

@@ -1,3 +1,5 @@
+using System;
+
 namespace HakamiqChdTool.App.Services.Storage;
 
 internal enum StorageTemperatureCapability

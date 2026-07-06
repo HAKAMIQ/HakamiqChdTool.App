@@ -1,6 +1,7 @@
 using Serilog;
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -43,7 +44,7 @@ internal sealed class StorageTemperatureMonitor : IStorageTemperatureMonitor
             cancellationToken);
     }
 
-    private StorageTemperatureReading TryRead(
+    private static StorageTemperatureReading TryRead(
         StorageDeviceIdentity device,
         CancellationToken cancellationToken)
     {

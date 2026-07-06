@@ -18,20 +18,19 @@ internal sealed record StorageTopologySnapshot(
     StorageDeviceIdentity PendingDevice,
     StorageDeviceIdentity OutputDevice);
 
-internal sealed class StorageTopologyService
+internal sealed class StorageTopologyService(
+    StorageDeviceResolver deviceResolver,
+    ILogger log)
 {
-    private readonly StorageDeviceResolver _deviceResolver;
-    private readonly ILogger _log;
+    private readonly StorageDeviceResolver _deviceResolver =
+        deviceResolver ?? throw new ArgumentNullException(nameof(deviceResolver));
+
+    private readonly ILogger _log =
+        log ?? throw new ArgumentNullException(nameof(log));
 
     public StorageTopologyService()
         : this(new StorageDeviceResolver(), Log.ForContext<StorageTopologyService>())
     {
-    }
-
-    public StorageTopologyService(StorageDeviceResolver deviceResolver, ILogger log)
-    {
-        _deviceResolver = deviceResolver ?? throw new ArgumentNullException(nameof(deviceResolver));
-        _log = log ?? throw new ArgumentNullException(nameof(log));
     }
 
     public StorageTopologySnapshot Analyze(
@@ -117,4 +116,3 @@ internal sealed class StorageTopologyService
         }
     }
 }
-
