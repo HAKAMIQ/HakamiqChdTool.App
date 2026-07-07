@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace HakamiqChdTool.App.Core.Input;
 
 public enum QueueInputRole
@@ -45,28 +43,10 @@ public static class QueueInputClassifier
         MediaInputDescriptor descriptor = MediaInputClassifier.Shared.Classify(path);
         string extension = descriptor.Extension ?? string.Empty;
 
-        QueueInputRole role = descriptor.Kind switch
-        {
-            MediaInputKind.CUE or MediaInputKind.GDI or MediaInputKind.ISO or MediaInputKind.CSO => QueueInputRole.ConvertibleDiscImage,
-            MediaInputKind.CHD => QueueInputRole.ChdImage,
-            MediaInputKind.BIN => QueueInputRole.BinCueRescueCandidate,
-            _ => ResolveLegacyRole(extension)
-        };
+        QueueInputRole role = MediaInputPipeline.Decide(descriptor).QueueRole;
 
         return new QueueInputClassification(role, extension);
     }
-
-
-    private static QueueInputRole ResolveLegacyRole(string extension) => extension switch
-    {
-        ".cue" or ".gdi" or ".iso" or ".cso" => QueueInputRole.ConvertibleDiscImage,
-        ".chd" => QueueInputRole.ChdImage,
-        ".bin" => QueueInputRole.BinCueRescueCandidate,
-        ".toc" or ".nrg" => QueueInputRole.ConvertibleDiscImage,
-        ".zip" or ".rar" or ".7z" => QueueInputRole.ArchiveContainer,
-        ".raw" => QueueInputRole.DependentTrackFile,
-        _ => QueueInputRole.Unsupported
-    };
 
     public static bool IsConvertibleDiscImagePath(string? path) =>
         Classify(path).IsConvertibleDiscImage;
@@ -92,6 +72,8 @@ public static class QueueInputClassifier
             ? trimmed
             : "." + trimmed;
 
-        return Classify("input" + normalized).IsSupported;
+        return new QueueInputClassification(
+            MediaInputRoles.ResolveExtensionRole(normalized),
+            normalized).IsSupported;
     }
 }

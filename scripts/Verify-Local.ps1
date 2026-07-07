@@ -11,6 +11,7 @@ $RepoCheck = Join-Path $ScriptDir 'VerifyRepo.ps1'
 $Ps2AdvisoryTests = Join-Path $ScriptDir 'Ps2AdvTests.ps1'
 $PackageCleanlinessGate = Join-Path $ScriptDir 'PkgCleanGate.ps1'
 $ReleaseOutputGate = Join-Path $ScriptDir 'RelOutGate.ps1'
+$ReleasePackageGate = Join-Path $ScriptDir 'PackRel.ps1'
 $Checklist = Join-Path $ProjectRoot 'docs\SMOKE.md'
 $PowerShellExe = Join-Path $PSHOME 'powershell.exe'
 
@@ -91,6 +92,7 @@ try {
     Assert-FileExists -Path $Ps2AdvisoryTests -Message 'PS2 advisory validation script was not found:'
     Assert-FileExists -Path $PackageCleanlinessGate -Message 'Package cleanliness gate script was not found:'
     Assert-FileExists -Path $ReleaseOutputGate -Message 'Release output gate script was not found:'
+    Assert-FileExists -Path $ReleasePackageGate -Message 'Release package gate script was not found:'
 
     Write-Host 'Repository conventions ...' -ForegroundColor Cyan
     Invoke-PowerShellFile -ScriptPath $RepoCheck

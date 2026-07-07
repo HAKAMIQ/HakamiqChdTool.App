@@ -9,13 +9,10 @@ Pick a file or folder, choose an output folder, and start the queue. The app han
 Latest release:
 https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/latest
 
-Choose one package:
+Choose the Windows x64 runtime-required package:
 
-- `HakamiqChdTool-v1.0.8-win-x64-runtime-required.zip`
-  Smaller download. Requires .NET 8 Desktop Runtime x64.
-
-- `HakamiqChdTool-v1.0.8-win-x64-self-contained.zip`
-  Larger download. Runs without installing .NET separately.
+- `HakamiqChdTool-vX.Y.Z-win-x64-runtime-required.zip`
+  Requires .NET 8 Desktop Runtime x64.
 
 ## Quick start
 
