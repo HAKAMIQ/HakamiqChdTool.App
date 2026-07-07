@@ -324,7 +324,7 @@ function Test-UnreferencedHandlers {
 function Test-LocalStylesWithoutGlobalEquivalent {
     $globalKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     $viewsPath = Join-Path $root 'Views'
-    $mainWindowPath = Join-Path $root 'MainWindow.xaml'
+    $mainWindowPath = Join-Path $root 'Views\MainWindow\MainWindow.xaml'
 
     $globalFiles = Get-AllFiles @('*.xaml') | Where-Object {
         $fullName = $_.FullName
@@ -780,6 +780,159 @@ function Test-ReleaseScriptConventions {
     if (Test-Path -LiteralPath $legacyPublishScript -PathType Leaf) {
         Add-Failure "Legacy scripts\publish-release.ps1 is not allowed. Use scripts\PublishRel.ps1."
     }
+
+    $packageScript = Join-Path $root 'scripts\PackRel.ps1'
+    if (-not (Test-Path -LiteralPath $packageScript -PathType Leaf)) {
+        Add-Failure "PackRel.ps1 is required so uploaded release ZIP files are generated and verified before upload."
+    }
+    else {
+        $packageText = Get-Content -LiteralPath $packageScript -Raw -Encoding UTF8
+        foreach ($required in @(
+            'ZipArchive',
+            'Expand-Archive',
+            'VerifyRelease.ps1',
+            'Get-FileHash',
+            '.sha256',
+            'Assert-Sha256FileMatchesZip',
+            'Assert-PackageDirectoryClean')) {
+            if ($packageText -notmatch [regex]::Escape($required)) {
+                Add-Failure "PackRel.ps1 must keep required package verification marker: $required"
+            }
+        }
+    }
+}
+
+function Test-ValidationPipelineWiring {
+    $solutionFile = Join-Path $root 'HakamiqChdTool.App.sln'
+    if (-not (Test-Path -LiteralPath $solutionFile -PathType Leaf)) {
+        Add-Failure 'Solution file is required so app and validation projects share one build entrypoint.'
+    }
+    else {
+        $solutionText = Get-Content -LiteralPath $solutionFile -Raw -Encoding UTF8
+        if ($solutionText -notmatch 'HakamiqChdTool\.App\.Tests\\HakamiqChdTool\.App\.Tests\.csproj') {
+            Add-Failure 'Solution file must include HakamiqChdTool.App.Tests so validation code stays wired into normal builds.'
+        }
+    }
+
+    $testProject = Join-Path $root 'HakamiqChdTool.App.Tests\HakamiqChdTool.App.Tests.csproj'
+    if (-not (Test-Path -LiteralPath $testProject -PathType Leaf)) {
+        Add-Failure 'HakamiqChdTool.App.Tests project is required for P0 workflow validation.'
+    }
+
+    $testProgram = Join-Path $root 'HakamiqChdTool.App.Tests\Program.cs'
+    if (-not (Test-Path -LiteralPath $testProgram -PathType Leaf)) {
+        Add-Failure 'HakamiqChdTool.App.Tests\Program.cs is required for P0 workflow validation.'
+    }
+    else {
+        $testText = Get-Content -LiteralPath $testProgram -Raw -Encoding UTF8
+        foreach ($required in @(
+            'Media input classifier covers P0 descriptors',
+            'Media input pipeline makes P0 decisions',
+            'TestWorkflowPlannerCueCreatesCd',
+            'TestWorkflowPlannerCsoCreatesDvd',
+            'TestPendingOutputPathIsolatedUnderWorkspaceRoot',
+            'TryNormalizeCuePrimaryBinReference')) {
+            if ($testText -notmatch [regex]::Escape($required)) {
+                Add-Failure "Validation test project is missing required P0/workflow coverage marker: $required"
+            }
+        }
+    }
+
+    $mediaInputPipeline = Join-Path $root 'Core\Input\MediaPipe.cs'
+    if (-not (Test-Path -LiteralPath $mediaInputPipeline -PathType Leaf)) {
+        Add-Failure 'MediaInputPipeline is required for the unified P0 intake decision layer.'
+    }
+    else {
+        $pipelineText = Get-Content -LiteralPath $mediaInputPipeline -Raw -Encoding UTF8
+        foreach ($required in @(
+            'DecideAsync',
+            'MediaInputPipelineDecision',
+            'RequiresStandaloneBinPolicy',
+            'DetectedOnly',
+            'AcceptArchiveContainer')) {
+            if ($pipelineText -notmatch [regex]::Escape($required)) {
+                Add-Failure "MediaInputPipeline missing required P0 decision marker: $required"
+            }
+        }
+    }
+
+    $mediaInputPipelineDecision = Join-Path $root 'Core\Input\MediaPipeDecision.cs'
+    if (-not (Test-Path -LiteralPath $mediaInputPipelineDecision -PathType Leaf)) {
+        Add-Failure 'MediaPipeDecision.cs is required so P0 intake exposes a first-class decision.'
+    }
+
+    $mediaInputRoles = Join-Path $root 'Core\Input\MediaInputRoles.cs'
+    if (-not (Test-Path -LiteralPath $mediaInputRoles -PathType Leaf)) {
+        Add-Failure 'MediaInputRoles.cs is required so queue role mapping has one source of truth.'
+    }
+    else {
+        $rolesText = Get-Content -LiteralPath $mediaInputRoles -Raw -Encoding UTF8
+        foreach ($required in @(
+            'ResolveQueueRole',
+            'ResolveExtensionRole',
+            'QueueInputRole.ArchiveContainer',
+            'QueueInputRole.BinCueRescueCandidate')) {
+            if ($rolesText -notmatch [regex]::Escape($required)) {
+                Add-Failure "MediaInputRoles missing required mapping marker: $required"
+            }
+        }
+    }
+
+    $queueInputClassifier = Join-Path $root 'Core\Input\QueueInClass.cs'
+    if (Test-Path -LiteralPath $queueInputClassifier -PathType Leaf) {
+        $queueClassifierText = Get-Content -LiteralPath $queueInputClassifier -Raw -Encoding UTF8
+        if ($queueClassifierText -notmatch 'MediaInputPipeline\.Decide') {
+            Add-Failure 'QueueInputClassifier must derive file decisions from MediaInputPipeline.Decide to avoid P0 mapping drift.'
+        }
+
+        if ($queueClassifierText -match 'ResolveLegacyRole') {
+            Add-Failure 'QueueInputClassifier must not keep a duplicate ResolveLegacyRole mapping.'
+        }
+
+        if ($queueClassifierText -notmatch 'MediaInputRoles\.ResolveExtensionRole') {
+            Add-Failure 'QueueInputClassifier.IsSupportedExtension must use MediaInputRoles.ResolveExtensionRole.'
+        }
+    }
+
+    $localGate = Join-Path $root 'scripts\Verify-Local.ps1'
+    if (-not (Test-Path -LiteralPath $localGate -PathType Leaf)) {
+        Add-Failure 'Verify-Local.ps1 is required as the canonical local verification gate.'
+    }
+    else {
+        $localGateText = Get-Content -LiteralPath $localGate -Raw -Encoding UTF8
+        foreach ($required in @(
+            'VerifyRepo.ps1',
+            'PkgCleanGate.ps1',
+            'Ps2AdvTests.ps1',
+            'RelOutGate.ps1',
+            'PackRel.ps1',
+            '-SkipAppBuild')) {
+            if ($localGateText -notmatch [regex]::Escape($required)) {
+                Add-Failure "Verify-Local.ps1 must keep required validation step wired: $required"
+            }
+        }
+    }
+
+    $ciWorkflow = Join-Path $root '.github\workflows\ci.yml'
+    if (-not (Test-Path -LiteralPath $ciWorkflow -PathType Leaf)) {
+        Add-Failure 'CI workflow is required for build and release validation.'
+    }
+    else {
+        $ciText = Get-Content -LiteralPath $ciWorkflow -Raw -Encoding UTF8
+        foreach ($required in @(
+            'VerifyRepo.ps1',
+            'PkgCleanGate.ps1',
+            'Ps2AdvTests.ps1',
+            '-SkipAppBuild',
+            'HakamiqChdTool.App.sln',
+            'RelOutGate.ps1',
+            'PackRel.ps1',
+            'Release/packages/')) {
+            if ($ciText -notmatch [regex]::Escape($required)) {
+                Add-Failure "CI workflow must keep required validation step wired: $required"
+            }
+        }
+    }
 }
 
 function Test-RefactorCompositionCompletion {
@@ -1169,7 +1322,7 @@ function Test-OptionsWindowEarlyEventSafety {
 
 
 function Test-RedumpAutoSyncStartupPolicy {
-    $settingsPath = Join-Path $root 'Services\Configuration\AppSettings.cs'
+    $settingsPath = Join-Path $root 'Models\Configuration\AppSettings.cs'
     $startupPath = Join-Path $root 'Startup\MainStartup.cs'
     $autoSyncPath = Join-Path $root 'Services\RedAutoSync.cs'
 
@@ -1472,7 +1625,7 @@ function Test-BinCueConsoleIdentityArchitecture {
         }
     }
 
-    $queueIntake = Join-Path $root 'ViewModels\MainWindowViewModel.QueueIntake.cs'
+    $queueIntake = Join-Path $root 'ViewModels\MainVM.Intake.cs'
     if (Test-Path -LiteralPath $queueIntake -PathType Leaf) {
         $content = Get-Content -LiteralPath $queueIntake -Raw -Encoding UTF8
         if ($content -notmatch 'MediaInputPolicy\.Evaluate' -or $content -notmatch 'mediaDecision\.EffectivePath') {
@@ -1829,6 +1982,7 @@ Test-LocalizationResourceParity
 Test-NoDeadThemeTokenPalettes
 Test-FluentTokenEnforcementInViews
 Test-ReleaseScriptConventions
+Test-ValidationPipelineWiring
 Test-DispatcherUnhandledExceptionPolicy
 Test-SingleInstanceGuard
 Test-OptionsConstructorGuard

@@ -29,11 +29,22 @@ jobs:
         shell: pwsh
         run: .\scripts\VerifyRepo.ps1
 
-      - name: Restore Debug
-        run: dotnet restore .\HakamiqChdTool.App.csproj
+      - name: Package cleanliness gate
+        shell: pwsh
+        run: .\scripts\PkgCleanGate.ps1
 
-      - name: Build Debug
-        run: dotnet build .\HakamiqChdTool.App.csproj -c Debug --no-restore --nologo -p:NuGetAudit=false
+      - name: Restore solution
+        run: dotnet restore .\HakamiqChdTool.App.sln
+
+      - name: Build Debug solution
+        run: dotnet build .\HakamiqChdTool.App.sln -c Debug --no-restore --nologo -p:NuGetAudit=false
+
+      - name: PS2 and P0 validation tests
+        shell: pwsh
+        run: .\scripts\Ps2AdvTests.ps1 -SkipAppBuild
+
+      - name: Build Release solution
+        run: dotnet build .\HakamiqChdTool.App.sln -c Release --no-restore --nologo -p:NuGetAudit=false
 
       - name: Restore Release win-x64
         run: dotnet restore .\HakamiqChdTool.App.csproj -r win-x64
@@ -41,13 +52,17 @@ jobs:
       - name: Build Release win-x64
         run: dotnet build .\HakamiqChdTool.App.csproj -c Release -r win-x64 --no-restore --nologo -p:NuGetAudit=false
 
-      - name: Publish end-user release gate
+      - name: Publish and verify end-user release
         shell: pwsh
-        run: .\scripts\PublishRel.ps1
+        run: .\scripts\RelOutGate.ps1 -Output .\Release\ci-output -KeepOutput
 
-      - name: Upload release output artifact
+      - name: Pack verified release artifact
+        shell: pwsh
+        run: .\scripts\PackRel.ps1 -ReleaseOutput .\Release\ci-output -PackageDirectory .\Release\packages
+
+      - name: Upload release package artifact
         uses: actions/upload-artifact@v6
         with:
           name: HakamiqChdTool-win-x64
-          path: Release/
+          path: Release/packages/
           if-no-files-found: error

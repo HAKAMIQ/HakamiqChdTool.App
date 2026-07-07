@@ -60,7 +60,8 @@ internal static class Program
                 new("Workflow planner maps CHD media types", () => TestWorkflowPlannerMediaTypes(app)),
                 new("Workflow planner creates CD command for CUE descriptor", () => TestWorkflowPlannerCueCreatesCd(app, workDirectory)),
                 new("Workflow planner creates DVD command for CSO input", () => TestWorkflowPlannerCsoCreatesDvd(app, workDirectory)),
-                new("Media input classifier covers P0 descriptors", () => TestMediaInputClassifierP0(app, workDirectory))
+                new("Media input classifier covers P0 descriptors", () => TestMediaInputClassifierP0(app, workDirectory)),
+                new("Media input pipeline makes P0 decisions", () => TestMediaInputPipelineP0Decisions(app, workDirectory))
             ];
 
             int passed = 0;
@@ -534,6 +535,56 @@ internal static class Program
             "Locked CHD should fall back to extension with a probe-failed reason.");
     }
 
+    private static void TestMediaInputPipelineP0Decisions(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "media-input-pipeline-p0");
+        Directory.CreateDirectory(root);
+
+        object empty = app.DecideMediaInput(string.Empty);
+        AssertEqual("Block", GetEnumName(empty, "Action"), "Empty path should be blocked.");
+        AssertTrue(GetBool(empty, "IsBlocked"), "Empty path decision should report IsBlocked.");
+        AssertEqual("Unsupported", GetEnumName(empty, "QueueRole"), "Empty path should not have a queue role.");
+
+        string folderPath = Path.Combine(root, "folder");
+        Directory.CreateDirectory(folderPath);
+        object folder = app.DecideMediaInput(folderPath);
+        AssertEqual("AcceptFolder", GetEnumName(folder, "Action"), "Folder should be accepted for enumeration.");
+        AssertTrue(GetBool(folder, "ShouldEnumerateFolder"), "Folder decision should enumerate.");
+
+        string isoPath = WriteMediaFile(root, "disc.iso", [0, 1, 2, 3]);
+        object iso = app.DecideMediaInput(isoPath);
+        AssertEqual("AcceptConvertibleDiscImage", GetEnumName(iso, "Action"), "ISO should be accepted as a convertible disc image.");
+        AssertEqual("ConvertibleDiscImage", GetEnumName(iso, "QueueRole"), "Unexpected ISO queue role.");
+        AssertTrue(GetBool(iso, "IsAcceptedForQueue"), "ISO should be accepted for queue.");
+
+        string chdPath = WriteMediaFile(root, "disc.chd", Encoding.ASCII.GetBytes("MComprHD"));
+        object chd = app.DecideMediaInput(chdPath);
+        AssertEqual("AcceptChdImage", GetEnumName(chd, "Action"), "CHD should be accepted as a CHD image.");
+        AssertEqual("ChdImage", GetEnumName(chd, "QueueRole"), "Unexpected CHD queue role.");
+
+        string binPath = WriteMediaFile(root, "track.bin", [1, 2, 3, 4]);
+        object bin = app.DecideMediaInput(binPath);
+        AssertEqual("RequiresStandaloneBinPolicy", GetEnumName(bin, "Action"), "Standalone BIN should route to policy.");
+        AssertEqual("BinCueRescueCandidate", GetEnumName(bin, "QueueRole"), "Unexpected BIN queue role.");
+        AssertTrue(GetBool(bin, "RequiresStandaloneBinPolicy"), "BIN decision should expose the policy requirement.");
+
+        string zipPath = WriteMediaFile(root, "archive.zip", [0x50, 0x4B, 0x03, 0x04]);
+        object zip = app.DecideMediaInput(zipPath);
+        AssertEqual("AcceptArchiveContainer", GetEnumName(zip, "Action"), "ZIP should be accepted as an archive container.");
+        AssertEqual("ArchiveContainer", GetEnumName(zip, "QueueRole"), "Unexpected ZIP queue role.");
+
+        string pkgPath = WriteMediaFile(root, "package.pkg", [0x7F, 0x50, 0x4B, 0x47, 0]);
+        object pkg = app.DecideMediaInput(pkgPath);
+        AssertEqual("DetectedOnly", GetEnumName(pkg, "Action"), "PKG should remain detected-only at P0.");
+        AssertTrue(GetBool(pkg, "IsDetectedOnly"), "PKG decision should expose detected-only state.");
+        AssertFalse(GetBool(pkg, "IsAcceptedForQueue"), "PKG should not be accepted for queue by the P0 pipeline.");
+
+        string otherPath = WriteMediaFile(root, "notes.txt", Encoding.ASCII.GetBytes("not media"));
+        object other = app.DecideMediaInput(otherPath);
+        AssertEqual("Block", GetEnumName(other, "Action"), "Other file should be blocked.");
+        AssertEqual("unsupported-media-input", GetString(other, "Reason"), "Unexpected block reason.");
+    }
+
     private static void AssertPlan(
         object plan,
         bool supported,
@@ -752,6 +803,8 @@ internal static class Program
         private readonly MethodInfo planCreateFromSource;
         private readonly object mediaInputClassifier;
         private readonly MethodInfo mediaInputClassifyAsync;
+        private readonly object mediaInputPipeline;
+        private readonly MethodInfo mediaInputPipelineDecideAsync;
 
         public AppReflection(Assembly appAssembly)
         {
@@ -762,12 +815,15 @@ internal static class Program
             Type outputPathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowOutputPathPlanner");
             Type profilePlannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdWorkflowProfilePlanner");
             Type mediaInputClassifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputClassifier");
+            Type mediaInputPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputPipeline");
             settingsType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.AppSettings");
             extractionKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdmanExtractionKind");
             isoCreateOverrideType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.IsoCreateCommandOverride");
             mediaContainerKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdMediaContainerKind");
             mediaInputClassifier = Activator.CreateInstance(mediaInputClassifierType)
                 ?? throw new InvalidOperationException("Unable to create media input classifier.");
+            mediaInputPipeline = Activator.CreateInstance(mediaInputPipelineType, mediaInputClassifier)
+                ?? throw new InvalidOperationException("Unable to create media input pipeline.");
 
             scannerTryScan = GetRequiredMethod(scannerType, "TryScan");
             detectorDetect = GetRequiredMethod(detectorType, "Detect");
@@ -782,6 +838,7 @@ internal static class Program
             planExtractionFromChdMediaType = GetRequiredMethod(profilePlannerType, "PlanExtractionFromChdMediaType", [typeof(string), typeof(string), GetOptionalPlatformDetectionType(appAssembly)]);
             planCreateFromSource = GetRequiredMethod(profilePlannerType, "PlanCreateFromSource", [typeof(string), isoCreateOverrideType, mediaContainerKindType, typeof(string)]);
             mediaInputClassifyAsync = GetRequiredInstanceMethod(mediaInputClassifierType, "ClassifyAsync", [typeof(string), typeof(CancellationToken)]);
+            mediaInputPipelineDecideAsync = GetRequiredInstanceMethod(mediaInputPipelineType, "DecideAsync", [typeof(string), typeof(CancellationToken)]);
         }
 
         public ReflectedStructure ScanStructure(string path)
@@ -896,15 +953,15 @@ internal static class Program
             object valueTask = mediaInputClassifyAsync.Invoke(mediaInputClassifier, [path, CancellationToken.None])
                 ?? throw new InvalidOperationException("Media input classifier returned null.");
 
-            MethodInfo asTask = valueTask.GetType().GetMethod("AsTask", BindingFlags.Instance | BindingFlags.Public)
-                ?? throw new MissingMethodException(valueTask.GetType().FullName, "AsTask");
+            return AwaitValueTaskResult(valueTask, "Classifier");
+        }
 
-            Task task = (Task)(asTask.Invoke(valueTask, null)
-                ?? throw new InvalidOperationException("Unable to convert classifier result to Task."));
-            task.GetAwaiter().GetResult();
+        public object DecideMediaInput(string path)
+        {
+            object valueTask = mediaInputPipelineDecideAsync.Invoke(mediaInputPipeline, [path, CancellationToken.None])
+                ?? throw new InvalidOperationException("Media input pipeline returned null.");
 
-            return task.GetType().GetProperty("Result", BindingFlags.Instance | BindingFlags.Public)?.GetValue(task)
-                ?? throw new InvalidOperationException("Classifier task did not expose a result.");
+            return AwaitValueTaskResult(valueTask, "Pipeline");
         }
 
         public IReadOnlySet<string> GetAdvisoryReasonCodes(object advisory)
@@ -934,6 +991,19 @@ internal static class Program
                 ?? throw new MissingMemberException(instance.GetType().FullName, propertyName);
 
             property.SetValue(instance, value);
+        }
+
+        private static object AwaitValueTaskResult(object valueTask, string context)
+        {
+            MethodInfo asTask = valueTask.GetType().GetMethod("AsTask", BindingFlags.Instance | BindingFlags.Public)
+                ?? throw new MissingMethodException(valueTask.GetType().FullName, "AsTask");
+
+            Task task = (Task)(asTask.Invoke(valueTask, null)
+                ?? throw new InvalidOperationException("Unable to convert " + context + " result to Task."));
+            task.GetAwaiter().GetResult();
+
+            return task.GetType().GetProperty("Result", BindingFlags.Instance | BindingFlags.Public)?.GetValue(task)
+                ?? throw new InvalidOperationException(context + " task did not expose a result.");
         }
 
         private static Type GetOptionalPlatformDetectionType(Assembly assembly) =>

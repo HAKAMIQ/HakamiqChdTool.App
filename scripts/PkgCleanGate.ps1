@@ -259,6 +259,7 @@ function Assert-SourcePackageLayout {
         'scripts\VerifyRepo.ps1',
         'scripts\VerifyRelease.ps1',
         'scripts\RelOutGate.ps1',
+        'scripts\PackRel.ps1',
         'scripts\GenManifest.ps1',
         'docs\legal\LEGAL.md',
         'docs\legal\3P_NOTICE.txt'

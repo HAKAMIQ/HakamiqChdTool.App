@@ -58,11 +58,11 @@ This publishes a disposable release output, verifies the end-user package, check
 Use the release script, not `bin` or a hand-made folder:
 
 ```powershell
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\PublishRel.ps1 -Output .\Release\v1.0.8
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\PkgCleanGate.ps1 -ReleaseOutput .\Release\v1.0.8
+PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\RelOutGate.ps1 -Output .\Release\vX.Y.Z -KeepOutput
+PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\PackRel.ps1 -ReleaseOutput .\Release\vX.Y.Z -PackageDirectory .\Release\packages -PackageName HakamiqChdTool-vX.Y.Z-win-x64-runtime-required.zip
 ```
 
-Then create the ZIP from that folder and verify SHA256. Do not include source, scripts, test output, or build folders in the release asset.
+Upload the ZIP and `.sha256` from `Release\packages`. Do not include source, scripts, test output, or build folders in the release asset.
 
 ## Manual smoke test
 

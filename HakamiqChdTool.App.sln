@@ -4,6 +4,8 @@ VisualStudioVersion = 18.7.11925.98 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HakamiqChdTool.App", "HakamiqChdTool.App.csproj", "{8F4E2A1B-6C3D-4E5F-9A0B-1C2D3E4F5A6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HakamiqChdTool.App.Tests", "HakamiqChdTool.App.Tests\HakamiqChdTool.App.Tests.csproj", "{D91F9E2D-9F94-4E3F-8BA8-E0BA3A47B7A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
 		{8F4E2A1B-6C3D-4E5F-9A0B-1C2D3E4F5A6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F4E2A1B-6C3D-4E5F-9A0B-1C2D3E4F5A6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F4E2A1B-6C3D-4E5F-9A0B-1C2D3E4F5A6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D91F9E2D-9F94-4E3F-8BA8-E0BA3A47B7A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D91F9E2D-9F94-4E3F-8BA8-E0BA3A47B7A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D91F9E2D-9F94-4E3F-8BA8-E0BA3A47B7A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D91F9E2D-9F94-4E3F-8BA8-E0BA3A47B7A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
