@@ -32,7 +32,7 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Large}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -42,7 +42,7 @@
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -50,7 +50,7 @@
             <Style x:Key="OrphanedCleanupDialog.ContentHost"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="Padding" Value="12" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -61,7 +61,7 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
-                <Setter Property="Padding" Value="12" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -69,12 +69,12 @@
 
             <Style x:Key="OrphanedCleanupDialog.MetricCard"
                    TargetType="{x:Type Border}">
-                <Setter Property="MinHeight" Value="62" />
+                <Setter Property="MinHeight" Value="{DynamicResource Space.64}" />
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
-                <Setter Property="Padding" Value="10" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.10.All}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -86,7 +86,7 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource WarningBorderBrush}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
-                <Setter Property="Padding" Value="12" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />

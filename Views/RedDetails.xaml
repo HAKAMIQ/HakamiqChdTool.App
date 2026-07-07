@@ -61,7 +61,7 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -72,7 +72,7 @@
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -80,7 +80,7 @@
             <Style x:Key="RedumpDetails.ContentHost"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="Padding" Value="14" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.14.All}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -91,7 +91,7 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
-                <Setter Property="Padding" Value="12" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Top" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
@@ -106,8 +106,8 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="Padding" Value="10,8" />
-                <Setter Property="MinHeight" Value="58" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.10.8}" />
+                <Setter Property="MinHeight" Value="{DynamicResource Space.56}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -116,14 +116,14 @@
                    TargetType="{x:Type Border}">
                 <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
                 <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
-                <Setter Property="Padding" Value="10,8" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.10.8}" />
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Center" />
-                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
                 <Setter Property="ClipToBounds" Value="True" />
@@ -208,7 +208,7 @@
             <Style x:Key="RedumpDetails.StatusBadge"
                    TargetType="{x:Type Border}">
                 <Setter Property="MinWidth" Value="0" />
-                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.10.5}" />
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
@@ -243,8 +243,7 @@
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource PrimaryButtonStyle}">
                 <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
-                <Setter Property="MaxWidth" Value="156" />
-                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.10.5}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
@@ -254,8 +253,7 @@
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource SecondaryButtonStyle}">
                 <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
-                <Setter Property="MaxWidth" Value="156" />
-                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.10.5}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
