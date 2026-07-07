@@ -36,14 +36,14 @@
             <Grid x:Name="QueueHostSurface"
                   Grid.Row="1"
                   MinHeight="{DynamicResource Layout.Queue.MinHeight}"
-                  Background="{DynamicResource Brush.Layer.Surface}"
+                  Background="{DynamicResource Brush.Layer.Card}"
                   FlowDirection="{DynamicResource App.FlowDirection}"
                   Language="{DynamicResource App.XmlLanguage}"
                   ClipToBounds="True"
                   SnapsToDevicePixels="True">
 
-                <Border Margin="{DynamicResource Inset.8.All}"
-                        Background="{DynamicResource Brush.Layer.Card}"
+                <Border Margin="{DynamicResource Inset.12.All}"
+                        Background="{DynamicResource Brush.Layer.Surface}"
                         BorderBrush="{DynamicResource Brush.Border.Subtle}"
                         BorderThickness="{DynamicResource Inset.1.All}"
                         CornerRadius="{DynamicResource Radius.Card}"
@@ -56,7 +56,7 @@
                           SnapsToDevicePixels="True">
 
                         <Rectangle x:Name="DropZoneDashedFrame"
-                                   Margin="{DynamicResource Inset.8.All}"
+                                   Margin="{DynamicResource Inset.12.All}"
                                    RadiusX="{DynamicResource Space.12}"
                                    RadiusY="{DynamicResource Space.12}"
                                    Fill="{DynamicResource Brush.Transparent}"
@@ -131,8 +131,8 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Padding="{DynamicResource Inset.8.All}"
-                    Background="{DynamicResource Brush.Layer.Surface}"
+                    Padding="{DynamicResource Inset.12.All}"
+                    Background="{DynamicResource Brush.Layer.Card}"
                     BorderBrush="{DynamicResource Brush.Border.Subtle}"
                     BorderThickness="{DynamicResource Inset.1.0.1.1}"
                     SnapsToDevicePixels="True">

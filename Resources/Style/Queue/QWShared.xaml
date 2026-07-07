@@ -246,8 +246,8 @@
 
     <Style x:Key="QueueWorkspaceToolButton"
            TargetType="{x:Type Button}">
-        <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
@@ -325,8 +325,8 @@
 
     <Style x:Key="QueueWorkspaceFooterCommandBase"
            TargetType="{x:Type Button}">
-        <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />

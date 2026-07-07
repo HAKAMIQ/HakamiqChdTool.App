@@ -32,8 +32,8 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Width="{DynamicResource Space.36}"
-                        Height="{DynamicResource Space.36}"
+                        Width="{DynamicResource Space.40}"
+                        Height="{DynamicResource Space.40}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Background="{DynamicResource Brush.Accent.Subtle}"
@@ -70,7 +70,6 @@
                                Text="{DynamicResource LocUi_QueueSection_Subtitle}"
                                TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap"
-                               Visibility="Collapsed"
                                ToolTip="{DynamicResource LocUi_QueueSection_Subtitle}" />
                 </StackPanel>
             </Grid>

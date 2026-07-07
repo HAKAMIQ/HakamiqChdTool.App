@@ -56,7 +56,7 @@
 
         <Style x:Key="MainWindow.BodySurface"
                TargetType="{x:Type Grid}">
-            <Setter Property="Margin" Value="{DynamicResource Inset.8.All}" />
+            <Setter Property="Margin" Value="{DynamicResource Inset.12.All}" />
             <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="ClipToBounds" Value="True" />
@@ -64,10 +64,10 @@
 
         <Style x:Key="MainWindow.ActionRailHost"
                TargetType="{x:Type Border}">
-            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
             <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Stretch" />
@@ -77,10 +77,10 @@
 
         <Style x:Key="MainWindow.QueueHost"
                TargetType="{x:Type Border}">
-            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
             <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Stretch" />
@@ -126,7 +126,7 @@
                     <ColumnDefinition Width="{DynamicResource Layout.ActionPanel.GridWidth}"
                                       MinWidth="264"
                                       MaxWidth="304" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
