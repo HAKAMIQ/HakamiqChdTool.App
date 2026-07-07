@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.Input;
 using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
 using System;
 using System.Threading.Tasks;
 

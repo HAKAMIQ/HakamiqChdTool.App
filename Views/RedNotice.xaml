@@ -143,29 +143,19 @@
                       SnapsToDevicePixels="True">
 
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Width="{DynamicResource Space.4}"
-                            Height="{DynamicResource Space.22}"
-                            Background="{DynamicResource Brush.Accent}"
-                            CornerRadius="{DynamicResource Radius.Control}"
-                            VerticalAlignment="Top"
-                            SnapsToDevicePixels="True" />
-
-                    <TextBlock Grid.Column="2"
+                    <TextBlock Grid.Column="0"
                                Text="{Binding Title, Mode=OneWay}"
                                ToolTip="{Binding Title, Mode=OneWay}"
                                Style="{StaticResource RedumpNotice.TitleText}"
                                VerticalAlignment="Center" />
 
                     <Button x:Name="CloseHeaderButton"
-                            Grid.Column="4"
+                            Grid.Column="2"
                             Width="{DynamicResource Space.32}"
                             Height="{DynamicResource Space.32}"
                             MinWidth="{DynamicResource Space.32}"
@@ -211,7 +201,7 @@
                 </Border>
             </Border>
 
-                        <Border Grid.Row="2"
+            <Border Grid.Row="2"
                     Style="{StaticResource RedumpNotice.HeaderFooter}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}">
 

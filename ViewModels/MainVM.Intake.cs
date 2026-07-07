@@ -1,5 +1,5 @@
-using HakamiqChdTool.App.Core.Input;
 using CommunityToolkit.Mvvm.Input;
+using HakamiqChdTool.App.Core.Input;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
@@ -50,7 +50,6 @@ public partial class MainWindowViewModel
         private bool _lastSkippedCorruptArchives;
         private bool _lastSkippedUnsupportedOrDuplicate;
 
-
         public int AcceptedCount { get; set; }
 
         public int ScannedCount { get; set; }
@@ -60,7 +59,6 @@ public partial class MainWindowViewModel
         public bool HasKnownTotal { get; init; }
 
         public string PhaseKey { get; set; } = "LocQueueAdd_ScanningFiles";
-
 
         public bool SkippedCorruptArchives { get; set; }
 
@@ -473,14 +471,25 @@ public partial class MainWindowViewModel
                     WasCancelled: true);
             }
 
-            MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(path);
+            if (!TryNormalizeExistingFilePathForIntake(path, out string normalizedPath))
+            {
+                skippedUnsupportedInputs = true;
+                continue;
+            }
+
+            MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(normalizedPath);
             if (mediaDecision.IsBlocked)
             {
                 skippedUnsupportedInputs = true;
                 continue;
             }
 
-            string effectivePath = mediaDecision.EffectivePath;
+            if (!TryNormalizeExistingFilePathForIntake(mediaDecision.EffectivePath, out string effectivePath))
+            {
+                skippedUnsupportedInputs = true;
+                continue;
+            }
+
             QueueInputClassification classification = QueueInputClassifier.Classify(effectivePath);
 
             if (ArchivePreviewIntakePolicy.ShouldPreviewArchive(classification, intakeSource))
@@ -525,6 +534,7 @@ public partial class MainWindowViewModel
 
             if (string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal))
             {
+                skippedUnsupportedInputs = true;
                 continue;
             }
 
@@ -573,9 +583,9 @@ public partial class MainWindowViewModel
                 && descriptor.Kind == MediaInputKind.Folder
                 && descriptor.Exists
                 && descriptor.IsDirectory
-                && !string.IsNullOrWhiteSpace(descriptor.FullPath))
+                && TryNormalizeExistingDirectoryPathForIntake(descriptor.FullPath, out string safeDirectoryPath))
             {
-                foreach (string resolvedPath in InputResolverStatic.Resolve(descriptor.FullPath, searchOption))
+                foreach (string resolvedPath in InputResolverStatic.Resolve(safeDirectoryPath, searchOption))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -584,9 +594,9 @@ public partial class MainWindowViewModel
                         .ConfigureAwait(false);
 
                     if (resolvedDescriptor.Kind != MediaInputKind.Folder
-                        && !string.IsNullOrWhiteSpace(resolvedDescriptor.FullPath))
+                        && TryNormalizeExistingFilePathForIntake(resolvedDescriptor.FullPath, out string safeResolvedPath))
                     {
-                        yield return resolvedDescriptor.FullPath;
+                        yield return safeResolvedPath;
                     }
                 }
 
@@ -594,9 +604,9 @@ public partial class MainWindowViewModel
             }
 
             if (descriptor.Kind != MediaInputKind.Folder
-                && !string.IsNullOrWhiteSpace(descriptor.FullPath))
+                && TryNormalizeExistingFilePathForIntake(descriptor.FullPath, out string safeFilePath))
             {
-                yield return descriptor.FullPath;
+                yield return safeFilePath;
             }
         }
     }
@@ -606,15 +616,9 @@ public partial class MainWindowViewModel
         int count = 0;
         foreach (string path in rawList)
         {
-            try
+            if (TryNormalizeExistingDirectoryPathForIntake(path, out _))
             {
-                if (!string.IsNullOrWhiteSpace(path) && Directory.Exists(path))
-                {
-                    count++;
-                }
-            }
-            catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
-            {
+                count++;
             }
         }
 
@@ -655,5 +659,185 @@ public partial class MainWindowViewModel
     partial void OnIsAddingFilesChanged(bool value)
     {
         NotifyQueueCommandsCanExecuteChanged();
+    }
+
+    private static bool TryNormalizeExistingFilePathForIntake(string? path, out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+
+            if (!File.Exists(fullPath)
+                || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+
+            normalizedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool TryNormalizeExistingDirectoryPathForIntake(string? path, out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+
+            if (!Directory.Exists(fullPath)
+                || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+
+            normalizedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+
+            if (!IsSamePathOrChild(root, candidate))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsSamePathOrChild(string rootPath, string candidatePath)
+    {
+        string root = TrimDirectorySeparators(Path.GetFullPath(rootPath));
+        string candidate = TrimDirectorySeparators(Path.GetFullPath(candidatePath));
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimDirectorySeparators(Path.GetFullPath(left)),
+            TrimDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 }

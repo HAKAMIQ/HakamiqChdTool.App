@@ -722,8 +722,7 @@ public sealed class ArchiveExtractionService
         string fullRoot;
         try
         {
-            fullRoot = Path.GetFullPath(destinationDirectory)
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            fullRoot = TrimDirectorySeparators(Path.GetFullPath(destinationDirectory));
         }
         catch (Exception ex) when (IsPathException(ex))
         {
@@ -752,7 +751,10 @@ public sealed class ArchiveExtractionService
                 {
                     Directory.Delete(currentDirectory, recursive: false);
 
-                    if (string.Equals(currentDirectory, fullRoot, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(
+                            TrimDirectorySeparators(Path.GetFullPath(currentDirectory)),
+                            fullRoot,
+                            StringComparison.OrdinalIgnoreCase))
                     {
                         break;
                     }
@@ -819,19 +821,38 @@ public sealed class ArchiveExtractionService
         string path,
         string root)
     {
-        string fullRoot = Path.GetFullPath(root)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-        string fullPath = Path.GetFullPath(path)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string fullRoot = TrimDirectorySeparators(Path.GetFullPath(root));
+        string fullPath = TrimDirectorySeparators(Path.GetFullPath(path));
 
         return string.Equals(fullPath, fullRoot, StringComparison.OrdinalIgnoreCase)
                || fullPath.StartsWith(
-                   fullRoot + Path.DirectorySeparatorChar,
-                   StringComparison.OrdinalIgnoreCase)
-               || fullPath.StartsWith(
-                   fullRoot + Path.AltDirectorySeparatorChar,
+                   EnsureDirectorySeparatorSuffix(fullRoot),
                    StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 
     private static bool IsPathException(Exception ex)

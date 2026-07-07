@@ -54,8 +54,8 @@
 
                                 <TextBlock x:Name="ProcessorSummaryText"
                                            Grid.Column="2"
-                                           Text="{Binding ProcessorSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                           ToolTip="{Binding ProcessorSummary, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                           Text="{Binding ProcessorSummary}"
+                                           ToolTip="{Binding ProcessorSummary}"
                                            Style="{StaticResource Win11SettingsRowDescriptionText}"
                                            Foreground="{DynamicResource Brush.Text.Primary}"
                                            TextWrapping="Wrap"
@@ -83,16 +83,9 @@
 
                         <Grid Grid.Row="0"
                               Style="{StaticResource Win11SettingsSectionHeader}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0"
-                                       Style="{StaticResource Win11SettingsSectionTitleText}"
+                            <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
                                        Text="{DynamicResource LocPerformance_ChdmanOptionsSection}"
                                        ToolTip="{DynamicResource LocPerformance_ChdmanOptionsDesc}" />
-
                         </Grid>
 
                         <Border Grid.Row="1"
@@ -106,16 +99,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocPerformance_PerformanceMode}"
-                                               ToolTip="{Binding PerformanceModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                    <TextBlock Text="{DynamicResource LocPerformance_PerformanceMode}"
+                                               ToolTip="{Binding PerformanceModeDescription}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="PerformanceModeComboBox"
@@ -127,7 +113,7 @@
                                           TextSearch.TextPath="Label"
                                           MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding PerformanceModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                          ToolTip="{Binding PerformanceModeDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_PerformanceMode}" />
                             </Grid>
                         </Border>
@@ -143,16 +129,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocPerformance_ProcessorCount}"
-                                               ToolTip="{Binding ProcessorSelectionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                    <TextBlock Text="{DynamicResource LocPerformance_ProcessorCount}"
+                                               ToolTip="{Binding ProcessorSelectionDescription}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="ProcessorCountComboBox"
@@ -164,7 +143,7 @@
                                           TextSearch.TextPath="Label"
                                           MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding ProcessorSelectionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                          ToolTip="{Binding ProcessorSelectionDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_ProcessorCount}" />
                             </Grid>
                         </Border>
@@ -180,16 +159,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocPerformance_ConcurrentConversions}"
-                                               ToolTip="{Binding ConcurrentConversionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                    <TextBlock Text="{DynamicResource LocPerformance_ConcurrentConversions}"
+                                               ToolTip="{Binding ConcurrentConversionDescription}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="ConcurrentConversionCountComboBox"
@@ -201,7 +173,7 @@
                                           TextSearch.TextPath="Label"
                                           MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding ConcurrentConversionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                          ToolTip="{Binding ConcurrentConversionDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_ConcurrentConversions}" />
                             </Grid>
                         </Border>
@@ -217,16 +189,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocPerformance_ProcessPriority}"
-                                               ToolTip="{Binding PriorityModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                    <TextBlock Text="{DynamicResource LocPerformance_ProcessPriority}"
+                                               ToolTip="{Binding PriorityModeDescription}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="PriorityModeComboBox"
@@ -238,7 +203,7 @@
                                           TextSearch.TextPath="Label"
                                           MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding PriorityModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                          ToolTip="{Binding PriorityModeDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_ProcessPriority}" />
                             </Grid>
                         </Border>
@@ -254,16 +219,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocPerformance_IsoCreateMode}"
-                                               ToolTip="{Binding IsoCreateOverrideDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                    <TextBlock Text="{DynamicResource LocPerformance_IsoCreateMode}"
+                                               ToolTip="{Binding IsoCreateOverrideDescription}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="IsoCreateCommandOverrideComboBox"
@@ -275,7 +233,7 @@
                                           TextSearch.TextPath="Label"
                                           MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding IsoCreateOverrideDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                          ToolTip="{Binding IsoCreateOverrideDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_IsoCreateMode}" />
                             </Grid>
                         </Border>
@@ -291,16 +249,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocPerformance_ChdPlatformProfile}"
-                                               ToolTip="{Binding ChdPlatformProfileDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                    <TextBlock Text="{DynamicResource LocPerformance_ChdPlatformProfile}"
+                                               ToolTip="{Binding ChdPlatformProfileDescription}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="ChdPlatformProfileComboBox"
@@ -312,7 +263,7 @@
                                           TextSearch.TextPath="Label"
                                           MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding ChdPlatformProfileDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                          ToolTip="{Binding ChdPlatformProfileDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_ChdPlatformProfile}" />
                             </Grid>
                         </Border>
@@ -328,16 +279,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocPerformance_CompressionPreset}"
-                                               ToolTip="{Binding CompressionPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                    <TextBlock Text="{DynamicResource LocPerformance_CompressionPreset}"
+                                               ToolTip="{Binding CompressionPresetDescription}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="CompressionPresetComboBox"
@@ -349,7 +293,7 @@
                                           TextSearch.TextPath="Label"
                                           MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding CompressionPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                          ToolTip="{Binding CompressionPresetDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_CompressionPreset}" />
                             </Grid>
                         </Border>
@@ -365,16 +309,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Text="{DynamicResource LocPerformance_HunkSize}"
-                                               ToolTip="{Binding HunkPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                    <TextBlock Text="{DynamicResource LocPerformance_HunkSize}"
+                                               ToolTip="{Binding HunkPresetDescription}"
                                                Style="{StaticResource Win11SettingsRowTitleText}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="HunkPresetComboBox"
@@ -386,7 +323,7 @@
                                           TextSearch.TextPath="Label"
                                           MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding HunkPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                          ToolTip="{Binding HunkPresetDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_HunkSize}" />
                             </Grid>
                         </Border>

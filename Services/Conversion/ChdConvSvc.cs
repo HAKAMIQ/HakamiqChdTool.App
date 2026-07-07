@@ -274,44 +274,15 @@ public sealed class ChdConversionService
                 return sectorAlignmentFailure;
             }
 
-            string diskPreflightMessageKey;
-            string diskPreflightOperationKey;
-            DiskPreflightMode diskPreflightMode = isExtractCommand
-                ? DiskPreflightMode.ExtractFromChd
-                : DiskPreflightMode.CreateChd;
-
-            if (enableDiskSpaceGuard)
-            {
-                DiskPreflightResult diskPreflight = DiskSpacePreflightService.CheckOrThrow(
-                    resolvedInputPath,
-                    resolvedOutputPath,
-                    command,
-                    expectedOutputBytes);
-
-                diskPreflightMessageKey = diskPreflight.MessageKey;
-                diskPreflightOperationKey = diskPreflight.OperationKey;
-
-                Log.Information(
-                    "Disk preflight passed. Root={Root}, InputBytes={InputBytes}, EstimatedRequiredBytes={EstimatedRequiredBytes}, AvailableFreeBytes={AvailableFreeBytes}, MessageKey={MessageKey}, OperationKey={OperationKey}",
-                    diskPreflight.TargetRoot,
-                    diskPreflight.InputBytes,
-                    diskPreflight.EstimatedRequiredBytes,
-                    diskPreflight.AvailableFreeBytes,
-                    diskPreflight.MessageKey,
-                    diskPreflight.OperationKey);
-            }
-            else
-            {
-                diskPreflightMessageKey = "DiskPreflightDisabled";
-                diskPreflightOperationKey = DiskSpacePreflightService.DescribeOperationKey(command, diskPreflightMode);
-
-                Log.Information(
-                    "Disk preflight skipped because EnableDiskSpaceGuard is disabled. Input={InputPath}, Output={OutputPath}, Command={Command}, OperationKey={OperationKey}",
-                    resolvedInputPath,
-                    resolvedOutputPath,
-                    command,
-                    diskPreflightOperationKey);
-            }
+            ChdConversionExecutionSetup.DiskPreflightContext diskPreflight = ChdConversionExecutionSetup.ResolveDiskPreflight(
+                enableDiskSpaceGuard,
+                resolvedInputPath,
+                resolvedOutputPath,
+                command,
+                expectedOutputBytes,
+                isExtractCommand);
+            string diskPreflightMessageKey = diskPreflight.MessageKey;
+            string diskPreflightOperationKey = diskPreflight.OperationKey;
 
             FileHashResult? inputSha1 = null;
             if (computeInputSha1)
@@ -320,89 +291,36 @@ public sealed class ChdConversionService
                 Log.Information("Input SHA1 computed before chdman. Path={Path}, SHA1={SHA1}, Bytes={Bytes}", inputSha1.Path, inputSha1.Hex, inputSha1.BytesRead);
             }
 
-            string? outputDirectory = Path.GetDirectoryName(resolvedOutputPath);
-            if (string.IsNullOrWhiteSpace(outputDirectory))
-            {
-                throw new InvalidOperationException(OutputDirectoryMissingMessageKey);
-            }
+            ChdConversionExecutionSetup.OutputTargetContext outputTargets = ChdConversionExecutionSetup.PrepareOutputTargets(
+                extractionKind,
+                resolvedOutputPath,
+                resolvedExtractCdCueOutputPath,
+                resolvedExtractCdBinOutputPath,
+                _commandPreparation);
+            string extractCdCueOutputPathForArgument = outputTargets.ExtractCdCueOutputPathForArgument;
+            string extractCdBinOutputPathForArgument = outputTargets.ExtractCdBinOutputPathForArgument;
 
-            Directory.CreateDirectory(outputDirectory);
-
-            string extractCdCueOutputPathForArgument = extractionKind == ChdmanExtractionKind.ExtractCd
-                ? (!string.IsNullOrWhiteSpace(resolvedExtractCdCueOutputPath) ? resolvedExtractCdCueOutputPath : resolvedOutputPath)
-                : string.Empty;
-
-            string extractCdBinOutputPathForArgument = extractionKind == ChdmanExtractionKind.ExtractCd
-                ? (!string.IsNullOrWhiteSpace(resolvedExtractCdBinOutputPath)
-                    ? resolvedExtractCdBinOutputPath
-                    : _commandPreparation.BuildExtractCdBinOutputPath(extractCdCueOutputPathForArgument))
-                : string.Empty;
-
-            if (extractionKind == ChdmanExtractionKind.ExtractCd)
-            {
-                string? cueDirectory = Path.GetDirectoryName(extractCdCueOutputPathForArgument);
-                string? binDirectory = Path.GetDirectoryName(extractCdBinOutputPathForArgument);
-
-                if (string.IsNullOrWhiteSpace(cueDirectory) || string.IsNullOrWhiteSpace(binDirectory))
-                {
-                    throw new InvalidOperationException(BinOutputDirectoryMissingMessageKey);
-                }
-
-                Directory.CreateDirectory(cueDirectory);
-                Directory.CreateDirectory(binDirectory);
-            }
-
-            int availableLogicalProcessors = ProcessorTopologyService.GetAvailableLogicalProcessorCount();
-            int normalizedProcessorLimit = ProcessorTopologyService.ResolveChdmanProcessorCount(
+            ChdConversionExecutionSetup.ArgumentContext argumentContext = ChdConversionExecutionSetup.BuildArgumentContext(
+                createProfile,
+                isExtractCommand,
+                command,
+                resolvedInputPath,
+                resolvedOutputPath,
+                extractionKind,
+                extractCdCueOutputPathForArgument,
+                extractCdBinOutputPathForArgument,
                 maxProcessorCount,
                 enableAutoResourceLimiter,
                 reservedLogicalCores,
-                performanceMode);
-
-            int passedProcessorLimit = isExtractCommand ? 0 : normalizedProcessorLimit;
-
-            List<string> arguments = !isExtractCommand && createProfile is not null
-                ? ChdmanCommandBuilder
-                    .BuildCreateArgs(createProfile, resolvedInputPath, resolvedOutputPath, passedProcessorLimit)
-                    .ToList()
-                : new List<string>
-                {
-                    command,
-                    "-i",
-                    resolvedInputPath,
-                    "-o",
-                    extractionKind == ChdmanExtractionKind.ExtractCd ? extractCdCueOutputPathForArgument : resolvedOutputPath
-                };
-
-            if (extractionKind == ChdmanExtractionKind.ExtractCd)
-            {
-                arguments.Add("-ob");
-                arguments.Add(extractCdBinOutputPathForArgument);
-            }
-
-            if (allowOverwriteOutput && (isExtractCommand || _commandPreparation.IsCreateCommand(command)))
-            {
-                arguments.Add("-f");
-            }
-
-            if (!isExtractCommand)
-            {
-                if (!string.IsNullOrWhiteSpace(resolvedCompression))
-                {
-                    arguments.Add("-c");
-                    arguments.Add(resolvedCompression);
-                }
-
-                if (resolvedHunkSizeBytes > 0)
-                {
-                    arguments.Add("-hs");
-                    arguments.Add(resolvedHunkSizeBytes.ToString());
-                }
-            }
-
-            string monitoredOutputPath = extractionKind == ChdmanExtractionKind.ExtractCd
-                ? extractCdBinOutputPathForArgument
-                : resolvedOutputPath;
+                performanceMode,
+                resolvedCompression,
+                resolvedHunkSizeBytes,
+                allowOverwriteOutput,
+                _commandPreparation);
+            int availableLogicalProcessors = argumentContext.AvailableLogicalProcessors;
+            int passedProcessorLimit = argumentContext.PassedProcessorLimit;
+            List<string> arguments = argumentContext.Arguments;
+            string monitoredOutputPath = argumentContext.MonitoredOutputPath;
 
             string displayCommandLine = _processExecution.FormatCommandLineForDisplay(chdmanPath, arguments);
 

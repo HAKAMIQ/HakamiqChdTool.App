@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Ui.Queue;
 using System;
 using System.Globalization;
 using System.Windows.Data;

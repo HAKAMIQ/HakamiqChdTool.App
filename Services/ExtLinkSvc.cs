@@ -1,4 +1,5 @@
 using Serilog;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -43,7 +44,7 @@ public sealed class ExternalLinkService : IExternalLinkService
             string target = uri.AbsoluteUri;
             var startInfo = new ProcessStartInfo
             {
-                FileName = "explorer.exe",
+                FileName = ResolveExplorerPath(),
                 UseShellExecute = false,
                 ErrorDialog = false,
                 CreateNoWindow = true
@@ -77,6 +78,20 @@ public sealed class ExternalLinkService : IExternalLinkService
             errorMessageKey = OpenFailedMessageKey;
             return false;
         }
+    }
+
+    private static string ResolveExplorerPath()
+    {
+        string windowsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        if (string.IsNullOrWhiteSpace(windowsDirectory))
+        {
+            return "explorer.exe";
+        }
+
+        string explorerPath = Path.Combine(windowsDirectory, "explorer.exe");
+        return File.Exists(explorerPath)
+            ? explorerPath
+            : "explorer.exe";
     }
 
     private static bool IsSupportedScheme(string scheme) =>

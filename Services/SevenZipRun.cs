@@ -1,8 +1,12 @@
 using Serilog;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -488,8 +492,7 @@ public static class SevenZipProcessRunner
         string root = TrimDirectorySeparators(Path.GetFullPath(rootPath));
 
         return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
-            || candidate.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
-            || candidate.StartsWith(root + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool PathsEqual(string left, string right)
@@ -500,9 +503,29 @@ public static class SevenZipProcessRunner
             StringComparison.OrdinalIgnoreCase);
     }
 
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
     private static string TrimDirectorySeparators(string path)
     {
-        return path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 
     private static bool IsExpectedPathException(Exception ex) =>

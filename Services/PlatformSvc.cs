@@ -19,6 +19,7 @@ public static class PlatformDetectionService
     private const long WiiSingleLayerSize = 4_699_979_776L;
     private const long WiiDualLayerSize = 8_511_160_320L;
     private const int MaxIsoTextProbeBytes = 256 * 1024;
+    private const long MaxDescriptorTextBytes = 4L * 1024L * 1024L;
 
     private const string InvalidPathOrFileReasonKey = "LocPlatformDetect_InvalidPathOrFile";
     private const string GdiExtensionReasonKey = "LocPlatformDetect_GdiExtension";
@@ -45,7 +46,6 @@ public static class PlatformDetectionService
     private static readonly ILogger Logger = global::Serilog.Log.ForContext(typeof(PlatformDetectionService));
 
     public static string DetectPlatform(string path) => Detect(path).PlatformName;
-
 
     public static bool IsActionablePlatformName(string? platformName)
     {
@@ -123,12 +123,14 @@ public static class PlatformDetectionService
         try
         {
             fullPath = Path.GetFullPath(path);
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
         }
-        catch (Exception ex) when (IsExpectedPathException(ex))
+        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedReadException(ex))
         {
             Logger.Debug(ex, "Platform detection rejected an invalid path. Path={Path}", path);
             return PlatformDetectionResult.Create(string.Empty, string.Empty, 10, InvalidPathOrFileReasonKey);
         }
+
         if (Directory.Exists(fullPath))
         {
             return PlatformDetectionResult.Create(string.Empty, string.Empty, 10, InvalidPathOrFileReasonKey);
@@ -148,16 +150,23 @@ public static class PlatformDetectionService
 
         if (extension == ".bin")
         {
-            ConsoleDiscIdentityResult consoleIdentity = ConsoleDiscIdentityService.Shared.Detect(fullPath);
-            if (consoleIdentity.IsIdentified)
+            try
             {
-                return PlatformCandidateFilter.Apply(
-                    fullPath,
-                    PlatformDetectionResult.Create(
-                        consoleIdentity.PlatformName,
-                        string.Empty,
-                        consoleIdentity.Confidence,
-                        consoleIdentity.ReasonKey));
+                ConsoleDiscIdentityResult consoleIdentity = ConsoleDiscIdentityService.Shared.Detect(fullPath);
+                if (consoleIdentity.IsIdentified)
+                {
+                    return PlatformCandidateFilter.Apply(
+                        fullPath,
+                        PlatformDetectionResult.Create(
+                            consoleIdentity.PlatformName,
+                            string.Empty,
+                            consoleIdentity.Confidence,
+                            consoleIdentity.ReasonKey));
+                }
+            }
+            catch (Exception ex) when (IsExpectedReadException(ex) || IsExpectedPathException(ex))
+            {
+                Logger.Debug(ex, "Platform detection console identity probe failed. Path={Path}", fullPath);
             }
         }
 
@@ -184,6 +193,8 @@ public static class PlatformDetectionService
 
     private static PlatformDetectionResult DetectFromCue(string cuePath)
     {
+        ValidateReadableInputPath(cuePath);
+
         PlatformDetectionResult pathHint = DetectFromPathKeywords(cuePath, string.Empty);
         if (IsActionablePlatformName(pathHint.PlatformName)
             && pathHint.ConfidenceScore >= 60)
@@ -200,7 +211,10 @@ public static class PlatformDetectionService
         {
             string cueDirectory = Path.GetDirectoryName(cuePath) ?? string.Empty;
             string cueBaseName = Path.GetFileNameWithoutExtension(cuePath);
-            bool hasSbi = File.Exists(Path.Combine(cueDirectory, $"{cueBaseName}.sbi"));
+            string sbiPath = Path.GetFullPath(Path.Combine(cueDirectory, $"{cueBaseName}.sbi"));
+            bool hasSbi = IsSameDirectoryChild(cueDirectory, sbiPath)
+                && File.Exists(sbiPath)
+                && IsReadableInputPath(sbiPath);
 
             int trackCount = 0;
             var referencedFiles = new List<string>();
@@ -256,6 +270,8 @@ public static class PlatformDetectionService
 
     private static PlatformDetectionResult DetectFromIso(string isoPath)
     {
+        ValidateReadableInputPath(isoPath);
+
         if (DiscMetadataProbe.TryDetectPlatform(isoPath, out PlatformDetectionResult metadataDetection))
         {
             return metadataDetection;
@@ -263,6 +279,8 @@ public static class PlatformDetectionService
 
         try
         {
+            ValidateReadableInputPath(isoPath);
+
             long fileSize = new FileInfo(isoPath).Length;
 
             if (!LooksLikeIso9660Volume(isoPath))
@@ -355,6 +373,8 @@ public static class PlatformDetectionService
 
         try
         {
+            ValidateReadableInputPath(isoPath);
+
             var analyzer = new BluRayIsoAnalysisService();
             if (!analyzer.TryAnalyze(isoPath, out BluRayIsoAnalysisResult? result, BluRayAnalysisProfile.Quick)
                 || result is null
@@ -381,6 +401,8 @@ public static class PlatformDetectionService
     {
         try
         {
+            ValidateReadableInputPath(isoPath);
+
             long fileSize = new FileInfo(isoPath).Length;
             return DetectFromIsoFallback(isoPath, fileSize, fallback);
         }
@@ -411,6 +433,8 @@ public static class PlatformDetectionService
     {
         try
         {
+            ValidateReadableInputPath(isoPath);
+
             using FileStream stream = new(
                 isoPath,
                 FileMode.Open,
@@ -642,6 +666,11 @@ public static class PlatformDetectionService
             return PlatformDetectionResult.Create("SEGA Master System", string.Empty, 65, PathHintReasonKey);
         }
 
+        if (Has("xbox series", "xboxseries", "series x", "series s", "xbox one", "xboxone"))
+        {
+            return PlatformDetectionResult.Create("Xbox", string.Empty, 68, PathHintReasonKey);
+        }
+
         if (Has("xbox 360", "xbox360"))
         {
             return PlatformDetectionResult.Create("Xbox 360", string.Empty, 68, PathHintReasonKey);
@@ -781,6 +810,14 @@ public static class PlatformDetectionService
 
     private static IEnumerable<string> ReadTextLines(string path)
     {
+        ValidateReadableInputPath(path);
+
+        FileInfo info = new(path);
+        if (!info.Exists || info.Length <= 0 || info.Length > MaxDescriptorTextBytes)
+        {
+            throw new IOException("Descriptor size is outside the supported platform-detection scan bounds.");
+        }
+
         using FileStream stream = new(
             path,
             FileMode.Open,
@@ -811,6 +848,70 @@ public static class PlatformDetectionService
         return Encoding.ASCII.GetString(buffer, 0, read);
     }
 
+    private static bool IsReadableInputPath(string path)
+    {
+        try
+        {
+            ValidateReadableInputPath(path);
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedReadException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static void ValidateReadableInputPath(string path)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
+        string fullPath = Path.GetFullPath(path);
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException(InvalidPathOrFileReasonKey, fullPath);
+        }
+
+        ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+    }
+
+    private static bool IsSameDirectoryChild(string baseDirectory, string candidate)
+    {
+        if (string.IsNullOrWhiteSpace(baseDirectory) || string.IsNullOrWhiteSpace(candidate))
+        {
+            return false;
+        }
+
+        string root = TrimDirectorySeparators(Path.GetFullPath(baseDirectory));
+        string path = TrimDirectorySeparators(Path.GetFullPath(candidate));
+
+        return path.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
+    }
+
     private static bool IsApproximately(long actual, long expected, long tolerance) =>
         Math.Abs(actual - expected) <= tolerance;
 
@@ -825,7 +926,8 @@ public static class PlatformDetectionService
     private static bool IsExpectedPathException(Exception ex) =>
         ex is ArgumentException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or System.Security.SecurityException;
 
     private static bool IsExpectedReadException(Exception ex) =>
         ex is IOException
@@ -833,5 +935,6 @@ public static class PlatformDetectionService
         or ArgumentException
         or NotSupportedException
         or InvalidDataException
-        or PathTooLongException;
+        or PathTooLongException
+        or System.Security.SecurityException;
 }

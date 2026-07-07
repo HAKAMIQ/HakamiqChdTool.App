@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HakamiqChdTool.App.QueueRun;
 using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.QueueRun;
 using System;
 using System.Collections;
 using System.Collections.Specialized;
@@ -44,7 +44,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private string queueActivityCardMessage = string.Empty;
-
 
     public MainWindowViewModel(
         IMainWindowSession session,
@@ -145,7 +144,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             () => _session.OpenAbout(),
             () => !_session.IsQueueInteractionLocked);
 
-
         RetryQueueItemCommand = new RelayCommand<TaskQueueItemViewModel?>(
             item => _session.RetryQueueItem(item),
             item => item is not null && !_session.IsQueueInteractionLocked);
@@ -239,7 +237,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         CancelAddingFilesCommand.NotifyCanExecuteChanged();
         ClearQueueCommand.NotifyCanExecuteChanged();
     }
-
 
     internal void AttachQueueContextCommands(QueueContextMenuViewModel queueContext)
     {

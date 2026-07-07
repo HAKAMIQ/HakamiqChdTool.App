@@ -28,14 +28,15 @@ internal sealed partial class HqOptionsShell
 
         try
         {
+            folderPath = NormalizeSafeFolderPathForCreate(folderPath);
             Directory.CreateDirectory(folderPath);
+
+            if (HasReparsePointInExistingPathFromVolumeRoot(folderPath))
+            {
+                throw new InvalidOperationException("The selected tools folder resolves through a reparse point.");
+            }
         }
-        catch (Exception ex) when (ex is IOException
-                                  or UnauthorizedAccessException
-                                  or ArgumentException
-                                  or NotSupportedException
-                                  or PathTooLongException
-                                  or System.Security.SecurityException)
+        catch (Exception ex) when (IsExpectedPathException(ex))
         {
             Logger.Debug(ex, "Could not create or open Hakamiq CsoKit tools folder. Path={Path}", folderPath);
             ShowNoticeDialog(OperationErrorTitleKey, OpenFolderFailedBodyKey);
@@ -65,19 +66,14 @@ internal sealed partial class HqOptionsShell
         {
             try
             {
-                string currentFullPath = Path.GetFullPath(currentPath);
+                string currentFullPath = Path.GetFullPath(currentPath.Trim());
                 string? currentDirectory = Path.GetDirectoryName(currentFullPath);
-                if (!string.IsNullOrWhiteSpace(currentDirectory) && Directory.Exists(currentDirectory))
+                if (TryGetSafeExistingDirectory(currentDirectory, out string safeCurrentDirectory))
                 {
-                    dialog.InitialDirectory = currentDirectory;
+                    dialog.InitialDirectory = safeCurrentDirectory;
                 }
             }
-            catch (Exception ex) when (ex is IOException
-                                      or UnauthorizedAccessException
-                                      or ArgumentException
-                                      or NotSupportedException
-                                      or PathTooLongException
-                                      or System.Security.SecurityException)
+            catch (Exception ex) when (IsExpectedPathException(ex))
             {
                 Logger.Debug(ex, "Ignored invalid Hakamiq CsoKit preferred path before browse. Path={Path}", currentPath);
             }
@@ -86,9 +82,9 @@ internal sealed partial class HqOptionsShell
         if (string.IsNullOrWhiteSpace(dialog.InitialDirectory))
         {
             string bundledFolder = new CsoToolLocator(_currentSettings.ExternalCsoKitPath).BundledToolsFolderPath;
-            if (Directory.Exists(bundledFolder))
+            if (TryGetSafeExistingDirectory(bundledFolder, out string safeBundledFolder))
             {
-                dialog.InitialDirectory = bundledFolder;
+                dialog.InitialDirectory = safeBundledFolder;
             }
         }
 
@@ -98,26 +94,9 @@ internal sealed partial class HqOptionsShell
             return;
         }
 
-        string selectedPath;
-        try
+        if (!TryGetSafeExistingCsoToolPath(dialog.FileName, out string selectedPath))
         {
-            selectedPath = Path.GetFullPath(dialog.FileName);
-        }
-        catch (Exception ex) when (ex is IOException
-                                  or UnauthorizedAccessException
-                                  or ArgumentException
-                                  or NotSupportedException
-                                  or PathTooLongException
-                                  or System.Security.SecurityException)
-        {
-            Logger.Debug(ex, "Invalid Hakamiq CsoKit selected path. Path={Path}", dialog.FileName);
-            ShowNoticeDialog(OperationErrorTitleKey, InvalidCsoKitToolSelectionKey);
-            return;
-        }
-
-        if (!string.Equals(Path.GetFileName(selectedPath), CsoToolLocator.ToolExecutableName, StringComparison.OrdinalIgnoreCase)
-            || !File.Exists(selectedPath))
-        {
+            Logger.Debug("Invalid Hakamiq CsoKit selected path. Path={Path}", dialog.FileName);
             ShowNoticeDialog(OperationErrorTitleKey, InvalidCsoKitToolSelectionKey);
             return;
         }
@@ -130,13 +109,7 @@ internal sealed partial class HqOptionsShell
             using AppSettingsService settingsService = new();
             settingsService.Save(_currentSettings);
         }
-        catch (Exception ex) when (ex is IOException
-                                  or UnauthorizedAccessException
-                                  or ArgumentException
-                                  or InvalidOperationException
-                                  or NotSupportedException
-                                  or PathTooLongException
-                                  or System.Security.SecurityException)
+        catch (Exception ex) when (IsExpectedPathException(ex))
         {
             Logger.Warning(ex, "Failed to persist Hakamiq CsoKit selected path. Path={Path}", selectedPath);
         }
@@ -279,19 +252,14 @@ internal sealed partial class HqOptionsShell
         {
             try
             {
-                string fullPath = Path.GetFullPath(preferredPath);
+                string fullPath = Path.GetFullPath(preferredPath.Trim());
                 string? directory = Path.GetDirectoryName(fullPath);
                 if (!string.IsNullOrWhiteSpace(directory))
                 {
                     return directory;
                 }
             }
-            catch (Exception ex) when (ex is IOException
-                                      or UnauthorizedAccessException
-                                      or ArgumentException
-                                      or NotSupportedException
-                                      or PathTooLongException
-                                      or System.Security.SecurityException)
+            catch (Exception ex) when (IsExpectedPathException(ex))
             {
                 Logger.Debug(ex, "Ignored invalid Hakamiq CsoKit preferred folder path. Path={Path}", preferredPath);
             }
@@ -299,4 +267,217 @@ internal sealed partial class HqOptionsShell
 
         return new CsoToolLocator(preferredPath).BundledToolsFolderPath;
     }
+
+    private static bool TryGetSafeExistingCsoToolPath(string path, out string selectedPath)
+    {
+        selectedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+
+            if (!string.Equals(Path.GetFileName(fullPath), CsoToolLocator.ToolExecutableName, StringComparison.OrdinalIgnoreCase)
+                || !File.Exists(fullPath)
+                || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+
+            selectedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool TryGetSafeExistingDirectory(string? directory, out string fullDirectory)
+    {
+        fullDirectory = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(directory))
+        {
+            return false;
+        }
+
+        try
+        {
+            string candidate = Path.GetFullPath(directory.Trim());
+
+            if (!Directory.Exists(candidate)
+                || HasReparsePointInExistingPathFromVolumeRoot(candidate))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(candidate, nameof(directory));
+
+            fullDirectory = candidate;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static string NormalizeSafeFolderPathForCreate(string folderPath)
+    {
+        if (string.IsNullOrWhiteSpace(folderPath))
+        {
+            throw new ArgumentException("A tools folder path is required.", nameof(folderPath));
+        }
+
+        string fullPath = Path.GetFullPath(folderPath.Trim());
+        string? root = Path.GetPathRoot(fullPath);
+
+        if (string.IsNullOrWhiteSpace(root))
+        {
+            throw new ArgumentException("A rooted tools folder path is required.", nameof(folderPath));
+        }
+
+        if (HasReparsePointInExistingPath(fullPath, root))
+        {
+            throw new InvalidOperationException("The tools folder path resolves through a reparse point.");
+        }
+
+        return fullPath;
+    }
+
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+
+            if (!IsSamePathOrChild(root, candidate))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsSamePathOrChild(string rootPath, string candidatePath)
+    {
+        string root = TrimDirectorySeparators(Path.GetFullPath(rootPath));
+        string candidate = TrimDirectorySeparators(Path.GetFullPath(candidatePath));
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimDirectorySeparators(Path.GetFullPath(left)),
+            TrimDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
+    }
+
+    private static bool IsExpectedPathException(Exception ex) =>
+        ex is IOException
+        or UnauthorizedAccessException
+        or ArgumentException
+        or InvalidOperationException
+        or NotSupportedException
+        or PathTooLongException
+        or System.Security.SecurityException;
 }

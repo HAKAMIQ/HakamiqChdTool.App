@@ -1,5 +1,10 @@
 using Serilog;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -28,24 +33,8 @@ public sealed class SevenZipArchiveInspector
             };
         }
 
-        if (string.IsNullOrWhiteSpace(archivePath) || !File.Exists(archivePath))
+        if (!TryNormalizeReadableArchivePath(archivePath, out string fullArchivePath))
         {
-            return new ArchiveContentPreviewResult
-            {
-                IsUnreadable = true,
-                MessageResourceKey = "LocArchive_PreviewUnreadable"
-            };
-        }
-
-        string fullArchivePath;
-        try
-        {
-            fullArchivePath = Path.GetFullPath(archivePath);
-        }
-        catch (Exception ex) when (IsExpectedPathException(ex))
-        {
-            Logger.Debug(ex, "7-Zip archive preview rejected an invalid archive path. Archive={Archive}", archivePath);
-
             return new ArchiveContentPreviewResult
             {
                 IsUnreadable = true,
@@ -251,7 +240,10 @@ public sealed class SevenZipArchiveInspector
         string entryPath,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(entryPath) || !ArchiveCandidateDiscovery.IsDescriptorLeaderPath(entryPath))
+        if (!TryNormalizeReadableArchivePath(archivePath, out string fullArchivePath)
+            || string.IsNullOrWhiteSpace(entryPath)
+            || !IsSafeArchiveEntryPath(entryPath)
+            || !ArchiveCandidateDiscovery.IsDescriptorLeaderPath(entryPath))
         {
             return new SevenZipDescriptorTextResult(
                 false,
@@ -261,6 +253,8 @@ public sealed class SevenZipArchiveInspector
                 string.Empty);
         }
 
+        string safeEntryPath = NormalizeArchiveEntryPath(entryPath);
+
         using CancellationTokenSource readTimeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         readTimeoutCts.CancelAfter(PreviewTimeout);
 
@@ -269,24 +263,24 @@ public sealed class SevenZipArchiveInspector
         {
             result = await SevenZipProcessRunner.RunAsync(
                 sevenZipPath,
-                ["e", "-so", "-y", "-bb0", "-bsp0", "-bse2", "--", archivePath, entryPath],
+                ["e", "-so", "-y", "-bb0", "-bsp0", "-bse2", "--", fullArchivePath, safeEntryPath],
                 parseProgressPercent: false,
                 progress: null,
                 readTimeoutCts.Token).ConfigureAwait(false);
         }
         catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
         {
-            Logger.Debug(ex, "7-Zip descriptor read cancelled. Archive={Archive}, Entry={Entry}", archivePath, entryPath);
+            Logger.Debug(ex, "7-Zip descriptor read cancelled. Archive={Archive}, Entry={Entry}", fullArchivePath, safeEntryPath);
             return new SevenZipDescriptorTextResult(false, true, false, string.Empty, string.Empty);
         }
         catch (OperationCanceledException ex)
         {
-            Logger.Debug(ex, "7-Zip descriptor read timed out. Archive={Archive}, Entry={Entry}", archivePath, entryPath);
+            Logger.Debug(ex, "7-Zip descriptor read timed out. Archive={Archive}, Entry={Entry}", fullArchivePath, safeEntryPath);
             return new SevenZipDescriptorTextResult(false, false, false, "LocQueueAdd_ArchivePreviewTimeout", string.Empty);
         }
         catch (Exception ex) when (IsExpectedPathException(ex) || ex is InvalidOperationException)
         {
-            Logger.Debug(ex, "7-Zip descriptor read failed before start. Archive={Archive}, Entry={Entry}", archivePath, entryPath);
+            Logger.Debug(ex, "7-Zip descriptor read failed before start. Archive={Archive}, Entry={Entry}", fullArchivePath, safeEntryPath);
             return new SevenZipDescriptorTextResult(
                 false,
                 false,
@@ -309,8 +303,8 @@ public sealed class SevenZipArchiveInspector
 
             Logger.Debug(
                 "7-Zip descriptor read returned non-zero exit code. Archive={Archive}, Entry={Entry}, ExitCode={ExitCode}, Output={Output}",
-                archivePath,
-                entryPath,
+                fullArchivePath,
+                safeEntryPath,
                 result.ExitCode,
                 output);
 
@@ -399,6 +393,7 @@ public sealed class SevenZipArchiveInspector
         string trimmed = path.Trim();
 
         if (string.IsNullOrWhiteSpace(trimmed)
+            || trimmed.Contains('\0')
             || trimmed.StartsWith('@')
             || trimmed.StartsWith('/')
             || trimmed.StartsWith('\\')
@@ -408,7 +403,7 @@ public sealed class SevenZipArchiveInspector
             return false;
         }
 
-        string normalized = trimmed.Replace('\\', '/').Trim('/');
+        string normalized = NormalizeArchiveEntryPath(trimmed);
 
         if (string.IsNullOrWhiteSpace(normalized))
         {
@@ -421,12 +416,50 @@ public sealed class SevenZipArchiveInspector
                 && !string.Equals(segment, "..", StringComparison.Ordinal));
     }
 
+    private static string NormalizeArchiveEntryPath(string value)
+    {
+        return value.Replace('\\', '/').Trim().Trim('/');
+    }
+
     private static bool LooksLikeDirectory(string path) =>
         path.EndsWith('/')
         || path.EndsWith('\\');
 
+    private static bool TryNormalizeReadableArchivePath(string archivePath, out string fullArchivePath)
+    {
+        fullArchivePath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(archivePath))
+        {
+            return false;
+        }
+
+        try
+        {
+            fullArchivePath = Path.GetFullPath(archivePath.Trim());
+
+            if (!File.Exists(fullArchivePath))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullArchivePath, nameof(archivePath));
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            Logger.Debug(ex, "7-Zip archive path could not be evaluated. Archive={Archive}", archivePath);
+            fullArchivePath = string.Empty;
+            return false;
+        }
+    }
+
     private static bool IsExpectedPathException(Exception ex) =>
         ex is ArgumentException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or IOException
+        or UnauthorizedAccessException
+        or InvalidOperationException
+        or System.Security.SecurityException;
 }

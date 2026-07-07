@@ -56,16 +56,6 @@
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
 
-            <Style x:Key="ClearTaskLogDialog.SectionAccent"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Width" Value="{DynamicResource Space.4}" />
-                <Setter Property="Height" Value="{DynamicResource Space.24}" />
-                <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="VerticalAlignment" Value="Top" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-            </Style>
-
             <Style x:Key="ClearTaskLogDialog.GeneralText"
                    TargetType="{x:Type TextBlock}">
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
@@ -130,24 +120,19 @@
                       SnapsToDevicePixels="True">
 
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Style="{StaticResource ClearTaskLogDialog.SectionAccent}" />
-
-                    <TextBlock Grid.Column="2"
+                    <TextBlock Grid.Column="0"
                                Text="{Binding Title, Mode=OneWay}"
                                ToolTip="{Binding Title, Mode=OneWay}"
                                Style="{StaticResource ClearTaskLogDialog.TitleText}"
                                VerticalAlignment="Center" />
 
                     <Button x:Name="CloseButton"
-                            Grid.Column="4"
+                            Grid.Column="2"
                             Width="{DynamicResource Space.32}"
                             Height="{DynamicResource Space.32}"
                             MinWidth="{DynamicResource Space.32}"

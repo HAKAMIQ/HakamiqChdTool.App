@@ -1,7 +1,5 @@
-using System;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Services.StorageAdvisor;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
 

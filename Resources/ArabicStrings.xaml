@@ -577,6 +577,7 @@
     <sys:String x:Key="LocRedumpV2_NormalizeArchive">استخراج الأرشيف مؤقتًا للفحص</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">هذه الصيغة تحتاج تطبيعًا مؤقتًا إلى ISO/GCM، لكن أداة التطبيع غير متاحة حاليًا.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">مجلد PS3 JB لا يتحول إلى Redump ISO؛ هذا مسار IRD فقط.</sys:String>
+    <sys:String x:Key="LocRedumpV2_Ps3DecryptedNotOriginal">مجلد PS3 المفكوك ليس تمثيلًا أصليًا مطابقًا لـ Redump؛ استخدم مسار IRD للتحقق.</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoHashableFiles">لا توجد ملفات قابلة للفحص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipHashFilesHeader">الملفات التي تم فحصها:</sys:String>
     <sys:String x:Key="LocDeepHash_TipTotalFiles">إجمالي الملفات: {0:N0}</sys:String>

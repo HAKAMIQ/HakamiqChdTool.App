@@ -1,3 +1,5 @@
+using System;
+
 namespace HakamiqChdTool.App.ViewModels.Dialogs;
 
 public interface IRedumpDetailsFeedbackTimer : IDisposable

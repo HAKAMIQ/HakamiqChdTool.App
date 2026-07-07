@@ -38,7 +38,7 @@ public sealed class VirtualizedQueueCollection : IList, INotifyCollectionChanged
     public int Count => Volatile.Read(ref _visibleRows).Length;
 
     public bool IsFixedSize => false;
-    public bool IsReadOnly => true;
+    public bool IsReadOnly => false;
     public bool IsSynchronized => false;
     public object SyncRoot => _syncRoot;
 
@@ -108,7 +108,26 @@ public sealed class VirtualizedQueueCollection : IList, INotifyCollectionChanged
     {
         ArgumentNullException.ThrowIfNull(array);
 
+        if (array.Rank != 1)
+        {
+            throw new ArgumentException("Destination array must be one-dimensional.", nameof(array));
+        }
+
         QueueRowData[] visibleRows = Volatile.Read(ref _visibleRows);
+        int lowerBound = array.GetLowerBound(0);
+        int length = array.GetLength(0);
+        int offset = index - lowerBound;
+
+        if (index < lowerBound || offset > length)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index));
+        }
+
+        if (length - offset < visibleRows.Length)
+        {
+            throw new ArgumentException("Destination array does not have enough available space.", nameof(array));
+        }
+
         for (int i = 0; i < visibleRows.Length; i++)
         {
             array.SetValue(_viewport.Realize(visibleRows[i]), index + i);

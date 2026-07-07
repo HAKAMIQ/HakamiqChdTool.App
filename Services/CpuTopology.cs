@@ -1,7 +1,9 @@
+using HakamiqChdTool.App.Models;
 using Serilog;
+using System;
+using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
-using HakamiqChdTool.App.Models;
 
 namespace HakamiqChdTool.App.Services;
 

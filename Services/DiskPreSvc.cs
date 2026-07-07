@@ -1,4 +1,6 @@
 using HakamiqChdTool.App.Core.Disc;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -39,6 +41,7 @@ public static class DiskSpacePreflightService
     private const double SafetyMultiplier = 1.18d;
     private const long MinimumSafetyBytes = 512L * 1024L * 1024L;
     private const long PerReferencedTrackSafetyBytes = 16L * 1024L * 1024L;
+    private const long MaxDescriptorTextBytes = 4L * 1024L * 1024L;
 
     public const string SuccessMessageKey = "LocDiskPreflight_SpaceEnough";
     public const string FailureMessageKey = "LocDiskPreflight_SpaceNotEnough";
@@ -107,6 +110,16 @@ public static class DiskSpacePreflightService
 
         string fullInput = GetFullPathOrThrow(inputPath, InvalidInputPathMessageKey, nameof(inputPath));
         string fullOutput = GetFullPathOrThrow(outputPath, InvalidOutputPathMessageKey, nameof(outputPath));
+
+        try
+        {
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullInput, nameof(inputPath));
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullOutput, nameof(outputPath));
+        }
+        catch (Exception ex) when (IsPathValidationException(ex))
+        {
+            throw new IOException(InvalidInputPathMessageKey, ex);
+        }
 
         string? outputDirectory = Path.GetDirectoryName(fullOutput);
         if (string.IsNullOrWhiteSpace(outputDirectory))
@@ -191,6 +204,8 @@ public static class DiskSpacePreflightService
 
         try
         {
+            ConversionPathValidator.ThrowIfUnsafeForChdman(inputPath, nameof(inputPath));
+
             string extension = Path.GetExtension(inputPath).ToLowerInvariant();
             long primaryBytes = new FileInfo(inputPath).Length;
             long referencedBytes = extension switch
@@ -203,7 +218,7 @@ public static class DiskSpacePreflightService
 
             return Math.Max(SaturatingAdd(primaryBytes, referencedBytes), 1L);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException)
+        catch (Exception ex) when (IsPathValidationException(ex))
         {
             throw new IOException(InvalidInputPathMessageKey, ex);
         }
@@ -314,6 +329,14 @@ public static class DiskSpacePreflightService
 
     private static IEnumerable<string> ReadMetadataLines(string path)
     {
+        ConversionPathValidator.ThrowIfUnsafeForChdman(path, nameof(path));
+
+        FileInfo info = new(path);
+        if (!info.Exists || info.Length <= 0 || info.Length > MaxDescriptorTextBytes)
+        {
+            throw new IOException(InvalidInputPathMessageKey);
+        }
+
         using FileStream stream = new(
             path,
             FileMode.Open,
@@ -346,6 +369,11 @@ public static class DiskSpacePreflightService
 
         try
         {
+            if (Path.IsPathRooted(referencedName))
+            {
+                return false;
+            }
+
             string root = Path.GetFullPath(baseDirectory);
             string candidate = Path.GetFullPath(Path.Combine(root, referencedName));
 
@@ -354,10 +382,12 @@ public static class DiskSpacePreflightService
                 return false;
             }
 
+            ConversionPathValidator.ThrowIfUnsafeForChdman(candidate, nameof(referencedName));
+
             length = new FileInfo(candidate).Length;
             return length > 0;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException)
+        catch (Exception ex) when (IsPathValidationException(ex))
         {
             return false;
         }
@@ -528,6 +558,15 @@ public static class DiskSpacePreflightService
     {
         string fullInput = GetFullPathOrThrow(inputPath, InvalidInputPathMessageKey, nameof(inputPath));
 
+        try
+        {
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullInput, nameof(inputPath));
+        }
+        catch (Exception ex) when (IsPathValidationException(ex))
+        {
+            throw new IOException(InvalidInputPathMessageKey, ex);
+        }
+
         if (File.Exists(fullInput))
         {
             return EstimateInputBytes(fullInput);
@@ -559,6 +598,7 @@ public static class DiskSpacePreflightService
                 foreach (string filePath in Directory.EnumerateFiles(currentDirectory, "*", SearchOption.TopDirectoryOnly))
                 {
                     ThrowIfReparsePoint(filePath);
+                    ConversionPathValidator.ThrowIfUnsafeForChdman(filePath, nameof(filePath));
 
                     long length = new FileInfo(filePath).Length;
                     if (length > 0)
@@ -576,7 +616,7 @@ public static class DiskSpacePreflightService
 
             return Math.Max(total, 1L);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException)
+        catch (Exception ex) when (IsPathValidationException(ex))
         {
             throw new IOException(InvalidInputPathMessageKey, ex);
         }
@@ -596,7 +636,7 @@ public static class DiskSpacePreflightService
         {
             return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException)
+        catch (Exception ex) when (IsPathValidationException(ex))
         {
             throw new IOException(InvalidInputPathMessageKey, ex);
         }
@@ -678,14 +718,36 @@ public static class DiskSpacePreflightService
 
     private static bool IsUnderDirectory(string baseDirectory, string candidate)
     {
-        string root = Path.GetFullPath(baseDirectory);
-        if (!root.EndsWith(Path.DirectorySeparatorChar))
+        string root = TrimDirectorySeparators(Path.GetFullPath(baseDirectory));
+        string path = TrimDirectorySeparators(Path.GetFullPath(candidate));
+
+        return string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
         {
-            root += Path.DirectorySeparatorChar;
+            return root;
         }
 
-        string path = Path.GetFullPath(candidate);
-        return path.StartsWith(root, StringComparison.OrdinalIgnoreCase);
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 
     private static long SaturatingAdd(long left, long right)
@@ -702,4 +764,13 @@ public static class DiskSpacePreflightService
 
         return left + right;
     }
+
+    private static bool IsPathValidationException(Exception ex) =>
+        ex is IOException
+        or UnauthorizedAccessException
+        or ArgumentException
+        or NotSupportedException
+        or PathTooLongException
+        or InvalidOperationException
+        or System.Security.SecurityException;
 }

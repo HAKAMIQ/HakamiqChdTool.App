@@ -158,34 +158,25 @@ public sealed class QueueRowStore
     {
         ArgumentNullException.ThrowIfNull(patch);
 
-        QueueRowData? target;
+        bool mutated;
 
         lock (_gate)
         {
-            target = _indexById.TryGetValue(id, out int index) ? _rows[index] : null;
+            if (!_indexById.TryGetValue(id, out int index))
+            {
+                return false;
+            }
+
+            patch(_rows[index]);
+            mutated = true;
         }
 
-        if (target is null)
-        {
-            return false;
-        }
-
-        patch(target);
-
-        bool isStillTracked;
-
-        lock (_gate)
-        {
-            isStillTracked = _indexById.TryGetValue(id, out int index)
-                             && ReferenceEquals(_rows[index], target);
-        }
-
-        if (isStillTracked)
+        if (mutated)
         {
             RowMutated?.Invoke(id);
         }
 
-        return isStillTracked;
+        return mutated;
     }
 
     private QueueRowData[] GetRowsSnapshotUnsafe()

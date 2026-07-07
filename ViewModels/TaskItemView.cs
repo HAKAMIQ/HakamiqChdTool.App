@@ -4,7 +4,6 @@ using Humanizer;
 using System;
 using System.Globalization;
 using System.IO;
-using System.Windows;
 using MediaBrush = System.Windows.Media.Brush;
 using MediaColor = System.Windows.Media.Color;
 using SolidColorBrush = System.Windows.Media.SolidColorBrush;
@@ -25,25 +24,39 @@ public sealed partial class TaskQueueItemViewModel
 
         if (string.IsNullOrWhiteSpace(path))
         {
-            FileName = string.Empty;
-            InputType = string.Empty;
-            FileSizeDisplay = "-";
-            SourceDirectoryDisplay = "-";
-            ShortSourcePathDisplay = "-";
+            ClearSourceMetadata();
+            return;
+        }
+
+        try
+        {
+            string normalizedPath = Path.GetFullPath(path.Trim());
+
+            FileName = Path.GetFileName(normalizedPath);
+            InputType = Path.GetExtension(normalizedPath).TrimStart('.').ToUpperInvariant();
+            SourceDirectoryDisplay = Path.GetDirectoryName(normalizedPath) ?? "-";
+            ShortSourcePathDisplay = BuildShortPath(SourceDirectoryDisplay);
+            FileSizeDisplay = BuildFileSizeDisplay(normalizedPath);
             OnPropertyChanged(nameof(FileTitleDisplay));
             OnPropertyChanged(nameof(FilePathSubtitleDisplay));
             OnPropertyChanged(nameof(SourceFilePath));
             OnPropertyChanged(nameof(SourceExtensionDisplay));
             OnPropertyChanged(nameof(QueueTitleDisplay));
             NotifyMetadataStripChanged();
-            return;
         }
+        catch (Exception ex) when (IsExpectedFileSizeException(ex))
+        {
+            ClearSourceMetadata();
+        }
+    }
 
-        FileName = Path.GetFileName(path);
-        InputType = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
-        SourceDirectoryDisplay = Path.GetDirectoryName(path) ?? "-";
-        ShortSourcePathDisplay = BuildShortPath(SourceDirectoryDisplay);
-        FileSizeDisplay = BuildFileSizeDisplay(path);
+    private void ClearSourceMetadata()
+    {
+        FileName = string.Empty;
+        InputType = string.Empty;
+        FileSizeDisplay = "-";
+        SourceDirectoryDisplay = "-";
+        ShortSourcePathDisplay = "-";
         OnPropertyChanged(nameof(FileTitleDisplay));
         OnPropertyChanged(nameof(FilePathSubtitleDisplay));
         OnPropertyChanged(nameof(SourceFilePath));
@@ -158,28 +171,34 @@ public sealed partial class TaskQueueItemViewModel
             return "-";
         }
 
-        string normalized = directoryPath.Replace('/', '\\').TrimEnd('\\');
-        string[] segments = normalized.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-
-        if (segments.Length <= 3)
+        try
         {
-            return normalized;
-        }
+            string normalized = TrimMetadataDirectorySeparators(Path.GetFullPath(directoryPath.Replace('/', '\\')));
+            string[] segments = normalized.Split('\\', StringSplitOptions.RemoveEmptyEntries);
 
-        return $"...\\{segments[^2]}\\{segments[^1]}";
+            if (segments.Length <= 3)
+            {
+                return normalized;
+            }
+
+            return $"...\\{segments[^2]}\\{segments[^1]}";
+        }
+        catch (Exception ex) when (IsExpectedFileSizeException(ex))
+        {
+            return "-";
+        }
     }
 
     private static string BuildFileSizeDisplay(string path)
     {
         try
         {
-
-            if (!File.Exists(path))
+            if (!TryNormalizeExistingMetadataFilePath(path, out string safePath))
             {
                 return "-";
             }
 
-            long bytes = new FileInfo(path).Length;
+            long bytes = new FileInfo(safePath).Length;
             return bytes.Bytes().Humanize("0.##", CultureInfo.GetCultureInfo("en-US"));
         }
         catch (Exception ex) when (IsExpectedFileSizeException(ex))
@@ -188,13 +207,165 @@ public sealed partial class TaskQueueItemViewModel
         }
     }
 
+    private static bool TryNormalizeExistingMetadataFilePath(string? path, out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+
+            if (!File.Exists(fullPath)
+                || HasMetadataReparsePointInExistingPathFromVolumeRoot(fullPath))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+
+            normalizedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedFileSizeException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool HasMetadataReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasMetadataReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedFileSizeException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasMetadataReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+
+            if (!IsMetadataSamePathOrChild(root, candidate))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsMetadataReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (MetadataPathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || MetadataPathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedFileSizeException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsMetadataReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedFileSizeException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsMetadataSamePathOrChild(string rootPath, string candidatePath)
+    {
+        string root = TrimMetadataDirectorySeparators(Path.GetFullPath(rootPath));
+        string candidate = TrimMetadataDirectorySeparators(Path.GetFullPath(candidatePath));
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureMetadataDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool MetadataPathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimMetadataDirectorySeparators(Path.GetFullPath(left)),
+            TrimMetadataDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureMetadataDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimMetadataDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
+    }
+
     private static bool IsExpectedFileSizeException(Exception ex)
     {
         return ex is IOException
             or UnauthorizedAccessException
             or ArgumentException
+            or InvalidOperationException
             or NotSupportedException
-            or PathTooLongException;
+            or PathTooLongException
+            or System.Security.SecurityException;
     }
 
     private void UpdateResultBadgeBrushes()

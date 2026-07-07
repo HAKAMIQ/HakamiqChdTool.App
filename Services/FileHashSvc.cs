@@ -1,5 +1,8 @@
+using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -38,8 +41,14 @@ public static class FileHashService
         try
         {
             fullPath = Path.GetFullPath(path);
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
         }
-        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        catch (Exception ex) when (ex is ArgumentException
+                                   or NotSupportedException
+                                   or PathTooLongException
+                                   or IOException
+                                   or UnauthorizedAccessException
+                                   or System.Security.SecurityException)
         {
             throw new ArgumentException(InvalidPathMessageKey, nameof(path), ex);
         }

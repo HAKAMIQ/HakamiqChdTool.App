@@ -1,4 +1,6 @@
+using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -24,7 +26,7 @@ internal sealed record RedumpNameSuggestion(
             {
                 sourceFileName = Path.GetFileName(normalizedSource);
             }
-            catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+            catch (Exception ex) when (IsExpectedPathException(ex))
             {
                 sourceFileName = string.Empty;
             }
@@ -38,6 +40,12 @@ internal sealed record RedumpNameSuggestion(
             string.Empty,
             errorMessageKey);
     }
+
+    private static bool IsExpectedPathException(Exception ex) =>
+        ex is ArgumentException
+        or NotSupportedException
+        or PathTooLongException
+        or System.Security.SecurityException;
 }
 
 internal static class RedumpNameService
@@ -50,6 +58,8 @@ internal static class RedumpNameService
     private const string SuggestedNameUnsafeMessageKey = "LocNaming_SuggestedNameUnsafe";
     private const string TargetFileExistsMessageKey = "LocNaming_TargetFileExists";
 
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(250);
+
     public static RedumpNameSuggestion Evaluate(TaskQueueItemViewModel item)
     {
         ArgumentNullException.ThrowIfNull(item);
@@ -59,24 +69,9 @@ internal static class RedumpNameService
 
     public static RedumpNameSuggestion Evaluate(string originalPath, string suggestedFileName)
     {
-        if (string.IsNullOrWhiteSpace(originalPath))
+        if (!TryResolveSourcePath(originalPath, out string fullOriginalPath, out string sourcePathErrorKey))
         {
-            return RedumpNameSuggestion.Blocked(originalPath, OriginalPathMissingMessageKey);
-        }
-
-        string fullOriginalPath;
-        try
-        {
-            fullOriginalPath = Path.GetFullPath(originalPath);
-        }
-        catch (Exception ex) when (IsExpectedPathException(ex))
-        {
-            return RedumpNameSuggestion.Blocked(originalPath, OriginalPathMissingMessageKey);
-        }
-
-        if (!File.Exists(fullOriginalPath))
-        {
-            return RedumpNameSuggestion.Blocked(fullOriginalPath, OriginalFileNotFoundMessageKey);
+            return RedumpNameSuggestion.Blocked(originalPath, sourcePathErrorKey);
         }
 
         if (string.IsNullOrWhiteSpace(suggestedFileName))
@@ -85,7 +80,7 @@ internal static class RedumpNameService
         }
 
         string directory = Path.GetDirectoryName(fullOriginalPath) ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
+        if (!TryValidateExistingDirectory(directory))
         {
             return RedumpNameSuggestion.Blocked(fullOriginalPath, OriginalDirectoryMissingMessageKey);
         }
@@ -112,7 +107,17 @@ internal static class RedumpNameService
             return RedumpNameSuggestion.Blocked(fullOriginalPath, SuggestedNameInvalidMessageKey);
         }
 
-        if (!IsUnderDirectory(directory, targetPath))
+        if (!IsUnderDirectory(directory, targetPath)
+            || HasReparsePointInExistingPath(targetPath, directory))
+        {
+            return RedumpNameSuggestion.Blocked(fullOriginalPath, SuggestedNameUnsafeMessageKey);
+        }
+
+        try
+        {
+            ConversionPathValidator.ThrowIfUnsafeForChdman(targetPath, nameof(targetPath));
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
         {
             return RedumpNameSuggestion.Blocked(fullOriginalPath, SuggestedNameUnsafeMessageKey);
         }
@@ -122,7 +127,7 @@ internal static class RedumpNameService
             return RedumpNameSuggestion.Blocked(fullOriginalPath, SuggestedNameMissingMessageKey);
         }
 
-        if (File.Exists(targetPath))
+        if (File.Exists(targetPath) || Directory.Exists(targetPath))
         {
             return RedumpNameSuggestion.Blocked(fullOriginalPath, TargetFileExistsMessageKey);
         }
@@ -134,6 +139,73 @@ internal static class RedumpNameService
             Path.GetFileName(targetPath),
             targetPath,
             string.Empty);
+    }
+
+    private static bool TryResolveSourcePath(
+        string originalPath,
+        out string fullOriginalPath,
+        out string errorMessageKey)
+    {
+        fullOriginalPath = string.Empty;
+        errorMessageKey = OriginalPathMissingMessageKey;
+
+        if (string.IsNullOrWhiteSpace(originalPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            fullOriginalPath = Path.GetFullPath(originalPath.Trim());
+
+            if (!File.Exists(fullOriginalPath))
+            {
+                errorMessageKey = OriginalFileNotFoundMessageKey;
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullOriginalPath, nameof(originalPath));
+
+            if (HasReparsePointInExistingPathFromVolumeRoot(fullOriginalPath))
+            {
+                errorMessageKey = SuggestedNameUnsafeMessageKey;
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            errorMessageKey = OriginalPathMissingMessageKey;
+            fullOriginalPath = string.Empty;
+            return false;
+        }
+    }
+
+    private static bool TryValidateExistingDirectory(string directory)
+    {
+        if (string.IsNullOrWhiteSpace(directory))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullDirectory = Path.GetFullPath(directory);
+
+            if (!Directory.Exists(fullDirectory)
+                || HasReparsePointInExistingPathFromVolumeRoot(fullDirectory))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullDirectory, nameof(directory));
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return false;
+        }
     }
 
     private static string SanitizeSuggestedFileName(string value)
@@ -150,20 +222,142 @@ internal static class RedumpNameService
             .. fileNameOnly.Select(character => invalid.Contains(character) ? ' ' : character)
         ]);
 
-        safe = Regex.Replace(safe, @"\s+", " ").Trim();
+        try
+        {
+            safe = Regex.Replace(
+                    safe,
+                    @"\s+",
+                    " ",
+                    RegexOptions.CultureInvariant,
+                    RegexTimeout)
+                .Trim();
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return string.Empty;
+        }
+
         return safe.TrimEnd('.', ' ');
     }
 
     private static bool IsUnderDirectory(string baseDirectory, string candidate)
     {
-        string root = Path.GetFullPath(baseDirectory);
-        if (!root.EndsWith(Path.DirectorySeparatorChar))
+        string root = TrimDirectorySeparators(Path.GetFullPath(baseDirectory));
+        string path = TrimDirectorySeparators(Path.GetFullPath(candidate));
+
+        return string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
         {
-            root += Path.DirectorySeparatorChar;
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+
+            if (!IsUnderDirectory(root, candidate))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimDirectorySeparators(Path.GetFullPath(left)),
+            TrimDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
         }
 
-        string path = Path.GetFullPath(candidate);
-        return path.StartsWith(root, StringComparison.OrdinalIgnoreCase);
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 
     private static bool HasKnownMediaFileExtension(string? extension) =>
@@ -177,5 +371,9 @@ internal static class RedumpNameService
     private static bool IsExpectedPathException(Exception ex) =>
         ex is ArgumentException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or IOException
+        or UnauthorizedAccessException
+        or InvalidOperationException
+        or System.Security.SecurityException;
 }

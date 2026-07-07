@@ -73,18 +73,6 @@
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
 
-            <Style x:Key="OptionsWindow.AccentLine"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Width" Value="{DynamicResource Space.4}" />
-                <Setter Property="Height" Value="{DynamicResource Space.24}" />
-                <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="HorizontalAlignment" Value="Center" />
-                <Setter Property="VerticalAlignment" Value="Top" />
-                <Setter Property="Margin" Value="{DynamicResource Inset.0.2.0.0}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-            </Style>
-
             <Style x:Key="OptionsWindow.TextBlockBase"
                    TargetType="{x:Type TextBlock}">
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
@@ -178,17 +166,12 @@
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
                 <Grid FlowDirection="{DynamicResource App.FlowDirection}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Style="{StaticResource OptionsWindow.AccentLine}" />
-
-                    <StackPanel Grid.Column="2"
+                    <StackPanel Grid.Column="0"
                                 FlowDirection="{DynamicResource App.FlowDirection}"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Center">
@@ -202,7 +185,7 @@
                                    TextTrimming="CharacterEllipsis" />
                     </StackPanel>
 
-                    <Button Grid.Column="4"
+                    <Button Grid.Column="2"
                             Width="{DynamicResource Space.32}"
                             Height="{DynamicResource Space.32}"
                             MinWidth="{DynamicResource Space.32}"
@@ -243,17 +226,7 @@
                         <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                               HorizontalAlignment="Stretch"
                               Margin="{DynamicResource Inset.0.0.0.12}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <Border Grid.Column="0"
-                                    Style="{StaticResource OptionsWindow.AccentLine}" />
-
-                            <StackPanel Grid.Column="2"
-                                        FlowDirection="{DynamicResource App.FlowDirection}"
+                            <StackPanel FlowDirection="{DynamicResource App.FlowDirection}"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource LocOptions_SectionsTitle}"
@@ -330,23 +303,23 @@
                           ClipToBounds="True"
                           FlowDirection="{DynamicResource App.FlowDirection}">
                         <options:GeneralSettingsView x:Name="GeneralPanel"
-                                                             HorizontalAlignment="Stretch"
-                                                             VerticalAlignment="Stretch" />
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Stretch" />
 
                         <options:PathsSettingsView x:Name="PathsPanel"
-                                                           HorizontalAlignment="Stretch"
-                                                           VerticalAlignment="Stretch"
-                                                           Visibility="Collapsed" />
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Stretch"
+                                                   Visibility="Collapsed" />
 
                         <options:RedumpSettingsView x:Name="RedumpPanel"
-                                                            HorizontalAlignment="Stretch"
-                                                            VerticalAlignment="Stretch"
-                                                            Visibility="Collapsed" />
+                                                    HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch"
+                                                    Visibility="Collapsed" />
 
                         <options:ProcessingSettingsView x:Name="ProcessingPanel"
-                                                                HorizontalAlignment="Stretch"
-                                                                VerticalAlignment="Stretch"
-                                                                Visibility="Collapsed" />
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalAlignment="Stretch"
+                                                        Visibility="Collapsed" />
 
                         <options:ExternalToolsSettingsView x:Name="ExternalToolsPanel"
                                                            HorizontalAlignment="Stretch"
@@ -354,9 +327,9 @@
                                                            Visibility="Collapsed" />
 
                         <options:PerformanceSettingsView x:Name="PerformancePanel"
-                                                                 HorizontalAlignment="Stretch"
-                                                                 VerticalAlignment="Stretch"
-                                                                 Visibility="Collapsed" />
+                                                         HorizontalAlignment="Stretch"
+                                                         VerticalAlignment="Stretch"
+                                                         Visibility="Collapsed" />
                     </Grid>
                 </Border>
             </Grid>

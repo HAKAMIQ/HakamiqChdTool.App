@@ -1,19 +1,11 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.RedumpCatalog;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace HakamiqChdTool.App.ViewModels;
 
 public sealed partial class OptionsViewModel
 {
-
     private void LoadRedumpCatalogChoices()
     {
         RedumpPlatformOptions.Clear();
@@ -25,7 +17,6 @@ public sealed partial class OptionsViewModel
 
         SelectedRedumpPlatformOption = RedumpPlatformOptions.FirstOrDefault();
     }
-
 
     private void RefreshRedumpArtifactOptions(string? platformKey)
     {
@@ -41,7 +32,6 @@ public sealed partial class OptionsViewModel
         OnPropertyChanged(nameof(SelectedRedumpArtifactDescription));
     }
 
-
     private void UpdateRedumpDownloadUrlFromSelection(bool overwriteExistingCatalogUrl)
     {
         string selectedUrl = SelectedRedumpArtifactOption?.Url ?? string.Empty;
@@ -54,7 +44,6 @@ public sealed partial class OptionsViewModel
 
         OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
     }
-
 
     private RedumpCatalogChoiceOption ResolveRedumpPlatformOption(string? mode, string? platformKey)
     {
@@ -72,7 +61,6 @@ public sealed partial class OptionsViewModel
                 "LocRedumpCatalog_Platform_Auto_Description");
     }
 
-
     private RedumpCatalogChoiceOption ResolveRedumpArtifactOption(string? artifactKey)
     {
         return RedumpArtifactOptions.FirstOrDefault(x => string.Equals(x.Key, artifactKey?.Trim(), StringComparison.OrdinalIgnoreCase))
@@ -83,12 +71,10 @@ public sealed partial class OptionsViewModel
                 "LocRedumpCatalog_Artifact_Datfile_Description");
     }
 
-
     private static string ResolveOptionDescription(RedumpCatalogChoiceOption? option)
     {
         return option?.Description ?? string.Empty;
     }
-
 
     private static bool IsSafeDownloadUrl(string? url)
     {

@@ -23,10 +23,6 @@ public static class IsoChdmanCreateCommandResolver
     private const string UnknownPlatformName = "Unknown";
 
     private const string DiscProbeInsufficientMetadataReasonKey = "LocDiscProbe_InsufficientMetadata";
-    private const string DiscProbePspStructureReasonKey = "LocDiscProbe_PspStructure";
-    private const string DiscProbePs2SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs2Boot2";
-    private const string DiscProbePs1SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs1Hint";
-    private const string DiscProbePs3BluRayStructureReasonKey = "LocDiscProbe_Ps3BluRayStructure";
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext(typeof(IsoChdmanCreateCommandResolver));
 
@@ -48,8 +44,9 @@ public static class IsoChdmanCreateCommandResolver
         try
         {
             fullPath = Path.GetFullPath(isoPath);
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(isoPath));
         }
-        catch (Exception ex) when (IsExpectedPathException(ex))
+        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedReadException(ex))
         {
             Logger.Debug(ex, "ISO create command resolution rejected an invalid path. Path={Path}", isoPath);
             return Fallback(overrideMode);
@@ -72,7 +69,7 @@ public static class IsoChdmanCreateCommandResolver
         }
 
         PlatformDetectionResult detection = DetectPlatformSafely(fullPath);
-        DiscMediaKind mediaKind = ResolveIsoMediaKindForChdmanCommand(detection, length);
+        DiscMediaKind mediaKind = DiscMediaKindResolver.ResolveIsoMediaKind(fullPath, detection, length);
         string autoSuggested = ToChdmanCreateCommand(mediaKind);
 
         if (mediaKind == DiscMediaKind.Unknown)
@@ -130,46 +127,6 @@ public static class IsoChdmanCreateCommandResolver
         return ToChdmanCreateCommand(ResolveIsoMediaKindFromLength(fileLengthBytes));
     }
 
-    private static DiscMediaKind ResolveIsoMediaKindForChdmanCommand(
-        PlatformDetectionResult detection,
-        long fileLengthBytes)
-    {
-        if (fileLengthBytes <= 0)
-        {
-            return DiscMediaKind.Unknown;
-        }
-
-        DiscMediaKind structureKind = ResolveIsoMediaKindFromDiscProbeReason(detection.Reason);
-        if (structureKind != DiscMediaKind.Unknown)
-        {
-            return structureKind;
-        }
-
-        return ResolveIsoMediaKindFromLength(fileLengthBytes);
-    }
-
-    private static DiscMediaKind ResolveIsoMediaKindFromDiscProbeReason(string? reason)
-    {
-        if (string.IsNullOrWhiteSpace(reason))
-        {
-            return DiscMediaKind.Unknown;
-        }
-
-        if (string.Equals(reason, DiscProbePs1SystemCnfReasonKey, StringComparison.Ordinal))
-        {
-            return DiscMediaKind.CdRom;
-        }
-
-        if (string.Equals(reason, DiscProbePs2SystemCnfReasonKey, StringComparison.Ordinal)
-            || string.Equals(reason, DiscProbePspStructureReasonKey, StringComparison.Ordinal)
-            || string.Equals(reason, DiscProbePs3BluRayStructureReasonKey, StringComparison.Ordinal))
-        {
-            return DiscMediaKind.DvdRom;
-        }
-
-        return DiscMediaKind.Unknown;
-    }
-
     private static DiscMediaKind ResolveIsoMediaKindFromLength(long fileLengthBytes)
     {
         if (fileLengthBytes <= 0)
@@ -221,11 +178,13 @@ public static class IsoChdmanCreateCommandResolver
     private static bool IsExpectedPathException(Exception ex) =>
         ex is ArgumentException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or System.Security.SecurityException;
 
     private static bool IsExpectedReadException(Exception ex) =>
         ex is IOException
         or UnauthorizedAccessException
         or InvalidDataException
-        or PathTooLongException;
+        or PathTooLongException
+        or System.Security.SecurityException;
 }

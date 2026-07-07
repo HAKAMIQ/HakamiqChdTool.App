@@ -1,7 +1,5 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Ui.Queue;
-using HakamiqChdTool.App.Ui.Shell;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
@@ -10,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App;
@@ -68,8 +67,7 @@ public partial class MainWindow
             return false;
         }
 
-        string path = ResolveRedumpProbePath(item);
-        return !string.IsNullOrWhiteSpace(path) && IsRedumpProbePathAvailable(path);
+        return TryResolveRedumpProbePath(item, out _);
     }
 
     public async Task RunRedumpIntegrityForSelectedQueueItemAsync(TaskQueueItemViewModel? item)
@@ -86,8 +84,7 @@ public partial class MainWindow
             return;
         }
 
-        string path = ResolveRedumpProbePath(item);
-        if (string.IsNullOrWhiteSpace(path) || !IsRedumpProbePathAvailable(path))
+        if (!TryResolveRedumpProbePath(item, out string path))
         {
             SetFooterStatus(MainWindowMessages.IntegrityNoDiskFileFooter);
             return;
@@ -184,14 +181,18 @@ public partial class MainWindow
 
                     try
                     {
-                        SetFooterStatus(UiFormat("LocRedumpV2_AllProgressFormat", scannedCount + 1, eligibleCount, Path.GetFileName(candidate.Path)));
+                        SetFooterStatus(UiFormat(
+                            "LocRedumpV2_AllProgressFormat",
+                            SaturatingAdd(scannedCount, 1),
+                            eligibleCount,
+                            GetSafeRedumpProbeDisplayName(candidate.Path)));
 
                         await RunDeepIntegrityValidationAsync(
                                 item,
                                 candidate.Path)
                             .ConfigureAwait(true);
 
-                        scannedCount++;
+                        scannedCount = SaturatingAdd(scannedCount, 1);
                     }
                     catch (OperationCanceledException)
                     {
@@ -199,7 +200,7 @@ public partial class MainWindow
                     }
                     catch (Exception ex) when (IsExpectedRedumpRuntimeException(ex))
                     {
-                        failedCount++;
+                        failedCount = SaturatingAdd(failedCount, 1);
                         SetFooterStatus(UiFormat(RedumpItemScanFailedContinueFooterFormatKey, failedCount));
                     }
                 }
@@ -215,12 +216,6 @@ public partial class MainWindow
         catch (OperationCanceledException)
         {
             SetFooterStatus(Ui(RedumpScanCancelledFooterKey));
-            return;
-        }
-
-        if (eligibleCount == 0)
-        {
-            SetFooterStatus(MainWindowMessages.IntegrityNoDiskFileFooter);
             return;
         }
 
@@ -242,6 +237,7 @@ public partial class MainWindow
     private RedumpScanCandidate[] BuildRedumpScanCandidates(IReadOnlyList<Guid> itemIds)
     {
         var candidates = new List<RedumpScanCandidate>(itemIds.Count);
+        var seenPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (Guid itemId in itemIds)
         {
@@ -265,8 +261,12 @@ public partial class MainWindow
                     continue;
                 }
 
-                string path = ResolveRedumpProbePath(item);
-                if (string.IsNullOrWhiteSpace(path) || !IsRedumpProbePathAvailable(path))
+                if (!TryResolveRedumpProbePath(item, out string path))
+                {
+                    continue;
+                }
+
+                if (!seenPaths.Add(path))
                 {
                     continue;
                 }
@@ -284,9 +284,6 @@ public partial class MainWindow
 
         return [.. candidates];
     }
-
-    private static bool IsRedumpProbePathAvailable(string path) =>
-        File.Exists(path) || Directory.Exists(path);
 
     private void ShowRedumpNotice(string titleKey, string message)
     {
@@ -307,17 +304,105 @@ public partial class MainWindow
 
     private static string ResolveRedumpProbePath(TaskQueueItemViewModel item)
     {
-        if (!string.IsNullOrWhiteSpace(item.SourcePath))
+        return TryResolveRedumpProbePath(item, out string path)
+            ? path
+            : string.Empty;
+    }
+
+    private static bool TryResolveRedumpProbePath(
+        TaskQueueItemViewModel item,
+        out string path)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        if (TryNormalizeRedumpProbePath(item.SourcePath, out path))
         {
-            return item.SourcePath;
+            return true;
         }
 
-        if (!string.IsNullOrWhiteSpace(item.OriginalPath))
+        if (TryNormalizeRedumpProbePath(item.OriginalPath, out path))
         {
-            return item.OriginalPath;
+            return true;
         }
 
-        return string.Empty;
+        path = string.Empty;
+        return false;
+    }
+
+    private static bool IsRedumpProbePathAvailable(string path)
+    {
+        return TryNormalizeRedumpProbePath(path, out _);
+    }
+
+    private static bool TryNormalizeRedumpProbePath(
+        string? path,
+        out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+
+            FileAttributes attributes = File.GetAttributes(fullPath);
+            if ((attributes & FileAttributes.ReparsePoint) != 0)
+            {
+                return false;
+            }
+
+            bool isFile = (attributes & FileAttributes.Directory) == 0;
+            bool isDirectory = (attributes & FileAttributes.Directory) != 0;
+
+            if (!isFile && !isDirectory)
+            {
+                return false;
+            }
+
+            normalizedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedRedumpPathException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static string GetSafeRedumpProbeDisplayName(string path)
+    {
+        try
+        {
+            string fileName = Path.GetFileName(path);
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                return fileName;
+            }
+
+            string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            fileName = Path.GetFileName(trimmed);
+
+            return string.IsNullOrWhiteSpace(fileName)
+                ? path
+                : fileName;
+        }
+        catch (Exception ex) when (IsExpectedRedumpPathException(ex))
+        {
+            return path;
+        }
+    }
+
+    private static bool IsExpectedRedumpPathException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException
+            or SecurityException;
     }
 
     private static bool IsExpectedRedumpRuntimeException(Exception ex)

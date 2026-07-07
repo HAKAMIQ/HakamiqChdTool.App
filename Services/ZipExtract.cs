@@ -1,5 +1,10 @@
 using Serilog;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -64,7 +69,8 @@ public sealed class SevenZipArchiveExtractionService
         string archivePath,
         CancellationToken cancellationToken = default)
     {
-        if (!_toolService.TryGetExecutablePath(out string sevenZipPath))
+        if (!_toolService.TryGetExecutablePath(out string sevenZipPath)
+            || !TryNormalizeArchivePath(archivePath, out string fullArchivePath))
         {
             return new ArchiveIntegrityResult
             {
@@ -75,7 +81,7 @@ public sealed class SevenZipArchiveExtractionService
 
         SevenZipProcessResult result = await SevenZipProcessRunner.RunAsync(
             sevenZipPath,
-            ["t", "-y", "--", archivePath],
+            ["t", "-y", "--", fullArchivePath],
             parseProgressPercent: true,
             progress: null,
             cancellationToken).ConfigureAwait(false);
@@ -106,7 +112,7 @@ public sealed class SevenZipArchiveExtractionService
         IProgress<int>? progress,
         CancellationToken cancellationToken)
     {
-        ValidateInputs(archivePath, destinationDirectory);
+        ValidateInputs(archivePath, destinationDirectory, out string fullArchivePath, out string extractionRoot);
 
         if (!_toolService.TryGetExecutablePath(out string sevenZipPath))
         {
@@ -120,7 +126,7 @@ public sealed class SevenZipArchiveExtractionService
 
         SevenZipArchivePreflight preflight = await PreflightArchiveAsync(
             sevenZipPath,
-            archivePath,
+            fullArchivePath,
             candidateSelector,
             noCandidateMessageKey,
             validateSingleConvertibleLeader,
@@ -140,15 +146,14 @@ public sealed class SevenZipArchiveExtractionService
             };
         }
 
-        string extractionRoot = Path.GetFullPath(destinationDirectory);
-        Directory.CreateDirectory(extractionRoot);
+        EnsureSafeDestinationDirectory(extractionRoot);
         progress?.Report(0);
 
         try
         {
             SevenZipProcessResult result = await SevenZipProcessRunner.RunAsync(
                 sevenZipPath,
-                BuildSelectiveExtractArguments(extractionRoot, archivePath, preflight.EntryArguments),
+                BuildSelectiveExtractArguments(extractionRoot, fullArchivePath, preflight.EntryArguments),
                 parseProgressPercent: true,
                 progress,
                 cancellationToken).ConfigureAwait(false);
@@ -171,7 +176,7 @@ public sealed class SevenZipArchiveExtractionService
 
                 Logger.Warning(
                     "7-Zip selective extraction failed. Archive={Archive}, Destination={Destination}, ExitCode={ExitCode}, Output={Output}",
-                    archivePath,
+                    fullArchivePath,
                     extractionRoot,
                     result.ExitCode,
                     output);
@@ -205,7 +210,7 @@ public sealed class SevenZipArchiveExtractionService
             {
                 Logger.Warning(
                     "7-Zip selective extraction completed but no expected candidate was found. Archive={Archive}, Destination={Destination}, ExtractedCount={Count}",
-                    archivePath,
+                    fullArchivePath,
                     extractionRoot,
                     extractedFiles.Count);
 
@@ -262,7 +267,7 @@ public sealed class SevenZipArchiveExtractionService
         }
         catch (IOException ex)
         {
-            Logger.Warning(ex, "7-Zip selective extraction failed due to I/O error. Archive={Archive}, Destination={Destination}", archivePath, destinationDirectory);
+            Logger.Warning(ex, "7-Zip selective extraction failed due to I/O error. Archive={Archive}, Destination={Destination}", fullArchivePath, extractionRoot);
 
             return new ArchiveExtractionResult
             {
@@ -273,7 +278,7 @@ public sealed class SevenZipArchiveExtractionService
         }
         catch (UnauthorizedAccessException ex)
         {
-            Logger.Warning(ex, "7-Zip selective extraction failed due to access permissions. Archive={Archive}, Destination={Destination}", archivePath, destinationDirectory);
+            Logger.Warning(ex, "7-Zip selective extraction failed due to access permissions. Archive={Archive}, Destination={Destination}", fullArchivePath, extractionRoot);
 
             return new ArchiveExtractionResult
             {
@@ -284,7 +289,7 @@ public sealed class SevenZipArchiveExtractionService
         }
         catch (Exception ex) when (IsExpectedExtractionException(ex))
         {
-            Logger.Warning(ex, "7-Zip selective extraction failed unexpectedly. Archive={Archive}, Destination={Destination}", archivePath, destinationDirectory);
+            Logger.Warning(ex, "7-Zip selective extraction failed unexpectedly. Archive={Archive}, Destination={Destination}", fullArchivePath, extractionRoot);
 
             return new ArchiveExtractionResult
             {
@@ -643,6 +648,7 @@ public sealed class SevenZipArchiveExtractionService
         string normalized = NormalizeArchiveEntryArgument(value);
 
         if (string.IsNullOrWhiteSpace(normalized)
+            || normalized.Contains('\0')
             || normalized.StartsWith('@')
             || Path.IsPathRooted(normalized)
             || normalized.Contains(':'))
@@ -662,7 +668,7 @@ public sealed class SevenZipArchiveExtractionService
 
     private static List<string> EnumerateSafeExtractedFiles(string extractionRoot)
     {
-        string root = EnsureTrailingSeparator(Path.GetFullPath(extractionRoot));
+        string root = Path.GetFullPath(extractionRoot);
         List<string> files = [];
 
         if (!Directory.Exists(root))
@@ -670,9 +676,44 @@ public sealed class SevenZipArchiveExtractionService
             return files;
         }
 
-        foreach (string path in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
+        Stack<string> pending = new();
+        pending.Push(root);
+
+        while (pending.Count > 0)
         {
-            files.Add(EnsurePathInsideExtractionRoot(path, root));
+            string currentDirectory = pending.Pop();
+            string safeCurrentDirectory = EnsurePathInsideExtractionRoot(currentDirectory, root);
+
+            if (IsReparsePoint(safeCurrentDirectory))
+            {
+                throw new InvalidOperationException(UnsafeExtractedPathMessageKey);
+            }
+
+            string[] currentFiles = Directory.GetFiles(safeCurrentDirectory, "*", SearchOption.TopDirectoryOnly);
+            foreach (string file in currentFiles)
+            {
+                string safeFile = EnsurePathInsideExtractionRoot(file, root);
+
+                if (IsReparsePoint(safeFile))
+                {
+                    throw new InvalidOperationException(UnsafeExtractedPathMessageKey);
+                }
+
+                files.Add(safeFile);
+            }
+
+            string[] directories = Directory.GetDirectories(safeCurrentDirectory, "*", SearchOption.TopDirectoryOnly);
+            foreach (string directory in directories)
+            {
+                string safeDirectory = EnsurePathInsideExtractionRoot(directory, root);
+
+                if (IsReparsePoint(safeDirectory))
+                {
+                    throw new InvalidOperationException(UnsafeExtractedPathMessageKey);
+                }
+
+                pending.Push(safeDirectory);
+            }
         }
 
         return files;
@@ -681,48 +722,269 @@ public sealed class SevenZipArchiveExtractionService
     private static string EnsurePathInsideExtractionRoot(string path, string extractionRoot)
     {
         string fullPath = Path.GetFullPath(path);
-        string root = EnsureTrailingSeparator(Path.GetFullPath(extractionRoot));
+        string root = Path.GetFullPath(extractionRoot);
 
-        if (!fullPath.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+        if (!IsSamePathOrChild(fullPath, root)
+            || HasReparsePointInExistingPath(fullPath, root))
         {
-            Logger.Warning("7-Zip extraction produced a path outside the extraction root. Root={Root}, Path={Path}", root, fullPath);
+            Logger.Warning("7-Zip extraction produced a path outside the extraction root or through a reparse point. Root={Root}, Path={Path}", root, fullPath);
             throw new InvalidOperationException(UnsafeExtractedPathMessageKey);
         }
 
         return fullPath;
     }
 
-    private static string EnsureTrailingSeparator(string path)
+    private static void ValidateInputs(
+        string archivePath,
+        string destinationDirectory,
+        out string fullArchivePath,
+        out string fullDestinationDirectory)
     {
-        string fullPath = Path.GetFullPath(path);
-
-        return fullPath.EndsWith(Path.DirectorySeparatorChar)
-            || fullPath.EndsWith(Path.AltDirectorySeparatorChar)
-            ? fullPath
-            : fullPath + Path.DirectorySeparatorChar;
+        fullArchivePath = ResolveArchivePathOrThrow(archivePath);
+        fullDestinationDirectory = ResolveDestinationDirectoryOrThrow(destinationDirectory);
     }
 
-    private static void ValidateInputs(string archivePath, string destinationDirectory)
+    private static string ResolveArchivePathOrThrow(string archivePath)
     {
         if (string.IsNullOrWhiteSpace(archivePath))
         {
             throw new ArgumentException(InvalidArchivePathMessageKey, nameof(archivePath));
         }
 
+        string fullPath;
+        try
+        {
+            fullPath = Path.GetFullPath(archivePath.Trim());
+        }
+        catch (Exception ex) when (IsExpectedExtractionException(ex))
+        {
+            throw new ArgumentException(InvalidArchivePathMessageKey, nameof(archivePath), ex);
+        }
+
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException(ArchiveFileNotFoundMessageKey, fullPath);
+        }
+
+        ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(archivePath));
+
+        if (HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+        {
+            throw new InvalidOperationException(InvalidArchivePathMessageKey);
+        }
+
+        return fullPath;
+    }
+
+    private static bool TryNormalizeArchivePath(string archivePath, out string fullArchivePath)
+    {
+        fullArchivePath = string.Empty;
+
+        try
+        {
+            fullArchivePath = ResolveArchivePathOrThrow(archivePath);
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedExtractionException(ex) || ex is FileNotFoundException)
+        {
+            return false;
+        }
+    }
+
+    private static string ResolveDestinationDirectoryOrThrow(string destinationDirectory)
+    {
         if (string.IsNullOrWhiteSpace(destinationDirectory))
         {
             throw new ArgumentException(InvalidDestinationPathMessageKey, nameof(destinationDirectory));
         }
 
-        if (!File.Exists(archivePath))
+        string fullPath;
+        try
         {
-            throw new FileNotFoundException(ArchiveFileNotFoundMessageKey, archivePath);
+            fullPath = Path.GetFullPath(destinationDirectory.Trim());
         }
+        catch (Exception ex) when (IsExpectedExtractionException(ex))
+        {
+            throw new ArgumentException(InvalidDestinationPathMessageKey, nameof(destinationDirectory), ex);
+        }
+
+        ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(destinationDirectory));
+
+        if (IsUnsafeRoot(fullPath) || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+        {
+            throw new InvalidOperationException(InvalidDestinationPathMessageKey);
+        }
+
+        return fullPath;
+    }
+
+    private static void EnsureSafeDestinationDirectory(string extractionRoot)
+    {
+        string fullPath = Path.GetFullPath(extractionRoot);
+
+        if (IsUnsafeRoot(fullPath)
+            || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+        {
+            throw new InvalidOperationException(InvalidDestinationPathMessageKey);
+        }
+
+        Directory.CreateDirectory(fullPath);
+
+        if (!Directory.Exists(fullPath)
+            || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+        {
+            throw new InvalidOperationException(InvalidDestinationPathMessageKey);
+        }
+    }
+
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedExtractionException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+
+            if (!IsSamePathOrChild(candidate, root))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedExtractionException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedExtractionException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsUnsafeRoot(string path)
+    {
+        try
+        {
+            string fullPath = Path.GetFullPath(path);
+            string normalized = TrimDirectorySeparators(fullPath);
+            string? root = Path.GetPathRoot(fullPath);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            string normalizedRoot = TrimDirectorySeparators(root);
+            return string.Equals(normalized, normalizedRoot, StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (IsExpectedExtractionException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    {
+        string candidate = TrimDirectorySeparators(Path.GetFullPath(candidatePath));
+        string root = TrimDirectorySeparators(Path.GetFullPath(rootPath));
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimDirectorySeparators(Path.GetFullPath(left)),
+            TrimDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 
     private static bool IsExpectedExtractionException(Exception ex) =>
         ex is ArgumentException
         or InvalidOperationException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or IOException
+        or UnauthorizedAccessException
+        or System.Security.SecurityException;
 }

@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Core.Workflow;
 using HakamiqChdTool.App.Core.Workflow.Paths;
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Services;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -91,9 +92,9 @@ public partial class MainWindow
                 sourcePath,
                 _settings);
 
-            if (!string.IsNullOrWhiteSpace(outputRoot))
+            if (TryNormalizePendingWorkspaceCleanupRoot(outputRoot, out string normalizedOutputRoot))
             {
-                outputRoots.Add(Path.GetFullPath(outputRoot));
+                outputRoots.Add(normalizedOutputRoot);
             }
         }
         catch (Exception ex) when (IsExpectedPendingWorkspaceShutdownCleanupException(ex))
@@ -118,9 +119,9 @@ public partial class MainWindow
                     outputRoot,
                     _settings);
 
-                if (Directory.Exists(pendingRoot))
+                if (TryNormalizeExistingPendingWorkspaceCleanupDirectory(pendingRoot, out string normalizedPendingRoot))
                 {
-                    pendingRoots.Add(Path.GetFullPath(pendingRoot));
+                    pendingRoots.Add(normalizedPendingRoot);
                 }
             }
             catch (Exception ex) when (IsExpectedPendingWorkspaceShutdownCleanupException(ex))
@@ -133,6 +134,76 @@ public partial class MainWindow
         }
 
         return [.. pendingRoots];
+    }
+
+    private static bool TryNormalizePendingWorkspaceCleanupRoot(
+        string? path,
+        out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+
+            if (Directory.Exists(fullPath) &&
+                IsReparsePointDirectory(fullPath))
+            {
+                return false;
+            }
+
+            normalizedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPendingWorkspaceShutdownCleanupException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool TryNormalizeExistingPendingWorkspaceCleanupDirectory(
+        string? path,
+        out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+
+            if (!Directory.Exists(fullPath) ||
+                IsReparsePointDirectory(fullPath))
+            {
+                return false;
+            }
+
+            normalizedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPendingWorkspaceShutdownCleanupException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool IsReparsePointDirectory(string path)
+    {
+        FileAttributes attributes = File.GetAttributes(path);
+
+        return (attributes & FileAttributes.Directory) != 0 &&
+            (attributes & FileAttributes.ReparsePoint) != 0;
     }
 
     private static bool IsExpectedPendingWorkspaceShutdownCleanupException(Exception ex)

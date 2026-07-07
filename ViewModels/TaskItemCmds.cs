@@ -1,5 +1,8 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HakamiqChdTool.App.ViewModels;
 
@@ -51,7 +54,7 @@ public sealed partial class TaskQueueItemViewModel
         _supportedOperationCodes = codes.ToArray();
         CoerceRequestedActionToSupportedCatalog();
         _operationChoices = _supportedOperationCodes
-            .Select(c => new QueueOperationChoice { Code = c, Label = ArabicUi.GetActionArabicLabel(c) })
+            .Select(static c => new QueueOperationChoice { Code = c, Label = ArabicUi.GetActionArabicLabel(c) })
             .ToArray();
         OnPropertyChanged(nameof(OperationChoices));
         OnPropertyChanged(nameof(DisplayAvailableOperationsText));

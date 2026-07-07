@@ -1,11 +1,10 @@
+using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Ui.WpfAdapters;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-
-using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App;
 
@@ -90,6 +89,9 @@ public partial class MainWindow
                     OpenOptionsDialog(restartContext.OptionsTabKey);
                 }),
                 DispatcherPriority.ContextIdle);
+        }
+        catch (TaskCanceledException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        {
         }
         catch (InvalidOperationException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
         {

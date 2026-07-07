@@ -310,22 +310,12 @@
                       SnapsToDevicePixels="True">
 
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Width="{DynamicResource Space.4}"
-                            Height="{DynamicResource Space.22}"
-                            Background="{DynamicResource Brush.Accent}"
-                            CornerRadius="{DynamicResource Radius.Control}"
-                            VerticalAlignment="Top"
-                            SnapsToDevicePixels="True" />
-
-                    <StackPanel Grid.Column="2"
+                    <StackPanel Grid.Column="0"
                                 FlowDirection="{DynamicResource App.FlowDirection}"
                                 Language="{DynamicResource App.XmlLanguage}"
                                 VerticalAlignment="Center">
@@ -342,7 +332,7 @@
                                    TextTrimming="CharacterEllipsis" />
                     </StackPanel>
 
-                    <Button Grid.Column="4"
+                    <Button Grid.Column="2"
                             Width="{DynamicResource Space.32}"
                             Height="{DynamicResource Space.32}"
                             MinWidth="{DynamicResource Space.32}"

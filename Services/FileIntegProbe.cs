@@ -1,6 +1,9 @@
 using HakamiqChdTool.App.Core.Disc;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace HakamiqChdTool.App.Services;
@@ -8,6 +11,7 @@ namespace HakamiqChdTool.App.Services;
 public static class FileIntegrityProbe
 {
     private const int SampleSize = 64 * 1024;
+    private const long MaxDescriptorTextBytes = 4L * 1024L * 1024L;
 
     private const string SummaryNoPathKey = "LocFileIntegrity_SummaryNoPath";
     private const string SummaryPathIsDirectoryKey = "LocFileIntegrity_SummaryPathIsDirectory";
@@ -76,6 +80,8 @@ public static class FileIntegrityProbe
 
         try
         {
+            ValidateReadableFilePath(fullPath);
+
             var info = new FileInfo(fullPath);
             if (info.Length == 0)
             {
@@ -180,9 +186,10 @@ public static class FileIntegrityProbe
         string baseDirectory;
         try
         {
+            ValidateReadableFilePath(cuePath);
             baseDirectory = Path.GetFullPath(directory);
         }
-        catch (Exception ex) when (IsExpectedPathException(ex))
+        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedReadException(ex))
         {
             return Result(false, SummaryCueInvalidPathKey, DetailCueInvalidPathKey);
         }
@@ -226,6 +233,8 @@ public static class FileIntegrityProbe
 
             try
             {
+                ValidateReadableFilePath(resolved);
+
                 var info = new FileInfo(resolved);
                 if (info.Length == 0)
                 {
@@ -234,7 +243,7 @@ public static class FileIntegrityProbe
             }
             catch (Exception ex) when (IsExpectedReadException(ex) || IsExpectedPathException(ex))
             {
-                problems.Add(FormatDetail(DetailCueMissingReferenceKey, relativePath));
+                problems.Add(FormatDetail(DetailCueUnsafeReferenceKey, relativePath));
             }
         }
 
@@ -253,6 +262,14 @@ public static class FileIntegrityProbe
 
     private static IEnumerable<string> ReadBoundedTextLines(string path)
     {
+        ValidateReadableFilePath(path);
+
+        FileInfo info = new(path);
+        if (info.Length <= 0 || info.Length > MaxDescriptorTextBytes)
+        {
+            throw new IOException(DetailCueParseFailedKey);
+        }
+
         using FileStream stream = new(
             path,
             FileMode.Open,
@@ -281,6 +298,11 @@ public static class FileIntegrityProbe
     {
         resolved = string.Empty;
 
+        if (string.IsNullOrWhiteSpace(relativePath) || Path.IsPathRooted(relativePath))
+        {
+            return false;
+        }
+
         try
         {
             string candidate = Path.GetFullPath(Path.Combine(baseDirectory, relativePath));
@@ -300,12 +322,41 @@ public static class FileIntegrityProbe
 
     private static bool IsUnderDirectory(string baseDirectory, string candidate)
     {
-        string root = Path.GetFullPath(baseDirectory)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            + Path.DirectorySeparatorChar;
+        string root = TrimDirectorySeparators(Path.GetFullPath(baseDirectory));
+        string path = TrimDirectorySeparators(Path.GetFullPath(candidate));
 
-        string path = Path.GetFullPath(candidate);
-        return path.StartsWith(root, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void ValidateReadableFilePath(string path)
+    {
+        ConversionPathValidator.ThrowIfUnsafeForChdman(path, nameof(path));
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 
     private static ProbeResult Result(
@@ -328,7 +379,8 @@ public static class FileIntegrityProbe
     private static bool IsExpectedPathException(Exception ex) =>
         ex is ArgumentException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or System.Security.SecurityException;
 
     private static bool IsExpectedReadException(Exception ex) =>
         ex is IOException
@@ -336,5 +388,6 @@ public static class FileIntegrityProbe
         or ArgumentException
         or NotSupportedException
         or InvalidDataException
-        or PathTooLongException;
+        or PathTooLongException
+        or System.Security.SecurityException;
 }

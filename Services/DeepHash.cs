@@ -1,9 +1,15 @@
 using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using Serilog;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -53,6 +59,7 @@ public sealed record DeepHashMatch(
 public static class DeepHashAnalyzer
 {
     private const int BufferSize = 1024 * 1024;
+    private const long MaxDescriptorTextBytes = 4L * 1024L * 1024L;
 
     public const string InputReadCrcOrIoFailureCode = "InputReadCrcOrIoFailure";
 
@@ -86,6 +93,8 @@ public static class DeepHashAnalyzer
     private const string TipPartialMatchKey = "LocDeepHash_TipPartialMatch";
     private const string TipNoRedumpMatchKey = "LocDeepHash_TipNoRedumpMatch";
 
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(250);
+
     private static readonly HashSet<string> HashableExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".cue", ".gdi", ".iso", ".gcm", ".bin", ".img", ".raw"
@@ -112,8 +121,9 @@ public static class DeepHashAnalyzer
         try
         {
             fullPath = Path.GetFullPath(probePath.Trim());
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(probePath));
         }
-        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        catch (Exception ex) when (IsPathValidationException(ex))
         {
             Log.Debug(ex, "DeepHashAnalyzer: invalid probe path. Path={Path}", probePath);
             return Error(TipInvalidPathKey);
@@ -182,7 +192,7 @@ public static class DeepHashAnalyzer
             Log.Warning(ex, "DeepHashAnalyzer: input read failed while resolving hash files. Path={Path}; FailureCode={FailureCode}", fullPath, InputReadCrcOrIoFailureCode);
             return InputReadFailure();
         }
-        catch (Exception ex) when (ex is ArgumentException or NotSupportedException)
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
         {
             Log.Debug(ex, "DeepHashAnalyzer: failed to resolve files to hash. Path={Path}", fullPath);
             return Error(TipResolveFailedKey);
@@ -384,6 +394,8 @@ public static class DeepHashAnalyzer
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            ValidateExistingHashInputPath(file);
+
             FileInfo info = new(file);
             (string md5, string sha1, string crc32) = ComputeHashesSequential(file, cancellationToken);
             result.Add(new DeepHashFileDigest(file, info.Length, md5, sha1, crc32));
@@ -396,6 +408,8 @@ public static class DeepHashAnalyzer
         string filePath,
         CancellationToken cancellationToken)
     {
+        ValidateExistingHashInputPath(filePath);
+
         using var md5 = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
         using var sha1 = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
         var buffer = new byte[BufferSize];
@@ -466,6 +480,8 @@ public static class DeepHashAnalyzer
         string extension = Path.GetExtension(fullProbePath);
         string normalized = Path.GetFullPath(fullProbePath);
 
+        ValidateExistingHashInputPath(normalized);
+
         return extension.ToLowerInvariant() switch
         {
             ".cue" => ResolveCueBinFiles(normalized),
@@ -477,6 +493,8 @@ public static class DeepHashAnalyzer
 
     private static IReadOnlyList<string> ResolveCueBinFiles(string cuePath)
     {
+        ValidateDescriptorFileForRead(cuePath);
+
         string? directory = Path.GetDirectoryName(cuePath);
         if (string.IsNullOrEmpty(directory))
         {
@@ -499,6 +517,8 @@ public static class DeepHashAnalyzer
 
     private static IReadOnlyList<string> ResolveGdiTrackFiles(string gdiPath)
     {
+        ValidateDescriptorFileForRead(gdiPath);
+
         string? directory = Path.GetDirectoryName(gdiPath);
         if (string.IsNullOrEmpty(directory))
         {
@@ -596,26 +616,33 @@ public static class DeepHashAnalyzer
 
     private static IReadOnlyList<string> ResolveDescriptorFileNames(string baseDirectory, IReadOnlyList<string> names)
     {
+        string normalizedBaseDirectory = Path.GetFullPath(baseDirectory);
         var resolved = new List<string>();
         var missing = new List<string>();
 
         foreach (string relativePath in names.Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            string combined = Path.GetFullPath(Path.Combine(baseDirectory, relativePath));
-            if (!IsUnderDirectory(baseDirectory, combined))
+            if (string.IsNullOrWhiteSpace(relativePath) || Path.IsPathRooted(relativePath))
             {
                 missing.Add(relativePath);
                 continue;
             }
 
-            if (File.Exists(combined))
-            {
-                resolved.Add(combined);
-            }
-            else
+            string combined = Path.GetFullPath(Path.Combine(normalizedBaseDirectory, relativePath));
+            if (!IsUnderDirectory(normalizedBaseDirectory, combined))
             {
                 missing.Add(relativePath);
+                continue;
             }
+
+            if (!File.Exists(combined))
+            {
+                missing.Add(relativePath);
+                continue;
+            }
+
+            ValidateExistingHashInputPath(combined);
+            resolved.Add(combined);
         }
 
         if (missing.Count > 0)
@@ -628,14 +655,60 @@ public static class DeepHashAnalyzer
 
     private static bool IsUnderDirectory(string baseDirectory, string candidate)
     {
-        string root = Path.GetFullPath(baseDirectory);
-        if (!root.EndsWith(Path.DirectorySeparatorChar))
+        string root = TrimDirectorySeparators(Path.GetFullPath(baseDirectory));
+        string path = TrimDirectorySeparators(Path.GetFullPath(candidate));
+
+        return string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void ValidateDescriptorFileForRead(string descriptorPath)
+    {
+        ValidateExistingHashInputPath(descriptorPath);
+
+        FileInfo info = new(descriptorPath);
+        if (info.Length <= 0 || info.Length > MaxDescriptorTextBytes)
         {
-            root += Path.DirectorySeparatorChar;
+            throw new IOException("Disc descriptor size is outside the supported deep-hash scan bounds.");
+        }
+    }
+
+    private static void ValidateExistingHashInputPath(string path)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
+        string fullPath = Path.GetFullPath(path);
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException("Deep hash input file was not found.", fullPath);
         }
 
-        string path = Path.GetFullPath(candidate);
-        return path.StartsWith(root, StringComparison.OrdinalIgnoreCase);
+        ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 
     private static DeepHashMatch ToMatch(DeepHashFileDigest file, RedumpRomHit hit) => new(
@@ -674,8 +747,14 @@ public static class DeepHashAnalyzer
             builder.Append(invalid.Contains(character) ? ' ' : character);
         }
 
-        string collapsed = System.Text.RegularExpressions.Regex.Replace(builder.ToString(), @"\s+", " ").Trim();
-        return collapsed.TrimEnd('.', ' ');
+        string collapsed = Regex.Replace(
+            builder.ToString(),
+            @"\s+",
+            " ",
+            RegexOptions.CultureInvariant,
+            RegexTimeout);
+
+        return collapsed.Trim().TrimEnd('.', ' ');
     }
 
     private static bool MatchesBelongToOneDisc(IEnumerable<DeepHashMatch> matches)
@@ -715,6 +794,17 @@ public static class DeepHashAnalyzer
         return -1;
     }
 
+    private static bool IsPathValidationException(Exception ex) =>
+        ex is ArgumentException
+        or NotSupportedException
+        or PathTooLongException
+        or IOException
+        or UnauthorizedAccessException
+        or System.Security.SecurityException;
+
     private static bool IsInputReadFailureException(Exception ex) =>
-        ex is IOException or UnauthorizedAccessException;
+        ex is IOException
+        or UnauthorizedAccessException
+        or PathTooLongException
+        or System.Security.SecurityException;
 }

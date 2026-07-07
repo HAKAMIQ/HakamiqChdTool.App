@@ -1,11 +1,11 @@
 using CommunityToolkit.Mvvm.Input;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Ui.WpfAdapters;
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App.ViewModels;
 
@@ -48,6 +48,7 @@ public sealed partial class OptionsViewModel
         _importRedumpLocalLibraryCommand ??= new AsyncRelayCommand(
             PrepareRedumpLocalLibraryDatabaseAsync,
             CanScanRedumpLocalLibrary);
+
     public IRelayCommand BrowsePendingWorkspaceCommand =>
         _browsePendingWorkspaceCommand ??= new RelayCommand(BrowsePendingWorkspace);
 
@@ -56,7 +57,7 @@ public sealed partial class OptionsViewModel
         string current = CustomOutputRoot?.Trim() ?? string.Empty;
         string? selected = OptionsPickerService.PickFolder(
             "LocAdv_Picker_SelectOutputFolderTitle",
-            Directory.Exists(current) ? current : null);
+            TryGetSafeOptionsDirectory(current, out string safeCurrent) ? safeCurrent : null);
 
         if (!string.IsNullOrWhiteSpace(selected))
         {
@@ -71,7 +72,7 @@ public sealed partial class OptionsViewModel
         string? selected = OptionsPickerService.PickFile(
             "LocAdv_Picker_SelectExternalChdmanTitle",
             "LocFilter_ExecutableFiles",
-            File.Exists(current) ? current : null,
+            TryGetSafeOptionsFile(current, out string safeCurrent) ? safeCurrent : null,
             fallback);
 
         if (!string.IsNullOrWhiteSpace(selected))
@@ -87,9 +88,13 @@ public sealed partial class OptionsViewModel
         string current = PendingWorkspaceCustomRoot?.Trim() ?? string.Empty;
         string fallback = Path.GetTempPath();
 
+        string selectedPath = TryGetSafeOptionsDirectory(current, out string safeCurrent)
+            ? safeCurrent
+            : fallback;
+
         string? selected = OptionsPickerService.PickFolder(
             "LocAdv_Picker_SelectPendingWorkspaceTitle",
-            Directory.Exists(current) ? current : fallback);
+            selectedPath);
 
         if (!string.IsNullOrWhiteSpace(selected))
         {
@@ -105,7 +110,7 @@ public sealed partial class OptionsViewModel
         string? selected = OptionsPickerService.PickFile(
             "LocAdv_Picker_SelectRedumpDatTitle",
             "LocFilter_RedumpDatXmlFiles",
-            File.Exists(current) ? current : null,
+            TryGetSafeOptionsFile(current, out string safeCurrent) ? safeCurrent : null,
             fallback);
 
         if (!string.IsNullOrWhiteSpace(selected))
@@ -119,9 +124,13 @@ public sealed partial class OptionsViewModel
         string current = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
         string fallback = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
+        string selectedPath = TryGetSafeOptionsDirectory(current, out string safeCurrent)
+            ? safeCurrent
+            : fallback;
+
         string? selected = OptionsPickerService.PickFolder(
             "LocAdv_Picker_SelectRedumpLocalFolderTitle",
-            Directory.Exists(current) ? current : fallback);
+            selectedPath);
 
         if (!string.IsNullOrWhiteSpace(selected))
         {
@@ -138,14 +147,14 @@ public sealed partial class OptionsViewModel
 
         return CanUseRedumpDatabaseImport
             && !IsRedumpLocalLibraryScanRunning
-            && Directory.Exists(root);
+            && TryGetSafeOptionsDirectory(root, out _);
     }
 
     private async Task ScanRedumpLocalLibraryAsync()
     {
         string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
 
-        if (!Directory.Exists(root))
+        if (!TryGetSafeOptionsDirectory(root, out string safeRoot))
         {
             RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
             return;
@@ -157,7 +166,7 @@ public sealed partial class OptionsViewModel
         try
         {
             RedumpLocalLibraryScanResult result = await _redumpLocalLibraryScanner
-                .ScanAsync(root, CancellationToken.None)
+                .ScanAsync(safeRoot, CancellationToken.None)
                 .ConfigureAwait(true);
 
             if (!result.HasImportableDatFiles)
@@ -194,5 +203,194 @@ public sealed partial class OptionsViewModel
     {
         _scanRedumpLocalLibraryCommand?.NotifyCanExecuteChanged();
         _importRedumpLocalLibraryCommand?.NotifyCanExecuteChanged();
+    }
+
+    private static bool TryGetSafeOptionsFile(string? path, out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+
+            if (!File.Exists(fullPath)
+                || HasOptionsReparsePointInExistingPathFromVolumeRoot(fullPath))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+            normalizedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedOptionsPathException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool TryGetSafeOptionsDirectory(string? path, out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+
+            if (!Directory.Exists(fullPath)
+                || HasOptionsReparsePointInExistingPathFromVolumeRoot(fullPath))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+            normalizedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedOptionsPathException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool HasOptionsReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasOptionsReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedOptionsPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasOptionsReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+
+            if (!IsOptionsSamePathOrChild(root, candidate))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsOptionsReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (OptionsPathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || OptionsPathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedOptionsPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsOptionsReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedOptionsPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsOptionsSamePathOrChild(string rootPath, string candidatePath)
+    {
+        string root = TrimOptionsDirectorySeparators(Path.GetFullPath(rootPath));
+        string candidate = TrimOptionsDirectorySeparators(Path.GetFullPath(candidatePath));
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureOptionsDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool OptionsPathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimOptionsDirectorySeparators(Path.GetFullPath(left)),
+            TrimOptionsDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureOptionsDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimOptionsDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
+    }
+
+    private static bool IsExpectedOptionsPathException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or InvalidOperationException
+            or NotSupportedException
+            or PathTooLongException
+            or System.Security.SecurityException;
     }
 }

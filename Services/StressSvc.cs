@@ -1,8 +1,11 @@
 using Serilog;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Management;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -64,9 +67,15 @@ public sealed class StressMonitorService
 
                 try
                 {
+                    if (!IsSafeLogFilePath(logPath))
+                    {
+                        Logger.Warning("[StressMode] Skipped stress log append because the log path is unsafe. Path={Path}", logPath);
+                        continue;
+                    }
+
                     await File.AppendAllTextAsync(logPath, line + Environment.NewLine, CancellationToken.None).ConfigureAwait(false);
                 }
-                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+                catch (Exception ex) when (IsExpectedFileSystemException(ex))
                 {
                     Logger.Warning(ex, "[StressMode] Failed to append stress log. Path={Path}", logPath);
                 }
@@ -87,18 +96,37 @@ public sealed class StressMonitorService
 
         try
         {
-            string folder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "HakamiqChdTool",
-                "Logs");
+            string folder = AppPaths.LogsDirectory;
+            string fullFolder = Path.GetFullPath(folder);
 
-            Directory.CreateDirectory(folder);
+            if (HasReparsePointInExistingPathFromVolumeRoot(fullFolder))
+            {
+                return false;
+            }
+
+            Directory.CreateDirectory(fullFolder);
+
+            if (!Directory.Exists(fullFolder)
+                || HasReparsePointInExistingPathFromVolumeRoot(fullFolder))
+            {
+                return false;
+            }
 
             string safe = Sanitize(sessionName);
-            logPath = Path.Combine(folder, $"stress_{DateTime.Now:yyyyMMdd_HHmmss}_{safe}.log");
+            string candidate = Path.GetFullPath(Path.Combine(
+                fullFolder,
+                $"stress_{DateTime.Now:yyyyMMdd_HHmmss}_{safe}.log"));
+
+            if (!IsSamePathOrChild(candidate, fullFolder)
+                || HasReparsePointInExistingPath(candidate, fullFolder))
+            {
+                return false;
+            }
+
+            logPath = candidate;
             return true;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        catch (Exception ex) when (IsExpectedFileSystemException(ex))
         {
             Logger.Warning(ex, "[StressMode] Failed to prepare stress log path.");
             return false;
@@ -177,5 +205,152 @@ public sealed class StressMonitorService
             Logger.Debug(ex, "[StressMode] GPU utilization WMI query failed; disabling GPU sampling for this session.");
             return (-1, false);
         }
+    }
+
+    private static bool IsSafeLogFilePath(string logPath)
+    {
+        try
+        {
+            string folder = Path.GetFullPath(AppPaths.LogsDirectory);
+            string fullPath = Path.GetFullPath(logPath);
+
+            return IsSamePathOrChild(fullPath, folder)
+                && !HasReparsePointInExistingPath(fullPath, folder);
+        }
+        catch (Exception ex) when (IsExpectedFileSystemException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedFileSystemException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+
+            if (!IsSamePathOrChild(candidate, root))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedFileSystemException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedFileSystemException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    {
+        string candidate = TrimDirectorySeparators(Path.GetFullPath(candidatePath));
+        string root = TrimDirectorySeparators(Path.GetFullPath(rootPath));
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimDirectorySeparators(Path.GetFullPath(left)),
+            TrimDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
+    }
+
+    private static bool IsExpectedFileSystemException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException
+            or PathTooLongException
+            or InvalidOperationException
+            or System.Security.SecurityException;
     }
 }

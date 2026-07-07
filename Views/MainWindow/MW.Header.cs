@@ -1,12 +1,12 @@
-using System;
-using System.Linq;
-using System.Windows;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Features;
-using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Ui.WpfAdapters;
+using HakamiqChdTool.App.ViewModels;
+using System;
+using System.Linq;
+using System.Windows;
 
 namespace HakamiqChdTool.App;
 
@@ -92,15 +92,6 @@ public partial class MainWindow
 
     private void UpdateSidebarWorkflowSummary()
     {
-        string afterKey = (_settings.DeleteTemporaryExtraction, _settings.DeleteFailedOutput) switch
-        {
-            (false, false) => "LocSidebar_AfterSuccess_Keep",
-            (true, false) => "LocSidebar_AfterSuccess_TempOnly",
-            (false, true) => "LocSidebar_AfterSuccess_FailedCleanup",
-            _ => "LocSidebar_AfterSuccess_TempAndFailed"
-        };
-
-        SidebarWorkflowAfterSuccessText.Text = ArabicUi.Get(afterKey);
     }
 
     private void CaptureThemeIntoSettings()

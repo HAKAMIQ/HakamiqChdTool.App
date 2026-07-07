@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Windows;
-using System.Windows.Threading;
 using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Ui.Queue;
-using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Windows;
+using System.Windows.Threading;
 
 using IoPath = System.IO.Path;
 
@@ -18,6 +18,8 @@ namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
+    private const char LeftToRightMark = '\u200E';
+
     private readonly record struct FooterProgressState(
         double Percent,
         bool IsIndeterminate);
@@ -156,7 +158,10 @@ public partial class MainWindow
             return false;
         }
 
-        int terminalCount = aggregate.CompletedCount + aggregate.FailedCount + aggregate.SkippedCount;
+        int terminalCount = SaturatingAdd(
+            SaturatingAdd(aggregate.CompletedCount, aggregate.FailedCount),
+            aggregate.SkippedCount);
+
         return terminalCount >= aggregate.TotalCount;
     }
 
@@ -191,7 +196,7 @@ public partial class MainWindow
                     continue;
                 }
 
-                visibleIndex++;
+                visibleIndex = SaturatingAdd(visibleIndex, 1);
 
                 if (row.ItemId == activeRow.ItemId)
                 {
@@ -203,10 +208,12 @@ public partial class MainWindow
             }
         }
 
-        int processedBeforeCurrent = aggregate.CompletedCount + aggregate.FailedCount + aggregate.SkippedCount;
+        int processedBeforeCurrent = SaturatingAdd(
+            SaturatingAdd(aggregate.CompletedCount, aggregate.FailedCount),
+            aggregate.SkippedCount);
 
         return Math.Clamp(
-            processedBeforeCurrent + 1,
+            SaturatingAdd(processedBeforeCurrent, 1),
             1,
             Math.Max(1, aggregate.TotalCount));
     }
@@ -223,14 +230,14 @@ public partial class MainWindow
             return activeRow.FileName.Trim();
         }
 
-        if (!string.IsNullOrWhiteSpace(activeRow.SourcePath))
+        if (TryGetSafeFooterFileName(activeRow.SourcePath, out string sourceFileName))
         {
-            return IoPath.GetFileName(activeRow.SourcePath.Trim());
+            return sourceFileName;
         }
 
-        if (!string.IsNullOrWhiteSpace(activeRow.OriginalPath))
+        if (TryGetSafeFooterFileName(activeRow.OriginalPath, out string originalFileName))
         {
-            return IoPath.GetFileName(activeRow.OriginalPath.Trim());
+            return originalFileName;
         }
 
         return ArabicUi.Get("LocFooter_CurrentItemUnknown");
@@ -387,5 +394,56 @@ public partial class MainWindow
             : ArabicUi.ResolveDisplayString(message);
 
         FooterStatusStrip.SetStatusMessage(resolvedMessage);
+    }
+
+    private static bool TryGetSafeFooterFileName(string? path, out string fileName)
+    {
+        fileName = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string candidate = IoPath.GetFileName(path.Trim());
+            if (string.IsNullOrWhiteSpace(candidate))
+            {
+                return false;
+            }
+
+            fileName = candidate;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedFooterPathException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool IsExpectedFooterPathException(Exception ex)
+    {
+        return ex is IOException
+            or ArgumentException
+            or NotSupportedException
+            or UnauthorizedAccessException;
+    }
+
+    private static int SaturatingAdd(int left, int right)
+    {
+        long total = (long)left + right;
+
+        if (total > int.MaxValue)
+        {
+            return int.MaxValue;
+        }
+
+        if (total < int.MinValue)
+        {
+            return int.MinValue;
+        }
+
+        return (int)total;
     }
 }

@@ -518,7 +518,7 @@ public static partial class ArchiveCandidateDiscovery
             .Trim('/');
 
         if (string.IsNullOrWhiteSpace(normalized)
-            || normalized.Contains('\0', StringComparison.Ordinal))
+            || normalized.Contains('\0'))
         {
             return string.Empty;
         }
@@ -561,7 +561,7 @@ public static partial class ArchiveCandidateDiscovery
             .TrimEnd('/');
 
         if (string.IsNullOrWhiteSpace(normalized)
-            || normalized.Contains('\0', StringComparison.Ordinal))
+            || normalized.Contains('\0'))
         {
             return string.Empty;
         }
@@ -603,7 +603,7 @@ public static partial class ArchiveCandidateDiscovery
     private static bool IsSafeDescriptorReference(string candidate)
     {
         if (string.IsNullOrWhiteSpace(candidate)
-            || candidate.Contains('\0', StringComparison.Ordinal))
+            || candidate.Contains('\0'))
         {
             return false;
         }
@@ -764,8 +764,7 @@ public static partial class ArchiveCandidateDiscovery
         string root = TrimDirectorySeparators(Path.GetFullPath(rootPath));
 
         return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
-            || candidate.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
-            || candidate.StartsWith(root + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool PathsEqual(string left, string right)
@@ -793,9 +792,29 @@ public static partial class ArchiveCandidateDiscovery
         }
     }
 
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
     private static string TrimDirectorySeparators(string path)
     {
-        return path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 
     private static bool IsDescriptorReadFailure(Exception ex)
@@ -810,13 +829,11 @@ public static partial class ArchiveCandidateDiscovery
             or System.Security.SecurityException;
     }
 
-
     [GeneratedRegex(
         "\"(?<file>[^\"]+)\"",
         RegexOptions.CultureInvariant,
         RegexTimeoutMilliseconds)]
     private static partial Regex GdiQuotedFileRegex();
-
 
     [GeneratedRegex(
         "^\\s*(?:FILE|AUDIOFILE|DATAFILE)\\s+(?:\"(?<file>[^\"]+)\"|(?<file>\\S+))",

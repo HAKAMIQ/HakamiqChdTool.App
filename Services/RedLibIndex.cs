@@ -22,17 +22,22 @@ public sealed class RedumpLocalLibraryIndexer
     private const int MaxPreviewElementReads = 4096;
     private const int MaxPreviewGameCount = 64;
 
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(250);
+
     private static readonly Regex DateTokenRegex = new(
         @"(?<date>\d{4}[-_]\d{2}[-_]\d{2})(?:[ T_](?<time>\d{2}[-:]\d{2}[-:]\d{2}))?",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant,
+        RegexTimeout);
 
     private static readonly Regex WhitespaceRegex = new(
         @"\s+",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant,
+        RegexTimeout);
 
     private static readonly Regex VariantParenthesisRegex = new(
         @"\((?=[^)]*(serial|version))[^)]*\)",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase,
+        RegexTimeout);
 
     private static readonly string[] DateFormats =
     {
@@ -61,7 +66,8 @@ public sealed class RedumpLocalLibraryIndexer
         DateTime startedUtc = DateTime.UtcNow;
         string normalizedRoot = rootPath?.Trim() ?? string.Empty;
 
-        if (string.IsNullOrWhiteSpace(normalizedRoot)) {
+        if (string.IsNullOrWhiteSpace(normalizedRoot))
+        {
             return RedumpLocalLibraryIndexResult.Empty(
                 string.Empty,
                 startedUtc,
@@ -69,29 +75,58 @@ public sealed class RedumpLocalLibraryIndexer
                 "Redump local library root is empty.");
         }
 
-        if (!Directory.Exists(normalizedRoot)) {
+        try
+        {
+            normalizedRoot = Path.GetFullPath(normalizedRoot);
+
+            if (!Directory.Exists(normalizedRoot))
+            {
+                return RedumpLocalLibraryIndexResult.Empty(
+                    normalizedRoot,
+                    startedUtc,
+                    DateTime.UtcNow,
+                    "Redump local library root does not exist.");
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(normalizedRoot, nameof(rootPath));
+
+            if (IsReparsePoint(normalizedRoot))
+            {
+                return RedumpLocalLibraryIndexResult.Empty(
+                    normalizedRoot,
+                    startedUtc,
+                    DateTime.UtcNow,
+                    "Redump local library root is a reparse point.");
+            }
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
             return RedumpLocalLibraryIndexResult.Empty(
                 normalizedRoot,
                 startedUtc,
                 DateTime.UtcNow,
-                "Redump local library root does not exist.");
+                ex.Message);
         }
 
         List<string> errors = new();
         List<RedumpLocalLibraryDatEntry> entries = new();
         int totalDatXmlFiles = 0;
 
-        foreach (string filePath in EnumerateDatXmlFiles(normalizedRoot, errors, cancellationToken)) {
+        foreach (string filePath in EnumerateDatXmlFiles(normalizedRoot, errors, cancellationToken))
+        {
             cancellationToken.ThrowIfCancellationRequested();
             totalDatXmlFiles++;
 
-            try {
+            try
+            {
                 entries.Add(ReadEntry(filePath, cancellationToken));
             }
-            catch (OperationCanceledException) {
+            catch (OperationCanceledException)
+            {
                 throw;
             }
-            catch (Exception ex) {
+            catch (Exception ex) when (IsExpectedReadException(ex) || IsExpectedPathException(ex) || ex is XmlException)
+            {
                 errors.Add($"{filePath}: {ex.Message}");
                 entries.Add(CreateReadErrorEntry(filePath, ex));
             }
@@ -134,28 +169,43 @@ public sealed class RedumpLocalLibraryIndexer
         Stack<string> pending = new();
         pending.Push(rootPath);
 
-        while (pending.Count > 0) {
+        while (pending.Count > 0)
+        {
             cancellationToken.ThrowIfCancellationRequested();
 
             string currentDirectory = pending.Pop();
 
-            string[] files;
-            try {
-                files = Directory.GetFiles(currentDirectory);
+            if (!IsSamePathOrChild(currentDirectory, rootPath) || IsReparsePoint(currentDirectory))
+            {
+                continue;
             }
-            catch (Exception ex) {
+
+            string[] files;
+            try
+            {
+                files = Directory.GetFiles(currentDirectory, "*", SearchOption.TopDirectoryOnly);
+            }
+            catch (Exception ex) when (IsExpectedPathException(ex))
+            {
                 errors.Add($"{currentDirectory}: {ex.Message}");
                 continue;
             }
 
-            foreach (string file in files) {
+            foreach (string file in files)
+            {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                if (!IsSamePathOrChild(file, rootPath) || IsReparsePoint(file))
+                {
+                    continue;
+                }
 
                 string extension = Path.GetExtension(file);
                 bool isDat = extension.Equals(".dat", StringComparison.OrdinalIgnoreCase);
                 bool isXml = extension.Equals(".xml", StringComparison.OrdinalIgnoreCase);
 
-                if (!isDat && !isXml) {
+                if (!isDat && !isXml)
+                {
                     continue;
                 }
 
@@ -163,15 +213,25 @@ public sealed class RedumpLocalLibraryIndexer
             }
 
             string[] directories;
-            try {
-                directories = Directory.GetDirectories(currentDirectory);
+            try
+            {
+                directories = Directory.GetDirectories(currentDirectory, "*", SearchOption.TopDirectoryOnly);
             }
-            catch (Exception ex) {
+            catch (Exception ex) when (IsExpectedPathException(ex))
+            {
                 errors.Add($"{currentDirectory}: {ex.Message}");
                 continue;
             }
 
-            foreach (string directory in directories) {
+            foreach (string directory in directories)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!IsSamePathOrChild(directory, rootPath) || IsReparsePoint(directory))
+                {
+                    continue;
+                }
+
                 pending.Push(directory);
             }
         }
@@ -181,6 +241,8 @@ public sealed class RedumpLocalLibraryIndexer
         string filePath,
         CancellationToken cancellationToken)
     {
+        ValidateReadableFilePath(filePath);
+
         FileInfo info = new(filePath);
 
         string? name = null;
@@ -213,46 +275,56 @@ public sealed class RedumpLocalLibraryIndexer
         int headerDepth = -1;
         int elementReads = 0;
 
-        while (reader.Read()) {
+        while (reader.Read())
+        {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (reader.NodeType == XmlNodeType.Element) {
+            if (reader.NodeType == XmlNodeType.Element)
+            {
                 elementReads++;
 
-                if (elementReads > MaxPreviewElementReads) {
+                if (elementReads > MaxPreviewElementReads)
+                {
                     break;
                 }
 
                 string localName = reader.LocalName;
 
-                if (localName.Equals("header", StringComparison.OrdinalIgnoreCase)) {
+                if (localName.Equals("header", StringComparison.OrdinalIgnoreCase))
+                {
                     insideHeader = true;
                     headerDepth = reader.Depth;
                     continue;
                 }
 
-                if (IsGameElement(localName)) {
+                if (IsGameElement(localName))
+                {
                     gameCount++;
 
-                    if (gameCount >= MaxPreviewGameCount) {
+                    if (gameCount >= MaxPreviewGameCount)
+                    {
                         break;
                     }
 
                     continue;
                 }
 
-                if (insideHeader) {
-                    if (name is null && localName.Equals("name", StringComparison.OrdinalIgnoreCase)) {
+                if (insideHeader)
+                {
+                    if (name is null && localName.Equals("name", StringComparison.OrdinalIgnoreCase))
+                    {
                         name = ReadSmallElementText(reader);
                         continue;
                     }
 
-                    if (description is null && localName.Equals("description", StringComparison.OrdinalIgnoreCase)) {
+                    if (description is null && localName.Equals("description", StringComparison.OrdinalIgnoreCase))
+                    {
                         description = ReadSmallElementText(reader);
                         continue;
                     }
 
-                    if (version is null && localName.Equals("version", StringComparison.OrdinalIgnoreCase)) {
+                    if (version is null && localName.Equals("version", StringComparison.OrdinalIgnoreCase))
+                    {
                         version = ReadSmallElementText(reader);
                         continue;
                     }
@@ -262,17 +334,20 @@ public sealed class RedumpLocalLibraryIndexer
             if (insideHeader &&
                 reader.NodeType == XmlNodeType.EndElement &&
                 reader.Depth == headerDepth &&
-                reader.LocalName.Equals("header", StringComparison.OrdinalIgnoreCase)) {
+                reader.LocalName.Equals("header", StringComparison.OrdinalIgnoreCase))
+            {
                 insideHeader = false;
             }
         }
 
         DateTime? datDateUtc = TryParseDatDate(version);
-        if (!datDateUtc.HasValue) {
+        if (!datDateUtc.HasValue)
+        {
             datDateUtc = TryParseDatDate(description);
         }
 
-        if (!datDateUtc.HasValue) {
+        if (!datDateUtc.HasValue)
+        {
             datDateUtc = TryParseDatDate(info.Name);
         }
 
@@ -284,7 +359,8 @@ public sealed class RedumpLocalLibraryIndexer
         string platformKey = NormalizePlatformKey(platformSource);
 
         int? previewGameCount = null;
-        if (gameCount > 0) {
+        if (gameCount > 0)
+        {
             previewGameCount = gameCount;
         }
 
@@ -317,7 +393,8 @@ public sealed class RedumpLocalLibraryIndexer
             .Where(entry => !IsReadError(entry))
             .GroupBy(entry => entry.PlatformKey, StringComparer.OrdinalIgnoreCase);
 
-        foreach (IGrouping<string, RedumpLocalLibraryDatEntry> group in groups) {
+        foreach (IGrouping<string, RedumpLocalLibraryDatEntry> group in groups)
+        {
             List<RedumpLocalLibraryDatEntry> ordered = group
                 .OrderBy(entry => LooksLikeSerialVersionVariant(entry) ? 1 : 0)
                 .ThenByDescending(entry => entry.DatDateUtc.HasValue)
@@ -330,10 +407,12 @@ public sealed class RedumpLocalLibraryIndexer
             HashSet<string> seenSignatures = new(StringComparer.OrdinalIgnoreCase);
             bool selectedFirst = false;
 
-            foreach (RedumpLocalLibraryDatEntry entry in ordered) {
+            foreach (RedumpLocalLibraryDatEntry entry in ordered)
+            {
                 string signature = BuildDuplicateSignature(entry);
 
-                if (LooksLikeUnsupportedRedumpArtifact(entry)) {
+                if (LooksLikeUnsupportedRedumpArtifact(entry))
+                {
                     byPath[entry.FilePath] = entry with
                     {
                         IsSelected = false,
@@ -345,7 +424,8 @@ public sealed class RedumpLocalLibraryIndexer
                     continue;
                 }
 
-                if (!selectedFirst) {
+                if (!selectedFirst)
+                {
                     byPath[entry.FilePath] = entry with
                     {
                         IsSelected = true,
@@ -358,7 +438,8 @@ public sealed class RedumpLocalLibraryIndexer
                     continue;
                 }
 
-                if (seenSignatures.Contains(signature)) {
+                if (seenSignatures.Contains(signature))
+                {
                     byPath[entry.FilePath] = entry with
                     {
                         IsSelected = false,
@@ -371,7 +452,8 @@ public sealed class RedumpLocalLibraryIndexer
 
                 seenSignatures.Add(signature);
 
-                if (LooksLikeSerialVersionVariant(entry)) {
+                if (LooksLikeSerialVersionVariant(entry))
+                {
                     byPath[entry.FilePath] = entry with
                     {
                         IsSelected = false,
@@ -406,10 +488,12 @@ public sealed class RedumpLocalLibraryIndexer
     {
         FileInfo? info = null;
 
-        try {
+        try
+        {
             info = new FileInfo(filePath);
         }
-        catch {
+        catch
+        {
             info = null;
         }
 
@@ -421,7 +505,8 @@ public sealed class RedumpLocalLibraryIndexer
         long fileSize = 0;
         DateTime lastWriteTimeUtc = DateTime.MinValue;
 
-        if (info is not null && info.Exists) {
+        if (info is not null && info.Exists)
+        {
             fileSize = info.Length;
             lastWriteTimeUtc = info.LastWriteTimeUtc;
         }
@@ -453,11 +538,13 @@ public sealed class RedumpLocalLibraryIndexer
 
     private static bool IsGameElement(string localName)
     {
-        if (localName.Equals("game", StringComparison.OrdinalIgnoreCase)) {
+        if (localName.Equals("game", StringComparison.OrdinalIgnoreCase))
+        {
             return true;
         }
 
-        if (localName.Equals("machine", StringComparison.OrdinalIgnoreCase)) {
+        if (localName.Equals("machine", StringComparison.OrdinalIgnoreCase))
+        {
             return true;
         }
 
@@ -478,8 +565,10 @@ public sealed class RedumpLocalLibraryIndexer
 
     private static string FirstNonEmpty(params string?[] values)
     {
-        foreach (string? value in values) {
-            if (!string.IsNullOrWhiteSpace(value)) {
+        foreach (string? value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
                 return value.Trim();
             }
         }
@@ -489,41 +578,56 @@ public sealed class RedumpLocalLibraryIndexer
 
     private static string? CleanNullable(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) {
+        if (string.IsNullOrWhiteSpace(value))
+        {
             return null;
         }
 
-        return WhitespaceRegex.Replace(value.Trim(), " ");
+        return ReplaceWhitespace(value.Trim());
     }
 
     private static DateTime? TryParseDatDate(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) {
+        if (string.IsNullOrWhiteSpace(value))
+        {
             return null;
         }
 
         string clean = value.Trim();
 
-        foreach (string format in DateFormats) {
+        foreach (string format in DateFormats)
+        {
             if (DateTime.TryParseExact(
                 clean,
                 format,
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal,
-                out DateTime parsed)) {
+                out DateTime parsed))
+            {
                 return DateTime.SpecifyKind(parsed, DateTimeKind.Utc);
             }
         }
 
-        Match match = DateTokenRegex.Match(clean);
-        if (!match.Success) {
+        Match match;
+        try
+        {
+            match = DateTokenRegex.Match(clean);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return null;
+        }
+
+        if (!match.Success)
+        {
             return null;
         }
 
         string date = match.Groups["date"].Value.Replace('_', '-');
         string time = "00:00:00";
 
-        if (match.Groups["time"].Success) {
+        if (match.Groups["time"].Success)
+        {
             time = match.Groups["time"].Value.Replace('-', ':');
         }
 
@@ -534,7 +638,8 @@ public sealed class RedumpLocalLibraryIndexer
             "yyyy-MM-dd HH:mm:ss",
             CultureInfo.InvariantCulture,
             DateTimeStyles.AssumeUniversal,
-            out DateTime tokenDate)) {
+            out DateTime tokenDate))
+        {
             return DateTime.SpecifyKind(tokenDate, DateTimeKind.Utc);
         }
 
@@ -546,22 +651,25 @@ public sealed class RedumpLocalLibraryIndexer
         string result = value.Trim();
 
         int datfileIndex = result.IndexOf(" - Datfile", StringComparison.OrdinalIgnoreCase);
-        if (datfileIndex >= 0) {
+        if (datfileIndex >= 0)
+        {
             result = result.Substring(0, datfileIndex);
         }
 
         datfileIndex = result.IndexOf(" Datfile", StringComparison.OrdinalIgnoreCase);
-        if (datfileIndex >= 0) {
+        if (datfileIndex >= 0)
+        {
             result = result.Substring(0, datfileIndex);
         }
 
-        result = VariantParenthesisRegex.Replace(result, " ");
+        result = ReplaceVariantParenthesis(result);
         result = result.Replace('_', ' ');
         result = result.Replace('\\', '/');
-        result = WhitespaceRegex.Replace(result, " ");
+        result = ReplaceWhitespace(result);
         result = result.Trim();
 
-        if (result.Length == 0) {
+        if (result.Length == 0)
+        {
             return "UNKNOWN";
         }
 
@@ -587,15 +695,18 @@ public sealed class RedumpLocalLibraryIndexer
             entry.Name ?? string.Empty,
             entry.Description ?? string.Empty);
 
-        if (ContainsOrdinalIgnoreCase(combined, "bios datfile")) {
+        if (ContainsOrdinalIgnoreCase(combined, "bios datfile"))
+        {
             return true;
         }
 
-        if (ContainsOrdinalIgnoreCase(combined, "bios images")) {
+        if (ContainsOrdinalIgnoreCase(combined, "bios images"))
+        {
             return true;
         }
 
-        if (ContainsOrdinalIgnoreCase(combined, " - bios")) {
+        if (ContainsOrdinalIgnoreCase(combined, " - bios"))
+        {
             return true;
         }
 
@@ -613,11 +724,13 @@ public sealed class RedumpLocalLibraryIndexer
         bool hasSerial = ContainsOrdinalIgnoreCase(combined, "serial");
         bool hasVersion = ContainsOrdinalIgnoreCase(combined, "version");
 
-        if (hasSerial && hasVersion) {
+        if (hasSerial && hasVersion)
+        {
             return true;
         }
 
-        if (ContainsOrdinalIgnoreCase(combined, "serial,version")) {
+        if (ContainsOrdinalIgnoreCase(combined, "serial,version"))
+        {
             return true;
         }
 
@@ -629,5 +742,110 @@ public sealed class RedumpLocalLibraryIndexer
         string expected)
     {
         return value.IndexOf(expected, StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static string ReplaceWhitespace(string value)
+    {
+        try
+        {
+            return WhitespaceRegex.Replace(value, " ");
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return value;
+        }
+    }
+
+    private static string ReplaceVariantParenthesis(string value)
+    {
+        try
+        {
+            return VariantParenthesisRegex.Replace(value, " ");
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return value;
+        }
+    }
+
+    private static void ValidateReadableFilePath(string filePath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
+        string fullPath = Path.GetFullPath(filePath);
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException("Redump DAT/XML file does not exist.", fullPath);
+        }
+
+        ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(filePath));
+    }
+
+    private static bool IsReparsePoint(string path)
+    {
+        try
+        {
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    {
+        string candidate = TrimDirectorySeparators(Path.GetFullPath(candidatePath));
+        string root = TrimDirectorySeparators(Path.GetFullPath(rootPath));
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
+    }
+
+    private static bool IsExpectedPathException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or PathTooLongException
+            or NotSupportedException
+            or ArgumentException
+            or InvalidOperationException
+            or System.Security.SecurityException;
+    }
+
+    private static bool IsExpectedReadException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or InvalidDataException
+            or NotSupportedException
+            or ArgumentException
+            or PathTooLongException
+            or System.Security.SecurityException;
     }
 }

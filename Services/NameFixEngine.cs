@@ -1,7 +1,12 @@
 using Serilog;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -14,13 +19,17 @@ public static class NamingCorrectionEngine
 {
     private static readonly ILogger Logger = global::Serilog.Log.ForContext(typeof(NamingCorrectionEngine));
 
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(250);
+
     private static readonly Regex RegionRegex = new(
         @"\b(USA|US|UNITED\s+STATES|EUROPE|EUR|EU|JAPAN|JPN|JAP|PAL|WORLD|REGION\s*[-_ ]?\s*FREE|ASIA|KOREA|KOR|CHINA|CHN|AUSTRALIA|AUS|BRAZIL|BRA|CANADA|CAN|LATIN\s+AMERICA|LATAM|MEXICO|MEX|MIDDLE\s+EAST|UAE|KSA|MDE|RUSSIA|RUS)\b",
-        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        RegexTimeout);
 
     private static readonly Regex YearRegex = new(
         @"\b(19|20)\d{2}\b",
-        RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        RegexTimeout);
 
     private const string AdvisoryOnlyMessageKey = "LocNaming_RedumpRenameAdvisoryOnly";
     private const string OriginalPathMissingMessageKey = "LocNaming_OriginalPathMissing";
@@ -40,26 +49,35 @@ public static class NamingCorrectionEngine
             return false;
         }
 
-        string name = Path.GetFileName(filePathOrName);
-        if (string.IsNullOrWhiteSpace(name))
+        try
         {
-            name = filePathOrName;
-        }
+            string name = Path.GetFileName(filePathOrName);
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = filePathOrName;
+            }
 
-        string extension = Path.GetExtension(name);
-        if (IsKnownMediaFileExtension(extension))
-        {
-            name = Path.GetFileNameWithoutExtension(name);
-        }
+            string extension = Path.GetExtension(name);
+            if (IsKnownMediaFileExtension(extension))
+            {
+                name = Path.GetFileNameWithoutExtension(name);
+            }
 
-        IReadOnlyList<string> regions = ResolveCanonicalRegionsForPath(name);
-        if (regions.Count == 0)
+            IReadOnlyList<string> regions = ResolveCanonicalRegionsForPath(name);
+            if (regions.Count == 0)
+            {
+                return false;
+            }
+
+            region = BuildRegionFolderName(regions);
+            return !string.IsNullOrWhiteSpace(region);
+        }
+        catch (RegexMatchTimeoutException ex)
         {
+            Logger.Debug(ex, "Region extraction timed out. Value={Value}", filePathOrName);
+            region = string.Empty;
             return false;
         }
-
-        region = BuildRegionFolderName(regions);
-        return !string.IsNullOrWhiteSpace(region);
     }
 
     private static string BuildRegionFolderName(IReadOnlyList<string> regions)
@@ -128,8 +146,7 @@ public static class NamingCorrectionEngine
             or ".bin"
             or ".iso"
             or ".gdi"
-            or ".toc"
-            ;
+            or ".toc";
 
     private static IReadOnlyList<string> ResolveCanonicalRegionsForPath(string filePathOrName)
     {
@@ -151,17 +168,29 @@ public static class NamingCorrectionEngine
             name = Path.GetFileNameWithoutExtension(name);
         }
 
-        if (Regex.IsMatch(name, @"[\(\[\{]\s*U\s*[\)\]\}]", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        if (Regex.IsMatch(
+                name,
+                @"[\(\[\{]\s*U\s*[\)\]\}]",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+                RegexTimeout))
         {
             AddRegion(regions, "USA");
         }
 
-        if (Regex.IsMatch(name, @"[\(\[\{]\s*E\s*[\)\]\}]", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        if (Regex.IsMatch(
+                name,
+                @"[\(\[\{]\s*E\s*[\)\]\}]",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+                RegexTimeout))
         {
             AddRegion(regions, "Europe");
         }
 
-        if (Regex.IsMatch(name, @"[\(\[\{]\s*J\s*[\)\]\}]", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        if (Regex.IsMatch(
+                name,
+                @"[\(\[\{]\s*J\s*[\)\]\}]",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+                RegexTimeout))
         {
             AddRegion(regions, "Japan");
         }
@@ -169,7 +198,8 @@ public static class NamingCorrectionEngine
         if (Regex.IsMatch(
                 name,
                 @"(?:[\(\[\{]\s*NTSC\s*[\)\]\}]\s*[\(\[\{]\s*(?:U|US|USA)\s*[\)\]\}]|[\(\[\{]\s*NTSC\s*[-_ ]?\s*(?:U|US|USA)\s*[\)\]\}]|\bNTSC\s*[-_ ]\s*(?:U|US|USA)\b)",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+                RegexTimeout))
         {
             AddRegion(regions, "USA");
         }
@@ -177,7 +207,8 @@ public static class NamingCorrectionEngine
         if (Regex.IsMatch(
                 name,
                 @"(?:[\(\[\{]\s*NTSC\s*[\)\]\}]\s*[\(\[\{]\s*J\s*[\)\]\}]|[\(\[\{]\s*NTSC\s*[-_ ]?\s*J\s*[\)\]\}]|\bNTSC\s*[-_ ]\s*J\b)",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+                RegexTimeout))
         {
             AddRegion(regions, "Japan");
         }
@@ -265,8 +296,20 @@ public static class NamingCorrectionEngine
 
     private static string NormalizeRegionCandidate(string value)
     {
-        string normalized = Regex.Replace(value, @"[\.\-\s,;\(\)\[\]\{\}\+]+", "_");
-        normalized = Regex.Replace(normalized, @"_+", "_").Trim('_');
+        string normalized = Regex.Replace(
+            value,
+            @"[\.\-\s,;\(\)\[\]\{\}\+]+",
+            "_",
+            RegexOptions.CultureInvariant,
+            RegexTimeout);
+
+        normalized = Regex.Replace(
+            normalized,
+            @"_+",
+            "_",
+            RegexOptions.CultureInvariant,
+            RegexTimeout).Trim('_');
+
         return normalized.ToUpperInvariant();
     }
 
@@ -300,46 +343,77 @@ public static class NamingCorrectionEngine
 
     public static (bool IsCompliant, string SuggestedName) Analyze(string filePath)
     {
-        string fileName = Path.GetFileNameWithoutExtension(filePath);
-        if (ArchiveNamingRuleValidator.IsValid(fileName))
+        try
         {
-            return (true, fileName);
+            string fileName = Path.GetFileNameWithoutExtension(filePath);
+            if (ArchiveNamingRuleValidator.IsValid(fileName))
+            {
+                return (true, fileName);
+            }
+
+            string normalized = Regex.Replace(
+                fileName,
+                @"[\.\-\s]+",
+                "_",
+                RegexOptions.CultureInvariant,
+                RegexTimeout);
+
+            normalized = Regex.Replace(
+                normalized,
+                @"_+",
+                "_",
+                RegexOptions.CultureInvariant,
+                RegexTimeout).Trim('_');
+
+            string region = RegionRegex.Match(normalized).Value.ToUpperInvariant();
+            if (region == "JAP")
+            {
+                region = "JPN";
+            }
+
+            string year = YearRegex.Match(normalized).Value;
+
+            string game = normalized;
+            if (!string.IsNullOrWhiteSpace(region))
+            {
+                game = Regex.Replace(
+                    game,
+                    $@"\b{Regex.Escape(region)}\b",
+                    "",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+                    RegexTimeout).Trim('_');
+            }
+
+            if (!string.IsNullOrWhiteSpace(year))
+            {
+                game = Regex.Replace(
+                    game,
+                    $@"\b{Regex.Escape(year)}\b",
+                    "",
+                    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+                    RegexTimeout).Trim('_');
+            }
+
+            game = string.IsNullOrWhiteSpace(game)
+                ? "Game"
+                : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(game.Replace("_", " ")).Replace(" ", "");
+
+            region = string.IsNullOrWhiteSpace(region) ? "USA" : region;
+            year = string.IsNullOrWhiteSpace(year) ? DateTime.Now.Year.ToString(CultureInfo.InvariantCulture) : year;
+
+            return (false, $"{game}_{region}_{year}");
         }
-
-        string normalized = Regex.Replace(fileName, @"[\.\-\s]+", "_");
-        normalized = Regex.Replace(normalized, @"_+", "_").Trim('_');
-
-        string region = RegionRegex.Match(normalized).Value.ToUpperInvariant();
-        if (region == "JAP")
+        catch (RegexMatchTimeoutException ex)
         {
-            region = "JPN";
+            Logger.Debug(ex, "Naming analysis timed out. FilePath={FilePath}", filePath);
+            return (false, "Game_USA_" + DateTime.Now.Year.ToString(CultureInfo.InvariantCulture));
         }
-
-        string year = YearRegex.Match(normalized).Value;
-
-        string game = normalized;
-        if (!string.IsNullOrWhiteSpace(region))
-        {
-            game = Regex.Replace(game, $@"\b{Regex.Escape(region)}\b", "", RegexOptions.IgnoreCase).Trim('_');
-        }
-
-        if (!string.IsNullOrWhiteSpace(year))
-        {
-            game = Regex.Replace(game, $@"\b{Regex.Escape(year)}\b", "", RegexOptions.IgnoreCase).Trim('_');
-        }
-
-        game = string.IsNullOrWhiteSpace(game)
-            ? "Game"
-            : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(game.Replace("_", " ")).Replace(" ", "");
-
-        region = string.IsNullOrWhiteSpace(region) ? "USA" : region;
-        year = string.IsNullOrWhiteSpace(year) ? DateTime.Now.Year.ToString(CultureInfo.InvariantCulture) : year;
-
-        return (false, $"{game}_{region}_{year}");
     }
 
     public static bool TryApplyRename(string originalPath, string suggestedName, out string newPath, out string error)
     {
+        _ = suggestedName;
+
         newPath = originalPath;
         error = AdvisoryOnlyMessageKey;
         return false;
@@ -378,6 +452,7 @@ public static class NamingCorrectionEngine
         try
         {
             fullOriginalPath = Path.GetFullPath(originalPath);
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullOriginalPath, nameof(originalPath));
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
@@ -402,7 +477,17 @@ public static class NamingCorrectionEngine
         }
 
         string sourceExtension = Path.GetExtension(fullOriginalPath);
-        string safeName = SanitizeSuggestedFileName(suggestedFileName);
+        string safeName;
+        try
+        {
+            safeName = SanitizeSuggestedFileName(suggestedFileName);
+        }
+        catch (RegexMatchTimeoutException ex)
+        {
+            Logger.Debug(ex, "Redump manual rename rejected a suggested name after regex timeout. SuggestedName={SuggestedName}", suggestedFileName);
+            return Failed(fullOriginalPath, SuggestedNameInvalidMessageKey);
+        }
+
         if (string.IsNullOrWhiteSpace(safeName))
         {
             return Failed(fullOriginalPath, SuggestedNameInvalidMessageKey);
@@ -417,6 +502,7 @@ public static class NamingCorrectionEngine
         try
         {
             targetPath = Path.GetFullPath(Path.Combine(directory, safeName));
+            ConversionPathValidator.ThrowIfUnsafeForChdman(targetPath, nameof(suggestedFileName));
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
@@ -454,10 +540,22 @@ public static class NamingCorrectionEngine
 
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullOriginalPath, nameof(originalPath));
+            ConversionPathValidator.ThrowIfUnsafeForChdman(targetPath, nameof(suggestedFileName));
+
             File.Move(fullOriginalPath, targetPath);
             return new ManualRedumpRenameResult(true, targetPath, string.Empty);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException)
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex) when (ex is IOException
+                                   or UnauthorizedAccessException
+                                   or NotSupportedException
+                                   or ArgumentException
+                                   or System.Security.SecurityException)
         {
             Logger.Warning(ex, "Redump manual rename failed. Source={Source}, Target={Target}", fullOriginalPath, targetPath);
             return Failed(fullOriginalPath, RenameFailedMessageKey);
@@ -480,24 +578,55 @@ public static class NamingCorrectionEngine
             .Select(character => invalid.Contains(character) ? ' ' : character)
             .ToArray();
 
-        string collapsed = Regex.Replace(new string(chars), @"\s+", " ").Trim();
+        string collapsed = Regex.Replace(
+            new string(chars),
+            @"\s+",
+            " ",
+            RegexOptions.CultureInvariant,
+            RegexTimeout).Trim();
+
         return collapsed.TrimEnd('.', ' ');
     }
 
     private static bool IsUnderDirectory(string baseDirectory, string candidate)
     {
-        string root = Path.GetFullPath(baseDirectory);
-        if (!root.EndsWith(Path.DirectorySeparatorChar))
+        string root = TrimDirectorySeparators(Path.GetFullPath(baseDirectory));
+        string path = TrimDirectorySeparators(Path.GetFullPath(candidate));
+
+        return string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
         {
-            root += Path.DirectorySeparatorChar;
+            return root;
         }
 
-        string path = Path.GetFullPath(candidate);
-        return path.StartsWith(root, StringComparison.OrdinalIgnoreCase);
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 
     private static bool IsExpectedPathException(Exception ex) =>
         ex is ArgumentException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or IOException
+        or UnauthorizedAccessException
+        or System.Security.SecurityException;
 }

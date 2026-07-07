@@ -129,7 +129,12 @@ public sealed partial class OptionsViewModel
             return ValidationResult.Success;
         }
 
-        string extension = Path.GetExtension(vm.RedumpDatXmlPath.Trim());
+        if (!TryGetSafeOptionsFile(vm.RedumpDatXmlPath, out string safePath))
+        {
+            return Error("LocAdv_ErrorRedumpDatValidationFailed", nameof(RedumpDatXmlPath));
+        }
+
+        string extension = Path.GetExtension(safePath);
         return extension.Equals(".dat", StringComparison.OrdinalIgnoreCase)
             || extension.Equals(".xml", StringComparison.OrdinalIgnoreCase)
             ? ValidationResult.Success
@@ -148,9 +153,7 @@ public sealed partial class OptionsViewModel
             return ValidationResult.Success;
         }
 
-        string root = vm.RedumpLocalLibraryRoot.Trim();
-
-        return Path.IsPathFullyQualified(root) && Directory.Exists(root)
+        return TryGetSafeOptionsDirectory(vm.RedumpLocalLibraryRoot, out _)
             ? ValidationResult.Success
             : Error("LocAdv_ErrorRedumpLocalFolderInvalid", nameof(RedumpLocalLibraryRoot));
     }
@@ -211,7 +214,6 @@ public sealed partial class OptionsViewModel
             ? Error("LocAdv_ErrorProcessorRequired", nameof(SelectedProcessorOption))
             : ValidationResult.Success;
     }
-
 
     public static ValidationResult? ValidateSelectedConcurrentConversionValue(int _, ValidationContext context)
     {

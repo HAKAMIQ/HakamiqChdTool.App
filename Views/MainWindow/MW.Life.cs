@@ -1,10 +1,9 @@
-using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Ui.WpfAdapters;
 using Serilog;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App;
 
@@ -51,7 +50,7 @@ public partial class MainWindow
 
         await RunUiShutdownStepAsync("Dispose tray notification icon.", () =>
         {
-            TrayNotifyIcon.Dispose();
+            TrayNotifyIconHost.Dispose();
         }).ConfigureAwait(false);
 
         if (_startupUpdateCheckTask is not null)

@@ -22,7 +22,6 @@ public sealed partial class OptionsViewModel
         }
     }
 
-
     private void LoadConcurrentConversionChoices()
     {
         ConcurrentConversionOptions.Clear();

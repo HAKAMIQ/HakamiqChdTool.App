@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Models;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
@@ -47,6 +48,8 @@ public sealed class ChdmanPathResolver
             {
                 return false;
             }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
 
             FileInfo fileInfo = new(fullPath);
             if (fileInfo.Length <= 0)

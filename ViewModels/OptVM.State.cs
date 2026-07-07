@@ -1,26 +1,18 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.RedumpCatalog;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace HakamiqChdTool.App.ViewModels;
 
 public sealed partial class OptionsViewModel
 {
-
     private void NotifySaveStateChanged()
     {
         OnPropertyChanged(nameof(HasPendingChanges));
         OnPropertyChanged(nameof(CanConfirm));
         OnPropertyChanged(nameof(CanSave));
     }
-
 
     private bool CurrentValuesEqual(AppSettings snapshot)
     {
@@ -123,7 +115,6 @@ public sealed partial class OptionsViewModel
             && isoCreateOverride == snapshot.IsoCreateCommandOverride
             && StringEquals(SelectedChdPlatformProfile?.Key ?? "auto", string.IsNullOrWhiteSpace(snapshot.ChdPlatformProfileId) ? "auto" : snapshot.ChdPlatformProfileId);
     }
-
 
     private static bool StringEquals(string? left, string? right)
     {

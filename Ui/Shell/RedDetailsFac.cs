@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Dialogs;
 using HakamiqChdTool.App.Views;
+using System;
 
 namespace HakamiqChdTool.App.Ui.Shell;
 

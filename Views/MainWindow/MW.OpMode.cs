@@ -6,8 +6,8 @@ using System.Windows;
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 
@@ -149,19 +149,19 @@ public partial class MainWindow
     {
         if (selectedMode == QueueOperationMode.Verify)
         {
-            if (IsExistingChdPath(row.SourcePath))
+            if (TryNormalizeExistingChdPathForMode(row.SourcePath, out string sourcePath))
             {
-                return row.SourcePath;
+                return sourcePath;
             }
 
-            if (IsExistingChdPath(row.OriginalPath))
+            if (TryNormalizeExistingChdPathForMode(row.OriginalPath, out string originalPath))
             {
-                return row.OriginalPath;
+                return originalPath;
             }
 
-            if (IsExistingChdPath(row.OutputPath))
+            if (TryNormalizeExistingChdPathForMode(row.OutputPath, out string outputPath))
             {
-                return row.OutputPath;
+                return outputPath;
             }
         }
 
@@ -170,9 +170,51 @@ public partial class MainWindow
 
     private static bool IsExistingChdPath(string? path)
     {
-        return !string.IsNullOrWhiteSpace(path) &&
-            File.Exists(path) &&
-            string.Equals(Path.GetExtension(path), ".chd", StringComparison.OrdinalIgnoreCase);
+        return TryNormalizeExistingChdPathForMode(path, out _);
+    }
+
+    private static bool TryNormalizeExistingChdPathForMode(string? path, out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            string fullPath = Path.GetFullPath(path.Trim());
+
+            if (!string.Equals(Path.GetExtension(fullPath), ".chd", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+
+            FileAttributes attributes = File.GetAttributes(fullPath);
+            if ((attributes & FileAttributes.Directory) != 0 ||
+                (attributes & FileAttributes.ReparsePoint) != 0)
+            {
+                return false;
+            }
+
+            normalizedPath = fullPath;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedOperationModePathException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool IsExpectedOperationModePathException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException;
     }
 
     private static bool IsTerminalFinalResult(string? finalResult)

@@ -7,7 +7,6 @@ using HakamiqChdTool.App.Services.MediaInputPolicy;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace HakamiqChdTool.App.Services;
@@ -426,6 +425,8 @@ public static class ChdWorkflowProfilePlanner
             throw new FileNotFoundException(InputFileNotFoundMessageKey, inputPath);
         }
 
+        ConversionPathValidator.ThrowIfUnsafeForChdman(inputPath, nameof(inputPath));
+
         try
         {
             using FileStream stream = File.Open(inputPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
@@ -477,8 +478,27 @@ public static class ChdWorkflowProfilePlanner
             return true;
         }
 
-        string? directory = Path.GetDirectoryName(descriptorPath);
-        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
+        string fullDescriptorPath;
+        try
+        {
+            fullDescriptorPath = Path.GetFullPath(descriptorPath);
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            failureMessage = DescriptorReadFailedMessageKey;
+            return false;
+        }
+
+        if (HasReparsePointInExistingPathFromVolumeRoot(fullDescriptorPath))
+        {
+            failureMessage = DescriptorReadFailedMessageKey;
+            return false;
+        }
+
+        string? directory = Path.GetDirectoryName(fullDescriptorPath);
+        if (string.IsNullOrWhiteSpace(directory)
+            || !Directory.Exists(directory)
+            || HasReparsePointInExistingPathFromVolumeRoot(directory))
         {
             failureMessage = MissingDescriptorDependenciesMessageKey;
             return false;
@@ -487,16 +507,26 @@ public static class ChdWorkflowProfilePlanner
         string descriptorText;
         try
         {
-            descriptorText = ReadSmallDescriptorText(descriptorPath);
+            descriptorText = ReadSmallDescriptorText(fullDescriptorPath);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException or NotSupportedException)
+        catch (Exception ex) when (IsDescriptorReadFailure(ex))
         {
             failureMessage = DescriptorReadFailedMessageKey;
             return false;
         }
 
-        IEnumerable<string> availableFiles = Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories);
-        if (!ArchiveCandidateDiscovery.TryValidateDescriptorDependencies(descriptorPath, descriptorText, availableFiles, out failureMessage))
+        IEnumerable<string> availableFiles;
+        try
+        {
+            availableFiles = EnumerateFilesWithoutReparseDirectories(directory);
+        }
+        catch (Exception ex) when (IsDescriptorReadFailure(ex))
+        {
+            failureMessage = DescriptorReadFailedMessageKey;
+            return false;
+        }
+
+        if (!ArchiveCandidateDiscovery.TryValidateDescriptorDependencies(fullDescriptorPath, descriptorText, availableFiles, out failureMessage))
         {
             failureMessage = string.IsNullOrWhiteSpace(failureMessage)
                 ? MissingDescriptorDependenciesMessageKey
@@ -537,11 +567,18 @@ public static class ChdWorkflowProfilePlanner
             return false;
         }
 
-        return Regex.IsMatch(
-            identityText,
-            @"\b(slus|scus|sles|sces|slpm|slps|slka|papx|pcpx|espm)[\s._-]*\d{3,5}\b",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
-            RegexTimeout);
+        try
+        {
+            return Regex.IsMatch(
+                identityText,
+                @"\b(slus|scus|sles|sces|slpm|slps|slka|papx|pcpx|espm)[\s._-]*\d{3,5}\b",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+                RegexTimeout);
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
     }
 
     private static bool ContainsDiscConsoleKeyword(string identityText)
@@ -734,6 +771,7 @@ public static class ChdWorkflowProfilePlanner
         {
             return ChdWorkflowProfilePlan.Unsupported(failureMessage, containerKind);
         }
+
         IsoChdmanCreateDiagnostics diagnostics = IsoChdmanCreateCommandResolver.ResolveCreateCompressionCommandWithDiagnostics(inputPath, isoCreateCommandOverride);
         if (ShouldBlockIsoChdConversion(inputPath, diagnostics, out string blockMessageKey))
         {
@@ -765,7 +803,6 @@ public static class ChdWorkflowProfilePlanner
             IsoDiagnostics = diagnostics
         };
     }
-
 
     private static ChdWorkflowProfilePlan BuildExtractionPlan(
         ChdMediaFormatKind mediaKind,
@@ -819,20 +856,220 @@ public static class ChdWorkflowProfilePlanner
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
-        FileInfo fileInfo = new(path);
+        string fullPath = Path.GetFullPath(path);
+        FileInfo fileInfo = new(fullPath);
         if (!fileInfo.Exists)
         {
-            throw new FileNotFoundException(InputFileNotFoundMessageKey, path);
+            throw new FileNotFoundException(InputFileNotFoundMessageKey, fullPath);
         }
 
-        if (fileInfo.Length > MaxDescriptorTextBytes)
+        if (HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+        {
+            throw new IOException(DescriptorReadFailedMessageKey);
+        }
+
+        if (fileInfo.Length <= 0 || fileInfo.Length > MaxDescriptorTextBytes)
         {
             throw new InvalidOperationException(DescriptorReadFailedMessageKey);
         }
 
-        using FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using FileStream stream = new(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read);
         using StreamReader reader = new(stream, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 4096, leaveOpen: false);
         return reader.ReadToEnd();
+    }
+
+    private static IEnumerable<string> EnumerateFilesWithoutReparseDirectories(string rootDirectory)
+    {
+        Stack<string> pendingDirectories = new();
+        pendingDirectories.Push(Path.GetFullPath(rootDirectory));
+
+        while (pendingDirectories.Count > 0)
+        {
+            string directory = pendingDirectories.Pop();
+
+            if (HasReparsePointInExistingPathFromVolumeRoot(directory))
+            {
+                continue;
+            }
+
+            IEnumerable<string> files;
+            try
+            {
+                files = Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly);
+            }
+            catch (Exception ex) when (IsDescriptorReadFailure(ex))
+            {
+                continue;
+            }
+
+            foreach (string file in files)
+            {
+                if (!HasReparsePointInExistingPathFromVolumeRoot(file))
+                {
+                    yield return file;
+                }
+            }
+
+            IEnumerable<string> childDirectories;
+            try
+            {
+                childDirectories = Directory.EnumerateDirectories(directory, "*", SearchOption.TopDirectoryOnly);
+            }
+            catch (Exception ex) when (IsDescriptorReadFailure(ex))
+            {
+                continue;
+            }
+
+            foreach (string childDirectory in childDirectories)
+            {
+                if (!HasReparsePointInExistingPathFromVolumeRoot(childDirectory))
+                {
+                    pendingDirectories.Push(childDirectory);
+                }
+            }
+        }
+    }
+
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsDescriptorReadFailure(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+
+            if (!IsSamePathOrChild(candidate, root))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsDescriptorReadFailure(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsReparsePoint(string path)
+    {
+        try
+        {
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                return false;
+            }
+
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsDescriptorReadFailure(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    {
+        string candidate = TrimDirectorySeparators(Path.GetFullPath(candidatePath));
+        string root = TrimDirectorySeparators(Path.GetFullPath(rootPath));
+
+        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimDirectorySeparators(Path.GetFullPath(left)),
+            TrimDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
+    }
+
+    private static bool IsExpectedPathException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException
+            or PathTooLongException
+            or InvalidOperationException
+            or System.Security.SecurityException;
+    }
+
+    private static bool IsDescriptorReadFailure(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException
+            or PathTooLongException
+            or InvalidOperationException
+            or System.Security.SecurityException;
     }
 
     private static string L(string key) => ArabicUi.ResolveDisplayString(key);

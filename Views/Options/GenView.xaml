@@ -49,16 +49,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocGeneralSettings_LanguageTitle}"
                                                ToolTip="{DynamicResource LocGeneralSettings_LanguageDescription}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="UiLanguageComboBox"
@@ -89,16 +82,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocGeneralSettings_ThemeTitle}"
                                                ToolTip="{DynamicResource LocGeneralSettings_ThemeDescription}" />
-
                                 </Grid>
 
                                 <ComboBox x:Name="ThemeComboBox"

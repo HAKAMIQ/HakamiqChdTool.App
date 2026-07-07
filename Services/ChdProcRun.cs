@@ -353,6 +353,8 @@ public static class ChdmanProcessRunner
             throw new InvalidOperationException(InvalidChdmanPathMessageKey);
         }
 
+        ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(executablePath));
+
         FileInfo info;
         try
         {
