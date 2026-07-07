@@ -111,7 +111,6 @@
                                           ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
                                           IsTextSearchEnabled="True"
                                           TextSearch.TextPath="Label"
-                                          MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{Binding PerformanceModeDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_PerformanceMode}" />
@@ -141,7 +140,6 @@
                                           ItemTemplate="{StaticResource ProcessorOptionLabelTemplate}"
                                           IsTextSearchEnabled="True"
                                           TextSearch.TextPath="Label"
-                                          MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{Binding ProcessorSelectionDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_ProcessorCount}" />
@@ -171,7 +169,6 @@
                                           ItemTemplate="{StaticResource ProcessorOptionLabelTemplate}"
                                           IsTextSearchEnabled="True"
                                           TextSearch.TextPath="Label"
-                                          MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{Binding ConcurrentConversionDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_ConcurrentConversions}" />
@@ -201,7 +198,6 @@
                                           ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
                                           IsTextSearchEnabled="True"
                                           TextSearch.TextPath="Label"
-                                          MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{Binding PriorityModeDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_ProcessPriority}" />
@@ -231,7 +227,6 @@
                                           ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
                                           IsTextSearchEnabled="True"
                                           TextSearch.TextPath="Label"
-                                          MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{Binding IsoCreateOverrideDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_IsoCreateMode}" />
@@ -261,7 +256,6 @@
                                           ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
                                           IsTextSearchEnabled="True"
                                           TextSearch.TextPath="Label"
-                                          MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{Binding ChdPlatformProfileDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_ChdPlatformProfile}" />
@@ -291,7 +285,6 @@
                                           ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
                                           IsTextSearchEnabled="True"
                                           TextSearch.TextPath="Label"
-                                          MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{Binding CompressionPresetDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_CompressionPreset}" />
@@ -321,7 +314,6 @@
                                           ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
                                           IsTextSearchEnabled="True"
                                           TextSearch.TextPath="Label"
-                                          MaxDropDownHeight="320"
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{Binding HunkPresetDescription}"
                                           AutomationProperties.Name="{DynamicResource LocPerformance_HunkSize}" />

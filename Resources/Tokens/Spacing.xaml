@@ -233,6 +233,7 @@
     <GridLength x:Key="Layout.ActionPanel.GridWidth">292</GridLength>
     <GridLength x:Key="Grid.OptionsSidebar.Width">208</GridLength>
     <sys:Double x:Key="Grid.Settings.ActionColumn.Width">320</sys:Double>
+    <sys:Double x:Key="Options.ComboBox.DropDownMaxHeight">320</sys:Double>
     <sys:Double x:Key="Layout.Queue.MinHeight">300</sys:Double>
     <sys:Double x:Key="Layout.DropHint.MaxWidth">360</sys:Double>
     <sys:Double x:Key="Layout.ToolTip.MaxWidth">420</sys:Double>

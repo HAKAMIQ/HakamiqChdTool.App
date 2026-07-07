@@ -828,6 +828,7 @@
            TargetType="{x:Type ComboBox}"
            BasedOn="{StaticResource {x:Type ComboBox}}">
         <Setter Property="Width" Value="220" />
+        <Setter Property="MaxDropDownHeight" Value="{DynamicResource Options.ComboBox.DropDownMaxHeight}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -940,7 +941,6 @@
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource SecondaryButtonStyle}">
         <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
-        <Setter Property="MaxWidth" Value="{DynamicResource Space.128}" />
         <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
