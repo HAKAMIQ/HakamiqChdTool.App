@@ -21,8 +21,8 @@
 			<StackPanel Style="{StaticResource Win11SettingsContentStack}">
 
 				<Grid Visibility="Collapsed"
-                      Width="0"
-                      Height="0"
+                      Width="{DynamicResource Space.0}"
+                      Height="{DynamicResource Space.0}"
                       IsHitTestVisible="False">
 					<TextBox x:Name="DatabaseDownloadUrlTextBox"
                              Text="{Binding RedumpDatabaseDownloadUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
@@ -51,8 +51,8 @@
 						<Grid Grid.Row="0"
                               Style="{StaticResource Win11SettingsSectionHeader}">
 							<TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
-                                       Text="Redump"
-                                       ToolTip="Redump" />
+                                       Text="{DynamicResource LocRedump_Tool_Title}"
+                                       ToolTip="{DynamicResource LocRedump_Tool_Title}" />
 						</Grid>
 
 						<Border Grid.Row="1"
@@ -162,7 +162,7 @@
 									<Grid Grid.Column="0"
                                           SnapsToDevicePixels="True">
 										<TextBox x:Name="RedumpLocalFolderTextBox"
-                                                 MinHeight="36"
+                                                 MinHeight="{DynamicResource Space.36}"
                                                  Text="{Binding RedumpLocalLibraryRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
                                                  IsEnabled="{Binding CanUseRedumpDatabaseImport}"
                                                  FlowDirection="LeftToRight"
@@ -208,8 +208,7 @@
 									</Grid>
 
 									<Button Grid.Column="2"
-                                            MinWidth="124"
-                                            MinHeight="36"
+                                            MinWidth="{DynamicResource Space.120}"
                                             Content="{DynamicResource LocRedumpSettings_BrowseLocalFolderButton}"
                                             Command="{Binding BrowseRedumpLocalLibraryCommand}"
                                             IsEnabled="{Binding CanUseRedumpDatabaseImport}"
@@ -336,22 +335,27 @@
 									</Grid.ColumnDefinitions>
 
 									<Button Grid.Column="0"
-                                            MinWidth="128"
-                                            MinHeight="36"
+                                            MinWidth="{DynamicResource Space.128}"
                                             Content="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
                                             Command="{Binding ImportRedumpLocalLibraryCommand}"
                                             ToolTip="{DynamicResource LocRedumpSettings_PrepareLocalLibraryTooltip}"
                                             AutomationProperties.Name="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
-                                            Style="{StaticResource Win11SettingsCompactButton}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{DynamicResource FontSize.Caption}" />
+                                            Style="{StaticResource Win11SettingsCompactButton}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            FontSize="{DynamicResource FontSize.Caption}" />
 
 									<Button Grid.Column="2"
-                                            MinWidth="128"
-                                            MinHeight="36"
+                                            MinWidth="{DynamicResource Space.128}"
                                             Content="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
                                             Command="{Binding ScanRedumpLocalLibraryCommand}"
                                             ToolTip="{DynamicResource LocRedumpSettings_ScanLocalFolderTooltip}"
                                             AutomationProperties.Name="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
-                                            Style="{StaticResource Win11SettingsCompactButton}" FontSize="{DynamicResource FontSize.Caption}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="128" Click="Button_Click" />
+                                            Style="{StaticResource Win11SettingsCompactButton}"
+                                            FontSize="{DynamicResource FontSize.Caption}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            Click="Button_Click" />
 								</Grid>
 							</Grid>
 						</Border>
@@ -399,12 +403,7 @@
 								</Grid>
 
 								<Grid Grid.Column="2"
-                                      Width="440"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      FlowDirection="{DynamicResource App.FlowDirection}"
-                                      Language="{DynamicResource App.XmlLanguage}"
-                                      SnapsToDevicePixels="True">
+                                      Style="{StaticResource Win11SettingsPathControlArea}">
 
 									<Grid.RowDefinitions>
 										<RowDefinition Height="Auto" />
