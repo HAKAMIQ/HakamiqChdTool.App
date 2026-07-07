@@ -13,7 +13,8 @@
 	<Grid FlowDirection="{DynamicResource App.FlowDirection}"
           SnapsToDevicePixels="True"
           ClipToBounds="True">
-		<ScrollViewer FlowDirection="{DynamicResource App.FlowDirection}"
+		<ScrollViewer Margin="{DynamicResource Inset.8.All}"
+                      FlowDirection="{DynamicResource App.FlowDirection}"
                       VerticalScrollBarVisibility="Hidden"
                       HorizontalScrollBarVisibility="Disabled"
                       CanContentScroll="False"

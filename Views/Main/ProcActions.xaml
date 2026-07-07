@@ -74,17 +74,30 @@
                                   VerticalAlignment="Center"
                                   SnapsToDevicePixels="True">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
+                                <Border x:Name="ActionIndicator"
+                                        Grid.Column="0"
+                                        Width="{DynamicResource Space.3}"
+                                        Height="{DynamicResource Space.24}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Background="{DynamicResource Brush.Accent}"
+                                        CornerRadius="{DynamicResource Radius.Small}"
+                                        Opacity="{DynamicResource Opacity.Hidden}"
+                                        SnapsToDevicePixels="True" />
+
+                                <TextBlock Grid.Column="2"
                                            Text="{TemplateBinding Content}"
                                            Foreground="{TemplateBinding Foreground}"
                                            Style="{StaticResource ProcessingActionsPanelActionChipText}" />
 
-                                <Viewbox Grid.Column="2"
+                                <Viewbox Grid.Column="4"
                                          Width="{DynamicResource Space.20}"
                                          Height="{DynamicResource Space.20}"
                                          HorizontalAlignment="Center"
@@ -114,6 +127,9 @@
                                         Value="{DynamicResource Brush.Control.Stroke.Strong}" />
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
+                                <Setter TargetName="ActionIndicator"
+                                        Property="Opacity"
+                                        Value="{DynamicResource Opacity.Subtle}" />
                             </MultiTrigger>
 
                             <Trigger Property="IsPressed" Value="True">
@@ -125,6 +141,18 @@
                                         Value="{DynamicResource Brush.Accent.SelectedBorder}" />
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                                <Setter TargetName="ActionIndicator"
+                                        Property="Opacity"
+                                        Value="1" />
+                            </Trigger>
+
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                                <Setter TargetName="ActionIndicator"
+                                        Property="Opacity"
+                                        Value="1" />
                             </Trigger>
 
                             <Trigger Property="IsEnabled" Value="False">
