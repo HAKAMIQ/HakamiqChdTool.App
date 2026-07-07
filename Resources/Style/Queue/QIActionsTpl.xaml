@@ -90,6 +90,7 @@
                                 Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}"
                                 Content="{DynamicResource LocUi_QueueRowOpen}"
+                                AutomationProperties.Name="{DynamicResource LocCtx_OpenPath}"
                                 ToolTip="{DynamicResource LocCtx_OpenPath}">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}"
@@ -108,6 +109,7 @@
                                 CommandParameter="{Binding}"
                                 Content="{DynamicResource LocUi_QueueRowCancel}"
                                 Style="{StaticResource FluentQueueRowSubtleActionButton}"
+                                AutomationProperties.Name="{DynamicResource LocCtx_CancelJob}"
                                 ToolTip="{DynamicResource LocCtx_CancelJob}" />
                     </Grid>
                 </Grid>
@@ -152,6 +154,7 @@
                                 Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}"
                                 Content="{DynamicResource LocUi_QueueRowOpen}"
+                                AutomationProperties.Name="{DynamicResource LocCtx_OpenPath}"
                                 ToolTip="{DynamicResource LocCtx_OpenPath}">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}"
@@ -179,6 +182,7 @@
                                 Command="{Binding DataContext.OpenOperationLogCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}"
                                 Content="{DynamicResource LocQueue_VerificationResultButton}"
+                                AutomationProperties.Name="{DynamicResource LocQueue_VerificationResultButton}"
                                 ToolTip="{DynamicResource LocQueue_VerificationResultTooltip}">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}"
@@ -197,7 +201,9 @@
                         <Button Grid.Column="6"
                                 Command="{Binding DataContext.RetryQueueItemCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}"
-                                Content="{DynamicResource LocCtx_Retry}">
+                                Content="{DynamicResource LocCtx_Retry}"
+                                AutomationProperties.Name="{DynamicResource LocCtx_Retry}"
+                                ToolTip="{DynamicResource LocCtx_Retry}">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}"
                                        BasedOn="{StaticResource FluentQueueRowSubtleActionButton}">
