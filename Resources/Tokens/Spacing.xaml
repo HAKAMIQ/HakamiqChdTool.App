@@ -126,6 +126,7 @@
     <Thickness x:Key="Inset.ScrollBarTrack.Horizontal">0,2,0,2</Thickness>
 
     <Thickness x:Key="Inset.0.0.0.1">0,0,0,1</Thickness>
+    <Thickness x:Key="Inset.1.0.1.0">1,0,1,0</Thickness>
     <Thickness x:Key="Inset.1.0.1.1">1,0,1,1</Thickness>
     <Thickness x:Key="Inset.0.0.0.4">0,0,0,4</Thickness>
     <Thickness x:Key="Inset.0.0.0.5">0,0,0,5</Thickness>

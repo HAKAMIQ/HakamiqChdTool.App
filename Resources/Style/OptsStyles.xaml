@@ -375,8 +375,8 @@
             </Popup>
 
             <Border x:Name="Underline"
-                    Height="1"
-                    Margin="1,0,1,0"
+                    Height="{DynamicResource StrokeThickness.Control}"
+                    Margin="{DynamicResource Inset.1.0.1.0}"
                     VerticalAlignment="Bottom"
                     HorizontalAlignment="Stretch"
                     Background="{DynamicResource Brush.Border.Subtle}"
