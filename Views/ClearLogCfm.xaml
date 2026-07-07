@@ -31,7 +31,7 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Large}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />

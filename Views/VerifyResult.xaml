@@ -32,7 +32,7 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -43,7 +43,7 @@
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="16,10" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.16.10}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -51,7 +51,7 @@
             <Style x:Key="VerificationResultDialog.ContentHost"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Canvas}" />
-                <Setter Property="Padding" Value="18,14" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.18.14}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -62,8 +62,8 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="Padding" Value="12,10" />
-                <Setter Property="Margin" Value="0,0,0,10" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+                <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.10}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -71,8 +71,8 @@
             <Style x:Key="VerificationResultDialog.DetailRow"
                    TargetType="{x:Type Border}"
                    BasedOn="{StaticResource VerificationResultDialog.Card}">
-                <Setter Property="Padding" Value="8,6" />
-                <Setter Property="Margin" Value="0,0,0,6" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.8.6}" />
+                <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.6}" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.GeneralText"
@@ -146,8 +146,8 @@
             <Style x:Key="VerificationResultDialog.CompactPrimaryButton"
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource PrimaryButtonStyle}">
-                <Setter Property="MinWidth" Value="104" />
-                <Setter Property="Padding" Value="14,6" />
+                <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
@@ -230,7 +230,7 @@
                               Focusable="False"
                               CanContentScroll="False"
                               PanningMode="VerticalOnly"
-                              Background="Transparent"
+                              Background="{DynamicResource Brush.Transparent}"
                               SnapsToDevicePixels="True">
 
                     <StackPanel FlowDirection="{DynamicResource App.FlowDirection}"
@@ -348,7 +348,7 @@
                                             <Grid FlowDirection="{DynamicResource App.FlowDirection}">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="10" />
+                                                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
 

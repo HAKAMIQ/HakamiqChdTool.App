@@ -15,6 +15,7 @@
         WindowStyle="None"
         AllowsTransparency="False"
         Background="{DynamicResource Brush.Layer.Canvas}"
+        Foreground="{DynamicResource Brush.Text.Primary}"
         ShowInTaskbar="False"
         FlowDirection="{DynamicResource App.FlowDirection}"
         Language="{DynamicResource App.XmlLanguage}"
@@ -229,6 +230,7 @@
             BorderBrush="{DynamicResource Brush.Border.Subtle}"
             BorderThickness="{DynamicResource Inset.1.All}"
             CornerRadius="{DynamicResource Radius.Window}"
+            ClipToBounds="True"
             SnapsToDevicePixels="True">
 
         <Grid FlowDirection="{DynamicResource App.FlowDirection}"
@@ -276,7 +278,9 @@
                                 Height="{DynamicResource Space.32}"
                                 VerticalAlignment="Center"
                                 Click="CloseButton_Click"
-                                Style="{StaticResource HeaderIconButtonStyle}">
+                                Style="{StaticResource HeaderIconButtonStyle}"
+                                ToolTip="{DynamicResource LocCommon_Close}"
+                                AutomationProperties.Name="{DynamicResource LocCommon_Close}">
                             <Viewbox Width="{DynamicResource Space.12}"
                                      Height="{DynamicResource Space.12}"
                                      FlowDirection="LeftToRight"

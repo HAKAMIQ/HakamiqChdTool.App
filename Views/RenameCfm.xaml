@@ -38,7 +38,7 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Large}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -51,7 +51,7 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
-                <Setter Property="Padding" Value="12,0" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.0}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -59,7 +59,7 @@
             <Style x:Key="RenameDialog.ContentHost"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="Padding" Value="12" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -69,7 +69,7 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.1.0.0}" />
-                <Setter Property="Padding" Value="12,8" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -113,7 +113,7 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="Padding" Value="10,7" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.7}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -138,7 +138,7 @@
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="{DynamicResource Space.40}"
-                            CornerRadius="{DynamicResource Radius.Large}"
+                            CornerRadius="{DynamicResource Radius.Dialog}"
                             GlassFrameThickness="{DynamicResource Inset.None}"
                             ResizeBorderThickness="{DynamicResource Inset.None}"
                             UseAeroCaptionButtons="False" />
