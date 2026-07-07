@@ -40,20 +40,20 @@
 
             <Style x:Key="OptionsWindow.TopBar"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.16.12}" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.18.14}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
 
             <Style x:Key="OptionsWindow.SidebarPanel"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.16.14}" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Stretch" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
@@ -193,6 +193,7 @@
                             VerticalAlignment="Center"
                             Style="{StaticResource HeaderIconButtonStyle}"
                             ToolTip="{DynamicResource LocCommon_Close}"
+                            AutomationProperties.Name="{DynamicResource LocCommon_Close}"
                             Click="CancelButton_Click"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
                         <Viewbox Width="{DynamicResource Space.12}"
@@ -208,13 +209,13 @@
             </Border>
 
             <Grid Grid.Row="1"
-                  Margin="{DynamicResource Inset.16.All}"
+                  Margin="{DynamicResource Inset.18.All}"
                   MinHeight="0"
                   VerticalAlignment="Stretch"
                   FlowDirection="{DynamicResource App.FlowDirection}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{DynamicResource Grid.OptionsSidebar.Width}" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.20}" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
