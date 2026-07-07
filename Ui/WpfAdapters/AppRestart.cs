@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Services;
 using Serilog;
 using System;
 using System.ComponentModel;
@@ -6,7 +7,6 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
-using HakamiqChdTool.App.Services;
 
 namespace HakamiqChdTool.App.Ui.WpfAdapters;
 
@@ -97,9 +97,16 @@ public static class ApplicationRestartService
 
         try
         {
+            string fullProcessPath = Path.GetFullPath(processPath);
+
+            if (HasReparsePointInExistingPathFromVolumeRoot(fullProcessPath))
+            {
+                return false;
+            }
+
             var startInfo = new ProcessStartInfo
             {
-                FileName = processPath,
+                FileName = fullProcessPath,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WorkingDirectory = AppContext.BaseDirectory
@@ -136,7 +143,7 @@ public static class ApplicationRestartService
             if (!contextFile.Exists
                 || contextFile.Length <= 0
                 || contextFile.Length > MaximumRestartContextBytes
-                || IsReparsePoint(path))
+                || HasReparsePointInExistingPathFromVolumeRoot(path))
             {
                 TryDeleteRestartContext();
                 return null;
@@ -207,9 +214,10 @@ public static class ApplicationRestartService
                 return false;
             }
 
-            Directory.CreateDirectory(directory);
+            string fullDirectory = Path.GetFullPath(directory);
+            Directory.CreateDirectory(fullDirectory);
 
-            if (IsReparsePoint(directory))
+            if (HasReparsePointInExistingPathFromVolumeRoot(fullDirectory))
             {
                 return false;
             }
@@ -219,7 +227,7 @@ public static class ApplicationRestartService
             restartContext.OptionsTabKey = NormalizeContextValue(restartContext.OptionsTabKey, maxLength: 128);
 
             string json = JsonSerializer.Serialize(restartContext, JsonOptions);
-            WriteTextAtomically(path, json, directory);
+            WriteTextAtomically(path, json, fullDirectory);
 
             return true;
         }
@@ -246,7 +254,7 @@ public static class ApplicationRestartService
         try
         {
             string path = GetRestartContextPath();
-            if (File.Exists(path) && !IsReparsePoint(path))
+            if (File.Exists(path) && !HasReparsePointInExistingPathFromVolumeRoot(path))
             {
                 File.Delete(path);
             }
@@ -270,12 +278,9 @@ public static class ApplicationRestartService
         string fullDirectory = Path.GetFullPath(directory);
         string fullTargetPath = Path.GetFullPath(targetPath);
 
-        if (!IsPathInsideDirectory(fullTargetPath, fullDirectory))
-        {
-            throw new IOException();
-        }
-
-        if (File.Exists(fullTargetPath) && IsReparsePoint(fullTargetPath))
+        if (!IsPathInsideDirectory(fullTargetPath, fullDirectory)
+            || HasReparsePointInExistingPathFromVolumeRoot(fullDirectory)
+            || (File.Exists(fullTargetPath) && HasReparsePointInExistingPathFromVolumeRoot(fullTargetPath)))
         {
             throw new IOException();
         }
@@ -306,7 +311,7 @@ public static class ApplicationRestartService
                 stream.Flush(flushToDisk: true);
             }
 
-            if (IsReparsePoint(tempPath))
+            if (HasReparsePointInExistingPathFromVolumeRoot(tempPath))
             {
                 throw new IOException();
             }
@@ -374,13 +379,72 @@ public static class ApplicationRestartService
 
     private static bool IsPathInsideDirectory(string fullPath, string directory)
     {
-        string normalizedDirectory = Path.GetFullPath(directory)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            + Path.DirectorySeparatorChar;
+        string normalizedDirectory = TrimDirectorySeparators(Path.GetFullPath(directory));
+        string normalizedPath = TrimDirectorySeparators(Path.GetFullPath(fullPath));
 
-        string normalizedPath = Path.GetFullPath(fullPath);
+        return string.Equals(normalizedPath, normalizedDirectory, StringComparison.OrdinalIgnoreCase)
+            || normalizedPath.StartsWith(EnsureDirectorySeparatorSuffix(normalizedDirectory), StringComparison.OrdinalIgnoreCase);
+    }
 
-        return normalizedPath.StartsWith(normalizedDirectory, StringComparison.OrdinalIgnoreCase);
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsRestartFailure(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+
+            if (!IsPathInsideDirectory(candidate, root))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsRestartFailure(ex))
+        {
+            return true;
+        }
     }
 
     private static bool IsReparsePoint(string path)
@@ -400,11 +464,44 @@ public static class ApplicationRestartService
         }
     }
 
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimDirectorySeparators(Path.GetFullPath(left)),
+            TrimDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
+            ? path
+            : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
+    }
+
     private static void TryDeleteFile(string filePath)
     {
         try
         {
-            if (File.Exists(filePath) && !IsReparsePoint(filePath))
+            if (File.Exists(filePath) && !HasReparsePointInExistingPathFromVolumeRoot(filePath))
             {
                 File.Delete(filePath);
             }

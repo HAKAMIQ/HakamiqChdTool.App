@@ -1,4 +1,3 @@
-using HakamiqChdTool.App.Ui.Queue;
 using CommunityToolkit.Mvvm.Input;
 using HakamiqChdTool.App.Core.Input;
 using HakamiqChdTool.App.Localization;
@@ -6,6 +5,7 @@ using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.MediaInputPolicy;
 using HakamiqChdTool.App.Services.PlayStation.Ps2;
+using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using Serilog;
 using System;
@@ -109,6 +109,7 @@ public partial class MainWindowViewModel
 
             return Array.Empty<Guid>();
         }
+
         cancellationToken.ThrowIfCancellationRequested();
 
         if (TryBuildFastDirectFileCandidates(
@@ -143,7 +144,6 @@ public partial class MainWindowViewModel
                     intakeSource,
                     rawList.Count)
                 .ConfigureAwait(false);
-
 
             SearchOption searchOption = await dispatcher.InvokeAsync(
                 () => _session.IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly,
@@ -185,7 +185,6 @@ public partial class MainWindowViewModel
             {
                 intakeToken.ThrowIfCancellationRequested();
 
-
                 progress.ScannedCount++;
                 progress.TotalCount = Math.Max(progress.TotalCount, progress.ScannedCount);
                 progress.PhaseKey = "LocQueueAdd_ScanningFiles";
@@ -218,7 +217,13 @@ public partial class MainWindowViewModel
                     continue;
                 }
 
-                string effectiveDiscoveredPath = mediaDecision.EffectivePath;
+                if (!TryNormalizeExistingFilePathForIntake(mediaDecision.EffectivePath, out string effectiveDiscoveredPath))
+                {
+                    unsupportedFileCount++;
+                    progress.SkippedUnsupportedOrDuplicate = true;
+                    continue;
+                }
+
                 QueueInputClassification classification = QueueInputClassifier.Classify(effectiveDiscoveredPath);
                 if (!classification.IsSupported)
                 {
@@ -296,9 +301,7 @@ public partial class MainWindowViewModel
 
                 progress.PhaseKey = "LocQueueAdd_ScanningFiles";
                 await UpdateQueueAddProgressAsync(dispatcher, intakeUiVersion, progress, force: prepared.Candidates.Count > 0).ConfigureAwait(false);
-
             }
-
 
             if (preparedCandidates.Count == 0)
             {
@@ -482,22 +485,15 @@ public partial class MainWindowViewModel
         }
     }
 
-
     private static HashSet<string> BuildDirectRawFilePathSet(IEnumerable<string> rawList)
     {
         var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (string path in rawList)
         {
-            try
+            if (TryNormalizeExistingFilePathForIntake(path, out string normalizedPath))
             {
-                if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
-                {
-                    set.Add(NormalizePathForAdvisoryKey(path));
-                }
-            }
-            catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
-            {
+                set.Add(NormalizePathForAdvisoryKey(normalizedPath));
             }
         }
 
@@ -557,21 +553,26 @@ public partial class MainWindowViewModel
         List<PreparedIntakeCandidate> preparedCandidates,
         ref int duplicateFileCount)
     {
-        string normalizedPath = NormalizePathForAdvisoryKey(path);
+        if (!TryNormalizeExistingFilePathForIntake(path, out string safePath))
+        {
+            return false;
+        }
+
+        string normalizedPath = NormalizePathForAdvisoryKey(safePath);
         if (existingPaths.Contains(normalizedPath) || !seenImportedPaths.Add(normalizedPath))
         {
             duplicateFileCount++;
             return false;
         }
 
-        QueuePlatformView platform = BuildQueuePlatformView(path);
+        QueuePlatformView platform = BuildQueuePlatformView(safePath);
         string detail = string.IsNullOrWhiteSpace(reasonKey)
             ? MainWindowMessages.UnsupportedQueueFile
             : reasonKey;
 
         preparedCandidates.Add(new PreparedIntakeCandidate(
             new PreparedQueueCandidate(
-                path,
+                safePath,
                 TaskActionCodes.Unsupported,
                 platform.PlatformName,
                 detail),
@@ -675,8 +676,7 @@ public partial class MainWindowViewModel
 
         try
         {
-            directory = Path.GetFullPath(Path.GetDirectoryName(path) ?? string.Empty)
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            directory = NormalizePathForAdvisoryKey(Path.GetDirectoryName(path) ?? string.Empty);
             name = Path.GetFileNameWithoutExtension(path);
         }
         catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
@@ -684,12 +684,22 @@ public partial class MainWindowViewModel
             return false;
         }
 
-        if (!TryExtractDiscNumber(name, out _))
+        if (string.IsNullOrWhiteSpace(directory) || !TryExtractDiscNumber(name, out _))
         {
             return false;
         }
 
-        string normalizedTitle = NormalizeSiblingTitle(RemoveDiscToken(name));
+        string normalizedTitle;
+
+        try
+        {
+            normalizedTitle = NormalizeSiblingTitle(RemoveDiscToken(name));
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
+
         if (string.IsNullOrWhiteSpace(normalizedTitle))
         {
             return false;
@@ -706,10 +716,19 @@ public partial class MainWindowViewModel
     private static bool TryExtractDiscNumber(string value, out int discNumber)
     {
         discNumber = 0;
-        Match match = DiscNumberRegex().Match(value ?? string.Empty);
-        return match.Success
-            && int.TryParse(match.Groups["disc"].Value, out discNumber)
-            && discNumber > 0;
+
+        try
+        {
+            Match match = DiscNumberRegex().Match(value ?? string.Empty);
+            return match.Success
+                && int.TryParse(match.Groups["disc"].Value, out discNumber)
+                && discNumber > 0;
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            discNumber = 0;
+            return false;
+        }
     }
 
     private static string RemoveDiscToken(string value) =>
@@ -727,19 +746,26 @@ public partial class MainWindowViewModel
 
     [GeneratedRegex(
         @"(?:^|[\s._\-\(\[])(?:disc|disk|cd)[\s._\-]*(?<disc>\d{1,2})(?:\s*of\s*(?<total>\d{1,2}))?(?:[\s._\-\)\]]|$)",
-        RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.CultureInvariant)]
+        RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.CultureInvariant,
+        250)]
     private static partial Regex DiscNumberRegex();
 
     [GeneratedRegex(
         @"[\s._\-]+",
-        RegexOptions.CultureInvariant)]
+        RegexOptions.CultureInvariant,
+        250)]
     private static partial Regex SiblingSeparatorRegex();
 
     private static QueuePlatformView BuildQueuePlatformView(string path)
     {
         try
         {
-            PlatformDetectionResult detection = PlatformDetectionService.Detect(path);
+            if (!TryNormalizeExistingFilePathForIntake(path, out string safePath))
+            {
+                return new QueuePlatformView("Unknown Platform", string.Empty);
+            }
+
+            PlatformDetectionResult detection = PlatformDetectionService.Detect(safePath);
             if (PlatformDetectionService.IsActionablePlatformName(detection.PlatformName))
             {
                 return new QueuePlatformView(detection.PlatformName, detection.Reason);
@@ -754,12 +780,7 @@ public partial class MainWindowViewModel
 
     private static bool IsExistingQueueInputPath(string? path)
     {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return false;
-        }
-
-        return File.Exists(path);
+        return TryNormalizeExistingFilePathForIntake(path, out _);
     }
 
     private static string NormalizePathForAdvisoryKey(string path)
@@ -771,13 +792,24 @@ public partial class MainWindowViewModel
 
         try
         {
-            return Path.GetFullPath(path)
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            string fullPath = Path.GetFullPath(path.Trim());
+            string? root = Path.GetPathRoot(fullPath);
+
+            if (!string.IsNullOrWhiteSpace(root)
+                && fullPath.Length <= root.Length)
+            {
+                return root;
+            }
+
+            string trimmed = fullPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+                ? root
+                : trimmed;
         }
         catch (Exception ex) when (IsExpectedPathNormalizationException(ex))
         {
-            return path.Trim()
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return path.Trim();
         }
     }
 
@@ -785,8 +817,11 @@ public partial class MainWindowViewModel
     {
         return ex is ArgumentException
             or IOException
+            or UnauthorizedAccessException
+            or InvalidOperationException
             or NotSupportedException
-            or PathTooLongException;
+            or PathTooLongException
+            or System.Security.SecurityException;
     }
 
     private static string ResolveRequestedAction(string path, QueueExecutionProfile executionProfile)
@@ -878,6 +913,7 @@ public partial class MainWindowViewModel
             nextConsoleIdentity?.Trim(),
             StringComparison.OrdinalIgnoreCase);
     }
+
     private QueueRowData BuildRowFromPath(
         string path,
         string action,
@@ -914,13 +950,15 @@ public partial class MainWindowViewModel
             _ => MainWindowMessages.ReadyForProcessing
         };
 
+        string fileName = Path.GetFileName(path);
+
         return new QueueRowData
         {
             ItemId = Guid.NewGuid(),
             OriginalPath = path,
             SourcePath = path,
             InputType = ResolveInputTypeDisplay(path),
-            FileName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)),
+            FileName = string.IsNullOrWhiteSpace(fileName) ? path : fileName,
             DetectedPlatform = string.IsNullOrWhiteSpace(detectedPlatform)
                 ? "Unknown Platform"
                 : detectedPlatform,
@@ -940,7 +978,6 @@ public partial class MainWindowViewModel
 
     private static string ResolveInputTypeDisplay(string path)
     {
-
         string extension = Path.GetExtension(path).TrimStart('.').ToUpperInvariant();
         return string.IsNullOrWhiteSpace(extension) ? "FOLDER" : extension;
     }

@@ -179,7 +179,7 @@ public sealed class QueueViewportService : IDisposable
             ThrowIfDisposed();
 
             _pinCounts.TryGetValue(id, out int count);
-            _pinCounts[id] = count + 1;
+            _pinCounts[id] = count == int.MaxValue ? int.MaxValue : count + 1;
         }
     }
 

@@ -1,14 +1,16 @@
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.Features;
+using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using HakamiqChdTool.App.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -82,7 +84,12 @@ public partial class MainWindow
             return false;
         }
 
-        targetPath = item.LogPath;
+        if (!TryNormalizeExistingExplorerFile(item.LogPath, out string logPath))
+        {
+            return false;
+        }
+
+        targetPath = logPath;
         return true;
     }
 
@@ -129,9 +136,13 @@ public partial class MainWindow
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        return Task.FromResult(ChdLogicalProbeReportFormatter.TryBuildViewFromInfoLog(item.LogPath));
-    }
+        if (!TryNormalizeExistingExplorerFile(item.LogPath, out string logPath))
+        {
+            return Task.FromResult<ChdProbeReportView?>(null);
+        }
 
+        return Task.FromResult(ChdLogicalProbeReportFormatter.TryBuildViewFromInfoLog(logPath));
+    }
 
     private IReadOnlyList<string> ResolveQueueItemExplorerTargets(TaskQueueItemViewModel? item)
     {
@@ -195,64 +206,159 @@ public partial class MainWindow
             return;
         }
 
-        string fullPath;
+        if (TryAddExistingExplorerTarget(path, result, seen))
+        {
+            return;
+        }
+
+        if (!TryNormalizeExplorerCandidatePath(path, out string fullPath))
+        {
+            return;
+        }
+
+        string? parentDirectory;
 
         try
         {
-            fullPath = Path.GetFullPath(path.Trim());
+            parentDirectory = Path.GetDirectoryName(fullPath);
         }
-        catch (ArgumentException)
-        {
-            return;
-        }
-        catch (NotSupportedException)
-        {
-            return;
-        }
-        catch (PathTooLongException)
-        {
-            return;
-        }
-        catch (UnauthorizedAccessException)
+        catch (Exception ex) when (IsExpectedExplorerTargetPathException(ex))
         {
             return;
         }
 
-        if ((File.Exists(fullPath) || Directory.Exists(fullPath)) &&
-            seen.Add(fullPath))
-        {
-            result.Add(fullPath);
-            return;
-        }
-
-        string? parentDirectory = Path.GetDirectoryName(fullPath);
         if (string.IsNullOrWhiteSpace(parentDirectory))
         {
             return;
         }
 
+        _ = TryAddExistingExplorerDirectory(parentDirectory, result, seen);
+    }
+
+    private static bool TryAddExistingExplorerTarget(
+        string? path,
+        ICollection<string> result,
+        ISet<string> seen)
+    {
+        if (!TryNormalizeExistingExplorerTarget(path, out string normalizedPath, out _))
+        {
+            return false;
+        }
+
+        if (!seen.Add(normalizedPath))
+        {
+            return true;
+        }
+
+        result.Add(normalizedPath);
+        return true;
+    }
+
+    private static bool TryAddExistingExplorerDirectory(
+        string? path,
+        ICollection<string> result,
+        ISet<string> seen)
+    {
+        if (!TryNormalizeExistingExplorerTarget(path, out string normalizedPath, out FileAttributes attributes))
+        {
+            return false;
+        }
+
+        if ((attributes & FileAttributes.Directory) == 0)
+        {
+            return false;
+        }
+
+        if (!seen.Add(normalizedPath))
+        {
+            return true;
+        }
+
+        result.Add(normalizedPath);
+        return true;
+    }
+
+    private static bool TryNormalizeExistingExplorerFile(
+        string? path,
+        out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (!TryNormalizeExistingExplorerTarget(path, out string candidate, out FileAttributes attributes))
+        {
+            return false;
+        }
+
+        if ((attributes & FileAttributes.Directory) != 0)
+        {
+            return false;
+        }
+
+        normalizedPath = candidate;
+        return true;
+    }
+
+    private static bool TryNormalizeExistingExplorerTarget(
+        string? path,
+        out string normalizedPath,
+        out FileAttributes attributes)
+    {
+        normalizedPath = string.Empty;
+        attributes = default;
+
+        if (!TryNormalizeExplorerCandidatePath(path, out string fullPath))
+        {
+            return false;
+        }
+
         try
         {
-            string fullParentDirectory = Path.GetFullPath(parentDirectory);
-
-            if (Directory.Exists(fullParentDirectory) &&
-                seen.Add(fullParentDirectory))
+            attributes = File.GetAttributes(fullPath);
+            if ((attributes & FileAttributes.ReparsePoint) != 0)
             {
-                result.Add(fullParentDirectory);
+                return false;
             }
+
+            normalizedPath = fullPath;
+            return true;
         }
-        catch (ArgumentException)
+        catch (Exception ex) when (IsExpectedExplorerTargetPathException(ex))
         {
+            return false;
         }
-        catch (NotSupportedException)
+    }
+
+    private static bool TryNormalizeExplorerCandidatePath(
+        string? path,
+        out string normalizedPath)
+    {
+        normalizedPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(path))
         {
+            return false;
         }
-        catch (PathTooLongException)
+
+        try
         {
+            string fullPath = Path.GetFullPath(path.Trim());
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+            normalizedPath = fullPath;
+            return true;
         }
-        catch (UnauthorizedAccessException)
+        catch (Exception ex) when (IsExpectedExplorerTargetPathException(ex))
         {
+            return false;
         }
+    }
+
+    private static bool IsExpectedExplorerTargetPathException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException
+            or SecurityException;
     }
 
     internal void RemoveQueueItemFromSession(TaskQueueItemViewModel? item)

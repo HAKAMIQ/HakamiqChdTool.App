@@ -117,7 +117,7 @@
                                       MinimizeRequested="MainHeader_MinimizeRequested"
                                       MaximizeRestoreRequested="MainHeader_MaximizeRestoreRequested"
                                       CloseRequested="MainHeader_CloseRequested"
-                    LanguageToggleRequested="MainHeader_LanguageToggleRequested" />
+                                      LanguageToggleRequested="MainHeader_LanguageToggleRequested" />
 
             <Grid Grid.Row="1"
                   Panel.ZIndex="10"

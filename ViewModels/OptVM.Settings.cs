@@ -158,6 +158,7 @@ public sealed partial class OptionsViewModel
 
         return result;
     }
+
     public void AcceptAppliedSettings(AppSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings);

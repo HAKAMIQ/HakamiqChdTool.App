@@ -110,15 +110,13 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
                     throw new InvalidDataException(UnsafeZipEntryMessageKey);
                 }
 
-                File.Copy(payloadPath, directTargetPath, overwrite: true);
+                EnsureSafeProcessTempFileTarget(directTargetPath);
+                File.Copy(payloadPath, directTargetPath, overwrite: false);
             }
 
             List<string> datFiles =
             [
-                .. Directory
-                    .EnumerateFiles(extractPath, "*.dat", SearchOption.AllDirectories)
-                    .Concat(Directory.EnumerateFiles(extractPath, "*.xml", SearchOption.AllDirectories))
-                    .Where(AppPaths.IsPathUnderProcessTempRoot)
+                .. EnumerateDatXmlFilesSafely(extractPath, cancellationToken)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase)
             ];
@@ -186,10 +184,7 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
         CancellationToken cancellationToken)
     {
         string fullDestinationPath = Path.GetFullPath(destinationPath);
-        if (!AppPaths.IsPathUnderProcessTempRoot(fullDestinationPath))
-        {
-            throw new InvalidDataException(UnsafeZipEntryMessageKey);
-        }
+        EnsureSafeProcessTempFileTarget(fullDestinationPath);
 
         using HttpResponseMessage response = await _httpClient.GetAsync(
             url,
@@ -220,7 +215,7 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
         {
             await output.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
 
-            readTotal += read;
+            readTotal = SaturatingAdd(readTotal, read);
             if (totalBytes > 0)
             {
                 double percent = 5d + (readTotal / (double)totalBytes) * 45d;
@@ -238,10 +233,10 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
         string destinationDirectory,
         CancellationToken cancellationToken)
     {
+        EnsureSafeProcessTempFileForRead(zipPath);
+
         string destinationRoot = Path.GetFullPath(destinationDirectory);
         EnsureSafeProcessTempDirectory(destinationRoot);
-
-        string root = EnsureTrailingSeparator(destinationRoot);
 
         using ZipArchive archive = ZipFile.OpenRead(zipPath);
 
@@ -260,9 +255,9 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
                 throw new InvalidDataException(UnsafeZipEntryMessageKey);
             }
 
-            string targetPath = Path.GetFullPath(Path.Combine(root, entryName));
+            string targetPath = Path.GetFullPath(Path.Combine(destinationRoot, entryName));
 
-            if (!IsUnderDirectory(root, targetPath))
+            if (!IsUnderDirectory(destinationRoot, targetPath))
             {
                 throw new InvalidDataException(UnsafeZipEntryMessageKey);
             }
@@ -273,23 +268,112 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
                 continue;
             }
 
-            string? targetDirectory = Path.GetDirectoryName(targetPath);
-            if (!string.IsNullOrWhiteSpace(targetDirectory))
+            EnsureSafeProcessTempFileTarget(targetPath);
+            CopyZipEntryToFile(entry, targetPath, cancellationToken);
+        }
+    }
+
+    private static void CopyZipEntryToFile(
+        ZipArchiveEntry entry,
+        string targetPath,
+        CancellationToken cancellationToken)
+    {
+        byte[] buffer = new byte[64 * 1024];
+
+        using Stream input = entry.Open();
+        using FileStream output = new(
+            targetPath,
+            FileMode.CreateNew,
+            FileAccess.Write,
+            FileShare.None,
+            bufferSize: 64 * 1024,
+            FileOptions.SequentialScan);
+
+        int read;
+        while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            output.Write(buffer, 0, read);
+        }
+    }
+
+    private static IEnumerable<string> EnumerateDatXmlFilesSafely(
+        string rootPath,
+        CancellationToken cancellationToken)
+    {
+        string root = Path.GetFullPath(rootPath);
+        EnsureSafeProcessTempDirectory(root);
+
+        Stack<string> pending = new();
+        pending.Push(root);
+
+        while (pending.Count > 0)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            string currentDirectory = pending.Pop();
+            if (!IsUnderDirectory(root, currentDirectory) || HasReparsePointInExistingPathFromVolumeRoot(currentDirectory))
             {
-                EnsureSafeProcessTempDirectory(targetDirectory);
+                continue;
             }
 
-            entry.ExtractToFile(targetPath, overwrite: true);
-
-            if (!AppPaths.IsPathUnderProcessTempRoot(targetPath))
+            string[] files;
+            try
             {
-                throw new InvalidDataException(UnsafeZipEntryMessageKey);
+                files = Directory.GetFiles(currentDirectory, "*", SearchOption.TopDirectoryOnly);
+            }
+            catch (Exception ex) when (IsExpectedSyncException(ex))
+            {
+                continue;
+            }
+
+            foreach (string file in files)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!IsUnderDirectory(root, file)
+                    || HasReparsePointInExistingPathFromVolumeRoot(file)
+                    || !AppPaths.IsPathUnderProcessTempRoot(file))
+                {
+                    continue;
+                }
+
+                string extension = Path.GetExtension(file);
+                if (extension.Equals(".dat", StringComparison.OrdinalIgnoreCase)
+                    || extension.Equals(".xml", StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return Path.GetFullPath(file);
+                }
+            }
+
+            string[] directories;
+            try
+            {
+                directories = Directory.GetDirectories(currentDirectory, "*", SearchOption.TopDirectoryOnly);
+            }
+            catch (Exception ex) when (IsExpectedSyncException(ex))
+            {
+                continue;
+            }
+
+            foreach (string directory in directories)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (IsUnderDirectory(root, directory)
+                    && !HasReparsePointInExistingPathFromVolumeRoot(directory)
+                    && AppPaths.IsPathUnderProcessTempRoot(directory))
+                {
+                    pending.Push(directory);
+                }
             }
         }
     }
 
     private static bool LooksLikeZip(string filePath)
     {
+        EnsureSafeProcessTempFileForRead(filePath);
+
         Span<byte> header = stackalloc byte[4];
 
         using FileStream stream = new(
@@ -370,10 +454,7 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
                 return;
             }
 
-            if (Directory.Exists(fullWorkRoot))
-            {
-                Directory.Delete(fullWorkRoot, recursive: true);
-            }
+            DeleteDirectoryTreeWithoutFollowingReparse(fullWorkRoot);
         }
         catch (Exception ex) when (IsExpectedCleanupException(ex))
         {
@@ -381,36 +462,194 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
         }
     }
 
+    private static void DeleteDirectoryTreeWithoutFollowingReparse(string directoryPath)
+    {
+        if (!Directory.Exists(directoryPath))
+        {
+            return;
+        }
+
+        if (IsReparsePoint(directoryPath))
+        {
+            Directory.Delete(directoryPath);
+            return;
+        }
+
+        foreach (string file in Directory.GetFiles(directoryPath, "*", SearchOption.TopDirectoryOnly))
+        {
+            File.Delete(file);
+        }
+
+        foreach (string directory in Directory.GetDirectories(directoryPath, "*", SearchOption.TopDirectoryOnly))
+        {
+            if (IsReparsePoint(directory))
+            {
+                Directory.Delete(directory);
+                continue;
+            }
+
+            DeleteDirectoryTreeWithoutFollowingReparse(directory);
+        }
+
+        Directory.Delete(directoryPath);
+    }
+
     private static void EnsureSafeProcessTempDirectory(string path)
     {
         string fullPath = Path.GetFullPath(path);
+
+        if (!AppPaths.IsPathUnderProcessTempRoot(fullPath)
+            || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+        {
+            throw new InvalidDataException(UnsafeZipEntryMessageKey);
+        }
+
         Directory.CreateDirectory(fullPath);
 
-        if (!Directory.Exists(fullPath) || !AppPaths.IsPathUnderProcessTempRoot(fullPath))
+        if (!Directory.Exists(fullPath)
+            || !AppPaths.IsPathUnderProcessTempRoot(fullPath)
+            || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
         {
             throw new InvalidDataException(UnsafeZipEntryMessageKey);
         }
     }
 
-    private static bool IsUnderDirectory(string baseDirectory, string candidate)
+    private static void EnsureSafeProcessTempFileTarget(string path)
     {
-        string root = EnsureTrailingSeparator(Path.GetFullPath(baseDirectory));
-        string path = Path.GetFullPath(candidate);
+        string fullPath = Path.GetFullPath(path);
 
-        return path.StartsWith(root, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string EnsureTrailingSeparator(string path)
-    {
-        if (string.IsNullOrEmpty(path))
+        if (!AppPaths.IsPathUnderProcessTempRoot(fullPath)
+            || HasReparsePointInExistingPathFromVolumeRoot(fullPath)
+            || File.Exists(fullPath)
+            || Directory.Exists(fullPath))
         {
-            return path;
+            throw new InvalidDataException(UnsafeZipEntryMessageKey);
         }
 
-        char last = path[^1];
-        return last == Path.DirectorySeparatorChar || last == Path.AltDirectorySeparatorChar
+        string? directory = Path.GetDirectoryName(fullPath);
+        if (string.IsNullOrWhiteSpace(directory))
+        {
+            throw new InvalidDataException(UnsafeZipEntryMessageKey);
+        }
+
+        EnsureSafeProcessTempDirectory(directory);
+    }
+
+    private static void EnsureSafeProcessTempFileForRead(string path)
+    {
+        string fullPath = Path.GetFullPath(path);
+
+        if (!File.Exists(fullPath)
+            || !AppPaths.IsPathUnderProcessTempRoot(fullPath)
+            || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+        {
+            throw new InvalidDataException(UnsafeZipEntryMessageKey);
+        }
+    }
+
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string? root = Path.GetPathRoot(candidate);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            string current = candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current)) && IsReparsePoint(current))
+                {
+                    return true;
+                }
+
+                if (PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedSyncException(ex) || IsExpectedCleanupException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsReparsePoint(string path)
+    {
+        try
+        {
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedSyncException(ex) || IsExpectedCleanupException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsUnderDirectory(string baseDirectory, string candidate)
+    {
+        string root = TrimDirectorySeparators(Path.GetFullPath(baseDirectory));
+        string path = TrimDirectorySeparators(Path.GetFullPath(candidate));
+
+        return string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool PathsEqual(string left, string right)
+    {
+        return string.Equals(
+            TrimDirectorySeparators(Path.GetFullPath(left)),
+            TrimDirectorySeparators(Path.GetFullPath(right)),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string EnsureDirectorySeparatorSuffix(string path)
+    {
+        return path.EndsWith(Path.DirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
             ? path
             : path + Path.DirectorySeparatorChar;
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
+    }
+
+    private static long SaturatingAdd(long left, long right)
+    {
+        if (right > 0 && left > long.MaxValue - right)
+        {
+            return long.MaxValue;
+        }
+
+        return left + right;
     }
 
     private static RedumpGitHubSyncResult Failure(
@@ -431,11 +670,15 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
         or InvalidDataException
         or NotSupportedException
         or ArgumentException
-        or UriFormatException;
+        or UriFormatException
+        or PathTooLongException
+        or System.Security.SecurityException;
 
     private static bool IsExpectedCleanupException(Exception ex) =>
         ex is IOException
         or UnauthorizedAccessException
         or NotSupportedException
-        or ArgumentException;
+        or ArgumentException
+        or PathTooLongException
+        or System.Security.SecurityException;
 }

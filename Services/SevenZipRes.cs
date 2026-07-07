@@ -1,3 +1,5 @@
+using System;
+
 namespace HakamiqChdTool.App.Services;
 
 public sealed class SevenZipProcessResult

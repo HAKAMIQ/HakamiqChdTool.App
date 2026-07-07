@@ -1,9 +1,12 @@
 using Microsoft.Data.Sqlite;
 using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace HakamiqChdTool.App.Services;
@@ -253,8 +256,7 @@ public sealed class RedumpSqliteManager
 
         RedumpLocalLibraryDatEntry[] importableEntries = entries
             .Where(entry => entry.IsSelected)
-            .Where(entry => !string.IsNullOrWhiteSpace(entry.FilePath))
-            .Where(entry => File.Exists(entry.FilePath))
+            .Where(entry => TryNormalizeReadableDatPath(entry.FilePath, out _))
             .ToArray();
 
         if (importableEntries.Length == 0)
@@ -297,14 +299,19 @@ public sealed class RedumpSqliteManager
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
+                        if (!TryNormalizeReadableDatPath(entry.FilePath, out string fullDatPath))
+                        {
+                            continue;
+                        }
+
                         string systemName = NormalizeRedumpSystemName(FirstNonEmpty(
                             entry.Name,
                             entry.Description,
-                            Path.GetFileNameWithoutExtension(entry.FilePath)));
-                        systemName = ResolveSystemNameFromDatHeader(entry.FilePath, systemName, cancellationToken);
+                            Path.GetFileNameWithoutExtension(fullDatPath)));
+                        systemName = ResolveSystemNameFromDatHeader(fullDatPath, systemName, cancellationToken);
 
                         int inserted = ImportRows(
-                            entry.FilePath,
+                            fullDatPath,
                             systemName,
                             insert,
                             pSystem,
@@ -355,23 +362,7 @@ public sealed class RedumpSqliteManager
         IProgress<RedumpImportProgress>? progress,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(datFilePath))
-        {
-            return new RedumpImportResult(false, FileNotFoundMessageKey, 0);
-        }
-
-        string fullDatPath;
-        try
-        {
-            fullDatPath = Path.GetFullPath(datFilePath);
-        }
-        catch (Exception ex) when (IsExpectedPathException(ex))
-        {
-            Logger.Debug(ex, "Redump DAT import rejected an invalid path. Path={Path}", datFilePath);
-            return new RedumpImportResult(false, FileNotFoundMessageKey, 0);
-        }
-
-        if (!File.Exists(fullDatPath))
+        if (!TryNormalizeReadableDatPath(datFilePath, out string fullDatPath))
         {
             return new RedumpImportResult(false, FileNotFoundMessageKey, 0);
         }
@@ -466,12 +457,15 @@ public sealed class RedumpSqliteManager
         IProgress<RedumpImportProgress>? progress,
         CancellationToken cancellationToken)
     {
+        ValidateReadableDatPath(datFilePath);
+
         var settings = new XmlReaderSettings
         {
             IgnoreComments = true,
             IgnoreWhitespace = true,
             DtdProcessing = DtdProcessing.Ignore,
-            XmlResolver = null
+            XmlResolver = null,
+            MaxCharactersFromEntities = 1024
         };
 
         int inserted = 0;
@@ -604,6 +598,8 @@ public sealed class RedumpSqliteManager
     {
         try
         {
+            ValidateReadableDatPath(datFilePath);
+
             var settings = new XmlReaderSettings
             {
                 IgnoreComments = true,
@@ -1079,6 +1075,40 @@ public sealed class RedumpSqliteManager
         return normalized;
     }
 
+    private static bool TryNormalizeReadableDatPath(string? datFilePath, out string fullDatPath)
+    {
+        fullDatPath = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(datFilePath))
+        {
+            return false;
+        }
+
+        try
+        {
+            fullDatPath = Path.GetFullPath(datFilePath.Trim());
+            ValidateReadableDatPath(fullDatPath);
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedImportException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static void ValidateReadableDatPath(string datFilePath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(datFilePath);
+
+        string fullPath = Path.GetFullPath(datFilePath);
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException(FileNotFoundMessageKey, fullPath);
+        }
+
+        ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(datFilePath));
+    }
+
     private static void RollbackSafely(SqliteTransaction transaction, string systemName)
     {
         try
@@ -1094,7 +1124,8 @@ public sealed class RedumpSqliteManager
     private static bool IsExpectedPathException(Exception ex) =>
         ex is ArgumentException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or System.Security.SecurityException;
 
     private static bool IsExpectedImportException(Exception ex) =>
         ex is IOException
@@ -1103,5 +1134,6 @@ public sealed class RedumpSqliteManager
         or NotSupportedException
         or ArgumentException
         or XmlException
-        or SqliteException;
+        or SqliteException
+        or System.Security.SecurityException;
 }

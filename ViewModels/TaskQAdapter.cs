@@ -193,7 +193,7 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
 
         MutateNonTerminal(row =>
         {
-            row.CleanupDeletedBytes += deltaBytes;
+            row.CleanupDeletedBytes = SaturatingAdd(row.CleanupDeletedBytes, deltaBytes);
         });
     }
 
@@ -208,8 +208,8 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
 
         MutateNonTerminal(row =>
         {
-            row.SbiCopiedCount += Math.Max(0, result.SbiCopiedCount);
-            row.PostProcessingFailureCount += Math.Max(0, result.FailedArtifactCount);
+            row.SbiCopiedCount = SaturatingAdd(row.SbiCopiedCount, Math.Max(0, result.SbiCopiedCount));
+            row.PostProcessingFailureCount = SaturatingAdd(row.PostProcessingFailureCount, Math.Max(0, result.FailedArtifactCount));
         });
     }
 
@@ -290,5 +290,29 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
     {
         ArgumentNullException.ThrowIfNull(rowPatch);
         _rowStore.Mutate(_recordId, rowPatch);
+    }
+
+    private static long SaturatingAdd(long left, long right)
+    {
+        if (right <= 0)
+        {
+            return left;
+        }
+
+        return left > long.MaxValue - right
+            ? long.MaxValue
+            : left + right;
+    }
+
+    private static int SaturatingAdd(int left, int right)
+    {
+        if (right <= 0)
+        {
+            return left;
+        }
+
+        return left > int.MaxValue - right
+            ? int.MaxValue
+            : left + right;
     }
 }

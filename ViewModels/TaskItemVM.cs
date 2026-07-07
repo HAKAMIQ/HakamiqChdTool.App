@@ -99,13 +99,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
     public bool HasActiveQueueBinding
     {
         get => _hasActiveQueueBinding;
-        set
-        {
-            if (SetField(ref _hasActiveQueueBinding, value))
-            {
-                OnPropertyChanged(nameof(HasActiveQueueBinding));
-            }
-        }
+        set => SetField(ref _hasActiveQueueBinding, value);
     }
 
     public string OriginalPath
@@ -158,7 +152,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
         }
     }
 
-    public bool IsDirectChd => string.Equals(Path.GetExtension(SourcePath), ".chd", StringComparison.OrdinalIgnoreCase);
+    public bool IsDirectChd => string.Equals(GetSafeExtension(SourcePath), ".chd", StringComparison.OrdinalIgnoreCase);
 
     public string OutputPath
     {
@@ -175,12 +169,35 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
         }
     }
 
-    public string OutputDisplay => string.IsNullOrWhiteSpace(OutputPath) ? "-" : Path.GetFileName(OutputPath);
+    public string OutputDisplay
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(OutputPath))
+            {
+                return "-";
+            }
 
-    public string OutputPathColumnDisplay =>
-        string.IsNullOrWhiteSpace(OutputPath)
-            ? string.Empty
-            : "\u2066" + Path.GetFileName(OutputPath.Trim()) + "\u2069";
+            string fileName = GetSafeFileName(OutputPath);
+            return string.IsNullOrWhiteSpace(fileName) ? "-" : fileName;
+        }
+    }
+
+    public string OutputPathColumnDisplay
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(OutputPath))
+            {
+                return string.Empty;
+            }
+
+            string fileName = GetSafeFileName(OutputPath);
+            return string.IsNullOrWhiteSpace(fileName)
+                ? string.Empty
+                : "\u2066" + fileName + "\u2069";
+        }
+    }
 
     public string OutputPathColumnTooltip =>
         string.IsNullOrWhiteSpace(OutputPath) ? string.Empty : OutputPath;
@@ -212,7 +229,19 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
         }
     }
 
-    public string LogPathDisplay => string.IsNullOrWhiteSpace(LogPath) ? "-" : Path.GetFileName(LogPath);
+    public string LogPathDisplay
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(LogPath))
+            {
+                return "-";
+            }
+
+            string fileName = GetSafeFileName(LogPath);
+            return string.IsNullOrWhiteSpace(fileName) ? "-" : fileName;
+        }
+    }
 
     public bool HasLogPath => !string.IsNullOrWhiteSpace(LogPath);
 
@@ -322,7 +351,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
                 return "-";
             }
 
-            string noExtension = Path.GetFileNameWithoutExtension(FileName);
+            string noExtension = GetSafeFileNameWithoutExtension(FileName);
             return string.IsNullOrEmpty(noExtension) ? FileName : noExtension;
         }
     }
@@ -404,6 +433,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
         OnPropertyChanged(nameof(HasPlatformBadge));
         OnPropertyChanged(nameof(PlatformBadgeDisplay));
     }
+
     public string PlatformDisplayText
     {
         get
@@ -474,7 +504,13 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
             }
 
             string path = SourcePath;
-            return string.IsNullOrWhiteSpace(path) ? "-" : Path.GetFileName(path);
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return "-";
+            }
+
+            string fileName = GetSafeFileName(path);
+            return string.IsNullOrWhiteSpace(fileName) ? "-" : fileName;
         }
     }
 
@@ -497,7 +533,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
                 return "-";
             }
 
-            string extension = Path.GetExtension(path);
+            string extension = GetSafeExtension(path);
             return string.IsNullOrEmpty(extension) ? "-" : extension.ToLowerInvariant();
         }
     }
@@ -1115,6 +1151,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
 
         return false;
     }
+
     private string ResolvePlatformDisplaySource()
     {
         string detected = DetectedPlatform.Trim();
@@ -1142,6 +1179,7 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
 
         return DetectionReason;
     }
+
     private bool IsRawConflictBadge(string value, string reason)
     {
         return value.Contains("تعارض RAW", StringComparison.OrdinalIgnoreCase)
@@ -1215,6 +1253,67 @@ public sealed partial class TaskQueueItemViewModel : INotifyPropertyChanged, IDi
         field = value;
         OnPropertyChanged(propertyName);
         return true;
+    }
+
+    private static string GetSafeFileName(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return Path.GetFileName(path.Trim()) ?? string.Empty;
+        }
+        catch (Exception ex) when (IsExpectedDisplayPathException(ex))
+        {
+            return string.Empty;
+        }
+    }
+
+    private static string GetSafeFileNameWithoutExtension(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return Path.GetFileNameWithoutExtension(path.Trim()) ?? string.Empty;
+        }
+        catch (Exception ex) when (IsExpectedDisplayPathException(ex))
+        {
+            return string.Empty;
+        }
+    }
+
+    private static string GetSafeExtension(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            return Path.GetExtension(path.Trim()) ?? string.Empty;
+        }
+        catch (Exception ex) when (IsExpectedDisplayPathException(ex))
+        {
+            return string.Empty;
+        }
+    }
+
+    private static bool IsExpectedDisplayPathException(Exception ex)
+    {
+        return ex is ArgumentException
+            or IOException
+            or InvalidOperationException
+            or NotSupportedException
+            or PathTooLongException
+            or System.Security.SecurityException;
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

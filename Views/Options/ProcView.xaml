@@ -37,16 +37,9 @@
 
                         <Grid Grid.Row="0"
                               Style="{StaticResource Win11SettingsSectionHeader}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0"
-                                       Style="{StaticResource Win11SettingsSectionTitleText}"
+                            <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
                                        Text="{DynamicResource LocProcessing_VerifyOutputSection}"
                                        ToolTip="{DynamicResource LocProcessing_VerifyOutputDesc}" />
-
                         </Grid>
 
                         <Border Grid.Row="1"
@@ -60,16 +53,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_IncludeSubfolders}"
                                                ToolTip="{DynamicResource LocPaths_IncludeSubfoldersDesc}" />
-
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -91,16 +77,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_VerifyAfterConversion}"
                                                ToolTip="{DynamicResource LocProcessing_VerifyAfterConversionDesc}" />
-
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -122,16 +101,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_SkipExistingOutput}"
                                                ToolTip="{DynamicResource LocProcessing_SkipExistingOutputDesc}" />
-
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -153,16 +125,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_CopyMatchingSbi}"
                                                ToolTip="{DynamicResource LocProcessing_CopyMatchingSbiDesc}" />
-
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -185,16 +150,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_AutoM3uGeneration}"
                                                ToolTip="{DynamicResource LocProcessing_AutoM3uGenerationDesc}" />
-
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -223,16 +181,9 @@
 
                         <Grid Grid.Row="0"
                               Style="{StaticResource Win11SettingsSectionHeader}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0"
-                                       Style="{StaticResource Win11SettingsSectionTitleText}"
+                            <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
                                        Text="{DynamicResource LocProcessing_CleanupSection}"
                                        ToolTip="{DynamicResource LocProcessing_CleanupDesc}" />
-
                         </Grid>
 
                         <Border Grid.Row="1"
@@ -246,16 +197,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversion}"
                                                ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversionDesc}" />
-
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -277,16 +221,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtraction}"
                                                ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtractionDesc}" />
-
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -308,16 +245,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_DeleteTemporaryExtraction}"
                                                ToolTip="{DynamicResource LocProcessing_DeleteTemporaryExtractionDesc}" />
-
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -339,16 +269,9 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_DeleteFailedOutput}"
                                                ToolTip="{DynamicResource LocProcessing_DeleteFailedOutputDesc}" />
-
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"

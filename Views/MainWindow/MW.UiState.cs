@@ -1,21 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Windows;
-using System.Windows.Shell;
-using System.Windows.Threading;
-
+using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.M3u;
+using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using Serilog;
-
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Windows.Threading;
 using IoPath = System.IO.Path;
 
 namespace HakamiqChdTool.App;
@@ -23,7 +22,6 @@ namespace HakamiqChdTool.App;
 public partial class MainWindow
 {
     private const string ExecutionLogTimestampFormat = "HH:mm:ss";
-    private const char LeftToRightMark = '\u200E';
 
     private void AppendExecutionLog(string message)
     {
@@ -32,7 +30,10 @@ public partial class MainWindow
             return;
         }
 
-        if (_shutdownStarted || _shutdownCompleted || Dispatcher.HasShutdownStarted)
+        if (_shutdownStarted ||
+            _shutdownCompleted ||
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
             return;
         }
@@ -80,7 +81,10 @@ public partial class MainWindow
 
     private void RequestUiStateRefresh()
     {
-        if (_shutdownStarted || _shutdownCompleted || Dispatcher.HasShutdownStarted)
+        if (_shutdownStarted ||
+            _shutdownCompleted ||
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
             return;
         }
@@ -97,7 +101,10 @@ public partial class MainWindow
                 {
                     Interlocked.Exchange(ref _pendingUiStateRefresh, 0);
 
-                    if (_shutdownStarted || _shutdownCompleted || Dispatcher.HasShutdownStarted)
+                    if (_shutdownStarted ||
+                        _shutdownCompleted ||
+                        Dispatcher.HasShutdownStarted ||
+                        Dispatcher.HasShutdownFinished)
                     {
                         return;
                     }
@@ -138,7 +145,10 @@ public partial class MainWindow
 
     private void UpdateUiState()
     {
-        if (_shutdownStarted || _shutdownCompleted || Dispatcher.HasShutdownStarted)
+        if (_shutdownStarted ||
+            _shutdownCompleted ||
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
             return;
         }
@@ -171,7 +181,10 @@ public partial class MainWindow
 
     private void UpdateUiStateCore()
     {
-        if (_shutdownStarted || _shutdownCompleted || Dispatcher.HasShutdownStarted)
+        if (_shutdownStarted ||
+            _shutdownCompleted ||
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
             return;
         }
@@ -195,7 +208,10 @@ public partial class MainWindow
 
     private void ResetRunSummary()
     {
-        if (_shutdownStarted || _shutdownCompleted || Dispatcher.HasShutdownStarted)
+        if (_shutdownStarted ||
+            _shutdownCompleted ||
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
             return;
         }
@@ -226,7 +242,10 @@ public partial class MainWindow
         bool processedSelectionOnly,
         PostConversionArtifactResult runArtifacts)
     {
-        if (_shutdownStarted || _shutdownCompleted || Dispatcher.HasShutdownStarted)
+        if (_shutdownStarted ||
+            _shutdownCompleted ||
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
             return;
         }
@@ -309,7 +328,7 @@ public partial class MainWindow
             IsFailed: currentState is TaskQueueStateCodes.Failed or TaskQueueStateCodes.PasswordRequired,
             IsSkipped: currentState == TaskQueueStateCodes.Skipped,
             IsCancelled: currentState == TaskQueueStateCodes.Cancelled,
-            IsReverseSupported: IsChdPath(row.SourcePath),
+            IsReverseSupported: IsSummaryChdPath(row.SourcePath),
             IsDirectSupported: IsDirectSupportedInputType(row.InputType),
             IsRedumpMatched: row.IntegrityState == IntegrityValidationState.Verified,
             DeletedBytes: row.CleanupDeletedBytes,
@@ -322,12 +341,24 @@ public partial class MainWindow
             StatusDetail: NormalizeSummaryText(row.StatusDetail));
     }
 
-    private static bool IsChdPath(string? path)
+    private static bool IsSummaryChdPath(string? path)
     {
-        return string.Equals(
-            IoPath.GetExtension(path),
-            ".chd",
-            StringComparison.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            return string.Equals(
+                IoPath.GetExtension(path.Trim()),
+                ".chd",
+                StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex) when (IsExpectedSummaryPathException(ex))
+        {
+            return false;
+        }
     }
 
     private static bool IsDirectSupportedInputType(string? inputType)
@@ -346,5 +377,13 @@ public partial class MainWindow
         return string.IsNullOrWhiteSpace(value)
             ? string.Empty
             : value.Trim();
+    }
+
+    private static bool IsExpectedSummaryPathException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException;
     }
 }

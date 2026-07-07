@@ -1,35 +1,25 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Ui.Queue;
-using HakamiqChdTool.App.Ui.Shell;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Features;
+using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
-
     private const string RedumpApplyNameTitleKey = "LocRedump_ApplyNameTitle";
-
     private const string RedumpApplyNameCancelledFooterKey = "LocRedump_ApplyNameCancelledFooter";
-
     private const string RedumpApplyNameFailedFooterKey = "LocRedump_ApplyNameFailedFooter";
-
     private const string RedumpApplyNameNoApplicableFooterKey = "LocRedump_NoApplicableNameFooter";
-
     private const string RedumpApplyNameConfirmQuestionKey = "LocRedump_ConfirmRenameQuestion";
-
     private const string RedumpApplyNameSuccessFooterKey = "LocRedump_ApplyNameSuccessFooter";
-
     private const string RedumpApplyNameConfirmTextKey = "LocRedumpDetails_ApplyName";
-
 
     public bool CanApplyRedumpSuggestedName(TaskQueueItemViewModel? item)
     {
@@ -45,7 +35,6 @@ public partial class MainWindow
 
         return RedumpNameService.Evaluate(item).IsApplicable;
     }
-
 
     public async Task ApplyRedumpSuggestedNameAsync(TaskQueueItemViewModel? item)
     {
@@ -136,7 +125,7 @@ public partial class MainWindow
 
             ApplyPathResetAndSync(item, result.NewPath);
             item.SetIntegrityView(integrityState, integrityStatus, integrityTooltip);
-            item.SuggestedStandardName = Path.GetFileName(result.NewPath);
+            item.SuggestedStandardName = GetSafeAppliedRedumpFileName(result.NewPath, namingSuggestion.SafeFileName);
             item.IsNamingCompliant = true;
 
             SyncRowFromViewModel(item);
@@ -157,7 +146,6 @@ public partial class MainWindow
         }
     }
 
-
     private void ShowRedumpNamingUnavailable(RedumpNameSuggestion namingSuggestion)
     {
         string error = string.IsNullOrWhiteSpace(namingSuggestion.ErrorMessageKey)
@@ -166,5 +154,22 @@ public partial class MainWindow
 
         SetFooterStatus(Ui(RedumpApplyNameNoApplicableFooterKey));
         ShowRedumpNotice(RedumpApplyNameTitleKey, error);
+    }
+
+    private static string GetSafeAppliedRedumpFileName(
+        string path,
+        string fallbackFileName)
+    {
+        try
+        {
+            string fileName = Path.GetFileName(path);
+            return string.IsNullOrWhiteSpace(fileName)
+                ? fallbackFileName
+                : fileName;
+        }
+        catch (Exception ex) when (IsExpectedRedumpRuntimeException(ex))
+        {
+            return fallbackFileName;
+        }
     }
 }

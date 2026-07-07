@@ -1,6 +1,8 @@
 using HakamiqChdTool.App.Core.Disc;
 using HakamiqChdTool.App.Models;
 using DiscUtils.Iso9660;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -80,17 +82,33 @@ internal static class DiscMetadataProbe
     {
         result = DiscMetadataProbeResult.Empty;
 
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        if (string.IsNullOrWhiteSpace(path))
         {
             return false;
         }
 
-        string extension = Path.GetExtension(path).ToLowerInvariant();
+        string fullPath;
+        try
+        {
+            fullPath = Path.GetFullPath(path.Trim());
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+        }
+        catch (Exception ex) when (IsExpectedReadException(ex))
+        {
+            return false;
+        }
+
+        if (!File.Exists(fullPath))
+        {
+            return false;
+        }
+
+        string extension = Path.GetExtension(fullPath).ToLowerInvariant();
         return extension switch
         {
-            ".iso" or ".img" or ".raw" or ".bin" => TryProbeIsoLike(path, out result),
-            ".cue" => TryProbeCue(path, out result),
-            ".gdi" => TryProbeTextDescriptor(path, "SEGA Dreamcast", GdiDescriptorSerialReasonKey, out result),
+            ".iso" or ".img" or ".raw" or ".bin" => TryProbeIsoLike(fullPath, out result),
+            ".cue" => TryProbeCue(fullPath, out result),
+            ".gdi" => TryProbeTextDescriptor(fullPath, "SEGA Dreamcast", GdiDescriptorSerialReasonKey, out result),
             _ => false
         };
     }
@@ -101,6 +119,8 @@ internal static class DiscMetadataProbe
 
         try
         {
+            ValidateProbeFilePath(cuePath);
+
             string text = ReadSmallTextFile(cuePath);
             if (TryBuildFromSerialText(text, "Sony PlayStation", CueDescriptorSerialReasonKey, 82, out result))
             {
@@ -134,6 +154,8 @@ internal static class DiscMetadataProbe
 
         try
         {
+            ValidateProbeFilePath(path);
+
             string text = ReadSmallTextFile(path);
             return TryBuildFromSerialText(text, fallbackPlatform, reasonKey, 76, out result);
         }
@@ -149,6 +171,8 @@ internal static class DiscMetadataProbe
 
         try
         {
+            ValidateProbeFilePath(path);
+
             using (FileStream raw = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
             {
                 if (TryProbeNintendoGameId(raw, out result))
@@ -299,6 +323,8 @@ internal static class DiscMetadataProbe
     {
         try
         {
+            ValidateProbeFilePath(isoPath);
+
             using FileStream stream = File.Open(isoPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
             return HasIso9660DescriptorAt(stream, 0x8001)
                 || HasIso9660DescriptorAt(stream, 0x8801)
@@ -384,11 +410,26 @@ internal static class DiscMetadataProbe
 
     private static string ReadSmallTextFile(string path)
     {
+        ValidateProbeFilePath(path);
+
         using FileStream stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
         int length = (int)Math.Min(MaxTextProbeBytes, Math.Max(0, stream.Length));
         byte[] buffer = new byte[length];
         int read = stream.Read(buffer, 0, buffer.Length);
         return DecodeAsciiLoose(buffer.AsSpan(0, read));
+    }
+
+    private static void ValidateProbeFilePath(string path)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
+        string fullPath = Path.GetFullPath(path);
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException("Disc metadata probe file was not found.", fullPath);
+        }
+
+        ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
     }
 
     private static IEnumerable<string> EnumerateLines(string text)
@@ -420,7 +461,9 @@ internal static class DiscMetadataProbe
         or UnauthorizedAccessException
         or ArgumentException
         or NotSupportedException
-        or InvalidDataException;
+        or InvalidDataException
+        or PathTooLongException
+        or System.Security.SecurityException;
 
     private static bool IsDiscUtilsReadException(Exception ex) =>
         ex.GetType().FullName?.Contains("DiscUtils", StringComparison.OrdinalIgnoreCase) == true

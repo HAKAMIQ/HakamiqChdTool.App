@@ -3,6 +3,9 @@ using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.ViewModels.Virtualization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HakamiqChdTool.App.Ui.Queue;
 

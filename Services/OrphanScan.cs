@@ -1,8 +1,8 @@
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -110,7 +110,7 @@ internal sealed class OrphanedWorkItemScanner
         {
             foreach (string directory in EnumerateTopLevelDirectories(workspaceRoot))
             {
-                if (!AppPaths.IsPathUnderProcessTempRoot(directory))
+                if (IsReparsePoint(directory) || !AppPaths.IsPathUnderProcessTempRoot(directory))
                 {
                     continue;
                 }
@@ -132,7 +132,7 @@ internal sealed class OrphanedWorkItemScanner
 
         foreach (string file in EnumerateTopLevelFiles(processTempRoot))
         {
-            if (!AppPaths.IsPathUnderProcessTempRoot(file))
+            if (IsReparsePoint(file) || !AppPaths.IsPathUnderProcessTempRoot(file))
             {
                 continue;
             }
@@ -161,7 +161,7 @@ internal sealed class OrphanedWorkItemScanner
         {
             foreach (string directory in EnumerateTopLevelDirectories(pendingRoot))
             {
-                if (!AppPaths.IsKnownPendingWorkspaceJobDirectory(directory, _settings))
+                if (IsReparsePoint(directory) || !AppPaths.IsKnownPendingWorkspaceJobDirectory(directory, _settings))
                 {
                     continue;
                 }
@@ -181,13 +181,14 @@ internal sealed class OrphanedWorkItemScanner
             }
         }
     }
+
     private IEnumerable<string> EnumeratePendingWorkspaceRoots()
     {
         var returned = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (string root in AppPaths.EnumerateKnownPendingWorkspaceRoots(_settings))
         {
-            if (returned.Add(root))
+            if (!IsReparsePoint(root) && returned.Add(root))
             {
                 yield return root;
             }
@@ -195,7 +196,7 @@ internal sealed class OrphanedWorkItemScanner
 
         foreach (string root in _additionalPendingRoots)
         {
-            if (returned.Add(root))
+            if (!IsReparsePoint(root) && returned.Add(root))
             {
                 yield return root;
             }
@@ -221,12 +222,13 @@ internal sealed class OrphanedWorkItemScanner
             {
                 string fullPath = Path.GetFullPath(root.Trim());
                 if (Directory.Exists(fullPath)
+                    && !IsReparsePoint(fullPath)
                     && !result.Contains(fullPath, StringComparer.OrdinalIgnoreCase))
                 {
                     result.Add(fullPath);
                 }
             }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException or System.Security.SecurityException)
+            catch (Exception ex) when (IsExpectedPathException(ex))
             {
             }
         }
@@ -234,14 +236,15 @@ internal sealed class OrphanedWorkItemScanner
         return result;
     }
 
-
     private static IEnumerable<string> EnumerateKnownWorkspaceRoots(string processTempRoot)
     {
         foreach (string name in KnownWorkspaceRootNames)
         {
             string path = Path.Combine(processTempRoot, name);
 
-            if (Directory.Exists(path) && AppPaths.IsPathUnderProcessTempRoot(path))
+            if (Directory.Exists(path)
+                && !IsReparsePoint(path)
+                && AppPaths.IsPathUnderProcessTempRoot(path))
             {
                 yield return path;
             }
@@ -294,9 +297,16 @@ internal sealed class OrphanedWorkItemScanner
     {
         try
         {
-            return Directory.EnumerateDirectories(root, "*", SearchOption.TopDirectoryOnly).ToArray();
+            if (IsReparsePoint(root))
+            {
+                return Array.Empty<string>();
+            }
+
+            return Directory.EnumerateDirectories(root, "*", SearchOption.TopDirectoryOnly)
+                .Where(static path => !IsReparsePoint(path))
+                .ToArray();
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or DirectoryNotFoundException)
+        catch (Exception ex) when (IsExpectedPathException(ex) || ex is DirectoryNotFoundException)
         {
             Logger.Debug(ex, "Orphaned work item directory enumeration failed. Root={Root}", root);
             return Array.Empty<string>();
@@ -307,9 +317,16 @@ internal sealed class OrphanedWorkItemScanner
     {
         try
         {
-            return Directory.EnumerateFiles(root, "*", SearchOption.TopDirectoryOnly).ToArray();
+            if (IsReparsePoint(root))
+            {
+                return Array.Empty<string>();
+            }
+
+            return Directory.EnumerateFiles(root, "*", SearchOption.TopDirectoryOnly)
+                .Where(static path => !IsReparsePoint(path))
+                .ToArray();
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or DirectoryNotFoundException)
+        catch (Exception ex) when (IsExpectedPathException(ex) || ex is DirectoryNotFoundException)
         {
             Logger.Debug(ex, "Orphaned work item file enumeration failed. Root={Root}", root);
             return Array.Empty<string>();
@@ -327,7 +344,7 @@ internal sealed class OrphanedWorkItemScanner
 
         try
         {
-            foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
+            foreach (string file in EnumerateFilesWithoutReparse(directory))
             {
                 if (!AppPaths.IsPathUnderProcessTempRoot(file)
                     && !AppPaths.IsPathUnderKnownPendingWorkspace(file, settings))
@@ -338,8 +355,8 @@ internal sealed class OrphanedWorkItemScanner
                 try
                 {
                     FileInfo info = new(file);
-                    sizeBytes += Math.Max(0, info.Length);
-                    fileCount++;
+                    sizeBytes = SaturatingAdd(sizeBytes, Math.Max(0, info.Length));
+                    fileCount = fileCount == int.MaxValue ? int.MaxValue : fileCount + 1;
                 }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FileNotFoundException)
                 {
@@ -347,7 +364,7 @@ internal sealed class OrphanedWorkItemScanner
                 }
             }
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or DirectoryNotFoundException)
+        catch (Exception ex) when (IsExpectedPathException(ex) || ex is DirectoryNotFoundException)
         {
             Logger.Debug(ex, "Could not measure orphaned temp directory. Directory={Directory}", directory);
         }
@@ -360,13 +377,52 @@ internal sealed class OrphanedWorkItemScanner
             lastWriteUtc);
     }
 
+    private static IEnumerable<string> EnumerateFilesWithoutReparse(string rootDirectory)
+    {
+        if (IsReparsePoint(rootDirectory))
+        {
+            yield break;
+        }
+
+        var pendingDirectories = new Stack<string>();
+        pendingDirectories.Push(rootDirectory);
+
+        while (pendingDirectories.Count > 0)
+        {
+            string currentDirectory = pendingDirectories.Pop();
+            if (IsReparsePoint(currentDirectory))
+            {
+                continue;
+            }
+
+            foreach (string file in EnumerateTopLevelFiles(currentDirectory))
+            {
+                if (!IsReparsePoint(file))
+                {
+                    yield return file;
+                }
+            }
+
+            foreach (string childDirectory in EnumerateTopLevelDirectories(currentDirectory))
+            {
+                if (!IsReparsePoint(childDirectory))
+                {
+                    pendingDirectories.Push(childDirectory);
+                }
+            }
+        }
+    }
+
     private static OrphanedWorkItem CreateFileItem(string file, DateTimeOffset lastWriteUtc)
     {
         long sizeBytes = 0;
 
         try
         {
-            sizeBytes = Math.Max(0, new FileInfo(file).Length);
+            if (!IsReparsePoint(file))
+            {
+                sizeBytes = Math.Max(0, new FileInfo(file).Length);
+            }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FileNotFoundException)
         {
@@ -387,6 +443,11 @@ internal sealed class OrphanedWorkItemScanner
 
         try
         {
+            if (IsReparsePoint(path))
+            {
+                return false;
+            }
+
             DateTime value = isDirectory
                 ? Directory.GetLastWriteTimeUtc(path)
                 : File.GetLastWriteTimeUtc(path);
@@ -405,4 +466,35 @@ internal sealed class OrphanedWorkItemScanner
             return false;
         }
     }
+
+    private static bool IsReparsePoint(string path)
+    {
+        try
+        {
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex) || ex is FileNotFoundException or DirectoryNotFoundException)
+        {
+            Logger.Debug(ex, "Could not inspect orphaned work item attributes. Path={Path}", path);
+            return true;
+        }
+    }
+
+    private static long SaturatingAdd(long left, long right)
+    {
+        if (right > 0 && left > long.MaxValue - right)
+        {
+            return long.MaxValue;
+        }
+
+        return left + right;
+    }
+
+    private static bool IsExpectedPathException(Exception ex) =>
+        ex is IOException
+        or UnauthorizedAccessException
+        or ArgumentException
+        or NotSupportedException
+        or PathTooLongException
+        or System.Security.SecurityException;
 }

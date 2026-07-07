@@ -74,7 +74,6 @@
                                                 <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
-                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
 
@@ -93,8 +92,8 @@
                                             <TextBlock Grid.Column="4"
                                                        VerticalAlignment="Center"
                                                        Style="{StaticResource Win11SettingsRowTitleText}"
-                                                       Text="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                                       ToolTip="{Binding ExternalToolsCsoKitStatusText, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                                       Text="{Binding ExternalToolsCsoKitStatusText}"
+                                                       ToolTip="{Binding ExternalToolsCsoKitStatusText}"
                                                        TextTrimming="CharacterEllipsis"
                                                        TextWrapping="NoWrap" />
                                         </Grid>
@@ -115,7 +114,6 @@
                                                 <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
-                                                <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
 

@@ -1,7 +1,6 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Services;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +20,7 @@ public sealed partial class OptionsViewModel
     private async Task AppendRedumpLocalLibraryIndexReportAsync()
     {
         string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
+        if (!TryGetSafeOptionsDirectory(root, out string safeRoot))
         {
             return;
         }
@@ -35,7 +34,7 @@ public sealed partial class OptionsViewModel
         try
         {
             RedumpLocalLibraryIndexResult indexResult = await _redumpLocalLibraryIndexer
-                .IndexAsync(root, CancellationToken.None)
+                .IndexAsync(safeRoot, CancellationToken.None)
                 .ConfigureAwait(true);
 
             if (indexResult.TotalDatXmlFiles <= 0)
@@ -65,7 +64,7 @@ public sealed partial class OptionsViewModel
     private async Task PrepareRedumpLocalLibraryDatabaseAsync()
     {
         string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
+        if (!TryGetSafeOptionsDirectory(root, out string safeRoot))
         {
             RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
             return;
@@ -77,7 +76,7 @@ public sealed partial class OptionsViewModel
         try
         {
             RedumpLocalLibraryScanResult scanResult = await _redumpLocalLibraryScanner
-                .ScanAsync(root, CancellationToken.None)
+                .ScanAsync(safeRoot, CancellationToken.None)
                 .ConfigureAwait(true);
 
             if (!scanResult.HasImportableDatFiles)
@@ -90,7 +89,7 @@ public sealed partial class OptionsViewModel
             RedumpLocalLibraryScanSummary = scanSummary;
 
             RedumpLocalLibraryIndexResult indexResult = await _redumpLocalLibraryIndexer
-                .IndexAsync(root, CancellationToken.None)
+                .IndexAsync(safeRoot, CancellationToken.None)
                 .ConfigureAwait(true);
 
             if (indexResult.TotalDatXmlFiles <= 0)
@@ -167,6 +166,7 @@ public sealed partial class OptionsViewModel
     {
         return value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
     }
+
     private static string FormatInvariantNumber(long value)
     {
         return value.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
@@ -201,7 +201,7 @@ public sealed partial class OptionsViewModel
         RedumpLocalLibraryDatEntry[] selectedEntries = indexResult.Entries
             .Where(entry => entry.IsSelected)
             .Where(entry => !entry.Status.Equals(RedumpLocalLibraryIndexer.ReadErrorStatus, StringComparison.OrdinalIgnoreCase))
-            .Where(entry => File.Exists(entry.FilePath))
+            .Where(entry => TryGetSafeOptionsFile(entry.FilePath, out _))
             .ToArray();
 
         if (selectedEntries.Length == 0)

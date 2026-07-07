@@ -43,6 +43,14 @@ public sealed class CleanupService
             return CleanupStats.Empty;
         }
 
+        if (ContainsReparsePoint(fullDir))
+        {
+            Logger.Warning(
+                "Cleanup: refusing directory delete because the tree contains a reparse point. Path={Path}",
+                fullDir);
+            return CleanupStats.Empty;
+        }
+
         CleanupStats stats = CollectDirectoryDeletionStats(fullDir);
         return TryDeleteDirectoryRecursive(fullDir) ? stats : CleanupStats.Empty;
     }
@@ -131,29 +139,19 @@ public sealed class CleanupService
         int fileCount = 0;
 #endif
 
-        try
+        foreach (string file in EnumerateFilesWithoutReparseDirectories(fullDirectoryPath))
         {
-            foreach (string file in Directory.EnumerateFiles(fullDirectoryPath, "*", SearchOption.AllDirectories))
+            try
             {
-                try
-                {
-                    bytes += new FileInfo(file).Length;
+                bytes += new FileInfo(file).Length;
 #if DEBUG
-                    fileCount++;
+                fileCount++;
 #endif
-                }
-                catch (Exception ex)
-                {
-                    Logger.Debug(ex, "Cleanup: could not read file size during pre-delete enumeration. File={File}", file);
-                }
             }
-        }
-        catch (Exception ex)
-        {
-            Logger.Warning(
-                ex,
-                "Cleanup: directory enumeration for size stats failed; deletion will still be attempted. Path={Path}",
-                fullDirectoryPath);
+            catch (Exception ex)
+            {
+                Logger.Debug(ex, "Cleanup: could not read file size during pre-delete enumeration. File={File}", file);
+            }
         }
 
 #if DEBUG
@@ -161,6 +159,50 @@ public sealed class CleanupService
 #else
         return new CleanupStats(bytes, DeletedFiles: 0);
 #endif
+    }
+
+    private static IEnumerable<string> EnumerateFilesWithoutReparseDirectories(string rootDirectory)
+    {
+        Stack<string> pendingDirectories = new();
+
+        string root;
+        try
+        {
+            root = Path.GetFullPath(rootDirectory);
+        }
+        catch (Exception ex)
+        {
+            Logger.Warning(ex, "Cleanup: directory enumeration root is invalid. Path={Path}", rootDirectory);
+            yield break;
+        }
+
+        pendingDirectories.Push(root);
+
+        while (pendingDirectories.Count > 0)
+        {
+            string directory = pendingDirectories.Pop();
+
+            if (!Directory.Exists(directory) || HasReparsePoint(directory))
+            {
+                continue;
+            }
+
+            foreach (string file in GetFilesTopOnly(directory))
+            {
+                if (!HasReparsePoint(file))
+                {
+                    yield return file;
+                }
+            }
+
+            foreach (string childDirectory in GetDirectoriesTopOnly(directory))
+            {
+                if (!HasReparsePoint(childDirectory))
+                {
+                    pendingDirectories.Push(childDirectory);
+                }
+            }
+        }
     }
 
     private static long TryGetFileLength(string fullPath)
@@ -186,6 +228,14 @@ public sealed class CleanupService
             {
                 if (Directory.Exists(fullDirectoryPath))
                 {
+                    if (ContainsReparsePoint(fullDirectoryPath))
+                    {
+                        Logger.Warning(
+                            "Cleanup: refusing recursive delete because the tree contains a reparse point. Path={Path}",
+                            fullDirectoryPath);
+                        return false;
+                    }
+
                     Directory.Delete(fullDirectoryPath, recursive: true);
                 }
 
@@ -257,8 +307,8 @@ public sealed class CleanupService
         try
         {
             return string.Equals(
-                Path.GetFullPath(pendingRoot).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
-                Path.GetFullPath(settings.PendingWorkspaceCustomRoot.Trim()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                NormalizeDirectoryForComparison(pendingRoot),
+                NormalizeDirectoryForComparison(settings.PendingWorkspaceCustomRoot.Trim()),
                 StringComparison.OrdinalIgnoreCase);
         }
         catch (Exception ex)
@@ -277,10 +327,16 @@ public sealed class CleanupService
 
         try
         {
-            using IEnumerator<string> enumerator = Directory.EnumerateFileSystemEntries(directory).GetEnumerator();
+            string fullDirectory = Path.GetFullPath(directory);
+            if (IsUnsafeDeletionRoot(fullDirectory) || HasReparsePoint(fullDirectory))
+            {
+                return;
+            }
+
+            using IEnumerator<string> enumerator = Directory.EnumerateFileSystemEntries(fullDirectory).GetEnumerator();
             if (!enumerator.MoveNext())
             {
-                Directory.Delete(directory, recursive: false);
+                Directory.Delete(fullDirectory, recursive: false);
             }
         }
         catch (Exception ex)
@@ -291,27 +347,83 @@ public sealed class CleanupService
 
     private static bool ContainsReparsePoint(string directory)
     {
-        if (HasReparsePoint(directory))
+        string root;
+        try
+        {
+            root = Path.GetFullPath(directory);
+        }
+        catch (Exception ex)
+        {
+            Logger.Debug(ex, "Cleanup: treating invalid directory as unsafe during reparse-point scan. Path={Path}", directory);
+            return true;
+        }
+
+        if (HasReparsePoint(root))
         {
             return true;
         }
 
-        var options = new EnumerationOptions
-        {
-            RecurseSubdirectories = true,
-            IgnoreInaccessible = true,
-            AttributesToSkip = 0
-        };
+        Stack<string> pendingDirectories = new();
+        pendingDirectories.Push(root);
 
-        foreach (string entry in Directory.EnumerateFileSystemEntries(directory, "*", options))
+        while (pendingDirectories.Count > 0)
         {
-            if (HasReparsePoint(entry))
+            string currentDirectory = pendingDirectories.Pop();
+
+            foreach (string entry in GetFileSystemEntriesTopOnly(currentDirectory))
             {
-                return true;
+                if (HasReparsePoint(entry))
+                {
+                    return true;
+                }
+
+                if (Directory.Exists(entry))
+                {
+                    pendingDirectories.Push(entry);
+                }
             }
         }
 
         return false;
+    }
+
+    private static string[] GetFileSystemEntriesTopOnly(string directory)
+    {
+        try
+        {
+            return Directory.GetFileSystemEntries(directory, "*", SearchOption.TopDirectoryOnly);
+        }
+        catch (Exception ex)
+        {
+            Logger.Debug(ex, "Cleanup: treating unreadable directory as unsafe during enumeration. Directory={Directory}", directory);
+            return [];
+        }
+    }
+
+    private static string[] GetFilesTopOnly(string directory)
+    {
+        try
+        {
+            return Directory.GetFiles(directory, "*", SearchOption.TopDirectoryOnly);
+        }
+        catch (Exception ex)
+        {
+            Logger.Debug(ex, "Cleanup: could not enumerate files. Directory={Directory}", directory);
+            return [];
+        }
+    }
+
+    private static string[] GetDirectoriesTopOnly(string directory)
+    {
+        try
+        {
+            return Directory.GetDirectories(directory, "*", SearchOption.TopDirectoryOnly);
+        }
+        catch (Exception ex)
+        {
+            Logger.Debug(ex, "Cleanup: could not enumerate directories. Directory={Directory}", directory);
+            return [];
+        }
     }
 
     private static bool HasReparsePoint(string path)
@@ -372,6 +484,52 @@ public sealed class CleanupService
         }
 
         return true;
+    }
+
+    private static bool IsUnsafeDeletionRoot(string path)
+    {
+        try
+        {
+            string fullPath = Path.GetFullPath(path);
+            string? root = Path.GetPathRoot(fullPath);
+
+            if (string.IsNullOrWhiteSpace(root))
+            {
+                return true;
+            }
+
+            return string.Equals(
+                NormalizeDirectoryForComparison(fullPath),
+                NormalizeDirectoryForComparison(root),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception ex)
+        {
+            Logger.Debug(ex, "Cleanup: failed to evaluate unsafe deletion root. Path={Path}", path);
+            return true;
+        }
+    }
+
+    private static string NormalizeDirectoryForComparison(string path)
+    {
+        return TrimDirectorySeparators(Path.GetFullPath(path));
+    }
+
+    private static string TrimDirectorySeparators(string path)
+    {
+        string? root = Path.GetPathRoot(path);
+
+        if (!string.IsNullOrWhiteSpace(root)
+            && path.Length <= root.Length)
+        {
+            return root;
+        }
+
+        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
+            ? root
+            : trimmed;
     }
 }
 

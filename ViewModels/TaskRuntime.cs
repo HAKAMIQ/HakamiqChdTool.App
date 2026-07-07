@@ -158,7 +158,34 @@ public sealed partial class TaskQueueItemViewModel
         {
             return string.Empty;
         }
-        return string.Empty;
+
+        string primary = string.IsNullOrWhiteSpace(RuntimeProgressPrimaryMessageKey)
+            ? ArabicUi.Get(ChdmanOperationRuntimeDetailKey)
+            : ArabicUi.ResolveDisplayString(RuntimeProgressPrimaryMessageKey);
+
+        string bytes = FormatInlineTechnicalProgressBytes(RuntimeProgressCurrentBytes, RuntimeProgressTotalBytes);
+        string rate = FormatInlineTechnicalRate(RuntimeProgressBytesPerSecond);
+        string elapsed = FormatElapsed(new TimeSpan(RuntimeProgressElapsedTicks));
+        string remaining = FormatEstimatedRemaining(new TimeSpan(RuntimeProgressEstimatedRemainingTicks));
+
+        string detail = ArabicUi.Format(
+            ChdmanOperationRuntimeDetailKey,
+            primary,
+            bytes,
+            rate,
+            elapsed,
+            remaining);
+
+        if (!string.IsNullOrWhiteSpace(RuntimeProgressNextStageMessageKey))
+        {
+            string nextStage = ArabicUi.ResolveDisplayString(RuntimeProgressNextStageMessageKey);
+            if (!string.IsNullOrWhiteSpace(nextStage))
+            {
+                detail = detail + Environment.NewLine + nextStage;
+            }
+        }
+
+        return detail;
     }
 
     private static string FormatInlineTechnicalSize(long bytes)

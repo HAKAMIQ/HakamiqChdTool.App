@@ -2,7 +2,6 @@ using HakamiqChdTool.App.Core.Workflow.Extraction;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 
 namespace HakamiqChdTool.App.Core.Workflow.Progress;
 
@@ -74,12 +73,22 @@ internal sealed class ExtractionOutputByteProgressEstimator : IWorkflowRuntimePr
                 return 0L;
             }
 
-            return Directory
-                .EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly)
-                .Where(static path =>
-                    string.Equals(Path.GetExtension(path), ".cue", StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(Path.GetExtension(path), ".bin", StringComparison.OrdinalIgnoreCase))
-                .Sum(static path => TryGetFileLength(path));
+            long totalBytes = 0L;
+
+            foreach (string path in Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly))
+            {
+                string extension = Path.GetExtension(path);
+
+                if (!string.Equals(extension, ".cue", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(extension, ".bin", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                totalBytes = SaturatingAdd(totalBytes, TryGetFileLength(path));
+            }
+
+            return totalBytes;
         }
         catch (Exception ex) when (IsExpectedFileSystemException(ex))
         {
@@ -102,6 +111,21 @@ internal sealed class ExtractionOutputByteProgressEstimator : IWorkflowRuntimePr
         {
             return 0L;
         }
+    }
+
+    private static long SaturatingAdd(long left, long right)
+    {
+        if (right > 0L && left > long.MaxValue - right)
+        {
+            return long.MaxValue;
+        }
+
+        if (right < 0L && left < long.MinValue - right)
+        {
+            return long.MinValue;
+        }
+
+        return left + right;
     }
 
     private static bool IsExpectedFileSystemException(Exception ex) =>

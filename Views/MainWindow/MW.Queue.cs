@@ -128,6 +128,11 @@ public partial class MainWindow
         {
             _queueViewportUpdateQueued = false;
         }
+        catch
+        {
+            _queueViewportUpdateQueued = false;
+            throw;
+        }
     }
 
     private void UpdateQueueViewportWindowCore()
@@ -186,13 +191,13 @@ public partial class MainWindow
             return;
         }
 
-        int start = Math.Max(0, firstVisibleIndex - QueueViewportBufferRows);
-        int end = Math.Min(itemCount - 1, lastVisibleIndex + QueueViewportBufferRows);
+        int start = Math.Max(0, SaturatingSubtract(firstVisibleIndex, QueueViewportBufferRows));
+        int end = Math.Min(itemCount - 1, SaturatingAdd(lastVisibleIndex, QueueViewportBufferRows));
 
         TryUpdateQueueViewportWindow(new VisibleQueueWindow(
             start,
             end,
-            end - start + 1));
+            SaturatingAdd(SaturatingSubtract(end, start), 1)));
     }
 
     private void TryUpdateQueueViewportWindow(VisibleQueueWindow window)
@@ -309,5 +314,22 @@ public partial class MainWindow
 
         row.IsSelected = true;
         row.Focus();
+    }
+
+    private static int SaturatingSubtract(int left, int right)
+    {
+        long value = (long)left - right;
+
+        if (value > int.MaxValue)
+        {
+            return int.MaxValue;
+        }
+
+        if (value < int.MinValue)
+        {
+            return int.MinValue;
+        }
+
+        return (int)value;
     }
 }

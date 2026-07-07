@@ -64,7 +64,7 @@
                                Text="{DynamicResource LocUi_QueueSection_Title}"
                                TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap"
-                               ToolTip="{DynamicResource LocUi_QueueSection_Title}" TextAlignment="Justify" />
+                               ToolTip="{DynamicResource LocUi_QueueSection_Title}" />
 
                     <TextBlock Style="{DynamicResource QueueWorkspaceHeaderSubtitleText}"
                                Text="{DynamicResource LocUi_QueueSection_Subtitle}"

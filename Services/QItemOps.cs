@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Localization;
+using System.Collections.Generic;
 
 namespace HakamiqChdTool.App.Services;
 

@@ -1,29 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Windows;
-using System.Windows.Shell;
-using System.Windows.Threading;
-
 using HakamiqChdTool.App.Core.Session;
-using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Ui.Queue;
-using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.ViewModels;
-using HakamiqChdTool.App.ViewModels.Virtualization;
-using Serilog;
-
-using IoPath = System.IO.Path;
+using System;
+using System.Windows.Shell;
 
 namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
-
-
     private void UpdateTaskbarProgress(
         QueueUiSnapshot aggregate,
         bool hasTasks,
@@ -63,8 +47,6 @@ public partial class MainWindow
         _taskbarSessionProgress.State = TaskbarItemProgressState.None;
         _taskbarSessionProgress.NormalizedProgress = 0;
     }
-
-
 
     private static double NormalizeProgressForTaskbar(double progressPercent)
     {

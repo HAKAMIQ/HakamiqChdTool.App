@@ -25,7 +25,7 @@
         SnapsToDevicePixels="True"
         UseLayoutRounding="True"
         d:DesignWidth="520"
-        d:DesignHeight="210">
+        d:DesignHeight="180">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -47,11 +47,11 @@
 
             <Style x:Key="RenameDialog.CaptionBar"
                    TargetType="{x:Type Border}">
-                <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
+                <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
-                <Setter Property="Padding" Value="14,0" />
+                <Setter Property="Padding" Value="12,0" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -59,7 +59,7 @@
             <Style x:Key="RenameDialog.ContentHost"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="Padding" Value="14" />
+                <Setter Property="Padding" Value="12" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -113,7 +113,7 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="Padding" Value="10,8" />
+                <Setter Property="Padding" Value="10,7" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -137,7 +137,7 @@
     </Window.Resources>
 
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="{DynamicResource Space.44}"
+        <shell:WindowChrome CaptionHeight="{DynamicResource Space.40}"
                             CornerRadius="{DynamicResource Radius.Large}"
                             GlassFrameThickness="{DynamicResource Inset.None}"
                             ResizeBorderThickness="{DynamicResource Inset.None}"
@@ -201,49 +201,39 @@
 
             <Border Grid.Row="1"
                     Style="{StaticResource RenameDialog.ContentHost}">
-                <ScrollViewer MaxHeight="{DynamicResource Window.Rename.ContentMaxHeight}"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              CanContentScroll="False"
-                              PanningMode="VerticalOnly"
-                              Focusable="False"
-                              Background="{DynamicResource Brush.Transparent}"
-                              SnapsToDevicePixels="True">
+                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True">
 
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          SnapsToDevicePixels="True">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="{DynamicResource Grid.Space.10}" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                    <Border Grid.Row="0"
+                            Style="{StaticResource RenameDialog.FileNameSurface}">
+                        <TextBlock Text="{Binding FileName, Mode=OneWay}"
+                                   d:Text="Final Fantasy X (USA).chd"
+                                   Style="{StaticResource RenameDialog.TechnicalFileNameText}">
+                            <TextBlock.ToolTip>
+                                <TextBlock Text="{Binding FileName, Mode=OneWay}"
+                                           d:Text="Final Fantasy X (USA).chd"
+                                           FontFamily="{DynamicResource FontFamily.Mono}"
+                                           FlowDirection="{DynamicResource TechnicalText.FlowDirection}"
+                                           Language="{DynamicResource TechnicalText.Language}"
+                                           TextAlignment="{DynamicResource TechnicalText.TextAlignment}"
+                                           TextWrapping="NoWrap" />
+                            </TextBlock.ToolTip>
+                        </TextBlock>
+                    </Border>
 
-                        <Border Grid.Row="0"
-                                Style="{StaticResource RenameDialog.FileNameSurface}">
-                            <TextBlock Text="{Binding FileName, Mode=OneWay}"
-                                       d:Text="Final Fantasy X (USA).chd"
-                                       Style="{StaticResource RenameDialog.TechnicalFileNameText}">
-                                <TextBlock.ToolTip>
-                                    <TextBlock Text="{Binding FileName, Mode=OneWay}"
-                                               d:Text="Final Fantasy X (USA).chd"
-                                               FontFamily="{DynamicResource FontFamily.Mono}"
-                                               FlowDirection="{DynamicResource TechnicalText.FlowDirection}"
-                                               Language="{DynamicResource TechnicalText.Language}"
-                                               TextAlignment="{DynamicResource TechnicalText.TextAlignment}"
-                                               TextWrapping="NoWrap" />
-                                </TextBlock.ToolTip>
-                            </TextBlock>
-                        </Border>
-
-                        <TextBlock Grid.Row="2"
-                                   Text="{Binding Question, Mode=OneWay}"
-                                   ToolTip="{Binding Question, Mode=OneWay}"
-                                   d:Text="هل تريد تطبيق الاسم المقترح على هذا الملف؟"
-                                   Style="{StaticResource RenameDialog.BodyText}" />
-                    </Grid>
-                </ScrollViewer>
+                    <TextBlock Grid.Row="2"
+                               Text="{Binding Question, Mode=OneWay}"
+                               ToolTip="{Binding Question, Mode=OneWay}"
+                               d:Text="هل تريد تطبيق الاسم المقترح على هذا الملف؟"
+                               Style="{StaticResource RenameDialog.BodyText}" />
+                </Grid>
             </Border>
 
             <Border Grid.Row="2"

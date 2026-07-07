@@ -2,6 +2,7 @@ using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
 using Serilog;
+using System;
 using System.IO;
 
 namespace HakamiqChdTool.App.Ui.Queue;
@@ -64,7 +65,11 @@ public static class QueueNamingAnalysis
     private static bool IsExpectedNamingAnalysisException(Exception ex) =>
         ex is ArgumentException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or IOException
+        or UnauthorizedAccessException
+        or InvalidOperationException
+        or System.Security.SecurityException;
 
     private static bool IsExpectedDatabaseException(Exception ex) =>
         ex is IOException
@@ -72,5 +77,6 @@ public static class QueueNamingAnalysis
         or InvalidOperationException
         or NotSupportedException
         or PathTooLongException
+        or System.Security.SecurityException
         || string.Equals(ex.GetType().FullName, "Microsoft.Data.Sqlite.SqliteException", StringComparison.Ordinal);
 }

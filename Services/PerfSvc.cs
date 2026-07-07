@@ -1,8 +1,12 @@
 using HakamiqChdTool.App.Models;
 using Serilog;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -226,6 +230,8 @@ public sealed class PerformanceAnalyzerService
         try
         {
             string fullPath = Path.GetFullPath(path);
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+
             return File.Exists(fullPath) ? new FileInfo(fullPath).Length : 0L;
         }
         catch (Exception ex) when (IsExpectedPathOrFileException(ex))
@@ -274,11 +280,14 @@ public sealed class PerformanceAnalyzerService
         or UnauthorizedAccessException
         or ArgumentException
         or NotSupportedException
-        or PathTooLongException;
+        or PathTooLongException
+        or System.Security.SecurityException;
 
+#pragma warning disable SYSLIB1054
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool GlobalMemoryStatusEx(ref MemoryStatusEx status);
+#pragma warning restore SYSLIB1054
 
     [StructLayout(LayoutKind.Sequential)]
     private struct MemoryStatusEx

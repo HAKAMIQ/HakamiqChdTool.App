@@ -92,16 +92,6 @@
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
 
-            <Style x:Key="OrphanedCleanupDialog.SectionAccent"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Width" Value="{DynamicResource Space.4}" />
-                <Setter Property="Height" Value="{DynamicResource Space.22}" />
-                <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="VerticalAlignment" Value="Top" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-            </Style>
-
             <Style x:Key="OrphanedCleanupDialog.GeneralText"
                    TargetType="{x:Type TextBlock}">
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
@@ -211,17 +201,12 @@
                       SnapsToDevicePixels="True">
 
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Style="{StaticResource OrphanedCleanupDialog.SectionAccent}" />
-
-                    <StackPanel Grid.Column="2"
+                    <StackPanel Grid.Column="0"
                                 FlowDirection="{DynamicResource App.FlowDirection}"
                                 Language="{DynamicResource App.XmlLanguage}"
                                 VerticalAlignment="Center">
@@ -239,7 +224,7 @@
                     </StackPanel>
 
                     <Button x:Name="CloseButton"
-                            Grid.Column="4"
+                            Grid.Column="2"
                             Width="{DynamicResource Space.32}"
                             Height="{DynamicResource Space.32}"
                             MinWidth="{DynamicResource Space.32}"

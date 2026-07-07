@@ -577,6 +577,7 @@ Path:
     <sys:String x:Key="LocRedumpV2_NormalizeArchive">Extracting archive temporarily for verification</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">This source requires temporary normalization to ISO/GCM, but the normalization tool is not available yet.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">PS3 JB folders are not converted into Redump ISO; this is IRD-only.</sys:String>
+    <sys:String x:Key="LocRedumpV2_Ps3DecryptedNotOriginal">Decrypted PS3 folders are not an original Redump representation; use the IRD verification path.</sys:String>
     <sys:String x:Key="LocDeepHash_TipPartialMatch">{0:N0} of {1:N0} files matched. The disc is not considered fully matched until all files match.</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnmatchedFilesHeader">Unmatched files:</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoRedumpMatch">The file didn't match the local Redump database.</sys:String>

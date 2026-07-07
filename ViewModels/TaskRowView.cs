@@ -2,9 +2,9 @@ using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.ViewModels.Virtualization;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using MediaBrush = System.Windows.Media.Brush;
 
@@ -38,6 +38,7 @@ public sealed partial class TaskQueueItemViewModel
             return WrapDisplayText(text);
         }
     }
+
     private string OperationAwareStatePhaseArabic => StatePhaseArabic;
 
     private string BuildOperationAwareQueueRowPhase() =>
@@ -495,7 +496,7 @@ public sealed partial class TaskQueueItemViewModel
     }
 
     private bool IsVerifyChdMetadataRun() =>
-        IsChdExtension(Path.GetExtension(SourcePath))
+        IsChdExtension(GetSafeExtension(SourcePath))
         && string.Equals(_queueItemMode, "Verify", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsChdExtension(string extension) =>

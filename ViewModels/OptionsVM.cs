@@ -269,6 +269,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         return list.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.OrdinalIgnoreCase))
             ?? list.FirstOrDefault();
     }
+
     partial void NotifyRedumpLocalLibraryScanCommandState();
 
     public string UiLanguage
@@ -798,7 +799,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
             }
         }
     }
-
 
     public ProcessorOption? SelectedConcurrentConversionOption
     {

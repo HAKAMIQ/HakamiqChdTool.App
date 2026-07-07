@@ -1,15 +1,15 @@
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
 using HakamiqChdTool.App.Core.Queue;
-using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Features;
+using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 
@@ -116,9 +116,7 @@ public partial class MainWindow
         if (result.State == IntegrityValidationState.Verified &&
             !string.IsNullOrWhiteSpace(result.SuggestedStandardName))
         {
-            string currentFileName = string.IsNullOrWhiteSpace(item.SourcePath)
-                ? string.Empty
-                : IoPath.GetFileName(item.SourcePath);
+            string currentFileName = GetSafeNamingComparisonFileName(item.SourcePath);
 
             item.SuggestedStandardName = result.SuggestedStandardName;
             item.IsNamingCompliant = string.Equals(
@@ -275,17 +273,26 @@ public partial class MainWindow
             return;
         }
 
-        _ = Dispatcher.InvokeAsync(
-            () =>
-            {
-                if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        try
+        {
+            _ = Dispatcher.InvokeAsync(
+                () =>
                 {
-                    return;
-                }
+                    if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+                    {
+                        return;
+                    }
 
-                Handle();
-            },
-            DispatcherPriority.DataBind);
+                    Handle();
+                },
+                DispatcherPriority.DataBind);
+        }
+        catch (TaskCanceledException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        {
+        }
+        catch (InvalidOperationException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        {
+        }
     }
 
     private Task ApplyAutoStandardizedNameIfEnabled(TaskQueueItemViewModel item)
@@ -310,5 +317,33 @@ public partial class MainWindow
         }
 
         return Task.CompletedTask;
+    }
+
+    private static string GetSafeNamingComparisonFileName(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            string fileName = IoPath.GetFileName(path.Trim());
+            return string.IsNullOrWhiteSpace(fileName)
+                ? string.Empty
+                : fileName;
+        }
+        catch (Exception ex) when (IsExpectedNamingComparisonPathException(ex))
+        {
+            return string.Empty;
+        }
+    }
+
+    private static bool IsExpectedNamingComparisonPathException(Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException;
     }
 }

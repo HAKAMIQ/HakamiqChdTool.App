@@ -1,3 +1,5 @@
+using System;
+
 namespace HakamiqChdTool.App.Services;
 
 internal sealed class DiskSpaceRequirement

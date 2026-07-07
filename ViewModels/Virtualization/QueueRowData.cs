@@ -70,6 +70,6 @@ public sealed class QueueRowData
         SourcePath = string.IsNullOrWhiteSpace(SourcePath) ? OriginalPath : SourcePath,
         FileName = FileName,
         DetectedPlatform = DetectedPlatform,
-            RequestedAction = RequestedAction,
+        RequestedAction = RequestedAction,
     };
 }

@@ -185,26 +185,4 @@ internal sealed partial class HqOptionsShell : IDisposable
             Logger.Debug(ex, "Options window drag was ignored because DragMove was not valid for the current mouse state.");
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

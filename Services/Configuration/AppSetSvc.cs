@@ -67,7 +67,9 @@ public sealed class AppSettingsService : IDisposable
                 return new AppSettings();
             }
 
-            AppSettings settings = JsonSerializer.Deserialize<AppSettings>(ReadSmallSettingsText(sourcePath), JsonOptions)
+            AppSettings settings = JsonSerializer.Deserialize<AppSettings>(
+                    ReadSmallSettingsText(sourcePath),
+                    JsonOptions)
                 ?? new AppSettings();
 
             AppPaths.SetPortableMode(settings.PortableMode);
@@ -371,7 +373,13 @@ public sealed class AppSettingsService : IDisposable
         }
 
         using FileStream stream = new(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-        using StreamReader reader = new(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 4096, leaveOpen: false);
+        using StreamReader reader = new(
+            stream,
+            Encoding.UTF8,
+            detectEncodingFromByteOrderMarks: true,
+            bufferSize: 4096,
+            leaveOpen: false);
+
         return reader.ReadToEnd();
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HakamiqChdTool.App.Models;
@@ -269,17 +270,32 @@ internal static class ConsoleIdSvc
             return new ConsoleIdResult(path, "Nintendo GameCube", "LocPlatformDetect_PathHint", 78);
         }
 
-        if (Has("wii"))
+        if (Has("wii u", "wiiu", "nintendo wii u", "nintendo wiiu"))
+        {
+            return new ConsoleIdResult(path, "Nintendo Wii U", "LocPlatformDetect_PathHint", 78);
+        }
+
+        if (Has("wii", "nintendo wii"))
         {
             return new ConsoleIdResult(path, "Nintendo Wii", "LocPlatformDetect_PathHint", 78);
         }
 
-        if (Has("xbox 360", "x360"))
+        if (Has("xbox series x", "xbox series s", "xbox series", "xboxsx"))
+        {
+            return new ConsoleIdResult(path, "Xbox Series X", "LocPlatformDetect_PathHint", 78);
+        }
+
+        if (Has("xbox one", "xboxone"))
+        {
+            return new ConsoleIdResult(path, "Xbox One", "LocPlatformDetect_PathHint", 78);
+        }
+
+        if (Has("xbox 360", "xbox360", "x360"))
         {
             return new ConsoleIdResult(path, "Xbox 360", "LocPlatformDetect_PathHint", 78);
         }
 
-        if (Has("xbox"))
+        if (Has("xbox", "microsoft xbox", "original xbox"))
         {
             return new ConsoleIdResult(path, "Xbox", "LocPlatformDetect_PathHint", 76);
         }
@@ -289,19 +305,33 @@ internal static class ConsoleIdSvc
 
     private static string Normalize(string value)
     {
-        return " " + (value ?? string.Empty)
-            .ToLowerInvariant()
-            .Replace('\\', ' ')
-            .Replace('/', ' ')
-            .Replace('_', ' ')
-            .Replace('-', ' ')
-            .Replace('.', ' ')
-            .Replace('[', ' ')
-            .Replace(']', ' ')
-            .Replace('(', ' ')
-            .Replace(')', ' ')
-            .Replace('{', ' ')
-            .Replace('}', ' ') + " ";
+        var builder = new StringBuilder((value?.Length ?? 0) + 2);
+        builder.Append(' ');
+
+        bool previousWasSpace = true;
+
+        foreach (char character in (value ?? string.Empty).ToLowerInvariant())
+        {
+            if (char.IsLetterOrDigit(character))
+            {
+                builder.Append(character);
+                previousWasSpace = false;
+                continue;
+            }
+
+            if (!previousWasSpace)
+            {
+                builder.Append(' ');
+                previousWasSpace = true;
+            }
+        }
+
+        if (!previousWasSpace)
+        {
+            builder.Append(' ');
+        }
+
+        return builder.ToString();
     }
 }
 

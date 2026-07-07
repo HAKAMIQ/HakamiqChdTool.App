@@ -2,11 +2,11 @@ using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Ui.Queue;
-using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
@@ -106,6 +106,11 @@ public partial class MainWindow
         catch (InvalidOperationException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
         {
             Interlocked.Exchange(ref _pendingQueueUiFlush, 0);
+        }
+        catch
+        {
+            Interlocked.Exchange(ref _pendingQueueUiFlush, 0);
+            throw;
         }
     }
 
