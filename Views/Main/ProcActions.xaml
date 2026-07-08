@@ -44,15 +44,15 @@
                TargetType="{x:Type Button}">
             <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+            <Setter Property="Padding" Value="10,8" />
             <Setter Property="Margin" Value="{DynamicResource Inset.None}" />
             <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
             <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
             <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-            <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
+            <Setter Property="MinHeight" Value="44" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -66,7 +66,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource Radius.Card}"
+                                CornerRadius="{DynamicResource Radius.Control}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <Grid FlowDirection="{TemplateBinding FlowDirection}"
@@ -75,16 +75,16 @@
                                   SnapsToDevicePixels="True">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
                                 <Border x:Name="ActionIndicator"
                                         Grid.Column="0"
-                                        Width="{DynamicResource Space.3}"
-                                        Height="{DynamicResource Space.24}"
+                                        Width="4"
+                                        Height="24"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Background="{DynamicResource Brush.Accent}"
@@ -97,17 +97,26 @@
                                            Foreground="{TemplateBinding Foreground}"
                                            Style="{StaticResource ProcessingActionsPanelActionChipText}" />
 
-                                <Viewbox Grid.Column="4"
-                                         Width="{DynamicResource Space.20}"
-                                         Height="{DynamicResource Space.20}"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"
-                                         FlowDirection="LeftToRight"
-                                         Stretch="Uniform">
-                                    <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
-                                          Fill="{TemplateBinding Foreground}"
-                                          Stretch="Uniform" />
-                                </Viewbox>
+                                <Border x:Name="IconPlate"
+                                        Grid.Column="4"
+                                        Width="32"
+                                        Height="32"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Background="Transparent"
+                                        CornerRadius="{DynamicResource Radius.Control}"
+                                        SnapsToDevicePixels="True">
+                                    <Viewbox Width="{DynamicResource Space.18}"
+                                             Height="{DynamicResource Space.18}"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             FlowDirection="LeftToRight"
+                                             Stretch="Uniform">
+                                        <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                              Fill="{TemplateBinding Foreground}"
+                                              Stretch="Uniform" />
+                                    </Viewbox>
+                                </Border>
                             </Grid>
                         </Border>
 
@@ -130,6 +139,9 @@
                                 <Setter TargetName="ActionIndicator"
                                         Property="Opacity"
                                         Value="{DynamicResource Opacity.Subtle}" />
+                                <Setter TargetName="IconPlate"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Default}" />
                             </MultiTrigger>
 
                             <Trigger Property="IsPressed" Value="True">
@@ -144,6 +156,9 @@
                                 <Setter TargetName="ActionIndicator"
                                         Property="Opacity"
                                         Value="1" />
+                                <Setter TargetName="IconPlate"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Hover}" />
                             </Trigger>
 
                             <Trigger Property="IsKeyboardFocused" Value="True">
@@ -166,6 +181,9 @@
                                         Value="{DynamicResource Brush.Text.Disabled}" />
                                 <Setter Property="Cursor"
                                         Value="{x:Static input:Cursors.Arrow}" />
+                                <Setter TargetName="IconPlate"
+                                        Property="Opacity"
+                                        Value="0.50" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -193,7 +211,7 @@
 
         <Border Grid.Row="0"
                 Style="{StaticResource FluentActionCard}"
-                Padding="{DynamicResource Inset.14.All}"
+                Padding="{DynamicResource Inset.12.8}"
                 HorizontalAlignment="Stretch"
                 FlowDirection="{DynamicResource App.FlowDirection}"
                 Visibility="{Binding IsRedumpFeatureVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -201,9 +219,9 @@
                   SnapsToDevicePixels="True">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 

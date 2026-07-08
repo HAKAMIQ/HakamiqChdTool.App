@@ -15,23 +15,23 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="{DynamicResource Grid.Space.10}" />
+            <RowDefinition Height="{DynamicResource Grid.Space.12}" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
-                Width="{DynamicResource Space.56}"
-                Height="{DynamicResource Space.56}"
+                Width="{DynamicResource Space.44}"
+                Height="{DynamicResource Space.44}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Background="{DynamicResource Brush.Accent.Subtle}"
                 BorderBrush="{DynamicResource Brush.Accent.SelectedBorder}"
                 BorderThickness="{DynamicResource Inset.1.All}"
-                CornerRadius="{DynamicResource Radius.DropHintIcon}"
+                CornerRadius="{DynamicResource Radius.Control}"
                 SnapsToDevicePixels="True">
 
-            <Viewbox Width="{DynamicResource Space.26}"
-                     Height="{DynamicResource Space.26}"
+            <Viewbox Width="{DynamicResource Space.20}"
+                     Height="{DynamicResource Space.20}"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
                      FlowDirection="LeftToRight"
@@ -77,7 +77,7 @@
         </Border>
 
         <TextBlock Grid.Row="2"
-                   MaxWidth="520"
+                   MaxWidth="640"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    TextAlignment="Center"
