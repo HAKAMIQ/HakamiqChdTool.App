@@ -5,8 +5,8 @@
     <Style x:Key="FluentQueueTaskRowCard" TargetType="{x:Type Border}">
         <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.8}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
-        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
@@ -322,7 +322,7 @@
         <Setter Property="GridLinesVisibility" Value="None" />
         <Setter Property="HeadersVisibility" Value="None" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
-        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="RowBackground" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="AlternatingRowBackground" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="RowHeaderWidth" Value="{DynamicResource DataGrid.RowHeaderWidth.None}" />
