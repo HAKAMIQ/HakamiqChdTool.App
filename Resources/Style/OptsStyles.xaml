@@ -521,7 +521,7 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
         <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.6}" />
         <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
@@ -605,6 +605,11 @@
 
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Control.Fill.Pressed}" />
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Control.Fill.Pressed}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
                         </Trigger>
 
                         <Trigger Property="IsKeyboardFocused" Value="True">

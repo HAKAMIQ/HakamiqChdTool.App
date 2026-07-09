@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="HakamiqChdTool.App.Views.Main.ProcessingActionsPanel"
+<UserControl x:Class="HakamiqChdTool.App.Views.Main.ProcessingActionsPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore"
@@ -46,7 +46,7 @@
             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
             <Setter Property="Margin" Value="{DynamicResource Inset.None}" />
             <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
@@ -141,18 +141,18 @@
                                         Value="{DynamicResource Opacity.Subtle}" />
                                 <Setter TargetName="IconPlate"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Control.Fill.Default}" />
+                                        Value="{DynamicResource Brush.Control.Fill.Rest}" />
                             </MultiTrigger>
 
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bd"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                                        Value="{DynamicResource Brush.Control.Fill.Pressed}" />
                                 <Setter TargetName="Bd"
                                         Property="BorderBrush"
-                                        Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                                        Value="{DynamicResource Brush.Control.Stroke.Focus}" />
                                 <Setter Property="Foreground"
-                                        Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                                        Value="{DynamicResource Brush.Text.Primary}" />
                                 <Setter TargetName="ActionIndicator"
                                         Property="Opacity"
                                         Value="1" />

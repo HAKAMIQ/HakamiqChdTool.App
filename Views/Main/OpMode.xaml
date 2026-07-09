@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="HakamiqChdTool.App.Views.Main.OperationModePanel"
+<UserControl x:Class="HakamiqChdTool.App.Views.Main.OperationModePanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore"
@@ -46,7 +46,7 @@
             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
             <Setter Property="Margin" Value="{DynamicResource Inset.None}" />
             <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
@@ -126,6 +126,7 @@
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsMouseOver" Value="True" />
                                     <Condition Property="IsChecked" Value="False" />
+                                    <Condition Property="IsEnabled" Value="True" />
                                 </MultiTrigger.Conditions>
                                 <Setter TargetName="Bd"
                                         Property="Background"
@@ -140,8 +141,22 @@
                                         Value="{DynamicResource Opacity.Subtle}" />
                                 <Setter TargetName="IconPlate"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Control.Fill.Default}" />
+                                        Value="{DynamicResource Brush.Control.Fill.Rest}" />
                             </MultiTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Pressed}" />
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                                <Setter Property="Foreground"
+                                        Value="{DynamicResource Brush.Text.Primary}" />
+                                <Setter TargetName="IconPlate"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                            </Trigger>
 
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Bd"

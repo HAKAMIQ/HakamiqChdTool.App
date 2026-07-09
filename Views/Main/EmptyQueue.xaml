@@ -20,12 +20,12 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
-                Width="{DynamicResource Space.44}"
-                Height="{DynamicResource Space.44}"
+                Width="{DynamicResource Space.48}"
+                Height="{DynamicResource Space.48}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Background="{DynamicResource Brush.Accent.Subtle}"
-                BorderBrush="{DynamicResource Brush.Accent.SelectedBorder}"
+                Background="{DynamicResource Brush.Control.Fill.Rest}"
+                BorderBrush="{DynamicResource Brush.Border.Subtle}"
                 BorderThickness="{DynamicResource Inset.1.All}"
                 CornerRadius="{DynamicResource Radius.Control}"
                 SnapsToDevicePixels="True">
@@ -37,7 +37,7 @@
                      FlowDirection="LeftToRight"
                      Stretch="Uniform">
 
-                <Path Fill="{DynamicResource Brush.Accent}"
+                <Path Fill="{DynamicResource Brush.Text.Secondary}"
                       Stretch="Uniform"
                       SnapsToDevicePixels="True">
                     <Path.Style>
