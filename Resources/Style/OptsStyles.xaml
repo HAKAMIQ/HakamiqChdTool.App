@@ -560,7 +560,7 @@
 
                             <Border x:Name="ActiveIndicator"
                                     Grid.Column="0"
-                                    Width="{DynamicResource Space.3}"
+                                    Width="0"
                                     Height="{DynamicResource Space.24}"
                                     CornerRadius="{DynamicResource Radius.AccentLine}"
                                     Background="{DynamicResource Brush.Transparent}"
