@@ -36,7 +36,7 @@
             <Grid x:Name="QueueHostSurface"
                   Grid.Row="1"
                   MinHeight="{DynamicResource Layout.Queue.MinHeight}"
-                  Background="{DynamicResource Brush.Layer.Surface}"
+                  Background="{DynamicResource Brush.Transparent}"
                   FlowDirection="{DynamicResource App.FlowDirection}"
                   Language="{DynamicResource App.XmlLanguage}"
                   ClipToBounds="True"
@@ -46,7 +46,7 @@
                         Background="Transparent"
                         BorderBrush="{DynamicResource Brush.Border.Subtle}"
                         BorderThickness="{DynamicResource Inset.None}"
-                        CornerRadius="{DynamicResource Radius.Card}"
+                        CornerRadius="{DynamicResource Radius.None}"
                         ClipToBounds="True"
                         SnapsToDevicePixels="True">
 
@@ -131,8 +131,8 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Padding="{DynamicResource Inset.12.10}"
-                    Background="{DynamicResource Brush.Layer.Elevated}"
+                    Padding="{DynamicResource Inset.12.8}"
+                    Background="{DynamicResource Brush.Layer.Surface}"
                     BorderBrush="{DynamicResource Brush.Border.Subtle}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}"
                     SnapsToDevicePixels="True">
