@@ -6,12 +6,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="{Binding WindowTitle, Mode=OneWay}"
-        Width="620"
-        Height="380"
-        MinWidth="600"
-        MinHeight="360"
+        Width="600"
+        Height="360"
+        MinWidth="560"
+        MinHeight="340"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="CanResizeWithGrip"
+        ResizeMode="CanResize"
         WindowStyle="None"
         AllowsTransparency="False"
         Background="{DynamicResource Brush.Layer.Canvas}"
@@ -23,8 +23,8 @@
         SnapsToDevicePixels="True"
         UseLayoutRounding="True"
         FontFamily="{DynamicResource FontFamily.Text}"
-        d:DesignWidth="620"
-        d:DesignHeight="380">
+        d:DesignWidth="600"
+        d:DesignHeight="360">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -244,7 +244,7 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Background="{DynamicResource Brush.Layer.Card}"
+                    Background="{DynamicResource Brush.Layer.Surface}"
                     BorderBrush="{DynamicResource Brush.Border.Subtle}"
                     BorderThickness="{DynamicResource Inset.0.0.0.1}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown"
@@ -375,11 +375,11 @@
                     </Grid>
 
                     <Border Grid.Row="2"
-                            Background="{DynamicResource Brush.Layer.Surface}"
+                            Background="{DynamicResource Brush.Layer.Card}"
                             BorderBrush="{DynamicResource Brush.Border.Subtle}"
                             BorderThickness="{DynamicResource Inset.1.All}"
                             CornerRadius="{DynamicResource Radius.Card}"
-                            Padding="{DynamicResource Inset.14.All}"
+                            Padding="{DynamicResource Inset.16.All}"
                             SnapsToDevicePixels="True">
 
                         <Grid FlowDirection="{DynamicResource App.FlowDirection}"
@@ -449,7 +449,7 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Background="{DynamicResource Brush.Layer.Card}"
+                    Background="{DynamicResource Brush.Layer.Surface}"
                     BorderBrush="{DynamicResource Brush.Border.Subtle}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}"
                     SnapsToDevicePixels="True">

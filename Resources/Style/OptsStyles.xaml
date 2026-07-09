@@ -522,12 +522,12 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
-        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.6}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.4}" />
         <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
@@ -552,9 +552,9 @@
                               Language="{TemplateBinding Language}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.0}" />
                                 <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
@@ -603,9 +603,6 @@
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                         </MultiTrigger>
 
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Control.Fill.Pressed}" />
-                        </Trigger>
 
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Control.Fill.Pressed}" />
@@ -621,6 +618,7 @@
                             <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
                             <Setter TargetName="ActiveIndicator" Property="Background" Value="{DynamicResource Brush.Accent}" />
                             <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                            <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">
@@ -670,12 +668,12 @@
 
     <Style x:Key="Win11SettingsSection"
            TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
-        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.16}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.12}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -685,12 +683,12 @@
 
     <Style x:Key="Win11SettingsSectionHeader"
            TargetType="{x:Type Grid}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="{DynamicResource Inset.None}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.48}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
         <Setter Property="MinWidth" Value="0" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
@@ -709,7 +707,7 @@
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Margin" Value="{DynamicResource Inset.16.12}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.14.10}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
@@ -735,9 +733,9 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.16.8}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.54}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.48}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
