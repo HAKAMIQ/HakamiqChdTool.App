@@ -42,7 +42,7 @@
                   ClipToBounds="True"
                   SnapsToDevicePixels="True">
 
-                <Border Margin="{DynamicResource Inset.12.0.12.0}"
+                <Border Margin="{DynamicResource Inset.None}"
                         Background="Transparent"
                         BorderBrush="{DynamicResource Brush.Border.Subtle}"
                         BorderThickness="{DynamicResource Inset.None}"
@@ -131,8 +131,8 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Padding="{DynamicResource Inset.12.8}"
-                    Background="{DynamicResource Brush.Layer.Surface}"
+                    Padding="{DynamicResource Inset.12.10}"
+                    Background="{DynamicResource Brush.Layer.Elevated}"
                     BorderBrush="{DynamicResource Brush.Border.Subtle}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}"
                     SnapsToDevicePixels="True">
