@@ -523,7 +523,7 @@
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
         <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.6}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />

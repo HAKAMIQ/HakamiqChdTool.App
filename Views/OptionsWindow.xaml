@@ -5,11 +5,11 @@
         xmlns:options="clr-namespace:HakamiqChdTool.App.Views.Options"
         Title="{DynamicResource LocOptions_WindowTitle}"
         Width="860"
-        Height="620"
+        Height="580"
         MinWidth="780"
-        MinHeight="540"
+        MinHeight="520"
         SizeToContent="Manual"
-        ResizeMode="CanResizeWithGrip"
+        ResizeMode="CanResize"
         WindowStyle="None"
         WindowStartupLocation="CenterOwner"
         FlowDirection="{DynamicResource App.FlowDirection}"
@@ -209,7 +209,7 @@
             </Border>
 
             <Grid Grid.Row="1"
-                  Margin="{DynamicResource Inset.16.All}"
+                  Margin="{DynamicResource Inset.12.All}"
                   MinHeight="0"
                   VerticalAlignment="Stretch"
                   FlowDirection="{DynamicResource App.FlowDirection}">
