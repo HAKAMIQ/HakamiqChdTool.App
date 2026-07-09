@@ -34,10 +34,10 @@
 
             <Style x:Key="AboutIconLinkButtonStyle"
                    TargetType="{x:Type Button}">
-                <Setter Property="Width" Value="{DynamicResource Space.36}" />
-                <Setter Property="Height" Value="{DynamicResource Space.36}" />
-                <Setter Property="MinWidth" Value="{DynamicResource Space.36}" />
-                <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
+                <Setter Property="Width" Value="{DynamicResource Space.40}" />
+                <Setter Property="Height" Value="{DynamicResource Space.40}" />
+                <Setter Property="MinWidth" Value="{DynamicResource Space.40}" />
+                <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
                 <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
@@ -225,7 +225,7 @@
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-    <Border Background="{DynamicResource Brush.Layer.Card}"
+    <Border Background="{DynamicResource Brush.Layer.Canvas}"
             TextElement.Foreground="{DynamicResource Brush.Text.Primary}"
             BorderBrush="{DynamicResource Brush.Border.Subtle}"
             BorderThickness="{DynamicResource Inset.1.All}"
@@ -466,7 +466,7 @@
 
                     <Button Grid.Column="1"
                             Width="{DynamicResource Space.112}"
-                            Height="{DynamicResource Space.36}"
+                            Height="{DynamicResource Space.40}"
                             VerticalAlignment="Center"
                             HorizontalContentAlignment="Center"
                             VerticalContentAlignment="Center"
