@@ -31,7 +31,7 @@
               ScrollViewer.CanContentScroll="True"
               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
               ScrollViewer.VerticalScrollBarVisibility="Auto"
-              Margin="{DynamicResource Inset.8.All}"
+              Margin="{DynamicResource Inset.12.All}"
               FlowDirection="{DynamicResource App.FlowDirection}"
               Language="{DynamicResource App.XmlLanguage}"
               AllowDrop="True"

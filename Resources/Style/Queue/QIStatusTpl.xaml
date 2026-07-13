@@ -61,6 +61,7 @@
                               SelectedValue="{Binding SelectedOperationBinding, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               SelectedValuePath="Code"
                               TextSearch.TextPath="Label"
+                              AutomationProperties.Name="{DynamicResource LocQueue_Label_ChooseAction}"
                               SnapsToDevicePixels="True"
                               UseLayoutRounding="True">
                         <ComboBox.ItemTemplate>
@@ -105,6 +106,7 @@
                     Language="{DynamicResource App.XmlLanguage}"
                     Command="{Binding DataContext.VerifyRowRedumpCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                     CommandParameter="{Binding}"
+                    AutomationProperties.Name="{DynamicResource LocQueue_RedumpVerifyButton}"
                     ToolTip="{DynamicResource LocQueue_RedumpVerifyTooltip}"
                     ToolTipService.ShowOnDisabled="True">
                 <Button.Style>

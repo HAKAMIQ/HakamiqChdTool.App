@@ -4,18 +4,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FlowDirection="{DynamicResource App.FlowDirection}"
              Language="{DynamicResource App.XmlLanguage}"
+             Background="{x:Null}"
              SnapsToDevicePixels="True"
              UseLayoutRounding="True">
 
-    <Grid HorizontalAlignment="Center"
+    <Grid MaxWidth="520"
+          HorizontalAlignment="Center"
           VerticalAlignment="Center"
-          FlowDirection="{DynamicResource App.FlowDirection}"
-          Language="{DynamicResource App.XmlLanguage}"
-          SnapsToDevicePixels="True">
+          Background="Transparent"
+          SnapsToDevicePixels="True"
+          UseLayoutRounding="True">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="{DynamicResource Grid.Space.10}" />
+            <RowDefinition Height="{DynamicResource Grid.Space.16}" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -27,19 +29,21 @@
                 Background="{DynamicResource Brush.Accent.Subtle}"
                 BorderBrush="{DynamicResource Brush.Accent.SelectedBorder}"
                 BorderThickness="{DynamicResource Inset.1.All}"
-                CornerRadius="{DynamicResource Radius.DropHintIcon}"
-                SnapsToDevicePixels="True">
+                CornerRadius="{DynamicResource Radius.Card.Large}"
+                SnapsToDevicePixels="True"
+                UseLayoutRounding="True">
 
-            <Viewbox Width="{DynamicResource Space.26}"
-                     Height="{DynamicResource Space.26}"
+            <Viewbox Width="{DynamicResource Space.20}"
+                     Height="{DynamicResource Space.20}"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
                      FlowDirection="LeftToRight"
                      Stretch="Uniform">
 
-                <Path Fill="{DynamicResource Brush.Accent}"
+                <Path Fill="{DynamicResource Brush.Accent.Text}"
                       Stretch="Uniform"
                       SnapsToDevicePixels="True">
+
                     <Path.Style>
                         <Style TargetType="{x:Type Path}">
                             <Setter Property="Data"
@@ -77,21 +81,26 @@
         </Border>
 
         <TextBlock Grid.Row="2"
-                   MaxWidth="520"
+                   MaxWidth="480"
+                   Margin="{DynamicResource Inset.16.0}"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   TextAlignment="Center"
+                   FontFamily="{DynamicResource FontFamily.Text}"
+                   FontSize="{DynamicResource FontSize.BodyStrong}"
+                   FontWeight="{DynamicResource FontWeight.SemiBold}"
+                   Foreground="{DynamicResource Brush.Text.Primary}"
+                   LineHeight="{DynamicResource Font.LineHeight.Body}"
+                   LineStackingStrategy="BlockLineHeight"
+                   TextAlignment="Left"
                    TextWrapping="Wrap"
                    TextTrimming="None"
-                   SnapsToDevicePixels="True">
+                   SnapsToDevicePixels="True"
+                   UseLayoutRounding="True">
 
             <TextBlock.Style>
-                <Style TargetType="{x:Type TextBlock}"
-                       BasedOn="{StaticResource QueueWorkspaceDropHintText}">
+                <Style TargetType="{x:Type TextBlock}">
                     <Setter Property="Text"
                             Value="{DynamicResource LocUi_DropZone_Convert}" />
-                    <Setter Property="Foreground"
-                            Value="{DynamicResource Brush.Text.Secondary}" />
 
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"

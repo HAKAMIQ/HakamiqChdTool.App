@@ -143,6 +143,7 @@
                     VerticalAlignment="Center"
                     Command="{Binding DataContext.ShowRedumpDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                     CommandParameter="{Binding}"
+                    AutomationProperties.Name="{DynamicResource LocQueue_RedumpShowDetailsButton}"
                     ToolTip="{DynamicResource LocQueue_RedumpShowDetailsTooltip}">
                 <Button.Style>
                     <Style TargetType="{x:Type Button}"
@@ -208,6 +209,7 @@
                     CommandParameter="{Binding}"
                     Style="{StaticResource FluentQueueRowIconActionButton}"
                     Tag="{StaticResource Icon.Close}"
+                    AutomationProperties.Name="{DynamicResource LocCtx_Remove}"
                     ToolTip="{DynamicResource LocCtx_Remove}" />
         </Grid>
     </DataTemplate>

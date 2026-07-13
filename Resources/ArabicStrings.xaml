@@ -431,8 +431,8 @@
     <sys:String x:Key="LocUi_Redump_SuggestedNamePlaceholder">سيظهر الاسم القياسي بعد المطابقة.</sys:String>
     <sys:String x:Key="LocUi_Redump_HashDetailsTitle">تفاصيل الهاش (MD5 / SHA1)</sys:String>
     <sys:String x:Key="LocUi_Redump_HashDetailsPlaceholder">ستظهر قيم الهاش هنا بعد انتهاء الفحص.</sys:String>
-    <sys:String x:Key="LocUi_Redump_CopyHash">نسخ الهاش</sys:String>
-    <sys:String x:Key="LocUi_Redump_CopyName">نسخ الاسم</sys:String>
+    <sys:String x:Key="LocUi_Redump_CopyHash">نسخ</sys:String>
+    <sys:String x:Key="LocUi_Redump_CopyName">نسخ</sys:String>
     <sys:String x:Key="LocUi_Redump_ApplySuggestedName">تطبيق الاسم المقترح</sys:String>
 
     <sys:String x:Key="LocIntake_ArchiveExtractRequired">تم اكتشاف أرشيف. سيتم استخراجه أولًا، ثم تحليل الملفات الناتجة.</sys:String>
@@ -577,7 +577,7 @@
     <sys:String x:Key="LocRedumpV2_NormalizeArchive">استخراج الأرشيف مؤقتًا للفحص</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">هذه الصيغة تحتاج تطبيعًا مؤقتًا إلى ISO/GCM، لكن أداة التطبيع غير متاحة حاليًا.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">مجلد PS3 JB لا يتحول إلى Redump ISO؛ هذا مسار IRD فقط.</sys:String>
-    <sys:String x:Key="LocRedumpV2_Ps3DecryptedNotOriginal">مجلد PS3 المفكوك ليس تمثيلًا أصليًا مطابقًا لـ Redump؛ استخدم مسار IRD للتحقق.</sys:String>
+    <sys:String x:Key="LocRedumpV2_Ps3DecryptedNotOriginal">نسخة PS3 مفكوكة التشفير. استخدم ملف IRD للتحقق من المحتوى.</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoHashableFiles">لا توجد ملفات قابلة للفحص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipHashFilesHeader">الملفات التي تم فحصها:</sys:String>
     <sys:String x:Key="LocDeepHash_TipTotalFiles">إجمالي الملفات: {0:N0}</sys:String>
@@ -1264,19 +1264,20 @@
     <sys:String x:Key="LocRedumpDetails_Title">تفاصيل Redump</sys:String>
     <sys:String x:Key="LocRedumpDetails_Subtitle">مراجعة نتيجة Redump، والمنصة المكتشفة، وحجم الملف، والاسم المقترح، وقيم الهاش.</sys:String>
 
-    <sys:String x:Key="LocRedumpDetails_StatusTitle">حالة المطابقة</sys:String>
+    <sys:String x:Key="LocRedumpDetails_StatusTitle">نتيجة التحقق</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusDescription">عرض نتيجة مطابقة الملف مع قاعدة Redump المحلية.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ProgressTitle">تقدم الفحص</sys:String>
 
-    <sys:String x:Key="LocRedumpDetails_SuggestedNameTitle">الاسم المقترح</sys:String>
+    <sys:String x:Key="LocRedumpDetails_SuggestedNameTitle">الاسم الصحيح من Redump</sys:String>
     <sys:String x:Key="LocRedumpDetails_SuggestedNameDescription">يعرض اسم Redump القياسي عند وجود مطابقة. إذا لم توجد مطابقة، يبقى زر إعادة التسمية معطلاً.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_SystemSizeTitle">المنصة والحجم</sys:String>
     <sys:String x:Key="LocRedumpDetails_SystemSizeDescription">عرض منصة الملف وحجمه بعد إتمام الفحص.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_SystemLabel">منصة Redump</sys:String>
-    <sys:String x:Key="LocRedumpDetails_SizeLabel">حجم الملف</sys:String>
+    <sys:String x:Key="LocRedumpDetails_SizeLabel">الحجم</sys:String>
     <sys:String x:Key="LocRedumpDetails_ManufacturerLabel">الشركة</sys:String>
-    <sys:String x:Key="LocRedumpDetails_ConsoleTypeLabel">الجهاز المكتشف</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ConsoleTypeLabel">الجهاز</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_GameFileTitle">اللعبة والملف</sys:String>
     <sys:String x:Key="LocRedumpDetails_GameFileDescription">عرض اسم اللعبة واسم الملف المستخدم في الفحص.</sys:String>
@@ -1284,14 +1285,14 @@
     <sys:String x:Key="LocRedumpDetails_FilesTitle">الملفات المفحوصة</sys:String>
     <sys:String x:Key="LocRedumpDetails_FilesDescription">عرض ملخص بالملفات التي شملها الفحص.</sys:String>
 
-    <sys:String x:Key="LocRedumpDetails_HashesTitle">قيم الهاش</sys:String>
+    <sys:String x:Key="LocRedumpDetails_HashesTitle">البصمات</sys:String>
     <sys:String x:Key="LocRedumpDetails_HashesDescription">عرض قيم الهاش المستخدمة في عملية التحقق.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_NotesTitle">ملاحظات</sys:String>
     <sys:String x:Key="LocRedumpDetails_NotesDescription">عرض ملخص إضافي قابل للتحديد والنسخ.</sys:String>
 
-    <sys:String x:Key="LocRedumpDetails_ApplyName">تطبيق الاسم المقترح</sys:String>
-    <sys:String x:Key="LocRedumpDetails_ApplyNameTooltip">إعادة تسمية ملف المصدر باستخدام اسم Redump المقترح عند توفر مطابقة.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ApplyName">تطبيق الاسم الصحيح</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ApplyNameTooltip">إعادة تسمية ملف المصدر إلى اسم Redump المطابق.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_CopyNameUnavailable">لا يوجد اسم Redump مطابق لنسخه.</sys:String>
     <sys:String x:Key="LocRedumpDetails_CopyNameSuccess">تم نسخ الاسم بنجاح.</sys:String>
@@ -1448,7 +1449,8 @@
     <sys:String x:Key="LocRedumpDetails_Value_Unknown">غير معروف</sys:String>
     <sys:String x:Key="LocRedumpDetails_Value_Unavailable">غير متوفر</sys:String>
     <sys:String x:Key="LocRedumpDetails_NoSuggestedName">لم يتم العثور على اسم Redump مطابق لهذا الملف.</sys:String>
-    <sys:String x:Key="LocRedumpDetails_NoUsefulHashes">لا توجد قيم هاش متاحة لهذا العنصر بعد.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_NoUsefulHashes">لم ينتج هذا الفحص بصمات قابلة للعرض.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_HashesPending">يتم حساب البصمات وستظهر بعد اكتمال الفحص.</sys:String>
     <sys:String x:Key="LocRedumpDetails_UnnamedFile">ملف بدون اسم</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_DefaultNotesNone">لا توجد ملاحظات إضافية.</sys:String>
@@ -1459,7 +1461,7 @@
     <sys:String x:Key="LocRedumpDetails_StatusNoteNoDatabase">لا يمكن إعطاء نتيجة نهائية قبل تحميل قاعدة Redump المحلية أو استيرادها.</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusNoteConflicted">تظهر النتائج أن الملفات قد تكون مختلطة أو مرتبطة بأكثر من لعبة أو قرص.</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusNoteModifiedOrCorrupt">لم يتم العثور على مطابقة محلية. قد يكون الملف معدلاً أو من إصدار مختلف.</sys:String>
-    <sys:String x:Key="LocRedumpDetails_StatusNoteGeneric">يُرجى مراجعة البيانات التالية للحصول على صورة أوضح عن حالة هذا العنصر.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_StatusNoteGeneric">لا تتوفر تفاصيل إضافية لهذه النتيجة.</sys:String>
     <sys:String x:Key="LocCommon_ByteUnit">بايت</sys:String>
 
     <sys:String x:Key="LocAbout_DefaultDescription">إدارة وتحويل صور الأقراص إلى صيغة CHD باستخدام أداة chdman.</sys:String>

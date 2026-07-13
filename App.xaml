@@ -33,7 +33,7 @@
             <TextAlignment x:Key="App.DefaultTextAlignment">Right</TextAlignment>
             <markup:XmlLanguage x:Key="App.XmlLanguage">ar-SA</markup:XmlLanguage>
 
-            <TextAlignment x:Key="Options.SettingsTextAlignment">Left</TextAlignment>
+            <TextAlignment x:Key="Options.SettingsTextAlignment">Right</TextAlignment>
 
             <FlowDirection x:Key="TechnicalText.FlowDirection">LeftToRight</FlowDirection>
             <TextAlignment x:Key="TechnicalText.TextAlignment">Left</TextAlignment>
@@ -44,32 +44,47 @@
             <FontFamily x:Key="HeaderArabicFont">Segoe UI Variable Display, Segoe UI</FontFamily>
 
             <Style TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource App.DefaultTextAlignment}" />
-                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-                <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="TextAlignment"
+                        Value="{DynamicResource App.DefaultTextAlignment}" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="Language"
+                        Value="{DynamicResource App.XmlLanguage}" />
+                <Setter Property="TextWrapping"
+                        Value="Wrap" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
             </Style>
 
             <Style x:Key="TechnicalTextBlock"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Mono}" />
-                <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
-                <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Mono}" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource TechnicalText.FlowDirection}" />
+                <Setter Property="Language"
+                        Value="{DynamicResource TechnicalText.Language}" />
+                <Setter Property="TextAlignment"
+                        Value="{DynamicResource TechnicalText.TextAlignment}" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
             </Style>
 
             <Style TargetType="{x:Type Button}"
                    BasedOn="{StaticResource FluentImplicitButtonStyle}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Text}" />
             </Style>
 
             <Style TargetType="{x:Type DataGridColumnHeader}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Text}" />
             </Style>
         </ResourceDictionary>
     </Application.Resources>

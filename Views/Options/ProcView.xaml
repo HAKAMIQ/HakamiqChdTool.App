@@ -39,7 +39,8 @@
                               Style="{StaticResource Win11SettingsSectionHeader}">
                             <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
                                        Text="{DynamicResource LocProcessing_VerifyOutputSection}"
-                                       ToolTip="{DynamicResource LocProcessing_VerifyOutputDesc}" />
+                                       ToolTip="{DynamicResource LocProcessing_VerifyOutputDesc}"
+                                       TextAlignment="Center" />
                         </Grid>
 
                         <Border Grid.Row="1"
@@ -55,7 +56,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_IncludeSubfolders}"
-                                               ToolTip="{DynamicResource LocPaths_IncludeSubfoldersDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_IncludeSubfoldersDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -79,7 +81,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_VerifyAfterConversion}"
-                                               ToolTip="{DynamicResource LocProcessing_VerifyAfterConversionDesc}" />
+                                               ToolTip="{DynamicResource LocProcessing_VerifyAfterConversionDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -103,7 +106,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_SkipExistingOutput}"
-                                               ToolTip="{DynamicResource LocProcessing_SkipExistingOutputDesc}" />
+                                               ToolTip="{DynamicResource LocProcessing_SkipExistingOutputDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -127,7 +131,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_CopyMatchingSbi}"
-                                               ToolTip="{DynamicResource LocProcessing_CopyMatchingSbiDesc}" />
+                                               ToolTip="{DynamicResource LocProcessing_CopyMatchingSbiDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -152,7 +157,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_AutoM3uGeneration}"
-                                               ToolTip="{DynamicResource LocProcessing_AutoM3uGenerationDesc}" />
+                                               ToolTip="{DynamicResource LocProcessing_AutoM3uGenerationDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -183,7 +189,8 @@
                               Style="{StaticResource Win11SettingsSectionHeader}">
                             <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
                                        Text="{DynamicResource LocProcessing_CleanupSection}"
-                                       ToolTip="{DynamicResource LocProcessing_CleanupDesc}" />
+                                       ToolTip="{DynamicResource LocProcessing_CleanupDesc}"
+                                       TextAlignment="Center" />
                         </Grid>
 
                         <Border Grid.Row="1"
@@ -199,7 +206,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversion}"
-                                               ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversionDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversionDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -223,7 +231,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtraction}"
-                                               ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtractionDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtractionDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -247,7 +256,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_DeleteTemporaryExtraction}"
-                                               ToolTip="{DynamicResource LocProcessing_DeleteTemporaryExtractionDesc}" />
+                                               ToolTip="{DynamicResource LocProcessing_DeleteTemporaryExtractionDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -271,7 +281,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocProcessing_DeleteFailedOutput}"
-                                               ToolTip="{DynamicResource LocProcessing_DeleteFailedOutputDesc}" />
+                                               ToolTip="{DynamicResource LocProcessing_DeleteFailedOutputDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"

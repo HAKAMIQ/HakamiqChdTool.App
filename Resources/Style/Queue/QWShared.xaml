@@ -185,9 +185,9 @@
            BasedOn="{StaticResource QueueWorkspace.GeneralText}">
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="MaxWidth" Value="{DynamicResource Layout.DropHint.MaxWidth}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
-        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="TextTrimming" Value="None" />
     </Style>
@@ -246,8 +246,8 @@
 
     <Style x:Key="QueueWorkspaceToolButton"
            TargetType="{x:Type Button}">
-        <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
@@ -325,7 +325,7 @@
 
     <Style x:Key="QueueWorkspaceFooterCommandBase"
            TargetType="{x:Type Button}">
-        <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
@@ -407,7 +407,7 @@
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource QueueWorkspaceFooterCommandBase}">
         <Setter Property="MinWidth" Value="148" />
-        <Setter Property="MaxWidth" Value="180" />
+        <Setter Property="MaxWidth" Value="164" />
         <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground.OnAccent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
@@ -418,7 +418,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Control}"
+                            CornerRadius="{DynamicResource Radius.Control.Large}"
                             Padding="{TemplateBinding Padding}"
                             Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"
@@ -474,15 +474,15 @@
     <Style x:Key="QueueWorkspaceFooterSecondaryCommand"
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource QueueWorkspaceFooterCommandBase}">
-        <Setter Property="MinWidth" Value="112" />
-        <Setter Property="MaxWidth" Value="144" />
+        <Setter Property="MinWidth" Value="104" />
+        <Setter Property="MaxWidth" Value="136" />
     </Style>
 
     <Style x:Key="QueueWorkspaceFooterDangerCommand"
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource QueueWorkspaceFooterCommandBase}">
-        <Setter Property="MinWidth" Value="108" />
-        <Setter Property="MaxWidth" Value="140" />
+        <Setter Property="MinWidth" Value="104" />
+        <Setter Property="MaxWidth" Value="136" />
         <Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Error}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ErrorBorderBrush}" />

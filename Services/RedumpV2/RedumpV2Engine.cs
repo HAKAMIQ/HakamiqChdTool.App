@@ -5,10 +5,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
+#pragma warning disable IDE0130 // Namespace is intentionally kept stable for existing public API and call sites.
 namespace HakamiqChdTool.App.Services;
 
-public sealed class RedumpV2Engine
+public sealed partial class RedumpV2Engine(
+    RedumpV2Classifier classifier,
+    ChdInfoService chdInfo,
+    ArchiveExtractionService archiveExtraction,
+    ICsoPreprocessor csoPreprocessor)
 {
     private const int BufferSize = 1024 * 1024;
     private const int TotalSteps = 6;
@@ -56,26 +62,21 @@ public sealed class RedumpV2Engine
 
     public static RedumpV2Engine Default { get; } = new();
 
-    private readonly RedumpV2Classifier _classifier;
-    private readonly ChdInfoService _chdInfo;
-    private readonly ArchiveExtractionService _archiveExtraction;
-    private readonly ICsoPreprocessor _csoPreprocessor;
+    private readonly RedumpV2Classifier _classifier =
+        classifier ?? throw new ArgumentNullException(nameof(classifier));
+
+    private readonly ChdInfoService _chdInfo =
+        chdInfo ?? throw new ArgumentNullException(nameof(chdInfo));
+
+    private readonly ArchiveExtractionService _archiveExtraction =
+        archiveExtraction ?? throw new ArgumentNullException(nameof(archiveExtraction));
+
+    private readonly ICsoPreprocessor _csoPreprocessor =
+        csoPreprocessor ?? throw new ArgumentNullException(nameof(csoPreprocessor));
 
     public RedumpV2Engine()
         : this(new RedumpV2Classifier(), new ChdInfoService(), new ArchiveExtractionService(), new CsoPreprocessor())
     {
-    }
-
-    public RedumpV2Engine(
-        RedumpV2Classifier classifier,
-        ChdInfoService chdInfo,
-        ArchiveExtractionService archiveExtraction,
-        ICsoPreprocessor csoPreprocessor)
-    {
-        _classifier = classifier ?? throw new ArgumentNullException(nameof(classifier));
-        _chdInfo = chdInfo ?? throw new ArgumentNullException(nameof(chdInfo));
-        _archiveExtraction = archiveExtraction ?? throw new ArgumentNullException(nameof(archiveExtraction));
-        _csoPreprocessor = csoPreprocessor ?? throw new ArgumentNullException(nameof(csoPreprocessor));
     }
 
     public async Task<RedumpV2ScanResult> ScanAsync(
@@ -134,20 +135,11 @@ public sealed class RedumpV2Engine
                     Ps3JbIrdOnlyKey);
             }
 
-            if (classification.SourceFormat == RedumpSourceFormat.DecryptedPs3Iso)
-            {
-                return BuildTerminalResult(
-                    RedumpV2ResultState.Unsupported,
-                    fullPath,
-                    classification.SourceFormat,
-                    RedumpNormalizedFormat.Unsupported,
-                    usedTemporaryNormalization: false,
-                    requiredTempSpaceBytes: 0,
-                    StatusUnsupportedKey,
-                    Ps3DecryptedNotOriginalKey);
-            }
+            bool isDecryptedPs3Iso =
+                classification.SourceFormat == RedumpSourceFormat.DecryptedPs3Iso;
 
-            if (redumpDatabase is null || !redumpDatabase.HasAnyRows())
+            if (!isDecryptedPs3Iso
+                && (redumpDatabase is null || !redumpDatabase.HasAnyRows()))
             {
                 return BuildTerminalResult(
                     RedumpV2ResultState.NoDatabase,
@@ -208,13 +200,27 @@ public sealed class RedumpV2Engine
                     cancellationToken)
                 .ConfigureAwait(false);
 
+            if (isDecryptedPs3Iso)
+            {
+                return BuildTerminalResult(
+                    RedumpV2ResultState.NotRedumpOriginalLayout,
+                    fullPath,
+                    classification.SourceFormat,
+                    normalization.Format,
+                    normalization.UsedTemporaryNormalization,
+                    normalization.RequiredTempSpaceBytes,
+                    Ps3DecryptedNotOriginalKey,
+                    Ps3DecryptedNotOriginalKey,
+                    hashedFiles: hashed);
+            }
+
             Report(progress, operationId, ProgressOperationType.RedumpScan, itemName, 4, 0, 0, 0, StepMatchKey);
             return MatchAndAggregate(
                 fullPath,
                 classification.SourceFormat,
                 normalization,
                 hashed,
-                redumpDatabase);
+                redumpDatabase!);
         }
         catch (OperationCanceledException)
         {
@@ -280,7 +286,7 @@ public sealed class RedumpV2Engine
 
         return classification.SourceFormat switch
         {
-            RedumpSourceFormat.Iso => NormalizationOutcome.Success(
+            RedumpSourceFormat.Iso or RedumpSourceFormat.DecryptedPs3Iso => NormalizationOutcome.Success(
                 classification.InputPath,
                 RedumpNormalizedFormat.Iso,
                 usedTemporaryNormalization: false,
@@ -1066,7 +1072,7 @@ public sealed class RedumpV2Engine
         return token.Length > 0;
     }
 
-    private static IReadOnlyList<string> ResolveDescriptorFileNames(string baseDirectory, IReadOnlyList<string> names)
+    private static List<string> ResolveDescriptorFileNames(string baseDirectory, List<string> names)
     {
         var resolved = new List<string>();
         var missing = new List<string>();
@@ -1269,9 +1275,12 @@ public sealed class RedumpV2Engine
             builder.Append(invalid.Contains(character) ? ' ' : character);
         }
 
-        string collapsed = System.Text.RegularExpressions.Regex.Replace(builder.ToString(), @"\s+", " ").Trim();
+        string collapsed = WhitespaceRegex().Replace(builder.ToString(), " ").Trim();
         return collapsed.TrimEnd('.', ' ');
     }
+
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex WhitespaceRegex();
 
     private static long TryGetFileSize(string path)
     {

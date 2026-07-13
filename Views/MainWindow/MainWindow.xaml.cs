@@ -266,4 +266,9 @@ public partial class MainWindow : Window
 
         TaskbarItemInfo = taskbarItemInfo;
     }
+
+    private void QueueWorkspace_Loaded(object sender, RoutedEventArgs e)
+    {
+
+    }
 }

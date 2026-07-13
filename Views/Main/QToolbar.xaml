@@ -32,8 +32,8 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Width="{DynamicResource Space.36}"
-                        Height="{DynamicResource Space.36}"
+                        Width="{DynamicResource Space.40}"
+                        Height="{DynamicResource Space.40}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Background="{DynamicResource Brush.Accent.Subtle}"
@@ -62,16 +62,15 @@
 
                     <TextBlock Style="{DynamicResource QueueWorkspaceHeaderTitleText}"
                                Text="{DynamicResource LocUi_QueueSection_Title}"
+                               TextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               TextWrapping="NoWrap"
-                               ToolTip="{DynamicResource LocUi_QueueSection_Title}" />
+                               TextWrapping="NoWrap" />
 
                     <TextBlock Style="{DynamicResource QueueWorkspaceHeaderSubtitleText}"
                                Text="{DynamicResource LocUi_QueueSection_Subtitle}"
+                               TextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               TextWrapping="NoWrap"
-                               Visibility="Collapsed"
-                               ToolTip="{DynamicResource LocUi_QueueSection_Subtitle}" />
+                               TextWrapping="NoWrap" />
                 </StackPanel>
             </Grid>
 
@@ -92,7 +91,6 @@
                         Command="{Binding SelectFilesCommand}"
                         IsEnabled="{Binding IsShellEnabled}"
                         Style="{DynamicResource QueueWorkspaceToolButton}"
-                        ToolTip="{DynamicResource LocUi_Hub_AddFiles}"
                         AutomationProperties.Name="{DynamicResource LocUi_Hub_AddFiles}">
 
                     <Grid FlowDirection="{DynamicResource App.FlowDirection}"
@@ -122,6 +120,7 @@
                         <TextBlock Grid.Column="2"
                                    Style="{DynamicResource QueueWorkspaceCommandText}"
                                    Text="{DynamicResource LocUi_Hub_AddFiles}"
+                                   TextAlignment="Left"
                                    TextTrimming="CharacterEllipsis"
                                    TextWrapping="NoWrap" />
                     </Grid>
@@ -131,7 +130,6 @@
                         Command="{Binding SelectFolderCommand}"
                         IsEnabled="{Binding IsShellEnabled}"
                         Style="{DynamicResource QueueWorkspaceToolButton}"
-                        ToolTip="{DynamicResource LocUi_Hub_AddFolder}"
                         AutomationProperties.Name="{DynamicResource LocUi_Hub_AddFolder}">
 
                     <Grid FlowDirection="{DynamicResource App.FlowDirection}"
@@ -161,6 +159,7 @@
                         <TextBlock Grid.Column="2"
                                    Style="{DynamicResource QueueWorkspaceCommandText}"
                                    Text="{DynamicResource LocUi_Hub_AddFolder}"
+                                   TextAlignment="Left"
                                    TextTrimming="CharacterEllipsis"
                                    TextWrapping="NoWrap" />
                     </Grid>
