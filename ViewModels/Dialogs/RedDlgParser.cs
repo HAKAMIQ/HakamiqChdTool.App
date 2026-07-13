@@ -180,29 +180,41 @@ public sealed partial class RedumpDetailsDialogViewModel
 
     private static string BuildStatusNote(string status)
     {
-        if (status.Contains("سليم", StringComparison.OrdinalIgnoreCase))
+        if (StatusEqualsAny(
+                status,
+                StatusVerifiedKey,
+                StatusVerifiedCompleteKey,
+                StatusVerifiedNormalizedKey))
         {
             return Text(StatusNoteMatchedKey);
         }
 
-        if (status.Contains("غير مكتمل", StringComparison.OrdinalIgnoreCase))
+        if (StatusEqualsAny(status, StatusIncompleteKey))
         {
             return Text(StatusNotePartialKey);
         }
 
-        if (status.Contains("بلا قاعدة", StringComparison.OrdinalIgnoreCase))
+        if (StatusEqualsAny(
+                status,
+                StatusNoDatabaseKey,
+                StatusMissingPlatformDatabaseKey))
         {
             return Text(StatusNoteNoDatabaseKey);
         }
 
-        if (status.Contains("متضاربة", StringComparison.OrdinalIgnoreCase))
+        if (StatusEqualsAny(status, StatusConflictingMatchKey))
         {
             return Text(StatusNoteConflictedKey);
         }
 
-        if (status.Contains("تالف", StringComparison.OrdinalIgnoreCase) || status.Contains("معدل", StringComparison.OrdinalIgnoreCase))
+        if (StatusEqualsAny(status, StatusModifiedKey))
         {
             return Text(StatusNoteModifiedOrCorruptKey);
+        }
+
+        if (StatusEqualsAny(status, Ps3DecryptedNotOriginalKey))
+        {
+            return Text(Ps3DecryptedNotOriginalKey);
         }
 
         return Text(StatusNoteGenericKey);
@@ -210,12 +222,36 @@ public sealed partial class RedumpDetailsDialogViewModel
 
     private static string BuildDefaultNotes(string status)
     {
-        if (status.Contains("بلا قاعدة", StringComparison.OrdinalIgnoreCase))
+        if (StatusEqualsAny(
+                status,
+                StatusNoDatabaseKey,
+                StatusMissingPlatformDatabaseKey))
         {
             return Text(DefaultNotesNoDatabaseKey);
         }
 
         return Text(DefaultNotesNoneKey);
+    }
+
+    private static bool StatusEqualsAny(string status, params string[] resourceKeys)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return false;
+        }
+
+        foreach (string resourceKey in resourceKeys)
+        {
+            if (string.Equals(
+                    status,
+                    Text(resourceKey),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string BuildFooterSummary(string status, string suggestedName)

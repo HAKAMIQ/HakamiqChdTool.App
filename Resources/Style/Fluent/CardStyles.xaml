@@ -14,9 +14,9 @@
 
     <Style x:Key="FluentWorkspaceCard" TargetType="{x:Type Border}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -38,8 +38,9 @@
            TargetType="{x:Type Border}"
            BasedOn="{StaticResource FluentMiniStatCard}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
     </Style>
 
@@ -53,8 +54,9 @@
            TargetType="{x:Type Border}"
            BasedOn="{StaticResource FluentMiniStatCard}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.14.12}" />
     </Style>
 

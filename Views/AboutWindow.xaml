@@ -9,9 +9,8 @@
         Width="600"
         Height="360"
         MinWidth="560"
-        MinHeight="340"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="CanResize"
+        ResizeMode="NoResize"
         WindowStyle="None"
         AllowsTransparency="False"
         Background="{DynamicResource Brush.Layer.Canvas}"
@@ -34,20 +33,34 @@
 
             <Style x:Key="AboutIconLinkButtonStyle"
                    TargetType="{x:Type Button}">
-                <Setter Property="Width" Value="{DynamicResource Space.40}" />
-                <Setter Property="Height" Value="{DynamicResource Space.40}" />
-                <Setter Property="MinWidth" Value="{DynamicResource Space.40}" />
-                <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="Cursor" Value="Hand" />
-                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                <Setter Property="VerticalContentAlignment" Value="Center" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Width"
+                        Value="{DynamicResource Space.40}" />
+                <Setter Property="Height"
+                        Value="{DynamicResource Space.40}" />
+                <Setter Property="MinWidth"
+                        Value="{DynamicResource Space.40}" />
+                <Setter Property="MinHeight"
+                        Value="{DynamicResource Space.40}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.None}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Control.Fill.Rest}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Control.Stroke.Default}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="Cursor"
+                        Value="Hand" />
+                <Setter Property="HorizontalContentAlignment"
+                        Value="Center" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Center" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Button}">
@@ -56,7 +69,8 @@
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     CornerRadius="{DynamicResource Radius.Control}"
-                                    SnapsToDevicePixels="True">
+                                    SnapsToDevicePixels="True"
+                                    UseLayoutRounding="True">
 
                                 <ContentPresenter Margin="{TemplateBinding Padding}"
                                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -67,7 +81,8 @@
                             </Border>
 
                             <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger Property="IsMouseOver"
+                                         Value="True">
                                     <Setter TargetName="Root"
                                             Property="Background"
                                             Value="{DynamicResource Brush.Control.Fill.Hover}" />
@@ -78,7 +93,8 @@
                                             Value="{DynamicResource Brush.Accent.Text}" />
                                 </Trigger>
 
-                                <Trigger Property="IsPressed" Value="True">
+                                <Trigger Property="IsPressed"
+                                         Value="True">
                                     <Setter TargetName="Root"
                                             Property="Background"
                                             Value="{DynamicResource Brush.Control.Fill.Pressed}" />
@@ -89,13 +105,15 @@
                                             Value="{DynamicResource Brush.Accent.Pressed}" />
                                 </Trigger>
 
-                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Trigger Property="IsKeyboardFocused"
+                                         Value="True">
                                     <Setter TargetName="Root"
                                             Property="BorderBrush"
                                             Value="{DynamicResource Brush.Control.Stroke.Focus}" />
                                 </Trigger>
 
-                                <Trigger Property="IsEnabled" Value="False">
+                                <Trigger Property="IsEnabled"
+                                         Value="False">
                                     <Setter TargetName="Root"
                                             Property="Background"
                                             Value="{DynamicResource Brush.Control.Fill.Disabled}" />
@@ -115,104 +133,148 @@
 
             <Style x:Key="About.HeaderTextColumn"
                    TargetType="{x:Type StackPanel}">
-                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-                <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-            </Style>
-
-            <Style x:Key="About.SectionAccent"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Width" Value="{DynamicResource Space.4}" />
-                <Setter Property="Height" Value="{DynamicResource Space.28}" />
-                <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="HorizontalAlignment" Value="Center" />
-                <Setter Property="VerticalAlignment" Value="Top" />
-                <Setter Property="Margin" Value="{DynamicResource Inset.0.2.0.0}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="Language"
+                        Value="{DynamicResource App.XmlLanguage}" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="VerticalAlignment"
+                        Value="Center" />
             </Style>
 
             <Style x:Key="About.GeneralText"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
-                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="Language"
+                        Value="{DynamicResource App.XmlLanguage}" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="TextAlignment"
+                        Value="Left" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="TextWrapping"
+                        Value="Wrap" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="About.WindowTitleText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource About.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.Body}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
             </Style>
 
             <Style x:Key="About.ProductTitleText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource About.GeneralText}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Display}" />
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Display}" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.Title}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
             </Style>
 
             <Style x:Key="About.BodyText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource About.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
-                <Setter Property="TextTrimming" Value="None" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="LineHeight"
+                        Value="{DynamicResource Font.LineHeight.Body}" />
+                <Setter Property="LineStackingStrategy"
+                        Value="BlockLineHeight" />
+                <Setter Property="TextTrimming"
+                        Value="None" />
             </Style>
 
             <Style x:Key="About.LabelText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource About.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.Text}" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.Caption}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Accent.Text}" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
             </Style>
 
             <Style x:Key="About.SectionPrimaryText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource About.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.Body}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
             </Style>
 
             <Style x:Key="About.SectionSecondaryText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource About.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
-                <Setter Property="TextTrimming" Value="None" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.Caption}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="LineHeight"
+                        Value="{DynamicResource Font.LineHeight.Body}" />
+                <Setter Property="LineStackingStrategy"
+                        Value="BlockLineHeight" />
+                <Setter Property="TextTrimming"
+                        Value="None" />
             </Style>
 
             <Style x:Key="About.TechnicalText"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FlowDirection" Value="LeftToRight" />
-                <Setter Property="Language" Value="en-US" />
-                <Setter Property="TextAlignment" Value="Left" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FlowDirection"
+                        Value="LeftToRight" />
+                <Setter Property="Language"
+                        Value="en-US" />
+                <Setter Property="TextAlignment"
+                        Value="Left" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -221,7 +283,7 @@
         <shell:WindowChrome CaptionHeight="{DynamicResource Space.40}"
                             CornerRadius="{DynamicResource Radius.Window}"
                             GlassFrameThickness="{DynamicResource Inset.None}"
-                            ResizeBorderThickness="{DynamicResource Window.ResizeBorderThickness}"
+                            ResizeBorderThickness="{DynamicResource Inset.None}"
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
@@ -231,7 +293,8 @@
             BorderThickness="{DynamicResource Inset.1.All}"
             CornerRadius="{DynamicResource Radius.Window}"
             ClipToBounds="True"
-            SnapsToDevicePixels="True">
+            SnapsToDevicePixels="True"
+            UseLayoutRounding="True">
 
         <Grid FlowDirection="{DynamicResource App.FlowDirection}"
               Language="{DynamicResource App.XmlLanguage}"
@@ -265,7 +328,6 @@
                                VerticalAlignment="Center"
                                Style="{StaticResource About.WindowTitleText}"
                                Text="{Binding WindowTitle, Mode=OneWay}"
-                               ToolTip="{Binding WindowTitle, Mode=OneWay}"
                                d:Text="حول Hakamiq CHD Tool" />
 
                     <StackPanel Grid.Column="2"
@@ -281,10 +343,12 @@
                                 Style="{StaticResource HeaderIconButtonStyle}"
                                 ToolTip="{DynamicResource LocCommon_Close}"
                                 AutomationProperties.Name="{DynamicResource LocCommon_Close}">
+
                             <Viewbox Width="{DynamicResource Space.12}"
                                      Height="{DynamicResource Space.12}"
                                      FlowDirection="LeftToRight"
                                      Stretch="Uniform">
+
                                 <Path Data="{StaticResource Icon.Close}"
                                       Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                       Stretch="Uniform" />
@@ -300,152 +364,148 @@
                   Language="{DynamicResource App.XmlLanguage}"
                   SnapsToDevicePixels="True">
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="{DynamicResource Grid.Space.12}" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="{DynamicResource Grid.Space.12}" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0"
-                          FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          HorizontalAlignment="Stretch"
-                          VerticalAlignment="Top"
-                          SnapsToDevicePixels="True">
+                <Grid Grid.Row="0"
+                      FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Top"
+                      SnapsToDevicePixels="True">
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0"
-                                Width="{DynamicResource Space.64}"
-                                Height="{DynamicResource Space.64}"
-                                Background="{DynamicResource HeaderLogoPlateBackgroundBrush}"
-                                BorderBrush="{DynamicResource HeaderLogoPlateBorderBrush}"
-                                BorderThickness="{DynamicResource Inset.1.All}"
-                                CornerRadius="{DynamicResource Radius.Card}"
-                                ClipToBounds="True"
-                                SnapsToDevicePixels="True">
-
-                            <Image Source="pack://application:,,,/Resources/HakamiqLogo.png"
-                                   Width="{DynamicResource Space.64}"
-                                   Height="{DynamicResource Space.64}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   RenderOptions.BitmapScalingMode="HighQuality"
-                                   Stretch="UniformToFill" />
-                        </Border>
-
-                        <StackPanel Grid.Column="2"
-                                    MinWidth="0"
-                                    Style="{StaticResource About.HeaderTextColumn}">
-
-                            <TextBlock Text="{Binding ProductName, Mode=OneWay}"
-                                       ToolTip="{Binding ProductName, Mode=OneWay}"
-                                       d:Text="Hakamiq CHD Tool"
-                                       Style="{StaticResource About.ProductTitleText}" />
-
-                            <StackPanel Margin="{DynamicResource Inset.0.4.0.0}"
-                                        Orientation="Horizontal"
-                                        FlowDirection="{DynamicResource App.FlowDirection}">
-                                <TextBlock Text="{DynamicResource LocAbout_VersionLabel}"
-                                           Style="{StaticResource About.LabelText}" />
-
-                                <TextBlock Margin="{DynamicResource Inset.6.0.0.0}"
-                                           Text="{Binding VersionLabel, Mode=OneWay}"
-                                           ToolTip="{Binding VersionLabel, Mode=OneWay}"
-                                           d:Text="v1.1.0"
-                                           FontFamily="{DynamicResource FontFamily.Text}"
-                                           FontSize="{DynamicResource FontSize.Caption}"
-                                           FontWeight="{DynamicResource FontWeight.SemiBold}"
-                                           Foreground="{DynamicResource Brush.Accent.Text}"
-                                           Style="{StaticResource About.TechnicalText}" />
-                            </StackPanel>
-
-                            <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
-                                       Text="{Binding Description, Mode=OneWay}"
-                                       ToolTip="{Binding Description, Mode=OneWay}"
-                                       d:Text="أداة احترافية لتحويل وإدارة ملفات CHD."
-                                       Style="{StaticResource About.BodyText}" />
-                        </StackPanel>
-                    </Grid>
-
-                    <Border Grid.Row="2"
-                            Background="{DynamicResource Brush.Layer.Card}"
-                            BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                    <Border Grid.Column="0"
+                            Width="{DynamicResource Space.64}"
+                            Height="{DynamicResource Space.64}"
+                            Background="{DynamicResource HeaderLogoPlateBackgroundBrush}"
+                            BorderBrush="{DynamicResource HeaderLogoPlateBorderBrush}"
                             BorderThickness="{DynamicResource Inset.1.All}"
                             CornerRadius="{DynamicResource Radius.Card}"
-                            Padding="{DynamicResource Inset.16.All}"
+                            ClipToBounds="True"
                             SnapsToDevicePixels="True">
 
-                        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                              Language="{DynamicResource App.XmlLanguage}"
-                              SnapsToDevicePixels="True">
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="{DynamicResource Grid.Space.6}" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="{DynamicResource Grid.Space.12}" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0"
-                                       Text="{Binding DeveloperLine, Mode=OneWay}"
-                                       ToolTip="{Binding DeveloperLine, Mode=OneWay}"
-                                       d:Text="المطور: Qasim Hakami"
-                                       Style="{StaticResource About.SectionPrimaryText}" />
-
-                            <TextBlock Grid.Row="2"
-                                       Text="{Binding LicenseLine, Mode=OneWay}"
-                                       ToolTip="{Binding LicenseLine, Mode=OneWay}"
-                                       d:Text="مرخص بموجب MIT."
-                                       Style="{StaticResource About.SectionSecondaryText}" />
-
-                            <ItemsControl Grid.Row="4"
-                                          ItemsSource="{Binding Links, Mode=OneWay}"
-                                          HorizontalAlignment="Center">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal"
-                                                    FlowDirection="{DynamicResource App.FlowDirection}" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Margin="{DynamicResource Inset.4.All}"
-                                                Style="{StaticResource AboutIconLinkButtonStyle}"
-                                                Command="{Binding DataContext.OpenLinkCommand, RelativeSource={RelativeSource AncestorType=Window}, Mode=OneWay}"
-                                                CommandParameter="{Binding}"
-                                                AutomationProperties.Name="{Binding DisplayName, Mode=OneWay}">
-                                            <Button.ToolTip>
-                                                <ToolTip FlowDirection="{DynamicResource App.FlowDirection}">
-                                                    <TextBlock Text="{Binding DisplayName, Mode=OneWay}"
-                                                               FlowDirection="{DynamicResource App.FlowDirection}"
-                                                               TextAlignment="{DynamicResource Options.SettingsTextAlignment}" />
-                                                </ToolTip>
-                                            </Button.ToolTip>
-
-                                            <TextBlock Text="{Binding IconGlyph, Mode=OneWay}"
-                                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                                       FontSize="{DynamicResource FontSize.IconMedium}"
-                                                       FlowDirection="LeftToRight"
-                                                       Language="en-US"
-                                                       TextAlignment="Center"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center" />
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Grid>
+                        <Image Source="pack://application:,,,/Resources/HakamiqLogo.png"
+                               Width="{DynamicResource Space.64}"
+                               Height="{DynamicResource Space.64}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               Stretch="Uniform" />
                     </Border>
 
+                    <StackPanel Grid.Column="2"
+                                MinWidth="0"
+                                Style="{StaticResource About.HeaderTextColumn}">
+
+                        <TextBlock Text="{Binding ProductName, Mode=OneWay}"
+                                   d:Text="Hakamiq CHD Tool"
+                                   Style="{StaticResource About.ProductTitleText}" />
+
+                        <StackPanel Margin="{DynamicResource Inset.0.4.0.0}"
+                                    Orientation="Horizontal"
+                                    FlowDirection="{DynamicResource App.FlowDirection}">
+
+                            <TextBlock Text="{DynamicResource LocAbout_VersionLabel}"
+                                       Style="{StaticResource About.LabelText}" />
+
+                            <TextBlock Margin="{DynamicResource Inset.6.0.0.0}"
+                                       Text="{Binding VersionLabel, Mode=OneWay}"
+                                       d:Text="v1.1.0"
+                                       FontFamily="{DynamicResource FontFamily.Text}"
+                                       FontSize="{DynamicResource FontSize.Caption}"
+                                       FontWeight="{DynamicResource FontWeight.SemiBold}"
+                                       Foreground="{DynamicResource Brush.Accent.Text}"
+                                       Style="{StaticResource About.TechnicalText}" />
+                        </StackPanel>
+
+                        <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
+                                   Text="{Binding Description, Mode=OneWay}"
+                                   d:Text="أداة احترافية لتحويل وإدارة ملفات CHD."
+                                   Style="{StaticResource About.BodyText}" />
+                    </StackPanel>
+                </Grid>
+
+                <Border Grid.Row="2"
+                        Background="{DynamicResource Brush.Layer.Card}"
+                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                        BorderThickness="{DynamicResource Inset.1.All}"
+                        CornerRadius="{DynamicResource Radius.Card}"
+                        Padding="{DynamicResource Inset.16.All}"
+                        SnapsToDevicePixels="True"
+                        UseLayoutRounding="True">
+
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}"
+                          SnapsToDevicePixels="True">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                                   Text="{Binding DeveloperLine, Mode=OneWay}"
+                                   d:Text="المطور: Qasim Hakami"
+                                   Style="{StaticResource About.SectionPrimaryText}" />
+
+                        <TextBlock Grid.Row="2"
+                                   Text="{Binding LicenseLine, Mode=OneWay}"
+                                   d:Text="مرخص بموجب MIT."
+                                   Style="{StaticResource About.SectionSecondaryText}" />
+
+                        <ItemsControl Grid.Row="4"
+                                      ItemsSource="{Binding Links, Mode=OneWay}"
+                                      HorizontalAlignment="Center">
+
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"
+                                                FlowDirection="{DynamicResource App.FlowDirection}" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Margin="{DynamicResource Inset.4.All}"
+                                            Style="{StaticResource AboutIconLinkButtonStyle}"
+                                            Command="{Binding DataContext.OpenLinkCommand, RelativeSource={RelativeSource AncestorType=Window}, Mode=OneWay}"
+                                            CommandParameter="{Binding}"
+                                            AutomationProperties.Name="{Binding DisplayName, Mode=OneWay}">
+
+                                        <Button.ToolTip>
+                                            <ToolTip FlowDirection="{DynamicResource App.FlowDirection}">
+                                                <TextBlock Text="{Binding DisplayName, Mode=OneWay}"
+                                                           FlowDirection="{DynamicResource App.FlowDirection}"
+                                                           TextAlignment="Left" />
+                                            </ToolTip>
+                                        </Button.ToolTip>
+
+                                        <TextBlock Text="{Binding IconGlyph, Mode=OneWay}"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.IconMedium}"
+                                                   FlowDirection="LeftToRight"
+                                                   Language="en-US"
+                                                   TextAlignment="Left"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center" />
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Border>
             </Grid>
 
             <Border Grid.Row="2"
@@ -472,7 +532,6 @@
                             VerticalContentAlignment="Center"
                             Click="CloseButton_Click"
                             Content="{DynamicResource LocCommon_Ok}"
-                            ToolTip="{DynamicResource LocCommon_Ok}"
                             AutomationProperties.Name="{DynamicResource LocCommon_Ok}"
                             Style="{StaticResource PrimaryButtonStyle}" />
                 </Grid>

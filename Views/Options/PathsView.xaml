@@ -37,7 +37,7 @@
                               Style="{StaticResource Win11SettingsSectionHeader}">
                             <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
                                        Text="{DynamicResource LocPaths_ChdmanSection}"
-                                       ToolTip="{DynamicResource LocPaths_ChdmanSection}" />
+                                       TextAlignment="Center" />
                         </Grid>
 
                         <Border Grid.Row="1"
@@ -53,7 +53,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_UseBundledChdman}"
-                                               ToolTip="{DynamicResource LocPaths_UseBundledChdmanDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_UseBundledChdmanDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <RadioButton x:Name="UseBundledChdmanRadioButton"
@@ -79,7 +80,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_UseExternalChdman}"
-                                               ToolTip="{DynamicResource LocPaths_UseExternalChdmanDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_UseExternalChdmanDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <RadioButton x:Name="UseExternalChdmanRadioButton"
@@ -105,7 +107,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_ExternalChdmanPath}"
-                                               ToolTip="{DynamicResource LocPaths_ExternalChdmanPathDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_ExternalChdmanPathDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <Grid Grid.Column="2"
@@ -128,20 +131,22 @@
                                         <TextBox.ToolTip>
                                             <TextBlock Text="{Binding ExternalChdmanPath}"
                                                        FlowDirection="LeftToRight"
-                                                       TextAlignment="Left"
                                                        Language="en-US"
+                                                       TextAlignment="Left"
                                                        TextWrapping="NoWrap" />
                                         </TextBox.ToolTip>
                                     </TextBox>
 
                                     <Button x:Name="BrowseExternalChdmanButton"
                                             Grid.Column="2"
-                                            Content="{DynamicResource LocCommon_Browse}"
                                             Command="{Binding BrowseExternalChdmanCommand}"
                                             IsEnabled="{Binding UseExternalChdman}"
                                             Style="{StaticResource Win11SettingsCompactButton}"
                                             ToolTip="{DynamicResource LocPaths_ExternalChdmanPathDesc}"
-                                            AutomationProperties.Name="{DynamicResource LocPaths_ExternalChdmanPath}" />
+                                            AutomationProperties.Name="{DynamicResource LocPaths_ExternalChdmanPath}">
+                                        <TextBlock Text="{DynamicResource LocCommon_Browse}"
+                                                   TextAlignment="Left" />
+                                    </Button>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -166,7 +171,7 @@
                               Style="{StaticResource Win11SettingsSectionHeader}">
                             <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
                                        Text="{DynamicResource LocPaths_SaveAndTempSection}"
-                                       ToolTip="{DynamicResource LocPaths_SaveAndTempSection}" />
+                                       TextAlignment="Center" />
                         </Grid>
 
                         <Border Grid.Row="1"
@@ -182,7 +187,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_CustomOutput}"
-                                               ToolTip="{DynamicResource LocPaths_CustomOutputDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_CustomOutputDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox x:Name="UseCustomOutputRootCheckBox"
@@ -207,7 +213,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_OutputFolder}"
-                                               ToolTip="{DynamicResource LocPaths_OutputFolderDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_OutputFolderDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <Grid Grid.Column="2"
@@ -230,20 +237,22 @@
                                         <TextBox.ToolTip>
                                             <TextBlock Text="{Binding CustomOutputRoot}"
                                                        FlowDirection="LeftToRight"
-                                                       TextAlignment="Left"
                                                        Language="en-US"
+                                                       TextAlignment="Left"
                                                        TextWrapping="NoWrap" />
                                         </TextBox.ToolTip>
                                     </TextBox>
 
                                     <Button x:Name="BrowseOutputFolderButton"
                                             Grid.Column="2"
-                                            Content="{DynamicResource LocCommon_Browse}"
                                             Command="{Binding BrowseOutputFolderCommand}"
                                             IsEnabled="{Binding UseCustomOutputRoot}"
                                             Style="{StaticResource Win11SettingsCompactButton}"
                                             ToolTip="{DynamicResource LocPaths_OutputFolderDesc}"
-                                            AutomationProperties.Name="{DynamicResource LocPaths_OutputFolder}" />
+                                            AutomationProperties.Name="{DynamicResource LocPaths_OutputFolder}">
+                                        <TextBlock Text="{DynamicResource LocCommon_Browse}"
+                                                   TextAlignment="Left" />
+                                    </Button>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -261,7 +270,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_CustomTempFolder}"
-                                               ToolTip="{DynamicResource LocPaths_CustomTempFolderDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_CustomTempFolderDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -285,7 +295,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_TempFolder}"
-                                               ToolTip="{DynamicResource LocPaths_TempFolderDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_TempFolderDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <Grid Grid.Column="2"
@@ -308,20 +319,22 @@
                                         <TextBox.ToolTip>
                                             <TextBlock Text="{Binding PendingWorkspaceCustomRoot}"
                                                        FlowDirection="LeftToRight"
-                                                       TextAlignment="Left"
                                                        Language="en-US"
+                                                       TextAlignment="Left"
                                                        TextWrapping="NoWrap" />
                                         </TextBox.ToolTip>
                                     </TextBox>
 
                                     <Button x:Name="BrowsePendingWorkspaceButton"
                                             Grid.Column="2"
-                                            Content="{DynamicResource LocCommon_Browse}"
                                             Command="{Binding BrowsePendingWorkspaceCommand}"
                                             IsEnabled="{Binding UseCustomPendingWorkspace}"
                                             Style="{StaticResource Win11SettingsCompactButton}"
                                             ToolTip="{DynamicResource LocPaths_TempFolderDesc}"
-                                            AutomationProperties.Name="{DynamicResource LocPaths_TempFolder}" />
+                                            AutomationProperties.Name="{DynamicResource LocPaths_TempFolder}">
+                                        <TextBlock Text="{DynamicResource LocCommon_Browse}"
+                                                   TextAlignment="Left" />
+                                    </Button>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -339,7 +352,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_ShowStorageAdvisorDialog}"
-                                               ToolTip="{DynamicResource LocPaths_ShowStorageAdvisorDialogDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_ShowStorageAdvisorDialogDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"
@@ -368,7 +382,7 @@
                               Style="{StaticResource Win11SettingsSectionHeader}">
                             <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
                                        Text="{DynamicResource LocPaths_OrganizeSection}"
-                                       ToolTip="{DynamicResource LocPaths_OrganizeSection}" />
+                                       TextAlignment="Center" />
                         </Grid>
 
                         <Border Grid.Row="1"
@@ -384,7 +398,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_OrganizeByPlatform}"
-                                               ToolTip="{DynamicResource LocPaths_OrganizeByPlatformDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_OrganizeByPlatformDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox x:Name="OrganizeByPlatformCheckBox"
@@ -409,7 +424,8 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocPaths_OrganizeByRegion}"
-                                               ToolTip="{DynamicResource LocPaths_OrganizeByRegionDesc}" />
+                                               ToolTip="{DynamicResource LocPaths_OrganizeByRegionDesc}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <CheckBox Grid.Column="2"

@@ -2,7 +2,6 @@
              x:Name="QueueWorkspaceRoot"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:dd="urn:gong-wpf-dragdrop"
              xmlns:main="clr-namespace:HakamiqChdTool.App.Views.Main"
              FlowDirection="{DynamicResource App.FlowDirection}"
              Language="{DynamicResource App.XmlLanguage}"
@@ -62,7 +61,7 @@
                                    Fill="{DynamicResource Brush.Transparent}"
                                    Stroke="{DynamicResource DropZoneBorderBrush}"
                                    StrokeDashArray="{DynamicResource StrokeDash.DropZone}"
-                                   StrokeThickness="0"
+                                   StrokeThickness="1"
                                    IsHitTestVisible="False"
                                    SnapsToDevicePixels="True">
 
@@ -122,12 +121,11 @@
                 <Border x:Name="DropHighlightOverlay"
                         Margin="{DynamicResource Inset.12.All}"
                         Background="{DynamicResource Brush.Accent}"
-                        CornerRadius="{DynamicResource Radius.Card}"
+                        CornerRadius="{DynamicResource Radius.Card.Large}"
                         IsHitTestVisible="False"
                         Opacity="{DynamicResource Opacity.Hidden}"
                         Panel.ZIndex="{DynamicResource Panel.ZIndex.Overlay}"
                         SnapsToDevicePixels="True" />
-
             </Grid>
 
             <Border Grid.Row="2"
@@ -147,7 +145,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <main:QueueSummaryView Grid.Column="0" Visibility="Collapsed"
+                    <main:QueueSummaryView Grid.Column="0"
+                                           Visibility="Collapsed"
                                            HorizontalAlignment="Stretch"
                                            VerticalAlignment="Center" />
 
@@ -169,11 +168,11 @@
                         <Button Grid.Column="0"
                                 Command="{Binding StartProcessingCommand}"
                                 Style="{StaticResource QueueWorkspaceFooterPrimaryCommand}"
-                                ToolTip="{DynamicResource LocUi_Hub_StartProcessing}"
                                 AutomationProperties.Name="{DynamicResource LocUi_Hub_StartProcessing}">
 
                             <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
                                        Text="{DynamicResource LocUi_Hub_StartProcessing}"
+                                       TextAlignment="Left"
                                        TextTrimming="CharacterEllipsis"
                                        TextWrapping="NoWrap" />
                         </Button>
@@ -181,11 +180,11 @@
                         <Button Grid.Column="2"
                                 Command="{Binding CancelProcessingCommand}"
                                 Style="{StaticResource QueueWorkspaceFooterDangerCommand}"
-                                ToolTip="{DynamicResource LocUi_Hub_Stop}"
                                 AutomationProperties.Name="{DynamicResource LocUi_Hub_Stop}">
 
                             <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
                                        Text="{DynamicResource LocUi_Hub_Stop}"
+                                       TextAlignment="Left"
                                        TextTrimming="CharacterEllipsis"
                                        TextWrapping="NoWrap" />
                         </Button>
@@ -193,11 +192,11 @@
                         <Button Grid.Column="4"
                                 Command="{Binding ClearQueueCommand}"
                                 Style="{StaticResource QueueWorkspaceFooterSecondaryCommand}"
-                                ToolTip="{DynamicResource LocUi_Hub_ClearQueue}"
                                 AutomationProperties.Name="{DynamicResource LocUi_Hub_ClearQueue}">
 
                             <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
                                        Text="{DynamicResource LocUi_Hub_ClearQueue}"
+                                       TextAlignment="Left"
                                        TextTrimming="CharacterEllipsis"
                                        TextWrapping="NoWrap" />
                         </Button>

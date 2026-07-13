@@ -12,10 +12,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Resources\HakamiqLogo.ico</ApplicationIcon>
-		<Version>1.1.0</Version>
-		<AssemblyVersion>1.1.0.0</AssemblyVersion>
-		<FileVersion>1.1.0.0</FileVersion>
-		<InformationalVersion>v1.1.0</InformationalVersion>
+		<Version>1.2.0</Version>
+		<AssemblyVersion>1.2.0.0</AssemblyVersion>
+		<FileVersion>1.2.0.0</FileVersion>
+		<InformationalVersion>v1.2.0</InformationalVersion>
+		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 		<Product>Hakamiq CHD Tool</Product>
 		<Company>Hakamiq</Company>
 		<Description>إدارة وتحويل صور الأقراص بصيغة CHD عبر chdman</Description>
@@ -218,6 +219,7 @@
 		<PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
 		<PackageReference Include="Humanizer.Core" Version="3.0.10" />
 		<PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
 		<PackageReference Include="Velopack" Version="0.0.1298" />
 		<PackageReference Include="SharpCompress" Version="0.48.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
@@ -227,7 +229,7 @@
 		<PackageReference Include="LTRData.DiscUtils.Iso9660" Version="1.0.77" />
 		<PackageReference Include="LTRData.DiscUtils.Udf" Version="1.0.77" />
 		<PackageReference Include="System.Management" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.16" />
 	</ItemGroup>
 
 

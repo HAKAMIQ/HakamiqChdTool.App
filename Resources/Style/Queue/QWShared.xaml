@@ -406,7 +406,7 @@
     <Style x:Key="QueueWorkspaceFooterPrimaryCommand"
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource QueueWorkspaceFooterCommandBase}">
-        <Setter Property="MinWidth" Value="132" />
+        <Setter Property="MinWidth" Value="148" />
         <Setter Property="MaxWidth" Value="164" />
         <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground.OnAccent}" />
@@ -418,7 +418,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Control}"
+                            CornerRadius="{DynamicResource Radius.Control.Large}"
                             Padding="{TemplateBinding Padding}"
                             Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"
