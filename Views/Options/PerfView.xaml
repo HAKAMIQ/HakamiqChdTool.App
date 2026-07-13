@@ -26,6 +26,7 @@
                     <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                           Language="{DynamicResource App.XmlLanguage}"
                           SnapsToDevicePixels="True">
+
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
@@ -46,6 +47,7 @@
                                          FlowDirection="LeftToRight"
                                          Stretch="Uniform"
                                          SnapsToDevicePixels="True">
+
                                     <Path Data="{StaticResource Icon.Info}"
                                           Fill="{DynamicResource Brush.Accent.Text}"
                                           Stretch="Uniform"
@@ -55,9 +57,9 @@
                                 <TextBlock x:Name="ProcessorSummaryText"
                                            Grid.Column="2"
                                            Text="{Binding ProcessorSummary}"
-                                           ToolTip="{Binding ProcessorSummary}"
                                            Style="{StaticResource Win11SettingsRowDescriptionText}"
                                            Foreground="{DynamicResource Brush.Text.Primary}"
+                                           TextAlignment="Left"
                                            TextWrapping="Wrap"
                                            TextTrimming="None" />
                             </Grid>
@@ -69,6 +71,7 @@
                     <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                           Language="{DynamicResource App.XmlLanguage}"
                           SnapsToDevicePixels="True">
+
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -83,9 +86,11 @@
 
                         <Grid Grid.Row="0"
                               Style="{StaticResource Win11SettingsSectionHeader}">
+
                             <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
                                        Text="{DynamicResource LocPerformance_ChdmanOptionsSection}"
-                                       ToolTip="{DynamicResource LocPerformance_ChdmanOptionsDesc}" />
+                                       ToolTip="{DynamicResource LocPerformance_ChdmanOptionsDesc}"
+                                       TextAlignment="Center" />
                         </Grid>
 
                         <Border Grid.Row="1"
@@ -99,9 +104,11 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
+
                                     <TextBlock Text="{DynamicResource LocPerformance_PerformanceMode}"
                                                ToolTip="{Binding PerformanceModeDescription}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <ComboBox x:Name="PerformanceModeComboBox"
@@ -128,9 +135,11 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
+
                                     <TextBlock Text="{DynamicResource LocPerformance_ProcessorCount}"
                                                ToolTip="{Binding ProcessorSelectionDescription}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <ComboBox x:Name="ProcessorCountComboBox"
@@ -157,9 +166,11 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
+
                                     <TextBlock Text="{DynamicResource LocPerformance_ConcurrentConversions}"
                                                ToolTip="{Binding ConcurrentConversionDescription}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <ComboBox x:Name="ConcurrentConversionCountComboBox"
@@ -186,9 +197,11 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
+
                                     <TextBlock Text="{DynamicResource LocPerformance_ProcessPriority}"
                                                ToolTip="{Binding PriorityModeDescription}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <ComboBox x:Name="PriorityModeComboBox"
@@ -215,9 +228,11 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
+
                                     <TextBlock Text="{DynamicResource LocPerformance_IsoCreateMode}"
                                                ToolTip="{Binding IsoCreateOverrideDescription}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <ComboBox x:Name="IsoCreateCommandOverrideComboBox"
@@ -244,9 +259,11 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
+
                                     <TextBlock Text="{DynamicResource LocPerformance_ChdPlatformProfile}"
                                                ToolTip="{Binding ChdPlatformProfileDescription}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <ComboBox x:Name="ChdPlatformProfileComboBox"
@@ -273,9 +290,11 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
+
                                     <TextBlock Text="{DynamicResource LocPerformance_CompressionPreset}"
                                                ToolTip="{Binding CompressionPresetDescription}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <ComboBox x:Name="CompressionPresetComboBox"
@@ -302,9 +321,11 @@
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
+
                                     <TextBlock Text="{DynamicResource LocPerformance_HunkSize}"
                                                ToolTip="{Binding HunkPresetDescription}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}" />
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
                                 </Grid>
 
                                 <ComboBox x:Name="HunkPresetComboBox"

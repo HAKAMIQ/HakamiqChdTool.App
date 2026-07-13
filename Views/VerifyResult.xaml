@@ -29,128 +29,204 @@
 
             <Style x:Key="VerificationResultDialog.RootFrame"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
-                <Setter Property="ClipToBounds" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Dialog}" />
+                <Setter Property="TextElement.Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="ClipToBounds"
+                        Value="True" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.HeaderFooter"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.16.10}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.16.10}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.ContentHost"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Canvas}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.18.14}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Canvas}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.16.All}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.Card"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
-                <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.10}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Card}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.14.10}" />
+                <Setter Property="Margin"
+                        Value="{DynamicResource Inset.0.0.0.10}" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.DetailRow"
                    TargetType="{x:Type Border}"
                    BasedOn="{StaticResource VerificationResultDialog.Card}">
-                <Setter Property="Padding" Value="{DynamicResource Inset.8.6}" />
-                <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.6}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.8.6}" />
+                <Setter Property="Margin"
+                        Value="{DynamicResource Inset.0.0.0.6}" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.GeneralText"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
-                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-                <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="Language"
+                        Value="{DynamicResource App.XmlLanguage}" />
+                <Setter Property="TextAlignment"
+                        Value="Left" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="TextWrapping"
+                        Value="Wrap" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.TitleText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodyStrong}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.LabelText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.CaptionSmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.BodyText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
-                <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="TextTrimming" Value="None" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="LineHeight"
+                        Value="{DynamicResource Font.LineHeight.Body}" />
+                <Setter Property="LineStackingStrategy"
+                        Value="BlockLineHeight" />
+                <Setter Property="TextTrimming"
+                        Value="None" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.ValueText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource VerificationResultDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.TechnicalValueText"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Numeric}" />
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="FlowDirection" Value="LeftToRight" />
-                <Setter Property="Language" Value="en-US" />
-                <Setter Property="TextAlignment" Value="Left" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Mono}" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource TechnicalText.FlowDirection}" />
+                <Setter Property="Language"
+                        Value="{DynamicResource TechnicalText.Language}" />
+                <Setter Property="TextAlignment"
+                        Value="Left" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="VerificationResultDialog.CompactPrimaryButton"
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource PrimaryButtonStyle}">
-                <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-                <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+                <Setter Property="MinWidth"
+                        Value="{DynamicResource Space.112}" />
+                <Setter Property="MinHeight"
+                        Value="{DynamicResource Space.40}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.14.10}" />
+                <Setter Property="VerticalAlignment"
+                        Value="Center" />
+                <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome"
+                        Value="True" />
             </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -180,10 +256,7 @@
                     BorderThickness="{DynamicResource Inset.0.0.0.1}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
 
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
@@ -212,6 +285,7 @@
                                  Height="{DynamicResource Space.12}"
                                  FlowDirection="LeftToRight"
                                  Stretch="Uniform">
+
                             <Path Data="{StaticResource Icon.Close}"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                   Stretch="Uniform"
@@ -233,9 +307,7 @@
                               Background="{DynamicResource Brush.Transparent}"
                               SnapsToDevicePixels="True">
 
-                    <StackPanel FlowDirection="{DynamicResource App.FlowDirection}"
-                                Language="{DynamicResource App.XmlLanguage}">
-
+                    <StackPanel>
                         <Border Style="{StaticResource VerificationResultDialog.Card}">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -293,6 +365,7 @@
 
                         <Border Style="{StaticResource VerificationResultDialog.Card}"
                                 Visibility="{Binding HasCaveat, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -312,6 +385,7 @@
 
                         <Border Style="{StaticResource VerificationResultDialog.Card}"
                                 Visibility="{Binding HasFailureAction, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -341,11 +415,12 @@
                             </Expander.Header>
 
                             <ItemsControl Margin="{DynamicResource Inset.0.8.0.0}"
-                                          ItemsSource="{Binding ChdLogicalReport.Metrics}">
+                                          ItemsSource="{Binding ChdLogicalReport.Metrics, Mode=OneWay}">
+
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Style="{StaticResource VerificationResultDialog.DetailRow}">
-                                            <Grid FlowDirection="{DynamicResource App.FlowDirection}">
+                                            <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
@@ -353,12 +428,12 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <TextBlock Grid.Column="0"
-                                                           Text="{Binding Label}"
+                                                           Text="{Binding Label, Mode=OneWay}"
                                                            Style="{StaticResource VerificationResultDialog.LabelText}" />
 
                                                 <TextBlock Grid.Column="2"
-                                                           Text="{Binding Value}"
-                                                           ToolTip="{Binding Value}"
+                                                           Text="{Binding Value, Mode=OneWay}"
+                                                           ToolTip="{Binding Value, Mode=OneWay}"
                                                            Style="{StaticResource VerificationResultDialog.TechnicalValueText}" />
                                             </Grid>
                                         </Border>
@@ -374,10 +449,7 @@
                     Style="{StaticResource VerificationResultDialog.HeaderFooter}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}">
 
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -385,7 +457,6 @@
 
                     <Button Grid.Column="1"
                             Content="{DynamicResource LocCommon_Ok}"
-                            ToolTip="{DynamicResource LocCommon_Ok}"
                             AutomationProperties.Name="{DynamicResource LocCommon_Ok}"
                             IsDefault="True"
                             IsCancel="True"

@@ -30,8 +30,8 @@
             <Style x:Key="OptionsWindow.RootFrame"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Canvas}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Window}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -40,8 +40,8 @@
 
             <Style x:Key="OptionsWindow.TopBar"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="Padding" Value="{DynamicResource Inset.16.10}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -49,11 +49,11 @@
 
             <Style x:Key="OptionsWindow.SidebarPanel"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.10.All}" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Stretch" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
@@ -63,10 +63,11 @@
 
             <Style x:Key="OptionsWindow.ContentPanel"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Stretch" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -78,7 +79,7 @@
                 <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
                 <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
                 <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+                <Setter Property="TextAlignment" Value="Left" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="TextWrapping" Value="Wrap" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -209,7 +210,7 @@
             </Border>
 
             <Grid Grid.Row="1"
-                  Margin="{DynamicResource Inset.10.All}"
+                  Margin="{DynamicResource Inset.12.All}"
                   MinHeight="0"
                   VerticalAlignment="Stretch"
                   FlowDirection="{DynamicResource App.FlowDirection}">
@@ -323,14 +324,14 @@
                                                         Visibility="Collapsed" />
 
                         <options:ExternalToolsSettingsView x:Name="ExternalToolsPanel"
-                                                           HorizontalAlignment="Stretch"
-                                                           VerticalAlignment="Stretch"
-                                                           Visibility="Collapsed" />
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Stretch"
+                                                          Visibility="Collapsed" />
 
                         <options:PerformanceSettingsView x:Name="PerformancePanel"
-                                                         HorizontalAlignment="Stretch"
-                                                         VerticalAlignment="Stretch"
-                                                         Visibility="Collapsed" />
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalAlignment="Stretch"
+                                                        Visibility="Collapsed" />
                     </Grid>
                 </Border>
             </Grid>

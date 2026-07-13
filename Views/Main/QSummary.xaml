@@ -46,7 +46,7 @@
                            FontWeight="{DynamicResource FontWeight.SemiBold}"
                            Foreground="{DynamicResource Brush.Accent.Text}"
                            Text="{Binding QueueItems.Count, StringFormat={}{0}}"
-                           TextAlignment="Center"
+                           TextAlignment="Left"
                            TextTrimming="CharacterEllipsis"
                            TextWrapping="NoWrap"
                            SnapsToDevicePixels="True" />
@@ -59,7 +59,7 @@
                        FontSize="{DynamicResource FontSize.Caption}"
                        Foreground="{DynamicResource Brush.Text.Secondary}"
                        Text="{DynamicResource LocUi_QueueSummary_Tasks}"
-                       TextAlignment="{DynamicResource Options.SettingsTextAlignment}"
+                       TextAlignment="Left"
                        TextTrimming="CharacterEllipsis"
                        TextWrapping="NoWrap"
                        SnapsToDevicePixels="True" />

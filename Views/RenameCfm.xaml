@@ -35,103 +35,170 @@
 
             <Style x:Key="RenameDialog.RootFrame"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
-                <Setter Property="ClipToBounds" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Dialog}" />
+                <Setter Property="TextElement.Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="ClipToBounds"
+                        Value="True" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RenameDialog.CaptionBar"
                    TargetType="{x:Type Border}">
-                <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.0}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="MinHeight"
+                        Value="{DynamicResource Space.40}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.0.0.0.1}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.12.0}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RenameDialog.ContentHost"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Canvas}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.12.All}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RenameDialog.Footer"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.1.0.0}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.0.1.0.0}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.12.8}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RenameDialog.GeneralText"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
-                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-                <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="Language"
+                        Value="{DynamicResource App.XmlLanguage}" />
+                <Setter Property="TextAlignment"
+                        Value="Left" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="TextWrapping"
+                        Value="Wrap" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RenameDialog.CaptionText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource RenameDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="VerticalAlignment"
+                        Value="Center" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
             </Style>
 
             <Style x:Key="RenameDialog.BodyText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource RenameDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="TextTrimming" Value="None" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="LineHeight"
+                        Value="{DynamicResource Font.LineHeight.Body}" />
+                <Setter Property="LineStackingStrategy"
+                        Value="BlockLineHeight" />
+                <Setter Property="TextTrimming"
+                        Value="None" />
             </Style>
 
             <Style x:Key="RenameDialog.FileNameSurface"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.7}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Control}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.12.7}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RenameDialog.TechnicalFileNameText"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Mono}" />
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-                <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
-                <Setter Property="Language" Value="{DynamicResource TechnicalText.Language}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Mono}" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.CaptionSmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="VerticalAlignment"
+                        Value="Center" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource TechnicalText.FlowDirection}" />
+                <Setter Property="Language"
+                        Value="{DynamicResource TechnicalText.Language}" />
+                <Setter Property="TextAlignment"
+                        Value="Left" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -158,10 +225,8 @@
 
             <Border Grid.Row="0"
                     Style="{StaticResource RenameDialog.CaptionBar}">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
 
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
@@ -170,7 +235,6 @@
 
                     <TextBlock Grid.Column="0"
                                Text="{Binding Title, Mode=OneWay}"
-                               ToolTip="{Binding Title, Mode=OneWay}"
                                d:Text="تأكيد إعادة التسمية"
                                Style="{StaticResource RenameDialog.CaptionText}" />
 
@@ -190,6 +254,7 @@
                                  Height="{DynamicResource Space.12}"
                                  FlowDirection="LeftToRight"
                                  Stretch="Uniform">
+
                             <Path Data="{StaticResource Icon.Close}"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                   Stretch="Uniform"
@@ -201,10 +266,8 @@
 
             <Border Grid.Row="1"
                     Style="{StaticResource RenameDialog.ContentHost}">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
 
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="{DynamicResource Grid.Space.8}" />
@@ -213,16 +276,18 @@
 
                     <Border Grid.Row="0"
                             Style="{StaticResource RenameDialog.FileNameSurface}">
+
                         <TextBlock Text="{Binding FileName, Mode=OneWay}"
                                    d:Text="Final Fantasy X (USA).chd"
                                    Style="{StaticResource RenameDialog.TechnicalFileNameText}">
+
                             <TextBlock.ToolTip>
                                 <TextBlock Text="{Binding FileName, Mode=OneWay}"
                                            d:Text="Final Fantasy X (USA).chd"
                                            FontFamily="{DynamicResource FontFamily.Mono}"
                                            FlowDirection="{DynamicResource TechnicalText.FlowDirection}"
                                            Language="{DynamicResource TechnicalText.Language}"
-                                           TextAlignment="{DynamicResource TechnicalText.TextAlignment}"
+                                           TextAlignment="Left"
                                            TextWrapping="NoWrap" />
                             </TextBlock.ToolTip>
                         </TextBlock>
@@ -230,7 +295,6 @@
 
                     <TextBlock Grid.Row="2"
                                Text="{Binding Question, Mode=OneWay}"
-                               ToolTip="{Binding Question, Mode=OneWay}"
                                d:Text="هل تريد تطبيق الاسم المقترح على هذا الملف؟"
                                Style="{StaticResource RenameDialog.BodyText}" />
                 </Grid>
@@ -238,10 +302,8 @@
 
             <Border Grid.Row="2"
                     Style="{StaticResource RenameDialog.Footer}">
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
 
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -255,8 +317,6 @@
                             Command="{Binding CancelCommand}"
                             IsCancel="True"
                             MinWidth="{DynamicResource Control.MinWidth}"
-                            FlowDirection="{DynamicResource App.FlowDirection}"
-                            ToolTip="{Binding CancelText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding CancelText, Mode=OneWay}"
                             Style="{StaticResource SecondaryButtonStyle}" />
 
@@ -264,10 +324,7 @@
                             Content="{Binding ConfirmText, Mode=OneWay}"
                             d:Content="تأكيد"
                             Command="{Binding ConfirmCommand}"
-                            IsDefault="True"
                             MinWidth="{DynamicResource Control.MinWidth}"
-                            FlowDirection="{DynamicResource App.FlowDirection}"
-                            ToolTip="{Binding ConfirmText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding ConfirmText, Mode=OneWay}"
                             Style="{StaticResource PrimaryButtonStyle}" />
                 </Grid>

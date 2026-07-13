@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="{Binding Title, Mode=OneWay}"
-        Width="560"
-        MinWidth="520"
+        Width="520"
+        MinWidth="480"
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -28,64 +28,120 @@
 
             <Style x:Key="ClearTaskLogDialog.RootFrame"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Dialog}" />
+                <Setter Property="TextElement.Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="ClipToBounds"
+                        Value="True" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
-            <Style x:Key="ClearTaskLogDialog.HeaderFooter"
+            <Style x:Key="ClearTaskLogDialog.Bar"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.16.12}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.16.10}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="ClearTaskLogDialog.ContentHost"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.16.All}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Canvas}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.16.All}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
+            </Style>
+
+            <Style x:Key="ClearTaskLogDialog.MessageCard"
+                   TargetType="{x:Type Border}">
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Card}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.16.All}" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="ClearTaskLogDialog.GeneralText"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
-                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-                <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="Language"
+                        Value="{DynamicResource App.XmlLanguage}" />
+                <Setter Property="TextAlignment"
+                        Value="Left" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="TextWrapping"
+                        Value="Wrap" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="ClearTaskLogDialog.TitleText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource ClearTaskLogDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.SectionTitle}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.HeaderTitle}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
             </Style>
 
             <Style x:Key="ClearTaskLogDialog.BodyText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource ClearTaskLogDialog.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="TextTrimming" Value="None" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="LineHeight"
+                        Value="{DynamicResource Font.LineHeight.Body}" />
+                <Setter Property="LineStackingStrategy"
+                        Value="BlockLineHeight" />
+                <Setter Property="TextTrimming"
+                        Value="None" />
             </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -111,14 +167,11 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Style="{StaticResource ClearTaskLogDialog.HeaderFooter}"
+                    Style="{StaticResource ClearTaskLogDialog.Bar}"
                     BorderThickness="{DynamicResource Inset.0.0.0.1}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
 
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
@@ -127,7 +180,6 @@
 
                     <TextBlock Grid.Column="0"
                                Text="{Binding Title, Mode=OneWay}"
-                               ToolTip="{Binding Title, Mode=OneWay}"
                                Style="{StaticResource ClearTaskLogDialog.TitleText}"
                                VerticalAlignment="Center" />
 
@@ -148,7 +200,6 @@
                                  Height="{DynamicResource Space.12}"
                                  FlowDirection="LeftToRight"
                                  Stretch="Uniform">
-
                             <Path Data="{StaticResource Icon.Close}"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                   Stretch="Uniform"
@@ -161,19 +212,38 @@
             <Border Grid.Row="1"
                     Style="{StaticResource ClearTaskLogDialog.ContentHost}">
 
-                <TextBlock Text="{Binding Body, Mode=OneWay}"
-                           ToolTip="{Binding Body, Mode=OneWay}"
-                           Style="{StaticResource ClearTaskLogDialog.BodyText}" />
+                <Border Style="{StaticResource ClearTaskLogDialog.MessageCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="!"
+                                   FontSize="{DynamicResource FontSize.BodyStrong}"
+                                   FontWeight="{DynamicResource FontWeight.SemiBold}"
+                                   Foreground="{DynamicResource Brush.Warning}"
+                                   FlowDirection="LeftToRight"
+                                   Language="en-US"
+                                   TextAlignment="Left"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Top" />
+
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding Body, Mode=OneWay}"
+                                   Style="{StaticResource ClearTaskLogDialog.BodyText}"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
             </Border>
 
             <Border Grid.Row="2"
-                    Style="{StaticResource ClearTaskLogDialog.HeaderFooter}"
+                    Style="{StaticResource ClearTaskLogDialog.Bar}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}">
 
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -185,7 +255,6 @@
                             Grid.Column="1"
                             MinWidth="{DynamicResource Space.96}"
                             Content="{Binding CancelText, Mode=OneWay}"
-                            ToolTip="{Binding CancelText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding CancelText, Mode=OneWay}"
                             IsCancel="True"
                             Style="{StaticResource SecondaryButtonStyle}"
@@ -195,7 +264,6 @@
                             Grid.Column="3"
                             MinWidth="{DynamicResource Space.112}"
                             Content="{Binding ConfirmText, Mode=OneWay}"
-                            ToolTip="{Binding ConfirmText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding ConfirmText, Mode=OneWay}"
                             Style="{StaticResource DangerButtonStyle}"
                             Click="ConfirmButton_Click" />

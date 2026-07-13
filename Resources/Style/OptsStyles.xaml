@@ -521,12 +521,12 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
-        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.4}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.6}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -614,10 +614,10 @@
                         </Trigger>
 
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource Brush.Accent.Subtle}" />
                             <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
                             <Setter TargetName="ActiveIndicator" Property="Background" Value="{DynamicResource Brush.Accent}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                             <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
                         </Trigger>
 
@@ -668,12 +668,12 @@
 
     <Style x:Key="Win11SettingsSection"
            TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
-        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.12}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.16}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -683,7 +683,7 @@
 
     <Style x:Key="Win11SettingsSectionHeader"
            TargetType="{x:Type Grid}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.SurfaceAlt}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -707,7 +707,7 @@
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Margin" Value="{DynamicResource Inset.14.10}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.16.10}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
@@ -733,7 +733,7 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.16.10}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="MinHeight" Value="{DynamicResource Space.48}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -810,7 +810,7 @@
 
     <Style x:Key="Win11SettingsPathControlArea"
            TargetType="{x:Type Grid}">
-        <Setter Property="Width" Value="360" />
+        <Setter Property="Width" Value="380" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -830,7 +830,7 @@
     <Style x:Key="Win11SettingsComboBox"
            TargetType="{x:Type ComboBox}"
            BasedOn="{StaticResource {x:Type ComboBox}}">
-        <Setter Property="Width" Value="220" />
+        <Setter Property="Width" Value="240" />
         <Setter Property="MaxDropDownHeight" Value="{DynamicResource Options.ComboBox.DropDownMaxHeight}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -943,9 +943,9 @@
     <Style x:Key="Win11SettingsCompactButton"
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource SecondaryButtonStyle}">
-        <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.120}" />
         <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>

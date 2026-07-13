@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.Input;
 using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ public sealed partial class RedumpDetailsDialogViewModel : INotifyPropertyChange
     private const string UnavailableKey = "LocRedumpDetails_Value_Unavailable";
     private const string NoSuggestedNameKey = "LocRedumpDetails_NoSuggestedName";
     private const string NoUsefulHashesKey = "LocRedumpDetails_NoUsefulHashes";
+    private const string HashesPendingKey = "LocRedumpDetails_HashesPending";
     private const string UnnamedFileKey = "LocRedumpDetails_UnnamedFile";
     private const string DefaultNotesNoneKey = "LocRedumpDetails_DefaultNotesNone";
     private const string DefaultNotesNoDatabaseKey = "LocRedumpDetails_DefaultNotesNoDatabase";
@@ -24,6 +26,15 @@ public sealed partial class RedumpDetailsDialogViewModel : INotifyPropertyChange
     private const string StatusNoteConflictedKey = "LocRedumpDetails_StatusNoteConflicted";
     private const string StatusNoteModifiedOrCorruptKey = "LocRedumpDetails_StatusNoteModifiedOrCorrupt";
     private const string StatusNoteGenericKey = "LocRedumpDetails_StatusNoteGeneric";
+    private const string StatusVerifiedKey = "LocDeepHash_StatusVerified";
+    private const string StatusVerifiedCompleteKey = "LocDeepHash_StatusVerifiedComplete";
+    private const string StatusVerifiedNormalizedKey = "LocDeepHash_StatusVerifiedNormalized";
+    private const string StatusIncompleteKey = "LocDeepHash_StatusIncomplete";
+    private const string StatusNoDatabaseKey = "LocDeepHash_StatusNoDatabase";
+    private const string StatusMissingPlatformDatabaseKey = "LocDeepHash_StatusMissingPlatformDatabase";
+    private const string StatusConflictingMatchKey = "LocDeepHash_StatusConflictingMatch";
+    private const string StatusModifiedKey = "LocDeepHash_StatusModified";
+    private const string Ps3DecryptedNotOriginalKey = "LocRedumpV2_Ps3DecryptedNotOriginal";
     private const string ByteUnitKey = "LocCommon_ByteUnit";
     private const string CopyNameUnavailableKey = "LocRedumpDetails_CopyNameUnavailable";
     private const string CopyNameSuccessKey = "LocRedumpDetails_CopyNameSuccess";
@@ -58,7 +69,13 @@ public sealed partial class RedumpDetailsDialogViewModel : INotifyPropertyChange
         FileNameRaw = rawFileName;
         FileName = BuildTechnicalDisplayText(rawFileName);
 
-        Status = string.IsNullOrWhiteSpace(item.RedumpStatusDisplay) ? Text(UnknownKey) : item.RedumpStatusDisplay;
+        Status = string.IsNullOrWhiteSpace(item.RedumpStatusDisplay)
+            ? Text(UnknownKey)
+            : NormalizeInline(RemoveBidiFormattingCharacters(item.RedumpStatusDisplay));
+        IsVerificationInProgress = item.IntegrityState == IntegrityValidationState.Validating;
+        ShowVerificationResult = item.IntegrityState != IntegrityValidationState.None
+            && item.IntegrityState != IntegrityValidationState.Validating;
+        VerificationTone = ResolveVerificationTone(item.IntegrityState);
 
         SuggestedNameRaw = string.IsNullOrWhiteSpace(item.SuggestedStandardName)
             ? Text(NoSuggestedNameKey)
@@ -104,7 +121,12 @@ public sealed partial class RedumpDetailsDialogViewModel : INotifyPropertyChange
         NotesText = string.IsNullOrWhiteSpace(parsed.NotesText)
             ? BuildDefaultNotes(Status)
             : parsed.NotesText;
-        StatusNote = BuildStatusNote(Status);
+        StatusNote = ShowVerificationResult ? BuildStatusNote(Status) : string.Empty;
+        ShowStatusBadge = ShowVerificationResult
+            && !string.Equals(Status, StatusNote, StringComparison.OrdinalIgnoreCase);
+        HashesEmptyText = IsVerificationInProgress
+            ? Text(HashesPendingKey)
+            : Text(NoUsefulHashesKey);
         FooterSummary = BuildFooterSummary(Status, SuggestedNameRaw);
 
         CopyNameCommand = new RelayCommand(CopyName);
@@ -117,6 +139,10 @@ public sealed partial class RedumpDetailsDialogViewModel : INotifyPropertyChange
     public string FileName { get; }
     public string Status { get; }
     public string StatusNote { get; }
+    public bool IsVerificationInProgress { get; }
+    public bool ShowVerificationResult { get; }
+    public string VerificationTone { get; }
+    public bool ShowStatusBadge { get; }
     public string DisplayTitle { get; }
     public string SystemName { get; }
     public string ConsoleTypeName { get; }
@@ -128,6 +154,7 @@ public sealed partial class RedumpDetailsDialogViewModel : INotifyPropertyChange
     public string FilesSummary { get; }
     public string HashesSummaryRaw { get; }
     public string HashesSummary { get; }
+    public string HashesEmptyText { get; }
     public string NotesText { get; }
     public string FooterSummary { get; }
     public bool CanApplyName { get; }
@@ -250,6 +277,19 @@ public sealed partial class RedumpDetailsDialogViewModel : INotifyPropertyChange
         storage = value;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         return true;
+    }
+
+
+    private static string ResolveVerificationTone(IntegrityValidationState state)
+    {
+        return state switch
+        {
+            IntegrityValidationState.Verified => "Success",
+            IntegrityValidationState.NoDat or IntegrityValidationState.NoDirectRedump or IntegrityValidationState.NoRedumpMatch => "Warning",
+            IntegrityValidationState.Failed or IntegrityValidationState.Error or IntegrityValidationState.Unsupported => "Error",
+            IntegrityValidationState.Validating => "Progress",
+            _ => "Neutral"
+        };
     }
 
     private static string InferManufacturerName(string systemName)

@@ -577,7 +577,7 @@ Path:
     <sys:String x:Key="LocRedumpV2_NormalizeArchive">Extracting archive temporarily for verification</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">This source requires temporary normalization to ISO/GCM, but the normalization tool is not available yet.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">PS3 JB folders are not converted into Redump ISO; this is IRD-only.</sys:String>
-    <sys:String x:Key="LocRedumpV2_Ps3DecryptedNotOriginal">Decrypted PS3 folders are not an original Redump representation; use the IRD verification path.</sys:String>
+    <sys:String x:Key="LocRedumpV2_Ps3DecryptedNotOriginal">Decrypted PS3 image. Use an IRD file to verify its contents.</sys:String>
     <sys:String x:Key="LocDeepHash_TipPartialMatch">{0:N0} of {1:N0} files matched. The disc is not considered fully matched until all files match.</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnmatchedFilesHeader">Unmatched files:</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoRedumpMatch">The file didn't match the local Redump database.</sys:String>
@@ -1270,10 +1270,11 @@ Path:
     <sys:String x:Key="LocRedumpDetails_Title">Redump details</sys:String>
     <sys:String x:Key="LocRedumpDetails_Subtitle">Review the Redump match result, detected platform, file size, suggested name, and hashes.</sys:String>
 
-    <sys:String x:Key="LocRedumpDetails_StatusTitle">Match status</sys:String>
+    <sys:String x:Key="LocRedumpDetails_StatusTitle">Verification result</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusDescription">Shows the result of matching this file with the local Redump database.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ProgressTitle">Scan progress</sys:String>
 
-    <sys:String x:Key="LocRedumpDetails_SuggestedNameTitle">Suggested name</sys:String>
+    <sys:String x:Key="LocRedumpDetails_SuggestedNameTitle">Correct Redump name</sys:String>
     <sys:String x:Key="LocRedumpDetails_SuggestedNameDescription">Shows the standard Redump name when a match is available. If there is no match, the rename action stays disabled.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_SystemSizeTitle">System and size</sys:String>
@@ -1296,8 +1297,8 @@ Path:
     <sys:String x:Key="LocRedumpDetails_NotesTitle">Notes</sys:String>
     <sys:String x:Key="LocRedumpDetails_NotesDescription">Shows an additional summary that can be selected and copied.</sys:String>
 
-    <sys:String x:Key="LocRedumpDetails_ApplyName">Apply suggested name</sys:String>
-    <sys:String x:Key="LocRedumpDetails_ApplyNameTooltip">Rename the source file using the suggested Redump name when a match is available.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ApplyName">Apply correct name</sys:String>
+    <sys:String x:Key="LocRedumpDetails_ApplyNameTooltip">Rename the source file to the matched Redump name.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_CopyNameUnavailable">No matching Redump name is available to copy.</sys:String>
     <sys:String x:Key="LocRedumpDetails_CopyNameSuccess">Name copied.</sys:String>
@@ -1454,7 +1455,8 @@ Path:
     <sys:String x:Key="LocRedumpDetails_Value_Unknown">Unknown</sys:String>
     <sys:String x:Key="LocRedumpDetails_Value_Unavailable">Unavailable</sys:String>
     <sys:String x:Key="LocRedumpDetails_NoSuggestedName">No matching Redump name was found for this file.</sys:String>
-    <sys:String x:Key="LocRedumpDetails_NoUsefulHashes">No useful hashes are available for this item yet.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_NoUsefulHashes">This scan did not produce displayable hash values.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_HashesPending">Hash values are being calculated and will appear when the scan completes.</sys:String>
     <sys:String x:Key="LocRedumpDetails_UnnamedFile">Unnamed file</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_DefaultNotesNone">No additional notes.</sys:String>
@@ -1465,7 +1467,7 @@ Path:
     <sys:String x:Key="LocRedumpDetails_StatusNoteNoDatabase">A final result is not available until the local Redump database is loaded or imported.</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusNoteConflicted">Some files appear to be mixed or related to more than one game or disc.</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusNoteModifiedOrCorrupt">No local match was found. The file may be modified or from a different release.</sys:String>
-    <sys:String x:Key="LocRedumpDetails_StatusNoteGeneric">Review the details below for more information about this item.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_StatusNoteGeneric">No additional details are available for this result.</sys:String>
     <sys:String x:Key="LocCommon_ByteUnit">bytes</sys:String>
 
     <sys:String x:Key="LocAbout_DefaultDescription">Manage and convert disc images in CHD format with chdman.</sys:String>
