@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="{Binding Title, Mode=OneWay}"
-        Width="560"
-        MinWidth="500"
+        Width="520"
+        MinWidth="480"
         MaxHeight="460"
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
@@ -29,86 +29,146 @@
 
             <Style x:Key="RedumpNotice.RootFrame"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
-                <Setter Property="ClipToBounds" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Dialog}" />
+                <Setter Property="TextElement.Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="ClipToBounds"
+                        Value="True" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
-            <Style x:Key="RedumpNotice.HeaderFooter"
+            <Style x:Key="RedumpNotice.Bar"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="14,10" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.16.10}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RedumpNotice.ContentHost"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="Padding" Value="14" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Canvas}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.16.All}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RedumpNotice.MessageCard"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
-                <Setter Property="Padding" Value="12" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Layer.Card}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Card}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.16.All}" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RedumpNotice.GeneralText"
                    TargetType="{x:Type TextBlock}">
-                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
-                <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-                <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-                <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
+                <Setter Property="FontFamily"
+                        Value="{DynamicResource FontFamily.Text}" />
+                <Setter Property="FlowDirection"
+                        Value="{DynamicResource App.FlowDirection}" />
+                <Setter Property="Language"
+                        Value="{DynamicResource App.XmlLanguage}" />
+                <Setter Property="TextAlignment"
+                        Value="Left" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="TextWrapping"
+                        Value="Wrap" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
             </Style>
 
             <Style x:Key="RedumpNotice.TitleText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource RedumpNotice.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodyStrong}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
             </Style>
 
             <Style x:Key="RedumpNotice.BodyText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource RedumpNotice.GeneralText}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
-                <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
-                <Setter Property="TextWrapping" Value="Wrap" />
-                <Setter Property="TextTrimming" Value="None" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="LineHeight"
+                        Value="{DynamicResource Font.LineHeight.Body}" />
+                <Setter Property="LineStackingStrategy"
+                        Value="BlockLineHeight" />
+                <Setter Property="TextTrimming"
+                        Value="None" />
             </Style>
 
             <Style x:Key="RedumpNotice.CompactPrimaryButton"
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource PrimaryButtonStyle}">
-                <Setter Property="MinWidth" Value="{DynamicResource Space.112}" />
-                <Setter Property="MaxWidth" Value="156" />
-                <Setter Property="Padding" Value="10,5" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-                <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+                <Setter Property="MinWidth"
+                        Value="{DynamicResource Space.112}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.10.5}" />
+                <Setter Property="VerticalAlignment"
+                        Value="Center" />
+                <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome"
+                        Value="True" />
+            </Style>
+
+            <Style x:Key="RedumpNotice.CompactSecondaryButton"
+                   TargetType="{x:Type Button}"
+                   BasedOn="{StaticResource SecondaryButtonStyle}">
+                <Setter Property="MinWidth"
+                        Value="{DynamicResource Space.112}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.10.5}" />
+                <Setter Property="VerticalAlignment"
+                        Value="Center" />
+                <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome"
+                        Value="True" />
             </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -134,14 +194,11 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Style="{StaticResource RedumpNotice.HeaderFooter}"
+                    Style="{StaticResource RedumpNotice.Bar}"
                     BorderThickness="{DynamicResource Inset.0.0.0.1}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
 
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
@@ -150,7 +207,6 @@
 
                     <TextBlock Grid.Column="0"
                                Text="{Binding Title, Mode=OneWay}"
-                               ToolTip="{Binding Title, Mode=OneWay}"
                                Style="{StaticResource RedumpNotice.TitleText}"
                                VerticalAlignment="Center" />
 
@@ -195,20 +251,16 @@
                                   SnapsToDevicePixels="True">
 
                         <TextBlock Text="{Binding Message, Mode=OneWay}"
-                                   ToolTip="{Binding Message, Mode=OneWay}"
                                    Style="{StaticResource RedumpNotice.BodyText}" />
                     </ScrollViewer>
                 </Border>
             </Border>
 
             <Border Grid.Row="2"
-                    Style="{StaticResource RedumpNotice.HeaderFooter}"
+                    Style="{StaticResource RedumpNotice.Bar}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}">
 
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -219,21 +271,18 @@
                     <Button x:Name="ConfirmButton"
                             Grid.Column="1"
                             Content="{Binding ConfirmText, Mode=OneWay}"
-                            ToolTip="{Binding ConfirmText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding ConfirmText, Mode=OneWay}"
                             Visibility="{Binding ConfirmVisibility, Mode=OneWay}"
-                            IsDefault="True"
                             Click="ConfirmButton_Click"
                             Style="{StaticResource RedumpNotice.CompactPrimaryButton}" />
 
                     <Button x:Name="CloseButton"
                             Grid.Column="3"
                             Content="{Binding CloseText, Mode=OneWay}"
-                            ToolTip="{Binding CloseText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding CloseText, Mode=OneWay}"
                             IsCancel="True"
                             Click="CloseButton_Click"
-                            Style="{StaticResource RedumpNotice.CompactPrimaryButton}" />
+                            Style="{StaticResource RedumpNotice.CompactSecondaryButton}" />
                 </Grid>
             </Border>
         </Grid>

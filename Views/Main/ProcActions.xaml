@@ -13,7 +13,7 @@
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
             <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
             <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-            <Setter Property="TextAlignment" Value="{DynamicResource Options.SettingsTextAlignment}" />
+            <Setter Property="TextAlignment" Value="Left" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="MinWidth" Value="0" />
@@ -44,15 +44,15 @@
                TargetType="{x:Type Button}">
             <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+            <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
             <Setter Property="Margin" Value="{DynamicResource Inset.None}" />
             <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
             <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
             <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-            <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
+            <Setter Property="MinHeight" Value="48" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -66,35 +66,61 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource Radius.Card}"
+                                CornerRadius="{DynamicResource Radius.Card.Large}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
+
                             <Grid FlowDirection="{TemplateBinding FlowDirection}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
                                   SnapsToDevicePixels="True">
+
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0"
+                                <Border x:Name="ActionIndicator"
+                                        Grid.Column="0"
+                                        Width="3"
+                                        Height="24"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Background="{DynamicResource Brush.Accent}"
+                                        CornerRadius="{DynamicResource Radius.Small}"
+                                        Opacity="{DynamicResource Opacity.Hidden}"
+                                        SnapsToDevicePixels="True" />
+
+                                <TextBlock Grid.Column="2"
                                            Text="{TemplateBinding Content}"
                                            Foreground="{TemplateBinding Foreground}"
                                            Style="{StaticResource ProcessingActionsPanelActionChipText}" />
 
-                                <Viewbox Grid.Column="2"
-                                         Width="{DynamicResource Space.20}"
-                                         Height="{DynamicResource Space.20}"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"
-                                         FlowDirection="LeftToRight"
-                                         Stretch="Uniform">
-                                    <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
-                                          Fill="{TemplateBinding Foreground}"
-                                          Stretch="Uniform" />
-                                </Viewbox>
+                                <Border x:Name="IconPlate"
+                                        Grid.Column="4"
+                                        Width="32"
+                                        Height="32"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Background="{DynamicResource Brush.Control.Fill.Rest}"
+                                        CornerRadius="{DynamicResource Radius.Control}"
+                                        SnapsToDevicePixels="True">
+
+                                    <Viewbox Width="{DynamicResource Space.18}"
+                                             Height="{DynamicResource Space.18}"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             FlowDirection="LeftToRight"
+                                             Stretch="Uniform">
+
+                                        <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                              Fill="{TemplateBinding Foreground}"
+                                              Stretch="Uniform" />
+                                    </Viewbox>
+                                </Border>
                             </Grid>
                         </Border>
 
@@ -109,35 +135,72 @@
                                 <Setter TargetName="Bd"
                                         Property="Background"
                                         Value="{DynamicResource Brush.Control.Fill.Hover}" />
+
                                 <Setter TargetName="Bd"
                                         Property="BorderBrush"
                                         Value="{DynamicResource Brush.Control.Stroke.Strong}" />
+
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
+
+                                <Setter TargetName="ActionIndicator"
+                                        Property="Opacity"
+                                        Value="{DynamicResource Opacity.Subtle}" />
+
+                                <Setter TargetName="IconPlate"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Rest}" />
                             </MultiTrigger>
 
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bd"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                                        Value="{DynamicResource Brush.Control.Fill.Pressed}" />
+
                                 <Setter TargetName="Bd"
                                         Property="BorderBrush"
-                                        Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                                        Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+
                                 <Setter Property="Foreground"
-                                        Value="{DynamicResource Brush.Accent.SelectedForeground}" />
+                                        Value="{DynamicResource Brush.Text.Primary}" />
+
+                                <Setter TargetName="ActionIndicator"
+                                        Property="Opacity"
+                                        Value="1" />
+
+                                <Setter TargetName="IconPlate"
+                                        Property="Background"
+                                        Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                            </Trigger>
+
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bd"
+                                        Property="BorderBrush"
+                                        Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+
+                                <Setter TargetName="ActionIndicator"
+                                        Property="Opacity"
+                                        Value="1" />
                             </Trigger>
 
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Bd"
                                         Property="Background"
                                         Value="{DynamicResource Brush.Control.Fill.Disabled}" />
+
                                 <Setter TargetName="Bd"
                                         Property="BorderBrush"
                                         Value="{DynamicResource Brush.Control.Stroke.Default}" />
+
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Disabled}" />
+
                                 <Setter Property="Cursor"
                                         Value="{x:Static input:Cursors.Arrow}" />
+
+                                <Setter TargetName="IconPlate"
+                                        Property="Opacity"
+                                        Value="0.50" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -159,23 +222,26 @@
 
     <Grid FlowDirection="{DynamicResource App.FlowDirection}"
           SnapsToDevicePixels="True">
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
                 Style="{StaticResource FluentActionCard}"
-                Padding="{DynamicResource Inset.14.All}"
+                Padding="{DynamicResource Inset.12.8}"
                 HorizontalAlignment="Stretch"
                 FlowDirection="{DynamicResource App.FlowDirection}"
                 Visibility="{Binding IsRedumpFeatureVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
             <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                   SnapsToDevicePixels="True">
+
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
@@ -185,6 +251,7 @@
                       VerticalAlignment="Center"
                       MinWidth="0"
                       SnapsToDevicePixels="True">
+
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />

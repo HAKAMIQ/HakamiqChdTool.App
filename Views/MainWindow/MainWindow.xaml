@@ -29,7 +29,7 @@
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="{DynamicResource Window.CaptionHeight}"
-                            CornerRadius="{DynamicResource Radius.None}"
+                            CornerRadius="{DynamicResource Radius.Window}"
                             GlassFrameThickness="{DynamicResource Inset.None}"
                             ResizeBorderThickness="{DynamicResource Window.ResizeBorderThickness}"
                             UseAeroCaptionButtons="False" />
@@ -39,10 +39,12 @@
         <Style x:Key="MainWindow.RootSurface"
                TargetType="{x:Type Border}">
             <Setter Property="Background" Value="{DynamicResource Brush.Layer.Canvas}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Window}" />
             <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="UseLayoutRounding" Value="True" />
             <Setter Property="ClipToBounds" Value="True" />
         </Style>
 
@@ -56,7 +58,7 @@
 
         <Style x:Key="MainWindow.BodySurface"
                TargetType="{x:Type Grid}">
-            <Setter Property="Margin" Value="{DynamicResource Inset.8.All}" />
+            <Setter Property="Margin" Value="{DynamicResource Inset.10.All}" />
             <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="ClipToBounds" Value="True" />
@@ -64,10 +66,10 @@
 
         <Style x:Key="MainWindow.ActionRailHost"
                TargetType="{x:Type Border}">
-            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
             <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Stretch" />
@@ -77,10 +79,10 @@
 
         <Style x:Key="MainWindow.QueueHost"
                TargetType="{x:Type Border}">
-            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-            <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+            <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
             <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Stretch" />
@@ -122,16 +124,18 @@
             <Grid Grid.Row="1"
                   Panel.ZIndex="10"
                   Style="{StaticResource MainWindow.BodySurface}">
+
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{DynamicResource Layout.ActionPanel.GridWidth}"
                                       MinWidth="264"
                                       MaxWidth="304" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
                         Style="{StaticResource MainWindow.ActionRailHost}">
+
                     <mainViews:ActionRailView x:Name="ActionRail"
                                               HorizontalAlignment="Stretch"
                                               VerticalAlignment="Stretch"
@@ -140,6 +144,7 @@
 
                 <Border Grid.Column="2"
                         Style="{StaticResource MainWindow.QueueHost}">
+
                     <mainViews:QueueWorkspaceView x:Name="QueueWorkspace"
                                                   HorizontalAlignment="Stretch"
                                                   VerticalAlignment="Stretch"

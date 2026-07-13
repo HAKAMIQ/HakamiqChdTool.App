@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +15,47 @@ namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
+    private sealed class AsyncProgressQueue<T> : IProgress<T>
+    {
+        private readonly Func<T, Task> _handler;
+        private readonly object _syncRoot = new();
+        private Task _tail = Task.CompletedTask;
+        private bool _isCompleted;
+
+        public AsyncProgressQueue(Func<T, Task> handler)
+        {
+            _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+        }
+
+        public void Report(T value)
+        {
+            lock (_syncRoot)
+            {
+                if (_isCompleted)
+                {
+                    return;
+                }
+
+                _tail = AppendAsync(_tail, value);
+            }
+        }
+
+        public Task CompleteAsync()
+        {
+            lock (_syncRoot)
+            {
+                _isCompleted = true;
+                return _tail;
+            }
+        }
+
+        private async Task AppendAsync(Task previous, T value)
+        {
+            await previous.ConfigureAwait(false);
+            await _handler(value).ConfigureAwait(false);
+        }
+    }
+
     private async Task RunDeepIntegrityValidationAsync(
         TaskQueueItemViewModel item,
         string probePath)
@@ -113,20 +156,6 @@ public partial class MainWindow
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!database.HasAnyRows())
-            {
-                await InvokeOnUiIfAvailableAsync(() =>
-                {
-                    ApplyIntegrityAndSync(
-                        item,
-                        IntegrityValidationState.NoDat,
-                        ArabicUi.Get(MainWindowMessages.DeepIntegrityNoDatShort),
-                        ArabicUi.Get(MainWindowMessages.DeepIntegrityNoDatDetail));
-                }).ConfigureAwait(false);
-
-                return;
-            }
-
             DeepHashAnalysisResult? cachedResult = await InvokeOnUiIfAvailableAsync(
                     () =>
                     {
@@ -149,17 +178,24 @@ public partial class MainWindow
             }
             else
             {
-                var redumpProgress = new Progress<ProgressEvent>(
-                    progressEvent => _ = ApplyRedumpProgressEventAsync(item, progressEvent, probePath));
+                var redumpProgress = new AsyncProgressQueue<ProgressEvent>(
+                    progressEvent => ApplyRedumpProgressEventAsync(item, progressEvent, probePath));
 
-                result = await DeepHashAnalyzer
-                    .DeepHashAnalyzeAsync(
-                        probePath,
-                        database,
-                        cancellationToken,
-                        new RedumpV2ScanOptions(GetChdmanPath(), _settings),
-                        redumpProgress)
-                    .ConfigureAwait(false);
+                try
+                {
+                    result = await DeepHashAnalyzer
+                        .DeepHashAnalyzeAsync(
+                            probePath,
+                            database,
+                            cancellationToken,
+                            new RedumpV2ScanOptions(GetChdmanPath(), _settings),
+                            redumpProgress)
+                        .ConfigureAwait(false);
+                }
+                finally
+                {
+                    await redumpProgress.CompleteAsync().ConfigureAwait(false);
+                }
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -272,40 +308,132 @@ public partial class MainWindow
         double overallProgress = CalculateRedumpOverallProgress(progressEvent);
         bool isIndeterminate = progressEvent.TotalBytes <= 0
             && progressEvent.Percent <= 0
-            && progressEvent.OperationType is ProgressOperationType.TemporaryNormalization or ProgressOperationType.RedumpScan;
+            && progressEvent.OperationType is ProgressOperationType.TemporaryNormalization
+                or ProgressOperationType.RedumpScan
+                or ProgressOperationType.Hashing;
 
-        AppendExecutionLog($"{item.FileName}: {message}");
+        string progressStatus = BuildRedumpProgressStatus(
+            message,
+            progressEvent,
+            overallProgress,
+            isIndeterminate);
+
+        AppendExecutionLog($"{item.FileName}: {progressStatus}");
 
         return InvokeOnUiIfAvailableAsync(() =>
         {
             ApplyIntegrityAndSync(
                 item,
                 IntegrityValidationState.Validating,
-                message,
+                progressStatus,
                 detailPath);
 
             ApplyRedumpProgressAndSync(
                 item,
-                message,
+                progressStatus,
                 overallProgress,
                 isProgressActive: true,
                 isIndeterminate: isIndeterminate);
 
-            SetFooterStatus(message);
+            SetFooterStatus(progressStatus);
         });
     }
 
     private static double CalculateRedumpOverallProgress(ProgressEvent progressEvent)
     {
-        if (progressEvent.TotalSteps <= 0 || progressEvent.CurrentStep <= 0)
+        double stepPercent = Math.Clamp(progressEvent.Percent, 0d, 100d) / 100d;
+
+        return progressEvent.CurrentStep switch
         {
-            return Math.Clamp(progressEvent.Percent, 0d, 100d);
+            1 => Math.Clamp(stepPercent * 2d, 0d, 2d),
+            2 => Math.Clamp(2d + (stepPercent * 33d), 2d, 35d),
+            3 => Math.Clamp(35d + (stepPercent * 60d), 35d, 95d),
+            4 => 96d,
+            5 => 98d,
+            6 => Math.Clamp(99d + stepPercent, 99d, 100d),
+            _ => Math.Clamp(progressEvent.Percent, 0d, 100d)
+        };
+    }
+
+    private static string BuildRedumpProgressStatus(
+        string message,
+        ProgressEvent progressEvent,
+        double overallProgress,
+        bool isIndeterminate)
+    {
+        var parts = new List<string>
+        {
+            message
+        };
+
+        if (progressEvent.OperationType == ProgressOperationType.Hashing
+            && progressEvent.TotalBytes > 0)
+        {
+            parts.Add(string.Create(
+                CultureInfo.InvariantCulture,
+                $"{Math.Clamp(progressEvent.Percent, 0d, 100d):0}%"));
+
+            parts.Add(
+                $"{FormatProgressBytes(progressEvent.CurrentBytes)} / {FormatProgressBytes(progressEvent.TotalBytes)}");
+
+            if (progressEvent.SpeedBytesPerSecond > 0)
+            {
+                parts.Add($"{FormatProgressBytes(progressEvent.SpeedBytesPerSecond)}/s");
+            }
+
+            if (progressEvent.Eta is { } eta && eta > TimeSpan.Zero)
+            {
+                parts.Add($"ETA {FormatProgressEta(eta)}");
+            }
+        }
+        else if (!isIndeterminate)
+        {
+            parts.Add(string.Create(
+                CultureInfo.InvariantCulture,
+                $"{Math.Clamp(overallProgress, 0d, 100d):0}%"));
         }
 
-        double stepSize = 100d / progressEvent.TotalSteps;
-        double completedSteps = Math.Clamp(progressEvent.CurrentStep - 1, 0, progressEvent.TotalSteps) * stepSize;
-        double currentStepProgress = Math.Clamp(progressEvent.Percent, 0d, 100d) / 100d * stepSize;
-        return Math.Clamp(completedSteps + currentStepProgress, 0d, 99d);
+        return string.Join("  •  ", parts);
+    }
+
+    private static string FormatProgressBytes(double bytes)
+    {
+        if (bytes <= 0)
+        {
+            return "0 B";
+        }
+
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        double value = bytes;
+        int unitIndex = 0;
+
+        while (value >= 1024d && unitIndex < units.Length - 1)
+        {
+            value /= 1024d;
+            unitIndex++;
+        }
+
+        return unitIndex == 0
+            ? string.Create(CultureInfo.InvariantCulture, $"{value:0} {units[unitIndex]}")
+            : string.Create(CultureInfo.InvariantCulture, $"{value:0.##} {units[unitIndex]}");
+    }
+
+    private static string FormatProgressEta(TimeSpan eta)
+    {
+        TimeSpan normalized = eta < TimeSpan.Zero
+            ? TimeSpan.Zero
+            : eta;
+
+        if (normalized.TotalHours >= 1d)
+        {
+            return string.Create(
+                CultureInfo.InvariantCulture,
+                $"{(int)normalized.TotalHours:00}:{normalized.Minutes:00}:{normalized.Seconds:00}");
+        }
+
+        return string.Create(
+            CultureInfo.InvariantCulture,
+            $"{normalized.Minutes:00}:{normalized.Seconds:00}");
     }
 
     private void ApplyRedumpProgressAndSync(
