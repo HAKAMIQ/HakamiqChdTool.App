@@ -47,7 +47,7 @@
     <Style x:Key="Win11.SettingsPane"
            TargetType="{x:Type Border}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.16.14}" />
@@ -64,7 +64,7 @@
     <Style x:Key="Win11.DialogRootFrame"
            TargetType="{x:Type Border}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Canvas}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -106,7 +106,7 @@
     <Style x:Key="Win11.ContentCard"
            TargetType="{x:Type Border}">
         <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.16.14}" />

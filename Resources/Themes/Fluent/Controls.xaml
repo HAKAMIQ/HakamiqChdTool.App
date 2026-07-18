@@ -102,6 +102,10 @@
     <Style TargetType="{x:Type ScrollViewer}">
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
@@ -110,7 +114,7 @@
            TargetType="{x:Type Button}">
         <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
         <Setter Property="MinWidth" Value="{DynamicResource Space.80}" />
-        <Setter Property="Padding" Value="12,5" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.6}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
@@ -118,6 +122,10 @@
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -139,7 +147,11 @@
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          Language="{TemplateBinding Language}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -176,7 +188,7 @@
            TargetType="{x:Type primitives:ToggleButton}">
         <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
         <Setter Property="MinWidth" Value="{DynamicResource Space.80}" />
-        <Setter Property="Padding" Value="12,5" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.6}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
@@ -184,6 +196,10 @@
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -205,7 +221,11 @@
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
-                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                                          Language="{TemplateBinding Language}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}"
+                                          TextElement.FontWeight="{TemplateBinding FontWeight}" />
                     </Border>
 
                     <ControlTemplate.Triggers>
@@ -299,6 +319,54 @@
         </Setter>
     </Style>
 
+    <Style x:Key="FluentProgressBarStyle"
+           TargetType="{x:Type ProgressBar}">
+        <Setter Property="Height" Value="{DynamicResource Space.4}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.4}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Progress.Track}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Progress.Fill}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+        <Setter Property="FlowDirection" Value="LeftToRight" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ProgressBar}">
+                    <Grid x:Name="Root"
+                          Height="{TemplateBinding Height}"
+                          ClipToBounds="True"
+                          FlowDirection="LeftToRight"
+                          SnapsToDevicePixels="True"
+                          UseLayoutRounding="True">
+                        <Border x:Name="PART_Track"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource Radius.ProgressTrack}"
+                                SnapsToDevicePixels="True" />
+
+                        <Border x:Name="PART_Indicator"
+                                HorizontalAlignment="Left"
+                                Background="{TemplateBinding Foreground}"
+                                CornerRadius="{DynamicResource Radius.ProgressFill}"
+                                SnapsToDevicePixels="True" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type ProgressBar}"
+           BasedOn="{StaticResource FluentProgressBarStyle}" />
+
     <Style TargetType="{x:Type DataGrid}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
@@ -360,6 +428,8 @@
     <Style TargetType="{x:Type DataGridColumnHeader}">
         <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
@@ -370,24 +440,11 @@
         <Setter Property="SnapsToDevicePixels" Value="True" />
     </Style>
 
-    <Style TargetType="{x:Type ContextMenu}">
-        <Setter Property="Background" Value="{DynamicResource Brush.Layer.Elevated}" />
-        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.4.All}" />
-        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-        <Setter Property="SnapsToDevicePixels" Value="True" />
-        <Setter Property="UseLayoutRounding" Value="True" />
-    </Style>
+    <Style TargetType="{x:Type ContextMenu}"
+           BasedOn="{StaticResource FluentHeaderThemeContextMenu}" />
 
-    <Style TargetType="{x:Type MenuItem}">
-        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
-        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-        <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
-    </Style>
+    <Style TargetType="{x:Type MenuItem}"
+           BasedOn="{StaticResource FluentHeaderThemeMenuItem}" />
 
     <Style TargetType="{x:Type Separator}">
         <Setter Property="Margin" Value="{DynamicResource Inset.4.All}" />
@@ -449,13 +506,171 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type Expander}">
+    <Style x:Key="FluentExpanderHeaderToggleStyle"
+           TargetType="{x:Type primitives:ToggleButton}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type primitives:ToggleButton}">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <Grid FlowDirection="{TemplateBinding FlowDirection}"
+                              Language="{TemplateBinding Language}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Viewbox Grid.Column="0"
+                                     Width="{DynamicResource Space.12}"
+                                     Height="{DynamicResource Space.12}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     FlowDirection="LeftToRight"
+                                     Stretch="Uniform">
+                                <Path x:Name="Chevron"
+                                      Data="{StaticResource Icon.ChevronDown}"
+                                      Fill="{DynamicResource Brush.Text.Secondary}"
+                                      RenderTransformOrigin="0.5,0.5"
+                                      Stretch="Uniform">
+                                    <Path.RenderTransform>
+                                        <RotateTransform Angle="-90" />
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Viewbox>
+
+                            <ContentPresenter Grid.Column="2"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True"
+                                              FlowDirection="{TemplateBinding FlowDirection}"
+                                              Language="{TemplateBinding Language}"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"
+                                              TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                              TextElement.FontSize="{TemplateBinding FontSize}"
+                                              TextElement.FontWeight="{TemplateBinding FontWeight}" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Brush.Control.Fill.Pressed}" />
+                        </Trigger>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Chevron" Property="RenderTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="0" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FluentExpanderStyle"
+           TargetType="{x:Type Expander}">
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Expander}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Card}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <primitives:ToggleButton x:Name="HeaderSite"
+                                                     Grid.Row="0"
+                                                     Content="{TemplateBinding Header}"
+                                                     ContentStringFormat="{TemplateBinding HeaderStringFormat}"
+                                                     ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                     ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
+                                                     IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                     Style="{StaticResource FluentExpanderHeaderToggleStyle}" />
+
+                            <ContentPresenter x:Name="ExpandSite"
+                                              Grid.Row="1"
+                                              Margin="{DynamicResource Inset.10.8.10.10}"
+                                              ContentSource="Content"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Top"
+                                              FlowDirection="{TemplateBinding FlowDirection}"
+                                              Language="{TemplateBinding Language}"
+                                              Visibility="Collapsed" />
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
+
+    <Style TargetType="{x:Type Expander}"
+           BasedOn="{StaticResource FluentExpanderStyle}" />
 
 </ResourceDictionary>

@@ -669,7 +669,7 @@
     <Style x:Key="Win11SettingsSection"
            TargetType="{x:Type Border}">
         <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
@@ -770,7 +770,7 @@
     <Style x:Key="Win11SettingsRowTitleText"
            TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -810,8 +810,9 @@
 
     <Style x:Key="Win11SettingsPathControlArea"
            TargetType="{x:Type Grid}">
-        <Setter Property="Width" Value="380" />
-        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="MinWidth" Value="240" />
+        <Setter Property="MaxWidth" Value="460" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -943,9 +944,9 @@
     <Style x:Key="Win11SettingsCompactButton"
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource SecondaryButtonStyle}">
-        <Setter Property="MinWidth" Value="{DynamicResource Space.120}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
+        <Setter Property="MinWidth" Value="96" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.6}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
