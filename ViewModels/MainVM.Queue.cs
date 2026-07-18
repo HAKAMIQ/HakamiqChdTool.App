@@ -94,7 +94,7 @@ public partial class MainWindowViewModel
             {
                 _session.SetFooterStatus(MainWindowMessages.WaitForBackgroundOp);
                 _session.UpdateUiState();
-            }, DispatcherPriority.Background);
+            }, DispatcherPriority.Background, CancellationToken.None);
 
             return Array.Empty<Guid>();
         }
@@ -105,7 +105,7 @@ public partial class MainWindowViewModel
             {
                 _session.SetFooterStatus(MainWindowMessages.NothingNewAdded);
                 _session.UpdateUiState();
-            }, DispatcherPriority.Background);
+            }, DispatcherPriority.Background, CancellationToken.None);
 
             return Array.Empty<Guid>();
         }
@@ -313,7 +313,7 @@ public partial class MainWindowViewModel
 
                     _session.SetFooterStatus(footer);
                     _session.UpdateUiState();
-                }, DispatcherPriority.Background);
+                }, DispatcherPriority.Background, CancellationToken.None);
 
                 await EndIntakeOperationAsync(dispatcher, intakeUiVersion).ConfigureAwait(false);
                 intakeUiEnded = true;
@@ -367,7 +367,7 @@ public partial class MainWindowViewModel
                     _session.RequestSelectFirstQueueRowIfNone();
                     _session.UpdateUiState();
                 },
-                DispatcherPriority.Background);
+                DispatcherPriority.Background, CancellationToken.None);
 
             int queueCountAfter = await dispatcher.InvokeAsync(
                 () => _session.QueueRows.Count,
@@ -413,7 +413,7 @@ public partial class MainWindowViewModel
 
                     _session.UpdateUiState();
                 },
-                DispatcherPriority.Background);
+                DispatcherPriority.Background, CancellationToken.None);
 
             await EndIntakeOperationAsync(dispatcher, intakeUiVersion).ConfigureAwait(false);
             intakeUiEnded = true;
@@ -454,7 +454,7 @@ public partial class MainWindowViewModel
                 _session.SetFooterStatus(body);
                 _session.UpdateUiState();
                 _session.ShowError(MainWindowMessages.AddFilesErrorTitle, body);
-            }, DispatcherPriority.Normal);
+            }, DispatcherPriority.Normal, CancellationToken.None);
 
             return Array.Empty<Guid>();
         }

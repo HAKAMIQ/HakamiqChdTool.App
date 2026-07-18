@@ -170,8 +170,8 @@ public sealed class ChdmanCapabilityService : IChdmanCapabilityService
                 return ProbeResult.NotStarted(arguments, "Process did not start.");
             }
 
-            Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync();
-            Task<string> stderrTask = process.StandardError.ReadToEndAsync();
+            Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync(CancellationToken.None);
+            Task<string> stderrTask = process.StandardError.ReadToEndAsync(CancellationToken.None);
 
             try
             {
