@@ -235,8 +235,12 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
     {
         EnsureSafeProcessTempFileForRead(zipPath);
 
-        string destinationRoot = Path.GetFullPath(destinationDirectory);
+        string destinationRoot = TrimDirectorySeparators(
+            Path.GetFullPath(destinationDirectory));
         EnsureSafeProcessTempDirectory(destinationRoot);
+
+        string destinationRootWithSeparator =
+            EnsureDirectorySeparatorSuffix(destinationRoot);
 
         using ZipArchive archive = ZipFile.OpenRead(zipPath);
 
@@ -250,14 +254,17 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
             }
 
             string entryName = entry.FullName.Replace('\\', '/');
-            if (entryName.Contains('\0'))
+            if (entryName.Contains('\0') || Path.IsPathRooted(entryName))
             {
                 throw new InvalidDataException(UnsafeZipEntryMessageKey);
             }
 
-            string targetPath = Path.GetFullPath(Path.Combine(destinationRoot, entryName));
+            string targetPath = Path.GetFullPath(
+                Path.Combine(destinationRoot, entryName));
 
-            if (!IsUnderDirectory(destinationRoot, targetPath))
+            if (!targetPath.StartsWith(
+                    destinationRootWithSeparator,
+                    StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidDataException(UnsafeZipEntryMessageKey);
             }
