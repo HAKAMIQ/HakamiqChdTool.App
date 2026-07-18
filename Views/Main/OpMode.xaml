@@ -93,6 +93,7 @@
                                         Background="{DynamicResource Brush.Accent}"
                                         CornerRadius="{DynamicResource Radius.Small}"
                                         Opacity="{DynamicResource Opacity.Hidden}"
+                                        Visibility="Collapsed"
                                         SnapsToDevicePixels="True" />
 
                                 <TextBlock Grid.Column="2"

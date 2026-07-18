@@ -24,11 +24,11 @@
     <sys:Double x:Key="Fluent.Font.Body2.Size">16</sys:Double>
     <sys:Double x:Key="Fluent.Font.Subtitle2.Size">16</sys:Double>
     <sys:Double x:Key="Fluent.Font.Subtitle1.Size">20</sys:Double>
-    <sys:Double x:Key="Fluent.Font.Title3.Size">18</sys:Double>
-    <sys:Double x:Key="Fluent.Font.Title2.Size">20</sys:Double>
-    <sys:Double x:Key="Fluent.Font.Title1.Size">24</sys:Double>
-    <sys:Double x:Key="Fluent.Font.LargeTitle.Size">34</sys:Double>
-    <sys:Double x:Key="Fluent.Font.Display.Size">60</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title3.Size">24</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title2.Size">28</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title1.Size">32</sys:Double>
+    <sys:Double x:Key="Fluent.Font.LargeTitle.Size">40</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Display.Size">68</sys:Double>
 
     <sys:Double x:Key="Fluent.Font.Caption2.LineHeight">14</sys:Double>
     <sys:Double x:Key="Fluent.Font.Caption1.LineHeight">16</sys:Double>
@@ -36,11 +36,11 @@
     <sys:Double x:Key="Fluent.Font.Body2.LineHeight">22</sys:Double>
     <sys:Double x:Key="Fluent.Font.Subtitle2.LineHeight">22</sys:Double>
     <sys:Double x:Key="Fluent.Font.Subtitle1.LineHeight">28</sys:Double>
-    <sys:Double x:Key="Fluent.Font.Title3.LineHeight">24</sys:Double>
-    <sys:Double x:Key="Fluent.Font.Title2.LineHeight">28</sys:Double>
-    <sys:Double x:Key="Fluent.Font.Title1.LineHeight">32</sys:Double>
-    <sys:Double x:Key="Fluent.Font.LargeTitle.LineHeight">44</sys:Double>
-    <sys:Double x:Key="Fluent.Font.Display.LineHeight">72</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title3.LineHeight">32</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title2.LineHeight">36</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Title1.LineHeight">40</sys:Double>
+    <sys:Double x:Key="Fluent.Font.LargeTitle.LineHeight">52</sys:Double>
+    <sys:Double x:Key="Fluent.Font.Display.LineHeight">92</sys:Double>
 
     <sys:Double x:Key="FontSize.Caption2">10</sys:Double>
     <sys:Double x:Key="FontSize.Caption">12</sys:Double>
@@ -58,12 +58,12 @@
     <sys:Double x:Key="FontSize.SectionTitle">16</sys:Double>
     <sys:Double x:Key="FontSize.Title">20</sys:Double>
     <sys:Double x:Key="FontSize.Subtitle1">20</sys:Double>
-    <sys:Double x:Key="FontSize.Title3">18</sys:Double>
+    <sys:Double x:Key="FontSize.Title3">24</sys:Double>
     <sys:Double x:Key="FontSize.TitleLarge">24</sys:Double>
-    <sys:Double x:Key="FontSize.Title2">20</sys:Double>
-    <sys:Double x:Key="FontSize.Title1">24</sys:Double>
-    <sys:Double x:Key="FontSize.LargeTitle">34</sys:Double>
-    <sys:Double x:Key="FontSize.Display">60</sys:Double>
+    <sys:Double x:Key="FontSize.Title2">28</sys:Double>
+    <sys:Double x:Key="FontSize.Title1">32</sys:Double>
+    <sys:Double x:Key="FontSize.LargeTitle">40</sys:Double>
+    <sys:Double x:Key="FontSize.Display">68</sys:Double>
 
     <sys:Double x:Key="FontSize.IconSmall">12</sys:Double>
     <sys:Double x:Key="FontSize.IconMedium">16</sys:Double>

@@ -198,7 +198,6 @@
     <Thickness x:Key="Inset.10.5">10,5</Thickness>
     <Thickness x:Key="Inset.10.6">10,6</Thickness>
     <Thickness x:Key="Inset.10.8">10,8</Thickness>
-    <Thickness x:Key="Inset.12.6">12,6</Thickness>
     <Thickness x:Key="Inset.12.7">12,7</Thickness>
     <Thickness x:Key="Inset.12.8">12,8</Thickness>
     <Thickness x:Key="Inset.12.10">12,10</Thickness>
