@@ -104,18 +104,12 @@ public sealed class RedumpSqliteManager
                 command.ExecuteNonQuery();
             }
 
-            EnsureColumn(connection, "SizeBytes", "ALTER TABLE RomHashes ADD COLUMN SizeBytes INTEGER;");
-            EnsureColumn(connection, "CRC", "ALTER TABLE RomHashes ADD COLUMN CRC TEXT;");
-            EnsureColumn(connection, "Region", "ALTER TABLE RomHashes ADD COLUMN Region TEXT;");
-            EnsureColumn(connection, "Version", "ALTER TABLE RomHashes ADD COLUMN Version TEXT;");
+            EnsureColumn(connection, RomHashesColumn.SizeBytes);
+            EnsureColumn(connection, RomHashesColumn.Crc);
+            EnsureColumn(connection, RomHashesColumn.Region);
+            EnsureColumn(connection, RomHashesColumn.Version);
 
-            ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_MD5 ON RomHashes(MD5);");
-            ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_SHA1 ON RomHashes(SHA1);");
-            ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_CRC ON RomHashes(CRC);");
-            ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_MD5_Size ON RomHashes(MD5, SizeBytes);");
-            ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_SHA1_Size ON RomHashes(SHA1, SizeBytes);");
-            ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_CRC_Size ON RomHashes(CRC, SizeBytes);");
-            ExecuteNonQuery(connection, "CREATE INDEX IF NOT EXISTS IX_RomHashes_Game ON RomHashes(SystemName, GameName);");
+            CreateIndexes(connection);
         }
     }
 
@@ -925,22 +919,67 @@ public sealed class RedumpSqliteManager
         return connection;
     }
 
-    private static void ApplyPragmas(SqliteConnection connection)
+    private enum RomHashesColumn
     {
-        ExecuteNonQuery(connection, "PRAGMA journal_mode=WAL;");
-        ExecuteNonQuery(connection, "PRAGMA synchronous=NORMAL;");
-        ExecuteNonQuery(connection, "PRAGMA temp_store=MEMORY;");
+        SizeBytes,
+        Crc,
+        Region,
+        Version
     }
 
-    private static void ExecuteNonQuery(SqliteConnection connection, string commandText)
+    private static void ApplyPragmas(SqliteConnection connection)
     {
         using SqliteCommand command = connection.CreateCommand();
-        command.CommandText = commandText;
+
+        command.CommandText = "PRAGMA journal_mode=WAL;";
+        command.ExecuteNonQuery();
+
+        command.CommandText = "PRAGMA synchronous=NORMAL;";
+        command.ExecuteNonQuery();
+
+        command.CommandText = "PRAGMA temp_store=MEMORY;";
         command.ExecuteNonQuery();
     }
 
-    private static void EnsureColumn(SqliteConnection connection, string columnName, string alterSql)
+    private static void CreateIndexes(SqliteConnection connection)
     {
+        using SqliteCommand command = connection.CreateCommand();
+
+        command.CommandText = "CREATE INDEX IF NOT EXISTS IX_RomHashes_MD5 ON RomHashes(MD5);";
+        command.ExecuteNonQuery();
+
+        command.CommandText = "CREATE INDEX IF NOT EXISTS IX_RomHashes_SHA1 ON RomHashes(SHA1);";
+        command.ExecuteNonQuery();
+
+        command.CommandText = "CREATE INDEX IF NOT EXISTS IX_RomHashes_CRC ON RomHashes(CRC);";
+        command.ExecuteNonQuery();
+
+        command.CommandText = "CREATE INDEX IF NOT EXISTS IX_RomHashes_MD5_Size ON RomHashes(MD5, SizeBytes);";
+        command.ExecuteNonQuery();
+
+        command.CommandText = "CREATE INDEX IF NOT EXISTS IX_RomHashes_SHA1_Size ON RomHashes(SHA1, SizeBytes);";
+        command.ExecuteNonQuery();
+
+        command.CommandText = "CREATE INDEX IF NOT EXISTS IX_RomHashes_CRC_Size ON RomHashes(CRC, SizeBytes);";
+        command.ExecuteNonQuery();
+
+        command.CommandText = "CREATE INDEX IF NOT EXISTS IX_RomHashes_Game ON RomHashes(SystemName, GameName);";
+        command.ExecuteNonQuery();
+    }
+
+    private static void EnsureColumn(
+        SqliteConnection connection,
+        RomHashesColumn column)
+    {
+        string columnName = column switch
+        {
+            RomHashesColumn.SizeBytes => "SizeBytes",
+            RomHashesColumn.Crc => "CRC",
+            RomHashesColumn.Region => "Region",
+            RomHashesColumn.Version => "Version",
+            _ => throw new ArgumentOutOfRangeException(nameof(column))
+        };
+
         bool exists = false;
 
         using (SqliteCommand command = connection.CreateCommand())
@@ -951,7 +990,10 @@ public sealed class RedumpSqliteManager
             while (reader.Read())
             {
                 string existing = reader.GetString(1);
-                if (string.Equals(existing, columnName, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(
+                    existing,
+                    columnName,
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     exists = true;
                     break;
@@ -959,10 +1001,40 @@ public sealed class RedumpSqliteManager
             }
         }
 
-        if (!exists)
+        if (exists)
         {
-            ExecuteNonQuery(connection, alterSql);
+            return;
         }
+
+        using SqliteCommand alterCommand = connection.CreateCommand();
+
+        switch (column)
+        {
+            case RomHashesColumn.SizeBytes:
+                alterCommand.CommandText =
+                    "ALTER TABLE RomHashes ADD COLUMN SizeBytes INTEGER;";
+                break;
+
+            case RomHashesColumn.Crc:
+                alterCommand.CommandText =
+                    "ALTER TABLE RomHashes ADD COLUMN CRC TEXT;";
+                break;
+
+            case RomHashesColumn.Region:
+                alterCommand.CommandText =
+                    "ALTER TABLE RomHashes ADD COLUMN Region TEXT;";
+                break;
+
+            case RomHashesColumn.Version:
+                alterCommand.CommandText =
+                    "ALTER TABLE RomHashes ADD COLUMN Version TEXT;";
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(column));
+        }
+
+        alterCommand.ExecuteNonQuery();
     }
 
     private static bool TryQueryHit(
@@ -981,25 +1053,11 @@ public sealed class RedumpSqliteManager
         }
 
         using SqliteCommand command = connection.CreateCommand();
+        SetQueryCommandText(command, columnName, sizeBytes.HasValue);
 
         if (sizeBytes.HasValue)
         {
-            command.CommandText = $"""
-                SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
-                FROM RomHashes
-                WHERE {columnName} = $h AND SizeBytes = $size
-                LIMIT 1;
-                """;
             command.Parameters.AddWithValue("$size", sizeBytes.Value);
-        }
-        else
-        {
-            command.CommandText = $"""
-                SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
-                FROM RomHashes
-                WHERE {columnName} = $h
-                LIMIT 1;
-                """;
         }
 
         command.Parameters.AddWithValue("$h", hash);
@@ -1028,6 +1086,83 @@ public sealed class RedumpSqliteManager
         return true;
     }
 
+    private static void SetQueryCommandText(
+        SqliteCommand command,
+        string columnName,
+        bool includeSize)
+    {
+        switch (columnName)
+        {
+            case "MD5":
+                if (includeSize)
+                {
+                    command.CommandText = """
+                        SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
+                        FROM RomHashes
+                        WHERE MD5 = $h AND SizeBytes = $size
+                        LIMIT 1;
+                        """;
+                }
+                else
+                {
+                    command.CommandText = """
+                        SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
+                        FROM RomHashes
+                        WHERE MD5 = $h
+                        LIMIT 1;
+                        """;
+                }
+
+                break;
+
+            case "SHA1":
+                if (includeSize)
+                {
+                    command.CommandText = """
+                        SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
+                        FROM RomHashes
+                        WHERE SHA1 = $h AND SizeBytes = $size
+                        LIMIT 1;
+                        """;
+                }
+                else
+                {
+                    command.CommandText = """
+                        SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
+                        FROM RomHashes
+                        WHERE SHA1 = $h
+                        LIMIT 1;
+                        """;
+                }
+
+                break;
+
+            case "CRC":
+                if (includeSize)
+                {
+                    command.CommandText = """
+                        SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
+                        FROM RomHashes
+                        WHERE CRC = $h AND SizeBytes = $size
+                        LIMIT 1;
+                        """;
+                }
+                else
+                {
+                    command.CommandText = """
+                        SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
+                        FROM RomHashes
+                        WHERE CRC = $h
+                        LIMIT 1;
+                        """;
+                }
+
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(columnName));
+        }
+    }
     private static bool IsAllowedHashColumn(string columnName) =>
         string.Equals(columnName, "MD5", StringComparison.Ordinal)
         || string.Equals(columnName, "SHA1", StringComparison.Ordinal)
