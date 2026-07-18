@@ -412,6 +412,7 @@ internal sealed class StoragePathAnalyzer(
             or System.Security.SecurityException;
     }
 
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern bool GetVolumeInformationW(
         string lpRootPathName,
