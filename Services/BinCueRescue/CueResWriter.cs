@@ -961,6 +961,7 @@ internal static class CueRescueWriter
     }
 
 #pragma warning disable SYSLIB1054
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern bool CreateHardLinkW(
         string lpFileName,
