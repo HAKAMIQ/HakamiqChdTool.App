@@ -63,15 +63,9 @@
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{DynamicResource LocGeneralSettings_LanguageDescription}"
                                           AutomationProperties.Name="{DynamicResource LocGeneralSettings_LanguageTitle}">
-                                    <ComboBoxItem Tag="ar-SA">
-                                        <TextBlock Text="{DynamicResource LocLanguage_Arabic}"
-                                                   TextAlignment="Left" />
-                                    </ComboBoxItem>
+                                    <ComboBoxItem Tag="ar-SA" Content="{DynamicResource LocLanguage_Arabic}" />
 
-                                    <ComboBoxItem Tag="en-US">
-                                        <TextBlock Text="{DynamicResource LocLanguage_English}"
-                                                   TextAlignment="Left" />
-                                    </ComboBoxItem>
+                                    <ComboBoxItem Tag="en-US" Content="{DynamicResource LocLanguage_English}" />
                                 </ComboBox>
                             </Grid>
                         </Border>
@@ -101,20 +95,11 @@
                                           Style="{StaticResource Win11SettingsComboBox}"
                                           ToolTip="{DynamicResource LocGeneralSettings_ThemeDescription}"
                                           AutomationProperties.Name="{DynamicResource LocGeneralSettings_ThemeTitle}">
-                                    <ComboBoxItem Tag="Light">
-                                        <TextBlock Text="{DynamicResource LocUi_Theme_Light}"
-                                                   TextAlignment="Left" />
-                                    </ComboBoxItem>
+                                    <ComboBoxItem Tag="Light" Content="{DynamicResource LocUi_Theme_Light}" />
 
-                                    <ComboBoxItem Tag="Dark">
-                                        <TextBlock Text="{DynamicResource LocUi_Theme_Dark}"
-                                                   TextAlignment="Left" />
-                                    </ComboBoxItem>
+                                    <ComboBoxItem Tag="Dark" Content="{DynamicResource LocUi_Theme_Dark}" />
 
-                                    <ComboBoxItem Tag="Hakamiq">
-                                        <TextBlock Text="{DynamicResource LocUi_Theme_Hakamiq}"
-                                                   TextAlignment="Left" />
-                                    </ComboBoxItem>
+                                    <ComboBoxItem Tag="Hakamiq" Content="{DynamicResource LocUi_Theme_Hakamiq}" />
                                 </ComboBox>
                             </Grid>
                         </Border>
