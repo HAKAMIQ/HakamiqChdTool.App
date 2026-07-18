@@ -384,15 +384,17 @@
 
     <sys:String x:Key="LocRowPhase_Waiting">بانتظار المعالجة</sys:String>
     <sys:String x:Key="LocRowPhase_ChooseOperation">بانتظار العملية</sys:String>
-    <sys:String x:Key="LocRowPhase_Scanning">جارٍ الفحص...</sys:String>
+    <sys:String x:Key="LocRowPhase_Scanning">فحص</sys:String>
+    <sys:String x:Key="LocRowPhase_Reading">قراءة</sys:String>
     <sys:String x:Key="LocRowPhase_Extracting">استخراج</sys:String>
     <sys:String x:Key="LocRowPhase_Converting">تحويل</sys:String>
     <sys:String x:Key="LocRowPhase_Verifying">تحقق</sys:String>
-    <sys:String x:Key="LocRowPhase_CleaningUp">جارٍ التنظيف...</sys:String>
-    <sys:String x:Key="LocRowPhase_Processing">جارٍ التنفيذ...</sys:String>
+    <sys:String x:Key="LocRowPhase_Saving">حفظ</sys:String>
+    <sys:String x:Key="LocRowPhase_CleaningUp">تنظيف</sys:String>
+    <sys:String x:Key="LocRowPhase_Processing">معالجة</sys:String>
     <sys:String x:Key="LocRowPhase_Completed">مكتمل</sys:String>
     <sys:String x:Key="LocRowPhase_Skipped">تم التخطي</sys:String>
-    <sys:String x:Key="LocRowPhase_Failed">فشل (خطأ)</sys:String>
+    <sys:String x:Key="LocRowPhase_Failed">فشل</sys:String>
     <sys:String x:Key="LocRowPhase_Cancelled">تم الإلغاء</sys:String>
 
     <sys:String x:Key="LocDetail_Section_Status">الحالة</sys:String>
@@ -1679,7 +1681,7 @@
     <sys:String x:Key="LocChdLogicalReport_HunkSizeLabel">حجم الكتلة</sys:String>
     <sys:String x:Key="LocChdLogicalReport_TotalHunksLabel">عدد الكتل</sys:String>
     <sys:String x:Key="LocChdLogicalReport_DecodedCacheLabel">ذاكرة التخزين المؤقت</sys:String>
-    <sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">الوقت: {0}، المكتوب: {1}، السرعة: {2}، المتبقي: {3}</sys:String>
+    <sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">الوقت: {0}، الناتج: {1}، السرعة: {2}، المتبقي: {3}</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateFormat">{0}/ث</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateCalculating">جارٍ قياس السرعة</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_EtaCalculating">جارٍ الحساب</sys:String>

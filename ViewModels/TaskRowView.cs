@@ -5,6 +5,7 @@ using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using MediaBrush = System.Windows.Media.Brush;
 
@@ -13,111 +14,265 @@ namespace HakamiqChdTool.App.ViewModels;
 public sealed partial class TaskQueueItemViewModel
 {
     public string DisplayFileName =>
-        string.IsNullOrEmpty(FileName) ? string.Empty : "\u2066" + FileName + "\u2069";
+        string.IsNullOrEmpty(FileName)
+            ? string.Empty
+            : "\u2066" + FileName + "\u2069";
 
-    public string StatusText => OperationAwareStatePhaseArabic;
+    public string StatusText =>
+        OperationAwareStatePhaseArabic;
 
-    public string StatusHeadlineIsolated => WrapDisplayText(OperationAwareStatePhaseArabic);
+    public string StatusHeadlineIsolated =>
+        WrapDisplayText(OperationAwareStatePhaseArabic);
 
-    public string QueueRowDisplayState => BuildQueueRowDisplayState();
+    public string QueueRowDisplayState =>
+        BuildQueueRowDisplayState();
 
-    public string QueueRowDisplayFinalResult => BuildQueueRowDisplayFinalResultText();
+    public string QueueRowDisplayFinalResult =>
+        BuildQueueRowDisplayFinalResultText();
 
-    public string QueueRowDisplayDetailArabic => BuildQueueRowDisplayDetailArabic();
+    public string QueueRowDisplayDetailArabic =>
+        BuildQueueRowDisplayDetailArabic();
 
-    public bool QueueRowDisplayDetailIsVisible => !IsSuppressedQueueRowDetail(QueueRowDisplayDetailArabic);
+    public bool QueueRowDisplayDetailIsVisible =>
+        !IsSuppressedQueueRowDetail(
+            QueueRowDisplayDetailArabic);
 
     public string QueueRowDisplayPhaseIsolated
     {
         get
         {
-            string text = HasRuntimeProgressDetail && !string.IsNullOrWhiteSpace(RuntimeProgressPrimaryMessageKey)
-                ? ArabicUi.ResolveDisplayString(RuntimeProgressPrimaryMessageKey)
-                : BuildOperationAwareQueueRowPhase();
+            string text =
+                BuildOperationAwareQueueRowPhase();
 
             return WrapDisplayText(text);
         }
     }
 
-    private string OperationAwareStatePhaseArabic => StatePhaseArabic;
+    private string OperationAwareStatePhaseArabic =>
+        StatePhaseArabic;
 
-    private string BuildOperationAwareQueueRowPhase() =>
-        ArabicUi.QueueRowOperationalPhaseHeadline(QueueRowDisplayState, IntegrityState, StatusDetail);
+    private string BuildOperationAwareQueueRowPhase()
+    {
+        string displayState = QueueRowDisplayState;
+
+        if (TaskQueueStateCodes.IsActiveRunning(displayState))
+        {
+            string? detailPhase =
+                BuildOperationDetailPhase(StatusDetail);
+
+            if (!string.IsNullOrEmpty(detailPhase))
+            {
+                return detailPhase;
+            }
+
+            return displayState switch
+            {
+                TaskQueueStateCodes.ReadingFile =>
+                    ArabicUi.Get("LocRowPhase_Reading"),
+
+                TaskQueueStateCodes.Extracting =>
+                    ArabicUi.Get("LocRowPhase_Extracting"),
+
+                TaskQueueStateCodes.Converting =>
+                    ArabicUi.Get("LocRowPhase_Converting"),
+
+                TaskQueueStateCodes.Verifying =>
+                    ArabicUi.Get("LocRowPhase_Verifying"),
+
+                TaskQueueStateCodes.Processing =>
+                    ArabicUi.Get("LocRowPhase_Processing"),
+
+                _ =>
+                    ArabicUi.Get("LocRowPhase_Processing")
+            };
+        }
+
+        return ArabicUi.QueueRowOperationalPhaseHeadline(
+            displayState,
+            IntegrityState,
+            StatusDetail);
+    }
+
+    private static string? BuildOperationDetailPhase(
+        string? detail)
+    {
+        if (string.IsNullOrWhiteSpace(detail))
+        {
+            return null;
+        }
+
+        string normalized = detail.Trim();
+
+        if (LegacyStatusLineLocalizer.TryResolveToResourceKey(
+                normalized,
+                out string resourceKey))
+        {
+            normalized = resourceKey;
+        }
+
+        return normalized switch
+        {
+            "LocConversion_Finalizing"
+                or "LocConversion_SavingCreatedChd"
+                or "LocStatus_FinalizingChdOutput"
+                or "LocStatus_FinalizingExtractedOutput"
+                or "LocStatus_FinalizingVerifiedFile"
+                or "LocStatus_MovingExtractedOutputFile" =>
+                ArabicUi.Get("LocRowPhase_Saving"),
+
+            "LocConversion_VerifyingCreatedChd"
+                or "LocStatus_ValidatingOutputFile" =>
+                ArabicUi.Get("LocRowPhase_Verifying"),
+
+            "LocStatus_CleaningTempFiles" =>
+                ArabicUi.Get("LocRowPhase_CleaningUp"),
+
+            _ => null
+        };
+    }
 
     public string QueueCardBadgeTextIsolated
     {
         get
         {
             string displayState = QueueRowDisplayState;
-            string displayResultCode = BuildQueueRowDisplayFinalResultCode();
+            string displayResultCode =
+                BuildQueueRowDisplayFinalResultCode();
 
-            if (displayResultCode == TaskFinalResultCodes.SkippedExists || displayState == TaskQueueStateCodes.Skipped)
+            if (displayResultCode ==
+                    TaskFinalResultCodes.SkippedExists
+                || displayState ==
+                    TaskQueueStateCodes.Skipped)
             {
-                return WrapDisplayText(ArabicUi.Get("LocRowPhase_Skipped"));
+                return WrapDisplayText(
+                    ArabicUi.Get("LocRowPhase_Skipped"));
             }
 
-            if (displayState == TaskQueueStateCodes.Completed)
+            if (displayState ==
+                TaskQueueStateCodes.Completed)
             {
                 return displayResultCode switch
                 {
-                    TaskFinalResultCodes.Healthy or TaskFinalResultCodes.Moved or TaskFinalResultCodes.Extracted =>
-                        WrapDisplayText(ArabicUi.Get("LocRowPhase_Completed")),
-                    _ => WrapDisplayText(ArabicUi.Get("LocRowPhase_Waiting"))
+                    TaskFinalResultCodes.Healthy
+                        or TaskFinalResultCodes.Moved
+                        or TaskFinalResultCodes.Extracted =>
+                        WrapDisplayText(
+                            ArabicUi.Get(
+                                "LocRowPhase_Completed")),
+
+                    _ =>
+                        WrapDisplayText(
+                            ArabicUi.Get(
+                                "LocRowPhase_Waiting"))
                 };
             }
 
-            if (displayState == TaskQueueStateCodes.Failed || displayState == TaskQueueStateCodes.PasswordRequired)
+            if (displayState ==
+                    TaskQueueStateCodes.Failed
+                || displayState ==
+                    TaskQueueStateCodes.PasswordRequired)
             {
-                return WrapDisplayText(ArabicUi.Get("LocRowPhase_Failed"));
+                return WrapDisplayText(
+                    ArabicUi.Get("LocRowPhase_Failed"));
             }
 
-            if (displayState == TaskQueueStateCodes.Cancelled)
+            if (displayState ==
+                TaskQueueStateCodes.Cancelled)
             {
-                return WrapDisplayText(ArabicUi.Get("LocRowPhase_Cancelled"));
+                return WrapDisplayText(
+                    ArabicUi.Get("LocRowPhase_Cancelled"));
             }
 
-            if (displayState == TaskQueueStateCodes.AwaitingOperationSelection)
+            if (displayState ==
+                TaskQueueStateCodes.AwaitingOperationSelection)
             {
-                return WrapDisplayText(ArabicUi.Get("LocRowPhase_ChooseOperation"));
+                return WrapDisplayText(
+                    ArabicUi.Get(
+                        "LocRowPhase_ChooseOperation"));
             }
 
-            if (TaskQueueStateCodes.IsActiveRunning(displayState))
+            if (TaskQueueStateCodes.IsActiveRunning(
+                    displayState))
             {
-                return WrapDisplayText(ArabicUi.Get("LocState_Processing"));
+                return WrapDisplayText(
+                    ArabicUi.Get("LocState_Processing"));
             }
 
-            return WrapDisplayText(ArabicUi.Get("LocRowPhase_Waiting"));
+            return WrapDisplayText(
+                ArabicUi.Get("LocRowPhase_Waiting"));
         }
     }
 
-    public string TaskActionShortLabel => RequestedAction switch
-    {
-        TaskActionCodes.ExtractArchiveThenProcess => ArabicUi.Get("LocQueue_ActionShortArchiveToChd"),
-        TaskActionCodes.ConvertToChd => ArabicUi.GetActionArabicLabel(TaskActionCodes.ConvertToChd),
-        TaskActionCodes.ExtractFromChd => ArabicUi.GetActionArabicLabel(TaskActionCodes.ExtractFromChd),
-        TaskActionCodes.VerifyChd => ArabicUi.GetActionArabicLabel(TaskActionCodes.VerifyChd),
-        _ => ArabicUi.GetActionArabicLabel(RequestedAction)
-    };
+    public string TaskActionShortLabel =>
+        RequestedAction switch
+        {
+            TaskActionCodes.ExtractArchiveThenProcess =>
+                ArabicUi.Get(
+                    "LocQueue_ActionShortArchiveToChd"),
 
-    public string TaskActionIconGlyph => RequestedAction switch
-    {
-        TaskActionCodes.ExtractArchiveThenProcess => "\uE8B7",
-        TaskActionCodes.ConvertToChd => "\uE895",
-        TaskActionCodes.ExtractFromChd => "\uEDE1",
-        TaskActionCodes.VerifyChd => "\uE73E",
-        TaskActionCodes.PendingSelection => "\uE8FD",
-        _ => "\uE711"
-    };
+            TaskActionCodes.ConvertToChd =>
+                ArabicUi.GetActionArabicLabel(
+                    TaskActionCodes.ConvertToChd),
+
+            TaskActionCodes.ExtractFromChd =>
+                ArabicUi.GetActionArabicLabel(
+                    TaskActionCodes.ExtractFromChd),
+
+            TaskActionCodes.VerifyChd =>
+                ArabicUi.GetActionArabicLabel(
+                    TaskActionCodes.VerifyChd),
+
+            _ =>
+                ArabicUi.GetActionArabicLabel(
+                    RequestedAction)
+        };
+
+    public string TaskActionIconGlyph =>
+        RequestedAction switch
+        {
+            TaskActionCodes.ExtractArchiveThenProcess =>
+                "\uE8B7",
+
+            TaskActionCodes.ConvertToChd =>
+                "\uE895",
+
+            TaskActionCodes.ExtractFromChd =>
+                "\uEDE1",
+
+            TaskActionCodes.VerifyChd =>
+                "\uE73E",
+
+            TaskActionCodes.PendingSelection =>
+                "\uE8FD",
+
+            _ =>
+                "\uE711"
+        };
 
     public string StateIconGlyph =>
         ProcessingPhase switch
         {
-            ProcessingState.Processing => "\uE895",
-            ProcessingState.Completed => "\uE73E",
-            ProcessingState.Failed => CurrentState == TaskQueueStateCodes.PasswordRequired ? "\uE7BA" : "\uE711",
-            ProcessingState.AwaitingOperation => "\uE70F",
-            ProcessingState.Queued or ProcessingState.Idle => "\uE8FD",
-            _ => "\uE8FD"
+            ProcessingState.Processing =>
+                "\uE895",
+
+            ProcessingState.Completed =>
+                "\uE73E",
+
+            ProcessingState.Failed =>
+                CurrentState ==
+                    TaskQueueStateCodes.PasswordRequired
+                    ? "\uE7BA"
+                    : "\uE711",
+
+            ProcessingState.AwaitingOperation =>
+                "\uE70F",
+
+            ProcessingState.Queued
+                or ProcessingState.Idle =>
+                "\uE8FD",
+
+            _ =>
+                "\uE8FD"
         };
 
     public string ResultStatusIconGlyph
@@ -131,69 +286,160 @@ public sealed partial class TaskQueueItemViewModel
 
             return FinalResult switch
             {
-                TaskFinalResultCodes.Healthy or TaskFinalResultCodes.Moved or TaskFinalResultCodes.Extracted => "\uE73E",
-                TaskFinalResultCodes.SkippedExists => "\uE7E8",
+                TaskFinalResultCodes.Healthy
+                    or TaskFinalResultCodes.Moved
+                    or TaskFinalResultCodes.Extracted =>
+                    "\uE73E",
+
+                TaskFinalResultCodes.SkippedExists =>
+                    "\uE7E8",
+
                 TaskFinalResultCodes.Failed
                     or TaskFinalResultCodes.FailedConvert
                     or TaskFinalResultCodes.FailedVerify
                     or TaskFinalResultCodes.FailedExtract
                     or TaskFinalResultCodes.SourceUnreadable
-                    or TaskFinalResultCodes.Cancelled => "\uE711",
-                TaskFinalResultCodes.PasswordRequired => "\uE7BA",
-                TaskFinalResultCodes.Unsupported => "\uE711",
-                _ => "\uE946"
+                    or TaskFinalResultCodes.Cancelled =>
+                    "\uE711",
+
+                TaskFinalResultCodes.PasswordRequired =>
+                    "\uE7BA",
+
+                TaskFinalResultCodes.Unsupported =>
+                    "\uE711",
+
+                _ =>
+                    "\uE946"
             };
         }
     }
 
-    public string IntegrityGlyph => IntegrityState switch
-    {
-        IntegrityValidationState.None => "\u2014",
-        IntegrityValidationState.Validating => "\uE895",
-        IntegrityValidationState.Verified => "\uE73E",
-        IntegrityValidationState.Failed or IntegrityValidationState.Error => "\uE711",
-        IntegrityValidationState.NoDat or IntegrityValidationState.NoRedumpMatch => "\uE946",
-        IntegrityValidationState.Unsupported => "\uE711",
-        IntegrityValidationState.NoDirectRedump => "\uE946",
-        _ => "\u2014"
-    };
+    public string IntegrityGlyph =>
+        IntegrityState switch
+        {
+            IntegrityValidationState.None =>
+                "\u2014",
 
-    public MediaBrush IntegrityForegroundBrush => IntegrityState switch
-    {
-        IntegrityValidationState.Verified => ResolveBrush("SuccessBadgeForegroundBrush", 207, 207, 207),
-        IntegrityValidationState.Failed or IntegrityValidationState.Error => ResolveBrush("ErrorBadgeForegroundBrush", 196, 43, 28),
-        IntegrityValidationState.NoDat or IntegrityValidationState.NoRedumpMatch => ResolveBrush("WarningBadgeForegroundBrush", 161, 92, 0),
-        IntegrityValidationState.Unsupported => ResolveBrush("SecondaryTextBrush", 107, 114, 128),
-        IntegrityValidationState.NoDirectRedump => ResolveBrush("WarningBadgeForegroundBrush", 161, 92, 0),
-        IntegrityValidationState.Validating => ResolveBrush("AccentBrush", 0, 120, 212),
-        _ => ResolveBrush("TertiaryTextBrush", 107, 114, 128)
-    };
+            IntegrityValidationState.Validating =>
+                "\uE895",
 
-    public bool IsRedumpVerified => IntegrityState == IntegrityValidationState.Verified;
+            IntegrityValidationState.Verified =>
+                "\uE73E",
+
+            IntegrityValidationState.Failed
+                or IntegrityValidationState.Error =>
+                "\uE711",
+
+            IntegrityValidationState.NoDat
+                or IntegrityValidationState.NoRedumpMatch =>
+                "\uE946",
+
+            IntegrityValidationState.Unsupported =>
+                "\uE711",
+
+            IntegrityValidationState.NoDirectRedump =>
+                "\uE946",
+
+            _ =>
+                "\u2014"
+        };
+
+    public MediaBrush IntegrityForegroundBrush =>
+        IntegrityState switch
+        {
+            IntegrityValidationState.Verified =>
+                ResolveBrush(
+                    "SuccessBadgeForegroundBrush",
+                    207,
+                    207,
+                    207),
+
+            IntegrityValidationState.Failed
+                or IntegrityValidationState.Error =>
+                ResolveBrush(
+                    "ErrorBadgeForegroundBrush",
+                    196,
+                    43,
+                    28),
+
+            IntegrityValidationState.NoDat
+                or IntegrityValidationState.NoRedumpMatch =>
+                ResolveBrush(
+                    "WarningBadgeForegroundBrush",
+                    161,
+                    92,
+                    0),
+
+            IntegrityValidationState.Unsupported =>
+                ResolveBrush(
+                    "SecondaryTextBrush",
+                    107,
+                    114,
+                    128),
+
+            IntegrityValidationState.NoDirectRedump =>
+                ResolveBrush(
+                    "WarningBadgeForegroundBrush",
+                    161,
+                    92,
+                    0),
+
+            IntegrityValidationState.Validating =>
+                ResolveBrush(
+                    "AccentBrush",
+                    0,
+                    120,
+                    212),
+
+            _ =>
+                ResolveBrush(
+                    "TertiaryTextBrush",
+                    107,
+                    114,
+                    128)
+        };
+
+    public bool IsRedumpVerified =>
+        IntegrityState ==
+        IntegrityValidationState.Verified;
 
     public string IntegrityColumnDisplayArabic =>
-        ArabicUi.IntegrityColumnDisplay(IntegrityState, IntegrityStatusMessage, IntegrityDetailTooltip);
+        ArabicUi.IntegrityColumnDisplay(
+            IntegrityState,
+            IntegrityStatusMessage,
+            IntegrityDetailTooltip);
 
-    public bool HasIntegrityColumnDetail => !string.IsNullOrWhiteSpace(IntegrityDetailTooltip);
+    public bool HasIntegrityColumnDetail =>
+        !string.IsNullOrWhiteSpace(
+            IntegrityDetailTooltip);
 
-    public bool HasIntakeAdvisory => IntakeAdvisory is not null;
+    public bool HasIntakeAdvisory =>
+        IntakeAdvisory is not null;
 
-    public string IntakeAdvisoryActionDisplay => IntakeAdvisory is null
-        ? string.Empty
-        : FormatIntakeAdvisoryAction(IntakeAdvisory.Action);
+    public string IntakeAdvisoryActionDisplay =>
+        IntakeAdvisory is null
+            ? string.Empty
+            : FormatIntakeAdvisoryAction(
+                IntakeAdvisory.Action);
 
-    public string IntakeAdvisoryConfidenceDisplay => IntakeAdvisory is null
-        ? string.Empty
-        : $"{IntakeAdvisory.Confidence}%";
+    public string IntakeAdvisoryConfidenceDisplay =>
+        IntakeAdvisory is null
+            ? string.Empty
+            : IntakeAdvisory.Confidence.ToString(
+                CultureInfo.InvariantCulture) + "%";
 
     public string IntakeAdvisoryPrimaryReasonDisplay
     {
         get
         {
-            QueueIntakeAdvisory? advisory = IntakeAdvisory;
+            QueueIntakeAdvisory? advisory =
+                IntakeAdvisory;
+
             return advisory is null
                 ? string.Empty
-                : BuildReleaseSafeIntakeAdvisorySummary(advisory, compact: true);
+                : BuildReleaseSafeIntakeAdvisorySummary(
+                    advisory,
+                    compact: true);
         }
     }
 
@@ -201,10 +447,14 @@ public sealed partial class TaskQueueItemViewModel
     {
         get
         {
-            QueueIntakeAdvisory? advisory = IntakeAdvisory;
+            QueueIntakeAdvisory? advisory =
+                IntakeAdvisory;
+
             return advisory is null
                 ? string.Empty
-                : BuildReleaseSafeIntakeAdvisorySummary(advisory, compact: false);
+                : BuildReleaseSafeIntakeAdvisorySummary(
+                    advisory,
+                    compact: false);
         }
     }
 
@@ -212,8 +462,11 @@ public sealed partial class TaskQueueItemViewModel
     {
         get
         {
-            string rowDetail = QueueRowDisplayDetailArabic;
-            string advisoryText = IntakeAdvisoryTooltip;
+            string rowDetail =
+                QueueRowDisplayDetailArabic;
+
+            string advisoryText =
+                IntakeAdvisoryTooltip;
 
             if (string.IsNullOrWhiteSpace(rowDetail))
             {
@@ -225,11 +478,15 @@ public sealed partial class TaskQueueItemViewModel
                 return rowDetail;
             }
 
-            return rowDetail + Environment.NewLine + Environment.NewLine + advisoryText;
+            return rowDetail
+                + Environment.NewLine
+                + Environment.NewLine
+                + advisoryText;
         }
     }
 
-    private static string WrapDisplayText(string? value)
+    private static string WrapDisplayText(
+        string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -237,76 +494,137 @@ public sealed partial class TaskQueueItemViewModel
         }
 
         string text = value.Trim();
-        return AppLanguageService.IsRightToLeftLanguage(AppLanguageService.Instance.CurrentLanguageName)
-            ? "\u2067" + text + "\u2069"
-            : text;
+
+        return AppLanguageService.IsRightToLeftLanguage(
+            AppLanguageService.Instance.CurrentLanguageName)
+                ? "\u2067" + text + "\u2069"
+                : text;
     }
 
     private string BuildQueueRowDisplayState()
     {
-        string resultCode = BuildQueueRowDisplayFinalResultCode();
+        string resultCode =
+            BuildQueueRowDisplayFinalResultCode();
+
         return resultCode switch
         {
-            TaskFinalResultCodes.Healthy or TaskFinalResultCodes.Moved or TaskFinalResultCodes.Extracted => TaskQueueStateCodes.Completed,
-            TaskFinalResultCodes.SkippedExists or TaskFinalResultCodes.Unsupported => TaskQueueStateCodes.Skipped,
-            TaskFinalResultCodes.Cancelled => TaskQueueStateCodes.Cancelled,
-            TaskFinalResultCodes.PasswordRequired => TaskQueueStateCodes.PasswordRequired,
+            TaskFinalResultCodes.Healthy
+                or TaskFinalResultCodes.Moved
+                or TaskFinalResultCodes.Extracted =>
+                TaskQueueStateCodes.Completed,
+
+            TaskFinalResultCodes.SkippedExists
+                or TaskFinalResultCodes.Unsupported =>
+                TaskQueueStateCodes.Skipped,
+
+            TaskFinalResultCodes.Cancelled =>
+                TaskQueueStateCodes.Cancelled,
+
+            TaskFinalResultCodes.PasswordRequired =>
+                TaskQueueStateCodes.PasswordRequired,
+
             TaskFinalResultCodes.Failed
                 or TaskFinalResultCodes.FailedConvert
                 or TaskFinalResultCodes.FailedVerify
                 or TaskFinalResultCodes.FailedExtract
-                or TaskFinalResultCodes.SourceUnreadable => TaskQueueStateCodes.Failed,
-            _ => NormalizeQueueStateCode(_currentState)
+                or TaskFinalResultCodes.SourceUnreadable =>
+                TaskQueueStateCodes.Failed,
+
+            _ =>
+                NormalizeQueueStateCode(_currentState)
         };
     }
 
     private string BuildQueueRowDisplayFinalResultText()
     {
-        string resultCode = BuildQueueRowDisplayFinalResultCode();
+        string resultCode =
+            BuildQueueRowDisplayFinalResultCode();
 
         return resultCode switch
         {
-            TaskFinalResultCodes.None => string.Empty,
-            TaskFinalResultCodes.SkippedExists => BuildSkippedOutputExistsDetail(),
-            TaskFinalResultCodes.Healthy or TaskFinalResultCodes.Moved => BuildSuccessfulCompletionDetail(),
-            TaskFinalResultCodes.Extracted => ArabicUi.Get("LocStatus_ExtractionCompletedSuccess"),
-            TaskFinalResultCodes.Cancelled => ArabicUi.Get("LocStatus_UserCancelled"),
-            TaskFinalResultCodes.PasswordRequired => ArabicUi.Get("LocState_PasswordRequired"),
-            TaskFinalResultCodes.Unsupported => ArabicUi.Get("LocStatus_FileTypeUnsupportedStage"),
-            TaskFinalResultCodes.SourceUnreadable => ArabicUi.Get("LocStatus_SourceUnreadableBlocked"),
+            TaskFinalResultCodes.None =>
+                string.Empty,
+
+            TaskFinalResultCodes.SkippedExists =>
+                BuildSkippedOutputExistsDetail(),
+
+            TaskFinalResultCodes.Healthy
+                or TaskFinalResultCodes.Moved =>
+                BuildSuccessfulCompletionDetail(),
+
+            TaskFinalResultCodes.Extracted =>
+                ArabicUi.Get(
+                    "LocStatus_ExtractionCompletedSuccess"),
+
+            TaskFinalResultCodes.Cancelled =>
+                ArabicUi.Get(
+                    "LocStatus_UserCancelled"),
+
+            TaskFinalResultCodes.PasswordRequired =>
+                ArabicUi.Get(
+                    "LocState_PasswordRequired"),
+
+            TaskFinalResultCodes.Unsupported =>
+                ArabicUi.Get(
+                    "LocStatus_FileTypeUnsupportedStage"),
+
+            TaskFinalResultCodes.SourceUnreadable =>
+                ArabicUi.Get(
+                    "LocStatus_SourceUnreadableBlocked"),
+
             TaskFinalResultCodes.Failed
                 or TaskFinalResultCodes.FailedConvert
                 or TaskFinalResultCodes.FailedVerify
-                or TaskFinalResultCodes.FailedExtract => ArabicUi.Get("LocRowPhase_Failed"),
-            _ => ArabicUi.Get("LocStatus_GenericActivity")
+                or TaskFinalResultCodes.FailedExtract =>
+                ArabicUi.Get("LocRowPhase_Failed"),
+
+            _ =>
+                ArabicUi.Get(
+                    "LocStatus_GenericActivity")
         };
     }
 
     private string BuildQueueRowDisplayFinalResultCode()
     {
-        if (string.Equals(_queueSnapshotStatus, TaskQueueStateCodes.Cancelled, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(_finalResult, TaskFinalResultCodes.Cancelled, StringComparison.Ordinal))
+        if (string.Equals(
+                _queueSnapshotStatus,
+                TaskQueueStateCodes.Cancelled,
+                StringComparison.OrdinalIgnoreCase)
+            || string.Equals(
+                _finalResult,
+                TaskFinalResultCodes.Cancelled,
+                StringComparison.Ordinal))
         {
             return TaskFinalResultCodes.Cancelled;
         }
 
-        if (!string.IsNullOrWhiteSpace(_finalResult) && _finalResult != TaskFinalResultCodes.None)
+        if (!string.IsNullOrWhiteSpace(_finalResult)
+            && _finalResult != TaskFinalResultCodes.None)
         {
             return _finalResult;
         }
 
-        if (string.Equals(_queueSnapshotStatus, TaskQueueStateCodes.Failed, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(
+                _queueSnapshotStatus,
+                TaskQueueStateCodes.Failed,
+                StringComparison.OrdinalIgnoreCase))
         {
             return TaskFinalResultCodes.Failed;
         }
 
-        if (string.Equals(_queueSnapshotStatus, TaskQueueStateCodes.Completed, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(
+                _queueSnapshotStatus,
+                TaskQueueStateCodes.Completed,
+                StringComparison.OrdinalIgnoreCase))
         {
             return InferSuccessfulFinalResultFromRequestedAction();
         }
 
         if (IsOutputExistsStatusDetail(StatusDetail)
-            || string.Equals(_currentState, TaskQueueStateCodes.Skipped, StringComparison.Ordinal))
+            || string.Equals(
+                _currentState,
+                TaskQueueStateCodes.Skipped,
+                StringComparison.Ordinal))
         {
             return TaskFinalResultCodes.SkippedExists;
         }
@@ -317,90 +635,167 @@ public sealed partial class TaskQueueItemViewModel
     private string BuildQueueRowDisplayDetailArabic()
     {
         string displayState = QueueRowDisplayState;
-        string displayResultCode = BuildQueueRowDisplayFinalResultCode();
+
+        string displayResultCode =
+            BuildQueueRowDisplayFinalResultCode();
 
         return displayResultCode switch
         {
-            TaskFinalResultCodes.SkippedExists => BuildSkippedOutputExistsDetail(),
-            TaskFinalResultCodes.Healthy or TaskFinalResultCodes.Moved => BuildSuccessfulCompletionDetail(),
-            TaskFinalResultCodes.Extracted => ArabicUi.Get("LocStatus_ExtractionCompletedSuccess"),
-            TaskFinalResultCodes.Cancelled => ArabicUi.Get("LocStatus_UserCancelled"),
+            TaskFinalResultCodes.SkippedExists =>
+                BuildSkippedOutputExistsDetail(),
+
+            TaskFinalResultCodes.Healthy
+                or TaskFinalResultCodes.Moved =>
+                BuildSuccessfulCompletionDetail(),
+
+            TaskFinalResultCodes.Extracted =>
+                ArabicUi.Get(
+                    "LocStatus_ExtractionCompletedSuccess"),
+
+            TaskFinalResultCodes.Cancelled =>
+                ArabicUi.Get(
+                    "LocStatus_UserCancelled"),
+
             TaskFinalResultCodes.SourceUnreadable =>
-                string.IsNullOrWhiteSpace(StatusDetail) ? ArabicUi.Get("LocStatus_SourceUnreadableBlocked") : ArabicUi.QueueCardArabicOnly(ChdmanOutputParser.StripPercentTokensForNarrative(StatusDetail)),
-            TaskFinalResultCodes.Failed or TaskFinalResultCodes.FailedConvert or TaskFinalResultCodes.FailedVerify or TaskFinalResultCodes.FailedExtract =>
-                string.IsNullOrWhiteSpace(StatusDetail) ? ArabicUi.Get("LocRowPhase_Failed") : ArabicUi.QueueCardArabicOnly(ChdmanOutputParser.StripPercentTokensForNarrative(StatusDetail)),
+                string.IsNullOrWhiteSpace(StatusDetail)
+                    ? ArabicUi.Get(
+                        "LocStatus_SourceUnreadableBlocked")
+                    : ArabicUi.QueueCardArabicOnly(
+                        ChdmanOutputParser
+                            .StripPercentTokensForNarrative(
+                                StatusDetail)),
+
+            TaskFinalResultCodes.Failed
+                or TaskFinalResultCodes.FailedConvert
+                or TaskFinalResultCodes.FailedVerify
+                or TaskFinalResultCodes.FailedExtract =>
+                string.IsNullOrWhiteSpace(StatusDetail)
+                    ? ArabicUi.Get(
+                        "LocRowPhase_Failed")
+                    : ArabicUi.QueueCardArabicOnly(
+                        ChdmanOutputParser
+                            .StripPercentTokensForNarrative(
+                                StatusDetail)),
+
             TaskFinalResultCodes.PasswordRequired =>
-                string.IsNullOrWhiteSpace(StatusDetail) ? ArabicUi.Get("LocRowPhase_Failed") : ArabicUi.QueueCardArabicOnly(ChdmanOutputParser.StripPercentTokensForNarrative(StatusDetail)),
-            _ when TaskQueueStateCodes.IsWaiting(displayState) => ArabicUi.Get("LocRowPhase_Waiting"),
-            _ when TaskQueueStateCodes.IsActiveRunning(displayState) => BuildActiveRunningDetailArabic(displayState),
-            _ when string.IsNullOrWhiteSpace(StatusDetail) || StatusDetailDisplay == "-" => "-",
-            _ => ArabicUi.QueueCardArabicOnly(ChdmanOutputParser.StripPercentTokensForNarrative(StatusDetail))
+                string.IsNullOrWhiteSpace(StatusDetail)
+                    ? ArabicUi.Get(
+                        "LocRowPhase_Failed")
+                    : ArabicUi.QueueCardArabicOnly(
+                        ChdmanOutputParser
+                            .StripPercentTokensForNarrative(
+                                StatusDetail)),
+
+            _ when TaskQueueStateCodes.IsWaiting(
+                displayState) =>
+                ArabicUi.Get(
+                    "LocRowPhase_Waiting"),
+
+            _ when TaskQueueStateCodes.IsActiveRunning(
+                displayState) =>
+                BuildActiveRunningDetailArabic(),
+
+            _ when string.IsNullOrWhiteSpace(StatusDetail)
+                || StatusDetailDisplay == "-" =>
+                "-",
+
+            _ =>
+                ArabicUi.QueueCardArabicOnly(
+                    ChdmanOutputParser
+                        .StripPercentTokensForNarrative(
+                            StatusDetail))
         };
     }
 
-    private string BuildActiveRunningDetailArabic(string displayState)
+    private string BuildActiveRunningDetailArabic()
     {
-        if (HasRuntimeProgressDetail)
-        {
-            string runtimeDetail = RuntimeProgressDetailArabic;
-            return string.IsNullOrWhiteSpace(runtimeDetail) ? "-" : runtimeDetail;
-        }
-
-        if (string.IsNullOrWhiteSpace(StatusDetail) || StatusDetailDisplay == "-")
+        if (!HasRuntimeProgressDetail)
         {
             return "-";
         }
 
-        string phase = ArabicUi.QueueRowOperationalPhaseHeadline(displayState, IntegrityState, StatusDetail);
-        string detail = ArabicUi.QueueCardArabicOnly(ChdmanOutputParser.StripPercentTokensForNarrative(StatusDetail));
+        string runtimeDetail =
+            RuntimeProgressDetailArabic;
 
-        if (IsSuppressedQueueRowDetail(detail) || AreSameQueueUiText(detail, phase))
-        {
-            return "-";
-        }
-
-        return detail;
+        return string.IsNullOrWhiteSpace(runtimeDetail)
+            ? "-"
+            : runtimeDetail;
     }
 
-    private static bool IsSuppressedQueueRowDetail(string? detail)
+    private static bool IsSuppressedQueueRowDetail(
+        string? detail)
     {
-        string normalized = NormalizeQueueUiText(detail);
-        if (normalized.Length == 0 || normalized == "-")
+        string normalized =
+            NormalizeQueueUiText(detail);
+
+        if (normalized.Length == 0
+            || normalized == "-")
         {
             return true;
         }
 
         string[] genericOperationalLines =
         [
-            ArabicUi.Get("LocStatus_GenericActivity"),
-            ArabicUi.Get("LocState_Processing"),
-            ArabicUi.Get("LocRowPhase_Processing"),
-            ArabicUi.Get("LocRowPhase_Converting"),
-            ArabicUi.Get("LocRowPhase_Verifying"),
-            ArabicUi.Get("LocRowPhase_Extracting"),
-            ArabicUi.Get("LocRowPhase_Scanning"),
-            ArabicUi.Get("LocRowPhase_CleaningUp")
+            ArabicUi.Get(
+                "LocStatus_GenericActivity"),
+
+            ArabicUi.Get(
+                "LocState_Processing"),
+
+            ArabicUi.Get(
+                "LocRowPhase_Processing"),
+
+            ArabicUi.Get(
+                "LocRowPhase_Converting"),
+
+            ArabicUi.Get(
+                "LocRowPhase_Verifying"),
+
+            ArabicUi.Get(
+                "LocRowPhase_Extracting"),
+
+            ArabicUi.Get(
+                "LocRowPhase_Scanning"),
+
+            ArabicUi.Get(
+                "LocRowPhase_CleaningUp")
         ];
 
-        return genericOperationalLines.Any(line => AreSameQueueUiText(normalized, line));
+        return genericOperationalLines.Any(
+            line => AreSameQueueUiText(
+                normalized,
+                line));
     }
 
-    private static bool AreSameQueueUiText(string? left, string? right) =>
-        string.Equals(NormalizeQueueUiText(left), NormalizeQueueUiText(right), StringComparison.Ordinal);
+    private static bool AreSameQueueUiText(
+        string? left,
+        string? right) =>
+        string.Equals(
+            NormalizeQueueUiText(left),
+            NormalizeQueueUiText(right),
+            StringComparison.Ordinal);
 
-    private static string NormalizeQueueUiText(string? value)
+    private static string NormalizeQueueUiText(
+        string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
             return string.Empty;
         }
 
-        var builder = new System.Text.StringBuilder(value.Length);
+        var builder =
+            new System.Text.StringBuilder(value.Length);
+
         bool pendingSpace = false;
 
         foreach (char character in value)
         {
-            if (character is '\u2066' or '\u2067' or '\u2068' or '\u2069' or '\u200E' or '\u200F')
+            if (character is '\u2066'
+                or '\u2067'
+                or '\u2068'
+                or '\u2069'
+                or '\u200E'
+                or '\u200F')
             {
                 continue;
             }
@@ -426,41 +821,62 @@ public sealed partial class TaskQueueItemViewModel
     private string BuildSuccessfulCompletionDetail()
     {
         if (IsVerifyChdMetadataRun()
-            || string.Equals(_queueItemMode, "Verify", StringComparison.OrdinalIgnoreCase)
-            || RequestedAction == TaskActionCodes.VerifyChd)
+            || string.Equals(
+                _queueItemMode,
+                "Verify",
+                StringComparison.OrdinalIgnoreCase)
+            || RequestedAction ==
+                TaskActionCodes.VerifyChd)
         {
-            return ArabicUi.Get("LocStatus_VerifyCompletedSuccess");
+            return ArabicUi.Get(
+                "LocStatus_VerifyCompletedSuccess");
         }
 
-        if (RequestedAction == TaskActionCodes.StageArchiveForConversion
-            || RequestedAction == TaskActionCodes.ExtractArchiveThenProcess)
+        if (RequestedAction ==
+                TaskActionCodes.StageArchiveForConversion
+            || RequestedAction ==
+                TaskActionCodes.ExtractArchiveThenProcess)
         {
-            return ArabicUi.Get("LocStatus_ArchiveConversionCompletedSuccess");
+            return ArabicUi.Get(
+                "LocStatus_ArchiveConversionCompletedSuccess");
         }
 
-        if (RequestedAction == TaskActionCodes.RestoreDiscImageFromChd
-            || RequestedAction == TaskActionCodes.ExtractFromChd)
+        if (RequestedAction ==
+                TaskActionCodes.RestoreDiscImageFromChd
+            || RequestedAction ==
+                TaskActionCodes.ExtractFromChd)
         {
-            return ArabicUi.Get("LocStatus_ExtractionCompletedSuccess");
+            return ArabicUi.Get(
+                "LocStatus_ExtractionCompletedSuccess");
         }
 
-        return ArabicUi.Get("LocStatus_ConversionCompletedSuccess");
+        return ArabicUi.Get(
+            "LocStatus_ConversionCompletedSuccess");
     }
 
     private string BuildSkippedOutputExistsDetail()
     {
-        if (string.Equals(StatusDetail, MainWindowMessages.StatusDetail_OutputFileExists, StringComparison.Ordinal))
+        if (string.Equals(
+                StatusDetail,
+                MainWindowMessages
+                    .StatusDetail_OutputFileExists,
+                StringComparison.Ordinal))
         {
-            return ArabicUi.Get("LocStatus_OutputFileExists");
+            return ArabicUi.Get(
+                "LocStatus_OutputFileExists");
         }
 
-        return ArabicUi.Get("LocStatus_FinalOutputExists");
+        return ArabicUi.Get(
+            "LocStatus_FinalOutputExists");
     }
 
-    private string InferSuccessfulFinalResultFromRequestedAction()
+    private string
+        InferSuccessfulFinalResultFromRequestedAction()
     {
-        if (RequestedAction == TaskActionCodes.RestoreDiscImageFromChd
-            || RequestedAction == TaskActionCodes.ExtractFromChd)
+        if (RequestedAction ==
+                TaskActionCodes.RestoreDiscImageFromChd
+            || RequestedAction ==
+                TaskActionCodes.ExtractFromChd)
         {
             return TaskFinalResultCodes.Extracted;
         }
@@ -468,9 +884,11 @@ public sealed partial class TaskQueueItemViewModel
         return TaskFinalResultCodes.Healthy;
     }
 
-    private static string NormalizeQueueStateCode(string? state)
+    private static string NormalizeQueueStateCode(
+        string? state)
     {
-        if (string.IsNullOrEmpty(state) || state == TaskQueueStateCodes.Ready)
+        if (string.IsNullOrEmpty(state)
+            || state == TaskQueueStateCodes.Ready)
         {
             return TaskQueueStateCodes.Pending;
         }
@@ -478,7 +896,8 @@ public sealed partial class TaskQueueItemViewModel
         return state;
     }
 
-    private static bool IsOutputExistsStatusDetail(string? statusDetail)
+    private static bool IsOutputExistsStatusDetail(
+        string? statusDetail)
     {
         if (string.IsNullOrWhiteSpace(statusDetail))
         {
@@ -486,104 +905,210 @@ public sealed partial class TaskQueueItemViewModel
         }
 
         string text = statusDetail.Trim();
-        return string.Equals(text, MainWindowMessages.StatusDetail_OutputFileExists, StringComparison.Ordinal)
-            || string.Equals(text, MainWindowMessages.StatusDetail_FinalOutputExists, StringComparison.Ordinal)
-            || text.Contains("already exists", StringComparison.OrdinalIgnoreCase)
-            || text.Contains("output exists", StringComparison.OrdinalIgnoreCase)
-            || text.Contains("Output file exists", StringComparison.OrdinalIgnoreCase)
-            || text.Contains("ملف CHD الناتج موجود", StringComparison.Ordinal)
-            || text.Contains("بنفس الاسم", StringComparison.Ordinal);
+
+        return string.Equals(
+                text,
+                MainWindowMessages
+                    .StatusDetail_OutputFileExists,
+                StringComparison.Ordinal)
+            || string.Equals(
+                text,
+                MainWindowMessages
+                    .StatusDetail_FinalOutputExists,
+                StringComparison.Ordinal)
+            || text.Contains(
+                "already exists",
+                StringComparison.OrdinalIgnoreCase)
+            || text.Contains(
+                "output exists",
+                StringComparison.OrdinalIgnoreCase)
+            || text.Contains(
+                "Output file exists",
+                StringComparison.OrdinalIgnoreCase)
+            || text.Contains(
+                "ملف CHD الناتج موجود",
+                StringComparison.Ordinal)
+            || text.Contains(
+                "بنفس الاسم",
+                StringComparison.Ordinal);
     }
 
     private bool IsVerifyChdMetadataRun() =>
-        IsChdExtension(GetSafeExtension(SourcePath))
-        && string.Equals(_queueItemMode, "Verify", StringComparison.OrdinalIgnoreCase);
+        IsChdExtension(
+            GetSafeExtension(SourcePath))
+        && string.Equals(
+            _queueItemMode,
+            "Verify",
+            StringComparison.OrdinalIgnoreCase);
 
-    private static bool IsChdExtension(string extension) =>
-        extension.Equals(".chd", StringComparison.OrdinalIgnoreCase);
+    private static bool IsChdExtension(
+        string extension) =>
+        extension.Equals(
+            ".chd",
+            StringComparison.OrdinalIgnoreCase);
 
-    private static string BuildReleaseSafeIntakeAdvisorySummary(QueueIntakeAdvisory advisory, bool compact)
+    private static string
+        BuildReleaseSafeIntakeAdvisorySummary(
+            QueueIntakeAdvisory advisory,
+            bool compact)
     {
         QueueIntakeAdvisoryReason? primaryReason =
-            advisory.Reasons.FirstOrDefault()
-            ?? advisory.Warnings.FirstOrDefault();
+            advisory.Reasons.Count > 0
+                ? advisory.Reasons[0]
+                : advisory.Warnings.Count > 0
+                    ? advisory.Warnings[0]
+                    : null;
 
-        string reasonCode = primaryReason?.Code ?? string.Empty;
+        string reasonCode =
+            primaryReason?.Code ?? string.Empty;
 
         if (IsPs2Advisory(advisory))
         {
-            return BuildPs2IntakeAdvisorySummary(advisory, compact);
+            return BuildPs2IntakeAdvisorySummary(
+                advisory,
+                compact);
         }
 
-        if (reasonCode.StartsWith("FORMAT_SAFETY_", StringComparison.OrdinalIgnoreCase)
-            && !string.IsNullOrWhiteSpace(primaryReason?.Message))
+        if (reasonCode.StartsWith(
+                "FORMAT_SAFETY_",
+                StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(
+                primaryReason?.Message))
         {
-            return ArabicUi.Get(primaryReason.Message);
+            return ArabicUi.Get(
+                primaryReason.Message);
         }
 
-        if (reasonCode.StartsWith("PS2_", StringComparison.OrdinalIgnoreCase)
-            && !string.IsNullOrWhiteSpace(primaryReason?.Message))
+        if (reasonCode.StartsWith(
+                "PS2_",
+                StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(
+                primaryReason?.Message))
         {
-            string text = ArabicUi.Get(primaryReason.Message);
-            if (string.Equals(reasonCode, "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT", StringComparison.OrdinalIgnoreCase)
-                && !string.IsNullOrWhiteSpace(primaryReason.Source))
+            string text =
+                ArabicUi.Get(primaryReason.Message);
+
+            if (string.Equals(
+                    reasonCode,
+                    "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT",
+                    StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(
+                    primaryReason.Source))
             {
-                return text + " " + primaryReason.Source;
+                return text
+                    + " "
+                    + primaryReason.Source;
             }
 
             return text;
         }
 
-        if (string.Equals(reasonCode, "INTAKE_ARCHIVE_EXTRACT_REQUIRED", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(
+                reasonCode,
+                "INTAKE_ARCHIVE_EXTRACT_REQUIRED",
+                StringComparison.OrdinalIgnoreCase))
         {
-            return ArabicUi.Get("LocIntakeAdvisory_ArchiveExtractRequired");
+            return ArabicUi.Get(
+                "LocIntakeAdvisory_ArchiveExtractRequired");
         }
 
-        if (string.Equals(reasonCode, "INTAKE_DISC_IMAGE_CANDIDATE", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(
+                reasonCode,
+                "INTAKE_DISC_IMAGE_CANDIDATE",
+                StringComparison.OrdinalIgnoreCase))
         {
-            return ArabicUi.Get("LocIntakeAdvisory_DiscImageCandidate");
+            return ArabicUi.Get(
+                "LocIntakeAdvisory_DiscImageCandidate");
         }
 
-        if (string.Equals(reasonCode, "INTAKE_CHD_INPUT_DETECTED", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(
+                reasonCode,
+                "INTAKE_CHD_INPUT_DETECTED",
+                StringComparison.OrdinalIgnoreCase))
         {
-            return ArabicUi.Get("LocIntakeAdvisory_ChdInputDetected");
+            return ArabicUi.Get(
+                "LocIntakeAdvisory_ChdInputDetected");
         }
 
         if (advisory.IsBlocked)
         {
-            return ArabicUi.Get("LocIntakeAdvisory_Blocked");
+            return ArabicUi.Get(
+                "LocIntakeAdvisory_Blocked");
         }
 
         if (advisory.HasWarnings)
         {
-            return ArabicUi.Get("LocIntakeAdvisory_Warning");
+            return ArabicUi.Get(
+                "LocIntakeAdvisory_Warning");
         }
 
         return advisory.Action switch
         {
-            QueueIntakeAdvisoryAction.Extract => ArabicUi.Get("LocIntakeAdvisory_Extract"),
-            QueueIntakeAdvisoryAction.Convert => ArabicUi.Get("LocIntakeAdvisory_Convert"),
-            QueueIntakeAdvisoryAction.Warn => ArabicUi.Get("LocIntakeAdvisory_Warning"),
-            QueueIntakeAdvisoryAction.Block => ArabicUi.Get("LocIntakeAdvisory_Blocked"),
-            _ => string.Empty
+            QueueIntakeAdvisoryAction.Extract =>
+                ArabicUi.Get(
+                    "LocIntakeAdvisory_Extract"),
+
+            QueueIntakeAdvisoryAction.Convert =>
+                ArabicUi.Get(
+                    "LocIntakeAdvisory_Convert"),
+
+            QueueIntakeAdvisoryAction.Warn =>
+                ArabicUi.Get(
+                    "LocIntakeAdvisory_Warning"),
+
+            QueueIntakeAdvisoryAction.Block =>
+                ArabicUi.Get(
+                    "LocIntakeAdvisory_Blocked"),
+
+            _ =>
+                string.Empty
         };
     }
 
-    private static bool IsPs2Advisory(QueueIntakeAdvisory advisory) =>
-        string.Equals(advisory.Platform, "PlayStation 2", StringComparison.OrdinalIgnoreCase)
-        || advisory.Reasons.Any(static reason => reason.Code.StartsWith("PS2_", StringComparison.OrdinalIgnoreCase))
-        || advisory.Warnings.Any(static reason => reason.Code.StartsWith("PS2_", StringComparison.OrdinalIgnoreCase));
+    private static bool IsPs2Advisory(
+        QueueIntakeAdvisory advisory) =>
+        string.Equals(
+            advisory.Platform,
+            "PlayStation 2",
+            StringComparison.OrdinalIgnoreCase)
+        || advisory.Reasons.Any(
+            static reason =>
+                reason.Code.StartsWith(
+                    "PS2_",
+                    StringComparison.OrdinalIgnoreCase))
+        || advisory.Warnings.Any(
+            static reason =>
+                reason.Code.StartsWith(
+                    "PS2_",
+                    StringComparison.OrdinalIgnoreCase));
 
-    private static string BuildPs2IntakeAdvisorySummary(QueueIntakeAdvisory advisory, bool compact)
+    private static string
+        BuildPs2IntakeAdvisorySummary(
+            QueueIntakeAdvisory advisory,
+            bool compact)
     {
-        QueueIntakeAdvisoryReason? identityReason = FindPs2Reason(advisory, "PS2_DISC_IDENTITY_SUMMARY")
-            ?? FindPs2Reason(advisory, "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT")
-            ?? advisory.Reasons.FirstOrDefault(static reason => reason.Code.StartsWith("PS2_", StringComparison.OrdinalIgnoreCase));
+        QueueIntakeAdvisoryReason? identityReason =
+            FindPs2Reason(
+                advisory,
+                "PS2_DISC_IDENTITY_SUMMARY")
+            ?? FindPs2Reason(
+                advisory,
+                "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT")
+            ?? advisory.Reasons.FirstOrDefault(
+                static reason =>
+                    reason.Code.StartsWith(
+                        "PS2_",
+                        StringComparison.OrdinalIgnoreCase));
 
-        string identityLine = BuildLocalizedReasonLine(identityReason, appendSource: true);
+        string identityLine =
+            BuildLocalizedReasonLine(
+                identityReason,
+                appendSource: true);
+
         if (string.IsNullOrWhiteSpace(identityLine))
         {
-            identityLine = ArabicUi.Get("LocPs2Advisory_DiscIdentitySummary");
+            identityLine = ArabicUi.Get(
+                "LocPs2Advisory_DiscIdentitySummary");
         }
 
         if (compact)
@@ -592,42 +1117,105 @@ public sealed partial class TaskQueueItemViewModel
         }
 
         var lines = new List<string>();
-        AddDistinctLine(lines, identityLine);
 
-        QueueIntakeAdvisoryReason? mediaReason = advisory.Reasons.FirstOrDefault(static reason =>
-            string.Equals(reason.Code, "PS2_CLASSICS_BIN_CUE_PREFERRED", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(reason.Code, "PS2_CLASSICS_CUE_FILE_RECOMMENDED", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(reason.Code, "PS2_CLASSICS_COMPACT_ISO_MAY_BE_PS2CD", StringComparison.OrdinalIgnoreCase));
-        AddDistinctLine(lines, BuildLocalizedReasonLine(mediaReason, appendSource: false));
+        AddDistinctLine(
+            lines,
+            identityLine);
 
-        AddDistinctLine(lines, BuildLocalizedReasonLine(FindPs2Reason(advisory, "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT"), appendSource: true));
-        AddDistinctLine(lines, BuildLocalizedReasonLine(FindPs2Reason(advisory, "PS2_CLASSICS_CONFIG_MAY_BE_REQUIRED"), appendSource: false));
-        AddDistinctLine(lines, BuildLocalizedReasonLine(FindPs2Reason(advisory, "PS2_PS3_EMULATOR_PROFILE_DIFFERS"), appendSource: false));
+        QueueIntakeAdvisoryReason? mediaReason =
+            advisory.Reasons.FirstOrDefault(
+                static reason =>
+                    string.Equals(
+                        reason.Code,
+                        "PS2_CLASSICS_BIN_CUE_PREFERRED",
+                        StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(
+                        reason.Code,
+                        "PS2_CLASSICS_CUE_FILE_RECOMMENDED",
+                        StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(
+                        reason.Code,
+                        "PS2_CLASSICS_COMPACT_ISO_MAY_BE_PS2CD",
+                        StringComparison.OrdinalIgnoreCase));
+
+        AddDistinctLine(
+            lines,
+            BuildLocalizedReasonLine(
+                mediaReason,
+                appendSource: false));
+
+        AddDistinctLine(
+            lines,
+            BuildLocalizedReasonLine(
+                FindPs2Reason(
+                    advisory,
+                    "PS2_DISC_STRUCTURE_SYSTEM_CNF_BOOT"),
+                appendSource: true));
+
+        AddDistinctLine(
+            lines,
+            BuildLocalizedReasonLine(
+                FindPs2Reason(
+                    advisory,
+                    "PS2_CLASSICS_CONFIG_MAY_BE_REQUIRED"),
+                appendSource: false));
+
+        AddDistinctLine(
+            lines,
+            BuildLocalizedReasonLine(
+                FindPs2Reason(
+                    advisory,
+                    "PS2_PS3_EMULATOR_PROFILE_DIFFERS"),
+                appendSource: false));
 
         return lines.Count == 0
             ? identityLine
-            : string.Join(Environment.NewLine, lines);
+            : string.Join(
+                Environment.NewLine,
+                lines);
     }
 
-    private static QueueIntakeAdvisoryReason? FindPs2Reason(QueueIntakeAdvisory advisory, string code) =>
-        advisory.Reasons.FirstOrDefault(reason => string.Equals(reason.Code, code, StringComparison.OrdinalIgnoreCase))
-        ?? advisory.Warnings.FirstOrDefault(reason => string.Equals(reason.Code, code, StringComparison.OrdinalIgnoreCase));
+    private static QueueIntakeAdvisoryReason?
+        FindPs2Reason(
+            QueueIntakeAdvisory advisory,
+            string code) =>
+        advisory.Reasons.FirstOrDefault(
+            reason =>
+                string.Equals(
+                    reason.Code,
+                    code,
+                    StringComparison.OrdinalIgnoreCase))
+        ?? advisory.Warnings.FirstOrDefault(
+            reason =>
+                string.Equals(
+                    reason.Code,
+                    code,
+                    StringComparison.OrdinalIgnoreCase));
 
-    private static string BuildLocalizedReasonLine(QueueIntakeAdvisoryReason? reason, bool appendSource)
+    private static string BuildLocalizedReasonLine(
+        QueueIntakeAdvisoryReason? reason,
+        bool appendSource)
     {
-        if (reason is null || string.IsNullOrWhiteSpace(reason.Message))
+        if (reason is null
+            || string.IsNullOrWhiteSpace(
+                reason.Message))
         {
             return string.Empty;
         }
 
-        string text = ArabicUi.Get(reason.Message).Trim();
-        if (!appendSource || string.IsNullOrWhiteSpace(reason.Source))
+        string text =
+            ArabicUi.Get(reason.Message).Trim();
+
+        if (!appendSource
+            || string.IsNullOrWhiteSpace(
+                reason.Source))
         {
             return text;
         }
 
         string source = reason.Source.Trim();
-        if (text.EndsWith(":", StringComparison.Ordinal))
+
+        if (text.EndsWith(':'))
         {
             return text + " " + source;
         }
@@ -635,7 +1223,9 @@ public sealed partial class TaskQueueItemViewModel
         return text + " " + source;
     }
 
-    private static void AddDistinctLine(List<string> lines, string? line)
+    private static void AddDistinctLine(
+        List<string> lines,
+        string? line)
     {
         if (string.IsNullOrWhiteSpace(line))
         {
@@ -643,7 +1233,12 @@ public sealed partial class TaskQueueItemViewModel
         }
 
         string candidate = line.Trim();
-        if (lines.Any(existing => AreSameQueueUiText(existing, candidate)))
+
+        if (lines.Any(
+                existing =>
+                    AreSameQueueUiText(
+                        existing,
+                        candidate)))
         {
             return;
         }
@@ -651,16 +1246,33 @@ public sealed partial class TaskQueueItemViewModel
         lines.Add(candidate);
     }
 
-    private static string FormatIntakeAdvisoryAction(QueueIntakeAdvisoryAction action)
+    private static string FormatIntakeAdvisoryAction(
+        QueueIntakeAdvisoryAction action)
     {
         return action switch
         {
-            QueueIntakeAdvisoryAction.Extract => ArabicUi.Get("LocIntakeAdvisoryAction_Extract"),
-            QueueIntakeAdvisoryAction.Convert => ArabicUi.Get("LocIntakeAdvisoryAction_Convert"),
-            QueueIntakeAdvisoryAction.Block => ArabicUi.Get("LocIntakeAdvisoryAction_Block"),
-            QueueIntakeAdvisoryAction.ReportOnly => ArabicUi.Get("LocIntakeAdvisoryAction_ReportOnly"),
-            QueueIntakeAdvisoryAction.Unknown => ArabicUi.Get("LocIntakeAdvisoryAction_Unknown"),
-            _ => string.Empty
+            QueueIntakeAdvisoryAction.Extract =>
+                ArabicUi.Get(
+                    "LocIntakeAdvisoryAction_Extract"),
+
+            QueueIntakeAdvisoryAction.Convert =>
+                ArabicUi.Get(
+                    "LocIntakeAdvisoryAction_Convert"),
+
+            QueueIntakeAdvisoryAction.Block =>
+                ArabicUi.Get(
+                    "LocIntakeAdvisoryAction_Block"),
+
+            QueueIntakeAdvisoryAction.ReportOnly =>
+                ArabicUi.Get(
+                    "LocIntakeAdvisoryAction_ReportOnly"),
+
+            QueueIntakeAdvisoryAction.Unknown =>
+                ArabicUi.Get(
+                    "LocIntakeAdvisoryAction_Unknown"),
+
+            _ =>
+                string.Empty
         };
     }
 }

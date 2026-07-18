@@ -2,12 +2,15 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using System;
+using System.Globalization;
 
 namespace HakamiqChdTool.App.ViewModels;
 
 public sealed partial class TaskQueueItemViewModel
 {
-    private const char LeftToRightMark = '\u200E';
+    private const char LeftToRightIsolate = '\u2066';
+    private const char PopDirectionalIsolate = '\u2069';
+    private const string TechnicalPlaceholder = "—";
     private const string ChdmanOperationRuntimeDetailKey = "LocQueue_RuntimeProgress_ChdmanOperationDetail";
 
     private QueueRuntimeProgressKind _runtimeProgressKind = QueueRuntimeProgressKind.None;
@@ -28,7 +31,7 @@ public sealed partial class TaskQueueItemViewModel
         {
             if (SetField(ref _runtimeProgressKind, value))
             {
-                NotifyRuntimeProgressChanged();
+                NotifyRuntimeProgressStateChanged();
             }
         }
     }
@@ -36,13 +39,7 @@ public sealed partial class TaskQueueItemViewModel
     public string RuntimeProgressPrimaryMessageKey
     {
         get => _runtimeProgressPrimaryMessageKey;
-        private set
-        {
-            if (SetField(ref _runtimeProgressPrimaryMessageKey, value))
-            {
-                NotifyRuntimeProgressChanged();
-            }
-        }
+        private set => SetField(ref _runtimeProgressPrimaryMessageKey, value);
     }
 
     public long RuntimeProgressCurrentBytes
@@ -52,7 +49,7 @@ public sealed partial class TaskQueueItemViewModel
         {
             if (SetField(ref _runtimeProgressCurrentBytes, Math.Max(0, value)))
             {
-                NotifyRuntimeProgressChanged();
+                NotifyRuntimeProgressMetricsChanged();
             }
         }
     }
@@ -64,7 +61,7 @@ public sealed partial class TaskQueueItemViewModel
         {
             if (SetField(ref _runtimeProgressTotalBytes, Math.Max(0, value)))
             {
-                NotifyRuntimeProgressChanged();
+                NotifyRuntimeProgressMetricsChanged();
             }
         }
     }
@@ -74,10 +71,13 @@ public sealed partial class TaskQueueItemViewModel
         get => _runtimeProgressBytesPerSecond;
         private set
         {
-            double normalized = double.IsFinite(value) ? Math.Max(0d, value) : 0d;
+            double normalized = double.IsFinite(value)
+                ? Math.Max(0d, value)
+                : 0d;
+
             if (SetField(ref _runtimeProgressBytesPerSecond, normalized))
             {
-                NotifyRuntimeProgressChanged();
+                NotifyRuntimeProgressMetricsChanged();
             }
         }
     }
@@ -87,11 +87,11 @@ public sealed partial class TaskQueueItemViewModel
         get => _runtimeProgressPercent;
         private set
         {
-            double normalized = double.IsFinite(value) ? Math.Clamp(value, 0d, 100d) : 0d;
-            if (SetField(ref _runtimeProgressPercent, normalized))
-            {
-                NotifyRuntimeProgressChanged();
-            }
+            double normalized = double.IsFinite(value)
+                ? Math.Clamp(value, 0d, 100d)
+                : 0d;
+
+            SetField(ref _runtimeProgressPercent, normalized);
         }
     }
 
@@ -102,7 +102,7 @@ public sealed partial class TaskQueueItemViewModel
         {
             if (SetField(ref _runtimeProgressElapsedTicks, Math.Max(0, value)))
             {
-                NotifyRuntimeProgressChanged();
+                NotifyRuntimeProgressMetricsChanged();
             }
         }
     }
@@ -114,7 +114,7 @@ public sealed partial class TaskQueueItemViewModel
         {
             if (SetField(ref _runtimeProgressEstimatedRemainingTicks, Math.Max(0, value)))
             {
-                NotifyRuntimeProgressChanged();
+                NotifyRuntimeProgressMetricsChanged();
             }
         }
     }
@@ -122,13 +122,7 @@ public sealed partial class TaskQueueItemViewModel
     public string RuntimeProgressNextStageMessageKey
     {
         get => _runtimeProgressNextStageMessageKey;
-        private set
-        {
-            if (SetField(ref _runtimeProgressNextStageMessageKey, value))
-            {
-                NotifyRuntimeProgressChanged();
-            }
-        }
+        private set => SetField(ref _runtimeProgressNextStageMessageKey, value);
     }
 
     public bool RuntimeProgressShowActivitySpinner
@@ -143,85 +137,115 @@ public sealed partial class TaskQueueItemViewModel
         }
     }
 
-    public bool HasRuntimeProgressDetail => RuntimeProgressKind != QueueRuntimeProgressKind.None;
+    public bool HasRuntimeProgressDetail =>
+        RuntimeProgressKind != QueueRuntimeProgressKind.None
+        || TaskQueueStateCodes.IsActiveRunning(QueueRowDisplayState);
 
     public bool ShowRuntimeActivitySpinner =>
-        TaskQueueStateCodes.IsActiveRunning(QueueRowDisplayState);
+        RuntimeProgressShowActivitySpinner
+        && TaskQueueStateCodes.IsActiveRunning(QueueRowDisplayState);
 
     public bool ShowProgressPercent => !IsIndeterminate;
 
-    public string RuntimeProgressDetailArabic => BuildRuntimeProgressDetailArabic();
+    public string RuntimeProgressDetailArabic =>
+        BuildRuntimeProgressDetailArabic();
 
     private string BuildRuntimeProgressDetailArabic()
     {
-        if (RuntimeProgressKind == QueueRuntimeProgressKind.None)
+        bool isActive =
+            TaskQueueStateCodes.IsActiveRunning(QueueRowDisplayState);
+
+        if (RuntimeProgressKind == QueueRuntimeProgressKind.None
+            && !isActive)
         {
             return string.Empty;
         }
 
-        string primary = string.IsNullOrWhiteSpace(RuntimeProgressPrimaryMessageKey)
-            ? ArabicUi.Get(ChdmanOperationRuntimeDetailKey)
-            : ArabicUi.ResolveDisplayString(RuntimeProgressPrimaryMessageKey);
+        string elapsed = FormatElapsed(
+            new TimeSpan(RuntimeProgressElapsedTicks));
 
-        string bytes = FormatInlineTechnicalProgressBytes(RuntimeProgressCurrentBytes, RuntimeProgressTotalBytes);
-        string rate = FormatInlineTechnicalRate(RuntimeProgressBytesPerSecond);
-        string elapsed = FormatElapsed(new TimeSpan(RuntimeProgressElapsedTicks));
-        string remaining = FormatEstimatedRemaining(new TimeSpan(RuntimeProgressEstimatedRemainingTicks));
+        string bytes = FormatInlineTechnicalProgressBytes(
+            RuntimeProgressCurrentBytes,
+            RuntimeProgressTotalBytes);
 
-        string detail = ArabicUi.Format(
-            ChdmanOperationRuntimeDetailKey,
-            primary,
-            bytes,
-            rate,
-            elapsed,
-            remaining);
+        string rate = FormatInlineTechnicalRate(
+            RuntimeProgressBytesPerSecond);
 
-        if (!string.IsNullOrWhiteSpace(RuntimeProgressNextStageMessageKey))
-        {
-            string nextStage = ArabicUi.ResolveDisplayString(RuntimeProgressNextStageMessageKey);
-            if (!string.IsNullOrWhiteSpace(nextStage))
-            {
-                detail = detail + Environment.NewLine + nextStage;
-            }
-        }
+        string remaining = FormatEstimatedRemaining(
+            new TimeSpan(RuntimeProgressEstimatedRemainingTicks));
 
-        return detail;
+        return NormalizeWesternTechnicalText(
+            ArabicUi.Format(
+                ChdmanOperationRuntimeDetailKey,
+                elapsed,
+                bytes,
+                rate,
+                remaining));
     }
 
     private static string FormatInlineTechnicalSize(long bytes)
     {
-        string value = DiskSpacePreflightService.FormatBytes(Math.Max(0, bytes));
-        return string.Concat(LeftToRightMark, value, LeftToRightMark);
-    }
-
-    private static string FormatInlineTechnicalProgressBytes(long currentBytes, long totalBytes)
-    {
-        if (totalBytes > 0 && currentBytes >= 0 && currentBytes <= totalBytes)
+        if (bytes <= 0)
         {
-            string current = DiskSpacePreflightService.FormatBytes(currentBytes);
-            string total = DiskSpacePreflightService.FormatBytes(totalBytes);
-            return string.Concat(LeftToRightMark, current, " / ", total, LeftToRightMark);
+            return FormatTechnicalPlaceholder();
         }
 
-        return FormatInlineTechnicalSize(currentBytes);
+        string value = DiskSpacePreflightService.FormatBytes(bytes);
+
+        return IsolateTechnicalText(value);
     }
 
-    private static string FormatInlineTechnicalRate(double bytesPerSecond)
+    private static string FormatInlineTechnicalProgressBytes(
+        long currentBytes,
+        long totalBytes)
     {
-        if (!double.IsFinite(bytesPerSecond) || bytesPerSecond <= 0d)
+        long normalizedCurrent = Math.Max(0, currentBytes);
+        long normalizedTotal = Math.Max(0, totalBytes);
+
+        if (normalizedTotal > 0)
         {
-            return ArabicUi.Get("LocQueue_RuntimeProgress_RateCalculating");
+            string current = normalizedCurrent > 0
+                ? NormalizeWesternTechnicalText(
+                    DiskSpacePreflightService.FormatBytes(
+                        Math.Min(normalizedCurrent, normalizedTotal)))
+                : TechnicalPlaceholder;
+
+            string total = NormalizeWesternTechnicalText(
+                DiskSpacePreflightService.FormatBytes(normalizedTotal));
+
+            return IsolateTechnicalText(
+                string.Concat(current, " / ", total));
         }
 
-        long roundedBytes = (long)Math.Round(Math.Min(bytesPerSecond, long.MaxValue));
-        return ArabicUi.Format("LocQueue_RuntimeProgress_RateFormat", FormatInlineTechnicalSize(roundedBytes));
+        return normalizedCurrent > 0
+            ? FormatInlineTechnicalSize(normalizedCurrent)
+            : FormatTechnicalPlaceholder();
     }
 
-    private static string FormatEstimatedRemaining(TimeSpan remaining)
+    private static string FormatInlineTechnicalRate(
+        double bytesPerSecond)
+    {
+        if (!double.IsFinite(bytesPerSecond)
+            || bytesPerSecond <= 0d)
+        {
+            return FormatTechnicalPlaceholder();
+        }
+
+        long roundedBytes = (long)Math.Round(
+            Math.Min(bytesPerSecond, long.MaxValue));
+
+        return NormalizeWesternTechnicalText(
+            ArabicUi.Format(
+                "LocQueue_RuntimeProgress_RateFormat",
+                FormatInlineTechnicalSize(roundedBytes)));
+    }
+
+    private static string FormatEstimatedRemaining(
+        TimeSpan remaining)
     {
         return remaining > TimeSpan.Zero
             ? FormatElapsed(remaining)
-            : ArabicUi.Get("LocQueue_RuntimeProgress_EtaCalculating");
+            : FormatTechnicalPlaceholder();
     }
 
     private static string FormatElapsed(TimeSpan elapsed)
@@ -231,21 +255,86 @@ public sealed partial class TaskQueueItemViewModel
             elapsed = TimeSpan.Zero;
         }
 
-        return elapsed.TotalHours >= 1d
-            ? string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{(int)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}")
-            : string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{elapsed.Minutes:00}:{elapsed.Seconds:00}");
+        string value = elapsed.TotalHours >= 1d
+            ? string.Create(
+                CultureInfo.InvariantCulture,
+                $"{(int)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}")
+            : string.Create(
+                CultureInfo.InvariantCulture,
+                $"{elapsed.Minutes:00}:{elapsed.Seconds:00}");
+
+        return IsolateTechnicalText(value);
     }
 
-    private void NotifyRuntimeProgressChanged()
+    private static string FormatTechnicalPlaceholder() =>
+        IsolateTechnicalText(TechnicalPlaceholder);
+
+    private static string IsolateTechnicalText(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        return string.Concat(
+            LeftToRightIsolate,
+            NormalizeWesternTechnicalText(value),
+            PopDirectionalIsolate);
+    }
+
+    private static string NormalizeWesternTechnicalText(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        char[] characters = value.ToCharArray();
+
+        for (int index = 0; index < characters.Length; index++)
+        {
+            char character = characters[index];
+
+            if (character is >= '\u0660' and <= '\u0669')
+            {
+                characters[index] =
+                    (char)('0' + character - '\u0660');
+
+                continue;
+            }
+
+            if (character is >= '\u06F0' and <= '\u06F9')
+            {
+                characters[index] =
+                    (char)('0' + character - '\u06F0');
+
+                continue;
+            }
+
+            characters[index] = character switch
+            {
+                '\u066B' => '.',
+                '\u066C' => ',',
+                _ => character
+            };
+        }
+
+        return new string(characters);
+    }
+
+    private void NotifyRuntimeProgressStateChanged()
     {
         OnPropertyChanged(nameof(HasRuntimeProgressDetail));
         OnPropertyChanged(nameof(RuntimeProgressDetailArabic));
-        OnPropertyChanged(nameof(ShowRuntimeActivitySpinner));
-        OnPropertyChanged(nameof(ShowProgressPercent));
         OnPropertyChanged(nameof(QueueRowDisplayDetailArabic));
         OnPropertyChanged(nameof(QueueRowExtendedTooltip));
         OnPropertyChanged(nameof(QueueRowDisplayDetailIsVisible));
-        OnPropertyChanged(nameof(ProgressRegionPhaseIsolated));
-        OnPropertyChanged(nameof(QueueRowDisplayPhaseIsolated));
+    }
+
+    private void NotifyRuntimeProgressMetricsChanged()
+    {
+        OnPropertyChanged(nameof(RuntimeProgressDetailArabic));
+        OnPropertyChanged(nameof(QueueRowDisplayDetailArabic));
+        OnPropertyChanged(nameof(QueueRowExtendedTooltip));
     }
 }

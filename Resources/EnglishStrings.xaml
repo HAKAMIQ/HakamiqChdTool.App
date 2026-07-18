@@ -382,18 +382,20 @@
     <sys:String x:Key="LocProcessingPhase_Failed">Failed (error)</sys:String>
     <sys:String x:Key="LocProcessingPhase_Skipped">Skipped</sys:String>
 
-    <sys:String x:Key="LocRowPhase_Waiting">Waiting for operation</sys:String>
-    <sys:String x:Key="LocRowPhase_ChooseOperation">Waiting for operation</sys:String>
-    <sys:String x:Key="LocRowPhase_Scanning">Scanning...</sys:String>
-    <sys:String x:Key="LocRowPhase_Extracting">Extracting</sys:String>
-    <sys:String x:Key="LocRowPhase_Converting">Converting</sys:String>
-    <sys:String x:Key="LocRowPhase_Verifying">Verifying</sys:String>
-    <sys:String x:Key="LocRowPhase_CleaningUp">Cleaning up...</sys:String>
-    <sys:String x:Key="LocRowPhase_Processing">Processing...</sys:String>
-    <sys:String x:Key="LocRowPhase_Completed">Completed</sys:String>
-    <sys:String x:Key="LocRowPhase_Skipped">Skipped</sys:String>
-    <sys:String x:Key="LocRowPhase_Failed">Failed (error)</sys:String>
-    <sys:String x:Key="LocRowPhase_Cancelled">Canceled</sys:String>
+	<sys:String x:Key="LocRowPhase_Waiting">Waiting</sys:String>
+	<sys:String x:Key="LocRowPhase_ChooseOperation">Waiting</sys:String>
+	<sys:String x:Key="LocRowPhase_Scanning">Scanning</sys:String>
+	<sys:String x:Key="LocRowPhase_Reading">Reading</sys:String>
+	<sys:String x:Key="LocRowPhase_Extracting">Extracting</sys:String>
+	<sys:String x:Key="LocRowPhase_Converting">Converting</sys:String>
+	<sys:String x:Key="LocRowPhase_Verifying">Verifying</sys:String>
+	<sys:String x:Key="LocRowPhase_Saving">Saving</sys:String>
+	<sys:String x:Key="LocRowPhase_CleaningUp">Cleanup</sys:String>
+	<sys:String x:Key="LocRowPhase_Processing">Processing</sys:String>
+	<sys:String x:Key="LocRowPhase_Completed">Completed</sys:String>
+	<sys:String x:Key="LocRowPhase_Skipped">Skipped</sys:String>
+	<sys:String x:Key="LocRowPhase_Failed">Failed</sys:String>
+	<sys:String x:Key="LocRowPhase_Cancelled">Canceled</sys:String>
 
     <sys:String x:Key="LocDetail_Section_Status">Status</sys:String>
     <sys:String x:Key="LocDetail_Section_FileInfo">File information</sys:String>
@@ -1685,11 +1687,11 @@ Path:
     <sys:String x:Key="LocChdLogicalReport_HunkSizeLabel">Hunk size</sys:String>
     <sys:String x:Key="LocChdLogicalReport_TotalHunksLabel">Total hunks</sys:String>
     <sys:String x:Key="LocChdLogicalReport_DecodedCacheLabel">Cache</sys:String>
-    <sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">Elapsed: {0}, written: {1}, speed: {2}, remaining: {3}</sys:String>
-    <sys:String x:Key="LocQueue_RuntimeProgress_RateFormat">{0}/s</sys:String>
-    <sys:String x:Key="LocQueue_RuntimeProgress_RateCalculating">Measuring speed</sys:String>
-    <sys:String x:Key="LocQueue_RuntimeProgress_EtaCalculating">Calculating</sys:String>
-    <sys:String x:Key="LocMeta_Target_Folder">Folder</sys:String>
+	<sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">Elapsed: {0}, output: {1}, speed: {2}, remaining: {3}</sys:String>
+	<sys:String x:Key="LocQueue_RuntimeProgress_RateFormat">{0}/s</sys:String>
+	<sys:String x:Key="LocQueue_RuntimeProgress_RateCalculating">Measuring speed</sys:String>
+	<sys:String x:Key="LocQueue_RuntimeProgress_EtaCalculating">Calculating</sys:String>
+	<sys:String x:Key="LocMeta_Target_Folder">Folder</sys:String>
     <sys:String x:Key="LocMeta_Target_SplitIso">ISO parts</sys:String>
 
     <sys:String x:Key="LocStorageAdvisor_UserSummaryTitle">Conversion may be slower</sys:String>
