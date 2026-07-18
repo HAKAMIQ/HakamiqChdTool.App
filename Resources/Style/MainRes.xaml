@@ -7,13 +7,13 @@
     <Color x:Key="Color.CaptionButton.Close.Foreground">#FFFFFFFF</Color>
 
     <SolidColorBrush x:Key="Brush.CaptionButton.Standard.Hover"
-                     Color="#1A808080" />
+                     Color="{DynamicResource Color.Control.Fill.Hover}" />
 
     <SolidColorBrush x:Key="Brush.CaptionButton.Standard.Pressed"
-                     Color="#26808080" />
+                     Color="{DynamicResource Color.Control.Fill.Pressed}" />
 
     <SolidColorBrush x:Key="Brush.CaptionButton.Standard.Focus"
-                     Color="#14808080" />
+                     Color="{DynamicResource Color.Selection}" />
 
     <SolidColorBrush x:Key="Brush.CaptionButton.Close.Hover"
                      Color="{DynamicResource Color.CaptionButton.Close.Hover}" />

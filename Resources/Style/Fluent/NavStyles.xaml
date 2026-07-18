@@ -24,9 +24,9 @@
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
         <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.4}" />
-        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -278,7 +278,7 @@
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
         <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
         <Setter Property="MinWidth" Value="{DynamicResource Control.MinWidth}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />

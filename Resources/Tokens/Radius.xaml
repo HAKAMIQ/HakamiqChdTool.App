@@ -4,17 +4,17 @@
     <CornerRadius x:Key="Fluent.Radius.None">0</CornerRadius>
     <CornerRadius x:Key="Fluent.Radius.Small">2</CornerRadius>
     <CornerRadius x:Key="Fluent.Radius.Medium">4</CornerRadius>
-    <CornerRadius x:Key="Fluent.Radius.Large">6</CornerRadius>
-    <CornerRadius x:Key="Fluent.Radius.XLarge">8</CornerRadius>
-    <CornerRadius x:Key="Fluent.Radius.XXLarge">8</CornerRadius>
+    <CornerRadius x:Key="Fluent.Radius.Large">8</CornerRadius>
+    <CornerRadius x:Key="Fluent.Radius.XLarge">12</CornerRadius>
+    <CornerRadius x:Key="Fluent.Radius.XXLarge">12</CornerRadius>
     <CornerRadius x:Key="Fluent.Radius.Circular">9999</CornerRadius>
 
     <CornerRadius x:Key="Radius.None">0</CornerRadius>
     <CornerRadius x:Key="Radius.Small">2</CornerRadius>
     <CornerRadius x:Key="Radius.Medium">4</CornerRadius>
-    <CornerRadius x:Key="Radius.Large">6</CornerRadius>
-    <CornerRadius x:Key="Radius.XLarge">8</CornerRadius>
-    <CornerRadius x:Key="Radius.XXLarge">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Large">8</CornerRadius>
+    <CornerRadius x:Key="Radius.XLarge">12</CornerRadius>
+    <CornerRadius x:Key="Radius.XXLarge">12</CornerRadius>
 
     <CornerRadius x:Key="Radius.Window">8</CornerRadius>
     <CornerRadius x:Key="Radius.WindowOuter">8</CornerRadius>
@@ -22,7 +22,7 @@
 
     <CornerRadius x:Key="Radius.Control">4</CornerRadius>
     <CornerRadius x:Key="Radius.Control.Small">2</CornerRadius>
-    <CornerRadius x:Key="Radius.Control.Large">6</CornerRadius>
+    <CornerRadius x:Key="Radius.Control.Large">8</CornerRadius>
 
     <CornerRadius x:Key="Radius.Input">4</CornerRadius>
     <CornerRadius x:Key="Radius.Button">4</CornerRadius>
@@ -32,23 +32,23 @@
     <CornerRadius x:Key="Radius.Toggle">9999</CornerRadius>
 
     <CornerRadius x:Key="Radius.Card">8</CornerRadius>
-    <CornerRadius x:Key="Radius.Card.Medium">6</CornerRadius>
-    <CornerRadius x:Key="Radius.Card.Large">8</CornerRadius>
-    <CornerRadius x:Key="Radius.Card.Dialog">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Card.Medium">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Card.Large">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Card.Dialog">12</CornerRadius>
 
-    <CornerRadius x:Key="Radius.Overlay">8</CornerRadius>
-    <CornerRadius x:Key="Radius.Flyout">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Overlay">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Flyout">12</CornerRadius>
     <CornerRadius x:Key="Radius.Menu">8</CornerRadius>
     <CornerRadius x:Key="Radius.ToolTip">4</CornerRadius>
 
     <CornerRadius x:Key="Radius.HeaderButton">4</CornerRadius>
-    <CornerRadius x:Key="Radius.HeaderCluster">6</CornerRadius>
+    <CornerRadius x:Key="Radius.HeaderCluster">8</CornerRadius>
     <CornerRadius x:Key="Radius.HeaderLogo">8</CornerRadius>
 
     <CornerRadius x:Key="Radius.QueueWorkspaceHeader">8,8,0,0</CornerRadius>
     <CornerRadius x:Key="Radius.QueueAccentRail">9999</CornerRadius>
     <CornerRadius x:Key="Radius.QueuePill">9999</CornerRadius>
-    <CornerRadius x:Key="Radius.QueueSurface">6</CornerRadius>
+    <CornerRadius x:Key="Radius.QueueSurface">8</CornerRadius>
     <CornerRadius x:Key="Radius.DropHintIcon">8</CornerRadius>
 
     <CornerRadius x:Key="Radius.ProgressTrack">2</CornerRadius>

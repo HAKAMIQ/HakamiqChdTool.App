@@ -8,12 +8,12 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.6}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -195,11 +195,11 @@
         <Setter Property="Foreground" Value="{DynamicResource HeaderChromeForegroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.10.8.10.8}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -258,13 +258,13 @@
         <Setter Property="Foreground" Value="{DynamicResource ButtonDangerForegroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.14.10}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.6}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.44}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -325,11 +325,11 @@
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
-        <Setter Property="Cursor" Value="{x:Static input:Cursors.Hand}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -345,7 +345,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Card.Medium}"
+                            CornerRadius="{DynamicResource Radius.Control}"
                             Padding="{TemplateBinding Padding}"
                             Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"
@@ -423,7 +423,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Card.Medium}"
+                            CornerRadius="{DynamicResource Radius.Control}"
                             Padding="{TemplateBinding Padding}"
                             Language="{TemplateBinding Language}"
                             SnapsToDevicePixels="True"

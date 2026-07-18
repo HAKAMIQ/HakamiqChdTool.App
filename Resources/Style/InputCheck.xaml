@@ -258,10 +258,131 @@
         </Setter>
     </Style>
 
+    <Style x:Key="FluentRadioButtonStyle"
+           TargetType="{x:Type RadioButton}">
+        <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.CheckBox.Stroke.Rest}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}" />
+        <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <Grid x:Name="Root"
+                          MinHeight="{TemplateBinding MinHeight}"
+                          Background="{TemplateBinding Background}"
+                          FlowDirection="{TemplateBinding FlowDirection}"
+                          Language="{TemplateBinding Language}"
+                          SnapsToDevicePixels="True"
+                          UseLayoutRounding="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.20}" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Ellipse x:Name="Outer"
+                                 Grid.Column="0"
+                                 Width="{DynamicResource Space.18}"
+                                 Height="{DynamicResource Space.18}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Fill="{DynamicResource Brush.CheckBox.Fill.Rest}"
+                                 Stroke="{TemplateBinding BorderBrush}"
+                                 StrokeThickness="1"
+                                 SnapsToDevicePixels="True" />
+
+                        <Ellipse x:Name="Inner"
+                                 Grid.Column="0"
+                                 Width="{DynamicResource Space.8}"
+                                 Height="{DynamicResource Space.8}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Fill="{DynamicResource Brush.CheckBox.Glyph.Checked}"
+                                 Visibility="Collapsed"
+                                 SnapsToDevicePixels="True" />
+
+                        <ContentPresenter Grid.Column="2"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          RecognizesAccessKey="True"
+                                          FlowDirection="{TemplateBinding FlowDirection}"
+                                          Language="{TemplateBinding Language}"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          TextElement.FontFamily="{TemplateBinding FontFamily}"
+                                          TextElement.FontSize="{TemplateBinding FontSize}" />
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Hover}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Hover}" />
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Pressed}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Pressed}" />
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                            <Setter TargetName="Outer" Property="StrokeThickness" Value="2" />
+                        </Trigger>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Checked}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Checked}" />
+                            <Setter TargetName="Inner" Property="Visibility" Value="Visible" />
+                        </Trigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True" />
+                                <Condition Property="IsMouseOver" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Checked.Hover}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Checked.Hover}" />
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True" />
+                                <Condition Property="IsPressed" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Checked.Pressed}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Checked.Pressed}" />
+                        </MultiTrigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.CheckBox.Fill.Disabled}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.CheckBox.Stroke.Disabled}" />
+                            <Setter TargetName="Inner" Property="Fill" Value="{DynamicResource Brush.CheckBox.Glyph.Disabled}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="{x:Type TextBox}"
            BasedOn="{StaticResource FluentTextBoxStyle}" />
 
     <Style TargetType="{x:Type CheckBox}"
            BasedOn="{StaticResource FluentCheckBoxStyle}" />
+
+    <Style TargetType="{x:Type RadioButton}"
+           BasedOn="{StaticResource FluentRadioButtonStyle}" />
+
 
 </ResourceDictionary>
