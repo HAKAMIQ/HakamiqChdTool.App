@@ -568,6 +568,7 @@ public static class ChdmanProcessRunner
                                 AppendCapped(fullSink, frame.ToString());
                                 AppendCapped(fullSink, Environment.NewLine);
                                 AppendRolling(rolling, frame.ToString());
+                                AppendRolling(rolling, Environment.NewLine);
                                 emitter?.ParseRollingAndMaybeEmit(rolling);
                             }
 
@@ -599,6 +600,7 @@ public static class ChdmanProcessRunner
                             AppendCapped(fullSink, frame.ToString());
                             AppendCapped(fullSink, Environment.NewLine);
                             AppendRolling(rolling, frame.ToString());
+                            AppendRolling(rolling, Environment.NewLine);
                             emitter?.ParseRollingAndMaybeEmit(rolling);
                         }
 
@@ -618,6 +620,7 @@ public static class ChdmanProcessRunner
                     AppendCapped(fullSink, frame.ToString());
                     AppendCapped(fullSink, Environment.NewLine);
                     AppendRolling(rolling, frame.ToString());
+                    AppendRolling(rolling, Environment.NewLine);
                     emitter?.ParseRollingAndMaybeEmit(rolling);
                 }
             }

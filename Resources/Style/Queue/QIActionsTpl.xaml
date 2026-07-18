@@ -4,7 +4,7 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="QItemBase.xaml" />
         <ResourceDictionary Source="QWShared.xaml" />
-</ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary.MergedDictionaries>
 
     <DataTemplate x:Key="QueueItemActionsFieldsTemplate">
         <Grid FlowDirection="{DynamicResource App.FlowDirection}"
@@ -17,8 +17,31 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Margin="{DynamicResource Inset.0.8.0.0}"
-                    Visibility="{Binding UiShowRunningActionsRow, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    Margin="{DynamicResource Inset.0.8.0.0}">
+                <Border.Style>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding UiShowRunningActionsRow}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding IsProgressActive}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding HasRuntimeProgressDetail}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding UiShowTerminalActionsRow}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
                 <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                       Language="{DynamicResource App.XmlLanguage}"
                       SnapsToDevicePixels="True"
@@ -31,14 +54,17 @@
 
                     <Grid Grid.Column="0"
                           MinWidth="0"
+                          ClipToBounds="True"
                           FlowDirection="{DynamicResource App.FlowDirection}"
                           Language="{DynamicResource App.XmlLanguage}">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="18" />
+                            <RowDefinition Height="22" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
+                                   Height="18"
+                                   VerticalAlignment="Center"
                                    FontFamily="{DynamicResource FontFamily.Base}"
                                    FontSize="{DynamicResource FontSize.CaptionSmall}"
                                    FontWeight="{DynamicResource FontWeight.SemiBold}"
@@ -46,14 +72,17 @@
                                    FlowDirection="{DynamicResource App.FlowDirection}"
                                    Language="{DynamicResource App.XmlLanguage}"
                                    Text="{Binding ProgressRegionPhaseIsolated, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}"
+                                   TextAlignment="Left"
                                    TextTrimming="CharacterEllipsis"
                                    TextWrapping="NoWrap"
-                                   ToolTip="{Binding ProgressRegionPhaseIsolated}"
-                                   SnapsToDevicePixels="True" />
+                                   TextOptions.TextFormattingMode="Display"
+                                   ToolTip="{Binding QueueRowExtendedTooltip}"
+                                   SnapsToDevicePixels="True"
+                                   UseLayoutRounding="True" />
 
                         <Grid Grid.Row="1"
                               Margin="{DynamicResource Inset.0.2.0.0}"
+                              ClipToBounds="True"
                               FlowDirection="{DynamicResource App.FlowDirection}"
                               Language="{DynamicResource App.XmlLanguage}">
                             <Grid.ColumnDefinitions>
@@ -63,10 +92,21 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"
-                                       MaxHeight="{DynamicResource Space.48}"
+                                       Height="20"
+                                       HorizontalAlignment="Stretch"
+                                       VerticalAlignment="Center"
                                        Style="{StaticResource FluentQueueCollapsibleDetailText}"
                                        Text="{Binding QueueRowDisplayDetailArabic, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                       ToolTip="{Binding QueueRowExtendedTooltip}" />
+                                       TextAlignment="Left"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
+                                       TextOptions.TextFormattingMode="Display"
+                                       Typography.NumeralAlignment="Tabular"
+                                       Typography.NumeralStyle="Lining"
+                                       NumberSubstitution.Substitution="European"
+                                       ToolTip="{Binding QueueRowExtendedTooltip}"
+                                       SnapsToDevicePixels="True"
+                                       UseLayoutRounding="True" />
 
                             <TextBlock Grid.Column="2"
                                        Width="{DynamicResource Space.0}"
@@ -129,11 +169,21 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0"
+                               Height="20"
+                               HorizontalAlignment="Stretch"
                                VerticalAlignment="Center"
-                               MaxHeight="{DynamicResource Space.48}"
                                Style="{StaticResource FluentQueueCollapsibleDetailText}"
                                Text="{Binding QueueRowDisplayDetailArabic, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                               TextAlignment="Left"
+                               TextWrapping="NoWrap"
+                               TextTrimming="CharacterEllipsis"
+                               TextOptions.TextFormattingMode="Display"
+                               Typography.NumeralAlignment="Tabular"
+                               Typography.NumeralStyle="Lining"
+                               NumberSubstitution.Substitution="European"
                                ToolTip="{Binding QueueRowExtendedTooltip}"
+                               SnapsToDevicePixels="True"
+                               UseLayoutRounding="True"
                                Visibility="Collapsed" />
 
                     <Grid Grid.Column="2"
@@ -213,6 +263,7 @@
                                         <DataTrigger Binding="{Binding QueueRowDisplayState}" Value="Failed">
                                             <Setter Property="Visibility" Value="Visible" />
                                         </DataTrigger>
+
                                         <DataTrigger Binding="{Binding QueueRowDisplayState}" Value="Cancelled">
                                             <Setter Property="Visibility" Value="Visible" />
                                         </DataTrigger>

@@ -18,11 +18,14 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
     {
         if (recordId == Guid.Empty)
         {
-            throw new ArgumentException("Record id must not be empty.", nameof(recordId));
+            throw new ArgumentException(
+                "Record id must not be empty.",
+                nameof(recordId));
         }
 
         _recordId = recordId;
-        _rowStore = rowStore ?? throw new ArgumentNullException(nameof(rowStore));
+        _rowStore = rowStore
+            ?? throw new ArgumentNullException(nameof(rowStore));
     }
 
     public void ResetForRun()
@@ -42,9 +45,12 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         });
     }
 
-    public void ReportStage(QueueItemStage stage, string? detail)
+    public void ReportStage(
+        QueueItemStage stage,
+        string? detail)
     {
-        string stateCode = TaskQueueIntentMap.ToStateCode(stage);
+        string stateCode =
+            TaskQueueIntentMap.ToStateCode(stage);
 
         MutateNonTerminal(row =>
         {
@@ -57,11 +63,15 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         });
     }
 
-    public void ReportProgress(double percent, bool indeterminate)
+    public void ReportProgress(
+        double percent,
+        bool indeterminate)
     {
         MutateNonTerminal(row =>
         {
-            double nextProgress = Math.Clamp(percent, 0, 99);
+            double nextProgress =
+                Math.Clamp(percent, 0d, 99d);
+
             if (nextProgress < row.Progress)
             {
                 return;
@@ -73,22 +83,116 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         });
     }
 
-    public void ReportRuntimeProgress(QueueRuntimeProgressSnapshot snapshot)
+    public void ReportRuntimeProgress(
+        QueueRuntimeProgressSnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
+        if (snapshot.Kind == QueueRuntimeProgressKind.None)
+        {
+            return;
+        }
+
         MutateNonTerminal(row =>
         {
+            long currentBytes =
+                Math.Max(0L, snapshot.CurrentBytes);
+
+            long totalBytes =
+                Math.Max(0L, snapshot.TotalBytes);
+
+            double bytesPerSecond =
+                double.IsFinite(snapshot.BytesPerSecond)
+                    ? Math.Max(0d, snapshot.BytesPerSecond)
+                    : 0d;
+
+            double percent =
+                double.IsFinite(snapshot.Percent)
+                    ? Math.Clamp(snapshot.Percent, 0d, 100d)
+                    : 0d;
+
+            long elapsedTicks =
+                Math.Max(0L, snapshot.Elapsed.Ticks);
+
+            long estimatedRemainingTicks =
+                Math.Max(
+                    0L,
+                    snapshot.EstimatedRemaining.Ticks);
+
+            if (row.RuntimeProgressKind == snapshot.Kind
+                && row.RuntimeProgressElapsedTicks > 0L
+                && elapsedTicks
+                < row.RuntimeProgressElapsedTicks)
+            {
+                return;
+            }
+
+            if (row.RuntimeProgressKind
+                    != QueueRuntimeProgressKind.None
+                && row.RuntimeProgressKind != snapshot.Kind)
+            {
+                ClearRuntimeProgressFields(row);
+            }
+
             row.RuntimeProgressKind = snapshot.Kind;
-            row.RuntimeProgressPrimaryMessageKey = snapshot.PrimaryMessageKey;
-            row.RuntimeProgressCurrentBytes = Math.Max(0, snapshot.CurrentBytes);
-            row.RuntimeProgressTotalBytes = Math.Max(0, snapshot.TotalBytes);
-            row.RuntimeProgressBytesPerSecond = double.IsFinite(snapshot.BytesPerSecond) ? Math.Max(0d, snapshot.BytesPerSecond) : 0d;
-            row.RuntimeProgressPercent = double.IsFinite(snapshot.Percent) ? Math.Clamp(snapshot.Percent, 0d, 100d) : 0d;
-            row.RuntimeProgressElapsedTicks = Math.Max(0, snapshot.Elapsed.Ticks);
-            row.RuntimeProgressEstimatedRemainingTicks = Math.Max(0, snapshot.EstimatedRemaining.Ticks);
-            row.RuntimeProgressNextStageMessageKey = snapshot.NextStageMessageKey;
-            row.RuntimeProgressShowActivitySpinner = snapshot.ShowActivitySpinner;
+            row.IsProgressActive = true;
+
+            if (!string.IsNullOrWhiteSpace(
+                    snapshot.PrimaryMessageKey))
+            {
+                row.RuntimeProgressPrimaryMessageKey =
+                    snapshot.PrimaryMessageKey;
+            }
+
+            if (currentBytes
+                > row.RuntimeProgressCurrentBytes)
+            {
+                row.RuntimeProgressCurrentBytes =
+                    currentBytes;
+            }
+
+            if (totalBytes
+                > row.RuntimeProgressTotalBytes)
+            {
+                row.RuntimeProgressTotalBytes =
+                    totalBytes;
+            }
+
+            if (bytesPerSecond > 0d)
+            {
+                row.RuntimeProgressBytesPerSecond =
+                    bytesPerSecond;
+            }
+
+            if (percent > row.RuntimeProgressPercent)
+            {
+                row.RuntimeProgressPercent = percent;
+            }
+
+            if (elapsedTicks
+                > row.RuntimeProgressElapsedTicks)
+            {
+                row.RuntimeProgressElapsedTicks =
+                    elapsedTicks;
+            }
+
+            if (estimatedRemainingTicks > 0L
+                || row.RuntimeProgressEstimatedRemainingTicks <= 0L)
+            {
+                row.RuntimeProgressEstimatedRemainingTicks =
+                    estimatedRemainingTicks;
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                    snapshot.NextStageMessageKey))
+            {
+                row.RuntimeProgressNextStageMessageKey =
+                    snapshot.NextStageMessageKey;
+            }
+
+            row.RuntimeProgressShowActivitySpinner =
+                row.RuntimeProgressShowActivitySpinner
+                || snapshot.ShowActivitySpinner;
         });
     }
 
@@ -97,10 +201,15 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         MutateBoth(ClearRuntimeProgressFields);
     }
 
-    public void ReportTerminalSuccess(QueueItemTerminalOutcome outcome, string? detail)
+    public void ReportTerminalSuccess(
+        QueueItemTerminalOutcome outcome,
+        string? detail)
     {
-        string stateCode = TaskQueueIntentMap.ToStateCode(outcome);
-        string finalResult = TaskQueueIntentMap.ToFinalResult(outcome);
+        string stateCode =
+            TaskQueueIntentMap.ToStateCode(outcome);
+
+        string finalResult =
+            TaskQueueIntentMap.ToFinalResult(outcome);
 
         MutateTerminal(row =>
         {
@@ -108,6 +217,7 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
             row.FinalResult = finalResult;
             row.IsProgressActive = false;
             row.IsIndeterminate = false;
+
             ClearRuntimeProgressFields(row);
 
             if (stateCode == TaskQueueStateCodes.Completed)
@@ -122,10 +232,15 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         });
     }
 
-    public void ReportTerminalFailure(QueueItemFailureKind kind, string? detail)
+    public void ReportTerminalFailure(
+        QueueItemFailureKind kind,
+        string? detail)
     {
-        string stateCode = TaskQueueIntentMap.ToStateCode(kind);
-        string finalResult = TaskQueueIntentMap.ToFinalResult(kind);
+        string stateCode =
+            TaskQueueIntentMap.ToStateCode(kind);
+
+        string finalResult =
+            TaskQueueIntentMap.ToFinalResult(kind);
 
         MutateTerminal(row =>
         {
@@ -133,6 +248,7 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
             row.FinalResult = finalResult;
             row.IsProgressActive = false;
             row.IsIndeterminate = false;
+
             ClearRuntimeProgressFields(row);
 
             if (detail is not null)
@@ -142,7 +258,9 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         });
     }
 
-    public void AttachArtifact(QueueItemArtifactKind kind, string path)
+    public void AttachArtifact(
+        QueueItemArtifactKind kind,
+        string path)
     {
         MutateBoth(row =>
         {
@@ -161,12 +279,17 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown queue artifact kind.");
+                    throw new ArgumentOutOfRangeException(
+                        nameof(kind),
+                        kind,
+                        "Unknown queue artifact kind.");
             }
         });
     }
 
-    public void RecordPlatformDetection(string platform, string reason)
+    public void RecordPlatformDetection(
+        string platform,
+        string reason)
     {
         MutateNonTerminal(row =>
         {
@@ -175,45 +298,58 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         });
     }
 
-    public void RecordInputOutputBytes(long inputBytes, long outputBytes)
+    public void RecordInputOutputBytes(
+        long inputBytes,
+        long outputBytes)
     {
         MutateNonTerminal(row =>
         {
-            row.InputBytes = Math.Max(0, inputBytes);
-            row.OutputBytes = Math.Max(0, outputBytes);
+            row.InputBytes = Math.Max(0L, inputBytes);
+            row.OutputBytes = Math.Max(0L, outputBytes);
         });
     }
 
     public void AddCleanupDeletedBytes(long deltaBytes)
     {
-        if (deltaBytes <= 0)
+        if (deltaBytes <= 0L)
         {
             return;
         }
 
         MutateNonTerminal(row =>
         {
-            row.CleanupDeletedBytes = SaturatingAdd(row.CleanupDeletedBytes, deltaBytes);
+            row.CleanupDeletedBytes =
+                SaturatingAdd(
+                    row.CleanupDeletedBytes,
+                    deltaBytes);
         });
     }
 
-    public void RecordPostConversionArtifacts(PostConversionArtifactResult result)
+    public void RecordPostConversionArtifacts(
+        PostConversionArtifactResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        if (result.SbiCopiedCount <= 0 && result.FailedArtifactCount <= 0)
+        if (result.SbiCopiedCount <= 0
+            && result.FailedArtifactCount <= 0)
         {
             return;
         }
 
         MutateNonTerminal(row =>
         {
-            row.SbiCopiedCount = SaturatingAdd(row.SbiCopiedCount, Math.Max(0, result.SbiCopiedCount));
-            row.PostProcessingFailureCount = SaturatingAdd(row.PostProcessingFailureCount, Math.Max(0, result.FailedArtifactCount));
+            row.SbiCopiedCount = SaturatingAdd(
+                row.SbiCopiedCount,
+                Math.Max(0, result.SbiCopiedCount));
+
+            row.PostProcessingFailureCount = SaturatingAdd(
+                row.PostProcessingFailureCount,
+                Math.Max(0, result.FailedArtifactCount));
         });
     }
 
-    public void RecordConversionPerformanceReport(ConversionPerformanceReport report)
+    public void RecordConversionPerformanceReport(
+        ConversionPerformanceReport report)
     {
         ArgumentNullException.ThrowIfNull(report);
 
@@ -223,7 +359,9 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         });
     }
 
-    public void ReportWorkingPathPromotion(string newWorkingPath, string newRequestedAction)
+    public void ReportWorkingPathPromotion(
+        string newWorkingPath,
+        string newRequestedAction)
     {
         MutateNonTerminal(row =>
         {
@@ -237,32 +375,44 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         MutateBoth(row =>
         {
             row.SourcePath = string.Empty;
-            row.RequestedAction = TaskActionCodes.StageArchiveForConversion;
+            row.RequestedAction =
+                TaskActionCodes.StageArchiveForConversion;
+
             row.TempWorkingDirectory = string.Empty;
         });
     }
 
-    private static void ClearRuntimeProgressFields(QueueRowData row)
+    private static void ClearRuntimeProgressFields(
+        QueueRowData row)
     {
-        row.RuntimeProgressKind = QueueRuntimeProgressKind.None;
-        row.RuntimeProgressPrimaryMessageKey = string.Empty;
-        row.RuntimeProgressCurrentBytes = 0;
-        row.RuntimeProgressTotalBytes = 0;
+        row.RuntimeProgressKind =
+            QueueRuntimeProgressKind.None;
+
+        row.RuntimeProgressPrimaryMessageKey =
+            string.Empty;
+
+        row.RuntimeProgressCurrentBytes = 0L;
+        row.RuntimeProgressTotalBytes = 0L;
         row.RuntimeProgressBytesPerSecond = 0d;
         row.RuntimeProgressPercent = 0d;
-        row.RuntimeProgressElapsedTicks = 0;
-        row.RuntimeProgressEstimatedRemainingTicks = 0;
-        row.RuntimeProgressNextStageMessageKey = string.Empty;
+        row.RuntimeProgressElapsedTicks = 0L;
+        row.RuntimeProgressEstimatedRemainingTicks = 0L;
+
+        row.RuntimeProgressNextStageMessageKey =
+            string.Empty;
+
         row.RuntimeProgressShowActivitySpinner = false;
     }
 
-    private void MutateNonTerminal(Action<QueueRowData> rowPatch)
+    private void MutateNonTerminal(
+        Action<QueueRowData> rowPatch)
     {
         ArgumentNullException.ThrowIfNull(rowPatch);
 
         _rowStore.Mutate(_recordId, row =>
         {
-            if (TaskQueueStateCodes.IsTerminal(row.CurrentState))
+            if (TaskQueueStateCodes.IsTerminal(
+                    row.CurrentState))
             {
                 return;
             }
@@ -271,13 +421,15 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         });
     }
 
-    private void MutateTerminal(Action<QueueRowData> rowPatch)
+    private void MutateTerminal(
+        Action<QueueRowData> rowPatch)
     {
         ArgumentNullException.ThrowIfNull(rowPatch);
 
         _rowStore.Mutate(_recordId, row =>
         {
-            if (TaskQueueStateCodes.IsTerminal(row.CurrentState))
+            if (TaskQueueStateCodes.IsTerminal(
+                    row.CurrentState))
             {
                 return;
             }
@@ -286,15 +438,21 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
         });
     }
 
-    private void MutateBoth(Action<QueueRowData> rowPatch)
+    private void MutateBoth(
+        Action<QueueRowData> rowPatch)
     {
         ArgumentNullException.ThrowIfNull(rowPatch);
-        _rowStore.Mutate(_recordId, rowPatch);
+
+        _rowStore.Mutate(
+            _recordId,
+            rowPatch);
     }
 
-    private static long SaturatingAdd(long left, long right)
+    private static long SaturatingAdd(
+        long left,
+        long right)
     {
-        if (right <= 0)
+        if (right <= 0L)
         {
             return left;
         }
@@ -304,7 +462,9 @@ public sealed class TaskQueueStateAdapter : IQueueItemStateSink
             : left + right;
     }
 
-    private static int SaturatingAdd(int left, int right)
+    private static int SaturatingAdd(
+        int left,
+        int right)
     {
         if (right <= 0)
         {
