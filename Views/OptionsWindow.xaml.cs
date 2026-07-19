@@ -24,6 +24,10 @@ public sealed class OptionsAppliedEventArgs : EventArgs
     public AppSettings Settings { get; }
 }
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Design",
+    "CA1001:Types that own disposable fields should be disposable",
+    Justification = "The WPF Closed lifecycle detaches all event handlers and disposes the owned coordinator deterministically.")]
 public partial class OptionsWindow : Window
 {
     public const string GeneralTabKey = "General";

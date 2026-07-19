@@ -30,6 +30,10 @@ using HakamiqChdTool.App.Ui.WpfAdapters;
 namespace HakamiqChdTool.App;
 
 [SupportedOSPlatform("windows10.0.17763.0")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Design",
+    "CA1001:Types that own disposable fields should be disposable",
+    Justification = "The WPF Closing lifecycle performs deterministic asynchronous shutdown and disposes all window-owned resources before allowing the window to close.")]
 public partial class MainWindow : Window
 {
     private readonly ConcurrentDictionary<Guid, TaskQueueStateAdapter> _sinkIndex = new();
