@@ -277,7 +277,10 @@ public static class ChdmanProcessRunner
                         "runner failure")
                     .ConfigureAwait(false);
 
+                // This catch can be reached before or after the linked source is created.
+#pragma warning disable CA1508
                 performanceCts?.Cancel();
+#pragma warning restore CA1508
 
                 await WaitForPumpCompletionWithTimeoutAsync(
                         Task.WhenAll(stdoutPump, stderrPump, performanceTask),
