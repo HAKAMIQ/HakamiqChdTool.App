@@ -42,7 +42,7 @@ public enum RedumpV2ResultState
     Error = 6,
 
     // Compatibility alias for clearer Redump wording.
-    DatabaseMissing = 4,
+    DatabaseMissing = NoDatabase,
 
     // Explicit policy states.
     NotRedumpOriginalLayout = 7,
