@@ -21,6 +21,10 @@ using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Design",
+    "CA1001:Types that own disposable fields should be disposable",
+    Justification = "The WPF application lifetime releases and disposes the single-instance mutex through OnExit; failed acquisition is disposed immediately.")]
 public partial class App : WpfApplication
 {
     private const string ApplicationTitleKey = "LocUi_WindowTitle";

@@ -10,7 +10,7 @@ using System.Runtime.Versioning;
 namespace HakamiqChdTool.App.ViewModels;
 
 [SupportedOSPlatform("windows10.0.17763.0")]
-public partial class MainWindowViewModel : ObservableObject, IDisposable
+public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 {
     private readonly IMainWindowSession _session;
     private readonly IQueueRunCoordinator _coordinator;
@@ -271,6 +271,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _intakeCancellationCts?.Cancel();
         _intakeCancellationCts?.Dispose();
         _intakeCancellationCts = null;
+
         GC.SuppressFinalize(this);
     }
 
