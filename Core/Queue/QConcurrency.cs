@@ -518,6 +518,8 @@ internal sealed class QueueConcurrencyCoordinator : IAsyncDisposable
                 continue;
             }
 
+            // TryRemove transfers ownership to this block, which disposes the removed token.
+#pragma warning disable CA2000
             if (_state.ItemTokens.TryRemove(id, out CancellationTokenSource? cts))
             {
                 try
@@ -532,6 +534,7 @@ internal sealed class QueueConcurrencyCoordinator : IAsyncDisposable
                         id);
                 }
             }
+#pragma warning restore CA2000
         }
 
         _notifications.Clear();

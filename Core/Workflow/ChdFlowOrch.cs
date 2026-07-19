@@ -137,7 +137,10 @@ public sealed partial class ChdWorkflowOrchestrator : IChdWorkflowOrchestrator
 
             if (settings.EnableStressMode)
             {
+                // StopStressMonitorAsync disposes the linked source in its finally block.
+#pragma warning disable CA2000
                 stressCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+#pragma warning restore CA2000
                 stressTask = _stressMonitor.RunAsync(Path.GetFileNameWithoutExtension(snap.FileName), stressCts.Token);
             }
 

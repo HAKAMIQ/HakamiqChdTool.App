@@ -178,6 +178,8 @@ internal sealed class QueueStateStore
 
     public void CompleteScheduledItem(ChdQueueItem item)
     {
+        // TryRemove transfers ownership to this block, which disposes the removed token.
+#pragma warning disable CA2000
         if (_state.ItemTokens.TryRemove(item.Id, out CancellationTokenSource? cts))
         {
             try
@@ -192,6 +194,7 @@ internal sealed class QueueStateStore
                     item.Id);
             }
         }
+#pragma warning restore CA2000
 
         ReleaseQueuePath(item);
 

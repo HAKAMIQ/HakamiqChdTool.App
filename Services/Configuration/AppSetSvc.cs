@@ -155,7 +155,10 @@ public sealed class AppSettingsService : IDisposable
         ArgumentNullException.ThrowIfNull(settings);
 
         AppSettings snapshot = settings.Clone();
+        // Ownership transfers to _saveCts and is released by replacement, completion, or service disposal.
+#pragma warning disable CA2000
         CancellationTokenSource fresh = new();
+#pragma warning restore CA2000
         bool registered = false;
 
         try
