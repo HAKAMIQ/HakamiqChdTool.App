@@ -9,6 +9,10 @@ public sealed class AppSettings
 
     public const int MaxConcurrentConversionsUpperBound = 4;
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Usage",
+        "CA2227:Collection properties should be read only",
+        Justification = "The JsonExtensionData dictionary must remain replaceable so deserialization and deep-copy operations preserve unknown configuration properties.")]
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? ExtensionData { get; set; }
 
