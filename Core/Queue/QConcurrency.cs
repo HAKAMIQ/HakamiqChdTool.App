@@ -403,7 +403,7 @@ internal sealed class QueueConcurrencyCoordinator : IAsyncDisposable
             return;
         }
 
-        _state.ShutdownCts.Cancel();
+        await _state.ShutdownCts.CancelAsync().ConfigureAwait(false);
         Stop();
 
         try

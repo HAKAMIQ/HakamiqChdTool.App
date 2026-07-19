@@ -105,7 +105,7 @@ public sealed partial class ChdWorkflowOrchestrator
 
         try
         {
-            stressCts.Cancel();
+            await stressCts.CancelAsync().ConfigureAwait(false);
 
             if (stressTask is not null)
             {

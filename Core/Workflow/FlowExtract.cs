@@ -615,7 +615,7 @@ internal sealed class WorkflowExtractionStage(
 
         try
         {
-            cancellationTokenSource.Cancel();
+            await cancellationTokenSource.CancelAsync().ConfigureAwait(false);
             await progressTask.ConfigureAwait(false);
         }
         catch (OperationCanceledException)

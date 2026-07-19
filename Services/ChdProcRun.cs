@@ -181,7 +181,7 @@ public static class ChdmanProcessRunner
                         "cancellation")
                     .ConfigureAwait(false);
 
-                performanceCts.Cancel();
+                await performanceCts.CancelAsync().ConfigureAwait(false);
 
                 await WaitForPumpCompletionWithTimeoutAsync(
                         Task.WhenAll(stdoutPump, stderrPump, performanceTask),
@@ -206,7 +206,7 @@ public static class ChdmanProcessRunner
 
             await exitTask.ConfigureAwait(false);
 
-            performanceCts.Cancel();
+            await performanceCts.CancelAsync().ConfigureAwait(false);
 
             await WaitForPumpCompletionWithTimeoutAsync(
                     Task.WhenAll(stdoutPump, stderrPump),
@@ -248,7 +248,10 @@ public static class ChdmanProcessRunner
                     "operation cancelled after process start")
                 .ConfigureAwait(false);
 
-            performanceCts?.Cancel();
+            if (performanceCts is not null)
+            {
+                await performanceCts.CancelAsync().ConfigureAwait(false);
+            }
 
             await WaitForPumpCompletionWithTimeoutAsync(
                     Task.WhenAll(stdoutPump, stderrPump, performanceTask),
@@ -279,7 +282,10 @@ public static class ChdmanProcessRunner
 
                 // This catch can be reached before or after the linked source is created.
 #pragma warning disable CA1508
-                performanceCts?.Cancel();
+                if (performanceCts is not null)
+                {
+                    await performanceCts.CancelAsync().ConfigureAwait(false);
+                }
 #pragma warning restore CA1508
 
                 await WaitForPumpCompletionWithTimeoutAsync(

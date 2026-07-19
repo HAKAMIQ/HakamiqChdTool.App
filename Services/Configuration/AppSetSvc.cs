@@ -168,8 +168,11 @@ public sealed class AppSettingsService : IDisposable
             CancellationTokenSource? previous = Interlocked.Exchange(ref _saveCts, fresh);
             registered = true;
 
-            previous?.Cancel();
-            previous?.Dispose();
+            if (previous is not null)
+            {
+                await previous.CancelAsync().ConfigureAwait(false);
+                previous.Dispose();
+            }
 
             ThrowIfDisposed();
 
