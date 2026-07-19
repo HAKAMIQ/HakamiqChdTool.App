@@ -266,6 +266,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         }
 
         _coordinator.RunStateChanged -= OnQueueRunStateChanged;
+        CancelIntakeResultAutoDismiss();
+
         _intakeCancellationCts?.Cancel();
         _intakeCancellationCts?.Dispose();
         _intakeCancellationCts = null;
