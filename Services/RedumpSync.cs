@@ -79,6 +79,8 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
             return Failure(InvalidSourceUrlMessageKey, [], 0);
         }
 
+        Uri sourceUri = new(sourceUrl, UriKind.Absolute);
+
         string workRoot = AppPaths.CombineProcessTemp("RedumpSync", Guid.NewGuid().ToString("N"));
         string payloadPath = Path.Combine(workRoot, "redump_payload.bin");
         string extractPath = Path.Combine(workRoot, "extract");
@@ -90,7 +92,7 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
             EnsureSafeProcessTempDirectory(workRoot);
 
             progress?.Report(new RedumpGitHubSyncProgress(DownloadStage, 5d, DownloadStartMessageKey, []));
-            await DownloadFileAsync(sourceUrl, payloadPath, progress, cancellationToken).ConfigureAwait(false);
+            await DownloadFileAsync(sourceUri, payloadPath, progress, cancellationToken).ConfigureAwait(false);
 
             EnsureSafeProcessTempDirectory(extractPath);
 
@@ -178,7 +180,7 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
     }
 
     private async Task DownloadFileAsync(
-        string url,
+        Uri url,
         string destinationPath,
         IProgress<RedumpGitHubSyncProgress>? progress,
         CancellationToken cancellationToken)
