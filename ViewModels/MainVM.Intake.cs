@@ -33,6 +33,10 @@ public partial class MainWindowViewModel
     private string _intakeResultSeverity = string.Empty;
     private long _intakeUiVersion;
     private CancellationTokenSource? _intakeCancellationCts;
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Usage",
+        "CA2213:Disposable fields should be disposed",
+        Justification = "Disposed atomically by CancelIntakeResultAutoDismiss, which is called from MainWindowViewModel.Dispose.")]
     private CancellationTokenSource? _intakeResultDismissCts;
 
     private sealed record PreparedIntakeCandidate(
