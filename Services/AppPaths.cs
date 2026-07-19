@@ -316,7 +316,7 @@ public static class AppPaths
             using JsonDocument document = JsonDocument.Parse(stream);
 
             return document.RootElement.ValueKind == JsonValueKind.Object
-                && document.RootElement.TryGetProperty("PortableMode", out JsonElement value)
+                && document.RootElement.TryGetProperty(nameof(global::HakamiqChdTool.App.Models.AppSettings.PortableMode), out JsonElement value)
                 && value.ValueKind == JsonValueKind.True;
         }
         catch (Exception ex) when (ex is IOException
