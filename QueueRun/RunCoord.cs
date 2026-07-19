@@ -22,6 +22,10 @@ internal sealed class QueueRunCoordinator(
     QueueController queueController,
     IQueueRunUiPort ui) : IQueueRunCoordinator
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Usage",
+        "CA2213:Disposable fields should be disposed",
+        Justification = "QueueController is owned by MainWindow and disposed after QueueRunCoordinator during deterministic shutdown.")]
     private readonly QueueController _queueController =
         queueController ?? throw new ArgumentNullException(nameof(queueController));
 
