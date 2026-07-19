@@ -55,7 +55,10 @@ internal sealed class ChdCsoInputPreparationCoordinator
 
                 CsoTempWorkspace leaseWorkspace = tempWorkspace;
                 tempWorkspace = null;
+                // Ownership transfers to the returned lease, which the conversion caller disposes.
+#pragma warning disable CA2000
                 return new ChdCsoInputPreparationOutcome(new ChdCsoPreparedInputLease(leaseWorkspace, report), null);
+#pragma warning restore CA2000
             }
 
             tempWorkspace.Dispose();
