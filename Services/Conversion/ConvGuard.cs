@@ -101,7 +101,7 @@ internal sealed class ConversionSessionScope : IAsyncDisposable
     {
         try
         {
-            _monitorCts.Cancel();
+            await _monitorCts.CancelAsync().ConfigureAwait(false);
 
             try
             {

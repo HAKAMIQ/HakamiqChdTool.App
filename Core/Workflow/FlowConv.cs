@@ -958,7 +958,7 @@ internal sealed class WorkflowConversionStage(
             }
             finally
             {
-                conversionProgressCts.Cancel();
+                await conversionProgressCts.CancelAsync().ConfigureAwait(false);
 
                 await conversionRuntimePulseTask
                     .ConfigureAwait(false);
