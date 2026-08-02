@@ -4,6 +4,28 @@ This file tracks source release notes.
 
 GitHub Releases remain the public download history.
 
+## v1.2.1 - 2026-08-02
+
+### Changed
+
+- Updated the bundled CsoKit runtime to 0.6.1 and adopted its `csokit.exe` plus
+  native ABI 2 deployment contract.
+- Pinned and revalidated the SHA-256 digests of both `csokit.exe` and
+  `CsoKit.Native.dll` before bundled-tool execution.
+- Strengthened archive, Redump, external-tool, shutdown, and release-output
+  security boundaries.
+- Added deterministic NuGet lock files, CycloneDX 1.7 SBOM generation, source
+  manifests, and end-user release verification gates.
+- Updated the About dialog credits and contributor presentation.
+
+### Validation
+
+- Debug and Release builds passed with zero warnings and zero errors.
+- Application regression tests passed: 31/31.
+- CsoKit 0.6.1 upstream tests passed: 201/201.
+- Repository convention and end-user release security gates passed.
+- The bundled CsoKit integration ISO/CSO/ISO round trip preserved SHA-256.
+
 ## v1.2.0 - 2026-08-01
 
 ### Security and reliability
