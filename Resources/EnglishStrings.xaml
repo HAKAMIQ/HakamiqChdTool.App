@@ -628,14 +628,14 @@ Path:
     <sys:String x:Key="LocWorkflow_NonChdRecommendedCompression">CHD is not the recommended compression format for this system. Use a system-specific format, such as RVZ for GameCube/Wii or CSO/PBP for PSP. Conversion is blocked to avoid incompatible output.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPreparationDisabled">CSO files must be expanded to ISO before CHD conversion. This preparation stage is not enabled in this version.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">Expanding CSO to a temporary ISO before CHD conversion.</sys:String>
-    <sys:String x:Key="LocWorkflow_CsoToolMissing">Hakamiq CsoKit could not be found. Reinstall the package or open the tools folder to verify that hakamiq-cso.exe is present.</sys:String>
-    <sys:String x:Key="LocWorkflow_CsoToolFailed">Hakamiq CsoKit could not be started or its version could not be verified.</sys:String>
+    <sys:String x:Key="LocWorkflow_CsoToolMissing">CsoKit could not be found. Reinstall the package or open the tools folder to verify that csokit.exe and CsoKit.Native.dll are present.</sys:String>
+    <sys:String x:Key="LocWorkflow_CsoToolFailed">CsoKit could not be started or its version could not be verified.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPreparationFailed">Failed to expand CSO to a temporary ISO. CHD conversion was not started.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPreparationCancelled">CSO expansion was cancelled before CHD conversion started.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPrepared">Temporary ISO prepared from CSO. CHD conversion will start.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToIsoThenChdNotice">The CSO will be expanded to a temporary ISO and then converted to CHD. The original CSO file will not be modified.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoTempSpaceInsufficient">Temporary storage does not have enough free space to expand the CSO to a temporary ISO.</sys:String>
-    <sys:String x:Key="LocWorkflow_CsoUnsupported">The CSO file is not currently supported. Hakamiq CsoKit supports CSO v1 files only in this release.</sys:String>
+    <sys:String x:Key="LocWorkflow_CsoUnsupported">The CSO file is not currently supported. This application workflow supports CSO v1 files only in this release.</sys:String>
     <sys:String x:Key="LocChdPolicy_DvdSectorAlignmentInvalid">DVD image size must be divisible by 2048 bytes before createdvd conversion.</sys:String>
     <sys:String x:Key="LocFormatSafety_CsoTitle">CSO preparation</sys:String>
     <sys:String x:Key="LocFormatSafety_ChdTitle">CHD compatibility</sys:String>
@@ -870,6 +870,7 @@ Path:
     <sys:String x:Key="LocRuntimeTools_ExtractedToolUnsafe">The extracted chdman path is outside the safe runtime folder.</sys:String>
     <sys:String x:Key="LocRuntimeTools_ExtractedToolMissing">Could not find chdman after initialization.</sys:String>
     <sys:String x:Key="LocRuntimeTools_ExtractedToolInvalid">The extracted chdman file is invalid.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_UnsupportedCpu">This processor does not support the x86-64-v2 instruction set required by chdman 0.289.</sys:String>
 
     <sys:String x:Key="LocArchive_NoChdFile">No CHD file was found inside the archive.</sys:String>
     <sys:String x:Key="LocArchive_SevenZipUnavailable">Could not find 7-Zip.</sys:String>
@@ -891,6 +892,7 @@ Path:
     <sys:String x:Key="LocArchive_SevenZipExecutablePathInvalid">The 7-Zip executable path is invalid.</sys:String>
     <sys:String x:Key="LocArchive_SevenZipExecutableNotFound">Could not find 7-Zip.</sys:String>
     <sys:String x:Key="LocArchive_SevenZipProcessStartFailed">Could not start 7-Zip.</sys:String>
+    <sys:String x:Key="LocArchive_ResourceLimitExceeded">The archive was stopped because it exceeded the safe entry, output, expanded-size, or free-space limit.</sys:String>
 
     <sys:String x:Key="LocArchive_SevenZipToolFound">7-Zip was found.</sys:String>
     <sys:String x:Key="LocArchive_SevenZipToolMissing">Could not find 7-Zip.</sys:String>
@@ -1250,12 +1252,12 @@ Path:
     <sys:String x:Key="LocExternalTools_OpenFolder">Open Tools Folder</sys:String>
     <sys:String x:Key="LocExternalTools_Recheck">Recheck</sys:String>
     <sys:String x:Key="LocExternalTools_CopySetupInstructions">Copy Setup Instructions</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitTitle">Hakamiq CsoKit</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitTitle">CsoKit</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitDescription">Checks PSP CSO files and extracts them to a temporary ISO before CHD conversion.</sys:String>
     <sys:String x:Key="LocExternalTools_StatusLabel">Status</sys:String>
     <sys:String x:Key="LocExternalTools_VersionLabel">Version</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">Path</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupInstructions">If the tool appears as missing, open the tools folder and make sure hakamiq-cso.exe exists, or reinstall the official package.</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupInstructions">If the tool appears as missing, open the tools folder and make sure csokit.exe and CsoKit.Native.dll exist, or reinstall the official package.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">Restore defaults</sys:String>
     <sys:String x:Key="LocGeneralSettings_Title">General settings</sys:String>
     <sys:String x:Key="LocGeneralSettings_Description">Settings that apply to the whole app.</sys:String>
@@ -1487,11 +1489,12 @@ Path:
     <sys:String x:Key="LocAbout_CreditsTitle">Acknowledgments</sys:String>
     <sys:String x:Key="LocAbout_CreditsDescription">Special thanks and appreciation to everyone who supported the project and provided feedback or reviews that helped improve the experience and quality of the tool.</sys:String>
     <sys:String x:Key="LocAbout_CreditBadgeContributor">Contributor</sys:String>
-    <sys:String x:Key="LocAbout_CreditMohammed">Special thanks for support and contribution during development.</sys:String>
+    <sys:String x:Key="LocAbout_CreditMohammed">Special thanks for the guidance and practical experience that helped us during development.</sys:String>
     <sys:String x:Key="LocAbout_CreditMohammedSummary">Keep yourself safe wherever you are, and be well ❤️</sys:String>
-    <sys:String x:Key="LocAbout_CreditQuantularity">Special thanks for support and contribution during development.</sys:String>
+    <sys:String x:Key="LocAbout_CreditQuantularity">Special thanks for the guidance and practical experience that helped us during development.</sys:String>
     <sys:String x:Key="LocAbout_CreditQuantularitySummary">Oh well, the devil makes us sin 💗 BSID</sys:String>
     <sys:String x:Key="LocAbout_CreditsPrivacyNotice">Only public names are shown here, included as acknowledgment of their contribution.</sys:String>
+    <sys:String x:Key="LocAbout_CreditDiscordTooltip">Open Discord server</sys:String>
 
     <sys:String x:Key="LocAbout_WindowTitle">About {0}</sys:String>
     <sys:String x:Key="LocAbout_DeveloperColumnTitle">Developer</sys:String>
@@ -1788,9 +1791,9 @@ Path:
     <sys:String x:Key="LocQueue_VerificationResultStatusLabel">Status</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureAction">Recreate the CHD file from the original source, or try another copy.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultInternalDetails">The CHD file is internally valid and usable.&#x0A;No damage was found in the container structure during verification.</sys:String>
-    <sys:String x:Key="LocExternalTools_SelectCsoKitToolTitle">Select hakamiq-cso.exe</sys:String>
-    <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">Select hakamiq-cso.exe only.</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitToolFilter">Hakamiq CsoKit (hakamiq-cso.exe)|hakamiq-cso.exe|Executable files (*.exe)|*.exe</sys:String>
+    <sys:String x:Key="LocExternalTools_SelectCsoKitToolTitle">Select csokit.exe</sys:String>
+    <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">Select csokit.exe only and keep CsoKit.Native.dll beside it.</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitToolFilter">CsoKit (csokit.exe)|csokit.exe|Executable files (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_Browse">Browse</sys:String>
 
     <sys:String x:Key="LocDeepHash_CsoStageTool">Checking CSO tool...</sys:String>

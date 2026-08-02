@@ -622,14 +622,14 @@
     <sys:String x:Key="LocWorkflow_NonChdRecommendedCompression">هذا النظام لا يستخدم CHD كصيغة ضغط موصى بها. استخدم الصيغة المناسبة (مثل RVZ لـ GameCube/Wii أو CSO/PBP لـ PSP) لتجنب إنشاء ملف غير متوافق.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPreparationDisabled">ملفات CSO تحتاج فكًا إلى ISO قبل CHD. هذه المرحلة غير مفعلة في هذا الإصدار.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">جارٍ فك CSO إلى ISO مؤقت قبل التحويل إلى CHD.</sys:String>
-    <sys:String x:Key="LocWorkflow_CsoToolMissing">تعذر العثور على Hakamiq CsoKit. أعد تثبيت الحزمة أو افتح مجلد الأدوات للتحقق من وجود hakamiq-cso.exe.</sys:String>
-    <sys:String x:Key="LocWorkflow_CsoToolFailed">تعذر تشغيل Hakamiq CsoKit أو التحقق من إصداره.</sys:String>
+    <sys:String x:Key="LocWorkflow_CsoToolMissing">تعذر العثور على CsoKit. أعد تثبيت الحزمة أو افتح مجلد الأدوات للتحقق من وجود csokit.exe وCsoKit.Native.dll.</sys:String>
+    <sys:String x:Key="LocWorkflow_CsoToolFailed">تعذر تشغيل CsoKit أو التحقق من إصداره.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPreparationFailed">تعذر فك CSO إلى ISO مؤقت. لم يبدأ تحويل CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPreparationCancelled">تم إلغاء فك CSO قبل بدء تحويل CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPrepared">تم تجهيز ISO مؤقت من CSO، وسيبدأ تحويل CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToIsoThenChdNotice">سيتم فك CSO إلى ISO مؤقت ثم تحويله إلى CHD. لن يتم تعديل ملف CSO الأصلي.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoTempSpaceInsufficient">مساحة القرص المؤقت غير كافية لفك CSO إلى ISO مؤقت.</sys:String>
-    <sys:String x:Key="LocWorkflow_CsoUnsupported">ملف CSO غير مدعوم حاليًا. يدعم Hakamiq CsoKit ملفات CSO v1 فقط في هذا الإصدار.</sys:String>
+    <sys:String x:Key="LocWorkflow_CsoUnsupported">ملف CSO غير مدعوم حاليًا. يدعم مسار العمل في التطبيق ملفات CSO v1 فقط في هذا الإصدار.</sys:String>
     <sys:String x:Key="LocChdPolicy_DvdSectorAlignmentInvalid">حجم صورة DVD غير متوافق مع قطاعات 2048 بايت. لا يمكن تحويل هذا الملف عبر createdvd بأمان.</sys:String>
     <sys:String x:Key="LocFormatSafety_CsoTitle">تجهيز CSO</sys:String>
     <sys:String x:Key="LocFormatSafety_ChdTitle">توافق CHD</sys:String>
@@ -864,6 +864,7 @@
     <sys:String x:Key="LocRuntimeTools_ExtractedToolUnsafe">مسار أداة chdman المستخرجة يقع خارج المجلد الآمن.</sys:String>
     <sys:String x:Key="LocRuntimeTools_ExtractedToolMissing">تعذر العثور على أداة chdman بعد اكتمال التهيئة.</sys:String>
     <sys:String x:Key="LocRuntimeTools_ExtractedToolInvalid">ملف أداة chdman المستخرج غير صالح أو تالف.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_UnsupportedCpu">هذا المعالج لا يدعم مجموعة تعليمات x86-64-v2 المطلوبة لتشغيل chdman 0.289.</sys:String>
 
     <sys:String x:Key="LocArchive_NoChdFile">لم يتم العثور على ملف CHD داخل الأرشيف.</sys:String>
     <sys:String x:Key="LocArchive_SevenZipUnavailable">تعذر العثور على أداة 7-Zip الضرورية.</sys:String>
@@ -885,6 +886,7 @@
     <sys:String x:Key="LocArchive_SevenZipExecutablePathInvalid">مسار أداة 7-Zip غير صالح.</sys:String>
     <sys:String x:Key="LocArchive_SevenZipExecutableNotFound">تعذر العثور على ملف أداة 7-Zip في المسار المحدد.</sys:String>
     <sys:String x:Key="LocArchive_SevenZipProcessStartFailed">تعذر بدء عملية 7-Zip.</sys:String>
+    <sys:String x:Key="LocArchive_ResourceLimitExceeded">تم إيقاف الأرشيف لأنه تجاوز الحد الآمن لعدد العناصر أو المخرجات أو الحجم المستخرج أو مساحة القرص.</sys:String>
 
     <sys:String x:Key="LocArchive_SevenZipToolFound">تم العثور على أداة 7-Zip.</sys:String>
     <sys:String x:Key="LocArchive_SevenZipToolMissing">تعذر العثور على أداة 7-Zip.</sys:String>
@@ -1244,12 +1246,12 @@
     <sys:String x:Key="LocExternalTools_OpenFolder">فتح مجلد الأدوات</sys:String>
     <sys:String x:Key="LocExternalTools_Recheck">إعادة الفحص</sys:String>
     <sys:String x:Key="LocExternalTools_CopySetupInstructions">نسخ تعليمات الإعداد</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitTitle">Hakamiq CsoKit</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitTitle">CsoKit</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitDescription">فحص وفك CSO إلى ISO مؤقت قبل تحويله إلى CHD.</sys:String>
     <sys:String x:Key="LocExternalTools_StatusLabel">الحالة</sys:String>
     <sys:String x:Key="LocExternalTools_VersionLabel">الإصدار</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">المسار</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupInstructions">إذا ظهرت الأداة غير موجودة، افتح مجلد الأدوات وتأكد من وجود hakamiq-cso.exe أو أعد تثبيت الحزمة الرسمية.</sys:String>
+    <sys:String x:Key="LocExternalTools_SetupInstructions">إذا ظهرت الأداة غير موجودة، افتح مجلد الأدوات وتأكد من وجود csokit.exe وCsoKit.Native.dll أو أعد تثبيت الحزمة الرسمية.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">استعادة الإعدادات الافتراضية</sys:String>
     <sys:String x:Key="LocGeneralSettings_Title">الإعدادات العامة</sys:String>
     <sys:String x:Key="LocGeneralSettings_Description">ضبط الإعدادات العامة التي تنطبق على واجهة التطبيق بالكامل.</sys:String>
@@ -1481,11 +1483,12 @@
     <sys:String x:Key="LocAbout_CreditsTitle">شكر وتقدير</sys:String>
     <sys:String x:Key="LocAbout_CreditsDescription">كل الشكر والتقدير لكل من ساهم بدعم المشروع، وقدم ملاحظات أو مراجعات ساعدت في تحسين التجربة وجودة الأداة.</sys:String>
     <sys:String x:Key="LocAbout_CreditBadgeContributor">مساهم</sys:String>
-    <sys:String x:Key="LocAbout_CreditMohammed">شكر وتقدير خاص على الدعم والمساهمة أثناء تطوير البرنامج.</sys:String>
+    <sys:String x:Key="LocAbout_CreditMohammed">كل الشكر له على تعليماته وتجاربه التي استفدنا منها أثناء تطوير البرنامج.</sys:String>
     <sys:String x:Key="LocAbout_CreditMohammedSummary">حافظ على نفسك أينما كنت، وكن بخير.</sys:String>
-    <sys:String x:Key="LocAbout_CreditQuantularity">شكر وتقدير خاص على الدعم والمساهمة أثناء تطوير البرنامج.</sys:String>
+    <sys:String x:Key="LocAbout_CreditQuantularity">كل الشكر له على تعليماته وتجاربه التي استفدنا منها أثناء تطوير البرنامج.</sys:String>
     <sys:String x:Key="LocAbout_CreditQuantularitySummary">Oh well, the devil makes us sin — BSID</sys:String>
     <sys:String x:Key="LocAbout_CreditsPrivacyNotice">تُعرض الأسماء العامة فقط، وتم إدراجها تقديراً لمساهمتهم.</sys:String>
+    <sys:String x:Key="LocAbout_CreditDiscordTooltip">فتح خادم Discord</sys:String>
 
     <sys:String x:Key="LocAbout_WindowTitle">حول {0}</sys:String>
     <sys:String x:Key="LocAbout_DeveloperColumnTitle">المطور</sys:String>
@@ -1782,9 +1785,9 @@
     <sys:String x:Key="LocQueue_VerificationResultStatusLabel">الحالة</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureAction">أعد إنشاء ملف CHD من المصدر الأصلي، أو جرّب نسخة أخرى.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultInternalDetails">ملف CHD سليم داخلياً وقابل للاستخدام.&#x0A;لم يتم العثور على تلف في بنية الحاوية أثناء الفحص.</sys:String>
-    <sys:String x:Key="LocExternalTools_SelectCsoKitToolTitle">تحديد hakamiq-cso.exe</sys:String>
-    <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">اختر ملف hakamiq-cso.exe فقط.</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitToolFilter">Hakamiq CsoKit (hakamiq-cso.exe)|hakamiq-cso.exe|ملفات تنفيذية (*.exe)|*.exe</sys:String>
+    <sys:String x:Key="LocExternalTools_SelectCsoKitToolTitle">تحديد csokit.exe</sys:String>
+    <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">اختر ملف csokit.exe فقط وأبقِ CsoKit.Native.dll بجانبه.</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitToolFilter">CsoKit (csokit.exe)|csokit.exe|ملفات تنفيذية (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_Browse">استعراض</sys:String>
 
     <sys:String x:Key="LocDeepHash_CsoStageTool">فحص أداة CSO...</sys:String>
