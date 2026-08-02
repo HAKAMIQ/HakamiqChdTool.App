@@ -1,0 +1,734 @@
+{
+  "$schema": "https://cyclonedx.org/schema/bom-1.7.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.7",
+  "version": 1,
+  "metadata": {
+    "lifecycles": [
+      {
+        "phase": "build"
+      }
+    ],
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "Hakamiq deterministic SBOM generator",
+          "version": "1.0"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "pkg:generic/hakamiq-chd-tool@1.2.0",
+      "name": "Hakamiq CHD Tool",
+      "version": "1.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/CommunityToolkit.Mvvm@8.4.2",
+      "name": "CommunityToolkit.Mvvm",
+      "version": "8.4.2",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "59A742CC611CD94FB77B6D1ABD12E7838A8DB6DE33A0E196ADD5084AA256AC77B7FC54A7AD88EE33949BE3241BD3D2E19015EBAC8E19B7774B2A044C6C8B6CAE"
+        }
+      ],
+      "purl": "pkg:nuget/CommunityToolkit.Mvvm@8.4.2",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/gong-wpf-dragdrop@4.0.0",
+      "name": "gong-wpf-dragdrop",
+      "version": "4.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "9C38FCEAFD571E1826411F0F3E8FEE0C3A7FC5D2C3C5CA9976F2304B15801D03E2457FC60572B5DC5618D02DB1428C3D45297A8F914A2E4F31A18ADD6F9DAFAA"
+        }
+      ],
+      "purl": "pkg:nuget/gong-wpf-dragdrop@4.0.0",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/Hardcodet.NotifyIcon.Wpf@2.0.1",
+      "name": "Hardcodet.NotifyIcon.Wpf",
+      "version": "2.0.1",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "76DC667995F35761B34A6F75699DE1AB3828795A004529033D50987E1554372C8A056631320342D0470B8926310F851CE1A96AFF6A9BDD2995F0380010D2D12D"
+        }
+      ],
+      "purl": "pkg:nuget/Hardcodet.NotifyIcon.Wpf@2.0.1",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/Humanizer.Core@3.0.10",
+      "name": "Humanizer.Core",
+      "version": "3.0.10",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "C99221B70F2C62EBEC38DCD06D9C56A51EB4B4C5981D7A28D032FA9F23AA485894E4F3A3053484C961694D0B49119BB2FA8AA26135CA5D8FCC8F1ECA9EA21017"
+        }
+      ],
+      "purl": "pkg:nuget/Humanizer.Core@3.0.10",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/LTRData.DiscUtils.Core@1.0.87",
+      "name": "LTRData.DiscUtils.Core",
+      "version": "1.0.87",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "D7C1C805497363548C426EB254F1D608AF5CEC6FC32BF54CCD03BA91DDB5E3874E99D34BF577CB08BE37FB708F6A8059EB3B870590DE54A9E284C25AA4D11587"
+        }
+      ],
+      "purl": "pkg:nuget/LTRData.DiscUtils.Core@1.0.87",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Transitive"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/LTRData.DiscUtils.Iso9660@1.0.87",
+      "name": "LTRData.DiscUtils.Iso9660",
+      "version": "1.0.87",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "E4696B263378F07B0EABCB177B0B6A0597E83423250A696A6541DC6FE682FB4B60D5BBB5E362242BB5CA0047342A93C3CFDF09B0182E6621FEDE331B58E22866"
+        }
+      ],
+      "purl": "pkg:nuget/LTRData.DiscUtils.Iso9660@1.0.87",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/LTRData.DiscUtils.Streams@1.0.87",
+      "name": "LTRData.DiscUtils.Streams",
+      "version": "1.0.87",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "FEE84BECD34145F7767A0F548A6729A34DD0C3BB26D93F016D672B47B72C2B4362AF3C750B27DBB4284BC9E137FC512C8CE7CDA470C81358A300D012CB565534"
+        }
+      ],
+      "purl": "pkg:nuget/LTRData.DiscUtils.Streams@1.0.87",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Transitive"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/LTRData.DiscUtils.Udf@1.0.87",
+      "name": "LTRData.DiscUtils.Udf",
+      "version": "1.0.87",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "6A4204A7DEB9AFCECBBBCB604B3C47D4A82A35AD9D44E70BF0CD615F7F68A4BAAFBB19549CC8D8F0FC0D821AFF68E9191B2610AFE77B6C4F05C9E7433F30964A"
+        }
+      ],
+      "purl": "pkg:nuget/LTRData.DiscUtils.Udf@1.0.87",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/LTRData.Extensions@1.0.23",
+      "name": "LTRData.Extensions",
+      "version": "1.0.23",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "2BE2DBE3FB224FBF8AE74AF8927769E506892E0BA97F9CC4E2A7BC431AB0174B9202266DA1DB2215CDFE8BD210A64186303C22F378AC1BDA9803724E26B3BB50"
+        }
+      ],
+      "purl": "pkg:nuget/LTRData.Extensions@1.0.23",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Transitive"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/Microsoft.Data.Sqlite@10.0.10",
+      "name": "Microsoft.Data.Sqlite",
+      "version": "10.0.10",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "E7C270677F650AF4571DF5793BA4507DB1C40EEF19B1723BC1E4685514788EB191C71912FAAC9EB86ACDDB10FEF5560420202962BD224D22FA3EE53E0DDB2F3E"
+        }
+      ],
+      "purl": "pkg:nuget/Microsoft.Data.Sqlite@10.0.10",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/Microsoft.Data.Sqlite.Core@10.0.10",
+      "name": "Microsoft.Data.Sqlite.Core",
+      "version": "10.0.10",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "4CF0ACD25766EC05AA70A9A9E9FFD7AFED78B1AB7B871E2B1DF4654B84600944411F6B611166C0284C97EDC096AFADF354954E2482594E0D9C0625176BCCACEA"
+        }
+      ],
+      "purl": "pkg:nuget/Microsoft.Data.Sqlite.Core@10.0.10",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Transitive"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/Ookii.Dialogs.Wpf@5.0.1",
+      "name": "Ookii.Dialogs.Wpf",
+      "version": "5.0.1",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "899367670A93A4AD1C7D1D2F928B6770FD5CD36E7F3C794877373B884281630855BF5574CD7A7DFD14FF3B490C86C9A5C17A91C716C4E297617E29DB257B633E"
+        }
+      ],
+      "purl": "pkg:nuget/Ookii.Dialogs.Wpf@5.0.1",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/Serilog@4.4.0",
+      "name": "Serilog",
+      "version": "4.4.0",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "642E8B7B7AEBE135492634B82AC4007ACC5E1751215BDA9C666986EDE3F96361B7FA04C69091145E4AB8FAD64D3EDCA9D39234C163B19C88F0B71170789B0E6F"
+        }
+      ],
+      "purl": "pkg:nuget/Serilog@4.4.0",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/Serilog.Sinks.Async@2.1.0",
+      "name": "Serilog.Sinks.Async",
+      "version": "2.1.0",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "4A79919275AC48C832A3DC035DE6590AA4A9E3C924418CB8E2D69233ABDCA717E24480B349FD3DA0B284995AF4442C109DF77C98943658D37A9EF86A7F4468C1"
+        }
+      ],
+      "purl": "pkg:nuget/Serilog.Sinks.Async@2.1.0",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/Serilog.Sinks.File@7.0.0",
+      "name": "Serilog.Sinks.File",
+      "version": "7.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "7CA2FB997BFBA9A88D0540BBD6CB2F9FF754D24F6DD28E39FAA9B65E0280952B75F7117E8A38F1C80DD1E8798281F2842B07DC7E4C168DACAE42D46E79916463"
+        }
+      ],
+      "purl": "pkg:nuget/Serilog.Sinks.File@7.0.0",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/SharpCompress@0.50.3",
+      "name": "SharpCompress",
+      "version": "0.50.3",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "C71A4EDD443B253B65D828EC08B66ABD38631B1EC44DC807F770AECCE1A74EBB291B90B73663274C8BF2506DD8461DE14B2B109B75101225C1285DF33A628FC1"
+        }
+      ],
+      "purl": "pkg:nuget/SharpCompress@0.50.3",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/SQLite@3.53.4",
+      "name": "SQLite",
+      "version": "3.53.4",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "28DEE3796AA050F78145ED4595CA59511CF1A26B8A2842879810507E0F8DC7B3646352E32A1CC7BC7FB701290DBE16B2112137E273018A72FD095DB525F3D127"
+        }
+      ],
+      "purl": "pkg:nuget/SQLite@3.53.4",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Transitive"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/SQLitePCLRaw.bundle_e_sqlite3@3.0.5",
+      "name": "SQLitePCLRaw.bundle_e_sqlite3",
+      "version": "3.0.5",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "496F2201223258CACBCEA69B50761046F00B86F0F8CA5481B23E0F804546C1CDFA9108DCF714F991257F5D0F6B53B9C8A41583F8B3F25F71E5C39173C94CC679"
+        }
+      ],
+      "purl": "pkg:nuget/SQLitePCLRaw.bundle_e_sqlite3@3.0.5",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/SQLitePCLRaw.config.e_sqlite3@3.0.5",
+      "name": "SQLitePCLRaw.config.e_sqlite3",
+      "version": "3.0.5",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "69293C584E6D1763326C448C82D640132315080580D2706A38C738F071686BD52849DB66DE0A035D5CCD46779F78A23013A6D5F4D68D5E9B67D45F5178C408D1"
+        }
+      ],
+      "purl": "pkg:nuget/SQLitePCLRaw.config.e_sqlite3@3.0.5",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Transitive"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/SQLitePCLRaw.core@3.0.5",
+      "name": "SQLitePCLRaw.core",
+      "version": "3.0.5",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "93CD406175D10B0DD98FCACE8720680ACC7F53DECA603148D8248AAFF8A3979070A6C5BF857FF890188399EAC56A8BACB7C9F10706B4207405C3C32648746D9D"
+        }
+      ],
+      "purl": "pkg:nuget/SQLitePCLRaw.core@3.0.5",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Transitive"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/SQLitePCLRaw.provider.e_sqlite3@3.0.5",
+      "name": "SQLitePCLRaw.provider.e_sqlite3",
+      "version": "3.0.5",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "BA6F1849676E861BAC9131B66C77D9AC1A8C3503B275F53CA5CB1E4FE72EE518AF386CA851B0AB197C60A11353991630D956CC5A711955515C9DE653FF976C06"
+        }
+      ],
+      "purl": "pkg:nuget/SQLitePCLRaw.provider.e_sqlite3@3.0.5",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Transitive"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/System.Management@10.0.10",
+      "name": "System.Management",
+      "version": "10.0.10",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "535DE4B1D5DF42517658376EDD2E193D5A62905B361E057775B24964B799A41210E33FF10A6427C047FA2EC104202DB349A99555AD5A700F51755859C2758A78"
+        }
+      ],
+      "purl": "pkg:nuget/System.Management@10.0.10",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/Velopack@1.2.0",
+      "name": "Velopack",
+      "version": "1.2.0",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "473EBB8092FAD7D7D2052EA899A488354C720EEC21231926E669AE6DFEEE2DDE50822E8B2CA68A0A16BE4053FA9FE070FD48C0D2FBAD9C7E0941F6339FA00DB7"
+        }
+      ],
+      "purl": "pkg:nuget/Velopack@1.2.0",
+      "properties": [
+        {
+          "name": "hakamiq:nuget-dependency-type",
+          "value": "Direct"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:generic/mame-chdman@0.289",
+      "name": "MAME chdman",
+      "version": "0.289",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://github.com/mamedev/mame/releases/tag/mame0289"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:generic/7-zip@26.02",
+      "name": "7-Zip",
+      "version": "26.02",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "83967F1B02B43C4EFEDA302795722C809E0E81B8307DE73558D10484D5676A7D"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "69FD4DF057985C40E510E2FAC182881C7F85E90AA13EC703F763A8FDB2CE61F8"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://github.com/ip7z/7zip/releases/tag/26.02"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "pkg:generic/csokit@0.6.1",
+      "name": "CsoKit CLI",
+      "version": "0.6.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "FB1BF1E6BD0C51CAB54F505E7E44404F1E5CBFBFF3CB0FFC7EEC159D7D9254C0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "hakamiq:source-commit",
+          "value": "9e2a93d5502fa651f9a21d9dd97269e7c4912c48"
+        },
+        {
+          "name": "hakamiq:runtime-file",
+          "value": "Tools/hakamiq-cso/win-x64/csokit.exe"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/HAKAMIQ/CsoKit/tree/9e2a93d5502fa651f9a21d9dd97269e7c4912c48"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:generic/csokit-native@0.6.1",
+      "name": "CsoKit Native",
+      "version": "0.6.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "B396B0CA41BE7F905E8EA73C285C1F5089C8DA4FB1E4C157775BF198B1F70589"
+        }
+      ],
+      "properties": [
+        {
+          "name": "hakamiq:source-commit",
+          "value": "9e2a93d5502fa651f9a21d9dd97269e7c4912c48"
+        },
+        {
+          "name": "hakamiq:native-abi",
+          "value": "2"
+        },
+        {
+          "name": "hakamiq:runtime-file",
+          "value": "Tools/hakamiq-cso/win-x64/CsoKit.Native.dll"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/HAKAMIQ/CsoKit/tree/9e2a93d5502fa651f9a21d9dd97269e7c4912c48"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:generic/hakamiq-chd-tool@1.2.0",
+      "dependsOn": [
+        "pkg:generic/7-zip@26.02",
+        "pkg:generic/csokit-native@0.6.1",
+        "pkg:generic/csokit@0.6.1",
+        "pkg:generic/mame-chdman@0.289",
+        "pkg:nuget/CommunityToolkit.Mvvm@8.4.2",
+        "pkg:nuget/gong-wpf-dragdrop@4.0.0",
+        "pkg:nuget/Hardcodet.NotifyIcon.Wpf@2.0.1",
+        "pkg:nuget/Humanizer.Core@3.0.10",
+        "pkg:nuget/LTRData.DiscUtils.Iso9660@1.0.87",
+        "pkg:nuget/LTRData.DiscUtils.Udf@1.0.87",
+        "pkg:nuget/Microsoft.Data.Sqlite@10.0.10",
+        "pkg:nuget/Ookii.Dialogs.Wpf@5.0.1",
+        "pkg:nuget/Serilog.Sinks.Async@2.1.0",
+        "pkg:nuget/Serilog.Sinks.File@7.0.0",
+        "pkg:nuget/Serilog@4.4.0",
+        "pkg:nuget/SharpCompress@0.50.3",
+        "pkg:nuget/SQLitePCLRaw.bundle_e_sqlite3@3.0.5",
+        "pkg:nuget/System.Management@10.0.10",
+        "pkg:nuget/Velopack@1.2.0"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/CommunityToolkit.Mvvm@8.4.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/gong-wpf-dragdrop@4.0.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/Hardcodet.NotifyIcon.Wpf@2.0.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/Humanizer.Core@3.0.10",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/LTRData.DiscUtils.Core@1.0.87",
+      "dependsOn": [
+        "pkg:nuget/LTRData.DiscUtils.Streams@1.0.87"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/LTRData.DiscUtils.Iso9660@1.0.87",
+      "dependsOn": [
+        "pkg:nuget/LTRData.DiscUtils.Core@1.0.87"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/LTRData.DiscUtils.Streams@1.0.87",
+      "dependsOn": [
+        "pkg:nuget/LTRData.Extensions@1.0.23"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/LTRData.DiscUtils.Udf@1.0.87",
+      "dependsOn": [
+        "pkg:nuget/LTRData.DiscUtils.Core@1.0.87",
+        "pkg:nuget/LTRData.DiscUtils.Iso9660@1.0.87"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/LTRData.Extensions@1.0.23",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/Microsoft.Data.Sqlite@10.0.10",
+      "dependsOn": [
+        "pkg:nuget/Microsoft.Data.Sqlite.Core@10.0.10",
+        "pkg:nuget/SQLitePCLRaw.bundle_e_sqlite3@3.0.5",
+        "pkg:nuget/SQLitePCLRaw.core@3.0.5"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/Microsoft.Data.Sqlite.Core@10.0.10",
+      "dependsOn": [
+        "pkg:nuget/SQLitePCLRaw.core@3.0.5"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/Ookii.Dialogs.Wpf@5.0.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/Serilog@4.4.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/Serilog.Sinks.Async@2.1.0",
+      "dependsOn": [
+        "pkg:nuget/Serilog@4.4.0"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/Serilog.Sinks.File@7.0.0",
+      "dependsOn": [
+        "pkg:nuget/Serilog@4.4.0"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/SharpCompress@0.50.3",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/SQLite@3.53.4",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/SQLitePCLRaw.bundle_e_sqlite3@3.0.5",
+      "dependsOn": [
+        "pkg:nuget/SQLite@3.53.4",
+        "pkg:nuget/SQLitePCLRaw.config.e_sqlite3@3.0.5"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/SQLitePCLRaw.config.e_sqlite3@3.0.5",
+      "dependsOn": [
+        "pkg:nuget/SQLitePCLRaw.provider.e_sqlite3@3.0.5"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/SQLitePCLRaw.core@3.0.5",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/SQLitePCLRaw.provider.e_sqlite3@3.0.5",
+      "dependsOn": [
+        "pkg:nuget/SQLitePCLRaw.core@3.0.5"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/System.Management@10.0.10",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:nuget/Velopack@1.2.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:generic/mame-chdman@0.289",
+      "dependsOn": null
+    },
+    {
+      "ref": "pkg:generic/7-zip@26.02",
+      "dependsOn": null
+    },
+    {
+      "ref": "pkg:generic/csokit@0.6.1",
+      "dependsOn": "pkg:generic/csokit-native@0.6.1"
+    },
+    {
+      "ref": "pkg:generic/csokit-native@0.6.1",
+      "dependsOn": null
+    }
+  ]
+}

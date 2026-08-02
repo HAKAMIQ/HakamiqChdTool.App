@@ -196,6 +196,7 @@ function Invoke-ReleaseComplianceChecks {
         "README.md",
         "SECURITY.md",
         "docs\release-notes\CHANGELOG.md",
+        "docs\sbom.cdx.json",
         "docs\legal\LEGAL.md",
         "docs\legal\3P_NOTICE.txt",
         "docs\legal\CHDMAN_NOTICE.md",
@@ -203,10 +204,13 @@ function Invoke-ReleaseComplianceChecks {
         "docs\legal\MAME_GPL-2.0.txt",
         "docs\legal\7ZIP.md",
         "docs\legal\CSOKIT_NOTICE.md",
-        "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "Tools\hakamiq-cso\win-x64\csokit.exe",
+        "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll",
         "Tools\hakamiq-cso\win-x64\LICENSE.txt",
         "Tools\hakamiq-cso\win-x64\README.md",
+        "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md",
         "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
+        "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
@@ -347,10 +351,13 @@ try {
     New-Item -ItemType Directory -Path $csoKitToolsPath -Force | Out-Null
 
     foreach ($tool in @(
-        @{ Source = "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe"; Destination = "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe" },
+        @{ Source = "Tools\hakamiq-cso\win-x64\csokit.exe"; Destination = "Tools\hakamiq-cso\win-x64\csokit.exe" },
+        @{ Source = "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll"; Destination = "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll" },
         @{ Source = "Tools\hakamiq-cso\win-x64\LICENSE.txt"; Destination = "Tools\hakamiq-cso\win-x64\LICENSE.txt" },
         @{ Source = "Tools\hakamiq-cso\win-x64\README.md"; Destination = "Tools\hakamiq-cso\win-x64\README.md" },
-        @{ Source = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt"; Destination = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt" }
+        @{ Source = "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md"; Destination = "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md" },
+        @{ Source = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt"; Destination = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt" },
+        @{ Source = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md"; Destination = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md" }
     )) {
         $sourcePath = Join-Path $ProjectRoot $tool.Source
         if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {

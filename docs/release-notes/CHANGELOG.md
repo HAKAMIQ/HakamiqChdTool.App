@@ -4,6 +4,42 @@ This file tracks source release notes.
 
 GitHub Releases remain the public download history.
 
+## v1.2.0 - 2026-08-01
+
+### Security and reliability
+
+- Updated the bundled official MAME `chdman` to 0.289 and added an x86-64-v2
+  compatibility gate.
+- Added typed CHD header evidence aligned with MAME's magic, version, and header
+  length semantics; wrong, truncated, unsupported, locked, and unavailable
+  probes no longer reach the queue by extension fallback.
+- Bounded 7-Zip output and added entry-count, expanded-size, live extraction,
+  free-space-reserve, and partial-output cleanup policies.
+- Made extraction-root sampling fail closed and removed the SharpCompress
+  disk-extraction fallback; SharpCompress is now read-only archive validation.
+- Bounded Redump downloads and ZIP expansion, restricted synchronization to
+  GitHub hosts, disabled automatic redirects, validated every redirect before
+  the request, limited chains to five hops, and made catalog activation atomic.
+- Made shutdown cleanup conditional on confirmed queue quiescence and observed
+  tasks that finish after a timeout.
+- Added NuGet lock files and a deterministic CycloneDX 1.7 SBOM gate.
+- Updated the bundled CsoKit runtime from 0.4.0-beta.1 to 0.6.1, adopted its
+  `csokit.exe` plus native ABI 2 deployment contract, and pinned both runtime
+  files before every execution.
+- Recorded the exact CsoKit source commit and runtime hashes in the tool manifest,
+  legal notice, and SBOM, closing the previously undocumented provenance gap.
+
+### Tests
+
+- Added negative coverage for CHD v3/v4/v5 evidence, wrong magic, truncated
+  headers, unsupported versions, invalid header lengths, archive budgets, list
+  parsing, and Redump source policy.
+- Added executable regression coverage for extraction-monitor failure, 7-Zip
+  output-flood termination, allowed/blocked/circular Redump redirects, SQLite
+  rollback after malformed DAT parsing, and shutdown timeout reporting.
+- Added a bundled CsoKit integration round trip through the application's probe,
+  process runner, JSON parser, verification, and temporary ISO preparation layers.
+
 ## v1.0.8 - 2026-06
 
 ### Added

@@ -55,6 +55,18 @@ public sealed class MediaInputPipeline : IMediaInputPipeline
                 : Block(descriptor, MediaInputPipelineDecisionReasons.FolderKindWithoutDirectory);
         }
 
+        if (descriptor.Kind == MediaInputKind.CHD
+            && descriptor.ProbeStatus != MediaInputProbeStatus.HeaderEnvelopeValid)
+        {
+            return Block(descriptor, MediaInputPipelineDecisionReasons.HeaderEvidenceRejected);
+        }
+
+        if (descriptor.Kind == MediaInputKind.CSO
+            && descriptor.ProbeStatus != MediaInputProbeStatus.MagicConfirmed)
+        {
+            return Block(descriptor, MediaInputPipelineDecisionReasons.HeaderEvidenceRejected);
+        }
+
         QueueInputRole role = MediaInputRoles.ResolveQueueRole(descriptor);
         return role switch
         {

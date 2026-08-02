@@ -1,6 +1,6 @@
 # Contributing
 
-Hakamiq CHD Tool is a Windows x64 WPF app built with C# and .NET 8.
+Hakamiq CHD Tool is a Windows x64 WPF app built with C# and .NET 10.
 
 Keep changes small. A one-line path change can affect conversion, extraction, queue state, release output, or cleanup.
 

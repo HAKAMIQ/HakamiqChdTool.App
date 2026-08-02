@@ -98,8 +98,12 @@ public sealed class SevenZipArchiveExtractionService
 
         return new ArchiveIntegrityResult
         {
-            IsValid = result.ExitCode == 0,
-            MessageResourceKey = result.ExitCode == 0 ? string.Empty : "LocArchive_VerificationFailed"
+            IsValid = result.ExitCode == 0 && !result.OutputLimitExceeded,
+            MessageResourceKey = result.OutputLimitExceeded
+                ? ArchiveResourcePolicy.ResourceLimitMessageKey
+                : result.ExitCode == 0
+                    ? string.Empty
+                    : "LocArchive_VerificationFailed"
         };
     }
 
@@ -151,15 +155,51 @@ public sealed class SevenZipArchiveExtractionService
 
         try
         {
-            SevenZipProcessResult result = await SevenZipProcessRunner.RunAsync(
-                sevenZipPath,
-                BuildSelectiveExtractArguments(extractionRoot, fullArchivePath, preflight.EntryArguments),
-                parseProgressPercent: true,
-                progress,
-                cancellationToken).ConfigureAwait(false);
+            ArchiveResourcePolicy.EnsureInitialFreeSpace(
+                extractionRoot,
+                preflight.DeclaredExpandedBytes);
+
+            using var extractionCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            using var monitorStopCts = new CancellationTokenSource();
+            var monitorState = new ExtractionResourceMonitorState(extractionCts);
+
+            Task monitorTask = MonitorExtractionResourcesAsync(
+                extractionRoot,
+                monitorState,
+                monitorStopCts.Token);
+
+            SevenZipProcessResult result;
+            try
+            {
+                result = await SevenZipProcessRunner.RunAsync(
+                    sevenZipPath,
+                    BuildSelectiveExtractArguments(extractionRoot, fullArchivePath, preflight.EntryArguments),
+                    parseProgressPercent: true,
+                    progress,
+                    extractionCts.Token).ConfigureAwait(false);
+            }
+            finally
+            {
+                monitorStopCts.Cancel();
+                await ObserveMonitorCompletionAsync(monitorTask).ConfigureAwait(false);
+            }
+
+            if (monitorState.IsExceeded || result.OutputLimitExceeded)
+            {
+                CleanupExtractionRootSafely(extractionRoot);
+                return new ArchiveExtractionResult
+                {
+                    IsSuccess = false,
+                    ExitCode = SevenZipProcessRunner.ResourceLimitExitCode,
+                    Output = result.StandardOutput,
+                    Error = result.StandardError,
+                    Message = ArchiveResourcePolicy.ResourceLimitMessageKey
+                };
+            }
 
             if (result.WasCancelled || cancellationToken.IsCancellationRequested)
             {
+                CleanupExtractionRootSafely(extractionRoot);
                 return new ArchiveExtractionResult
                 {
                     IsSuccess = false,
@@ -171,6 +211,7 @@ public sealed class SevenZipArchiveExtractionService
 
             if (result.ExitCode != 0)
             {
+                CleanupExtractionRootSafely(extractionRoot);
                 string output = result.CombinedOutput;
                 bool requiresPassword = SevenZipArchiveInspector.LooksPasswordProtected(output);
 
@@ -193,6 +234,7 @@ public sealed class SevenZipArchiveExtractionService
             }
 
             List<string> extractedFiles = EnumerateSafeExtractedFiles(extractionRoot);
+            ValidateExtractedResourceUsage(extractionRoot, extractedFiles);
 
             string? extractedPath = BuildExtractedPathFromEntryKey(extractionRoot, preflight.CandidateEntryPath);
             if (!string.IsNullOrWhiteSpace(extractedPath) && !File.Exists(extractedPath))
@@ -208,6 +250,7 @@ public sealed class SevenZipArchiveExtractionService
 
             if (string.IsNullOrWhiteSpace(extractedPath))
             {
+                CleanupExtractionRootSafely(extractionRoot);
                 Logger.Warning(
                     "7-Zip selective extraction completed but no expected candidate was found. Archive={Archive}, Destination={Destination}, ExtractedCount={Count}",
                     fullArchivePath,
@@ -231,6 +274,7 @@ public sealed class SevenZipArchiveExtractionService
                     extractedFiles,
                     out string dependencyFailureMessage))
             {
+                CleanupExtractionRootSafely(extractionRoot);
                 return new ArchiveExtractionResult
                 {
                     IsSuccess = false,
@@ -257,12 +301,25 @@ public sealed class SevenZipArchiveExtractionService
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            CleanupExtractionRootSafely(extractionRoot);
             return new ArchiveExtractionResult
             {
                 IsSuccess = false,
                 WasCancelled = true,
                 ExitCode = ChdmanProcessRunner.CanceledExitCode,
                 Message = OperationCancelledMessageKey
+            };
+        }
+        catch (ArchiveResourceLimitException ex)
+        {
+            CleanupExtractionRootSafely(extractionRoot);
+            Logger.Warning(ex, "7-Zip extraction stopped by the resource policy. Archive={Archive}, Destination={Destination}", fullArchivePath, extractionRoot);
+
+            return new ArchiveExtractionResult
+            {
+                IsSuccess = false,
+                ExitCode = SevenZipProcessRunner.ResourceLimitExitCode,
+                Message = ArchiveResourcePolicy.ResourceLimitMessageKey
             };
         }
         catch (IOException ex)
@@ -309,7 +366,8 @@ public sealed class SevenZipArchiveExtractionService
         string Error,
         string Message,
         string? CandidateEntryPath,
-        string[] EntryArguments);
+        string[] EntryArguments,
+        long DeclaredExpandedBytes);
 
     private static async Task<SevenZipArchivePreflight> PreflightArchiveAsync(
         string sevenZipPath,
@@ -337,7 +395,23 @@ public sealed class SevenZipArchiveExtractionService
                 listResult.StandardError,
                 OperationCancelledMessageKey,
                 null,
-                []);
+                [],
+                0);
+        }
+
+        if (listResult.OutputLimitExceeded)
+        {
+            return new SevenZipArchivePreflight(
+                false,
+                false,
+                false,
+                SevenZipProcessRunner.ResourceLimitExitCode,
+                listResult.StandardOutput,
+                listResult.StandardError,
+                ArchiveResourcePolicy.ResourceLimitMessageKey,
+                null,
+                [],
+                0);
         }
 
         if (listResult.ExitCode != 0)
@@ -360,12 +434,33 @@ public sealed class SevenZipArchiveExtractionService
                 listResult.StandardError,
                 requiresPassword ? PasswordRequiredMessageKey : PreflightFailedMessageKey,
                 null,
-                []);
+                [],
+                0);
+        }
+
+        List<SevenZipArchiveInspector.SevenZipListEntry> listedEntries =
+            SevenZipArchiveInspector.ParseSevenZipListEntries(listResult.StandardOutput);
+
+        if (listedEntries.Count > ArchiveResourcePolicy.MaxArchiveEntries)
+        {
+            return new SevenZipArchivePreflight(
+                false,
+                false,
+                false,
+                SevenZipProcessRunner.ResourceLimitExitCode,
+                listResult.StandardOutput,
+                listResult.StandardError,
+                ArchiveResourcePolicy.ResourceLimitMessageKey,
+                null,
+                [],
+                0);
         }
 
         List<string> entryPaths =
         [
-            .. SevenZipArchiveInspector.ParseSevenZipListPaths(listResult.StandardOutput)
+            .. listedEntries
+                .Where(entry => !entry.IsDirectory)
+                .Select(entry => entry.Path)
                 .Where(path => !string.IsNullOrWhiteSpace(path))
                 .Where(path => !LooksLikeArchiveDirectory(path))
                 .Select(NormalizeArchiveEntryArgument)
@@ -384,7 +479,8 @@ public sealed class SevenZipArchiveExtractionService
                 listResult.StandardError,
                 ArchiveCandidateDiscovery.EmptyArchiveMessageResourceKey,
                 null,
-                []);
+                [],
+                0);
         }
 
         if (validateSingleConvertibleLeader && ArchiveCandidateDiscovery.HasMultipleEffectiveConvertibleLeaderPaths(entryPaths))
@@ -398,7 +494,8 @@ public sealed class SevenZipArchiveExtractionService
                 listResult.StandardError,
                 MultipleConvertibleImagesMessageKey,
                 null,
-                []);
+                [],
+                0);
         }
 
         string? candidateEntryPath = candidateSelector(entryPaths);
@@ -415,7 +512,8 @@ public sealed class SevenZipArchiveExtractionService
                     ? ArchiveCandidateDiscovery.UnsupportedDiscImageMessageResourceKey
                     : noCandidateMessageKey,
                 null,
-                []);
+                [],
+                0);
         }
 
         candidateEntryPath = NormalizeArchiveEntryArgument(candidateEntryPath);
@@ -430,7 +528,8 @@ public sealed class SevenZipArchiveExtractionService
                 listResult.StandardError,
                 UnsafeExtractedPathMessageKey,
                 null,
-                []);
+                [],
+                0);
         }
 
         ArchiveDescriptorDependencyValidationResult? dependencyResult = null;
@@ -454,7 +553,8 @@ public sealed class SevenZipArchiveExtractionService
                     listResult.StandardError,
                     OperationCancelledMessageKey,
                     null,
-                    []);
+                    [],
+                    0);
             }
 
             if (!descriptor.IsSuccess)
@@ -468,7 +568,8 @@ public sealed class SevenZipArchiveExtractionService
                     listResult.StandardError,
                     descriptor.MessageResourceKey,
                     null,
-                    []);
+                    [],
+                    0);
             }
 
             dependencyResult = ArchiveCandidateDiscovery.AnalyzeDescriptorDependencies(
@@ -487,7 +588,8 @@ public sealed class SevenZipArchiveExtractionService
                     listResult.StandardError,
                     dependencyResult.MessageResourceKey,
                     null,
-                    []);
+                    [],
+                    0);
             }
         }
 
@@ -508,7 +610,51 @@ public sealed class SevenZipArchiveExtractionService
                 listResult.StandardError,
                 noCandidateMessageKey,
                 null,
-                []);
+                [],
+                0);
+        }
+
+        Dictionary<string, SevenZipArchiveInspector.SevenZipListEntry> entriesByKey = listedEntries
+            .Where(entry => !entry.IsDirectory)
+            .GroupBy(entry => ArchiveCandidateDiscovery.NormalizeLookupKey(entry.Path), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+
+        long declaredExpandedBytes = 0;
+        foreach (string entryArgument in entryArguments)
+        {
+            string key = ArchiveCandidateDiscovery.NormalizeLookupKey(entryArgument);
+            if (!entriesByKey.TryGetValue(key, out SevenZipArchiveInspector.SevenZipListEntry? listedEntry)
+                || listedEntry.Size is not long entrySize
+                || entrySize < 0)
+            {
+                return new SevenZipArchivePreflight(
+                    false,
+                    false,
+                    false,
+                    SevenZipProcessRunner.ResourceLimitExitCode,
+                    listResult.StandardOutput,
+                    listResult.StandardError,
+                    ArchiveResourcePolicy.ResourceLimitMessageKey,
+                    null,
+                    [],
+                    0);
+            }
+
+            declaredExpandedBytes = ArchiveResourcePolicy.SaturatingAdd(declaredExpandedBytes, entrySize);
+            if (declaredExpandedBytes > ArchiveResourcePolicy.MaxExpandedBytes)
+            {
+                return new SevenZipArchivePreflight(
+                    false,
+                    false,
+                    false,
+                    SevenZipProcessRunner.ResourceLimitExitCode,
+                    listResult.StandardOutput,
+                    listResult.StandardError,
+                    ArchiveResourcePolicy.ResourceLimitMessageKey,
+                    null,
+                    [],
+                    0);
+            }
         }
 
         Logger.Information(
@@ -527,7 +673,8 @@ public sealed class SevenZipArchiveExtractionService
             listResult.StandardError,
             string.Empty,
             candidateEntryPath,
-            entryArguments);
+            entryArguments,
+            declaredExpandedBytes);
     }
 
     private static string[] BuildPreflightEntryArguments(
@@ -665,6 +812,230 @@ public sealed class SevenZipArchiveExtractionService
     private static bool LooksLikeArchiveDirectory(string path) =>
         path.EndsWith('/')
         || path.EndsWith('\\');
+
+    private static async Task MonitorExtractionResourcesAsync(
+        string extractionRoot,
+        ExtractionResourceMonitorState state,
+        CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(250));
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
+            {
+                if (!TryMeasureExtractionRoot(extractionRoot, out int entryCount, out long expandedBytes)
+                    || entryCount > ArchiveResourcePolicy.MaxArchiveEntries
+                    || expandedBytes > ArchiveResourcePolicy.MaxExpandedBytes
+                    || ArchiveResourcePolicy.GetAvailableFreeSpace(extractionRoot)
+                        < ArchiveResourcePolicy.MinimumFreeSpaceReserveBytes)
+                {
+                    state.MarkExceeded();
+                    return;
+                }
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+        catch (ArchiveResourceLimitException)
+        {
+            state.MarkExceeded();
+        }
+    }
+
+    private static async Task ObserveMonitorCompletionAsync(Task monitorTask)
+    {
+        try
+        {
+            await monitorTask.ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            Logger.Warning(ex, "7-Zip extraction resource monitor failed.");
+        }
+    }
+
+    private static void ValidateExtractedResourceUsage(
+        string extractionRoot,
+        IReadOnlyCollection<string> extractedFiles)
+    {
+        ArchiveResourcePolicy.ThrowIfEntryCountExceeded(extractedFiles.Count);
+
+        long expandedBytes = 0;
+        foreach (string file in extractedFiles)
+        {
+            expandedBytes = ArchiveResourcePolicy.SaturatingAdd(
+                expandedBytes,
+                new FileInfo(file).Length);
+            ArchiveResourcePolicy.ThrowIfExpandedBytesExceeded(expandedBytes);
+        }
+
+        if (ArchiveResourcePolicy.GetAvailableFreeSpace(extractionRoot)
+            < ArchiveResourcePolicy.MinimumFreeSpaceReserveBytes)
+        {
+            throw new ArchiveResourceLimitException("free-space-reserve");
+        }
+    }
+
+    private static bool TryMeasureExtractionRoot(
+        string extractionRoot,
+        out int entryCount,
+        out long expandedBytes)
+    {
+        entryCount = 0;
+        expandedBytes = 0;
+
+        try
+        {
+            string root = Path.GetFullPath(extractionRoot);
+            if (!Directory.Exists(root) || IsReparsePoint(root))
+            {
+                return Directory.Exists(root) is false;
+            }
+
+            Stack<string> pending = new();
+            pending.Push(root);
+
+            while (pending.Count > 0)
+            {
+                string directory = pending.Pop();
+                foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly))
+                {
+                    if (IsReparsePoint(file))
+                    {
+                        return false;
+                    }
+
+                    entryCount++;
+                    expandedBytes = ArchiveResourcePolicy.SaturatingAdd(
+                        expandedBytes,
+                        new FileInfo(file).Length);
+
+                    if (entryCount > ArchiveResourcePolicy.MaxArchiveEntries
+                        || expandedBytes > ArchiveResourcePolicy.MaxExpandedBytes)
+                    {
+                        return true;
+                    }
+                }
+
+                foreach (string childDirectory in Directory.EnumerateDirectories(directory, "*", SearchOption.TopDirectoryOnly))
+                {
+                    if (IsReparsePoint(childDirectory))
+                    {
+                        return false;
+                    }
+
+                    entryCount++;
+                    if (entryCount > ArchiveResourcePolicy.MaxArchiveEntries)
+                    {
+                        return true;
+                    }
+
+                    pending.Push(childDirectory);
+                }
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedExtractionException(ex))
+        {
+            Logger.Debug(ex, "7-Zip extraction resource monitor could not sample the extraction root. Root={Root}", extractionRoot);
+            return false;
+        }
+    }
+
+    private static void CleanupExtractionRootSafely(string extractionRoot)
+    {
+        try
+        {
+            string root = Path.GetFullPath(extractionRoot);
+            if (!Directory.Exists(root)
+                || IsUnsafeRoot(root)
+                || HasReparsePointInExistingPathFromVolumeRoot(root))
+            {
+                return;
+            }
+
+            foreach (string file in Directory.GetFiles(root, "*", SearchOption.TopDirectoryOnly))
+            {
+                if (!IsReparsePoint(file))
+                {
+                    File.Delete(file);
+                }
+            }
+
+            foreach (string directory in Directory.GetDirectories(root, "*", SearchOption.TopDirectoryOnly))
+            {
+                if (IsReparsePoint(directory))
+                {
+                    Directory.Delete(directory, recursive: false);
+                    continue;
+                }
+
+                DeleteExtractionDirectoryTreeSafely(directory, root);
+            }
+        }
+        catch (Exception ex) when (IsExpectedExtractionException(ex))
+        {
+            Logger.Warning(ex, "7-Zip extraction cleanup could not remove partial outputs. Root={Root}", extractionRoot);
+        }
+    }
+
+    private static void DeleteExtractionDirectoryTreeSafely(string directory, string extractionRoot)
+    {
+        string safeDirectory = EnsurePathInsideExtractionRoot(directory, extractionRoot);
+        if (IsReparsePoint(safeDirectory))
+        {
+            Directory.Delete(safeDirectory, recursive: false);
+            return;
+        }
+
+        foreach (string file in Directory.GetFiles(safeDirectory, "*", SearchOption.TopDirectoryOnly))
+        {
+            string safeFile = EnsurePathInsideExtractionRoot(file, extractionRoot);
+            if (IsReparsePoint(safeFile))
+            {
+                File.Delete(safeFile);
+                continue;
+            }
+
+            File.Delete(safeFile);
+        }
+
+        foreach (string child in Directory.GetDirectories(safeDirectory, "*", SearchOption.TopDirectoryOnly))
+        {
+            DeleteExtractionDirectoryTreeSafely(child, extractionRoot);
+        }
+
+        Directory.Delete(safeDirectory, recursive: false);
+    }
+
+    private sealed class ExtractionResourceMonitorState(CancellationTokenSource extractionCts)
+    {
+        private int exceeded;
+
+        internal bool IsExceeded => Volatile.Read(ref exceeded) != 0;
+
+        internal void MarkExceeded()
+        {
+            if (Interlocked.Exchange(ref exceeded, 1) != 0)
+            {
+                return;
+            }
+
+            try
+            {
+                extractionCts.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+        }
+    }
 
     private static List<string> EnumerateSafeExtractedFiles(string extractionRoot)
     {

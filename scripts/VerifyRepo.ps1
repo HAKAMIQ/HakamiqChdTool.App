@@ -1038,6 +1038,154 @@ function Test-NoWpfShellUnderServices {
 }
 
 
+function Test-LayerDependencyDirection {
+    $rules = @(
+        @{
+            RelativeRoot = 'Models'
+            Pattern = 'HakamiqChdTool\.App\.(Views|ViewModels|Ui|Services|QueueRun|Startup)(\.|;)'
+            Message = 'Models must remain independent of UI, application workflow, and infrastructure layers'
+        },
+        @{
+            RelativeRoot = 'Core'
+            Pattern = 'HakamiqChdTool\.App\.(Views|ViewModels|Ui|QueueRun|Startup)(\.|;)'
+            Message = 'Core must not depend on UI or application shell layers'
+        },
+        @{
+            RelativeRoot = 'Services'
+            Pattern = 'HakamiqChdTool\.App\.(Views|ViewModels|Ui|QueueRun|Startup)(\.|;)'
+            Message = 'Services must not depend on UI or application shell layers'
+        },
+        @{
+            RelativeRoot = 'ViewModels'
+            Pattern = 'HakamiqChdTool\.App\.Views(\.|;)'
+            Message = 'ViewModels must not depend directly on Views'
+        }
+    )
+
+    foreach ($rule in $rules) {
+        $layerRoot = Join-Path $root $rule.RelativeRoot
+        if (-not (Test-Path -LiteralPath $layerRoot -PathType Container)) {
+            continue
+        }
+
+        Get-ChildItem -LiteralPath $layerRoot -Recurse -File -Filter '*.cs' |
+            Select-String -Pattern $rule.Pattern |
+            ForEach-Object {
+                $relativePath = $_.Path.Substring($root.Length).TrimStart('\')
+                Add-Failure "$($rule.Message): ${relativePath}:$($_.LineNumber)"
+            }
+    }
+}
+
+
+function Test-PathSafetyDuplicationBudget {
+    $helperPattern = '^\s*(private|internal|public)\s+static\s+bool\s+(HasReparsePointInExistingPath|HasReparsePointInExistingPathFromVolumeRoot|IsSamePathOrChild)\s*\('
+    $definitions = @()
+
+    foreach ($relativeRoot in @('Core', 'Services')) {
+        $layerRoot = Join-Path $root $relativeRoot
+        if (Test-Path -LiteralPath $layerRoot -PathType Container) {
+            $definitions += @(Get-ChildItem -LiteralPath $layerRoot -Recurse -File -Filter '*.cs' |
+                Select-String -Pattern $helperPattern)
+        }
+    }
+
+    if ($definitions.Count -gt 80) {
+        Add-Failure "Duplicated path/reparse safety helper count grew beyond the reviewed maintenance budget: $($definitions.Count). Consolidate behind Services\Safety\SafePath.cs instead of adding another local copy."
+    }
+}
+
+
+function Test-EmbeddedRuntimeToolIntegrityPolicy {
+    $runtimeToolService = Join-Path $root 'Services\RunToolSvc.cs'
+    if (-not (Test-Path -LiteralPath $runtimeToolService -PathType Leaf)) {
+        Add-Failure 'RunToolSvc.cs is required for the embedded runtime-tool security boundary.'
+        return
+    }
+
+    $content = Get-Content -LiteralPath $runtimeToolService -Raw -Encoding UTF8
+    foreach ($required in @(
+        'SHA256\.HashData',
+        'CryptographicOperations\.FixedTimeEquals',
+        'ComputeEmbeddedToolSha256',
+        'ValidateExtractedChdman\(_chdmanPath\)')) {
+        if ($content -notmatch $required) {
+            Add-Failure "RuntimeToolService must verify embedded chdman integrity with SHA-256 before use: $required"
+        }
+    }
+}
+
+
+function Test-BundledToolIntegrityManifest {
+    $expectedDigests = @{
+        'Tools\chdman.exe' = '8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F'
+        'Tools\7zip\7z.exe' = '83967F1B02B43C4EFEDA302795722C809E0E81B8307DE73558D10484D5676A7D'
+        'Tools\7zip\7z.dll' = '69FD4DF057985C40E510E2FAC182881C7F85E90AA13EC703F763A8FDB2CE61F8'
+        'Tools\hakamiq-cso\win-x64\csokit.exe' = 'FB1BF1E6BD0C51CAB54F505E7E44404F1E5CBFBFF3CB0FFC7EEC159D7D9254C0'
+        'Tools\hakamiq-cso\win-x64\CsoKit.Native.dll' = 'B396B0CA41BE7F905E8EA73C285C1F5089C8DA4FB1E4C157775BF198B1F70589'
+    }
+
+    foreach ($relativePath in $expectedDigests.Keys) {
+        $toolPath = Join-Path $root $relativePath
+        if (-not (Test-Path -LiteralPath $toolPath -PathType Leaf)) {
+            Add-Failure "Pinned bundled tool is missing: $relativePath"
+            continue
+        }
+
+        $actualDigest = (Get-FileHash -LiteralPath $toolPath -Algorithm SHA256).Hash
+        if (-not [string]::Equals(
+                $actualDigest,
+                $expectedDigests[$relativePath],
+                [StringComparison]::OrdinalIgnoreCase)) {
+            Add-Failure "Bundled tool SHA-256 does not match the reviewed manifest: $relativePath"
+        }
+    }
+
+    $sevenZipService = Join-Path $root 'Services\SevenZipSvc.cs'
+    if (Test-Path -LiteralPath $sevenZipService -PathType Leaf) {
+        $content = Get-Content -LiteralPath $sevenZipService -Raw -Encoding UTF8
+        foreach ($required in @(
+            'BundledSevenZipExeSha256',
+            'BundledSevenZipDllSha256',
+            'CryptographicOperations\.FixedTimeEquals')) {
+            if ($content -notmatch $required) {
+                Add-Failure "SevenZipToolService must pin bundled executable and DLL integrity: $required"
+            }
+        }
+    }
+
+    $sevenZipRunner = Join-Path $root 'Services\SevenZipRun.cs'
+    if (Test-Path -LiteralPath $sevenZipRunner -PathType Leaf) {
+        $content = Get-Content -LiteralPath $sevenZipRunner -Raw -Encoding UTF8
+        if ($content -notmatch 'SevenZipToolService\.IsValidSevenZipExecutable') {
+            Add-Failure 'SevenZipProcessRunner must use the centralized SevenZipToolService integrity policy.'
+        }
+    }
+
+    $csoToolLocator = Join-Path $root 'Services\ExternalTools\CsoToolLocator.cs'
+    if (Test-Path -LiteralPath $csoToolLocator -PathType Leaf) {
+        $content = Get-Content -LiteralPath $csoToolLocator -Raw -Encoding UTF8
+        foreach ($required in @(
+            'BundledToolSha256',
+            'BundledNativeDllSha256',
+            'HasExpectedBundledRuntime',
+            'CryptographicOperations\.FixedTimeEquals')) {
+            if ($content -notmatch $required) {
+                Add-Failure "CsoToolLocator must pin bundled CsoKit integrity: $required"
+            }
+        }
+    }
+
+    $externalToolRunner = Join-Path $root 'Services\ExternalTools\ToolProcRun.cs'
+    if (Test-Path -LiteralPath $externalToolRunner -PathType Leaf) {
+        $content = Get-Content -LiteralPath $externalToolRunner -Raw -Encoding UTF8
+        if ($content -notmatch 'CsoToolLocator\.TryValidateCandidate') {
+            Add-Failure 'ExternalToolProcessRunner must revalidate CsoKit immediately before process start.'
+        }
+    }
+}
+
+
 function Test-RedumpDetailsViewModelPurity {
     $viewModel = Join-Path $root 'ViewModels\Dialogs\RedDlgVM.cs'
     if (-not (Test-Path -LiteralPath $viewModel -PathType Leaf)) {
@@ -1370,8 +1518,8 @@ function Test-RedumpAutoSyncStartupPolicy {
             Add-Failure 'Redump auto-sync must cancel using the short startup timeout.'
         }
 
-        if ($autoSync -notmatch 'Timeout\s*=\s*StartupSyncTimeout') {
-            Add-Failure 'Redump auto-sync HttpClient must use the short startup timeout.'
+        if ($autoSync -notmatch 'RedumpGitHubSyncManager\s+syncManager\s*=\s*new\(StartupSyncTimeout\)') {
+            Add-Failure 'Redump auto-sync manager must receive the short startup timeout.'
         }
 
         if ($autoSync -notmatch 'FailureBackoffHours' -or $autoSync -notmatch 'BackoffUntilUtc') {
@@ -1962,6 +2110,135 @@ function Test-NoSedScratchUnderUiResources {
     }
 }
 
+function Test-SecurityHardeningRegressionGates {
+    foreach ($requiredFile in @(
+        'packages.lock.json',
+        'HakamiqChdTool.App.Tests\packages.lock.json',
+        'docs\sbom.cdx.json',
+        'scripts\GenerateSbom.ps1',
+        'scripts\PackSource.ps1',
+        'Core\Input\MediaInputProbeStatus.cs',
+        'Services\ArchiveResourcePolicy.cs')) {
+        if (-not (Test-Path -LiteralPath (Join-Path $root $requiredFile) -PathType Leaf)) {
+            Add-Failure "Security hardening artifact is required: $requiredFile"
+        }
+    }
+
+    $project = Get-Content -LiteralPath (Join-Path $root 'HakamiqChdTool.App.csproj') -Raw -Encoding UTF8
+    if ($project -notmatch '<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>') {
+        Add-Failure 'The application project must generate and consume a NuGet lock file.'
+    }
+
+    $ci = Get-Content -LiteralPath (Join-Path $root '.github\workflows\ci.yml') -Raw -Encoding UTF8
+    foreach ($required in @('--locked-mode', 'GenerateSbom\.ps1', 'docs\\sbom\.cdx\.json')) {
+        if ($ci -notmatch $required) {
+            Add-Failure "CI security/supply-chain gate is missing: $required"
+        }
+    }
+
+    $sbomPath = Join-Path $root 'docs\sbom.cdx.json'
+    if (Test-Path -LiteralPath $sbomPath -PathType Leaf) {
+        try {
+            $sbom = Get-Content -LiteralPath $sbomPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($sbom.bomFormat -ne 'CycloneDX' -or $sbom.specVersion -ne '1.7') {
+                Add-Failure 'SBOM must use the current CycloneDX 1.7 format.'
+            }
+        }
+        catch {
+            Add-Failure "SBOM is not valid JSON: $($_.Exception.Message)"
+        }
+    }
+
+    $mediaClassifier = Get-Content -LiteralPath (Join-Path $root 'Core\Input\MediaClass.cs') -Raw -Encoding UTF8
+    foreach ($required in @(
+        'ChdMaxHeaderSize\s*=\s*124',
+        'BinaryPrimitives\.ReadUInt32BigEndian',
+        'UnsupportedVersion',
+        'InvalidHeaderLength',
+        'HeaderEnvelopeValid',
+        'while\s*\(totalRead\s*<\s*buffer\.Length\)')) {
+        if ($mediaClassifier -notmatch $required) {
+            Add-Failure "Typed CHD evidence gate is missing: $required"
+        }
+    }
+
+    $mediaPipeline = Get-Content -LiteralPath (Join-Path $root 'Core\Input\MediaPipe.cs') -Raw -Encoding UTF8
+    if ($mediaPipeline -notmatch 'ProbeStatus\s*!=\s*MediaInputProbeStatus\.HeaderEnvelopeValid') {
+        Add-Failure 'The intake pipeline must fail closed when CHD header evidence is not valid.'
+    }
+
+    $sevenZipRunner = Get-Content -LiteralPath (Join-Path $root 'Services\SevenZipRun.cs') -Raw -Encoding UTF8
+    foreach ($required in @('FullCaptureMaxChars', 'OutputLimitExceeded', 'output capture limit exceeded', 'ResourceLimitExitCode')) {
+        if ($sevenZipRunner -notmatch [Regex]::Escape($required)) {
+            Add-Failure "7-Zip output resource gate is missing: $required"
+        }
+    }
+
+    $archivePolicy = Get-Content -LiteralPath (Join-Path $root 'Services\ArchiveResourcePolicy.cs') -Raw -Encoding UTF8
+    foreach ($required in @('MaxArchiveEntries', 'MaxExpandedBytes', 'MinimumFreeSpaceReserveBytes', 'ArchiveExtractionBudget')) {
+        if ($archivePolicy -notmatch $required) {
+            Add-Failure "Archive resource policy marker is missing: $required"
+        }
+    }
+
+    $zipExtraction = Get-Content -LiteralPath (Join-Path $root 'Services\ZipExtract.cs') -Raw -Encoding UTF8
+    if ($zipExtraction -notmatch 'resource monitor could not sample[\s\S]{0,240}return false;') {
+        Add-Failure '7-Zip extraction-root measurement errors must fail closed.'
+    }
+
+    $archiveService = Get-Content -LiteralPath (Join-Path $root 'Services\ArchiveSvc.cs') -Raw -Encoding UTF8
+    if ($archiveService -match 'return\s+ExtractAsync\(') {
+        Add-Failure 'SharpCompress extraction fallback must remain disabled until it has equivalent reparse-point protection.'
+    }
+    if ($archiveService -notmatch 'CreateSevenZipUnavailableResult') {
+        Add-Failure 'Archive extraction must fail closed when the pinned 7-Zip runtime is unavailable.'
+    }
+
+    $redumpSync = Get-Content -LiteralPath (Join-Path $root 'Services\RedumpSync.cs') -Raw -Encoding UTF8
+    foreach ($required in @(
+        'MaxRedumpDownloadBytes',
+        'CleanRebuildFromDatFilesAsync',
+        'codeload\.github\.com',
+        'AllowAutoRedirect\s*=\s*false',
+        'MaxRedirectHops\s*=\s*5',
+        'SendWithValidatedRedirectsAsync',
+        'visited\.Contains')) {
+        if ($redumpSync -notmatch $required) {
+            Add-Failure "Redump bounded/atomic activation gate is missing: $required"
+        }
+    }
+    if ($redumpSync -match 'response\.RequestMessage\?\.RequestUri') {
+        Add-Failure 'Redump redirect validation must happen before each request, not after automatic redirects.'
+    }
+
+    $securityTests = Get-Content -LiteralPath (Join-Path $root 'HakamiqChdTool.App.Tests\Program.cs') -Raw -Encoding UTF8
+    foreach ($required in @(
+        'TestArchiveResourceMonitorFailsClosed',
+        'TestSevenZipOutputFloodTerminatesProcess',
+        'TestRedumpRedirectValidation',
+        'TestRedumpRollback',
+        'TestShutdownTimeout',
+        'TestBundledCsoKitRoundTrip')) {
+        if ($securityTests -notmatch $required) {
+            Add-Failure "Runtime security regression test is missing: $required"
+        }
+    }
+
+    $runtimeTools = Get-Content -LiteralPath (Join-Path $root 'Services\RunToolSvc.cs') -Raw -Encoding UTF8
+    foreach ($required in @('IsX8664V2Supported', 'X86Base\.CpuId', 'chdman 0\.289')) {
+        if ($runtimeTools -notmatch $required) {
+            Add-Failure "MAME 0.289 runtime compatibility gate is missing: $required"
+        }
+    }
+
+    $shutdown = Get-Content -LiteralPath (Join-Path $root 'Views\MainWindow\MW.Life.cs') -Raw -Encoding UTF8
+    foreach ($required in @('ShutdownStepResult', 'queueQuiesced', 'ObserveLateShutdownTask')) {
+        if ($shutdown -notmatch $required) {
+            Add-Failure "Deterministic shutdown result gate is missing: $required"
+        }
+    }
+}
+
 Test-NoAppTextAlignmentReferencesOutsideAppXaml
 Test-NoApplyFixScripts
 Test-PublishPackagingPolicy
@@ -1998,6 +2275,10 @@ Test-RefactorCompositionCompletion
 Test-NoPartialRefactorSlicing
 Test-OptionsCoordinatorPlacement
 Test-NoWpfShellUnderServices
+Test-LayerDependencyDirection
+Test-PathSafetyDuplicationBudget
+Test-EmbeddedRuntimeToolIntegrityPolicy
+Test-BundledToolIntegrityManifest
 Test-RedumpDetailsViewModelPurity
 Test-ChdProgressParserImplementation
 Test-ConversionRuntimeReliabilityPolicy
@@ -2005,6 +2286,7 @@ Test-CompressionPresetTruthLayer
 Test-CoreServicesDependencyReduction
 Test-OptionsWindowEarlyEventSafety
 Test-RedumpAutoSyncStartupPolicy
+Test-SecurityHardeningRegressionGates
 
 if ($failures.Count -gt 0) {
     Write-Host 'Repository convention verification failed:' -ForegroundColor Red

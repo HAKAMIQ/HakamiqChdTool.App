@@ -6,10 +6,11 @@ If you only want to convert a few files, start with the root README. Come here w
 
 ## User guides
 
-- [Supported formats](FORMATS.md) — what the app can convert, verify, extract, detect, or reject.
-- [Conversion options](CONV_OPTS.md) — Convert, Verify, Extract, queue results, output names, and temporary files.
-- [Errors and logs](ERRORS.md) — common failures and what to include in a useful report.
-- [PS3 experimental support](PS3_EXP.md) — limited detection notes for PS3-related input.
+- [User guide](USER_GUIDE.md) - installation, the basic queue workflow, and safe operating practices.
+- [Supported formats](FORMATS.md) - what the app can convert, verify, extract, detect, or reject.
+- [Conversion options](CONV_OPTS.md) - Convert, Verify, Extract, queue results, output names, and temporary files.
+- [Errors and logs](ERRORS.md) - common failures and what to include in a useful report.
+- [PS3 experimental support](PS3_EXP.md) - limited detection notes for PS3-related input.
 
 ## Technical notes
 

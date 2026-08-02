@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace HakamiqChdTool.App.Core.Input;
 public sealed class MediaInputClassifier : IMediaInputClassifier
 {
     private const int MaxProbeBytes = 4096;
+    private const int ChdMaxHeaderSize = 124;
 
     private static readonly byte[] ChdMagic = [(byte)'M', (byte)'C', (byte)'o', (byte)'m', (byte)'p', (byte)'r', (byte)'H', (byte)'D'];
     private static readonly byte[] CsoMagic = [(byte)'C', (byte)'I', (byte)'S', (byte)'O'];
@@ -105,16 +107,11 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
 
         return kind switch
         {
-            MediaInputKind.CHD => await ClassifyWithMagicAsync(
+            MediaInputKind.CHD => await ClassifyChdAsync(
                     originalPath,
                     fullPath,
-                    kind,
                     sizeBytes,
                     extension,
-                    ChdMagic,
-                    "magic-chd",
-                    "extension-chd",
-                    "extension-chd-probe-failed",
                     cancellationToken)
                 .ConfigureAwait(false),
             MediaInputKind.CSO => await ClassifyWithMagicAsync(
@@ -153,6 +150,41 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         };
     }
 
+    private static async ValueTask<MediaInputDescriptor> ClassifyChdAsync(
+        string originalPath,
+        string fullPath,
+        long? sizeBytes,
+        string? extension,
+        CancellationToken cancellationToken)
+    {
+        MediaInputProbeStatus probeStatus;
+        try
+        {
+            byte[] header = await ReadHeaderAtMostAsync(
+                    fullPath,
+                    ChdMaxHeaderSize,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            probeStatus = ProbeChdHeader(header);
+        }
+        catch (Exception ex) when (IsExpectedProbeException(ex))
+        {
+            probeStatus = MediaInputProbeStatus.ProbeUnavailable;
+        }
+
+        return new MediaInputDescriptor(
+            originalPath,
+            fullPath,
+            MediaInputKind.CHD,
+            Exists: true,
+            IsDirectory: false,
+            sizeBytes,
+            extension,
+            DetectionReasonFor(probeStatus, "chd"),
+            probeStatus);
+    }
+
     private static async ValueTask<MediaInputDescriptor> ClassifyWithMagicAsync(
         string originalPath,
         string fullPath,
@@ -165,19 +197,29 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         string probeFailedReason,
         CancellationToken cancellationToken)
     {
-        string detectionReason;
+        MediaInputProbeStatus probeStatus;
         try
         {
-            byte[] header = await ReadHeaderAsync(fullPath, expectedMagic.Length, cancellationToken)
+            byte[] header = await ReadHeaderAtMostAsync(fullPath, expectedMagic.Length, cancellationToken)
                 .ConfigureAwait(false);
-            detectionReason = HasPrefix(header, expectedMagic)
-                ? magicReason
-                : extensionReason;
+            probeStatus = header.Length < expectedMagic.Length
+                ? MediaInputProbeStatus.HeaderTruncated
+                : HasPrefix(header, expectedMagic)
+                    ? MediaInputProbeStatus.MagicConfirmed
+                    : MediaInputProbeStatus.HeaderMismatch;
         }
         catch (Exception ex) when (IsExpectedProbeException(ex))
         {
-            detectionReason = probeFailedReason;
+            probeStatus = MediaInputProbeStatus.ProbeUnavailable;
         }
+
+        string detectionReason = probeStatus switch
+        {
+            MediaInputProbeStatus.MagicConfirmed => magicReason,
+            MediaInputProbeStatus.ProbeUnavailable => probeFailedReason,
+            MediaInputProbeStatus.HeaderTruncated => $"{extensionReason}-truncated",
+            _ => extensionReason
+        };
 
         return new MediaInputDescriptor(
             originalPath,
@@ -187,10 +229,66 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             IsDirectory: false,
             sizeBytes,
             extension,
-            detectionReason);
+            detectionReason,
+            probeStatus);
     }
 
-    private static async ValueTask<byte[]> ReadHeaderAsync(
+    private static MediaInputProbeStatus ProbeChdHeader(ReadOnlySpan<byte> header)
+    {
+        if (header.Length < ChdMagic.Length)
+        {
+            return MediaInputProbeStatus.HeaderTruncated;
+        }
+
+        if (!header[..ChdMagic.Length].SequenceEqual(ChdMagic))
+        {
+            return MediaInputProbeStatus.HeaderMismatch;
+        }
+
+        if (header.Length < 16)
+        {
+            return MediaInputProbeStatus.HeaderTruncated;
+        }
+
+        uint headerLength = BinaryPrimitives.ReadUInt32BigEndian(header.Slice(8, 4));
+        uint version = BinaryPrimitives.ReadUInt32BigEndian(header.Slice(12, 4));
+        uint expectedHeaderLength = version switch
+        {
+            3 => 120,
+            4 => 108,
+            5 => 124,
+            _ => 0
+        };
+
+        if (expectedHeaderLength == 0)
+        {
+            return MediaInputProbeStatus.UnsupportedVersion;
+        }
+
+        if (headerLength != expectedHeaderLength)
+        {
+            return MediaInputProbeStatus.InvalidHeaderLength;
+        }
+
+        // MAME reads MAX_HEADER_SIZE (124 bytes) before parsing any supported
+        // version, so a shorter file is not a complete CHD input envelope.
+        return header.Length < ChdMaxHeaderSize
+            ? MediaInputProbeStatus.HeaderTruncated
+            : MediaInputProbeStatus.HeaderEnvelopeValid;
+    }
+
+    private static string DetectionReasonFor(MediaInputProbeStatus status, string format) => status switch
+    {
+        MediaInputProbeStatus.HeaderEnvelopeValid => $"header-{format}-valid",
+        MediaInputProbeStatus.HeaderMismatch => $"header-{format}-mismatch",
+        MediaInputProbeStatus.HeaderTruncated => $"header-{format}-truncated",
+        MediaInputProbeStatus.UnsupportedVersion => $"header-{format}-unsupported-version",
+        MediaInputProbeStatus.InvalidHeaderLength => $"header-{format}-invalid-length",
+        MediaInputProbeStatus.ProbeUnavailable => $"header-{format}-probe-unavailable",
+        _ => $"header-{format}-not-confirmed"
+    };
+
+    private static async ValueTask<byte[]> ReadHeaderAtMostAsync(
         string path,
         int byteCount,
         CancellationToken cancellationToken)
@@ -210,15 +308,27 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             bufferSize: byteCount,
             options: FileOptions.Asynchronous | FileOptions.SequentialScan);
 
-        int read = await stream.ReadAsync(buffer.AsMemory(0, byteCount), cancellationToken)
-            .ConfigureAwait(false);
+        int totalRead = 0;
+        while (totalRead < buffer.Length)
+        {
+            int read = await stream
+                .ReadAsync(buffer.AsMemory(totalRead), cancellationToken)
+                .ConfigureAwait(false);
 
-        if (read == buffer.Length)
+            if (read == 0)
+            {
+                break;
+            }
+
+            totalRead += read;
+        }
+
+        if (totalRead == buffer.Length)
         {
             return buffer;
         }
 
-        Array.Resize(ref buffer, read);
+        Array.Resize(ref buffer, totalRead);
         return buffer;
     }
 

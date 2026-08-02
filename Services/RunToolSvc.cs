@@ -5,6 +5,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Intrinsics.X86;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,8 +26,12 @@ public sealed class RuntimeToolService
     private const string ExtractedToolUnsafeMessageKey = "LocRuntimeTools_ExtractedToolUnsafe";
     private const string ExtractedToolMissingMessageKey = "LocRuntimeTools_ExtractedToolMissing";
     private const string ExtractedToolInvalidMessageKey = "LocRuntimeTools_ExtractedToolInvalid";
+    private const string UnsupportedCpuMessageKey = "LocRuntimeTools_UnsupportedCpu";
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext<RuntimeToolService>();
+    private static readonly Lazy<byte[]> EmbeddedChdmanSha256 = new(
+        () => ComputeEmbeddedToolSha256(ChdmanResourceName),
+        LazyThreadSafetyMode.ExecutionAndPublication);
 
     private static readonly string SafeAppDataRoot = EnsureTrailingSeparator(InitializeSafeAppDataRoot());
 
@@ -77,6 +83,12 @@ public sealed class RuntimeToolService
             if (_initialized)
             {
                 return;
+            }
+
+            if (!IsX8664V2Supported())
+            {
+                Logger.Error("RuntimeTools: the processor does not satisfy the x86-64-v2 requirement of bundled chdman 0.289.");
+                throw new PlatformNotSupportedException(UnsupportedCpuMessageKey);
             }
 
             if (cleanupStaleSessions)
@@ -141,6 +153,12 @@ public sealed class RuntimeToolService
     public string GetChdmanPath()
     {
         EnsureInitialized();
+
+        lock (ExtractLock)
+        {
+            ValidateExtractedChdman(_chdmanPath);
+        }
+
         return _chdmanPath;
     }
 
@@ -481,6 +499,64 @@ public sealed class RuntimeToolService
         {
             throw new InvalidOperationException(ExtractedToolInvalidMessageKey);
         }
+
+        byte[] actualSha256;
+        using (FileStream stream = new(
+                   fullPath,
+                   FileMode.Open,
+                   FileAccess.Read,
+                   FileShare.Read,
+                   bufferSize: 1024 * 1024,
+                   FileOptions.SequentialScan))
+        {
+            actualSha256 = SHA256.HashData(stream);
+        }
+
+        if (!CryptographicOperations.FixedTimeEquals(
+                EmbeddedChdmanSha256.Value,
+                actualSha256))
+        {
+            Logger.Error("RuntimeTools: extracted chdman content hash does not match the embedded resource.");
+            throw new InvalidOperationException(ExtractedToolInvalidMessageKey);
+        }
+    }
+
+    private static byte[] ComputeEmbeddedToolSha256(string resourceName)
+    {
+        using Stream resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException(EmbeddedToolMissingMessageKey);
+
+        return SHA256.HashData(resourceStream);
+    }
+
+    private static bool IsX8664V2Supported()
+    {
+        if (!Environment.Is64BitProcess || !X86Base.IsSupported || !X86Base.X64.IsSupported)
+        {
+            return false;
+        }
+
+        var leaf1 = X86Base.CpuId(1, 0);
+        const int requiredLeaf1Ecx = (1 << 0)   // SSE3
+            | (1 << 9)                         // SSSE3
+            | (1 << 13)                        // CMPXCHG16B
+            | (1 << 19)                        // SSE4.1
+            | (1 << 20)                        // SSE4.2
+            | (1 << 23);                       // POPCNT
+
+        if ((leaf1.Ecx & requiredLeaf1Ecx) != requiredLeaf1Ecx)
+        {
+            return false;
+        }
+
+        var maximumExtended = X86Base.CpuId(unchecked((int)0x80000000), 0);
+        if ((uint)maximumExtended.Eax < 0x80000001u)
+        {
+            return false;
+        }
+
+        var extendedFeatures = X86Base.CpuId(unchecked((int)0x80000001), 0);
+        return (extendedFeatures.Ecx & 1) != 0; // LAHF/SAHF in 64-bit mode
     }
 
     private static void TryDeleteFileIfExists(string path)

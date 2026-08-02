@@ -14,6 +14,9 @@ public static class SevenZipProcessRunner
 {
     private const int ReadBufferSize = 4096;
     private const int RollingMaxChars = 1024;
+    private const int FullCaptureMaxChars = 4 * 1024 * 1024;
+
+    public const int ResourceLimitExitCode = -2;
 
     private const string ExecutablePathRequiredMessageKey = "LocArchive_SevenZipExecutablePathRequired";
     private const string ExecutablePathInvalidMessageKey = "LocArchive_SevenZipExecutablePathInvalid";
@@ -38,6 +41,9 @@ public static class SevenZipProcessRunner
         var stdout = new StringBuilder();
         var stderr = new StringBuilder();
         var captureLock = new object();
+        var captureBudget = new OutputCaptureBudget(FullCaptureMaxChars);
+        var outputLimitSignal = new TaskCompletionSource<bool>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
 
         var startInfo = new ProcessStartInfo
         {
@@ -82,6 +88,8 @@ public static class SevenZipProcessRunner
             process.StandardOutput.BaseStream,
             stdout,
             captureLock,
+            captureBudget,
+            outputLimitSignal,
             parseProgressPercent,
             progress,
             isErrorStream: false,
@@ -91,6 +99,8 @@ public static class SevenZipProcessRunner
             process.StandardError.BaseStream,
             stderr,
             captureLock,
+            captureBudget,
+            outputLimitSignal,
             parseProgressPercent,
             progress,
             isErrorStream: true,
@@ -110,12 +120,19 @@ public static class SevenZipProcessRunner
             },
             new CancellationPayload(process, cancellationSignal));
 
-        Task winner = await Task.WhenAny(exitTask, cancellationSignal.Task).ConfigureAwait(false);
+        Task winner = await Task.WhenAny(
+                exitTask,
+                cancellationSignal.Task,
+                outputLimitSignal.Task)
+            .ConfigureAwait(false);
         bool wasCancelled = ReferenceEquals(winner, cancellationSignal.Task);
+        bool outputLimitExceeded = outputLimitSignal.Task.IsCompleted;
 
-        if (wasCancelled)
+        if (wasCancelled || outputLimitExceeded)
         {
-            TryKillProcessTree(process, "cancellation signal won");
+            TryKillProcessTree(
+                process,
+                wasCancelled ? "cancellation signal won" : "output capture limit exceeded");
 
             Task completedExit = await Task.WhenAny(
                     exitTask,
@@ -130,13 +147,13 @@ public static class SevenZipProcessRunner
                 }
                 catch (Exception ex) when (IsExpectedProcessWaitException(ex))
                 {
-                    Logger.Debug(ex, "7-Zip exit task faulted after cancellation.");
+                    Logger.Debug(ex, "7-Zip exit task faulted after forced termination.");
                 }
             }
             else
             {
                 Logger.Warning(
-                    "7-Zip did not exit within cancellation timeout. ProcessId={ProcessId}",
+                    "7-Zip did not exit within forced-termination timeout. ProcessId={ProcessId}",
                     SafeProcessId(process));
             }
         }
@@ -154,8 +171,12 @@ public static class SevenZipProcessRunner
                 SafeProcessId(process))
             .ConfigureAwait(false);
 
-        int exitCode = SafeExitCode(process, wasCancelled);
-        if (!wasCancelled)
+        outputLimitExceeded |= outputLimitSignal.Task.IsCompleted;
+
+        int exitCode = outputLimitExceeded
+            ? ResourceLimitExitCode
+            : SafeExitCode(process, wasCancelled);
+        if (!wasCancelled && !outputLimitExceeded)
         {
             progress?.Report(exitCode == 0 ? 100 : 0);
         }
@@ -164,6 +185,7 @@ public static class SevenZipProcessRunner
         {
             ExitCode = exitCode,
             WasCancelled = wasCancelled,
+            OutputLimitExceeded = outputLimitExceeded,
             StandardOutput = stdout.ToString(),
             StandardError = stderr.ToString()
         };
@@ -186,7 +208,7 @@ public static class SevenZipProcessRunner
             throw new ArgumentException(ExecutablePathInvalidMessageKey, nameof(executablePath), ex);
         }
 
-        if (!IsValidSevenZipExecutable(fullPath))
+        if (!SevenZipToolService.IsValidSevenZipExecutable(fullPath))
         {
             if (!File.Exists(fullPath))
             {
@@ -199,57 +221,12 @@ public static class SevenZipProcessRunner
         return fullPath;
     }
 
-    private static bool IsValidSevenZipExecutable(string path)
-    {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return false;
-            }
-
-            string fullPath = Path.GetFullPath(path);
-
-            if (!File.Exists(fullPath))
-            {
-                return false;
-            }
-
-            if (!string.Equals(Path.GetFileName(fullPath), "7z.exe", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            string? directory = Path.GetDirectoryName(fullPath);
-            if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
-            {
-                return false;
-            }
-
-            if (HasReparsePointInExistingPathFromVolumeRoot(fullPath)
-                || HasReparsePointInExistingPathFromVolumeRoot(directory))
-            {
-                return false;
-            }
-
-            string dllPath = Path.Combine(directory, "7z.dll");
-            if (!File.Exists(dllPath))
-            {
-                return false;
-            }
-
-            return !HasReparsePointInExistingPathFromVolumeRoot(dllPath);
-        }
-        catch (Exception ex) when (IsExpectedPathException(ex))
-        {
-            return false;
-        }
-    }
-
     private static async Task PumpStreamAsync(
         Stream stream,
         StringBuilder capture,
         object captureLock,
+        OutputCaptureBudget captureBudget,
+        TaskCompletionSource<bool> outputLimitSignal,
         bool parseProgressPercent,
         IProgress<int>? progress,
         bool isErrorStream,
@@ -275,7 +252,10 @@ public static class SevenZipProcessRunner
 
                 lock (captureLock)
                 {
-                    capture.Append(chunk);
+                    if (!captureBudget.TryAppend(capture, chunk))
+                    {
+                        outputLimitSignal.TrySetResult(true);
+                    }
                 }
 
                 if (!parseProgressPercent || progress is null)
@@ -408,126 +388,6 @@ public static class SevenZipProcessRunner
         }
     }
 
-    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
-    {
-        try
-        {
-            string candidate = Path.GetFullPath(candidatePath);
-            string? root = Path.GetPathRoot(candidate);
-
-            if (string.IsNullOrWhiteSpace(root))
-            {
-                return true;
-            }
-
-            return HasReparsePointInExistingPath(candidate, root);
-        }
-        catch (Exception ex) when (IsExpectedPathException(ex))
-        {
-            return true;
-        }
-    }
-
-    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
-    {
-        try
-        {
-            string candidate = Path.GetFullPath(candidatePath);
-            string root = Path.GetFullPath(rootPath);
-
-            if (!IsSamePathOrChild(candidate, root))
-            {
-                return true;
-            }
-
-            string current = candidate;
-
-            while (true)
-            {
-                if ((File.Exists(current) || Directory.Exists(current)) && IsReparsePoint(current))
-                {
-                    return true;
-                }
-
-                if (PathsEqual(current, root))
-                {
-                    return false;
-                }
-
-                string? parent = Directory.GetParent(current)?.FullName;
-                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
-                {
-                    return true;
-                }
-
-                current = parent;
-            }
-        }
-        catch (Exception ex) when (IsExpectedPathException(ex))
-        {
-            return true;
-        }
-    }
-
-    private static bool IsReparsePoint(string path)
-    {
-        try
-        {
-            if (!File.Exists(path) && !Directory.Exists(path))
-            {
-                return false;
-            }
-
-            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
-        }
-        catch (Exception ex) when (IsExpectedPathException(ex))
-        {
-            return true;
-        }
-    }
-
-    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
-    {
-        string candidate = TrimDirectorySeparators(Path.GetFullPath(candidatePath));
-        string root = TrimDirectorySeparators(Path.GetFullPath(rootPath));
-
-        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
-            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool PathsEqual(string left, string right)
-    {
-        return string.Equals(
-            TrimDirectorySeparators(Path.GetFullPath(left)),
-            TrimDirectorySeparators(Path.GetFullPath(right)),
-            StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string EnsureDirectorySeparatorSuffix(string path)
-    {
-        return path.EndsWith(Path.DirectorySeparatorChar)
-            || path.EndsWith(Path.AltDirectorySeparatorChar)
-            ? path
-            : path + Path.DirectorySeparatorChar;
-    }
-
-    private static string TrimDirectorySeparators(string path)
-    {
-        string? root = Path.GetPathRoot(path);
-
-        if (!string.IsNullOrWhiteSpace(root)
-            && path.Length <= root.Length)
-        {
-            return root;
-        }
-
-        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
-            ? root
-            : trimmed;
-    }
-
     private static bool IsExpectedPathException(Exception ex) =>
         ex is ArgumentException
         or NotSupportedException
@@ -561,4 +421,22 @@ public static class SevenZipProcessRunner
         or OperationCanceledException;
 
     private sealed record CancellationPayload(Process Process, TaskCompletionSource<bool> Signal);
+
+    private sealed class OutputCaptureBudget(int maxChars)
+    {
+        private int remainingChars = maxChars;
+
+        public bool TryAppend(StringBuilder destination, string chunk)
+        {
+            if (remainingChars <= 0)
+            {
+                return false;
+            }
+
+            int acceptedChars = Math.Min(remainingChars, chunk.Length);
+            destination.Append(chunk.AsSpan(0, acceptedChars));
+            remainingChars -= acceptedChars;
+            return acceptedChars == chunk.Length;
+        }
+    }
 }

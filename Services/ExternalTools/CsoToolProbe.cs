@@ -1,6 +1,7 @@
 using Serilog;
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,6 +31,10 @@ public sealed class CsoToolProbe
     public const string ToolFailedMessageKey = "LocWorkflow_CsoToolFailed";
 
     private static readonly TimeSpan ProbeTimeout = TimeSpan.FromSeconds(10);
+    private static readonly Version MinimumSupportedVersion = new(0, 6, 1);
+    private static readonly Regex VersionPattern = new(
+        @"^CsoKit\s+(?<version>\d+\.\d+\.\d+)(?:\+[0-9a-f]+)?$",
+        RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.NonBacktracking);
     private static readonly ILogger Log = global::Serilog.Log.ForContext<CsoToolProbe>();
 
     private readonly CsoToolLocator _locator;
@@ -77,10 +82,10 @@ public sealed class CsoToolProbe
 
         if (probe.WasCancelled
             || probe.ExitCode != 0
-            || !versionText.Contains("Hakamiq.CsoKit", StringComparison.OrdinalIgnoreCase))
+            || !IsSupportedVersionText(versionText))
         {
             Log.Warning(
-                "Hakamiq CsoKit probe failed. Tool={ToolPath}; ExitCode={ExitCode}; Cancelled={Cancelled}; VersionText={VersionText}",
+                "CsoKit probe failed. Tool={ToolPath}; ExitCode={ExitCode}; Cancelled={Cancelled}; VersionText={VersionText}",
                 location.ToolPath,
                 probe.ExitCode,
                 probe.WasCancelled,
@@ -102,6 +107,14 @@ public sealed class CsoToolProbe
             string.Empty,
             probe.ExitCode,
             diagnostic);
+    }
+
+    private static bool IsSupportedVersionText(string versionText)
+    {
+        Match match = VersionPattern.Match(versionText);
+        return match.Success
+            && Version.TryParse(match.Groups["version"].Value, out Version? version)
+            && version >= MinimumSupportedVersion;
     }
 
     private static string JoinProcessText(string stdout, string stderr)

@@ -23,7 +23,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Repository conventions
         shell: pwsh
@@ -34,7 +34,13 @@ jobs:
         run: .\scripts\PkgCleanGate.ps1
 
       - name: Restore solution
-        run: dotnet restore .\HakamiqChdTool.App.sln
+        run: dotnet restore .\HakamiqChdTool.App.sln --locked-mode
+
+      - name: Verify deterministic CycloneDX SBOM
+        shell: pwsh
+        run: |
+          .\scripts\GenerateSbom.ps1
+          git diff --exit-code -- .\docs\sbom.cdx.json
 
       - name: Build Debug solution
         run: dotnet build .\HakamiqChdTool.App.sln -c Debug --no-restore --nologo -p:NuGetAudit=false
@@ -47,7 +53,7 @@ jobs:
         run: dotnet build .\HakamiqChdTool.App.sln -c Release --no-restore --nologo -p:NuGetAudit=false
 
       - name: Restore Release win-x64
-        run: dotnet restore .\HakamiqChdTool.App.csproj -r win-x64
+        run: dotnet restore .\HakamiqChdTool.App.csproj -r win-x64 --locked-mode
 
       - name: Build Release win-x64
         run: dotnet build .\HakamiqChdTool.App.csproj -c Release -r win-x64 --no-restore --nologo -p:NuGetAudit=false

@@ -38,7 +38,7 @@ internal sealed partial class HqOptionsShell
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
-            Logger.Debug(ex, "Could not create or open Hakamiq CsoKit tools folder. Path={Path}", folderPath);
+            Logger.Debug(ex, "Could not create or open CsoKit tools folder. Path={Path}", folderPath);
             ShowNoticeDialog(OperationErrorTitleKey, OpenFolderFailedBodyKey);
             return;
         }
@@ -75,7 +75,7 @@ internal sealed partial class HqOptionsShell
             }
             catch (Exception ex) when (IsExpectedPathException(ex))
             {
-                Logger.Debug(ex, "Ignored invalid Hakamiq CsoKit preferred path before browse. Path={Path}", currentPath);
+                Logger.Debug(ex, "Ignored invalid CsoKit preferred path before browse. Path={Path}", currentPath);
             }
         }
 
@@ -96,7 +96,7 @@ internal sealed partial class HqOptionsShell
 
         if (!TryGetSafeExistingCsoToolPath(dialog.FileName, out string selectedPath))
         {
-            Logger.Debug("Invalid Hakamiq CsoKit selected path. Path={Path}", dialog.FileName);
+            Logger.Debug("Invalid CsoKit selected path. Path={Path}", dialog.FileName);
             ShowNoticeDialog(OperationErrorTitleKey, InvalidCsoKitToolSelectionKey);
             return;
         }
@@ -111,7 +111,7 @@ internal sealed partial class HqOptionsShell
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
-            Logger.Warning(ex, "Failed to persist Hakamiq CsoKit selected path. Path={Path}", selectedPath);
+            Logger.Warning(ex, "Failed to persist CsoKit selected path. Path={Path}", selectedPath);
         }
 
         string unavailableText = ResolveUiText(ValueUnavailableKey);
@@ -171,7 +171,7 @@ internal sealed partial class HqOptionsShell
                                           or System.ComponentModel.Win32Exception
                                           or System.Security.SecurityException)
                 {
-                    Logger.Debug(ex, "Hakamiq CsoKit external tools refresh failed.");
+                    Logger.Debug(ex, "CsoKit external tools refresh failed.");
                     result = new CsoToolProbeResult(
                         CsoToolStatus.Failed,
                         string.Empty,
@@ -221,7 +221,7 @@ internal sealed partial class HqOptionsShell
     private static string FormatCsoKitVersionForSettings(string versionText)
     {
         string value = versionText.Trim();
-        const string productName = "Hakamiq.CsoKit";
+        const string productName = "CsoKit";
 
         if (value.StartsWith(productName, StringComparison.OrdinalIgnoreCase))
         {
@@ -261,7 +261,7 @@ internal sealed partial class HqOptionsShell
             }
             catch (Exception ex) when (IsExpectedPathException(ex))
             {
-                Logger.Debug(ex, "Ignored invalid Hakamiq CsoKit preferred folder path. Path={Path}", preferredPath);
+                Logger.Debug(ex, "Ignored invalid CsoKit preferred folder path. Path={Path}", preferredPath);
             }
         }
 

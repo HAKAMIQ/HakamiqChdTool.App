@@ -2,6 +2,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Threading;
 
 namespace HakamiqChdTool.App.Services;
@@ -10,9 +11,13 @@ public sealed class SevenZipToolService
 {
     private const string FoundMessageKey = "LocArchive_SevenZipToolFound";
     private const string MissingMessageKey = "LocArchive_SevenZipToolMissing";
+    private const string BundledSevenZipExeSha256 = "83967F1B02B43C4EFEDA302795722C809E0E81B8307DE73558D10484D5676A7D";
+    private const string BundledSevenZipDllSha256 = "69FD4DF057985C40E510E2FAC182881C7F85E90AA13EC703F763A8FDB2CE61F8";
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext<SevenZipToolService>();
     private static readonly Lazy<SevenZipToolService> LazyInstance = new(() => new SevenZipToolService());
+    private static readonly byte[] ExpectedBundledSevenZipExeSha256 = Convert.FromHexString(BundledSevenZipExeSha256);
+    private static readonly byte[] ExpectedBundledSevenZipDllSha256 = Convert.FromHexString(BundledSevenZipDllSha256);
 
     private readonly object _sync = new();
 
@@ -91,7 +96,7 @@ public sealed class SevenZipToolService
         return string.Empty;
     }
 
-    private static bool IsValidSevenZipExecutable(string path)
+    internal static bool IsValidSevenZipExecutable(string path)
     {
         try
         {
@@ -130,12 +135,42 @@ public sealed class SevenZipToolService
                 return false;
             }
 
-            return !HasReparsePointInExistingPathFromVolumeRoot(dllPath);
+            if (HasReparsePointInExistingPathFromVolumeRoot(dllPath))
+            {
+                return false;
+            }
+
+            return !IsBundledDirectory(directory)
+                || HasExpectedSha256(fullPath, ExpectedBundledSevenZipExeSha256)
+                && HasExpectedSha256(dllPath, ExpectedBundledSevenZipDllSha256);
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
             return false;
         }
+    }
+
+    private static bool IsBundledDirectory(string directory)
+    {
+        string baseDirectory = Path.GetFullPath(AppContext.BaseDirectory);
+
+        return PathsEqual(directory, Path.Combine(baseDirectory, "Tools", "7zip"))
+            || PathsEqual(directory, Path.Combine(baseDirectory, "7zip"))
+            || PathsEqual(directory, baseDirectory);
+    }
+
+    private static bool HasExpectedSha256(string path, byte[] expectedSha256)
+    {
+        using FileStream stream = new(
+            path,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            bufferSize: 1024 * 1024,
+            FileOptions.SequentialScan);
+
+        byte[] actualSha256 = SHA256.HashData(stream);
+        return CryptographicOperations.FixedTimeEquals(expectedSha256, actualSha256);
     }
 
     private static IEnumerable<string> GetCandidatePaths()

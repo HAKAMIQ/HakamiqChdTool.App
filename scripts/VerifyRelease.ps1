@@ -328,13 +328,17 @@ function Assert-RequiredReleaseFiles {
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
-        "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "Tools\hakamiq-cso\win-x64\csokit.exe",
+        "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll",
         "Tools\hakamiq-cso\win-x64\LICENSE.txt",
         "Tools\hakamiq-cso\win-x64\README.md",
+        "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md",
         "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
+        "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md",
         "docs\README.md",
         "docs\CHANGELOG.md",
         "docs\SECURITY.md",
+        "docs\sbom.cdx.json",
         "docs\legal\LICENSE",
         "docs\legal\LEGAL.md",
         "docs\legal\3P_NOTICE.txt",
@@ -356,13 +360,17 @@ function Assert-RequiredReleaseFiles {
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
-        "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "Tools\hakamiq-cso\win-x64\csokit.exe",
+        "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll",
         "Tools\hakamiq-cso\win-x64\LICENSE.txt",
         "Tools\hakamiq-cso\win-x64\README.md",
+        "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md",
         "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
+        "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md",
         "docs\README.md",
         "docs\CHANGELOG.md",
         "docs\SECURITY.md",
+        "docs\sbom.cdx.json",
         "docs\legal\LICENSE",
         "docs\legal\LEGAL.md",
         "docs\legal\3P_NOTICE.txt",
@@ -463,10 +471,13 @@ function Assert-OnlyApprovedToolFiles {
         "7zip\7z.exe",
         "7zip\7z.dll",
         "7zip\license.txt",
-        "hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "hakamiq-cso\win-x64\csokit.exe",
+        "hakamiq-cso\win-x64\csokit.native.dll",
         "hakamiq-cso\win-x64\license.txt",
         "hakamiq-cso\win-x64\readme.md",
-        "hakamiq-cso\win-x64\sha256sums.txt"
+        "hakamiq-cso\win-x64\release_notes.md",
+        "hakamiq-cso\win-x64\sha256sums.txt",
+        "hakamiq-cso\win-x64\third_party_notices.md"
     )
 
     $matches = Get-ChildItem -LiteralPath $toolsRoot -File -Recurse -Force -ErrorAction SilentlyContinue |
@@ -547,10 +558,13 @@ function Assert-NoLibchdrReleaseArtifacts {
 
 function Assert-CsoKitBundledToolContract {
     foreach ($required in @(
-        "Tools\hakamiq-cso\win-x64\hakamiq-cso.exe",
+        "Tools\hakamiq-cso\win-x64\csokit.exe",
+        "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll",
         "Tools\hakamiq-cso\win-x64\LICENSE.txt",
         "Tools\hakamiq-cso\win-x64\README.md",
+        "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md",
         "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
+        "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md",
         "docs\legal\CSOKIT_NOTICE.md"
     )) {
         Assert-FileExists $required

@@ -1,119 +1,151 @@
-# Hakamiq CsoKit
+# CsoKit
 
-Hakamiq CsoKit is a command-line tool for working with PSP CSO files.
+CsoKit is a Windows x64 command-line tool for PSP ISO and compressed disc images.
 
-It can:
+It supports detection, inspection, verification, compression, decompression, and conservative rebuilding of readable containers.
 
-* Show CSO file information.
-* Check whether a CSO file structure looks valid.
-* Decompress CSO v1 files back to ISO.
-* Show progress while decompressing.
-* Stop safely when you press Ctrl+C.
-* Output JSON for automation or integration.
+## Installation
 
-## Download and run
+1. Download the latest Windows x64 ZIP from:
+   https://github.com/HAKAMIQ/CsoKit/releases/latest
+2. Extract the complete ZIP into one folder.
+3. Keep `csokit.exe` and `CsoKit.Native.dll` together.
+4. No installer is required.
 
-Download the latest `hakamiq-csokit-*-win-x64.zip` from the Releases page.
+## First check
 
-Extract the ZIP file to any folder. The extracted folder contains:
+    .\csokit.exe --version
+    .\csokit.exe native-info
+    .\csokit.exe --help
 
-```text
-hakamiq-cso.exe
-README.md
-LICENSE.txt
-SHA256SUMS.txt
-```
+`native-info` should report that the native backend and codecs are available.
 
-This is a command-line tool. Do not run `hakamiq-cso.exe` by double-clicking it.
+## Detect the input format
 
-Open PowerShell inside the extracted folder, then run:
+    .\csokit.exe detect ".\game.iso"
+    .\csokit.exe detect ".\game.cso"
 
-```powershell
-.\hakamiq-cso.exe --help
-```
+## Inspect a compressed image
 
-## Commands
+    .\csokit.exe info ".\game.cso"
 
-Show CSO information:
+## Analyze a PSP ISO
 
-```powershell
-.\hakamiq-cso.exe info ".\game.cso"
-```
+    .\csokit.exe analyze ".\game.iso" --psp
 
-Verify a CSO file:
+This checks the PSP ISO structure without changing the file.
 
-```powershell
-.\hakamiq-cso.exe verify ".\game.cso"
-```
+## Verify a compressed image
 
-Decompress CSO to ISO:
+Basic verification:
 
-```powershell
-.\hakamiq-cso.exe decompress ".\game.cso" -o ".\game.iso"
-```
+    .\csokit.exe verify ".\game.cso"
 
-Overwrite an existing ISO:
+Deep verification with SHA-256:
 
-```powershell
-.\hakamiq-cso.exe decompress ".\game.cso" -o ".\game.iso" --force
-```
+    .\csokit.exe verify ".\game.cso" --deep --sha256
 
-Run without progress messages:
+Verification supports CSO, ZSO, and DAX where indicated by the command help.
 
-```powershell
-.\hakamiq-cso.exe decompress ".\game.cso" -o ".\game.iso" --quiet
-```
+## Compress ISO to CSO
 
-## Full path example
+Recommended:
 
-You can also use full file paths:
+    .\csokit.exe compress ".\game.iso" --profile game-safe
 
-```powershell
-.\hakamiq-cso.exe decompress "D:\Games\PSP\game.cso" -o "D:\Games\PSP\game.iso"
-```
+Choose the output file:
+
+    .\csokit.exe compress ".\game.iso" -o ".\game.cso" --profile game-safe
+
+Faster compression:
+
+    .\csokit.exe compress ".\game.iso" --profile fast
+
+Estimate size without creating a file:
+
+    .\csokit.exe compress ".\game.iso" --measure
+
+## Decompress CSO to ISO
+
+    .\csokit.exe decompress ".\game.cso" -o ".\game.iso"
+
+## Repair or normalize
+
+    .\csokit.exe repair ".\game.cso" -o ".\fixed.cso" --profile game-safe --deep-verify
+
+Repair rebuilds readable data into CSO1. It cannot recreate missing or unreadable source data.
+
+## Compression profiles
+
+| Profile | Purpose |
+| --- | --- |
+| `game-safe` | Recommended default |
+| `compat` | Compatibility-focused |
+| `fast` | Faster compression |
+| `smallest` | More compression trials |
+| `archive-smallest` | Size-focused experimental profile |
+
+Use `game-safe` unless you have a specific reason to choose another profile.
+
+## Output names
+
+The output base name must contain 2 to 10 Unicode characters. The extension is not counted.
+
+Valid:
+
+    game.cso
+    game-2.cso
+    back.iso
+
+Invalid:
+
+    x.cso
+    verylongname.cso
+
+## Existing files
+
+CsoKit does not overwrite an output file unless `--force` is supplied.
+
+    .\csokit.exe decompress ".\game.cso" -o ".\game.iso" --force
 
 ## JSON output
 
-Use `--json` if another program or script needs to read the result:
-
-```powershell
-.\hakamiq-cso.exe verify ".\game.cso" --json
-```
-
-Most users do not need this option.
-
-## SHA256SUMS.txt
-
-`SHA256SUMS.txt` is optional.
-
-It is included only for users who want to verify that the release files were not changed or corrupted.
-
-You do not need it to run the tool.
+    .\csokit.exe verify ".\game.cso" --deep --json
 
 ## Exit codes
 
-Exit codes are mainly for scripts and automation.
+| Code | Meaning |
+| ---: | --- |
+| 0 | Success |
+| 1 | General failure |
+| 2 | Invalid command or argument |
+| 10 | Input file not found |
+| 11 | Invalid container header |
+| 12 | Unsupported container |
+| 13 | Corrupt index |
+| 14 | Output already exists |
+| 15 | Output cannot be written |
+| 16 | Insufficient disk space |
+| 20 | Decompression failed |
+| 21 | Compression failed |
+| 130 | Operation canceled |
 
-Most users do not need them.
+## Safety
 
-```text
-0    Success
-1    General failure
-2    Invalid command or missing argument
-10   Input file not found
-11   Invalid CSO file header
-12   Unsupported CSO version
-13   Corrupt CSO index table
-14   Output file already exists
-15   Cannot write output file
-16   Not enough disk space
-20   Decompression failed
-130  Operation canceled by user
-```
+- Keep the original image until the output is verified.
+- Use `--deep` before archiving or transferring an output.
+- Repair does not invent missing sectors or corrupted blocks.
+- Structural verification does not guarantee emulator or device compatibility.
+- Do not separate `CsoKit.Native.dll` from `csokit.exe`.
 
-## Current limitations
+## Release ZIP contents
 
-* Decompression currently supports CSO v1 only.
-* Verification checks the CSO structure, not game compatibility.
-* ISO to CSO compression is not implemented yet.
-* CHD integration is not included in this tool yet.
+    csokit.exe
+    CsoKit.Native.dll
+    README.md
+    RELEASE_NOTES.md
+    LICENSE.txt
+    THIRD_PARTY_NOTICES.md
+    SHA256SUMS.txt
+
+Use `SHA256SUMS.txt` to verify that release files were not modified.

@@ -4,12 +4,17 @@
 		<AssemblyName>HakamiqChdTool</AssemblyName>
 		<RootNamespace>HakamiqChdTool.App</RootNamespace>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+		<TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
 		<RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-		<LangVersion>12.0</LangVersion>
+		<LangVersion>14.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<AnalysisLevel>latest</AnalysisLevel>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<NuGetAudit>true</NuGetAudit>
+		<NuGetAuditMode>all</NuGetAuditMode>
+		<NuGetAuditLevel>low</NuGetAuditLevel>
+		<WarningsAsErrors>$(WarningsAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsAsErrors>
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Resources\HakamiqLogo.ico</ApplicationIcon>
 		<Version>1.2.0</Version>
@@ -20,7 +25,6 @@
 		<Product>Hakamiq CHD Tool</Product>
 		<Company>Hakamiq</Company>
 		<Description>إدارة وتحويل صور الأقراص بصيغة CHD عبر chdman</Description>
-		<NoWarn>$(NoWarn);NU1900</NoWarn>
 		<PackageIcon>HakamiqLogo.png</PackageIcon>
 		<NeutralLanguage>ar-SA</NeutralLanguage>
 	</PropertyGroup>
@@ -161,6 +165,11 @@
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
+		<Content Include="docs\sbom.cdx.json">
+			<TargetPath>docs\sbom.cdx.json</TargetPath>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
 		<Content Include="docs\release-notes\CHANGELOG.md">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
@@ -193,7 +202,12 @@
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
 
-		<Content Include="Tools\hakamiq-cso\win-x64\hakamiq-cso.exe" Condition="Exists('Tools\hakamiq-cso\win-x64\hakamiq-cso.exe')">
+		<Content Include="Tools\hakamiq-cso\win-x64\csokit.exe" Condition="Exists('Tools\hakamiq-cso\win-x64\csokit.exe')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\hakamiq-cso\win-x64\CsoKit.Native.dll" Condition="Exists('Tools\hakamiq-cso\win-x64\CsoKit.Native.dll')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
@@ -208,7 +222,17 @@
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
 
+		<Content Include="Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md" Condition="Exists('Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
 		<Content Include="Tools\hakamiq-cso\win-x64\SHA256SUMS.txt" Condition="Exists('Tools\hakamiq-cso\win-x64\SHA256SUMS.txt')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md" Condition="Exists('Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
@@ -219,17 +243,17 @@
 		<PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
 		<PackageReference Include="Humanizer.Core" Version="3.0.10" />
 		<PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
-		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
-		<PackageReference Include="Velopack" Version="0.0.1298" />
-		<PackageReference Include="SharpCompress" Version="0.48.0" />
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+		<PackageReference Include="Velopack" Version="1.2.0" />
+		<PackageReference Include="SharpCompress" Version="0.50.3" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="Serilog" Version="4.3.1" />
+		<PackageReference Include="Serilog" Version="4.4.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
-		<PackageReference Include="LTRData.DiscUtils.Iso9660" Version="1.0.77" />
-		<PackageReference Include="LTRData.DiscUtils.Udf" Version="1.0.77" />
-		<PackageReference Include="System.Management" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.16" />
+		<PackageReference Include="LTRData.DiscUtils.Iso9660" Version="1.0.87" />
+		<PackageReference Include="LTRData.DiscUtils.Udf" Version="1.0.87" />
+		<PackageReference Include="System.Management" Version="10.0.10" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.10" />
 	</ItemGroup>
 
 
