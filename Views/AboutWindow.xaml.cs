@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 using HakamiqChdTool.App.Localization;
@@ -94,6 +95,21 @@ public partial class AboutWindow : Window
         catch (Win32Exception)
         {
         }
+    }
+
+    private void ContributorDiscordButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || button.Tag is not string url)
+        {
+            return;
+        }
+
+        if (!TryCreateAllowedDiscordInviteUri(url, out Uri? inviteUri))
+        {
+            return;
+        }
+
+        TryOpenExternalUri(inviteUri);
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)

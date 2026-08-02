@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="{Binding WindowTitle, Mode=OneWay}"
         Width="600"
-        Height="360"
+        Height="600"
         MinWidth="560"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -23,7 +23,7 @@
         UseLayoutRounding="True"
         FontFamily="{DynamicResource FontFamily.Text}"
         d:DesignWidth="600"
-        d:DesignHeight="360">
+        d:DesignHeight="600">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -276,6 +276,90 @@
                 <Setter Property="UseLayoutRounding"
                         Value="True" />
             </Style>
+
+            <Style x:Key="About.CreditCardBorder"
+                   TargetType="{x:Type Border}">
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Control.Fill.Rest}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Control.Stroke.Default}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Control}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.12.All}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
+            </Style>
+
+            <Style x:Key="About.CreditDiscordButtonStyle"
+                   TargetType="{x:Type Button}"
+                   BasedOn="{StaticResource AboutIconLinkButtonStyle}">
+                <Setter Property="Width"
+                        Value="32" />
+                <Setter Property="Height"
+                        Value="32" />
+                <Setter Property="MinWidth"
+                        Value="32" />
+                <Setter Property="MinHeight"
+                        Value="32" />
+                <Setter Property="Visibility"
+                        Value="Collapsed" />
+                <Setter Property="ToolTip"
+                        Value="{DynamicResource LocAbout_CreditDiscordTooltip}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Handle, Mode=OneWay}"
+                                 Value="quantularity">
+                        <Setter Property="Visibility"
+                                Value="Visible" />
+                        <Setter Property="Tag"
+                                Value="https://discord.gg/bside" />
+                        <Setter Property="AutomationProperties.Name"
+                                Value="Quantularity Discord" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Handle, Mode=OneWay}"
+                                 Value="hx11">
+                        <Setter Property="Visibility"
+                                Value="Visible" />
+                        <Setter Property="Tag"
+                                Value="https://discord.gg/xEV5wutKXM" />
+                        <Setter Property="AutomationProperties.Name"
+                                Value="Mohammed Discord" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style x:Key="About.StaticDiscordIconBorderStyle"
+                   TargetType="{x:Type Border}">
+                <Setter Property="Width"
+                        Value="32" />
+                <Setter Property="Height"
+                        Value="32" />
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Control.Fill.Rest}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Control.Stroke.Default}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.1.All}" />
+                <Setter Property="CornerRadius"
+                        Value="{DynamicResource Radius.Control}" />
+                <Setter Property="Visibility"
+                        Value="Collapsed" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Handle, Mode=OneWay}"
+                                 Value="v9tn">
+                        <Setter Property="Visibility"
+                                Value="Visible" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -358,13 +442,18 @@
                 </Grid>
             </Border>
 
-            <Grid Grid.Row="1"
-                  Margin="{DynamicResource Inset.16.All}"
-                  FlowDirection="{DynamicResource App.FlowDirection}"
-                  Language="{DynamicResource App.XmlLanguage}"
-                  SnapsToDevicePixels="True">
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          CanContentScroll="False">
+                <Grid Margin="{DynamicResource Inset.16.All}"
+                      FlowDirection="{DynamicResource App.FlowDirection}"
+                      Language="{DynamicResource App.XmlLanguage}"
+                      SnapsToDevicePixels="True">
 
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="{DynamicResource Grid.Space.12}" />
                     <RowDefinition Height="Auto" />
@@ -506,7 +595,97 @@
                         </ItemsControl>
                     </Grid>
                 </Border>
-            </Grid>
+
+                <Border Grid.Row="4"
+                        Background="{DynamicResource Brush.Layer.Card}"
+                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                        BorderThickness="{DynamicResource Inset.1.All}"
+                        CornerRadius="{DynamicResource Radius.Card}"
+                        Padding="{DynamicResource Inset.16.All}"
+                        SnapsToDevicePixels="True"
+                        UseLayoutRounding="True">
+
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}"
+                          SnapsToDevicePixels="True">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0"
+                                   Text="{Binding CreditsTitle, Mode=OneWay}"
+                                   d:Text="شكر وتقدير"
+                                   Style="{StaticResource About.SectionPrimaryText}" />
+
+                        <TextBlock Grid.Row="2"
+                                   Text="{Binding CreditsDescription, Mode=OneWay}"
+                                   d:Text="كل الشكر والتقدير لكل من ساهم بدعم المشروع."
+                                   Style="{StaticResource About.SectionSecondaryText}" />
+
+                        <ItemsControl Grid.Row="4"
+                                      ItemsSource="{Binding Credits, Mode=OneWay}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="3" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="4"
+                                            Style="{StaticResource About.CreditCardBorder}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding DisplayName, Mode=OneWay}"
+                                                       FlowDirection="LeftToRight"
+                                                       TextAlignment="Right"
+                                                       Language="ar-SA"
+                                                       Style="{StaticResource About.SectionPrimaryText}" />
+
+                                            <Grid Grid.Column="1"
+                                                  Margin="{DynamicResource Inset.8.0.0.0}">
+                                                <Button Click="ContributorDiscordButton_Click"
+                                                        Style="{StaticResource About.CreditDiscordButtonStyle}">
+                                                    <TextBlock Text=""
+                                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                                               FontSize="{DynamicResource FontSize.IconMedium}"
+                                                               FlowDirection="LeftToRight"
+                                                               Language="en-US"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center" />
+                                                </Button>
+
+                                                <Border Style="{StaticResource About.StaticDiscordIconBorderStyle}">
+                                                    <TextBlock Text=""
+                                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                                               FontSize="{DynamicResource FontSize.IconMedium}"
+                                                               Foreground="{DynamicResource Brush.Text.Primary}"
+                                                               FlowDirection="LeftToRight"
+                                                               Language="en-US"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center" />
+                                                </Border>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Border>
+                </Grid>
+            </ScrollViewer>
 
             <Border Grid.Row="2"
                     Background="{DynamicResource Brush.Layer.Surface}"

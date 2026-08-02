@@ -68,6 +68,14 @@ public static class AboutInfoFactory
                 ProfileSummary = ArabicUi.Get("LocAbout_CreditQuantularitySummary"),
                 AccentBrush = "#FFFF2D67",
                 AccentSoftBrush = "#26FF2D67"
+            },
+            new AboutCreditInfo
+            {
+                DisplayName = "v9tn",
+                Handle = "v9tn",
+                BadgeText = ArabicUi.Get("LocAbout_CreditBadgeContributor"),
+                AccentBrush = "#FF7D73FF",
+                AccentSoftBrush = "#267D73FF"
             }
         ];
     }
