@@ -142,7 +142,7 @@ foreach ($tool in $bundledTools) {
     $dependencyGraph.Add([ordered]@{ ref = [string]$tool.'bom-ref'; dependsOn = $toolDependencies })
 }
 
-$applicationRef = 'pkg:generic/hakamiq-chd-tool@1.2.0'
+$applicationRef = 'pkg:generic/hakamiq-chd-tool@1.2.1'
 $dependencyGraph.Insert(0, [ordered]@{
     ref = $applicationRef
     dependsOn = @($rootDependencies | Sort-Object -Unique)
@@ -168,7 +168,7 @@ $bom = [ordered]@{
             type = 'application'
             'bom-ref' = $applicationRef
             name = 'Hakamiq CHD Tool'
-            version = '1.2.0'
+            version = '1.2.1'
             licenses = @([ordered]@{ license = [ordered]@{ id = 'MIT' } })
         }
     }

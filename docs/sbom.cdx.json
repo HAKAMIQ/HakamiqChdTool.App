@@ -20,9 +20,9 @@
     },
     "component": {
       "type": "application",
-      "bom-ref": "pkg:generic/hakamiq-chd-tool@1.2.0",
+      "bom-ref": "pkg:generic/hakamiq-chd-tool@1.2.1",
       "name": "Hakamiq CHD Tool",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "licenses": [
         {
           "license": {
@@ -573,7 +573,7 @@
   ],
   "dependencies": [
     {
-      "ref": "pkg:generic/hakamiq-chd-tool@1.2.0",
+      "ref": "pkg:generic/hakamiq-chd-tool@1.2.1",
       "dependsOn": [
         "pkg:generic/7-zip@26.02",
         "pkg:generic/csokit-native@0.6.1",

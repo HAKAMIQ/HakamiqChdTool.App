@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '1.2.0',
+    [string]$Version = '1.2.1',
     [string]$PackageDirectory = (Join-Path $PSScriptRoot '..\Release\packages'),
     [string]$PackageSuffix = 'security-hardened'
 )
