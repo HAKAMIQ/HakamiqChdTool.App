@@ -1,7 +1,17 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Tests;
 
@@ -61,7 +71,15 @@ internal static class Program
                 new("Workflow planner creates CD command for CUE descriptor", () => TestWorkflowPlannerCueCreatesCd(app, workDirectory)),
                 new("Workflow planner creates DVD command for CSO input", () => TestWorkflowPlannerCsoCreatesDvd(app, workDirectory)),
                 new("Media input classifier covers P0 descriptors", () => TestMediaInputClassifierP0(app, workDirectory)),
-                new("Media input pipeline makes P0 decisions", () => TestMediaInputPipelineP0Decisions(app, workDirectory))
+                new("Media input pipeline makes P0 decisions", () => TestMediaInputPipelineP0Decisions(app, workDirectory)),
+                new("Archive and Redump security policies reject unsafe inputs", () => TestSecurityResourcePolicies(app)),
+                new("Archive resource monitor fails closed", () => TestArchiveResourceMonitorFailsClosed(app)),
+                new("7-Zip output flood terminates the process", () => TestSevenZipOutputFloodTerminatesProcess(app, workDirectory)),
+                new("Redump redirects are validated before every request", () => TestRedumpRedirectValidation(app)),
+                new("Redump clean rebuild rolls back on parse failure", () => TestRedumpRollback(app, workDirectory)),
+                new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
+                new("Bundled CsoKit 0.6.1 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
+                new("Runtime chdman tampering is rejected", () => TestRuntimeChdmanTamperingIsRejected(app))
             ];
 
             int passed = 0;
@@ -76,7 +94,7 @@ internal static class Program
                 catch (Exception ex)
                 {
                     Console.Error.WriteLine("[FAIL] " + test.Name);
-                    Console.Error.WriteLine(ex.Message);
+                    Console.Error.WriteLine(ex);
                     return 1;
                 }
             }
@@ -474,6 +492,46 @@ internal static class Program
         AssertFalse(GetBool(plan, "RequiresDescriptorDependencies"), "CSO plan should not require descriptor dependencies.");
     }
 
+    private static void TestRuntimeChdmanTamperingIsRejected(AppReflection app)
+    {
+        object runtimeToolService = app.CreateRuntimeToolService();
+
+        try
+        {
+            string chdmanPath = app.GetRuntimeChdmanPath(runtimeToolService);
+            AssertTrue(File.Exists(chdmanPath), "Expected the embedded chdman runtime copy to exist.");
+
+            using (FileStream stream = new(
+                       chdmanPath,
+                       FileMode.Open,
+                       FileAccess.ReadWrite,
+                       FileShare.None))
+            {
+                int originalByte = stream.ReadByte();
+                AssertTrue(originalByte >= 0, "Expected the runtime chdman copy to be non-empty.");
+                stream.Position = 0;
+                stream.WriteByte((byte)(originalByte ^ 0xFF));
+                stream.Flush(flushToDisk: true);
+            }
+
+            bool rejected = false;
+            try
+            {
+                _ = app.GetRuntimeChdmanPath(runtimeToolService);
+            }
+            catch (TargetInvocationException ex) when (ex.InnerException is InvalidOperationException)
+            {
+                rejected = true;
+            }
+
+            AssertTrue(rejected, "Expected a modified runtime chdman copy to be rejected.");
+        }
+        finally
+        {
+            app.CleanupRuntimeToolSession(runtimeToolService);
+        }
+    }
+
     private static void TestMediaInputClassifierP0(AppReflection app, string workDirectory)
     {
         string root = Path.Combine(workDirectory, "media-input-p0");
@@ -501,8 +559,34 @@ internal static class Program
         string pkgPath = WriteMediaFile(root, "package.pkg", [0x7F, 0x50, 0x4B, 0x47, 0]);
         AssertMediaKind(app.ClassifyMediaInput(pkgPath), "PKG");
 
-        string chdPath = WriteMediaFile(root, "disc.chd", Encoding.ASCII.GetBytes("MComprHD"));
-        AssertMediaKind(app.ClassifyMediaInput(chdPath), "CHD");
+        foreach (uint version in new uint[] { 3, 4, 5 })
+        {
+            string chdPath = WriteMediaFile(root, $"disc-v{version}.chd", BuildChdHeader(version));
+            object chdDescriptor = app.ClassifyMediaInput(chdPath);
+            AssertMediaKind(chdDescriptor, "CHD");
+            AssertEqual("HeaderEnvelopeValid", GetEnumName(chdDescriptor, "ProbeStatus"), $"Expected valid CHD v{version} header evidence.");
+        }
+
+        string wrongMagicChdPath = WriteMediaFile(root, "wrong-magic.chd", new byte[124]);
+        object wrongMagicChd = app.ClassifyMediaInput(wrongMagicChdPath);
+        AssertMediaKind(wrongMagicChd, "CHD");
+        AssertEqual("HeaderMismatch", GetEnumName(wrongMagicChd, "ProbeStatus"), "Wrong CHD magic should be rejected as evidence.");
+
+        string truncatedChdPath = WriteMediaFile(root, "truncated.chd", Encoding.ASCII.GetBytes("MComprHD"));
+        object truncatedChd = app.ClassifyMediaInput(truncatedChdPath);
+        AssertEqual("HeaderTruncated", GetEnumName(truncatedChd, "ProbeStatus"), "Magic-only CHD should be marked truncated.");
+
+        string shortChdPath = WriteMediaFile(root, "short.chd", new byte[7]);
+        object shortChd = app.ClassifyMediaInput(shortChdPath);
+        AssertEqual("HeaderTruncated", GetEnumName(shortChd, "ProbeStatus"), "A CHD shorter than its magic should be marked truncated.");
+
+        string unsupportedChdPath = WriteMediaFile(root, "unsupported.chd", BuildChdHeader(version: 6));
+        object unsupportedChd = app.ClassifyMediaInput(unsupportedChdPath);
+        AssertEqual("UnsupportedVersion", GetEnumName(unsupportedChd, "ProbeStatus"), "Unsupported CHD version should be rejected.");
+
+        string invalidLengthChdPath = WriteMediaFile(root, "invalid-length.chd", BuildChdHeader(version: 5, declaredHeaderLength: 120));
+        object invalidLengthChd = app.ClassifyMediaInput(invalidLengthChdPath);
+        AssertEqual("InvalidHeaderLength", GetEnumName(invalidLengthChd, "ProbeStatus"), "Invalid CHD header length should be rejected.");
 
         string csoPath = WriteMediaFile(root, "disc.cso", Encoding.ASCII.GetBytes("CISO"));
         AssertMediaKind(app.ClassifyMediaInput(csoPath), "CSO");
@@ -521,7 +605,7 @@ internal static class Program
         AssertMediaKind(other, "Other");
         AssertEqual("file-other", GetString(other, "DetectionReason"), "Unknown extension should use file-other reason.");
 
-        string lockedChdPath = WriteMediaFile(root, "locked.chd", Encoding.ASCII.GetBytes("MComprHD"));
+        string lockedChdPath = WriteMediaFile(root, "locked.chd", BuildChdHeader(version: 5));
         using FileStream lockStream = new(
             lockedChdPath,
             FileMode.Open,
@@ -530,9 +614,7 @@ internal static class Program
 
         object lockedChd = app.ClassifyMediaInput(lockedChdPath);
         AssertMediaKind(lockedChd, "CHD");
-        AssertTrue(
-            GetString(lockedChd, "DetectionReason").Contains("probe-failed", StringComparison.Ordinal),
-            "Locked CHD should fall back to extension with a probe-failed reason.");
+        AssertEqual("ProbeUnavailable", GetEnumName(lockedChd, "ProbeStatus"), "Locked CHD should expose unavailable evidence.");
     }
 
     private static void TestMediaInputPipelineP0Decisions(AppReflection app, string workDirectory)
@@ -557,10 +639,23 @@ internal static class Program
         AssertEqual("ConvertibleDiscImage", GetEnumName(iso, "QueueRole"), "Unexpected ISO queue role.");
         AssertTrue(GetBool(iso, "IsAcceptedForQueue"), "ISO should be accepted for queue.");
 
-        string chdPath = WriteMediaFile(root, "disc.chd", Encoding.ASCII.GetBytes("MComprHD"));
+        string chdPath = WriteMediaFile(root, "disc.chd", BuildChdHeader(version: 5));
         object chd = app.DecideMediaInput(chdPath);
         AssertEqual("AcceptChdImage", GetEnumName(chd, "Action"), "CHD should be accepted as a CHD image.");
         AssertEqual("ChdImage", GetEnumName(chd, "QueueRole"), "Unexpected CHD queue role.");
+
+        string wrongMagicChdPath = WriteMediaFile(root, "wrong-magic.chd", new byte[124]);
+        object wrongMagicChd = app.DecideMediaInput(wrongMagicChdPath);
+        AssertEqual("Block", GetEnumName(wrongMagicChd, "Action"), "Wrong-magic CHD should be blocked before chdman.");
+        AssertEqual("header-evidence-rejected", GetString(wrongMagicChd, "Reason"), "Unexpected CHD evidence block reason.");
+
+        string truncatedChdPath = WriteMediaFile(root, "truncated.chd", Encoding.ASCII.GetBytes("MComprHD"));
+        object truncatedChd = app.DecideMediaInput(truncatedChdPath);
+        AssertEqual("Block", GetEnumName(truncatedChd, "Action"), "Truncated CHD should be blocked before chdman.");
+
+        string wrongMagicCsoPath = WriteMediaFile(root, "wrong-magic.cso", [0, 1, 2, 3]);
+        object wrongMagicCso = app.DecideMediaInput(wrongMagicCsoPath);
+        AssertEqual("Block", GetEnumName(wrongMagicCso, "Action"), "Wrong-magic CSO should be blocked before conversion.");
 
         string binPath = WriteMediaFile(root, "track.bin", [1, 2, 3, 4]);
         object bin = app.DecideMediaInput(binPath);
@@ -583,6 +678,218 @@ internal static class Program
         object other = app.DecideMediaInput(otherPath);
         AssertEqual("Block", GetEnumName(other, "Action"), "Other file should be blocked.");
         AssertEqual("unsupported-media-input", GetString(other, "Reason"), "Unexpected block reason.");
+    }
+
+    private static void TestSecurityResourcePolicies(AppReflection app)
+    {
+        const string listing = """
+            Path = disc.cue
+            Size = 123
+            Packed Size = 50
+            Folder = -
+
+            Path = tracks
+            Size = 0
+            Packed Size = 0
+            Folder = +
+
+            Path = tracks/track01.bin
+            Size = 987654
+            Packed Size = 12345
+            Folder = -
+            """;
+
+        IReadOnlyList<object> entries = app.ParseSevenZipListEntries(listing);
+        AssertEqual(3, entries.Count, "Unexpected parsed 7-Zip entry count.");
+        AssertEqual("disc.cue", GetString(entries[0], "Path"), "Unexpected first 7-Zip entry path.");
+        AssertEqual(123L, (long)(ReadProperty(entries[0], "Size") ?? -1L), "Unexpected first 7-Zip entry size.");
+        AssertTrue(GetBool(entries[1], "IsDirectory"), "7-Zip folder evidence should be preserved.");
+
+        bool limitRejected = false;
+        try
+        {
+            app.EnsureArchiveEntryLimit(entryCount: 8_193, maximum: 8_192);
+        }
+        catch (TargetInvocationException ex) when (ex.InnerException?.GetType().Name == "ArchiveResourceLimitException")
+        {
+            limitRejected = true;
+        }
+
+        AssertTrue(limitRejected, "Archive entry count above policy should be rejected.");
+        AssertTrue(app.IsSupportedRedumpSourceUrl("https://codeload.github.com/Ross-Y/Redump-DATS/zip/refs/heads/main"), "Official GitHub Redump source should be allowed.");
+        AssertFalse(app.IsSupportedRedumpSourceUrl("https://example.com/redump.zip"), "Arbitrary HTTPS hosts should be rejected.");
+        AssertFalse(app.IsSupportedRedumpSourceUrl("https://user@github.com/redump.zip"), "URLs containing user info should be rejected.");
+        AssertFalse(app.IsSupportedRedumpSourceUrl("https://github.com:444/redump.zip"), "Non-default HTTPS ports should be rejected.");
+    }
+
+    private static void TestArchiveResourceMonitorFailsClosed(AppReflection app)
+    {
+        AssertFalse(
+            app.TryMeasureExtractionRoot("\0", out int entryCount, out long expandedBytes),
+            "An extraction-root measurement error must fail closed.");
+        AssertEqual(0, entryCount, "Failed extraction-root sampling should not report entries.");
+        AssertEqual(0L, expandedBytes, "Failed extraction-root sampling should not report bytes.");
+    }
+
+    private static void TestSevenZipOutputFloodTerminatesProcess(AppReflection app, string workDirectory)
+    {
+        string archivePath = Path.Combine(workDirectory, "sevenzip-output-flood.zip");
+        string longName = new('x', 520);
+
+        using (FileStream stream = new(archivePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None))
+        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: false))
+        {
+            for (int index = 0; index < 8_500; index++)
+            {
+                _ = archive.CreateEntry($"{index:D5}-{longName}.bin", CompressionLevel.NoCompression);
+            }
+        }
+
+        object result = app.RunSevenZipListProcess(archivePath);
+        AssertTrue(GetBool(result, "OutputLimitExceeded"), "7-Zip output flood should trip the capture budget.");
+        AssertEqual(-2, GetInt(result, "ExitCode"), "7-Zip output flood should return the resource-limit exit code.");
+        AssertFalse(GetBool(result, "WasCancelled"), "Resource-limit termination should not be reported as user cancellation.");
+    }
+
+    private static void TestRedumpRedirectValidation(AppReflection app)
+    {
+        var allowedHandler = new ScriptedHttpMessageHandler((uri, requestIndex) => requestIndex switch
+        {
+            0 => Redirect(HttpStatusCode.Found, "https://raw.githubusercontent.com/Ross-Y/Redump-DATS/main/sample.dat"),
+            1 => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("ok") },
+            _ => throw new InvalidOperationException("Unexpected request: " + uri)
+        });
+
+        using (IDisposable manager = app.CreateRedumpSyncManager(allowedHandler))
+        using (HttpResponseMessage response = app.SendRedumpRequest(
+            manager,
+            new Uri("https://codeload.github.com/Ross-Y/Redump-DATS/zip/refs/heads/main")))
+        {
+            AssertEqual(HttpStatusCode.OK, response.StatusCode, "Allowed redirect chain should reach the final response.");
+        }
+
+        AssertEqual(2, allowedHandler.Requests.Count, "Allowed redirect chain should perform exactly two requests.");
+
+        var blockedHandler = new ScriptedHttpMessageHandler((_, requestIndex) => requestIndex switch
+        {
+            0 => Redirect(HttpStatusCode.Found, "https://example.com/steal.zip"),
+            _ => throw new InvalidOperationException("The rejected redirect target must never receive a request.")
+        });
+
+        using (IDisposable manager = app.CreateRedumpSyncManager(blockedHandler))
+        {
+            AssertThrows<InvalidDataException>(
+                () => app.SendRedumpRequest(
+                    manager,
+                    new Uri("https://codeload.github.com/Ross-Y/Redump-DATS/zip/refs/heads/main")),
+                "Redirect to an unapproved host should be rejected before the second request.");
+        }
+
+        AssertEqual(1, blockedHandler.Requests.Count, "Blocked redirect host must not be contacted.");
+
+        var circularHandler = new ScriptedHttpMessageHandler((_, requestIndex) => requestIndex switch
+        {
+            0 => Redirect(HttpStatusCode.Found, "https://github.com/Ross-Y/Redump-DATS/archive/main.zip"),
+            1 => Redirect(HttpStatusCode.Found, "https://codeload.github.com/Ross-Y/Redump-DATS/zip/refs/heads/main"),
+            _ => throw new InvalidOperationException("Circular redirect must be rejected before repetition.")
+        });
+
+        using (IDisposable manager = app.CreateRedumpSyncManager(circularHandler))
+        {
+            AssertThrows<InvalidDataException>(
+                () => app.SendRedumpRequest(
+                    manager,
+                    new Uri("https://codeload.github.com/Ross-Y/Redump-DATS/zip/refs/heads/main")),
+                "Circular redirect should be rejected.");
+        }
+
+        AssertEqual(2, circularHandler.Requests.Count, "Circular redirect must be rejected before the repeated request.");
+    }
+
+    private static void TestRedumpRollback(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "redump-rollback");
+        Directory.CreateDirectory(root);
+
+        string validDatPath = Path.Combine(root, "valid.dat");
+        File.WriteAllText(
+            validDatPath,
+            "<datafile><header><name>Test System</name></header><game name=\"Game\"><description>Game</description><rom name=\"disc.bin\" size=\"1\" crc=\"12345678\" md5=\"0123456789abcdef0123456789abcdef\" sha1=\"0123456789abcdef0123456789abcdef01234567\" /></game></datafile>",
+            Encoding.UTF8);
+
+        string invalidDatPath = Path.Combine(root, "invalid.dat");
+        File.WriteAllText(invalidDatPath, "<datafile><game>", Encoding.UTF8);
+
+        object database = app.CreateRedumpDatabase(Path.Combine(root, "redump-test.db"));
+        object initialResult = app.CleanRebuildRedumpDatabase(database, [validDatPath]);
+        AssertTrue(GetBool(initialResult, "Success"), "Initial Redump rebuild should succeed.");
+        AssertEqual(1L, app.GetRedumpRowCount(database), "Initial Redump rebuild should insert one row.");
+
+        object failedResult = app.CleanRebuildRedumpDatabase(database, [validDatPath, invalidDatPath]);
+        AssertFalse(GetBool(failedResult, "Success"), "Malformed DAT should fail the clean rebuild.");
+        AssertEqual(1L, app.GetRedumpRowCount(database), "Failed rebuild must roll back and preserve the prior database.");
+    }
+
+    private static void TestShutdownTimeout(AppReflection app)
+    {
+        string result = app.RunShutdownStep(
+            () => Task.Delay(TimeSpan.FromMilliseconds(100)),
+            TimeSpan.FromMilliseconds(5));
+
+        AssertEqual("TimedOut", result, "Shutdown helper should report a real timeout without claiming completion.");
+    }
+
+    private static void TestBundledCsoKitRoundTrip(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "csokit-integration");
+        Directory.CreateDirectory(root);
+
+        string inputIsoPath = Path.Combine(root, "input.iso");
+        string compressedCsoPath = Path.Combine(root, "smoke.cso");
+        byte[] sample = new byte[65_536];
+        for (int index = 0; index < sample.Length; index++)
+        {
+            sample[index] = (byte)((index * 17) % 251);
+        }
+
+        File.WriteAllBytes(inputIsoPath, sample);
+
+        object compression = app.RunBundledCsoKit(
+            [
+                "compress", inputIsoPath,
+                "-o", compressedCsoPath,
+                "--profile", "game-safe",
+                "--threads", "1",
+                "--block", "2048",
+                "--zopfli",
+                "--deep-verify",
+                "--json"
+            ]);
+
+        AssertEqual(0, GetInt(compression, "ExitCode"), "Bundled CsoKit compression failed: " + GetString(compression, "StandardError"));
+        AssertFalse(GetBool(compression, "WasCancelled"), "Bundled CsoKit compression was unexpectedly cancelled.");
+        AssertTrue(File.Exists(compressedCsoPath), "Bundled CsoKit did not create the integration CSO.");
+
+        using IDisposable workspace = app.CreateCsoTempWorkspace(out string preparedIsoPath);
+        object preparation = app.PreprocessCso(compressedCsoPath, preparedIsoPath);
+
+        AssertTrue(GetBool(preparation, "IsSuccess"), "Application CsoKit preprocessing failed: " + GetString(preparation, "StandardError"));
+        AssertTrue(GetString(preparation, "ToolVersion").StartsWith("CsoKit 0.6.1+", StringComparison.Ordinal),
+            "Application accepted an unexpected CsoKit version: " + GetString(preparation, "ToolVersion"));
+        AssertEqual("CsoKit", GetString(preparation, "ToolName"), "Unexpected preprocessing tool name.");
+        AssertTrue(File.Exists(preparedIsoPath), "Application preprocessing did not create the temporary ISO.");
+
+        byte[] inputHash = SHA256.HashData(File.ReadAllBytes(inputIsoPath));
+        byte[] preparedHash = SHA256.HashData(File.ReadAllBytes(preparedIsoPath));
+        AssertTrue(CryptographicOperations.FixedTimeEquals(inputHash, preparedHash),
+            "CsoKit application preprocessing changed the ISO payload.");
+    }
+
+    private static HttpResponseMessage Redirect(HttpStatusCode statusCode, string location)
+    {
+        var response = new HttpResponseMessage(statusCode);
+        response.Headers.Location = new Uri(location, UriKind.Absolute);
+        return response;
     }
 
     private static void AssertPlan(
@@ -705,6 +1012,23 @@ internal static class Program
         return path;
     }
 
+    private static byte[] BuildChdHeader(uint version, uint? declaredHeaderLength = null)
+    {
+        uint expectedLength = version switch
+        {
+            3 => 120,
+            4 => 108,
+            5 => 124,
+            _ => 124
+        };
+
+        byte[] header = new byte[124];
+        Encoding.ASCII.GetBytes("MComprHD").CopyTo(header, 0);
+        WriteInt32BigEndian(header, 8, checked((int)(declaredHeaderLength ?? expectedLength)));
+        WriteInt32BigEndian(header, 12, checked((int)version));
+        return header;
+    }
+
     private static bool GetBool(object instance, string propertyName) =>
         (bool)(ReadProperty(instance, propertyName) ?? false);
 
@@ -781,10 +1105,45 @@ internal static class Program
         }
     }
 
+    private static void AssertThrows<TException>(Action action, string message)
+        where TException : Exception
+    {
+        try
+        {
+            action();
+        }
+        catch (TException)
+        {
+            return;
+        }
+
+        throw new InvalidOperationException(message + " Expected exception: " + typeof(TException).Name + ".");
+    }
+
     private sealed record TestCase(string Name, Action Run);
+
+    private sealed class ScriptedHttpMessageHandler(
+        Func<Uri, int, HttpResponseMessage> responder) : HttpMessageHandler
+    {
+        public List<Uri> Requests { get; } = [];
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Uri uri = request.RequestUri
+                ?? throw new InvalidOperationException("HTTP request URI was missing.");
+            int requestIndex = Requests.Count;
+            Requests.Add(uri);
+            return Task.FromResult(responder(uri, requestIndex));
+        }
+    }
 
     private sealed class AppReflection
     {
+        private readonly string appDirectory;
         private readonly Type settingsType;
         private readonly MethodInfo scannerTryScan;
         private readonly MethodInfo detectorDetect;
@@ -805,9 +1164,34 @@ internal static class Program
         private readonly MethodInfo mediaInputClassifyAsync;
         private readonly object mediaInputPipeline;
         private readonly MethodInfo mediaInputPipelineDecideAsync;
+        private readonly Type runtimeToolServiceType;
+        private readonly MethodInfo runtimeToolGetChdmanPath;
+        private readonly MethodInfo runtimeToolCleanup;
+        private readonly MethodInfo parseSevenZipListEntries;
+        private readonly MethodInfo runSevenZipProcess;
+        private readonly MethodInfo tryMeasureExtractionRoot;
+        private readonly MethodInfo ensureArchiveEntryLimit;
+        private readonly MethodInfo isSupportedRedumpSourceUrl;
+        private readonly ConstructorInfo redumpSyncManagerConstructor;
+        private readonly MethodInfo sendWithValidatedRedirectsAsync;
+        private readonly ConstructorInfo redumpDatabaseConstructor;
+        private readonly ConstructorInfo redumpDatEntryConstructor;
+        private readonly Type redumpDatEntryType;
+        private readonly MethodInfo cleanRebuildRedumpDatabaseAsync;
+        private readonly MethodInfo getRedumpRowCount;
+        private readonly MethodInfo runBackgroundShutdownStepAsync;
+        private readonly ConstructorInfo externalToolProcessRunnerConstructor;
+        private readonly MethodInfo runExternalToolProcessAsync;
+        private readonly ConstructorInfo csoToolProbePathConstructor;
+        private readonly ConstructorInfo csoPreprocessorConstructor;
+        private readonly MethodInfo preprocessCsoAsync;
+        private readonly MethodInfo createCsoTempWorkspace;
 
         public AppReflection(Assembly appAssembly)
         {
+            appDirectory = Path.GetDirectoryName(appAssembly.Location)
+                ?? throw new InvalidOperationException("Unable to resolve the application assembly directory.");
+
             Type scannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2DiscStructureScanner");
             Type detectorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2DiscIdentityDetector");
             Type advisoryType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2CompatibilityAdvisoryService");
@@ -816,6 +1200,20 @@ internal static class Program
             Type profilePlannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdWorkflowProfilePlanner");
             Type mediaInputClassifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputClassifier");
             Type mediaInputPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputPipeline");
+            Type sevenZipInspectorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveInspector");
+            Type sevenZipProcessRunnerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipProcessRunner");
+            Type sevenZipExtractionType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveExtractionService");
+            Type archiveResourcePolicyType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ArchiveResourcePolicy");
+            Type redumpSyncManagerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.RedumpGitHubSyncManager");
+            Type redumpDatabaseType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.RedumpSqliteManager");
+            redumpDatEntryType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.RedumpLocalLibraryDatEntry");
+            Type redumpImportProgressType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.RedumpImportProgress");
+            Type mainWindowType = GetRequiredType(appAssembly, "HakamiqChdTool.App.MainWindow");
+            Type externalToolProcessRunnerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ExternalToolProcessRunner");
+            Type csoToolProbeType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.CsoToolProbe");
+            Type csoPreprocessorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.CsoPreprocessor");
+            Type csoTempWorkspaceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.CsoTempWorkspace");
+            runtimeToolServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.RuntimeToolService");
             settingsType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.AppSettings");
             extractionKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdmanExtractionKind");
             isoCreateOverrideType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.IsoCreateCommandOverride");
@@ -839,6 +1237,59 @@ internal static class Program
             planCreateFromSource = GetRequiredMethod(profilePlannerType, "PlanCreateFromSource", [typeof(string), isoCreateOverrideType, mediaContainerKindType, typeof(string)]);
             mediaInputClassifyAsync = GetRequiredInstanceMethod(mediaInputClassifierType, "ClassifyAsync", [typeof(string), typeof(CancellationToken)]);
             mediaInputPipelineDecideAsync = GetRequiredInstanceMethod(mediaInputPipelineType, "DecideAsync", [typeof(string), typeof(CancellationToken)]);
+            runtimeToolGetChdmanPath = GetRequiredInstanceMethod(runtimeToolServiceType, "GetChdmanPath", Type.EmptyTypes);
+            runtimeToolCleanup = GetRequiredInstanceMethod(runtimeToolServiceType, "TryCleanupCurrentSession", Type.EmptyTypes);
+            parseSevenZipListEntries = GetRequiredMethod(sevenZipInspectorType, "ParseSevenZipListEntries", [typeof(string)]);
+            runSevenZipProcess = GetRequiredMethod(
+                sevenZipProcessRunnerType,
+                "RunAsync",
+                [typeof(string), typeof(IReadOnlyList<string>), typeof(bool), typeof(IProgress<int>), typeof(CancellationToken)]);
+            tryMeasureExtractionRoot = GetRequiredMethod(
+                sevenZipExtractionType,
+                "TryMeasureExtractionRoot",
+                [typeof(string), typeof(int).MakeByRefType(), typeof(long).MakeByRefType()]);
+            ensureArchiveEntryLimit = GetRequiredMethod(archiveResourcePolicyType, "ThrowIfEntryCountExceeded", [typeof(int), typeof(int)]);
+            isSupportedRedumpSourceUrl = GetRequiredMethod(redumpSyncManagerType, "IsSupportedSourceUrl", [typeof(string)]);
+            redumpSyncManagerConstructor = GetRequiredConstructor(redumpSyncManagerType, [typeof(HttpMessageHandler)]);
+            sendWithValidatedRedirectsAsync = GetRequiredInstanceMethod(
+                redumpSyncManagerType,
+                "SendWithValidatedRedirectsAsync",
+                [typeof(Uri), typeof(CancellationToken)]);
+            redumpDatabaseConstructor = GetRequiredConstructor(redumpDatabaseType, [typeof(string)]);
+            redumpDatEntryConstructor = GetRequiredConstructor(
+                redumpDatEntryType,
+                [
+                    typeof(string), typeof(string), typeof(string), typeof(string), typeof(string),
+                    typeof(string), typeof(string), typeof(string), typeof(DateTime?), typeof(int?),
+                    typeof(bool), typeof(string), typeof(string), typeof(long), typeof(DateTime)
+                ]);
+            cleanRebuildRedumpDatabaseAsync = GetRequiredInstanceMethod(
+                redumpDatabaseType,
+                "CleanRebuildFromDatFilesAsync",
+                [
+                    typeof(IReadOnlyList<>).MakeGenericType(redumpDatEntryType),
+                    typeof(IProgress<>).MakeGenericType(redumpImportProgressType),
+                    typeof(CancellationToken)
+                ]);
+            getRedumpRowCount = GetRequiredInstanceMethod(redumpDatabaseType, "GetTotalRowCount", Type.EmptyTypes);
+            runBackgroundShutdownStepAsync = GetRequiredMethod(
+                mainWindowType,
+                "RunBackgroundShutdownStepAsync",
+                [typeof(string), typeof(Func<Task>), typeof(TimeSpan?)]);
+            externalToolProcessRunnerConstructor = GetRequiredConstructor(externalToolProcessRunnerType, Type.EmptyTypes);
+            runExternalToolProcessAsync = GetRequiredInstanceMethod(
+                externalToolProcessRunnerType,
+                "RunAsync",
+                [typeof(string), typeof(IReadOnlyList<string>), typeof(CancellationToken), typeof(int)]);
+            csoToolProbePathConstructor = GetRequiredConstructor(csoToolProbeType, [typeof(string)]);
+            csoPreprocessorConstructor = GetRequiredConstructor(
+                csoPreprocessorType,
+                [csoToolProbeType, externalToolProcessRunnerType]);
+            preprocessCsoAsync = GetRequiredInstanceMethod(
+                csoPreprocessorType,
+                "PreprocessAsync",
+                [typeof(string), typeof(string), typeof(CancellationToken), typeof(Func<string, Task>)]);
+            createCsoTempWorkspace = GetRequiredMethod(csoTempWorkspaceType, "Create", Type.EmptyTypes);
         }
 
         public ReflectedStructure ScanStructure(string path)
@@ -964,6 +1415,165 @@ internal static class Program
             return AwaitValueTaskResult(valueTask, "Pipeline");
         }
 
+        public object CreateRuntimeToolService() =>
+            runtimeToolServiceType
+                .GetProperty("Instance", BindingFlags.Static | BindingFlags.Public)
+                ?.GetValue(null)
+            ?? throw new InvalidOperationException("Unable to obtain RuntimeToolService.Instance.");
+
+        public string GetRuntimeChdmanPath(object runtimeToolService) =>
+            (string)(runtimeToolGetChdmanPath.Invoke(runtimeToolService, null)
+                ?? throw new InvalidOperationException("RuntimeToolService returned an empty chdman path."));
+
+        public void CleanupRuntimeToolSession(object runtimeToolService) =>
+            runtimeToolCleanup.Invoke(runtimeToolService, null);
+
+        public IReadOnlyList<object> ParseSevenZipListEntries(string output)
+        {
+            object value = parseSevenZipListEntries.Invoke(null, [output])
+                ?? throw new InvalidOperationException("7-Zip list parser returned null.");
+
+            if (value is not IEnumerable enumerable)
+            {
+                throw new InvalidOperationException("7-Zip list parser did not return an enumerable result.");
+            }
+
+            return enumerable.Cast<object>().ToArray();
+        }
+
+        public object RunSevenZipListProcess(string archivePath)
+        {
+            string executablePath = Path.Combine(appDirectory, "Tools", "7zip", "7z.exe");
+            object task = runSevenZipProcess.Invoke(
+                null,
+                [
+                    executablePath,
+                    new string[] { "l", "-slt", "-ba", "--", archivePath },
+                    false,
+                    null,
+                    CancellationToken.None
+                ]) ?? throw new InvalidOperationException("7-Zip process runner returned null.");
+
+            return AwaitTaskResult(task, "7-Zip process runner");
+        }
+
+        public bool TryMeasureExtractionRoot(string path, out int entryCount, out long expandedBytes)
+        {
+            object?[] arguments = [path, 0, 0L];
+            bool result = (bool)(tryMeasureExtractionRoot.Invoke(null, arguments) ?? false);
+            entryCount = (int)(arguments[1] ?? 0);
+            expandedBytes = (long)(arguments[2] ?? 0L);
+            return result;
+        }
+
+        public void EnsureArchiveEntryLimit(int entryCount, int maximum) =>
+            ensureArchiveEntryLimit.Invoke(null, [entryCount, maximum]);
+
+        public bool IsSupportedRedumpSourceUrl(string url) =>
+            (bool)(isSupportedRedumpSourceUrl.Invoke(null, [url]) ?? false);
+
+        public IDisposable CreateRedumpSyncManager(HttpMessageHandler handler) =>
+            (IDisposable)(redumpSyncManagerConstructor.Invoke([handler])
+                ?? throw new InvalidOperationException("Unable to create Redump sync manager."));
+
+        public HttpResponseMessage SendRedumpRequest(IDisposable manager, Uri uri)
+        {
+            object task = sendWithValidatedRedirectsAsync.Invoke(
+                manager,
+                [uri, CancellationToken.None])
+                ?? throw new InvalidOperationException("Redump redirect request returned null.");
+
+            return (HttpResponseMessage)AwaitTaskResult(task, "Redump redirect request");
+        }
+
+        public object CreateRedumpDatabase(string databasePath) =>
+            redumpDatabaseConstructor.Invoke([databasePath])
+            ?? throw new InvalidOperationException("Unable to create Redump database manager.");
+
+        public object CleanRebuildRedumpDatabase(object database, IReadOnlyList<string> datPaths)
+        {
+            Array entries = Array.CreateInstance(redumpDatEntryType, datPaths.Count);
+            for (int index = 0; index < datPaths.Count; index++)
+            {
+                string fullPath = Path.GetFullPath(datPaths[index]);
+                var file = new FileInfo(fullPath);
+                object entry = redumpDatEntryConstructor.Invoke(
+                    [
+                        fullPath,
+                        file.Name,
+                        file.DirectoryName ?? string.Empty,
+                        file.Extension,
+                        "test",
+                        Path.GetFileNameWithoutExtension(file.Name),
+                        Path.GetFileNameWithoutExtension(file.Name),
+                        null,
+                        null,
+                        null,
+                        true,
+                        "ready",
+                        null,
+                        file.Length,
+                        file.LastWriteTimeUtc
+                    ]);
+                entries.SetValue(entry, index);
+            }
+
+            object task = cleanRebuildRedumpDatabaseAsync.Invoke(
+                database,
+                [entries, null, CancellationToken.None])
+                ?? throw new InvalidOperationException("Redump clean rebuild returned null.");
+
+            return AwaitTaskResult(task, "Redump clean rebuild");
+        }
+
+        public long GetRedumpRowCount(object database) =>
+            (long)(getRedumpRowCount.Invoke(database, null) ?? 0L);
+
+        public string RunShutdownStep(Func<Task> action, TimeSpan timeout)
+        {
+            object task = runBackgroundShutdownStepAsync.Invoke(
+                null,
+                ["security-test", action, timeout])
+                ?? throw new InvalidOperationException("Shutdown helper returned null.");
+
+            return AwaitTaskResult(task, "Shutdown helper").ToString() ?? string.Empty;
+        }
+
+        public object RunBundledCsoKit(IReadOnlyList<string> arguments)
+        {
+            object runner = externalToolProcessRunnerConstructor.Invoke(null);
+            object task = runExternalToolProcessAsync.Invoke(
+                runner,
+                [BundledCsoKitPath, arguments, CancellationToken.None, 64 * 1024])
+                ?? throw new InvalidOperationException("CsoKit process runner returned null.");
+
+            return AwaitTaskResult(task, "CsoKit process runner");
+        }
+
+        public IDisposable CreateCsoTempWorkspace(out string preparedIsoPath)
+        {
+            object workspace = createCsoTempWorkspace.Invoke(null, null)
+                ?? throw new InvalidOperationException("Unable to create the CsoKit temporary workspace.");
+            preparedIsoPath = GetString(workspace, "PreparedIsoPath");
+            return (IDisposable)workspace;
+        }
+
+        public object PreprocessCso(string inputCsoPath, string preparedIsoPath)
+        {
+            object runner = externalToolProcessRunnerConstructor.Invoke(null);
+            object probe = csoToolProbePathConstructor.Invoke([BundledCsoKitPath]);
+            object preprocessor = csoPreprocessorConstructor.Invoke([probe, runner]);
+            object task = preprocessCsoAsync.Invoke(
+                preprocessor,
+                [inputCsoPath, preparedIsoPath, CancellationToken.None, null])
+                ?? throw new InvalidOperationException("CsoKit preprocessor returned null.");
+
+            return AwaitTaskResult(task, "CsoKit preprocessor");
+        }
+
+        private string BundledCsoKitPath =>
+            Path.Combine(appDirectory, "Tools", "hakamiq-cso", "win-x64", "csokit.exe");
+
         public IReadOnlySet<string> GetAdvisoryReasonCodes(object advisory)
         {
             object? reasonsObject = ReadProperty(advisory, "Reasons");
@@ -1006,6 +1616,18 @@ internal static class Program
                 ?? throw new InvalidOperationException(context + " task did not expose a result.");
         }
 
+        private static object AwaitTaskResult(object taskObject, string context)
+        {
+            if (taskObject is not Task task)
+            {
+                throw new InvalidOperationException(context + " did not return a Task.");
+            }
+
+            task.GetAwaiter().GetResult();
+            return task.GetType().GetProperty("Result", BindingFlags.Instance | BindingFlags.Public)?.GetValue(task)
+                ?? throw new InvalidOperationException(context + " task did not expose a result.");
+        }
+
         private static Type GetOptionalPlatformDetectionType(Assembly assembly) =>
             assembly.GetType("HakamiqChdTool.App.Models.PlatformDetectionResult", throwOnError: true, ignoreCase: false)
             ?? throw new TypeLoadException("HakamiqChdTool.App.Models.PlatformDetectionResult");
@@ -1035,6 +1657,14 @@ internal static class Program
                 types: parameterTypes,
                 modifiers: null)
             ?? throw new MissingMethodException(type.FullName, methodName);
+
+        private static ConstructorInfo GetRequiredConstructor(Type type, Type[] parameterTypes) =>
+            type.GetConstructor(
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                binder: null,
+                types: parameterTypes,
+                modifiers: null)
+            ?? throw new MissingMethodException(type.FullName, ".ctor");
     }
 
     private sealed class ReflectedStructure(bool success, object? instance)

@@ -4,6 +4,12 @@ Most failures come from the source file, output folder, missing tools, or storag
 
 The app tries to catch the obvious ones early. If it stops before conversion, that is usually a safer result than producing a partial output.
 
+## The app does not start
+
+Extract the release ZIP before running the app, then start `HakamiqChdTool.exe` from the extracted release folder. Do not run `apphost.exe` or an executable under a repository `bin` or `obj` folder.
+
+The runtime-required package needs the Microsoft .NET 10 Desktop Runtime for Windows x64. Use a normal writable folder such as `C:\Tools\HakamiqChdTool` rather than a protected Windows folder.
+
 ## Source read errors
 
 CRC and I/O errors usually point to the source file, archive, drive, or storage path.
@@ -42,6 +48,12 @@ Keep enough free space for temporary files and the final CHD.
 
 A nearly full drive can make a normal conversion fail late. That is the worst time to discover it.
 
+## Output already exists
+
+The app may skip an item when the destination already exists. This protects an existing CHD or extracted image from accidental replacement.
+
+Remove or rename the destination only after confirming that it is no longer needed.
+
 ## Tool errors
 
 Some actions need chdman, 7-Zip, or CsoKit.
@@ -53,6 +65,8 @@ If a tool is missing, blocked by security software, or incompatible, the app sho
 Cancelled jobs are shown separately from failed jobs.
 
 This is intentional. It keeps a user action from looking like data loss or a broken source.
+
+A canceled process can leave a partial temporary or output file. Review the destination before retrying the same item.
 
 ## What to include in a report
 

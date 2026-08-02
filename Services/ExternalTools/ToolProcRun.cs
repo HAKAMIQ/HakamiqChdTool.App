@@ -33,13 +33,19 @@ public sealed class ExternalToolProcessRunner
         ArgumentException.ThrowIfNullOrWhiteSpace(executablePath);
         ArgumentNullException.ThrowIfNull(arguments);
 
+        if (!CsoToolLocator.TryValidateCandidate(executablePath, out string normalizedExecutablePath))
+        {
+            Log.Warning("External tool path failed validation before process start. Tool={ToolPath}", executablePath);
+            return new ExternalToolProcessResult(1, false, string.Empty, "External tool path is invalid.");
+        }
+
         int safeLimit = Math.Clamp(outputCharacterLimit, 1024, 128 * 1024);
         var stdout = new LimitedOutputCollector(safeLimit);
         var stderr = new LimitedOutputCollector(safeLimit);
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = executablePath,
+            FileName = normalizedExecutablePath,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -119,7 +125,7 @@ public sealed class ExternalToolProcessRunner
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            TryKillProcessTree(process, executablePath);
+            TryKillProcessTree(process, normalizedExecutablePath);
             await WaitAfterKillAsync(process).ConfigureAwait(false);
 
             return new ExternalToolProcessResult(

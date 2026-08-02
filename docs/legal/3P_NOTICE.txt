@@ -41,16 +41,19 @@ Related file:
 Hakamiq CHD Tool is not connected to Igor Pavlov or the 7-Zip project.
 
 --------------------------------------------------------------------------------
-Hakamiq.CsoKit
+CsoKit
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool may include Hakamiq.CsoKit to handle PSP CSO files.
+Hakamiq CHD Tool includes CsoKit 0.6.1 to handle PSP CSO files.
 
 CsoKit can read CSO file details, check a CSO file, and make a
 temporary ISO before chdman creates the CHD.
 
 Related file:
 CSOKIT_NOTICE.md
+
+Upstream:
+https://github.com/HAKAMIQ/CsoKit
 
 --------------------------------------------------------------------------------
 Microsoft Fluent UI System Icons

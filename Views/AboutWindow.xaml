@@ -637,7 +637,7 @@
 
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Margin="4"
+                                    <Border Margin="{DynamicResource Inset.4.All}"
                                             Style="{StaticResource About.CreditCardBorder}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>

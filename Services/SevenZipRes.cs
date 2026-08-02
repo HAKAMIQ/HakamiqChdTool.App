@@ -8,6 +8,8 @@ public sealed class SevenZipProcessResult
 
     public bool WasCancelled { get; init; }
 
+    public bool OutputLimitExceeded { get; init; }
+
     public string StandardOutput { get; init; } = string.Empty;
 
     public string StandardError { get; init; } = string.Empty;

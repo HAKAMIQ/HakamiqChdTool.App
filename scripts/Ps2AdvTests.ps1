@@ -10,7 +10,7 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $ScriptDir '..')).Path
 $AppProject = Join-Path $ProjectRoot 'HakamiqChdTool.App.csproj'
 $TestProject = Join-Path $ProjectRoot 'HakamiqChdTool.App.Tests\HakamiqChdTool.App.Tests.csproj'
-$AppAssembly = Join-Path $ProjectRoot 'bin\Debug\net8.0-windows10.0.17763.0\HakamiqChdTool.dll'
+$AppAssembly = Join-Path $ProjectRoot 'bin\Debug\net10.0-windows10.0.17763.0\HakamiqChdTool.dll'
 
 function Assert-CommandExists {
     param(

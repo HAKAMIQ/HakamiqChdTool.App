@@ -1,7 +1,20 @@
-Hakamiq CsoKit
+CsoKit Proprietary License
 
 Copyright (c) 2026 HAKAMIQ.
 All rights reserved.
 
-This source code and its compiled binaries are provided by HAKAMIQ.
-No permission is granted to copy, redistribute, sublicense, sell, or modify this software except where explicitly authorized by HAKAMIQ in writing.
+CsoKit is proprietary software owned by HAKAMIQ.
+
+You may download and use the official compiled release binaries for personal, non-commercial use.
+
+You may view the public source code in this repository for evaluation, review, and transparency only. Public availability of the repository does not grant open-source rights.
+
+You may not copy, redistribute, sublicense, sell, rent, host, modify, reverse engineer, decompile, create derivative works from, or use this software or its source code in another project without prior written permission from HAKAMIQ.
+
+You may not publish modified builds, unofficial binaries, mirrors, forks, or repackaged releases without prior written permission from HAKAMIQ.
+
+HAKAMIQ names, branding, icons, and logos may not be used without permission.
+
+Third-party components remain under their own licenses. See THIRD_PARTY_NOTICES.md for details.
+
+This software is provided as-is, without warranty of any kind, express or implied. HAKAMIQ is not liable for damages, data loss, misuse, or compatibility issues arising from use of the software.

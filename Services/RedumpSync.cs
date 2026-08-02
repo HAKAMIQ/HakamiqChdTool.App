@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,9 +24,10 @@ public readonly record struct RedumpGitHubSyncResult(
     int ImportedSystems,
     DateTimeOffset SyncedAtUtc);
 
-public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDisposable
+public sealed class RedumpGitHubSyncManager : IDisposable
 {
     private const string DefaultGitHubZipUrl = "https://codeload.github.com/Ross-Y/Redump-DATS/zip/refs/heads/main";
+    private const int MaxRedirectHops = 5;
 
     private const string DownloadStage = "download";
     private const string ExtractStage = "extract";
@@ -44,9 +46,28 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext<RedumpGitHubSyncManager>();
 
-    private readonly HttpClient _httpClient = httpClient ?? new HttpClient();
-    private readonly bool _ownsHttpClient = httpClient is null;
+    private readonly HttpClient _httpClient;
     private bool _disposed;
+
+    public RedumpGitHubSyncManager(TimeSpan? timeout = null)
+    {
+        var handler = new HttpClientHandler
+        {
+            AllowAutoRedirect = false
+        };
+
+        _httpClient = new HttpClient(handler, disposeHandler: true);
+        if (timeout.HasValue)
+        {
+            _httpClient.Timeout = timeout.Value;
+        }
+    }
+
+    internal RedumpGitHubSyncManager(HttpMessageHandler handler)
+    {
+        ArgumentNullException.ThrowIfNull(handler);
+        _httpClient = new HttpClient(handler, disposeHandler: true);
+    }
 
     public void Dispose()
     {
@@ -57,10 +78,7 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
 
         _disposed = true;
 
-        if (_ownsHttpClient)
-        {
-            _httpClient.Dispose();
-        }
+        _httpClient.Dispose();
     }
 
     public async Task<RedumpGitHubSyncResult> SyncFromGitHubAsync(
@@ -113,6 +131,13 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
                 }
 
                 EnsureSafeProcessTempFileTarget(directTargetPath);
+                long directDatBytes = new FileInfo(payloadPath).Length;
+                if (directDatBytes > ArchiveResourcePolicy.MaxRedumpSingleEntryBytes)
+                {
+                    throw new ArchiveResourceLimitException("redump-direct-dat");
+                }
+
+                EnsureRedumpFreeSpace(extractPath, directDatBytes);
                 File.Copy(payloadPath, directTargetPath, overwrite: false);
             }
 
@@ -128,6 +153,11 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
                 return Failure(NoDatFilesMessageKey, [], 0);
             }
 
+            ArchiveResourcePolicy.ThrowIfEntryCountExceeded(
+                datFiles.Count,
+                ArchiveResourcePolicy.MaxRedumpEntries);
+
+            var importEntries = new List<RedumpLocalLibraryDatEntry>(datFiles.Count);
             for (int index = 0; index < datFiles.Count; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -142,15 +172,35 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
                     ImportProgressMessageKey,
                     [systemName, index + 1, datFiles.Count]));
 
-                RedumpImportResult result = await RedumpSqliteManager.Default
-                    .ImportDatFileAsync(datFile, systemName, progress: null, cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (result.Success)
-                {
-                    imported++;
-                }
+                FileInfo file = new(datFile);
+                importEntries.Add(new RedumpLocalLibraryDatEntry(
+                    file.FullName,
+                    file.Name,
+                    file.DirectoryName ?? extractPath,
+                    file.Extension,
+                    "github-sync",
+                    systemName,
+                    systemName,
+                    Version: null,
+                    DatDateUtc: null,
+                    PreviewGameCount: null,
+                    IsSelected: true,
+                    Status: "ready",
+                    Reason: null,
+                    file.Length,
+                    file.LastWriteTimeUtc));
             }
+
+            RedumpImportResult atomicImport = await RedumpSqliteManager.Default
+                .CleanRebuildFromDatFilesAsync(importEntries, progress: null, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!atomicImport.Success)
+            {
+                return Failure(FailedMessageKey, [], 0);
+            }
+
+            imported = importEntries.Count;
 
             return new RedumpGitHubSyncResult(
                 true,
@@ -162,6 +212,16 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
         catch (OperationCanceledException)
         {
             throw;
+        }
+        catch (ArchiveResourceLimitException ex)
+        {
+            Logger.Warning(ex, "Redump synchronization stopped by the resource policy. Url={Url}", sourceUrl);
+            return Failure(ArchiveResourcePolicy.ResourceLimitMessageKey, [], 0);
+        }
+        catch (InvalidDataException ex) when (string.Equals(ex.Message, InvalidSourceUrlMessageKey, StringComparison.Ordinal))
+        {
+            Logger.Warning(ex, "Redump synchronization rejected the final download source. Url={Url}", sourceUrl);
+            return Failure(InvalidSourceUrlMessageKey, [], 0);
         }
         catch (InvalidDataException ex) when (string.Equals(ex.Message, UnsafeZipEntryMessageKey, StringComparison.Ordinal))
         {
@@ -188,14 +248,17 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
         string fullDestinationPath = Path.GetFullPath(destinationPath);
         EnsureSafeProcessTempFileTarget(fullDestinationPath);
 
-        using HttpResponseMessage response = await _httpClient.GetAsync(
+        using HttpResponseMessage response = await SendWithValidatedRedirectsAsync(
             url,
-            HttpCompletionOption.ResponseHeadersRead,
             cancellationToken).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
 
         long totalBytes = response.Content.Headers.ContentLength ?? -1L;
+        if (totalBytes > ArchiveResourcePolicy.MaxRedumpDownloadBytes)
+        {
+            throw new ArchiveResourceLimitException("redump-content-length");
+        }
 
         await using Stream input = await response.Content
             .ReadAsStreamAsync(cancellationToken)
@@ -215,9 +278,15 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
         int read;
         while ((read = await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
         {
+            long nextTotal = SaturatingAdd(readTotal, read);
+            if (nextTotal > ArchiveResourcePolicy.MaxRedumpDownloadBytes)
+            {
+                throw new ArchiveResourceLimitException("redump-download");
+            }
+
             await output.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
 
-            readTotal = SaturatingAdd(readTotal, read);
+            readTotal = nextTotal;
             if (totalBytes > 0)
             {
                 double percent = 5d + (readTotal / (double)totalBytes) * 45d;
@@ -245,6 +314,32 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
             EnsureDirectorySeparatorSuffix(destinationRoot);
 
         using ZipArchive archive = ZipFile.OpenRead(zipPath);
+
+        ArchiveResourcePolicy.ThrowIfEntryCountExceeded(
+            archive.Entries.Count,
+            ArchiveResourcePolicy.MaxRedumpEntries);
+
+        long declaredExpandedBytes = 0;
+        foreach (ZipArchiveEntry entry in archive.Entries)
+        {
+            if (entry.Length > ArchiveResourcePolicy.MaxRedumpSingleEntryBytes)
+            {
+                throw new ArchiveResourceLimitException("redump-single-entry");
+            }
+
+            declaredExpandedBytes = ArchiveResourcePolicy.SaturatingAdd(
+                declaredExpandedBytes,
+                Math.Max(0, entry.Length));
+            ArchiveResourcePolicy.ThrowIfExpandedBytesExceeded(
+                declaredExpandedBytes,
+                ArchiveResourcePolicy.MaxRedumpExpandedBytes);
+        }
+
+        EnsureRedumpFreeSpace(destinationRoot, declaredExpandedBytes);
+        var extractionBudget = new ArchiveExtractionBudget(
+            destinationRoot,
+            declaredExpandedBytes,
+            ArchiveResourcePolicy.MaxRedumpExpandedBytes);
 
         foreach (ZipArchiveEntry entry in archive.Entries)
         {
@@ -278,13 +373,14 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
             }
 
             EnsureSafeProcessTempFileTarget(targetPath);
-            CopyZipEntryToFile(entry, targetPath, cancellationToken);
+            CopyZipEntryToFile(entry, targetPath, extractionBudget, cancellationToken);
         }
     }
 
     private static void CopyZipEntryToFile(
         ZipArchiveEntry entry,
         string targetPath,
+        ArchiveExtractionBudget extractionBudget,
         CancellationToken cancellationToken)
     {
         byte[] buffer = new byte[64 * 1024];
@@ -302,6 +398,7 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
         while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            extractionBudget.AddWrittenBytes(read);
             output.Write(buffer, 0, read);
         }
     }
@@ -446,9 +543,104 @@ public sealed class RedumpGitHubSyncManager(HttpClient? httpClient = null) : IDi
             return false;
         }
 
-        return string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
-            && !string.IsNullOrWhiteSpace(uri.Host)
-            && string.IsNullOrEmpty(uri.UserInfo);
+        return IsSupportedSourceUri(uri);
+    }
+
+    private static bool IsSupportedSourceUri(Uri uri)
+    {
+        if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(uri.Host)
+            || !string.IsNullOrEmpty(uri.UserInfo)
+            || !uri.IsDefaultPort)
+        {
+            return false;
+        }
+
+        return uri.Host.Equals("github.com", StringComparison.OrdinalIgnoreCase)
+            || uri.Host.Equals("codeload.github.com", StringComparison.OrdinalIgnoreCase)
+            || uri.Host.Equals("raw.githubusercontent.com", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void EnsureRedumpFreeSpace(string destinationPath, long plannedBytes)
+    {
+        ArchiveResourcePolicy.ThrowIfExpandedBytesExceeded(
+            plannedBytes,
+            ArchiveResourcePolicy.MaxRedumpExpandedBytes);
+
+        long required = ArchiveResourcePolicy.SaturatingAdd(
+            plannedBytes,
+            ArchiveResourcePolicy.MinimumFreeSpaceReserveBytes);
+        if (ArchiveResourcePolicy.GetAvailableFreeSpace(destinationPath) < required)
+        {
+            throw new ArchiveResourceLimitException("redump-free-space");
+        }
+    }
+
+    private async Task<HttpResponseMessage> SendWithValidatedRedirectsAsync(
+        Uri initialUri,
+        CancellationToken cancellationToken)
+    {
+        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        Uri currentUri = initialUri;
+
+        for (int redirectCount = 0; ; redirectCount++)
+        {
+            if (!IsSupportedSourceUri(currentUri)
+                || !visited.Add(currentUri.AbsoluteUri))
+            {
+                throw new InvalidDataException(InvalidSourceUrlMessageKey);
+            }
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, currentUri);
+            HttpResponseMessage response = await _httpClient.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken).ConfigureAwait(false);
+
+            if (!IsRedirectStatusCode(response.StatusCode))
+            {
+                return response;
+            }
+
+            Uri? nextUri = TryResolveRedirectUri(currentUri, response.Headers.Location);
+            response.Dispose();
+
+            if (redirectCount >= MaxRedirectHops
+                || nextUri is null
+                || !IsSupportedSourceUri(nextUri)
+                || visited.Contains(nextUri.AbsoluteUri))
+            {
+                throw new InvalidDataException(InvalidSourceUrlMessageKey);
+            }
+
+            currentUri = nextUri;
+        }
+    }
+
+    private static bool IsRedirectStatusCode(HttpStatusCode statusCode) => statusCode is
+        HttpStatusCode.MovedPermanently
+        or HttpStatusCode.Found
+        or HttpStatusCode.SeeOther
+        or HttpStatusCode.TemporaryRedirect
+        or HttpStatusCode.PermanentRedirect;
+
+    private static Uri? TryResolveRedirectUri(Uri currentUri, Uri? location)
+    {
+        if (location is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return location.IsAbsoluteUri
+                ? location
+                : new Uri(currentUri, location);
+        }
+        catch (UriFormatException)
+        {
+            return null;
+        }
     }
 
     private static void DeleteWorkRootSafely(string workRoot)

@@ -2,6 +2,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -100,6 +101,16 @@ public sealed class SevenZipArchiveInspector
             };
         }
 
+        if (result.OutputLimitExceeded)
+        {
+            Logger.Warning("7-Zip archive preview exceeded the output resource limit. Archive={Archive}", fullArchivePath);
+            return new ArchiveContentPreviewResult
+            {
+                IsUnreadable = true,
+                MessageResourceKey = ArchiveResourcePolicy.ResourceLimitMessageKey
+            };
+        }
+
         if (result.ExitCode != 0)
         {
             string combined = result.CombinedOutput;
@@ -121,9 +132,21 @@ public sealed class SevenZipArchiveInspector
             };
         }
 
+        List<SevenZipListEntry> listedEntries = ParseSevenZipListEntries(result.StandardOutput);
+        if (listedEntries.Count > ArchiveResourcePolicy.MaxArchiveEntries)
+        {
+            return new ArchiveContentPreviewResult
+            {
+                IsUnreadable = true,
+                MessageResourceKey = ArchiveResourcePolicy.ResourceLimitMessageKey
+            };
+        }
+
         List<string> entryPaths =
         [
-            .. ParseSevenZipListPaths(result.StandardOutput)
+            .. listedEntries
+                .Where(entry => !entry.IsDirectory)
+                .Select(entry => entry.Path)
                 .Where(path => !string.IsNullOrWhiteSpace(path))
                 .Where(path => !LooksLikeDirectory(path))
                 .Where(path => !IsArchiveSelfPath(path, fullArchivePath))
@@ -296,6 +319,16 @@ public sealed class SevenZipArchiveInspector
                 : new SevenZipDescriptorTextResult(false, false, false, "LocQueueAdd_ArchivePreviewTimeout", string.Empty);
         }
 
+        if (result.OutputLimitExceeded)
+        {
+            return new SevenZipDescriptorTextResult(
+                false,
+                false,
+                false,
+                ArchiveResourcePolicy.ResourceLimitMessageKey,
+                string.Empty);
+        }
+
         if (result.ExitCode != 0)
         {
             string output = result.CombinedOutput;
@@ -334,30 +367,89 @@ public sealed class SevenZipArchiveInspector
 
     internal static List<string> ParseSevenZipListPaths(string output)
     {
-        var paths = new List<string>();
+        return
+        [
+            .. ParseSevenZipListEntries(output)
+                .Select(entry => entry.Path)
+        ];
+    }
+
+    internal sealed record SevenZipListEntry(
+        string Path,
+        long? Size,
+        long? PackedSize,
+        bool IsDirectory);
+
+    internal static List<SevenZipListEntry> ParseSevenZipListEntries(string output)
+    {
+        var entries = new List<SevenZipListEntry>();
 
         if (string.IsNullOrWhiteSpace(output))
         {
-            return paths;
+            return entries;
         }
 
         using var reader = new StringReader(output);
 
+        string? path = null;
+        long? size = null;
+        long? packedSize = null;
+        bool isDirectory = false;
+
+        void FlushEntry()
+        {
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                entries.Add(new SevenZipListEntry(path, size, packedSize, isDirectory));
+            }
+
+            path = null;
+            size = null;
+            packedSize = null;
+            isDirectory = false;
+        }
+
         while (reader.ReadLine() is { } line)
         {
-            if (!line.StartsWith("Path = ", StringComparison.Ordinal))
+            if (string.IsNullOrWhiteSpace(line))
             {
+                FlushEntry();
                 continue;
             }
 
-            string value = line[7..].Trim();
-            if (!string.IsNullOrWhiteSpace(value))
+            if (line.StartsWith("Path = ", StringComparison.Ordinal))
             {
-                paths.Add(value);
+                if (path is not null)
+                {
+                    FlushEntry();
+                }
+
+                path = line[7..].Trim();
+                continue;
+            }
+
+            if (line.StartsWith("Size = ", StringComparison.Ordinal)
+                && long.TryParse(line[7..].Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out long parsedSize))
+            {
+                size = parsedSize;
+                continue;
+            }
+
+            if (line.StartsWith("Packed Size = ", StringComparison.Ordinal)
+                && long.TryParse(line[14..].Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out long parsedPackedSize))
+            {
+                packedSize = parsedPackedSize;
+                continue;
+            }
+
+            if (line.StartsWith("Folder = ", StringComparison.Ordinal))
+            {
+                isDirectory = string.Equals(line[9..].Trim(), "+", StringComparison.Ordinal);
             }
         }
 
-        return paths;
+        FlushEntry();
+        return entries;
     }
 
     internal static bool LooksPasswordProtected(string output)

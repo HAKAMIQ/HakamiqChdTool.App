@@ -12,7 +12,7 @@ https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/latest
 Choose the Windows x64 runtime-required package:
 
 - `HakamiqChdTool-vX.Y.Z-win-x64-runtime-required.zip`
-  Requires .NET 8 Desktop Runtime x64.
+  Requires .NET 10 Desktop Runtime x64.
 
 ## Quick start
 
@@ -38,8 +38,12 @@ The tool does not include games, ROMs, or BIOS files. Use it only with files you
 ## Limitations
 
 Windows x64 only.
+The bundled MAME 0.289 tool requires an x86-64-v2 capable processor.
 Not every disc layout is supported.
 CHD work still depends on chdman support.
+
+Dependency versions are locked, bundled tool hashes are pinned, and a
+CycloneDX 1.7 SBOM is included with release output.
 
 ## More documentation
 

@@ -47,7 +47,7 @@ internal sealed class ChdCsoInputPreparationCoordinator
                     PreparedInputPath: preparationResult.PreparedIsoPath,
                     PreparationTool: preparationResult.ToolName,
                     PreparationToolVersion: preparationResult.ToolVersion,
-                    PreparationCommand: "hakamiq-cso info input.cso --json; hakamiq-cso verify input.cso --json; hakamiq-cso decompress input.cso -o tmp.iso --force --json",
+                    PreparationCommand: "csokit info input.cso --json; csokit verify input.cso --json; csokit decompress input.cso -o tmp.iso --force --json",
                     PreparationExitCode: preparationResult.ExitCode,
                     PreparedOutputBytes: preparationResult.PreparedIsoBytes,
                     TemporaryIsoDeleted: false,

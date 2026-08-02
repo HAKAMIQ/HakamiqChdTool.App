@@ -2,6 +2,7 @@ using HakamiqChdTool.App.Services.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -12,7 +13,13 @@ public sealed record CsoToolLocation(
 
 public sealed class CsoToolLocator
 {
-    public const string ToolExecutableName = "hakamiq-cso.exe";
+    public const string ToolExecutableName = "csokit.exe";
+    public const string NativeLibraryName = "CsoKit.Native.dll";
+    private const string BundledToolSha256 = "FB1BF1E6BD0C51CAB54F505E7E44404F1E5CBFBFF3CB0FFC7EEC159D7D9254C0";
+    private const string BundledNativeDllSha256 = "B396B0CA41BE7F905E8EA73C285C1F5089C8DA4FB1E4C157775BF198B1F70589";
+
+    private static readonly byte[] ExpectedBundledToolSha256 = Convert.FromHexString(BundledToolSha256);
+    private static readonly byte[] ExpectedBundledNativeDllSha256 = Convert.FromHexString(BundledNativeDllSha256);
 
     private readonly string _preferredToolPath;
 
@@ -77,7 +84,7 @@ public sealed class CsoToolLocator
         }
     }
 
-    private static bool TryValidateCandidate(string candidatePath, out string normalized)
+    internal static bool TryValidateCandidate(string candidatePath, out string normalized)
     {
         normalized = string.Empty;
 
@@ -104,6 +111,24 @@ public sealed class CsoToolLocator
                 return false;
             }
 
+            string? directory = Path.GetDirectoryName(fullPath);
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                return false;
+            }
+
+            string nativeLibraryPath = Path.GetFullPath(Path.Combine(directory, NativeLibraryName));
+            if (!HasValidRuntimeFile(nativeLibraryPath))
+            {
+                return false;
+            }
+
+            if (IsBundledToolPath(fullPath)
+                && !HasExpectedBundledRuntime(fullPath, nativeLibraryPath))
+            {
+                return false;
+            }
+
             normalized = fullPath;
             return true;
         }
@@ -117,5 +142,46 @@ public sealed class CsoToolLocator
         {
             return false;
         }
+    }
+
+    private static bool IsBundledToolPath(string path)
+    {
+        string expectedPath = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "Tools",
+            "hakamiq-cso",
+            "win-x64",
+            ToolExecutableName));
+
+        return string.Equals(path, expectedPath, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool HasValidRuntimeFile(string path)
+    {
+        if (!File.Exists(path))
+        {
+            return false;
+        }
+
+        ConversionPathValidator.ThrowIfUnsafeForChdman(path, nameof(path));
+        return new FileInfo(path).Length > 0;
+    }
+
+    private static bool HasExpectedBundledRuntime(string executablePath, string nativeLibraryPath) =>
+        HasExpectedSha256(executablePath, ExpectedBundledToolSha256)
+            && HasExpectedSha256(nativeLibraryPath, ExpectedBundledNativeDllSha256);
+
+    private static bool HasExpectedSha256(string path, byte[] expectedSha256)
+    {
+        using FileStream stream = new(
+            path,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.Read,
+            bufferSize: 1024 * 1024,
+            FileOptions.SequentialScan);
+
+        byte[] actualSha256 = SHA256.HashData(stream);
+        return CryptographicOperations.FixedTimeEquals(expectedSha256, actualSha256);
     }
 }

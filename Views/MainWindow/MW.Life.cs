@@ -11,7 +11,7 @@ public partial class MainWindow
 {
     private static readonly TimeSpan StartupUpdateCheckShutdownTimeout = TimeSpan.FromSeconds(3);
     private static readonly TimeSpan RuntimeDeferredCleanupShutdownTimeout = TimeSpan.FromSeconds(3);
-    private static readonly TimeSpan QueueDisposeShutdownTimeout = TimeSpan.FromSeconds(8);
+    private static readonly TimeSpan QueueDisposeShutdownTimeout = TimeSpan.FromSeconds(45);
     private static readonly TimeSpan PendingWorkspaceCleanupShutdownTimeout = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan RuntimeSessionCleanupShutdownTimeout = TimeSpan.FromSeconds(3);
 
@@ -87,7 +87,7 @@ public partial class MainWindow
             _queueController.Dispose();
         }).ConfigureAwait(false);
 
-        await RunBackgroundShutdownStepAsync(
+        ShutdownStepResult queueDisposeResult = await RunBackgroundShutdownStepAsync(
             "Dispose queue.",
             async () =>
             {
@@ -95,10 +95,20 @@ public partial class MainWindow
             },
             QueueDisposeShutdownTimeout).ConfigureAwait(false);
 
-        await RunBackgroundShutdownStepAsync(
-            "Clean pending conversion workspaces after queue shutdown.",
-            () => Task.Run(TryCleanupPendingWorkspacesAfterQueueShutdown),
-            PendingWorkspaceCleanupShutdownTimeout).ConfigureAwait(false);
+        bool queueQuiesced = queueDisposeResult == ShutdownStepResult.Completed;
+        if (queueQuiesced)
+        {
+            await RunBackgroundShutdownStepAsync(
+                "Clean pending conversion workspaces after queue shutdown.",
+                () => Task.Run(TryCleanupPendingWorkspacesAfterQueueShutdown),
+                PendingWorkspaceCleanupShutdownTimeout).ConfigureAwait(false);
+        }
+        else
+        {
+            Log.Warning(
+                "Skipping pending workspace cleanup because queue shutdown did not complete. Result={Result}",
+                queueDisposeResult);
+        }
 
         await RunUiShutdownStepAsync("Release queue viewport resolver.", () =>
         {
@@ -115,13 +125,22 @@ public partial class MainWindow
             _viewport.Dispose();
         }).ConfigureAwait(false);
 
-        await RunBackgroundShutdownStepAsync(
-            "Clean up runtime tool session.",
-            async () =>
-            {
-                await Task.Run(_runtimeTools.TryCleanupCurrentSession).ConfigureAwait(false);
-            },
-            RuntimeSessionCleanupShutdownTimeout).ConfigureAwait(false);
+        if (queueQuiesced)
+        {
+            await RunBackgroundShutdownStepAsync(
+                "Clean up runtime tool session.",
+                async () =>
+                {
+                    await Task.Run(_runtimeTools.TryCleanupCurrentSession).ConfigureAwait(false);
+                },
+                RuntimeSessionCleanupShutdownTimeout).ConfigureAwait(false);
+        }
+        else
+        {
+            Log.Warning(
+                "Skipping runtime tool cleanup because queue shutdown did not complete. Result={Result}",
+                queueDisposeResult);
+        }
 
         await RunUiShutdownStepAsync("Dispose window lifetime token source.", () =>
         {
@@ -240,16 +259,18 @@ public partial class MainWindow
         }
     }
 
-    private static async Task RunBackgroundShutdownStepAsync(
+    private static async Task<ShutdownStepResult> RunBackgroundShutdownStepAsync(
         string stepName,
         Func<Task> action,
         TimeSpan? timeout = null)
     {
         ArgumentNullException.ThrowIfNull(action);
 
+        Task? stepTask = null;
+
         try
         {
-            Task stepTask = action();
+            stepTask = action();
 
             if (timeout.HasValue)
             {
@@ -259,6 +280,8 @@ public partial class MainWindow
             {
                 await stepTask.ConfigureAwait(false);
             }
+
+            return ShutdownStepResult.Completed;
         }
         catch (TimeoutException ex)
         {
@@ -266,6 +289,13 @@ public partial class MainWindow
                 ex,
                 "Shutdown background step timed out: {StepName}",
                 stepName);
+
+            if (stepTask is not null)
+            {
+                ObserveLateShutdownTask(stepTask, stepName);
+            }
+
+            return ShutdownStepResult.TimedOut;
         }
         catch (OperationCanceledException ex)
         {
@@ -273,6 +303,7 @@ public partial class MainWindow
                 ex,
                 "Shutdown background step cancelled: {StepName}",
                 stepName);
+            return ShutdownStepResult.Cancelled;
         }
         catch (ObjectDisposedException ex)
         {
@@ -280,6 +311,7 @@ public partial class MainWindow
                 ex,
                 "Shutdown background step skipped because dependency was disposed: {StepName}",
                 stepName);
+            return ShutdownStepResult.Failed;
         }
         catch (Exception ex)
         {
@@ -287,6 +319,36 @@ public partial class MainWindow
                 ex,
                 "Shutdown background step failed: {StepName}",
                 stepName);
+            return ShutdownStepResult.Failed;
         }
+    }
+
+    private static void ObserveLateShutdownTask(Task task, string stepName)
+    {
+        _ = task.ContinueWith(
+            static (completedTask, state) =>
+            {
+                string name = (string)state!;
+                if (completedTask.Exception is not null)
+                {
+                    completedTask.Exception.Handle(static _ => true);
+                    Log.Debug(
+                        completedTask.Exception,
+                        "Shutdown background step faulted after its timeout: {StepName}",
+                        name);
+                }
+            },
+            stepName,
+            System.Threading.CancellationToken.None,
+            TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
+    }
+
+    private enum ShutdownStepResult
+    {
+        Completed = 0,
+        TimedOut = 1,
+        Cancelled = 2,
+        Failed = 3
     }
 }

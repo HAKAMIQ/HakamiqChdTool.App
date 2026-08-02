@@ -8,7 +8,8 @@ public sealed record MediaInputDescriptor(
     bool IsDirectory,
     long? SizeBytes,
     string? Extension,
-    string DetectionReason)
+    string DetectionReason,
+    MediaInputProbeStatus ProbeStatus = MediaInputProbeStatus.NotRequired)
 {
     public bool IsFile => Exists && !IsDirectory;
 
@@ -20,4 +21,7 @@ public sealed record MediaInputDescriptor(
         or MediaInputKind.GDI;
 
     public bool IsKnownContainerKind => Kind is MediaInputKind.Folder or MediaInputKind.PKG;
+
+    public bool HasConfirmedHeaderEvidence => ProbeStatus is MediaInputProbeStatus.MagicConfirmed
+        or MediaInputProbeStatus.HeaderEnvelopeValid;
 }

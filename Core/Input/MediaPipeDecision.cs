@@ -44,4 +44,5 @@ public static class MediaInputPipelineDecisionReasons
     public const string DependentTrackFile = "dependent-track-file";
     public const string DetectedOnlyPackage = "detected-only-package";
     public const string UnsupportedMediaInput = "unsupported-media-input";
+    public const string HeaderEvidenceRejected = "header-evidence-rejected";
 }

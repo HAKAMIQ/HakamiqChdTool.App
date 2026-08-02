@@ -62,8 +62,8 @@ public sealed record CsoPreprocessResult(
 
 public sealed class CsoPreprocessor : ICsoPreprocessor
 {
-    public const string ToolName = "Hakamiq CsoKit";
-    public const string ToolExecutableName = "hakamiq-cso.exe";
+    public const string ToolName = "CsoKit";
+    public const string ToolExecutableName = "csokit.exe";
     public const string ToolMissingMessageKey = "LocWorkflow_CsoToolMissing";
     public const string ToolFailedMessageKey = "LocWorkflow_CsoToolFailed";
     public const string PreparationFailedMessageKey = "LocWorkflow_CsoPreparationFailed";

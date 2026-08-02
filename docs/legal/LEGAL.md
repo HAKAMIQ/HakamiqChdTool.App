@@ -15,8 +15,8 @@ MAME license and notice files.
 If 7-Zip tools are included, the release package must include the
 required 7-Zip license notice.
 
-If hakamiq-cso.exe is included, the release package must include the
-CsoKit notice and the required CsoKit files.
+If CsoKit is included, the release package must keep `csokit.exe` and
+`CsoKit.Native.dll` together with the CsoKit notice and required release files.
 
 ## Redump
 

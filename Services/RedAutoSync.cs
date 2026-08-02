@@ -71,12 +71,7 @@ internal sealed class RedumpAutoSyncStartupService
             using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             timeoutCts.CancelAfter(StartupSyncTimeout);
 
-            using HttpClient httpClient = new()
-            {
-                Timeout = StartupSyncTimeout
-            };
-
-            using RedumpGitHubSyncManager syncManager = new(httpClient);
+            using RedumpGitHubSyncManager syncManager = new(StartupSyncTimeout);
             RedumpGitHubSyncResult syncResult = await syncManager
                 .SyncFromGitHubAsync(settings.RedumpDatabaseDownloadUrl, progress: null, timeoutCts.Token)
                 .ConfigureAwait(false);
