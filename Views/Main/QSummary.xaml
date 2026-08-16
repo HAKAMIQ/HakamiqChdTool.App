@@ -6,28 +6,21 @@
              SnapsToDevicePixels="True"
              UseLayoutRounding="True">
 
-    <Border HorizontalAlignment="Stretch"
-            VerticalAlignment="Center"
+	<Border VerticalAlignment="Center"
             Padding="{DynamicResource Inset.8.6}"
             Background="{DynamicResource Brush.Transparent}"
-            BorderBrush="{DynamicResource Brush.Transparent}"
             BorderThickness="{DynamicResource Inset.None}"
-            CornerRadius="{DynamicResource Radius.Control}"
-            SnapsToDevicePixels="True">
+            CornerRadius="{DynamicResource Radius.Control}">
 
-        <Grid HorizontalAlignment="Stretch"
-              VerticalAlignment="Center"
-              FlowDirection="{DynamicResource App.FlowDirection}"
-              Language="{DynamicResource App.XmlLanguage}"
-              SnapsToDevicePixels="True">
+		<Grid VerticalAlignment="Center">
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0"
+			<Border Grid.Column="0"
                     MinWidth="{DynamicResource Space.20}"
                     Height="{DynamicResource Space.20}"
                     Padding="{DynamicResource Inset.6.0}"
@@ -36,23 +29,18 @@
                     Background="{DynamicResource Brush.Accent.Subtle}"
                     BorderBrush="{DynamicResource Brush.Accent.SelectedBorder}"
                     BorderThickness="{DynamicResource Inset.1.All}"
-                    CornerRadius="{DynamicResource Radius.Pill}"
-                    SnapsToDevicePixels="True">
+                    CornerRadius="{DynamicResource Radius.Pill}">
 
-                <TextBlock HorizontalAlignment="Center"
+				<TextBlock HorizontalAlignment="Center"
                            VerticalAlignment="Center"
                            FontFamily="{DynamicResource FontFamily.Text}"
                            FontSize="{DynamicResource FontSize.Caption}"
                            FontWeight="{DynamicResource FontWeight.SemiBold}"
                            Foreground="{DynamicResource Brush.Accent.Text}"
-                           Text="{Binding QueueItems.Count, StringFormat={}{0}}"
-                           TextAlignment="Left"
-                           TextTrimming="CharacterEllipsis"
-                           TextWrapping="NoWrap"
-                           SnapsToDevicePixels="True" />
-            </Border>
+                           Text="{Binding QueueItems.Count, StringFormat={}{0}}" />
+			</Border>
 
-            <TextBlock Grid.Column="2"
+			<TextBlock Grid.Column="2"
                        HorizontalAlignment="Stretch"
                        VerticalAlignment="Center"
                        Style="{DynamicResource QueueWorkspace.GeneralText}"
@@ -61,8 +49,7 @@
                        Text="{DynamicResource LocUi_QueueSummary_Tasks}"
                        TextAlignment="Left"
                        TextTrimming="CharacterEllipsis"
-                       TextWrapping="NoWrap"
-                       SnapsToDevicePixels="True" />
-        </Grid>
-    </Border>
+                       TextWrapping="NoWrap" />
+		</Grid>
+	</Border>
 </UserControl>

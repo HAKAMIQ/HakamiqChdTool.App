@@ -190,6 +190,7 @@
     <Thickness x:Key="Inset.16.0.16.0">16,0,16,0</Thickness>
     <Thickness x:Key="Inset.18.0.0.0">18,0,0,0</Thickness>
     <Thickness x:Key="Inset.34.0">34,0</Thickness>
+    <Thickness x:Key="Inset.4.0">4,0</Thickness>
 
     <Thickness x:Key="Inset.7.3">7,3</Thickness>
     <Thickness x:Key="Inset.4.2">4,2</Thickness>

@@ -7,8 +7,8 @@
              UseLayoutRounding="True">
 
     <UserControl.Resources>
-        <Thickness x:Key="Footer.Root.Padding">12,6,12,6</Thickness>
-        <Thickness x:Key="Footer.Chip.Padding">10,4,10,4</Thickness>
+        <Thickness x:Key="Footer.Root.Padding">16,5,16,5</Thickness>
+        <Thickness x:Key="Footer.Chip.Padding">4,2,4,2</Thickness>
         <Thickness x:Key="Footer.Hairline">1</Thickness>
 
         <CornerRadius x:Key="Footer.Chip.Radius">8</CornerRadius>
@@ -22,20 +22,12 @@
                     Value="Center" />
             <Setter Property="FontSize"
                     Value="{DynamicResource FontSize.CaptionSmall}" />
-            <Setter Property="FlowDirection"
-                    Value="{DynamicResource App.FlowDirection}" />
-            <Setter Property="Language"
-                    Value="{DynamicResource App.XmlLanguage}" />
             <Setter Property="TextAlignment"
                     Value="Left" />
             <Setter Property="TextWrapping"
                     Value="NoWrap" />
             <Setter Property="TextTrimming"
                     Value="CharacterEllipsis" />
-            <Setter Property="SnapsToDevicePixels"
-                    Value="True" />
-            <Setter Property="UseLayoutRounding"
-                    Value="True" />
         </Style>
 
         <Style x:Key="FooterStateText"
@@ -63,8 +55,6 @@
                     Value="{DynamicResource TechnicalText.FlowDirection}" />
             <Setter Property="Language"
                     Value="{DynamicResource TechnicalText.Language}" />
-            <Setter Property="TextAlignment"
-                    Value="Left" />
             <Setter Property="FontFamily"
                     Value="{DynamicResource FontFamily.Mono}" />
             <Setter Property="FontWeight"
@@ -80,17 +70,13 @@
             <Setter Property="CornerRadius"
                     Value="{StaticResource Footer.Chip.Radius}" />
             <Setter Property="Background"
-                    Value="{DynamicResource Brush.Layer.Surface}" />
+                    Value="{DynamicResource Brush.Transparent}" />
             <Setter Property="BorderBrush"
-                    Value="{DynamicResource Brush.Border.Subtle}" />
+                    Value="{DynamicResource Brush.Transparent}" />
             <Setter Property="BorderThickness"
-                    Value="{StaticResource Footer.Hairline}" />
+                    Value="{DynamicResource Inset.None}" />
             <Setter Property="VerticalAlignment"
                     Value="Center" />
-            <Setter Property="SnapsToDevicePixels"
-                    Value="True" />
-            <Setter Property="UseLayoutRounding"
-                    Value="True" />
         </Style>
 
         <Style x:Key="FooterProgressSurface"
@@ -103,20 +89,13 @@
 
     <Border x:Name="MainFooterStatusStrip"
             Style="{StaticResource FluentFooterSessionCapsule}"
-            Padding="{StaticResource Footer.Root.Padding}"
-            SnapsToDevicePixels="True"
-            UseLayoutRounding="True">
+            Padding="{StaticResource Footer.Root.Padding}">
 
-        <Grid VerticalAlignment="Center"
-              FlowDirection="{DynamicResource App.FlowDirection}"
-              SnapsToDevicePixels="True"
-              UseLayoutRounding="True">
+        <Grid VerticalAlignment="Center">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
@@ -127,74 +106,68 @@
                   Visibility="Collapsed">
 
                 <TextBlock x:Name="FooterWaitingCountText"
-                           Text="0"
-                           TextAlignment="Left" />
+                           Text="0" />
 
                 <TextBlock x:Name="FooterActiveCountText"
-                           Text="0"
-                           TextAlignment="Left" />
+                           Text="0" />
 
                 <TextBlock x:Name="FooterCompletedCountText"
-                           Text="0"
-                           TextAlignment="Left" />
+                           Text="0" />
 
                 <TextBlock x:Name="FooterFailedCountText"
-                           Text="0"
-                           TextAlignment="Left" />
+                           Text="0" />
 
                 <TextBlock x:Name="FooterSkippedCountText"
-                           Text="0"
-                           TextAlignment="Left" />
+                           Text="0" />
             </Grid>
 
-            <Border Grid.Column="0"
-                    MinWidth="108"
-                    Style="{StaticResource FooterChipSurface}">
+            <Grid Grid.Column="0"
+                  VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                <Grid VerticalAlignment="Center"
-                      SnapsToDevicePixels="True"
-                      UseLayoutRounding="True">
+                <Border Grid.Column="0"
+                        Style="{StaticResource FooterChipSurface}">
 
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                    <Grid VerticalAlignment="Center">
 
-                    <Border x:Name="FooterStateDot"
-                            Grid.Column="0"
-                            Width="8"
-                            Height="8"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            CornerRadius="{StaticResource Footer.Dot.Radius}"
-                            Background="{DynamicResource Brush.Accent.Text}"
-                            SnapsToDevicePixels="True"
-                            UseLayoutRounding="True" />
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="FooterStateText"
-                               Grid.Column="2"
-                               HorizontalAlignment="Stretch"
-                               Style="{StaticResource FooterStateText}"
-                               Text="{DynamicResource LocFooter_StateReady}"
-                               TextAlignment="Left" />
-                </Grid>
-            </Border>
+                        <Border x:Name="FooterStateDot"
+                                Grid.Column="0"
+                                Width="7"
+                                Height="7"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                CornerRadius="{StaticResource Footer.Dot.Radius}"
+                                Background="{DynamicResource Brush.Accent.Text}" />
 
-            <TextBlock x:Name="FooterQueueSummaryText"
-                       Grid.Column="2"
-                       MinWidth="0"
-                       HorizontalAlignment="Stretch"
-                       VerticalAlignment="Center"
-                       Style="{StaticResource FooterMessageText}"
-                       Text="{DynamicResource LocFooter_IdleNoTasks}"
-                       TextAlignment="Left" />
+                        <TextBlock x:Name="FooterStateText"
+                                   Grid.Column="2"
+                                   Style="{StaticResource FooterStateText}"
+                                   Text="{DynamicResource LocFooter_StateReady}" />
+                    </Grid>
+                </Border>
 
-            <Grid Grid.Column="4"
+                <TextBlock x:Name="FooterQueueSummaryText"
+                           Grid.Column="2"
+                           MinWidth="0"
+                           MaxWidth="{DynamicResource Layout.ToolTip.MaxWidth}"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource FooterMessageText}"
+                           Text="{DynamicResource LocFooter_IdleNoTasks}" />
+            </Grid>
+
+            <Grid Grid.Column="2"
                   HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  SnapsToDevicePixels="True"
-                  UseLayoutRounding="True">
+                  VerticalAlignment="Center">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -208,9 +181,7 @@
 
                     <Grid x:Name="FooterProgressStrip"
                           VerticalAlignment="Center"
-                          Visibility="Collapsed"
-                          SnapsToDevicePixels="True"
-                          UseLayoutRounding="True">
+                          Visibility="Collapsed">
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
