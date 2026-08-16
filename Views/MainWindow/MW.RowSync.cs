@@ -198,6 +198,14 @@ public partial class MainWindow
             row.Progress = vm.ProgressValue;
             row.IsIndeterminate = vm.IsIndeterminate;
             row.IsProgressActive = vm.IsProgressActive;
+            row.RedumpState = vm.RedumpState;
+            row.RedumpProgress = vm.RedumpProgressValue;
+            row.RedumpIsIndeterminate = vm.RedumpIsIndeterminate;
+            row.RedumpStatusText = vm.RedumpStatusText;
+            row.RedumpCurrentBytes = vm.RedumpCurrentBytes;
+            row.RedumpTotalBytes = vm.RedumpTotalBytes;
+            row.RedumpBytesPerSecond = vm.RedumpBytesPerSecond;
+            row.RedumpEtaTicks = vm.RedumpEtaTicks;
             row.OutputPath = vm.OutputPath;
             row.LogPath = vm.LogPath;
             row.TempWorkingDirectory = vm.TempWorkingDirectory;
@@ -239,7 +247,7 @@ public partial class MainWindow
                         !string.IsNullOrWhiteSpace(detail) &&
                         detail != "-")
                     {
-                        AppendExecutionLog($"{item.FileName}: {headline} — {detail}");
+                        AppendExecutionLog($"{item.FileName}: {headline} ظ¤ {detail}");
                     }
                     else
                     {

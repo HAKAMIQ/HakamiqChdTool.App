@@ -25,10 +25,9 @@
                     <Style.Triggers>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding IntegrityState}" Value="Validating" />
+                                <Condition Binding="{Binding IsRedumpOperationActive}" Value="True" />
                                 <Condition Binding="{Binding DataContext.IsRedumpFeatureVisible, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="True" />
                             </MultiDataTrigger.Conditions>
-
                             <Setter Property="Visibility" Value="Visible" />
                         </MultiDataTrigger>
                     </Style.Triggers>
@@ -42,6 +41,8 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0"
@@ -50,45 +51,130 @@
                       SnapsToDevicePixels="True"
                       UseLayoutRounding="True">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Viewbox Grid.Column="0"
-                             Width="{DynamicResource Space.14}"
-                             Height="{DynamicResource Space.14}"
-                             VerticalAlignment="Center"
-                             FlowDirection="LeftToRight"
-                             Stretch="Uniform"
-                             SnapsToDevicePixels="True">
-                        <Path Data="{StaticResource Icon.DatabaseSearch}"
-                              Fill="{DynamicResource Brush.Accent}"
-                              Stretch="Uniform"
-                              SnapsToDevicePixels="True" />
-                    </Viewbox>
+                    <Grid Grid.Column="0"
+                          VerticalAlignment="Center"
+                          FlowDirection="{DynamicResource App.FlowDirection}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="2"
-                               VerticalAlignment="Center"
-                               FlowDirection="{DynamicResource App.FlowDirection}"
-                               Language="{DynamicResource App.XmlLanguage}"
-                               FontFamily="{DynamicResource FontFamily.Base}"
-                               FontSize="{DynamicResource FontSize.Caption}"
-                               FontWeight="{DynamicResource FontWeight.SemiBold}"
-                               Foreground="{DynamicResource Brush.Accent}"
-                               Text="{DynamicResource LocQueue_RedumpValidatingTitle}"
-                               TextAlignment="{DynamicResource App.DefaultTextAlignment}"
-                               TextTrimming="CharacterEllipsis"
-                               TextWrapping="NoWrap"
-                               SnapsToDevicePixels="True"
-                               UseLayoutRounding="True" />
+                        <Viewbox Grid.Column="0"
+                                 Width="{DynamicResource Space.14}"
+                                 Height="{DynamicResource Space.14}"
+                                 VerticalAlignment="Center"
+                                 FlowDirection="LeftToRight"
+                                 Stretch="Uniform"
+                                 SnapsToDevicePixels="True">
+                            <Path Data="{StaticResource Icon.DatabaseSearch}"
+                                  Fill="{DynamicResource Brush.Accent}"
+                                  Stretch="Uniform"
+                                  SnapsToDevicePixels="True" />
+                        </Viewbox>
+
+                        <TextBlock Grid.Column="2"
+                                   VerticalAlignment="Center"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FontWeight="{DynamicResource FontWeight.SemiBold}"
+                                   Foreground="{DynamicResource Brush.Accent}"
+                                   Text="{DynamicResource LocQueue_RedumpValidatingTitle}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}"
+                                   TextTrimming="CharacterEllipsis"
+                                   TextWrapping="NoWrap" />
+                    </Grid>
+
+                    <Grid Grid.Column="2"
+                          MinWidth="{DynamicResource Space.48}"
+                          VerticalAlignment="Center"
+                          FlowDirection="LeftToRight">
+                        <Border Style="{StaticResource FluentQueueMetaPillBorder}"
+                                Visibility="{Binding ShowRedumpProgressPercent, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Style="{StaticResource FluentQueueMetaPillText}"
+                                       HorizontalAlignment="Center"
+                                       FlowDirection="LeftToRight"
+                                       Language="en-US"
+                                       TextAlignment="Center"
+                                       Text="{Binding RedumpProgressPercentDisplay, Converter={StaticResource BidiTextConverter}, ConverterParameter=Technical}" />
+                        </Border>
+
+                        <TextBlock HorizontalAlignment="Center"
+                                   Style="{StaticResource FluentQueueActivityDotsText}"
+                                   Visibility="{Binding RedumpIsIndeterminate, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </Grid>
                 </Grid>
 
-                <ProgressBar Grid.Row="1"
-                             Margin="{DynamicResource Inset.0.6.0.0}"
+                <TextBlock Grid.Row="1"
+                           Margin="{DynamicResource Inset.0.6.0.0}"
+                           Style="{StaticResource FluentQueueDetailText}"
+                           Foreground="{DynamicResource Brush.Text.Secondary}"
+                           Text="{Binding RedumpProgressStatusDisplay}"
+                           TextTrimming="CharacterEllipsis"
+                           TextWrapping="NoWrap" />
+
+                <ProgressBar Grid.Row="2"
+                             Margin="{DynamicResource Inset.0.8.0.0}"
                              FlowDirection="LeftToRight"
-                             IsIndeterminate="True"
+                             Minimum="{DynamicResource Progress.Minimum}"
+                             Maximum="{DynamicResource Progress.Maximum}"
+                             IsIndeterminate="{Binding RedumpIsIndeterminate}"
+                             Value="{Binding RedumpProgressValue, Mode=OneWay}"
                              Style="{StaticResource FluentQueueCardProgressBar}" />
+
+                <Grid Grid.Row="3"
+                      Margin="{DynamicResource Inset.0.6.0.0}"
+                      FlowDirection="LeftToRight"
+                      Visibility="{Binding HasRedumpMetrics, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center"
+                               FlowDirection="LeftToRight"
+                               Language="en-US"
+                               TextAlignment="Left"
+                               FontFamily="{DynamicResource FontFamily.Mono}"
+                               FontSize="{DynamicResource FontSize.CaptionSmall}"
+                               Foreground="{DynamicResource Brush.Text.Muted}"
+                               Text="{Binding RedumpBytesDisplay}"
+                               Visibility="{Binding HasRedumpByteProgress, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                FlowDirection="LeftToRight">
+                        <TextBlock FlowDirection="LeftToRight"
+                                   Language="en-US"
+                                   TextAlignment="Left"
+                                   FontFamily="{DynamicResource FontFamily.Mono}"
+                                   FontSize="{DynamicResource FontSize.CaptionSmall}"
+                                   Foreground="{DynamicResource Brush.Text.Muted}"
+                                   Text="{Binding RedumpSpeedDisplay}"
+                                   Visibility="{Binding HasRedumpSpeed, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                        <TextBlock Margin="{DynamicResource Inset.8.0.0.0}"
+                                   FlowDirection="LeftToRight"
+                                   Language="en-US"
+                                   TextAlignment="Left"
+                                   FontFamily="{DynamicResource FontFamily.Mono}"
+                                   FontSize="{DynamicResource FontSize.CaptionSmall}"
+                                   Foreground="{DynamicResource Brush.Text.Muted}"
+                                   Text="{Binding RedumpEtaDisplay}"
+                                   Visibility="{Binding HasRedumpEta, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </StackPanel>
+                </Grid>
             </Grid>
         </Border>
     </DataTemplate>
