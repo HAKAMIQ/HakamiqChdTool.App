@@ -43,50 +43,33 @@
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
             <Setter Property="CornerRadius" Value="{DynamicResource Radius.Window}" />
             <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="UseLayoutRounding" Value="True" />
             <Setter Property="ClipToBounds" Value="True" />
         </Style>
 
         <Style x:Key="MainWindow.ContentSurface"
                TargetType="{x:Type Grid}">
             <Setter Property="Background" Value="{DynamicResource Brush.Layer.Canvas}" />
-            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="ClipToBounds" Value="True" />
         </Style>
 
         <Style x:Key="MainWindow.BodySurface"
                TargetType="{x:Type Grid}">
-            <Setter Property="Margin" Value="{DynamicResource Inset.10.All}" />
-            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Margin" Value="{DynamicResource Inset.16.All}" />
             <Setter Property="ClipToBounds" Value="True" />
         </Style>
 
         <Style x:Key="MainWindow.ActionRailHost"
                TargetType="{x:Type Border}">
-            <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
-            <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
-            <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="VerticalAlignment" Value="Stretch" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+            <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
             <Setter Property="ClipToBounds" Value="True" />
         </Style>
 
         <Style x:Key="MainWindow.QueueHost"
                TargetType="{x:Type Border}">
             <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
-            <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
-            <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="VerticalAlignment" Value="Stretch" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="ClipToBounds" Value="True" />
         </Style>
     </Window.Resources>
@@ -127,9 +110,9 @@
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{DynamicResource Layout.ActionPanel.GridWidth}"
-                                      MinWidth="264"
-                                      MaxWidth="304" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                                      MinWidth="232"
+                                      MaxWidth="260" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
@@ -137,8 +120,6 @@
                         Style="{StaticResource MainWindow.ActionRailHost}">
 
                     <mainViews:ActionRailView x:Name="ActionRail"
-                                              HorizontalAlignment="Stretch"
-                                              VerticalAlignment="Stretch"
                                               OperationModeChanged="OperationModeRadio_Click" />
                 </Border>
 
@@ -146,8 +127,6 @@
                         Style="{StaticResource MainWindow.QueueHost}">
 
                     <mainViews:QueueWorkspaceView x:Name="QueueWorkspace"
-                                                  HorizontalAlignment="Stretch"
-                                                  VerticalAlignment="Stretch"
                                                   OperationModeKey="Convert"
                                                   WorkspaceFilesDropped="OnWorkspaceFilesDropped"
                                                   WorkspacePreviewDragOver="WorkspaceCardRoot_PreviewDragOver"
