@@ -246,10 +246,10 @@
     <sys:Double x:Key="Footer.Phase.MaxWidth">220</sys:Double>
     <sys:Double x:Key="Footer.Settings.MaxWidth">180</sys:Double>
 
-    <sys:Double x:Key="Window.About.Width">520</sys:Double>
-    <sys:Double x:Key="Window.About.Height">250</sys:Double>
-    <sys:Double x:Key="Window.About.MinWidth">500</sys:Double>
-    <sys:Double x:Key="Window.About.MinHeight">235</sys:Double>
+    <sys:Double x:Key="Window.About.Width">640</sys:Double>
+    <sys:Double x:Key="Window.About.Height">600</sys:Double>
+    <sys:Double x:Key="Window.About.MinWidth">600</sys:Double>
+    <sys:Double x:Key="Window.About.MinHeight">560</sys:Double>
     <sys:Double x:Key="Window.Options.Width">1000</sys:Double>
     <sys:Double x:Key="Window.Options.Height">760</sys:Double>
     <sys:Double x:Key="Window.Options.MinWidth">960</sys:Double>
@@ -260,7 +260,7 @@
     <sys:Double x:Key="Window.Rename.MaxHeight">520</sys:Double>
     <sys:Double x:Key="Window.Rename.ContentMaxHeight">320</sys:Double>
     <sys:Double x:Key="Layout.Rename.FileNameMaxHeight">96</sys:Double>
-    <sys:Int32 x:Key="Layout.About.LinkColumns">2</sys:Int32>
+    <sys:Int32 x:Key="Layout.About.LinkColumns">3</sys:Int32>
     <sys:Int32 x:Key="Panel.ZIndex.Overlay">2</sys:Int32>
 
     <sys:Double x:Key="Progress.Minimum">0</sys:Double>
