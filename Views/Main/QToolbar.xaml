@@ -66,11 +66,22 @@
                                TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap" />
 
-                    <TextBlock Style="{DynamicResource QueueWorkspaceHeaderSubtitleText}"
-                               Text="{DynamicResource LocUi_QueueSection_Subtitle}"
+                    <TextBlock Text="{DynamicResource LocUi_QueueSection_Subtitle}"
                                TextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               TextWrapping="NoWrap" />
+                               TextWrapping="NoWrap">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}"
+                                   BasedOn="{StaticResource QueueWorkspaceHeaderSubtitleText}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding QueueItems.Count}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </StackPanel>
             </Grid>
 
