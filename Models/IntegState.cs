@@ -12,3 +12,13 @@ public enum IntegrityValidationState
     NoDirectRedump = 7,
     NoRedumpMatch = 8
 }
+
+public enum RedumpOperationState
+{
+    Idle = 0,
+    Queued = 1,
+    Hashing = 2,
+    Matching = 3,
+    Completed = 4,
+    Failed = 5
+}

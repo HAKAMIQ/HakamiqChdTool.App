@@ -30,6 +30,15 @@ public sealed class QueueRowData
     public bool IsIndeterminate { get; set; }
     public bool IsProgressActive { get; set; }
 
+    public RedumpOperationState RedumpState { get; set; } = RedumpOperationState.Idle;
+    public double RedumpProgress { get; set; }
+    public bool RedumpIsIndeterminate { get; set; }
+    public string RedumpStatusText { get; set; } = string.Empty;
+    public long RedumpCurrentBytes { get; set; }
+    public long RedumpTotalBytes { get; set; }
+    public double RedumpBytesPerSecond { get; set; }
+    public long RedumpEtaTicks { get; set; }
+
     public QueueRuntimeProgressKind RuntimeProgressKind { get; set; } = QueueRuntimeProgressKind.None;
     public string RuntimeProgressPrimaryMessageKey { get; set; } = string.Empty;
     public long RuntimeProgressCurrentBytes { get; set; }
