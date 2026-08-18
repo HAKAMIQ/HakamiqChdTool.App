@@ -72,6 +72,8 @@ internal static class Program
                 new("Workflow planner creates DVD command for CSO input", () => TestWorkflowPlannerCsoCreatesDvd(app, workDirectory)),
                 new("Media input classifier covers P0 descriptors", () => TestMediaInputClassifierP0(app, workDirectory)),
                 new("Media input pipeline makes P0 decisions", () => TestMediaInputPipelineP0Decisions(app, workDirectory)),
+                new("Fast direct intake honors P0 media evidence", () => TestFastDirectIntakeHonorsP0Evidence(app, workDirectory)),
+                new("Queue operation capabilities honor P0 media evidence", () => TestQueueOperationCapabilitiesHonorP0Evidence(app, workDirectory)),
                 new("Archive and Redump security policies reject unsafe inputs", () => TestSecurityResourcePolicies(app)),
                 new("Archive resource monitor fails closed", () => TestArchiveResourceMonitorFailsClosed(app)),
                 new("7-Zip output flood terminates the process", () => TestSevenZipOutputFloodTerminatesProcess(app, workDirectory)),
@@ -680,6 +682,58 @@ internal static class Program
         AssertEqual("unsupported-media-input", GetString(other, "Reason"), "Unexpected block reason.");
     }
 
+    private static void TestFastDirectIntakeHonorsP0Evidence(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "fast-direct-p0-evidence");
+        Directory.CreateDirectory(root);
+
+        string validCsoPath = WriteMediaFile(root, "valid.cso", Encoding.ASCII.GetBytes("CISO"));
+        string invalidCsoPath = WriteMediaFile(root, "invalid.cso", [0, 1, 2, 3]);
+        string validChdPath = WriteMediaFile(root, "valid.chd", BuildChdHeader(version: 5));
+        string invalidChdPath = WriteMediaFile(root, "invalid.chd", new byte[124]);
+
+        AssertTrue(
+            app.CanUseFastDirectFileCandidates(validCsoPath, "QuickConvert"),
+            "Valid CSO should remain eligible for the direct-file fast path.");
+        AssertFalse(
+            app.CanUseFastDirectFileCandidates(invalidCsoPath, "QuickConvert"),
+            "Wrong-magic CSO must fall out of the fast path before conversion.");
+        AssertTrue(
+            app.CanUseFastDirectFileCandidates(validChdPath, "QuickExtract"),
+            "Valid CHD should remain eligible for the direct-file fast path.");
+        AssertFalse(
+            app.CanUseFastDirectFileCandidates(invalidChdPath, "QuickExtract"),
+            "Invalid CHD header evidence must fall out of the fast path before extraction.");
+    }
+
+    private static void TestQueueOperationCapabilitiesHonorP0Evidence(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "queue-capabilities-p0-evidence");
+        Directory.CreateDirectory(root);
+
+        string validCsoPath = WriteMediaFile(root, "valid.cso", Encoding.ASCII.GetBytes("CISO"));
+        string invalidCsoPath = WriteMediaFile(root, "invalid.cso", [0, 1, 2, 3]);
+        string validChdPath = WriteMediaFile(root, "valid.chd", BuildChdHeader(version: 5));
+        string invalidChdPath = WriteMediaFile(root, "invalid.chd", new byte[124]);
+
+        AssertEqual(
+            1,
+            app.GetSupportedQueueOperations(validCsoPath).Count,
+            "Valid CSO should expose its conversion operation.");
+        AssertEqual(
+            0,
+            app.GetSupportedQueueOperations(invalidCsoPath).Count,
+            "Wrong-magic CSO must expose no queue operation.");
+        AssertEqual(
+            2,
+            app.GetSupportedQueueOperations(validChdPath).Count,
+            "Valid CHD should expose verify and extraction operations.");
+        AssertEqual(
+            0,
+            app.GetSupportedQueueOperations(invalidChdPath).Count,
+            "Invalid CHD header evidence must expose no queue operation.");
+    }
+
     private static void TestSecurityResourcePolicies(AppReflection app)
     {
         const string listing = """
@@ -1164,6 +1218,9 @@ internal static class Program
         private readonly MethodInfo mediaInputClassifyAsync;
         private readonly object mediaInputPipeline;
         private readonly MethodInfo mediaInputPipelineDecideAsync;
+        private readonly Type queueExecutionProfileType;
+        private readonly MethodInfo tryBuildFastDirectFileCandidates;
+        private readonly MethodInfo getSupportedOperationCodes;
         private readonly Type runtimeToolServiceType;
         private readonly MethodInfo runtimeToolGetChdmanPath;
         private readonly MethodInfo runtimeToolCleanup;
@@ -1200,6 +1257,9 @@ internal static class Program
             Type profilePlannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdWorkflowProfilePlanner");
             Type mediaInputClassifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputClassifier");
             Type mediaInputPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputPipeline");
+            Type mainWindowViewModelType = GetRequiredType(appAssembly, "HakamiqChdTool.App.ViewModels.MainWindowViewModel");
+            Type queueOperationCapabilityServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.QueueOperationCapabilityService");
+            queueExecutionProfileType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.QueueExecutionProfile");
             Type sevenZipInspectorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveInspector");
             Type sevenZipProcessRunnerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipProcessRunner");
             Type sevenZipExtractionType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveExtractionService");
@@ -1237,6 +1297,8 @@ internal static class Program
             planCreateFromSource = GetRequiredMethod(profilePlannerType, "PlanCreateFromSource", [typeof(string), isoCreateOverrideType, mediaContainerKindType, typeof(string)]);
             mediaInputClassifyAsync = GetRequiredInstanceMethod(mediaInputClassifierType, "ClassifyAsync", [typeof(string), typeof(CancellationToken)]);
             mediaInputPipelineDecideAsync = GetRequiredInstanceMethod(mediaInputPipelineType, "DecideAsync", [typeof(string), typeof(CancellationToken)]);
+            tryBuildFastDirectFileCandidates = GetRequiredMethod(mainWindowViewModelType, "TryBuildFastDirectFileCandidates");
+            getSupportedOperationCodes = GetRequiredMethod(queueOperationCapabilityServiceType, "GetSupportedOperationCodes", [typeof(string)]);
             runtimeToolGetChdmanPath = GetRequiredInstanceMethod(runtimeToolServiceType, "GetChdmanPath", Type.EmptyTypes);
             runtimeToolCleanup = GetRequiredInstanceMethod(runtimeToolServiceType, "TryCleanupCurrentSession", Type.EmptyTypes);
             parseSevenZipListEntries = GetRequiredMethod(sevenZipInspectorType, "ParseSevenZipListEntries", [typeof(string)]);
@@ -1413,6 +1475,36 @@ internal static class Program
                 ?? throw new InvalidOperationException("Media input pipeline returned null.");
 
             return AwaitValueTaskResult(valueTask, "Pipeline");
+        }
+
+        public bool CanUseFastDirectFileCandidates(string path, string executionProfileName)
+        {
+            object executionProfile = Enum.Parse(queueExecutionProfileType, executionProfileName, ignoreCase: false);
+            object?[] arguments = [new List<string> { path }, executionProfile, null];
+            object? result = tryBuildFastDirectFileCandidates.Invoke(null, arguments);
+            return result is bool accepted && accepted;
+        }
+
+        public IReadOnlyList<string> GetSupportedQueueOperations(string path)
+        {
+            object value = getSupportedOperationCodes.Invoke(null, [path])
+                ?? throw new InvalidOperationException("Queue operation capability service returned null.");
+
+            if (value is not IEnumerable enumerable)
+            {
+                throw new InvalidOperationException("Queue operation capability service did not return an enumerable result.");
+            }
+
+            var operations = new List<string>();
+            foreach (object? item in enumerable)
+            {
+                if (item is string operation)
+                {
+                    operations.Add(operation);
+                }
+            }
+
+            return operations;
         }
 
         public object CreateRuntimeToolService() =>
