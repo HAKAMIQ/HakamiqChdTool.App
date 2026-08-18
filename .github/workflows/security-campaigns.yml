@@ -1,0 +1,165 @@
+name: Security campaigns
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "17 1 * * *"
+  workflow_dispatch:
+    inputs:
+      fuzz_cases:
+        description: Managed mutation cases
+        required: true
+        default: "25000"
+      external_fuzz_cases:
+        description: Native CsoKit and 7-Zip cases
+        required: true
+        default: "128"
+      soak_minutes:
+        description: Hosted-runner soak duration in minutes (1-180); use RunLongSoak.ps1 for 1-168 hours
+        required: true
+        default: "60"
+
+permissions:
+  contents: read
+
+jobs:
+  security-campaigns:
+    runs-on: windows-2022
+    timeout-minutes: 240
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore locked dependencies
+        shell: powershell
+        run: dotnet restore .\HakamiqChdTool.App.sln --locked-mode
+
+      - name: Build Release
+        shell: powershell
+        run: dotnet build .\HakamiqChdTool.App.sln -c Release --no-restore
+
+      - name: Resolve campaign parameters
+        id: campaign
+        shell: powershell
+        env:
+          DISPATCH_FUZZ_CASES: ${{ inputs.fuzz_cases }}
+          DISPATCH_EXTERNAL_CASES: ${{ inputs.external_fuzz_cases }}
+          DISPATCH_SOAK_MINUTES: ${{ inputs.soak_minutes }}
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $fuzzCases = [int] $env:DISPATCH_FUZZ_CASES
+            $externalCases = [int] $env:DISPATCH_EXTERNAL_CASES
+            $soakMinutes = [int] $env:DISPATCH_SOAK_MINUTES
+          }
+          elseif ("${{ github.event_name }}" -eq "schedule") {
+            $fuzzCases = 25000
+            $externalCases = 128
+            $soakMinutes = 60
+          }
+          else {
+            $fuzzCases = 1000
+            $externalCases = 24
+            $soakMinutes = 0
+          }
+
+          if ($fuzzCases -lt 1 -or $fuzzCases -gt 1000000) {
+            throw "fuzz_cases must be from 1 to 1000000."
+          }
+          if ($externalCases -lt 0 -or $externalCases -gt 10000) {
+            throw "external_fuzz_cases must be from 0 to 10000."
+          }
+          if ($soakMinutes -lt 0 -or $soakMinutes -gt 180) {
+            throw "soak_minutes must be from 0 to 180 on the hosted runner."
+          }
+
+          "fuzz_cases=$fuzzCases" >> $env:GITHUB_OUTPUT
+          "external_cases=$externalCases" >> $env:GITHUB_OUTPUT
+          "soak_minutes=$soakMinutes" >> $env:GITHUB_OUTPUT
+
+      - name: Run regression suite
+        shell: powershell
+        run: >-
+          dotnet
+          .\HakamiqChdTool.App.Tests\bin\Release\net10.0-windows10.0.17763.0\HakamiqChdTool.App.Tests.dll
+          --app-assembly
+          .\bin\Release\net10.0-windows10.0.17763.0\win-x64\HakamiqChdTool.dll
+
+      - name: Run continuous mutation fuzzing
+        shell: powershell
+        run: >-
+          dotnet
+          .\HakamiqChdTool.App.Tests\bin\Release\net10.0-windows10.0.17763.0\HakamiqChdTool.App.Tests.dll
+          --app-assembly
+          .\bin\Release\net10.0-windows10.0.17763.0\win-x64\HakamiqChdTool.dll
+          --security-mode fuzz
+          --cases ${{ steps.campaign.outputs.fuzz_cases }}
+          --external-cases ${{ steps.campaign.outputs.external_cases }}
+          --security-output .\TestResults\Security
+
+      - name: Run synthetic CHD and CSO corpus
+        shell: powershell
+        run: >-
+          dotnet
+          .\HakamiqChdTool.App.Tests\bin\Release\net10.0-windows10.0.17763.0\HakamiqChdTool.App.Tests.dll
+          --app-assembly
+          .\bin\Release\net10.0-windows10.0.17763.0\win-x64\HakamiqChdTool.dll
+          --security-mode corpus
+          --per-file-timeout-seconds 120
+          --security-output .\TestResults\Security
+
+      - name: Run full WPF busy-queue shutdown
+        shell: powershell
+        run: >-
+          dotnet
+          .\HakamiqChdTool.App.Tests\bin\Release\net10.0-windows10.0.17763.0\HakamiqChdTool.App.Tests.dll
+          --app-assembly
+          .\bin\Release\net10.0-windows10.0.17763.0\win-x64\HakamiqChdTool.dll
+          --security-mode wpf-shutdown
+          --queue-length 32
+          --concurrency 4
+          --timeout-seconds 60
+          --security-output .\TestResults\Security
+
+      - name: Run short soak smoke
+        if: steps.campaign.outputs.soak_minutes == '0'
+        shell: powershell
+        run: >-
+          dotnet
+          .\HakamiqChdTool.App.Tests\bin\Release\net10.0-windows10.0.17763.0\HakamiqChdTool.App.Tests.dll
+          --app-assembly
+          .\bin\Release\net10.0-windows10.0.17763.0\win-x64\HakamiqChdTool.dll
+          --security-mode soak
+          --iterations 3
+          --sample-mebibytes 4
+          --security-output .\TestResults\Security
+
+      - name: Run scheduled or requested soak
+        if: steps.campaign.outputs.soak_minutes != '0'
+        shell: powershell
+        run: >-
+          dotnet
+          .\HakamiqChdTool.App.Tests\bin\Release\net10.0-windows10.0.17763.0\HakamiqChdTool.App.Tests.dll
+          --app-assembly
+          .\bin\Release\net10.0-windows10.0.17763.0\win-x64\HakamiqChdTool.dll
+          --security-mode soak
+          --duration-minutes ${{ steps.campaign.outputs.soak_minutes }}
+          --sample-mebibytes 4
+          --security-output .\TestResults\Security
+
+      - name: Upload reports and preserved crash inputs
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: security-campaign-results-${{ github.run_id }}
+          path: TestResults/Security
+          if-no-files-found: warn
+          retention-days: 30
