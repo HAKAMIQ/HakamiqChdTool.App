@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Tests;
 
-internal static class Program
+internal static partial class Program
 {
     private const int UserSectorSize = 2048;
 
@@ -42,6 +42,12 @@ internal static class Program
 
         Assembly appAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.GetFullPath(appAssemblyPath));
         var app = new AppReflection(appAssembly);
+
+        string? securityMode = ReadOptionalArgument(args, "--security-mode");
+        if (!string.IsNullOrWhiteSpace(securityMode))
+        {
+            return RunSecurityCampaign(securityMode, args, app, appDirectory);
+        }
 
         string workDirectory = Path.Combine(Path.GetTempPath(), "HakamiqChdTool.Ps2AdvisoryTests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(workDirectory);
@@ -975,6 +981,19 @@ internal static class Program
         }
 
         throw new ArgumentException("Missing required argument: " + name);
+    }
+
+    private static string? ReadOptionalArgument(string[] args, string name)
+    {
+        for (int index = 0; index < args.Length - 1; index++)
+        {
+            if (string.Equals(args[index], name, StringComparison.OrdinalIgnoreCase))
+            {
+                return args[index + 1];
+            }
+        }
+
+        return null;
     }
 
     private static void WriteIsoImage(string path, int physicalSectorSize, int dataOffset, string systemCnf)

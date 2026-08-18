@@ -36,6 +36,8 @@ public partial class App : WpfApplication
 
     private bool _globalExceptionHandlersRegistered;
 
+    internal bool IsIntegrationTestHost { get; set; }
+
     internal AppSettingsService SettingsService { get; private set; } = null!;
 
     internal AppSettings Settings { get; private set; } = new();
@@ -46,6 +48,12 @@ public partial class App : WpfApplication
 
     protected override void OnStartup(WpfStartupEventArgs e)
     {
+        if (IsIntegrationTestHost)
+        {
+            base.OnStartup(e);
+            return;
+        }
+
         AppPaths.SetPortableMode(AppPaths.DetectPortableModePreference());
         AppLogger.Initialize();
 

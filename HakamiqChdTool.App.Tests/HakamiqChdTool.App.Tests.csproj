@@ -17,4 +17,8 @@
 		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\HakamiqChdTool.App.csproj" />
+	</ItemGroup>
+
 </Project>

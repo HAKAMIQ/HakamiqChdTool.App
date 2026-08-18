@@ -6,26 +6,26 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Resources/AppConverters.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/ArabicStrings.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/AppConverters.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/ArabicStrings.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Resources/Tokens/Spacing.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Tokens/Radius.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Tokens/Typography.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Tokens/Elevation.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Tokens/Spacing.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Tokens/Radius.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Tokens/Typography.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Tokens/Elevation.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Themes/Light.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Resources/FluentIcons.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/CardStyles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/ButtonStyles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Controls/TextStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/FluentIcons.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Themes/Controls/CardStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Themes/Controls/ButtonStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Themes/Controls/TextStyles.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/Workspace.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Themes/Fluent/Controls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/Win11UiPolish.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Workspace.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Themes/Fluent/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Win11UiPolish.xaml" />
 
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/QItemTpl.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/QItemTpl.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <FlowDirection x:Key="App.FlowDirection">RightToLeft</FlowDirection>
