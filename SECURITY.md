@@ -32,6 +32,13 @@ sending a report.
 Do not attach games, ROMs, BIOS files, disc images, CHD files, Redump files,
 keys, firmware, or copyrighted media.
 
+## Assurance status
+
+Internal security campaigns, release-assurance gates, verified smoke evidence,
+and remaining external work are documented in
+`docs/security/SECURITY_ASSURANCE.md`. Passing internal tests does not constitute
+an independent security audit.
+
 ## In scope
 
 Security reports may include:
