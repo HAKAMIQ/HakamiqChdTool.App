@@ -54,14 +54,14 @@ public partial class MainWindowViewModel
                 continue;
             }
 
+            var classification = QueueInputClassifier.Classify(effectivePath);
+            if (!classification.IsSupported || classification.IsArchiveContainer)
+            {
+                return false;
+            }
+
             if (!TryResolveFastKnownDirectFileAction(effectivePath, executionProfile, out string action))
             {
-                var classification = QueueInputClassifier.Classify(effectivePath);
-                if (!classification.IsSupported || classification.IsArchiveContainer)
-                {
-                    return false;
-                }
-
                 action = ResolveRequestedAction(effectivePath, executionProfile);
                 if (string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal))
                 {

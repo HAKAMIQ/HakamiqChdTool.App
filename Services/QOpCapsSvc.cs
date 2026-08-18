@@ -50,15 +50,16 @@ internal static class QueueOperationCapabilityService
 
         string extension = Path.GetExtension(path).ToLowerInvariant();
 
-        if (extension is ".iso" or ".cso" or ".cue" or ".gdi" or ".toc" or ".nrg")
+        if (extension is ".cso" or ".chd")
         {
-            operations = ConvertibleDiscOperations;
+            operations = GetSupportedOperationCodes(
+                QueueInputClassifier.Classify(path));
             return true;
         }
 
-        if (extension == ".chd")
+        if (extension is ".iso" or ".cue" or ".gdi" or ".toc" or ".nrg")
         {
-            operations = ChdOperations;
+            operations = ConvertibleDiscOperations;
             return true;
         }
 
