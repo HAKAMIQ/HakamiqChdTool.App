@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Security.Cryptography;
 using System.Text;
@@ -1219,6 +1220,8 @@ internal static class Program
         private readonly object mediaInputPipeline;
         private readonly MethodInfo mediaInputPipelineDecideAsync;
         private readonly Type queueExecutionProfileType;
+        private readonly Type queueIngestKindType;
+        private readonly object mainWindowViewModelForFastPathTests;
         private readonly MethodInfo tryBuildFastDirectFileCandidates;
         private readonly MethodInfo getSupportedOperationCodes;
         private readonly Type runtimeToolServiceType;
@@ -1260,6 +1263,8 @@ internal static class Program
             Type mainWindowViewModelType = GetRequiredType(appAssembly, "HakamiqChdTool.App.ViewModels.MainWindowViewModel");
             Type queueOperationCapabilityServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.QueueOperationCapabilityService");
             queueExecutionProfileType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.QueueExecutionProfile");
+            queueIngestKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.QueueIngestKind");
+            mainWindowViewModelForFastPathTests = RuntimeHelpers.GetUninitializedObject(mainWindowViewModelType);
             Type sevenZipInspectorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveInspector");
             Type sevenZipProcessRunnerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipProcessRunner");
             Type sevenZipExtractionType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveExtractionService");
@@ -1297,7 +1302,7 @@ internal static class Program
             planCreateFromSource = GetRequiredMethod(profilePlannerType, "PlanCreateFromSource", [typeof(string), isoCreateOverrideType, mediaContainerKindType, typeof(string)]);
             mediaInputClassifyAsync = GetRequiredInstanceMethod(mediaInputClassifierType, "ClassifyAsync", [typeof(string), typeof(CancellationToken)]);
             mediaInputPipelineDecideAsync = GetRequiredInstanceMethod(mediaInputPipelineType, "DecideAsync", [typeof(string), typeof(CancellationToken)]);
-            tryBuildFastDirectFileCandidates = GetRequiredMethod(mainWindowViewModelType, "TryBuildFastDirectFileCandidates");
+            tryBuildFastDirectFileCandidates = GetRequiredInstanceMethod(mainWindowViewModelType, "TryBuildFastDirectFileCandidates");
             getSupportedOperationCodes = GetRequiredMethod(queueOperationCapabilityServiceType, "GetSupportedOperationCodes", [typeof(string)]);
             runtimeToolGetChdmanPath = GetRequiredInstanceMethod(runtimeToolServiceType, "GetChdmanPath", Type.EmptyTypes);
             runtimeToolCleanup = GetRequiredInstanceMethod(runtimeToolServiceType, "TryCleanupCurrentSession", Type.EmptyTypes);
@@ -1480,8 +1485,9 @@ internal static class Program
         public bool CanUseFastDirectFileCandidates(string path, string executionProfileName)
         {
             object executionProfile = Enum.Parse(queueExecutionProfileType, executionProfileName, ignoreCase: false);
-            object?[] arguments = [new List<string> { path }, executionProfile, null];
-            object? result = tryBuildFastDirectFileCandidates.Invoke(null, arguments);
+            object inputKind = Enum.Parse(queueIngestKindType, "FilesOnly", ignoreCase: false);
+            object?[] arguments = [new List<string> { path }, inputKind, executionProfile, null];
+            object? result = tryBuildFastDirectFileCandidates.Invoke(mainWindowViewModelForFastPathTests, arguments);
             return result is bool accepted && accepted;
         }
 
@@ -1739,6 +1745,10 @@ internal static class Program
                 binder: null,
                 types: parameterTypes,
                 modifiers: null)
+            ?? throw new MissingMethodException(type.FullName, methodName);
+
+        private static MethodInfo GetRequiredInstanceMethod(Type type, string methodName) =>
+            type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new MissingMethodException(type.FullName, methodName);
 
         private static MethodInfo GetRequiredInstanceMethod(Type type, string methodName, Type[] parameterTypes) =>
