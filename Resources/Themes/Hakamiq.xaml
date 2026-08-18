@@ -606,6 +606,6 @@
     <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="{DynamicResource Color.ScrollBarThumbHover}" />
     <SolidColorBrush x:Key="ScrollBarThumbPressedBrush" Color="{DynamicResource Color.ScrollBarThumbPressed}" />
 
-    <BitmapImage x:Key="HeaderLogoImage" UriSource="pack://application:,,,/Resources/HakamiqLogo.png" />
+    <BitmapImage x:Key="HeaderLogoImage" UriSource="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.png" />
 
 </ResourceDictionary>

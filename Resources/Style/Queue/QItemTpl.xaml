@@ -2,13 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Resources/Style/Queue/QItemBase.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QWShared.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QIHeaderTpl.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QIStatusTpl.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QIProgTpl.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QIActionsTpl.xaml" />
-        <ResourceDictionary Source="/Resources/Style/Queue/QIRedTpl.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QItemBase.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QWShared.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QIHeaderTpl.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QIStatusTpl.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QIProgTpl.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QIActionsTpl.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QIRedTpl.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <DataTemplate x:Key="FluentQueueRowTemplate">

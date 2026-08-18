@@ -19,7 +19,7 @@
         ShowInTaskbar="False"
         FlowDirection="{DynamicResource App.FlowDirection}"
         Language="{DynamicResource App.XmlLanguage}"
-        Icon="pack://application:,,,/Resources/HakamiqLogo.ico"
+        Icon="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.ico"
         SnapsToDevicePixels="True"
         UseLayoutRounding="True"
         FontFamily="{DynamicResource FontFamily.Text}"
@@ -310,7 +310,7 @@
                                 CornerRadius="{DynamicResource Radius.Card.Large}"
                                 ClipToBounds="True"
                                 SnapsToDevicePixels="True">
-                            <Image Source="pack://application:,,,/Resources/HakamiqLogo.png"
+                            <Image Source="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.png"
                                    Width="{DynamicResource Space.72}"
                                    Height="{DynamicResource Space.72}"
                                    HorizontalAlignment="Center"

@@ -17,14 +17,14 @@
         FlowDirection="{DynamicResource App.FlowDirection}"
         Language="{DynamicResource App.XmlLanguage}"
         FontFamily="{DynamicResource FontFamily.Text}"
-        Icon="pack://application:,,,/Resources/HakamiqLogo.ico"
+        Icon="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.ico"
         SnapsToDevicePixels="True"
         UseLayoutRounding="True">
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/OptsStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="RedumpNotice.RootFrame"
