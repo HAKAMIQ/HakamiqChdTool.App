@@ -110,6 +110,31 @@ function Get-Sha256Hex {
     }
 }
 
+function Get-DeterministicManifestTimestamp {
+    $epochText = [System.Environment]::GetEnvironmentVariable("SOURCE_DATE_EPOCH")
+    [Int64] $epoch = 0
+
+    if (-not [string]::IsNullOrWhiteSpace($epochText) -and
+        [Int64]::TryParse($epochText, [ref] $epoch) -and
+        $epoch -ge 0) {
+        return [System.DateTimeOffset]::FromUnixTimeSeconds($epoch).ToUniversalTime()
+    }
+
+    $git = Get-Command git -ErrorAction SilentlyContinue
+    if ($null -ne $git) {
+        [string] $commitEpochText = (& $git.Source -C $ProjectRoot show -s --format=%ct HEAD 2>$null | Select-Object -First 1)
+        if ($LASTEXITCODE -eq 0 -and
+            -not [string]::IsNullOrWhiteSpace($commitEpochText) -and
+            [Int64]::TryParse($commitEpochText, [ref] $epoch) -and
+            $epoch -ge 0) {
+            return [System.DateTimeOffset]::FromUnixTimeSeconds($epoch).ToUniversalTime()
+        }
+    }
+
+    # A fixed fallback keeps source-package builds deterministic when Git metadata is unavailable.
+    return [System.DateTimeOffset]::FromUnixTimeSeconds(0).ToUniversalTime()
+}
+
 function New-ReleaseManifest {
     if (Test-Path -LiteralPath $ManifestPath -PathType Leaf) {
         Remove-Item -LiteralPath $ManifestPath -Force -ErrorAction Stop
@@ -134,7 +159,7 @@ function New-ReleaseManifest {
     $manifest = [ordered]@{
         format = "HakamiqReleaseManifest.v1"
         app = "HakamiqChdTool"
-        generatedUtc = [System.DateTimeOffset]::UtcNow.ToString("O", [System.Globalization.CultureInfo]::InvariantCulture)
+        generatedUtc = (Get-DeterministicManifestTimestamp).ToString("O", [System.Globalization.CultureInfo]::InvariantCulture)
         fileCount = $entries.Count
         files = $entries
     }
