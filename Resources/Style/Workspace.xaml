@@ -2,16 +2,16 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/BaseStyles.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/ButtonStyles.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/CardStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Fluent/BaseStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Fluent/ButtonStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Fluent/CardStyles.xaml" />
 
-        <ResourceDictionary Source="pack://application:,,,/Resources/Style/ScrollBar.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources/Style/InputCheck.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources/Style/ComboBox.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/ScrollBar.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/InputCheck.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/ComboBox.xaml" />
 
-        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/QueueStyles.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources/Style/Fluent/NavStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Fluent/QueueStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Fluent/NavStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>

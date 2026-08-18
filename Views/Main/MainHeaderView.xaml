@@ -316,7 +316,7 @@
                                Margin="{DynamicResource Inset.None}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Source="pack://application:,,,/Resources/HakamiqLogo.png"
+                               Source="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.png"
                                Stretch="Uniform"
                                RenderOptions.BitmapScalingMode="HighQuality" />
                     </Border>
