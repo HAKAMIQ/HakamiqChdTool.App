@@ -129,6 +129,7 @@ function Remove-BuildArtifacts {
         Where-Object {
             ($_.Name -eq "bin" -or $_.Name -eq "obj") -and
             $_.FullName -notmatch '\\.git(\\|$)' -and
+            -not (Test-PathIsSameOrChild -Path $_.FullName -Parent $ReleaseRoot) -and
             -not (Test-PathIsInsideOutput $_.FullName)
         } |
         Sort-Object { $_.FullName.Length } -Descending
@@ -144,6 +145,7 @@ function Assert-NoStaleSourceArtifacts {
     $staleFiles = Get-ChildItem -LiteralPath $ProjectRoot -File -Recurse -Force -ErrorAction SilentlyContinue |
         Where-Object {
             $_.FullName -notmatch '\\.git(\\|$)' -and
+            -not (Test-PathIsSameOrChild -Path $_.FullName -Parent $ReleaseRoot) -and
             -not (Test-PathIsInsideOutput $_.FullName) -and
             ($_.Extension.ToLowerInvariant() -in @(".zip", ".tmp"))
         }

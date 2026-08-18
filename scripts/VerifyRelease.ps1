@@ -2,7 +2,11 @@
 [CmdletBinding()]
 param(
     [Alias("OutputPath")]
-    [string] $Output = ".\Release"
+    [string] $Output = ".\Release",
+
+    [switch] $RequireAuthenticode,
+
+    [string] $ExpectedSignerThumbprint
 )
 
 $ErrorActionPreference = "Stop"
@@ -669,6 +673,50 @@ function Assert-ExecutableFilesAreNotEmpty {
     }
 }
 
+function Assert-AuthenticodeSignature {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $RelativePath
+    )
+
+    $path = Join-Path $OutputPath $RelativePath
+    $signature = Get-AuthenticodeSignature -LiteralPath $path
+
+    if ($signature.Status -ne [System.Management.Automation.SignatureStatus]::Valid) {
+        throw "Authenticode signature is not valid for ${RelativePath}: $($signature.Status) $($signature.StatusMessage)"
+    }
+
+    if ($null -eq $signature.SignerCertificate) {
+        throw "Authenticode signer certificate is missing for: $RelativePath"
+    }
+
+    if ($null -eq $signature.TimeStamperCertificate) {
+        throw "RFC 3161 timestamp/countersigner certificate is missing for: $RelativePath"
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($ExpectedSignerThumbprint)) {
+        $expected = ($ExpectedSignerThumbprint -replace '\s', '').ToUpperInvariant()
+        $actual = ($signature.SignerCertificate.Thumbprint -replace '\s', '').ToUpperInvariant()
+        if ($expected -ne $actual) {
+            throw "Authenticode signer thumbprint mismatch for ${RelativePath}. Expected $expected, actual $actual."
+        }
+    }
+}
+
+function Assert-AuthenticodePolicy {
+    if (-not $RequireAuthenticode) {
+        return
+    }
+
+    Assert-AuthenticodeSignature "HakamiqChdTool.exe"
+    Assert-AuthenticodeSignature "HakamiqChdTool.dll"
+
+    $reportPath = Join-Path $OutputPath "docs\authenticode-report.json"
+    if (-not (Test-Path -LiteralPath $reportPath -PathType Leaf)) {
+        throw "Authenticode signing report is missing: docs\authenticode-report.json"
+    }
+}
+
 
 function Get-RelativeReleasePath {
     param(
@@ -828,6 +876,7 @@ Assert-CsoKitBundledToolContract
 Assert-NoSquashFsArtifacts
 Assert-NoCrashDumpHelper
 Assert-ExecutableFilesAreNotEmpty
+Assert-AuthenticodePolicy
 Assert-ReleaseManifest
 Assert-NoSuspiciousNestedRelease
 

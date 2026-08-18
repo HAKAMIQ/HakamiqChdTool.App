@@ -8,7 +8,11 @@ param(
 
     [string] $PackageName = "HakamiqChdTool-win-x64-runtime-required.zip",
 
-    [switch] $KeepVerificationOutput
+    [switch] $KeepVerificationOutput,
+
+    [switch] $RequireAuthenticode,
+
+    [string] $ExpectedSignerThumbprint
 )
 
 $ErrorActionPreference = "Stop"
@@ -300,8 +304,16 @@ if (-not (Test-Path -LiteralPath $ReleaseOutputPath -PathType Container)) {
 
 Push-Location $ProjectRoot
 try {
+    $verifyArguments = @("-Output", $ReleaseOutputPath)
+    if ($RequireAuthenticode) {
+        $verifyArguments += "-RequireAuthenticode"
+    }
+    if (-not [string]::IsNullOrWhiteSpace($ExpectedSignerThumbprint)) {
+        $verifyArguments += @("-ExpectedSignerThumbprint", $ExpectedSignerThumbprint)
+    }
+
     Write-Info "Verifying release output before packaging: $ReleaseOutputPath"
-    Invoke-PowerShellFile -ScriptPath $VerifyReleaseScript -Arguments @("-Output", $ReleaseOutputPath)
+    Invoke-PowerShellFile -ScriptPath $VerifyReleaseScript -Arguments $verifyArguments
 
     if (Test-Path -LiteralPath $PackageDirectoryPath -PathType Container) {
         Remove-Item -LiteralPath $PackageDirectoryPath -Recurse -Force -ErrorAction Stop
@@ -324,7 +336,14 @@ try {
     Expand-Archive -LiteralPath $ZipPath -DestinationPath $VerificationOutputPath -Force
 
     Write-Info "Verifying extracted release ZIP contents ..."
-    Invoke-PowerShellFile -ScriptPath $VerifyReleaseScript -Arguments @("-Output", $VerificationOutputPath)
+    $extractedVerifyArguments = @("-Output", $VerificationOutputPath)
+    if ($RequireAuthenticode) {
+        $extractedVerifyArguments += "-RequireAuthenticode"
+    }
+    if (-not [string]::IsNullOrWhiteSpace($ExpectedSignerThumbprint)) {
+        $extractedVerifyArguments += @("-ExpectedSignerThumbprint", $ExpectedSignerThumbprint)
+    }
+    Invoke-PowerShellFile -ScriptPath $VerifyReleaseScript -Arguments $extractedVerifyArguments
 
     Assert-PackageDirectoryClean
 
