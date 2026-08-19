@@ -76,11 +76,9 @@ public partial class OptionsWindow : Window
 
     public AppSettings ResultSettings { get; internal set; }
 
-    public string ActiveTabKey => _coordinator?.ActiveTabKey ?? GeneralTabKey;
+    public string ActiveTabKey => _coordinator?.ActiveTabKey ?? ProcessingTabKey;
 
     public event EventHandler<OptionsAppliedEventArgs>? SettingsApplied;
-
-    internal RadioButton GeneralTabButtonView => GeneralTabButton;
 
     internal RadioButton PathsTabButtonView => PathsTabButton;
 
@@ -91,8 +89,6 @@ public partial class OptionsWindow : Window
     internal RadioButton ExternalToolsTabButtonView => ExternalToolsTabButton;
 
     internal RadioButton PerformanceTabButtonView => PerformanceTabButton;
-
-    internal GeneralSettingsView GeneralPanelView => GeneralPanel;
 
     internal PathsSettingsView PathsPanelView => PathsPanel;
 

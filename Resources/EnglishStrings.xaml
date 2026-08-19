@@ -1115,7 +1115,7 @@ Path:
     <sys:String x:Key="LocPerformance_ChdmanOptionsDesc">Customize performance mode, processing thread count, and compression settings. Higher settings can speed up conversion but use more CPU and memory.</sys:String>
 
     <sys:String x:Key="LocPerformance_ProcessorCount">Compression threads</sys:String>
-    <sys:String x:Key="LocPerformance_ConcurrentConversions">Concurrent conversions</sys:String>
+    <sys:String x:Key="LocPerformance_ConcurrentConversions">Number of files converted at the same time</sys:String>
     <sys:String x:Key="LocPerformance_PerformanceMode">Performance mode</sys:String>
     <sys:String x:Key="LocPerformance_ProcessPriority">Process priority</sys:String>
     <sys:String x:Key="LocPerformance_IsoCreateMode">CHD creation mode</sys:String>
@@ -1237,18 +1237,26 @@ Path:
     <sys:String x:Key="LocCommon_Apply">Apply</sys:String>
 
     <sys:String x:Key="LocOptions_WindowTitle">Advanced options</sys:String>
-    <sys:String x:Key="LocOptions_HeaderDescription">Adjust runtime, verification, path, and compression settings.</sys:String>
+    <sys:String x:Key="LocOptions_HeaderDescription">&#x2066;Manage conversion, files, Redump, performance, and add-ons.&#x2069;</sys:String>
     <sys:String x:Key="LocOptions_SectionsTitle">Sections</sys:String>
     <sys:String x:Key="LocOptions_SectionsDescription">Choose the section you want to edit.</sys:String>
     <sys:String x:Key="LocOptions_TabGeneral">General</sys:String>
-    <sys:String x:Key="LocOptions_TabPaths">Paths</sys:String>
-    <sys:String x:Key="LocOptions_TabRedump">Redump</sys:String>
-    <sys:String x:Key="LocOptions_TabProcessing">Processing</sys:String>
-    <sys:String x:Key="LocOptions_TabPerformance">Performance</sys:String>
+    <sys:String x:Key="LocOptions_TabPaths">&#x2066;Files&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabRedump">&#x2066;Redump&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabProcessing">&#x2066;Conversion&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabPerformance">&#x2066;Performance&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabAddons">&#x2066;Add-ons&#x2069;</sys:String>
+    <sys:String x:Key="LocConversion_EngineSection">&#x2066;Conversion engine&#x2069;</sys:String>
+    <sys:String x:Key="LocConversion_ChdSection">&#x2066;CHD settings&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_OrganizeSection">&#x2066;File management&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_OutputSection">&#x2066;Output and workspace&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_ResultsSection">&#x2066;Result handling&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_CleanupSection">&#x2066;Cleanup&#x2069;</sys:String>
+    <sys:String x:Key="LocPerformance_RuntimeSection">&#x2066;Resources and execution&#x2069;</sys:String>
     <sys:String x:Key="LocExternalTools_Title">Hakamiq-CsoKit</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">Available</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">Missing</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">Failed</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">Tool connected successfully</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">Tool is not available at the configured path:</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">Could not connect to the tool at:</sys:String>
     <sys:String x:Key="LocExternalTools_OpenFolder">Open Tools Folder</sys:String>
     <sys:String x:Key="LocExternalTools_Recheck">Recheck</sys:String>
     <sys:String x:Key="LocExternalTools_CopySetupInstructions">Copy Setup Instructions</sys:String>
@@ -1781,7 +1789,7 @@ Path:
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">Direct CHD-to-CHD recompression was blocked. The safe path is to extract the original media file first, then rebuild the CHD according to the platform policy.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">Quick file summary before preparing the matching database.</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">Checking...</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">Checking tool...</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">Note</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">The CHD file could not be verified.&#x0A;It may be damaged, incomplete, or in an unsupported format.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">Note</sys:String>

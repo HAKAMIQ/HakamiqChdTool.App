@@ -13,6 +13,49 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../../Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <ToolTip x:Key="AppTip.GenView.1"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocGeneralSettings_LanguageDescription}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
+
+            <ToolTip x:Key="AppTip.GenView.2"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocGeneralSettings_ThemeDescription}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -51,7 +94,7 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocGeneralSettings_LanguageTitle}"
-                                               ToolTip="{DynamicResource LocGeneralSettings_LanguageDescription}"
+                                               ToolTip="{StaticResource AppTip.GenView.1}"
                                                TextAlignment="Left" />
                                 </Grid>
 
@@ -61,7 +104,7 @@
                                           SelectedValuePath="Tag"
                                           IsTextSearchEnabled="True"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{DynamicResource LocGeneralSettings_LanguageDescription}"
+                                          ToolTip="{StaticResource AppTip.GenView.1}"
                                           AutomationProperties.Name="{DynamicResource LocGeneralSettings_LanguageTitle}">
                                     <ComboBoxItem Tag="ar-SA" Content="{DynamicResource LocLanguage_Arabic}" />
 
@@ -83,7 +126,7 @@
                                       Style="{StaticResource Win11SettingsRowTextArea}">
                                     <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
                                                Text="{DynamicResource LocGeneralSettings_ThemeTitle}"
-                                               ToolTip="{DynamicResource LocGeneralSettings_ThemeDescription}"
+                                               ToolTip="{StaticResource AppTip.GenView.2}"
                                                TextAlignment="Left" />
                                 </Grid>
 
@@ -93,13 +136,11 @@
                                           SelectedValuePath="Tag"
                                           IsTextSearchEnabled="True"
                                           Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{DynamicResource LocGeneralSettings_ThemeDescription}"
+                                          ToolTip="{StaticResource AppTip.GenView.2}"
                                           AutomationProperties.Name="{DynamicResource LocGeneralSettings_ThemeTitle}">
                                     <ComboBoxItem Tag="Light" Content="{DynamicResource LocUi_Theme_Light}" />
 
                                     <ComboBoxItem Tag="Dark" Content="{DynamicResource LocUi_Theme_Dark}" />
-
-                                    <ComboBoxItem Tag="Hakamiq" Content="{DynamicResource LocUi_Theme_Hakamiq}" />
                                 </ComboBox>
                             </Grid>
                         </Border>

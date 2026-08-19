@@ -8,6 +8,115 @@
              UseLayoutRounding="True">
 
     <UserControl.Resources>
+        <ToolTip x:Key="AppTip.OpMode.1"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Mode_Convert_Tooltip}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.OpMode.2"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Mode_Extract_Tooltip}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.OpMode.3"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Mode_Verify_Tooltip}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.OpMode.4"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Mode_ScanConvert_Tooltip}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.OpMode.5"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Mode_ScanExtract_Tooltip}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
         <Style x:Key="OperationModePanelText"
                TargetType="{x:Type TextBlock}">
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
@@ -92,11 +201,11 @@
 
                                 <Border x:Name="SelectionIndicator"
                                         Grid.Column="0"
-                                        Width="0"
+                                        Width="3"
                                         Height="18"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Background="{DynamicResource Brush.Transparent}"
+                                        Background="{DynamicResource Brush.Accent}"
                                         CornerRadius="{DynamicResource Radius.Small}"
                                         Opacity="{DynamicResource Opacity.Hidden}" />
 
@@ -178,7 +287,7 @@
 
                                 <Setter TargetName="Bd"
                                         Property="BorderBrush"
-                                        Value="{DynamicResource Brush.Transparent}" />
+                                        Value="{DynamicResource Brush.Accent.SelectedBorder}" />
 
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
@@ -209,7 +318,7 @@
 
                                 <Setter TargetName="Bd"
                                         Property="BorderBrush"
-                                        Value="{DynamicResource Brush.Transparent}" />
+                                        Value="{DynamicResource Brush.Accent.SelectedBorder}" />
 
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
@@ -291,7 +400,7 @@
                          IsChecked="True"
                          Tag="{StaticResource Icon.Operation.Convert}"
                          Content="{DynamicResource LocUi_Mode_Convert}"
-                         ToolTip="{DynamicResource LocUi_Mode_Convert_Tooltip}"
+                         ToolTip="{StaticResource AppTip.OpMode.1}"
                          Style="{StaticResource OperationModePanelModeChip}"
                          Click="OnOperationModeRadioClick" />
 
@@ -300,7 +409,7 @@
                          GroupName="OperationMode"
                          Tag="{StaticResource Icon.Operation.Extract}"
                          Content="{DynamicResource LocUi_Mode_Extract}"
-                         ToolTip="{DynamicResource LocUi_Mode_Extract_Tooltip}"
+                         ToolTip="{StaticResource AppTip.OpMode.2}"
                          Style="{StaticResource OperationModePanelModeChip}"
                          Click="OnOperationModeRadioClick" />
 
@@ -309,7 +418,7 @@
                          GroupName="OperationMode"
                          Tag="{StaticResource Icon.Operation.Verify}"
                          Content="{DynamicResource LocUi_Mode_Verify}"
-                         ToolTip="{DynamicResource LocUi_Mode_Verify_Tooltip}"
+                         ToolTip="{StaticResource AppTip.OpMode.3}"
                          Style="{StaticResource OperationModePanelModeChip}"
                          Click="OnOperationModeRadioClick" />
 
@@ -320,7 +429,7 @@
                          IsTabStop="False"
                          Tag="{StaticResource Icon.DatabaseSearch}"
                          Content="{DynamicResource LocUi_Mode_ScanConvert}"
-                         ToolTip="{DynamicResource LocUi_Mode_ScanConvert_Tooltip}"
+                         ToolTip="{StaticResource AppTip.OpMode.4}"
                          Style="{StaticResource OperationModePanelModeChip}"
                          Click="OnOperationModeRadioClick" />
 
@@ -331,7 +440,7 @@
                          IsTabStop="False"
                          Tag="{StaticResource Icon.FolderZip}"
                          Content="{DynamicResource LocUi_Mode_ScanExtract}"
-                         ToolTip="{DynamicResource LocUi_Mode_ScanExtract_Tooltip}"
+                         ToolTip="{StaticResource AppTip.OpMode.5}"
                          Style="{StaticResource OperationModePanelModeChip}"
                          Click="OnOperationModeRadioClick" />
         </Grid>

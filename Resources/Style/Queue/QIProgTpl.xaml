@@ -5,11 +5,32 @@
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QItemBase.xaml" />
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QWShared.xaml" />
 </ResourceDictionary.MergedDictionaries>
+    <ToolTip x:Key="AppTip.QIProgTpl.1"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocUi_QueueProgressPanelTooltip}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
 
     <DataTemplate x:Key="QueueItemProgressFieldsTemplate">
         <Border Margin="{DynamicResource Inset.0.8.0.0}"
                 Style="{StaticResource FluentQueueProgressPanelBorder}"
-                ToolTip="{DynamicResource LocUi_QueueProgressPanelTooltip}"
+                ToolTip="{StaticResource AppTip.QIProgTpl.1}"
                 Visibility="{Binding UiShowProgressRow, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid FlowDirection="{DynamicResource TechnicalText.FlowDirection}"
                   Language="{DynamicResource TechnicalText.Language}"

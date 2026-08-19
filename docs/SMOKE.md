@@ -18,7 +18,6 @@ checks.
 
 - [ ] Light theme is readable.
 - [ ] Dark theme is readable.
-- [ ] HAKAMIQ theme is readable.
 - [ ] Arabic UI is RTL where expected.
 - [ ] Technical paths remain LTR and readable.
 - [ ] Advanced Options is not clipped at normal scaling.

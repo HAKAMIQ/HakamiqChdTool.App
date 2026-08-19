@@ -49,11 +49,9 @@ public sealed class ThemeService : IThemeManager
     {
         RunOnApplicationDispatcher(() =>
         {
-            string next = string.Equals(_currentThemeName, LightThemeName, StringComparison.OrdinalIgnoreCase)
-                ? DarkThemeName
-                : string.Equals(_currentThemeName, DarkThemeName, StringComparison.OrdinalIgnoreCase)
-                    ? HakamiqThemeName
-                    : LightThemeName;
+            string next = string.Equals(_currentThemeName, DarkThemeName, StringComparison.OrdinalIgnoreCase)
+                ? LightThemeName
+                : DarkThemeName;
 
             SetThemeOnCurrentDispatcher(next);
         });
@@ -208,7 +206,7 @@ public sealed class ThemeService : IThemeManager
 
         if (string.Equals(themeName, HakamiqThemeName, StringComparison.OrdinalIgnoreCase))
         {
-            return HakamiqThemeName;
+            return DarkThemeName;
         }
 
         return null;
@@ -228,17 +226,14 @@ public sealed class ThemeService : IThemeManager
         }
 
         return probe.EndsWith("/light.xaml", StringComparison.OrdinalIgnoreCase)
-            || probe.EndsWith("/dark.xaml", StringComparison.OrdinalIgnoreCase)
-            || probe.EndsWith("/hakamiq.xaml", StringComparison.OrdinalIgnoreCase);
+            || probe.EndsWith("/dark.xaml", StringComparison.OrdinalIgnoreCase);
     }
 
     private static Uri GetThemePackUri(string themeName)
     {
         string file = string.Equals(themeName, DarkThemeName, StringComparison.OrdinalIgnoreCase)
             ? "Dark.xaml"
-            : string.Equals(themeName, HakamiqThemeName, StringComparison.OrdinalIgnoreCase)
-                ? "Hakamiq.xaml"
-                : "Light.xaml";
+            : "Light.xaml";
 
         return new Uri($"pack://application:,,,/Resources/Themes/{file}", UriKind.Absolute);
     }

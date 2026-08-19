@@ -14,6 +14,7 @@
                    FontFamily="{DynamicResource FontFamily.Base}"
                    FontSize="{DynamicResource FontSize.Caption}"
                    FlowDirection="{DynamicResource App.FlowDirection}"
+                   Language="{DynamicResource App.XmlLanguage}"
                    TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
     </DataTemplate>
 
@@ -32,6 +33,7 @@
         <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="TextElement.FontSize" Value="{DynamicResource FontSize.Caption}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
+        <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
         <Setter Property="Placement" Value="Mouse" />
         <Setter Property="HorizontalOffset" Value="{DynamicResource ToolTip.Placement.HorizontalOffset}" />
         <Setter Property="VerticalOffset" Value="{DynamicResource ToolTip.Placement.VerticalOffset}" />
@@ -56,6 +58,7 @@
                                           HorizontalAlignment="Stretch"
                                           RecognizesAccessKey="True"
                                           FlowDirection="{TemplateBinding FlowDirection}"
+                                          Language="{DynamicResource App.XmlLanguage}"
                                           TextElement.Foreground="{TemplateBinding Foreground}"
                                           TextElement.FontFamily="{TemplateBinding FontFamily}"
                                           TextElement.FontSize="{TemplateBinding FontSize}">
