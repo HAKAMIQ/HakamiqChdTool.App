@@ -5,6 +5,93 @@
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QItemBase.xaml" />
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QWShared.xaml" />
     </ResourceDictionary.MergedDictionaries>
+    <ToolTip x:Key="AppTip.QIActionsTpl.1"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocCtx_OpenPath}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
+
+    <ToolTip x:Key="AppTip.QIActionsTpl.2"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocCtx_CancelJob}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
+
+    <ToolTip x:Key="AppTip.QIActionsTpl.3"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocQueue_VerificationResultTooltip}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
+
+    <ToolTip x:Key="AppTip.QIActionsTpl.4"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocCtx_Retry}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
 
     <DataTemplate x:Key="QueueItemActionsFieldsTemplate">
         <Grid FlowDirection="{DynamicResource App.FlowDirection}"
@@ -131,7 +218,7 @@
                                 CommandParameter="{Binding}"
                                 Content="{DynamicResource LocUi_QueueRowOpen}"
                                 AutomationProperties.Name="{DynamicResource LocCtx_OpenPath}"
-                                ToolTip="{DynamicResource LocCtx_OpenPath}">
+                                ToolTip="{StaticResource AppTip.QIActionsTpl.1}">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}"
                                        BasedOn="{StaticResource FluentQueueRowSubtleActionButton}">
@@ -150,7 +237,7 @@
                                 Content="{DynamicResource LocUi_QueueRowCancel}"
                                 Style="{StaticResource FluentQueueRowSubtleActionButton}"
                                 AutomationProperties.Name="{DynamicResource LocCtx_CancelJob}"
-                                ToolTip="{DynamicResource LocCtx_CancelJob}" />
+                                ToolTip="{StaticResource AppTip.QIActionsTpl.2}" />
                     </Grid>
                 </Grid>
             </Border>
@@ -205,7 +292,7 @@
                                 CommandParameter="{Binding}"
                                 Content="{DynamicResource LocUi_QueueRowOpen}"
                                 AutomationProperties.Name="{DynamicResource LocCtx_OpenPath}"
-                                ToolTip="{DynamicResource LocCtx_OpenPath}">
+                                ToolTip="{StaticResource AppTip.QIActionsTpl.1}">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}"
                                        BasedOn="{StaticResource FluentQueueRowSubtleActionButton}">
@@ -233,7 +320,7 @@
                                 CommandParameter="{Binding}"
                                 Content="{DynamicResource LocQueue_VerificationResultButton}"
                                 AutomationProperties.Name="{DynamicResource LocQueue_VerificationResultButton}"
-                                ToolTip="{DynamicResource LocQueue_VerificationResultTooltip}">
+                                ToolTip="{StaticResource AppTip.QIActionsTpl.3}">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}"
                                        BasedOn="{StaticResource FluentQueueRowSubtleActionButton}">
@@ -253,7 +340,7 @@
                                 CommandParameter="{Binding}"
                                 Content="{DynamicResource LocCtx_Retry}"
                                 AutomationProperties.Name="{DynamicResource LocCtx_Retry}"
-                                ToolTip="{DynamicResource LocCtx_Retry}">
+                                ToolTip="{StaticResource AppTip.QIActionsTpl.4}">
                             <Button.Style>
                                 <Style TargetType="{x:Type Button}"
                                        BasedOn="{StaticResource FluentQueueRowSubtleActionButton}">

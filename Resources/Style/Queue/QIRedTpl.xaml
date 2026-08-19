@@ -5,10 +5,31 @@
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QItemBase.xaml" />
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QWShared.xaml" />
 </ResourceDictionary.MergedDictionaries>
+    <ToolTip x:Key="AppTip.QIRedTpl.1"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocQueue_RedumpValidatingTooltip}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
 
     <DataTemplate x:Key="QueueItemRedumpFieldsTemplate">
         <Border Margin="{DynamicResource Inset.0.8.0.0}"
-                ToolTip="{DynamicResource LocQueue_RedumpValidatingTooltip}">
+                ToolTip="{StaticResource AppTip.QIRedTpl.1}">
             <Border.Style>
                 <Style TargetType="{x:Type Border}"
                        BasedOn="{StaticResource FluentQueueInlineSurfaceBorder}">
