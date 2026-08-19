@@ -24,18 +24,24 @@ internal sealed record ConsoleDiscIdentityResult(
     public bool IsPathHintOnly =>
         EvidenceKind == ConsoleDiscIdentityEvidenceKind.PathHint;
 
-    public bool HasOperationalEvidence =>
-        EvidenceKind is ConsoleDiscIdentityEvidenceKind.BinaryContent or ConsoleDiscIdentityEvidenceKind.RawSerial;
-
-    public static ConsoleDiscIdentityResult Unknown(string reasonKey = "LocConsoleDiscIdentity_Unknown") =>
-        new(string.Empty, 0, reasonKey, string.Empty, ConsoleDiscIdentityEvidenceKind.None);
+    public static ConsoleDiscIdentityResult Unknown(
+        string reasonKey = "LocConsoleDiscIdentity_Unknown")
+    {
+        return new ConsoleDiscIdentityResult(
+            string.Empty,
+            0,
+            reasonKey,
+            string.Empty,
+            ConsoleDiscIdentityEvidenceKind.None);
+    }
 
     public static ConsoleDiscIdentityResult Create(
         string platformName,
         int confidence,
         string reasonKey,
         string? evidence = null,
-        ConsoleDiscIdentityEvidenceKind evidenceKind = ConsoleDiscIdentityEvidenceKind.BinaryContent)
+        ConsoleDiscIdentityEvidenceKind evidenceKind =
+            ConsoleDiscIdentityEvidenceKind.BinaryContent)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(platformName);
         ArgumentException.ThrowIfNullOrWhiteSpace(reasonKey);
@@ -44,7 +50,9 @@ internal sealed record ConsoleDiscIdentityResult(
             platformName.Trim(),
             Math.Clamp(confidence, 0, 100),
             reasonKey.Trim(),
-            string.IsNullOrWhiteSpace(evidence) ? string.Empty : evidence.Trim(),
+            string.IsNullOrWhiteSpace(evidence)
+                ? string.Empty
+                : evidence.Trim(),
             evidenceKind);
     }
 }

@@ -7,16 +7,20 @@ namespace HakamiqChdTool.App.Core.Input;
 
 public sealed class InputResolver : IInputResolver
 {
-    public IEnumerable<string> Resolve(string path)
-    {
-        return Resolve(path, SearchOption.AllDirectories);
-    }
-
-    public IEnumerable<string> Resolve(string path, SearchOption searchOption)
+    public IEnumerable<string> Resolve(
+        string path,
+        SearchOption searchOption)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
+        if (searchOption is not SearchOption.TopDirectoryOnly
+            and not SearchOption.AllDirectories)
+        {
+            throw new ArgumentOutOfRangeException(nameof(searchOption));
+        }
+
         string fullPath;
+
         try
         {
             fullPath = NormalizeFullPath(path);
@@ -37,19 +41,22 @@ public sealed class InputResolver : IInputResolver
         }
 
         if (!Directory.Exists(fullPath)
-            || IsUnsafeRoot(fullPath)
-            || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+            || IsUnsafeRoot(fullPath))
         {
             yield break;
         }
 
-        foreach (string file in EnumerateFilesSafe(fullPath, searchOption))
+        foreach (string file in EnumerateFilesSafe(
+                     fullPath,
+                     searchOption))
         {
             yield return file;
         }
     }
 
-    private static IEnumerable<string> EnumerateFilesSafe(string rootPath, SearchOption searchOption)
+    private static IEnumerable<string> EnumerateFilesSafe(
+        string rootPath,
+        SearchOption searchOption)
     {
         Stack<string> pendingDirectories = [];
         pendingDirectories.Push(rootPath);
@@ -79,23 +86,23 @@ public sealed class InputResolver : IInputResolver
 
             foreach (string directory in EnumerateChildDirectoriesSafe(currentDirectory))
             {
-                if (!ShouldSkipDirectory(directory)
-                    && !HasReparsePointInExistingPathFromVolumeRoot(directory))
-                {
-                    pendingDirectories.Push(directory);
-                }
+                pendingDirectories.Push(directory);
             }
         }
     }
 
-    private static IEnumerable<string> EnumerateDirectoryFilesSafe(string directoryPath)
+    private static IEnumerable<string> EnumerateDirectoryFilesSafe(
+        string directoryPath)
     {
         IEnumerator<string>? enumerator;
 
         try
         {
             enumerator = Directory
-                .EnumerateFiles(directoryPath, "*", SearchOption.TopDirectoryOnly)
+                .EnumerateFiles(
+                    directoryPath,
+                    "*",
+                    SearchOption.TopDirectoryOnly)
                 .GetEnumerator();
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
@@ -131,14 +138,18 @@ public sealed class InputResolver : IInputResolver
         }
     }
 
-    private static IEnumerable<string> EnumerateChildDirectoriesSafe(string directoryPath)
+    private static IEnumerable<string> EnumerateChildDirectoriesSafe(
+        string directoryPath)
     {
         IEnumerator<string>? enumerator;
 
         try
         {
             enumerator = Directory
-                .EnumerateDirectories(directoryPath, "*", SearchOption.TopDirectoryOnly)
+                .EnumerateDirectories(
+                    directoryPath,
+                    "*",
+                    SearchOption.TopDirectoryOnly)
                 .GetEnumerator();
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
@@ -183,7 +194,9 @@ public sealed class InputResolver : IInputResolver
 
         try
         {
-            return PendingWorkspacePathPolicy.IsReservedWorkspaceDirectoryName(Path.GetFileName(NormalizeFullPath(directoryPath)));
+            return PendingWorkspacePathPolicy.IsReservedWorkspaceDirectoryName(
+                Path.GetFileName(
+                    NormalizeFullPath(directoryPath)));
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
@@ -191,7 +204,8 @@ public sealed class InputResolver : IInputResolver
         }
     }
 
-    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(
+        string candidatePath)
     {
         try
         {
@@ -203,7 +217,9 @@ public sealed class InputResolver : IInputResolver
                 return true;
             }
 
-            return HasReparsePointInExistingPath(candidate, root);
+            return HasReparsePointInExistingPath(
+                candidate,
+                root);
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
@@ -211,14 +227,16 @@ public sealed class InputResolver : IInputResolver
         }
     }
 
-    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    private static bool HasReparsePointInExistingPath(
+        string candidatePath,
+        string rootPath)
     {
         try
         {
             string candidate = NormalizeFullPath(candidatePath);
             string root = NormalizeFullPath(rootPath);
 
-            if (!IsSamePathOrChild(candidate, root))
+            if (!IsSamePathOrChild(root, candidate))
             {
                 return true;
             }
@@ -227,7 +245,8 @@ public sealed class InputResolver : IInputResolver
 
             while (true)
             {
-                if ((File.Exists(current) || Directory.Exists(current)) && IsExistingPathReparsePoint(current))
+                if ((File.Exists(current) || Directory.Exists(current))
+                    && IsExistingPathReparsePoint(current))
                 {
                     return true;
                 }
@@ -238,7 +257,9 @@ public sealed class InputResolver : IInputResolver
                 }
 
                 string? parent = Directory.GetParent(current)?.FullName;
-                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+
+                if (string.IsNullOrWhiteSpace(parent)
+                    || PathsEqual(parent, current))
                 {
                     return true;
                 }
@@ -256,12 +277,14 @@ public sealed class InputResolver : IInputResolver
     {
         try
         {
-            if (!File.Exists(path) && !Directory.Exists(path))
+            if (!File.Exists(path)
+                && !Directory.Exists(path))
             {
                 return false;
             }
 
-            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+            return (File.GetAttributes(path) & FileAttributes.ReparsePoint)
+                == FileAttributes.ReparsePoint;
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
@@ -269,16 +292,25 @@ public sealed class InputResolver : IInputResolver
         }
     }
 
-    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    private static bool IsSamePathOrChild(
+        string rootPath,
+        string candidatePath)
     {
-        string candidate = NormalizeFullPath(candidatePath);
         string root = NormalizeFullPath(rootPath);
+        string candidate = NormalizeFullPath(candidatePath);
 
-        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
-            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+        return string.Equals(
+                candidate,
+                root,
+                StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(
+                EnsureDirectorySeparatorSuffix(root),
+                StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool PathsEqual(string left, string right)
+    private static bool PathsEqual(
+        string left,
+        string right)
     {
         return string.Equals(
             NormalizeFullPath(left),
@@ -312,7 +344,9 @@ public sealed class InputResolver : IInputResolver
         string? root = Path.GetPathRoot(fullPath);
 
         if (!string.IsNullOrWhiteSpace(root)
-            && fullPath.Equals(root, StringComparison.OrdinalIgnoreCase))
+            && fullPath.Equals(
+                root,
+                StringComparison.OrdinalIgnoreCase))
         {
             return fullPath;
         }
@@ -325,7 +359,7 @@ public sealed class InputResolver : IInputResolver
     private static string EnsureDirectorySeparatorSuffix(string path)
     {
         return path.EndsWith(Path.DirectorySeparatorChar)
-               || path.EndsWith(Path.AltDirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
             ? path
             : path + Path.DirectorySeparatorChar;
     }

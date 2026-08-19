@@ -4,7 +4,8 @@ namespace HakamiqChdTool.App.Services.ConsoleMedia.Probes;
 
 internal sealed class SegaSaturnConsoleDiscProbe : IConsoleDiscIdentityProbe
 {
-    public ConsoleDiscIdentityResult Probe(ConsoleDiscScanContext context)
+    public ConsoleDiscIdentityResult Probe(
+        ConsoleDiscScanContext context)
     {
         if (context.ContainsText("SEGA SEGASATURN"))
         {

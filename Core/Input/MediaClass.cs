@@ -1,5 +1,6 @@
 using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,15 +12,53 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
     private const int MaxProbeBytes = 4096;
     private const int ChdMaxHeaderSize = 124;
 
-    private static readonly byte[] ChdMagic = [(byte)'M', (byte)'C', (byte)'o', (byte)'m', (byte)'p', (byte)'r', (byte)'H', (byte)'D'];
-    private static readonly byte[] CsoMagic = [(byte)'C', (byte)'I', (byte)'S', (byte)'O'];
-    private static readonly byte[] PkgMagic = [0x7F, 0x50, 0x4B, 0x47];
+    private static readonly byte[] ChdMagic =
+    [
+        (byte)'M',
+        (byte)'C',
+        (byte)'o',
+        (byte)'m',
+        (byte)'p',
+        (byte)'r',
+        (byte)'H',
+        (byte)'D'
+    ];
+
+    private static readonly byte[] CsoMagic =
+    [
+        (byte)'C',
+        (byte)'I',
+        (byte)'S',
+        (byte)'O'
+    ];
+
+    private static readonly byte[] PkgMagic =
+    [
+        0x7F,
+        0x50,
+        0x4B,
+        0x47
+    ];
+
+    private static readonly IReadOnlyDictionary<string, MediaInputKind> ExtensionMap =
+        new Dictionary<string, MediaInputKind>(StringComparer.OrdinalIgnoreCase)
+        {
+            [".iso"] = MediaInputKind.ISO,
+            [".pkg"] = MediaInputKind.PKG,
+            [".chd"] = MediaInputKind.CHD,
+            [".cso"] = MediaInputKind.CSO,
+            [".cue"] = MediaInputKind.CUE,
+            [".bin"] = MediaInputKind.BIN,
+            [".gdi"] = MediaInputKind.GDI
+        };
 
     public static readonly MediaInputClassifier Shared = new();
 
     public MediaInputDescriptor Classify(string? path)
     {
-        return ClassifyAsync(path ?? string.Empty, CancellationToken.None)
+        return ClassifyAsync(
+                path ?? string.Empty,
+                CancellationToken.None)
             .AsTask()
             .GetAwaiter()
             .GetResult();
@@ -32,6 +71,7 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         cancellationToken.ThrowIfCancellationRequested();
 
         string originalPath = path ?? string.Empty;
+
         if (string.IsNullOrWhiteSpace(originalPath))
         {
             return new MediaInputDescriptor(
@@ -46,6 +86,7 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         }
 
         string fullPath;
+
         try
         {
             fullPath = Path.GetFullPath(originalPath.Trim());
@@ -77,6 +118,7 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         }
 
         string? extension = ResolveExtension(fullPath);
+
         if (!File.Exists(fullPath))
         {
             return new MediaInputDescriptor(
@@ -90,8 +132,9 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
                 "path-missing");
         }
 
-        MediaInputKind kind = ResolveKind(extension);
+        MediaInputKind kind = ClassifyExtension(extension);
         long? sizeBytes = TryGetSizeBytes(fullPath);
+
         if (kind == MediaInputKind.Other)
         {
             return new MediaInputDescriptor(
@@ -107,46 +150,53 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
 
         return kind switch
         {
-            MediaInputKind.CHD => await ClassifyChdAsync(
-                    originalPath,
-                    fullPath,
-                    sizeBytes,
-                    extension,
-                    cancellationToken)
-                .ConfigureAwait(false),
-            MediaInputKind.CSO => await ClassifyWithMagicAsync(
+            MediaInputKind.CHD =>
+                await ClassifyChdAsync(
+                        originalPath,
+                        fullPath,
+                        sizeBytes,
+                        extension,
+                        cancellationToken)
+                    .ConfigureAwait(false),
+
+            MediaInputKind.CSO =>
+                await ClassifyWithMagicAsync(
+                        originalPath,
+                        fullPath,
+                        kind,
+                        sizeBytes,
+                        extension,
+                        CsoMagic,
+                        "magic-cso",
+                        "extension-cso",
+                        "extension-cso-probe-failed",
+                        cancellationToken)
+                    .ConfigureAwait(false),
+
+            MediaInputKind.PKG =>
+                await ClassifyWithMagicAsync(
+                        originalPath,
+                        fullPath,
+                        kind,
+                        sizeBytes,
+                        extension,
+                        PkgMagic,
+                        "magic-pkg",
+                        "extension-pkg",
+                        "extension-pkg-probe-failed",
+                        cancellationToken)
+                    .ConfigureAwait(false),
+
+            _ =>
+                new MediaInputDescriptor(
                     originalPath,
                     fullPath,
                     kind,
+                    Exists: true,
+                    IsDirectory: false,
                     sizeBytes,
                     extension,
-                    CsoMagic,
-                    "magic-cso",
-                    "extension-cso",
-                    "extension-cso-probe-failed",
-                    cancellationToken)
-                .ConfigureAwait(false),
-            MediaInputKind.PKG => await ClassifyWithMagicAsync(
-                    originalPath,
-                    fullPath,
-                    kind,
-                    sizeBytes,
-                    extension,
-                    PkgMagic,
-                    "magic-pkg",
-                    "extension-pkg",
-                    "extension-pkg-probe-failed",
-                    cancellationToken)
-                .ConfigureAwait(false),
-            _ => new MediaInputDescriptor(
-                originalPath,
-                fullPath,
-                kind,
-                Exists: true,
-                IsDirectory: false,
-                sizeBytes,
-                extension,
-                "extension-" + (extension?.TrimStart('.') ?? "unknown"))
+                    "extension-" + (extension?.TrimStart('.') ?? "unknown"))
         };
     }
 
@@ -158,6 +208,7 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         CancellationToken cancellationToken)
     {
         MediaInputProbeStatus probeStatus;
+
         try
         {
             byte[] header = await ReadHeaderAtMostAsync(
@@ -198,10 +249,15 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         CancellationToken cancellationToken)
     {
         MediaInputProbeStatus probeStatus;
+
         try
         {
-            byte[] header = await ReadHeaderAtMostAsync(fullPath, expectedMagic.Length, cancellationToken)
+            byte[] header = await ReadHeaderAtMostAsync(
+                    fullPath,
+                    expectedMagic.Length,
+                    cancellationToken)
                 .ConfigureAwait(false);
+
             probeStatus = header.Length < expectedMagic.Length
                 ? MediaInputProbeStatus.HeaderTruncated
                 : HasPrefix(header, expectedMagic)
@@ -215,10 +271,17 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
 
         string detectionReason = probeStatus switch
         {
-            MediaInputProbeStatus.MagicConfirmed => magicReason,
-            MediaInputProbeStatus.ProbeUnavailable => probeFailedReason,
-            MediaInputProbeStatus.HeaderTruncated => $"{extensionReason}-truncated",
-            _ => extensionReason
+            MediaInputProbeStatus.MagicConfirmed =>
+                magicReason,
+
+            MediaInputProbeStatus.ProbeUnavailable =>
+                probeFailedReason,
+
+            MediaInputProbeStatus.HeaderTruncated =>
+                $"{extensionReason}-truncated",
+
+            _ =>
+                extensionReason
         };
 
         return new MediaInputDescriptor(
@@ -233,7 +296,8 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             probeStatus);
     }
 
-    private static MediaInputProbeStatus ProbeChdHeader(ReadOnlySpan<byte> header)
+    private static MediaInputProbeStatus ProbeChdHeader(
+        ReadOnlySpan<byte> header)
     {
         if (header.Length < ChdMagic.Length)
         {
@@ -250,8 +314,14 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             return MediaInputProbeStatus.HeaderTruncated;
         }
 
-        uint headerLength = BinaryPrimitives.ReadUInt32BigEndian(header.Slice(8, 4));
-        uint version = BinaryPrimitives.ReadUInt32BigEndian(header.Slice(12, 4));
+        uint headerLength =
+            BinaryPrimitives.ReadUInt32BigEndian(
+                header.Slice(8, 4));
+
+        uint version =
+            BinaryPrimitives.ReadUInt32BigEndian(
+                header.Slice(12, 4));
+
         uint expectedHeaderLength = version switch
         {
             3 => 120,
@@ -270,23 +340,39 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             return MediaInputProbeStatus.InvalidHeaderLength;
         }
 
-        // MAME reads MAX_HEADER_SIZE (124 bytes) before parsing any supported
-        // version, so a shorter file is not a complete CHD input envelope.
+        // MAME reads MAX_HEADER_SIZE (124 bytes) before parsing supported
+        // CHD versions. Keep the same minimum input envelope here.
         return header.Length < ChdMaxHeaderSize
             ? MediaInputProbeStatus.HeaderTruncated
             : MediaInputProbeStatus.HeaderEnvelopeValid;
     }
 
-    private static string DetectionReasonFor(MediaInputProbeStatus status, string format) => status switch
-    {
-        MediaInputProbeStatus.HeaderEnvelopeValid => $"header-{format}-valid",
-        MediaInputProbeStatus.HeaderMismatch => $"header-{format}-mismatch",
-        MediaInputProbeStatus.HeaderTruncated => $"header-{format}-truncated",
-        MediaInputProbeStatus.UnsupportedVersion => $"header-{format}-unsupported-version",
-        MediaInputProbeStatus.InvalidHeaderLength => $"header-{format}-invalid-length",
-        MediaInputProbeStatus.ProbeUnavailable => $"header-{format}-probe-unavailable",
-        _ => $"header-{format}-not-confirmed"
-    };
+    private static string DetectionReasonFor(
+        MediaInputProbeStatus status,
+        string format) =>
+        status switch
+        {
+            MediaInputProbeStatus.HeaderEnvelopeValid =>
+                $"header-{format}-valid",
+
+            MediaInputProbeStatus.HeaderMismatch =>
+                $"header-{format}-mismatch",
+
+            MediaInputProbeStatus.HeaderTruncated =>
+                $"header-{format}-truncated",
+
+            MediaInputProbeStatus.UnsupportedVersion =>
+                $"header-{format}-unsupported-version",
+
+            MediaInputProbeStatus.InvalidHeaderLength =>
+                $"header-{format}-invalid-length",
+
+            MediaInputProbeStatus.ProbeUnavailable =>
+                $"header-{format}-probe-unavailable",
+
+            _ =>
+                $"header-{format}-not-confirmed"
+        };
 
     private static async ValueTask<byte[]> ReadHeaderAtMostAsync(
         string path,
@@ -309,10 +395,13 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             options: FileOptions.Asynchronous | FileOptions.SequentialScan);
 
         int totalRead = 0;
+
         while (totalRead < buffer.Length)
         {
             int read = await stream
-                .ReadAsync(buffer.AsMemory(totalRead), cancellationToken)
+                .ReadAsync(
+                    buffer.AsMemory(totalRead),
+                    cancellationToken)
                 .ConfigureAwait(false);
 
             if (read == 0)
@@ -332,22 +421,11 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         return buffer;
     }
 
-    private static bool HasPrefix(byte[] header, byte[] expectedMagic)
+    private static bool HasPrefix(
+        byte[] header,
+        byte[] expectedMagic)
     {
-        if (header.Length < expectedMagic.Length)
-        {
-            return false;
-        }
-
-        for (int index = 0; index < expectedMagic.Length; index++)
-        {
-            if (header[index] != expectedMagic[index])
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return header.AsSpan().StartsWith(expectedMagic);
     }
 
     private static long? TryGetSizeBytes(string fullPath)
@@ -366,8 +444,12 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
     {
         try
         {
-            string extension = Path.GetExtension(fullPath).ToLowerInvariant();
-            return string.IsNullOrEmpty(extension) ? null : extension;
+            string extension =
+                Path.GetExtension(fullPath).ToLowerInvariant();
+
+            return string.IsNullOrEmpty(extension)
+                ? null
+                : extension;
         }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
@@ -375,30 +457,39 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         }
     }
 
-    private static MediaInputKind ResolveKind(string? extension) => extension switch
+    public static MediaInputKind ClassifyExtension(string? extension)
     {
-        ".iso" => MediaInputKind.ISO,
-        ".pkg" => MediaInputKind.PKG,
-        ".chd" => MediaInputKind.CHD,
-        ".cso" => MediaInputKind.CSO,
-        ".cue" => MediaInputKind.CUE,
-        ".bin" => MediaInputKind.BIN,
-        ".gdi" => MediaInputKind.GDI,
-        _ => MediaInputKind.Other
-    };
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            return MediaInputKind.Other;
+        }
+
+        string normalized = extension.Trim();
+
+        if (normalized[0] != '.')
+        {
+            normalized = "." + normalized;
+        }
+
+        return ExtensionMap.TryGetValue(
+            normalized,
+            out MediaInputKind kind)
+            ? kind
+            : MediaInputKind.Other;
+    }
 
     private static bool IsExpectedProbeException(Exception ex) =>
         ex is IOException
-        or UnauthorizedAccessException
-        or NotSupportedException
-        or PathTooLongException
-        or System.Security.SecurityException;
+            or UnauthorizedAccessException
+            or NotSupportedException
+            or PathTooLongException
+            or System.Security.SecurityException;
 
     private static bool IsExpectedPathException(Exception ex) =>
         ex is ArgumentException
-        or IOException
-        or NotSupportedException
-        or PathTooLongException
-        or UnauthorizedAccessException
-        or System.Security.SecurityException;
+            or IOException
+            or NotSupportedException
+            or PathTooLongException
+            or UnauthorizedAccessException
+            or System.Security.SecurityException;
 }

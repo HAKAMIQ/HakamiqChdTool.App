@@ -85,12 +85,15 @@ function Get-AllFiles([string[]]$patterns) {
 }
 
 function Get-XamlResourceKeys {
-    $keys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $keys = [System.Collections.Generic.HashSet[string]]::new(
+        [System.StringComparer]::OrdinalIgnoreCase)
 
     Get-AllFiles @('*.xaml') | ForEach-Object {
         $content = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
 
-        foreach ($match in [regex]::Matches($content, 'x:Key\s*=\s*"([^"]+)"')) {
+        foreach ($match in [regex]::Matches(
+            $content,
+            'x:Key\s*=\s*"([^"]+)"')) {
             [void]$keys.Add($match.Groups[1].Value)
         }
     }
@@ -162,22 +165,39 @@ function Test-PublishPackagingPolicy {
     }
 
     $releasePath = Join-Path $root 'Release'
+
     if (-not (Test-Path -LiteralPath $releasePath -PathType Container)) {
         return
     }
 
-    Get-ChildItem -LiteralPath $releasePath -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object {
-        $relative = $_.FullName.Substring($releasePath.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+    Get-ChildItem -LiteralPath $releasePath -Recurse -File -ErrorAction SilentlyContinue |
+        ForEach-Object {
+            $relative = $_.FullName.Substring($releasePath.Length).TrimStart(
+                [System.IO.Path]::DirectorySeparatorChar,
+                [System.IO.Path]::AltDirectorySeparatorChar)
 
-        if ($_.Extension -in @('.cs', '.xaml', '.csproj', '.sln', '.ps1')) {
-            Add-Failure "Source/build script file is not allowed inside Release output: $($_.FullName)"
-        }
+            if ($_.Extension -in @(
+                '.cs',
+                '.xaml',
+                '.csproj',
+                '.sln',
+                '.ps1')) {
+                Add-Failure "Source/build script file is not allowed inside Release output: $($_.FullName)"
+            }
 
-        $segments = $relative -split '[\\/]'
-        if ($segments.Count -eq 1 -and $segments[0] -in @('LEGAL.md', '3P_NOTICE.txt', 'CHDMAN_NOTICE.md', '7ZIP.md', 'MAME_COPYING.txt', 'MAME_GPL-2.0.txt')) {
-            Add-Failure "Legal document is not allowed in Release root; it must remain under docs/legal: $($_.FullName)"
+            $segments = $relative -split '[\\/]'
+
+            if ($segments.Count -eq 1 -and
+                $segments[0] -in @(
+                    'LEGAL.md',
+                    '3P_NOTICE.txt',
+                    'CHDMAN_NOTICE.md',
+                    '7ZIP.md',
+                    'MAME_COPYING.txt',
+                    'MAME_GPL-2.0.txt')) {
+                Add-Failure "Legal document is not allowed in Release root; it must remain under docs/legal: $($_.FullName)"
+            }
         }
-    }
 }
 
 function Test-RefactoredFileSizeThresholds {
@@ -192,12 +212,14 @@ function Test-RefactoredFileSizeThresholds {
 
     foreach ($entry in $limits.GetEnumerator()) {
         $path = Join-Path $root $entry.Key
+
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
             Add-Failure "Expected refactored file is missing: $path"
             continue
         }
 
         $lineCount = (Get-FileLines $path).Count
+
         if ($lineCount -gt $entry.Value) {
             Add-Failure "Refactored file exceeds limit ($($entry.Value)): $path => $lineCount lines"
         }
@@ -208,10 +230,13 @@ function Test-DuplicateXamlResourceKeys {
     Get-AllFiles @('*.xaml') | ForEach-Object {
         $file = $_
         $lines = Get-Content -LiteralPath $file.FullName -Encoding UTF8
-        $seen = [System.Collections.Generic.Dictionary[string, int]]::new([System.StringComparer]::Ordinal)
+        $seen = [System.Collections.Generic.Dictionary[string, int]]::new(
+            [System.StringComparer]::Ordinal)
 
         for ($i = 0; $i -lt $lines.Count; $i++) {
-            foreach ($match in [regex]::Matches($lines[$i], 'x:Key\s*=\s*"([^"]+)"')) {
+            foreach ($match in [regex]::Matches(
+                $lines[$i],
+                'x:Key\s*=\s*"([^"]+)"')) {
                 $key = $match.Groups[1].Value
                 $lineNumber = $i + 1
 
@@ -234,7 +259,9 @@ function Test-MissingResourceKeys {
     foreach ($file in $xamlFiles) {
         $content = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
 
-        foreach ($pattern in @('\{DynamicResource\s+([^\}\s,]+)', '\{StaticResource\s+([^\}\s,]+)')) {
+        foreach ($pattern in @(
+            '\{DynamicResource\s+([^\}\s,]+)',
+            '\{StaticResource\s+([^\}\s,]+)')) {
             foreach ($match in [regex]::Matches($content, $pattern)) {
                 $key = $match.Groups[1].Value.Trim()
 
@@ -261,12 +288,16 @@ function Test-MissingResourceKeys {
 function Test-MissingCSharpLocalizationKeys {
     $declared = Get-XamlResourceKeys
     $codeFiles = Get-AllFiles @('*.cs')
-    $localizationKeyPattern = '(?<![A-Za-z0-9_])Loc[A-Za-z0-9]*_[A-Za-z0-9_]+(?![A-Za-z0-9_])'
+
+    $localizationKeyPattern =
+        '(?<![A-Za-z0-9_])Loc[A-Za-z0-9]*_[A-Za-z0-9_]+(?![A-Za-z0-9_])'
 
     foreach ($file in $codeFiles) {
         $content = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
 
-        foreach ($match in [regex]::Matches($content, $localizationKeyPattern)) {
+        foreach ($match in [regex]::Matches(
+            $content,
+            $localizationKeyPattern)) {
             $key = $match.Value
 
             if (-not $declared.Contains($key)) {
@@ -278,33 +309,71 @@ function Test-MissingCSharpLocalizationKeys {
 
 function Test-UnreferencedHandlers {
     $xamlFiles = Get-AllFiles @('*.xaml', '*.axaml')
-    $xamlText = ($xamlFiles | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8 }) -join "`n"
 
-    $codeFiles = Get-AllFiles @('*.xaml.cs', '*.axaml.cs', 'MainWindow*.cs')
-    $allCodeText = ($codeFiles | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8 }) -join "`n"
+    $xamlText = (
+        $xamlFiles |
+            ForEach-Object {
+                Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
+            }) -join "`n"
 
-    $eventSignature = 'void\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*object\??\s+[A-Za-z_][A-Za-z0-9_]*\s*,\s*[^\)]*\)'
+    $codeFiles = Get-AllFiles @(
+        '*.xaml.cs',
+        '*.axaml.cs',
+        'MainWindow*.cs')
+
+    $allCodeText = (
+        $codeFiles |
+            ForEach-Object {
+                Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
+            }) -join "`n"
+
+    $eventSignature =
+        'void\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*object\??\s+[A-Za-z_][A-Za-z0-9_]*\s*,\s*[^\)]*\)'
 
     foreach ($file in $codeFiles) {
         $content = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
 
-        foreach ($match in [regex]::Matches($content, $eventSignature)) {
+        foreach ($match in [regex]::Matches(
+            $content,
+            $eventSignature)) {
             $name = $match.Groups[1].Value
 
-            if ($name -in @('OnPropertyChanged', 'OnErrorsChanged')) {
+            if ($name -in @(
+                'OnPropertyChanged',
+                'OnErrorsChanged')) {
                 continue
             }
 
             $escaped = [regex]::Escape($name)
-            $referencedInXaml = $xamlText -match ('"' + $escaped + '"')
-            $referencedAsHandler = $allCodeText -match ('\+=\s*' + $escaped + '\b')
-            $declarationPattern = 'void\s+' + $escaped + '\s*\('
-            $references = [regex]::Matches($allCodeText, '\b' + $escaped + '\b')
+
+            $referencedInXaml =
+                $xamlText -match ('"' + $escaped + '"')
+
+            $referencedAsHandler =
+                $allCodeText -match ('\+=\s*' + $escaped + '\b')
+
+            $declarationPattern =
+                'void\s+' + $escaped + '\s*\('
+
+            $references =
+                [regex]::Matches(
+                    $allCodeText,
+                    '\b' + $escaped + '\b')
+
             $nonDeclarationReference = $false
 
             foreach ($reference in $references) {
-                $start = [Math]::Max(0, $reference.Index - 6)
-                $window = $allCodeText.Substring($start, [Math]::Min(40, $allCodeText.Length - $start))
+                $start =
+                    [Math]::Max(
+                        0,
+                        $reference.Index - 6)
+
+                $window =
+                    $allCodeText.Substring(
+                        $start,
+                        [Math]::Min(
+                            40,
+                            $allCodeText.Length - $start))
 
                 if ($window -match $declarationPattern) {
                     continue
@@ -314,7 +383,9 @@ function Test-UnreferencedHandlers {
                 break
             }
 
-            if (-not $referencedInXaml -and -not $referencedAsHandler -and -not $nonDeclarationReference) {
+            if (-not $referencedInXaml -and
+                -not $referencedAsHandler -and
+                -not $nonDeclarationReference) {
                 Add-Failure "Handler without reference: $name in $($file.FullName)"
             }
         }
@@ -322,44 +393,69 @@ function Test-UnreferencedHandlers {
 }
 
 function Test-LocalStylesWithoutGlobalEquivalent {
-    $globalKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $globalKeys =
+        [System.Collections.Generic.HashSet[string]]::new(
+            [System.StringComparer]::OrdinalIgnoreCase)
+
     $viewsPath = Join-Path $root 'Views'
-    $mainWindowPath = Join-Path $root 'Views\MainWindow\MainWindow.xaml'
+    $mainWindowPath =
+        Join-Path $root 'Views\MainWindow\MainWindow.xaml'
 
-    $globalFiles = Get-AllFiles @('*.xaml') | Where-Object {
-        $fullName = $_.FullName
-        $isView = (Test-Path $viewsPath) -and $fullName.StartsWith($viewsPath, [System.StringComparison]::OrdinalIgnoreCase)
-        $isMainWindow = $fullName.Equals($mainWindowPath, [System.StringComparison]::OrdinalIgnoreCase)
+    $globalFiles =
+        Get-AllFiles @('*.xaml') |
+            Where-Object {
+                $fullName = $_.FullName
 
-        -not $isView -and -not $isMainWindow
-    }
+                $isView =
+                    (Test-Path $viewsPath) -and
+                    $fullName.StartsWith(
+                        $viewsPath,
+                        [System.StringComparison]::OrdinalIgnoreCase)
+
+                $isMainWindow =
+                    $fullName.Equals(
+                        $mainWindowPath,
+                        [System.StringComparison]::OrdinalIgnoreCase)
+
+                -not $isView -and -not $isMainWindow
+            }
 
     foreach ($file in $globalFiles) {
-        $content = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
 
-        foreach ($match in [regex]::Matches($content, '<Style\s+x:Key\s*=\s*"([^"]+)"')) {
+        foreach ($match in [regex]::Matches(
+            $content,
+            '<Style\s+x:Key\s*=\s*"([^"]+)"')) {
             [void]$globalKeys.Add($match.Groups[1].Value)
         }
     }
 
-    $viewFiles = New-Object System.Collections.Generic.List[System.IO.FileInfo]
+    $viewFiles =
+        New-Object System.Collections.Generic.List[System.IO.FileInfo]
 
     if (Test-Path $viewsPath) {
-        Get-ChildItem -Path $viewsPath -Recurse -File -Filter *.xaml | Where-Object {
-            -not (Test-IsExcludedRepositoryPath $_.FullName)
-        } | ForEach-Object {
-            [void]$viewFiles.Add($_)
-        }
+        Get-ChildItem -Path $viewsPath -Recurse -File -Filter *.xaml |
+            Where-Object {
+                -not (Test-IsExcludedRepositoryPath $_.FullName)
+            } |
+            ForEach-Object {
+                [void]$viewFiles.Add($_)
+            }
     }
 
     if (Test-Path $mainWindowPath) {
-        [void]$viewFiles.Add((Get-Item $mainWindowPath))
+        [void]$viewFiles.Add(
+            (Get-Item $mainWindowPath))
     }
 
     foreach ($file in $viewFiles) {
-        $content = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
 
-        foreach ($match in [regex]::Matches($content, '<Style\s+x:Key\s*=\s*"([^"]+)"')) {
+        foreach ($match in [regex]::Matches(
+            $content,
+            '<Style\s+x:Key\s*=\s*"([^"]+)"')) {
             $key = $match.Groups[1].Value
 
             if ($globalKeys.Contains($key)) {
@@ -370,21 +466,34 @@ function Test-LocalStylesWithoutGlobalEquivalent {
 }
 
 function Test-NoServiceConstructionInWindows {
-    $windowFiles = Get-AllFiles @('*.xaml.cs', 'MainWindow*.cs') | Where-Object {
-        $relativePath = Get-RepositoryRelativePath $_.FullName
+    $windowFiles =
+        Get-AllFiles @(
+            '*.xaml.cs',
+            'MainWindow*.cs') |
+            Where-Object {
+                $relativePath =
+                    Get-RepositoryRelativePath $_.FullName
 
-        (($_.Name -like 'MainWindow*') -and $_.Name -ne 'MainBoot.cs') -or
-        ($relativePath -match '(^|[\\/])Views[\\/]')
-    }
+                (($_.Name -like 'MainWindow*') -and
+                    $_.Name -ne 'MainBoot.cs') -or
+                ($relativePath -match '(^|[\\/])Views[\\/]')
+            }
 
-    $allowed = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $allowed =
+        [System.Collections.Generic.HashSet[string]]::new(
+            [System.StringComparer]::Ordinal)
+
     [void]$allowed.Add('QueueViewportService')
 
     foreach ($file in $windowFiles) {
-        $content = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
 
-        foreach ($match in [regex]::Matches($content, 'new\s+([A-Za-z_][A-Za-z0-9_]*)Service\s*\(')) {
-            $typeName = $match.Groups[1].Value + 'Service'
+        foreach ($match in [regex]::Matches(
+            $content,
+            'new\s+([A-Za-z_][A-Za-z0-9_]*)Service\s*\(')) {
+            $typeName =
+                $match.Groups[1].Value + 'Service'
 
             if ($allowed.Contains($typeName)) {
                 continue
@@ -396,41 +505,65 @@ function Test-NoServiceConstructionInWindows {
 }
 
 function Test-CodeBehindManualUiThreshold {
-    $xamlFiles = Get-AllFiles @('*.xaml') | Where-Object {
-        $relativePath = Get-RepositoryRelativePath $_.FullName
+    $xamlFiles =
+        Get-AllFiles @('*.xaml') |
+            Where-Object {
+                $relativePath =
+                    Get-RepositoryRelativePath $_.FullName
 
-        $_.Name -eq 'MainWindow.xaml' -or $relativePath -match '(^|[\\/])Views[\\/]'
-    }
+                $_.Name -eq 'MainWindow.xaml' -or
+                $relativePath -match '(^|[\\/])Views[\\/]'
+            }
 
     foreach ($xaml in $xamlFiles) {
-        $codeBehind = [System.IO.Path]::ChangeExtension($xaml.FullName, '.xaml.cs')
+        $codeBehind =
+            [System.IO.Path]::ChangeExtension(
+                $xaml.FullName,
+                '.xaml.cs')
 
         if (-not (Test-Path $codeBehind)) {
             continue
         }
 
-        $names = [regex]::Matches((Get-Content -LiteralPath $xaml.FullName -Raw -Encoding UTF8), 'x:Name\s*=\s*"([^"]+)"') |
-            ForEach-Object { $_.Groups[1].Value } |
-            Select-Object -Unique
+        $names =
+            [regex]::Matches(
+                (Get-Content -LiteralPath $xaml.FullName -Raw -Encoding UTF8),
+                'x:Name\s*=\s*"([^"]+)"') |
+                ForEach-Object {
+                    $_.Groups[1].Value
+                } |
+                Select-Object -Unique
 
-        $lines = Get-Content -LiteralPath $codeBehind -Encoding UTF8
+        $lines =
+            Get-Content -LiteralPath $codeBehind -Encoding UTF8
+
         $maxHitsInMethod = 0
         $methodStartLine = 0
 
         for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match '^\s*(private|internal|protected|public)\s+(async\s+)?void\s+[A-Za-z_][A-Za-z0-9_]*\s*\(') {
+            if ($lines[$i] -match
+                '^\s*(private|internal|protected|public)\s+(async\s+)?void\s+[A-Za-z_][A-Za-z0-9_]*\s*\(') {
                 $start = $i
                 $braceDepth = 0
                 $opened = $false
                 $j = $i
-                $methodLines = New-Object System.Collections.Generic.List[string]
+
+                $methodLines =
+                    New-Object System.Collections.Generic.List[string]
 
                 for (; $j -lt $lines.Count; $j++) {
                     $line = $lines[$j]
                     [void]$methodLines.Add($line)
 
-                    $openCount = ([regex]::Matches($line, '\{')).Count
-                    $closeCount = ([regex]::Matches($line, '\}')).Count
+                    $openCount =
+                        ([regex]::Matches(
+                            $line,
+                            '\{')).Count
+
+                    $closeCount =
+                        ([regex]::Matches(
+                            $line,
+                            '\}')).Count
 
                     if ($openCount -gt 0) {
                         $opened = $true
@@ -444,11 +577,16 @@ function Test-CodeBehindManualUiThreshold {
                     }
                 }
 
-                $methodText = $methodLines -join "`n"
+                $methodText =
+                    $methodLines -join "`n"
+
                 $methodHits = 0
 
                 foreach ($name in $names) {
-                    if ($methodText -match ('\b' + [regex]::Escape($name) + '\.(Text|IsChecked|IsEnabled|Visibility|Value|SelectedItem|SelectedIndex|ItemsSource|ToolTip|Content|DataContext)\b')) {
+                    if ($methodText -match (
+                        '\b' +
+                        [regex]::Escape($name) +
+                        '\.(Text|IsChecked|IsEnabled|Visibility|Value|SelectedItem|SelectedIndex|ItemsSource|ToolTip|Content|DataContext)\b')) {
                         $methodHits++
                     }
                 }
@@ -474,42 +612,51 @@ function Test-FileLengthThresholds {
     $viewModelsPath = Join-Path $root 'ViewModels'
 
     if (Test-Path $viewModelsPath) {
-        Get-ChildItem -Path $viewModelsPath -Filter *.cs -File | Where-Object {
-            -not (Test-IsExcludedRepositoryPath $_.FullName)
-        } | ForEach-Object {
-            $lineCount = (Get-FileLines $_.FullName).Count
+        Get-ChildItem -Path $viewModelsPath -Filter *.cs -File |
+            Where-Object {
+                -not (Test-IsExcludedRepositoryPath $_.FullName)
+            } |
+            ForEach-Object {
+                $lineCount =
+                    (Get-FileLines $_.FullName).Count
 
-            if ($_.Name -like '*ViewModel*.cs' -and $lineCount -gt $viewModelLimit) {
-                Add-Failure "ViewModel exceeds limit ($viewModelLimit): $($_.FullName) => $lineCount lines"
+                if ($_.Name -like '*ViewModel*.cs' -and
+                    $lineCount -gt $viewModelLimit) {
+                    Add-Failure "ViewModel exceeds limit ($viewModelLimit): $($_.FullName) => $lineCount lines"
+                }
             }
-        }
     }
 
     $workflowPath = Join-Path $root 'Core\Workflow'
 
     if (Test-Path $workflowPath) {
-        Get-ChildItem -Path $workflowPath -Filter *Orchestrator*.cs -File | Where-Object {
-            -not (Test-IsExcludedRepositoryPath $_.FullName)
-        } | ForEach-Object {
-            $lineCount = (Get-FileLines $_.FullName).Count
+        Get-ChildItem -Path $workflowPath -Filter *Orchestrator*.cs -File |
+            Where-Object {
+                -not (Test-IsExcludedRepositoryPath $_.FullName)
+            } |
+            ForEach-Object {
+                $lineCount =
+                    (Get-FileLines $_.FullName).Count
 
-            if ($lineCount -gt $orchestratorLimit) {
-                Add-Failure "Orchestrator exceeds limit ($orchestratorLimit): $($_.FullName) => $lineCount lines"
+                if ($lineCount -gt $orchestratorLimit) {
+                    Add-Failure "Orchestrator exceeds limit ($orchestratorLimit): $($_.FullName) => $lineCount lines"
+                }
             }
-        }
     }
 }
 
 function Test-NoTemporaryRepositoryFiles {
-    $blocked = Get-RepositoryFiles | Where-Object {
-        $_.Name -like '*.tmp' -or
-        $_.Name -like '*.bak' -or
-        $_.Name -like '*.backup' -or
-        $_.Name -like '*.orig' -or
-        $_.Name -like '*.user' -or
-        $_.Name -like 'testwrite*' -or
-        $_.Name -eq 'testroot.tmp'
-    }
+    $blocked =
+        Get-RepositoryFiles |
+            Where-Object {
+                $_.Name -like '*.tmp' -or
+                $_.Name -like '*.bak' -or
+                $_.Name -like '*.backup' -or
+                $_.Name -like '*.orig' -or
+                $_.Name -like '*.user' -or
+                $_.Name -like 'testwrite*' -or
+                $_.Name -eq 'testroot.tmp'
+            }
 
     foreach ($file in $blocked) {
         Add-Failure "Temporary/scratch file committed: $($file.FullName)"
@@ -517,7 +664,9 @@ function Test-NoTemporaryRepositoryFiles {
 }
 
 function Test-NoForbiddenUserMediaArtifacts {
-    $blockedExtensions = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $blockedExtensions =
+        [System.Collections.Generic.HashSet[string]]::new(
+            [System.StringComparer]::OrdinalIgnoreCase)
 
     foreach ($extension in @(
         '.iso',
@@ -546,21 +695,25 @@ function Test-NoForbiddenUserMediaArtifacts {
         [void]$blockedExtensions.Add($extension)
     }
 
-    Get-RepositoryFiles | Where-Object {
-        $blockedExtensions.Contains($_.Extension)
-    } | ForEach-Object {
-        Add-Failure "Forbidden user-media or verification artifact committed: $($_.FullName)"
-    }
+    Get-RepositoryFiles |
+        Where-Object {
+            $blockedExtensions.Contains($_.Extension)
+        } |
+        ForEach-Object {
+            Add-Failure "Forbidden user-media or verification artifact committed: $($_.FullName)"
+        }
 }
 
 function Test-NoDropShadowEffectInXaml {
-    Get-AllFiles @('*.xaml') | ForEach-Object {
-        $content = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
+    Get-AllFiles @('*.xaml') |
+        ForEach-Object {
+            $content =
+                Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
 
-        if ($content -match '<\s*DropShadowEffect\b|\bDropShadowEffect\b') {
-            Add-Failure "DropShadowEffect is not allowed in production XAML: $($_.FullName)"
+            if ($content -match '<\s*DropShadowEffect\b|\bDropShadowEffect\b') {
+                Add-Failure "DropShadowEffect is not allowed in production XAML: $($_.FullName)"
+            }
         }
-    }
 }
 
 function Test-ThemeResourceParity {
@@ -575,7 +728,13 @@ function Test-ThemeResourceParity {
         }
     }
 
-    $existingThemeFiles = @($themeFiles | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
+    $existingThemeFiles =
+        @(
+            $themeFiles |
+                Where-Object {
+                    Test-Path -LiteralPath $_ -PathType Leaf
+                })
+
     if ($existingThemeFiles.Count -ne $themeFiles.Count) {
         return
     }
@@ -584,8 +743,11 @@ function Test-ThemeResourceParity {
 }
 
 function Test-LocalizationResourceParity {
-    $arabicStrings = Join-Path $root 'Resources\ArabicStrings.xaml'
-    $englishStrings = Join-Path $root 'Resources\EnglishStrings.xaml'
+    $arabicStrings =
+        Join-Path $root 'Resources\ArabicStrings.xaml'
+
+    $englishStrings =
+        Join-Path $root 'Resources\EnglishStrings.xaml'
 
     if (-not (Test-Path -LiteralPath $arabicStrings -PathType Leaf)) {
         Add-Failure "Arabic localization resource file is missing: $arabicStrings"
@@ -597,7 +759,9 @@ function Test-LocalizationResourceParity {
         return
     }
 
-    Test-KeySetParity -Files @($arabicStrings, $englishStrings) -Label 'Localization'
+    Test-KeySetParity `
+        -Files @($arabicStrings, $englishStrings) `
+        -Label 'Localization'
 }
 
 function Test-NoDeadThemeTokenPalettes {
@@ -614,7 +778,10 @@ function Test-NoDeadThemeTokenPalettes {
     }
 }
 
-function Test-KeySetParity([string[]]$Files, [string]$Label) {
+function Test-KeySetParity(
+    [string[]]$Files,
+    [string]$Label) {
+
     if ($Files.Count -lt 2) {
         return
     }
@@ -622,10 +789,16 @@ function Test-KeySetParity([string[]]$Files, [string]$Label) {
     $keySets = @{}
 
     foreach ($file in $Files) {
-        $content = Get-Content -LiteralPath $file -Raw -Encoding UTF8
-        $keys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        $content =
+            Get-Content -LiteralPath $file -Raw -Encoding UTF8
 
-        foreach ($match in [regex]::Matches($content, 'x:Key\s*=\s*"([^"]+)"')) {
+        $keys =
+            [System.Collections.Generic.HashSet[string]]::new(
+                [System.StringComparer]::OrdinalIgnoreCase)
+
+        foreach ($match in [regex]::Matches(
+            $content,
+            'x:Key\s*=\s*"([^"]+)"')) {
             [void]$keys.Add($match.Groups[1].Value)
         }
 
@@ -653,23 +826,46 @@ function Test-KeySetParity([string[]]$Files, [string]$Label) {
 }
 
 function Test-FluentTokenEnforcementInViews {
-    $viewFiles = Get-AllFiles @('*.xaml') | Where-Object {
-        $relativePath = Get-RepositoryRelativePath $_.FullName
+    $viewFiles =
+        Get-AllFiles @('*.xaml') |
+            Where-Object {
+                $relativePath =
+                    Get-RepositoryRelativePath $_.FullName
 
-        $_.Name -eq 'MainWindow.xaml' -or $relativePath -match '(^|[\\/])Views[\\/]'
-    }
+                $_.Name -eq 'MainWindow.xaml' -or
+                $relativePath -match '(^|[\\/])Views[\\/]'
+            }
 
     $blockedPatterns = @(
-        @{ Name = 'Hardcoded color'; Pattern = '#[0-9A-Fa-f]{6,8}' },
-        @{ Name = 'Inline DropShadowEffect'; Pattern = 'DropShadowEffect' },
-        @{ Name = 'Hardcoded Margin'; Pattern = '\bMargin="[0-9]' },
-        @{ Name = 'Hardcoded Padding'; Pattern = '\bPadding="[0-9]' },
-        @{ Name = 'Hardcoded CornerRadius'; Pattern = '\bCornerRadius="[0-9]' },
-        @{ Name = 'Hardcoded FontSize'; Pattern = '\bFontSize="[0-9]' }
+        @{
+            Name = 'Hardcoded color'
+            Pattern = '#[0-9A-Fa-f]{6,8}'
+        },
+        @{
+            Name = 'Inline DropShadowEffect'
+            Pattern = 'DropShadowEffect'
+        },
+        @{
+            Name = 'Hardcoded Margin'
+            Pattern = '\bMargin="[0-9]'
+        },
+        @{
+            Name = 'Hardcoded Padding'
+            Pattern = '\bPadding="[0-9]'
+        },
+        @{
+            Name = 'Hardcoded CornerRadius'
+            Pattern = '\bCornerRadius="[0-9]'
+        },
+        @{
+            Name = 'Hardcoded FontSize'
+            Pattern = '\bFontSize="[0-9]'
+        }
     )
 
     foreach ($file in $viewFiles) {
-        $content = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
 
         foreach ($entry in $blockedPatterns) {
             if ($content -match $entry.Pattern) {
@@ -689,33 +885,44 @@ $script:UiResourceFolderNames = @(
 )
 
 function Test-IsUnderUiResourceFolder([string]$fullPath) {
-    $relativePath = Get-RepositoryRelativePath $fullPath
+    $relativePath =
+        Get-RepositoryRelativePath $fullPath
 
     if ([string]::IsNullOrWhiteSpace($relativePath)) {
         return $false
     }
 
-    $segments = $relativePath -split '[\\/]'
-    return $segments.Count -gt 0 -and $script:UiResourceFolderNames -contains $segments[0]
+    $segments =
+        $relativePath -split '[\\/]'
+
+    return $segments.Count -gt 0 -and
+        $script:UiResourceFolderNames -contains $segments[0]
 }
 
 function Test-ReleaseScriptConventions {
-    $productionReleaseMatches = Get-RepositoryFiles | Where-Object {
-        $_.Name -like '*ProductionRelease*'
-    }
+    $productionReleaseMatches =
+        Get-RepositoryFiles |
+            Where-Object {
+                $_.Name -like '*ProductionRelease*'
+            }
 
     foreach ($match in $productionReleaseMatches) {
         Add-Failure "Legacy production release script is not allowed: $($match.FullName)"
     }
 
-    $toolsPublishScript = Join-Path $root 'Tools\publish-release.ps1'
+    $toolsPublishScript =
+        Join-Path $root 'Tools\publish-release.ps1'
+
     if (Test-Path -LiteralPath $toolsPublishScript -PathType Leaf) {
         Add-Failure "publish-release.ps1 must live under scripts, not Tools: $toolsPublishScript"
     }
 
-    $projectFile = Join-Path $root 'HakamiqChdTool.App.csproj'
+    $projectFile =
+        Join-Path $root 'HakamiqChdTool.App.csproj'
+
     if (Test-Path -LiteralPath $projectFile -PathType Leaf) {
-        $projectText = Get-Content -LiteralPath $projectFile -Raw -Encoding UTF8
+        $projectText =
+            Get-Content -LiteralPath $projectFile -Raw -Encoding UTF8
 
         if ($projectText -match 'Content\s+Include="Tools\\7zip\\\*\*\\\*"') {
             Add-Failure "7-Zip publish content must be an explicit allowlist, not Tools\7zip\**\*."
@@ -726,17 +933,22 @@ function Test-ReleaseScriptConventions {
         }
     }
 
-    $releaseManifestScript = Join-Path $root 'scripts\GenManifest.ps1'
+    $releaseManifestScript =
+        Join-Path $root 'scripts\GenManifest.ps1'
+
     if (-not (Test-Path -LiteralPath $releaseManifestScript -PathType Leaf)) {
         Add-Failure "GenManifest.ps1 is required for end-user release hardening."
     }
 
-    $endUserGate = Join-Path $root 'scripts\VerifyRelease.ps1'
+    $endUserGate =
+        Join-Path $root 'scripts\VerifyRelease.ps1'
+
     if (-not (Test-Path -LiteralPath $endUserGate -PathType Leaf)) {
         Add-Failure "VerifyRelease.ps1 is required for end-user release hardening."
     }
     else {
-        $gateText = Get-Content -LiteralPath $endUserGate -Raw -Encoding UTF8
+        $gateText =
+            Get-Content -LiteralPath $endUserGate -Raw -Encoding UTF8
 
         if ($gateText -match '"Tools\\chdman\.exe"') {
             Add-Failure "End-user release gate must not require standalone Tools\chdman.exe because chdman is embedded and extracted at runtime."
@@ -751,12 +963,15 @@ function Test-ReleaseScriptConventions {
         }
     }
 
-    $currentPublishScript = Join-Path $root 'scripts\PublishRel.ps1'
+    $currentPublishScript =
+        Join-Path $root 'scripts\PublishRel.ps1'
+
     if (-not (Test-Path -LiteralPath $currentPublishScript -PathType Leaf)) {
         Add-Failure "PublishRel.ps1 is required as the canonical end-user release script."
     }
     else {
-        $publishText = Get-Content -LiteralPath $currentPublishScript -Raw -Encoding UTF8
+        $publishText =
+            Get-Content -LiteralPath $currentPublishScript -Raw -Encoding UTF8
 
         if ($publishText -notmatch 'GenManifest\.ps1') {
             Add-Failure "PublishRel.ps1 must generate release-manifest.json before the end-user release gate."
@@ -775,17 +990,23 @@ function Test-ReleaseScriptConventions {
         }
     }
 
-    $legacyPublishScript = Join-Path $root 'scripts\publish-release.ps1'
+    $legacyPublishScript =
+        Join-Path $root 'scripts\publish-release.ps1'
+
     if (Test-Path -LiteralPath $legacyPublishScript -PathType Leaf) {
         Add-Failure "Legacy scripts\publish-release.ps1 is not allowed. Use scripts\PublishRel.ps1."
     }
 
-    $packageScript = Join-Path $root 'scripts\PackRel.ps1'
+    $packageScript =
+        Join-Path $root 'scripts\PackRel.ps1'
+
     if (-not (Test-Path -LiteralPath $packageScript -PathType Leaf)) {
         Add-Failure "PackRel.ps1 is required so uploaded release ZIP files are generated and verified before upload."
     }
     else {
-        $packageText = Get-Content -LiteralPath $packageScript -Raw -Encoding UTF8
+        $packageText =
+            Get-Content -LiteralPath $packageScript -Raw -Encoding UTF8
+
         foreach ($required in @(
             'ZipArchive',
             'Expand-Archive',
@@ -794,6 +1015,7 @@ function Test-ReleaseScriptConventions {
             '.sha256',
             'Assert-Sha256FileMatchesZip',
             'Assert-PackageDirectoryClean')) {
+
             if ($packageText -notmatch [regex]::Escape($required)) {
                 Add-Failure "PackRel.ps1 must keep required package verification marker: $required"
             }
@@ -802,28 +1024,39 @@ function Test-ReleaseScriptConventions {
 }
 
 function Test-ValidationPipelineWiring {
-    $solutionFile = Join-Path $root 'HakamiqChdTool.App.sln'
+    $solutionFile =
+        Join-Path $root 'HakamiqChdTool.App.sln'
+
     if (-not (Test-Path -LiteralPath $solutionFile -PathType Leaf)) {
         Add-Failure 'Solution file is required so app and validation projects share one build entrypoint.'
     }
     else {
-        $solutionText = Get-Content -LiteralPath $solutionFile -Raw -Encoding UTF8
-        if ($solutionText -notmatch 'HakamiqChdTool\.App\.Tests\\HakamiqChdTool\.App\.Tests\.csproj') {
+        $solutionText =
+            Get-Content -LiteralPath $solutionFile -Raw -Encoding UTF8
+
+        if ($solutionText -notmatch
+            'HakamiqChdTool\.App\.Tests\\HakamiqChdTool\.App\.Tests\.csproj') {
             Add-Failure 'Solution file must include HakamiqChdTool.App.Tests so validation code stays wired into normal builds.'
         }
     }
 
-    $testProject = Join-Path $root 'HakamiqChdTool.App.Tests\HakamiqChdTool.App.Tests.csproj'
+    $testProject =
+        Join-Path $root 'HakamiqChdTool.App.Tests\HakamiqChdTool.App.Tests.csproj'
+
     if (-not (Test-Path -LiteralPath $testProject -PathType Leaf)) {
         Add-Failure 'HakamiqChdTool.App.Tests project is required for P0 workflow validation.'
     }
 
-    $testProgram = Join-Path $root 'HakamiqChdTool.App.Tests\Program.cs'
+    $testProgram =
+        Join-Path $root 'HakamiqChdTool.App.Tests\Program.cs'
+
     if (-not (Test-Path -LiteralPath $testProgram -PathType Leaf)) {
         Add-Failure 'HakamiqChdTool.App.Tests\Program.cs is required for P0 workflow validation.'
     }
     else {
-        $testText = Get-Content -LiteralPath $testProgram -Raw -Encoding UTF8
+        $testText =
+            Get-Content -LiteralPath $testProgram -Raw -Encoding UTF8
+
         foreach ($required in @(
             'Media input classifier covers P0 descriptors',
             'Media input pipeline makes P0 decisions',
@@ -831,55 +1064,72 @@ function Test-ValidationPipelineWiring {
             'TestWorkflowPlannerCsoCreatesDvd',
             'TestPendingOutputPathIsolatedUnderWorkspaceRoot',
             'TryNormalizeCuePrimaryBinReference')) {
+
             if ($testText -notmatch [regex]::Escape($required)) {
                 Add-Failure "Validation test project is missing required P0/workflow coverage marker: $required"
             }
         }
     }
 
-    $mediaInputPipeline = Join-Path $root 'Core\Input\MediaPipe.cs'
+    $mediaInputPipeline =
+        Join-Path $root 'Core\Input\MediaPipe.cs'
+
     if (-not (Test-Path -LiteralPath $mediaInputPipeline -PathType Leaf)) {
         Add-Failure 'MediaInputPipeline is required for the unified P0 intake decision layer.'
     }
     else {
-        $pipelineText = Get-Content -LiteralPath $mediaInputPipeline -Raw -Encoding UTF8
+        $pipelineText =
+            Get-Content -LiteralPath $mediaInputPipeline -Raw -Encoding UTF8
+
         foreach ($required in @(
             'DecideAsync',
             'MediaInputPipelineDecision',
             'RequiresStandaloneBinPolicy',
             'DetectedOnly',
             'AcceptArchiveContainer')) {
+
             if ($pipelineText -notmatch [regex]::Escape($required)) {
                 Add-Failure "MediaInputPipeline missing required P0 decision marker: $required"
             }
         }
     }
 
-    $mediaInputPipelineDecision = Join-Path $root 'Core\Input\MediaPipeDecision.cs'
+    $mediaInputPipelineDecision =
+        Join-Path $root 'Core\Input\MediaPipeDecision.cs'
+
     if (-not (Test-Path -LiteralPath $mediaInputPipelineDecision -PathType Leaf)) {
         Add-Failure 'MediaPipeDecision.cs is required so P0 intake exposes a first-class decision.'
     }
 
-    $mediaInputRoles = Join-Path $root 'Core\Input\MediaInputRoles.cs'
+    $mediaInputRoles =
+        Join-Path $root 'Core\Input\MediaInputRoles.cs'
+
     if (-not (Test-Path -LiteralPath $mediaInputRoles -PathType Leaf)) {
         Add-Failure 'MediaInputRoles.cs is required so queue role mapping has one source of truth.'
     }
     else {
-        $rolesText = Get-Content -LiteralPath $mediaInputRoles -Raw -Encoding UTF8
+        $rolesText =
+            Get-Content -LiteralPath $mediaInputRoles -Raw -Encoding UTF8
+
         foreach ($required in @(
             'ResolveQueueRole',
             'ResolveExtensionRole',
             'QueueInputRole.ArchiveContainer',
             'QueueInputRole.BinCueRescueCandidate')) {
+
             if ($rolesText -notmatch [regex]::Escape($required)) {
                 Add-Failure "MediaInputRoles missing required mapping marker: $required"
             }
         }
     }
 
-    $queueInputClassifier = Join-Path $root 'Core\Input\QueueInClass.cs'
+    $queueInputClassifier =
+        Join-Path $root 'Core\Input\QueueInClass.cs'
+
     if (Test-Path -LiteralPath $queueInputClassifier -PathType Leaf) {
-        $queueClassifierText = Get-Content -LiteralPath $queueInputClassifier -Raw -Encoding UTF8
+        $queueClassifierText =
+            Get-Content -LiteralPath $queueInputClassifier -Raw -Encoding UTF8
+
         if ($queueClassifierText -notmatch 'MediaInputPipeline\.Decide') {
             Add-Failure 'QueueInputClassifier must derive file decisions from MediaInputPipeline.Decide to avoid P0 mapping drift.'
         }
@@ -893,12 +1143,16 @@ function Test-ValidationPipelineWiring {
         }
     }
 
-    $localGate = Join-Path $root 'scripts\Verify-Local.ps1'
+    $localGate =
+        Join-Path $root 'scripts\Verify-Local.ps1'
+
     if (-not (Test-Path -LiteralPath $localGate -PathType Leaf)) {
         Add-Failure 'Verify-Local.ps1 is required as the canonical local verification gate.'
     }
     else {
-        $localGateText = Get-Content -LiteralPath $localGate -Raw -Encoding UTF8
+        $localGateText =
+            Get-Content -LiteralPath $localGate -Raw -Encoding UTF8
+
         foreach ($required in @(
             'VerifyRepo.ps1',
             'PkgCleanGate.ps1',
@@ -906,18 +1160,23 @@ function Test-ValidationPipelineWiring {
             'RelOutGate.ps1',
             'PackRel.ps1',
             '-SkipAppBuild')) {
+
             if ($localGateText -notmatch [regex]::Escape($required)) {
                 Add-Failure "Verify-Local.ps1 must keep required validation step wired: $required"
             }
         }
     }
 
-    $ciWorkflow = Join-Path $root '.github\workflows\ci.yml'
+    $ciWorkflow =
+        Join-Path $root '.github\workflows\ci.yml'
+
     if (-not (Test-Path -LiteralPath $ciWorkflow -PathType Leaf)) {
         Add-Failure 'CI workflow is required for build and release validation.'
     }
     else {
-        $ciText = Get-Content -LiteralPath $ciWorkflow -Raw -Encoding UTF8
+        $ciText =
+            Get-Content -LiteralPath $ciWorkflow -Raw -Encoding UTF8
+
         foreach ($required in @(
             'VerifyRepo.ps1',
             'PkgCleanGate.ps1',
@@ -927,6 +1186,7 @@ function Test-ValidationPipelineWiring {
             'RelOutGate.ps1',
             'PackRel.ps1',
             'Release/packages/')) {
+
             if ($ciText -notmatch [regex]::Escape($required)) {
                 Add-Failure "CI workflow must keep required validation step wired: $required"
             }
@@ -935,25 +1195,42 @@ function Test-ValidationPipelineWiring {
 }
 
 function Test-RefactorCompositionCompletion {
-    $queueWorkspace = Join-Path $root 'Views\Main\QueueView.xaml'
+    $queueWorkspace =
+        Join-Path $root 'Views\Main\QueueView.xaml'
+
     if (Test-Path -LiteralPath $queueWorkspace -PathType Leaf) {
-        $content = Get-Content -LiteralPath $queueWorkspace -Raw -Encoding UTF8
-        foreach ($viewName in @('QueueToolbarView', 'QueueSummaryView', 'QueueEmptyStateView', 'QueueListView')) {
-            if ($content -notmatch ('main:' + [regex]::Escape($viewName) + '\b')) {
+        $content =
+            Get-Content -LiteralPath $queueWorkspace -Raw -Encoding UTF8
+
+        foreach ($viewName in @(
+            'QueueToolbarView',
+            'QueueSummaryView',
+            'QueueEmptyStateView',
+            'QueueListView')) {
+
+            if ($content -notmatch (
+                'main:' +
+                [regex]::Escape($viewName) +
+                '\b')) {
                 Add-Failure "QueueView.xaml does not compose required subview: $viewName"
             }
         }
     }
 
-    $queueItemTemplate = Join-Path $root 'Resources\Style\Queue\QItemTpl.xaml'
+    $queueItemTemplate =
+        Join-Path $root 'Resources\Style\Queue\QItemTpl.xaml'
+
     if (Test-Path -LiteralPath $queueItemTemplate -PathType Leaf) {
-        $content = Get-Content -LiteralPath $queueItemTemplate -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $queueItemTemplate -Raw -Encoding UTF8
+
         foreach ($templateKey in @(
             'QueueItemHeaderFieldsTemplate',
             'QueueItemStatusFieldsTemplate',
             'QueueItemProgressFieldsTemplate',
             'QueueItemActionsFieldsTemplate',
             'QueueItemRedumpFieldsTemplate')) {
+
             if ($content -notmatch [regex]::Escape($templateKey)) {
                 Add-Failure "QItemTpl.xaml does not compose required subtemplate: $templateKey"
             }
@@ -966,9 +1243,14 @@ function Test-RefactorCompositionCompletion {
         'Resources\Style\Queue\QIProgTpl.xaml',
         'Resources\Style\Queue\QIActionsTpl.xaml',
         'Resources\Style\Queue\QIRedTpl.xaml')) {
-        $templatePath = Join-Path $root $subTemplate
+
+        $templatePath =
+            Join-Path $root $subTemplate
+
         if (Test-Path -LiteralPath $templatePath -PathType Leaf) {
-            $templateContent = Get-Content -LiteralPath $templatePath -Raw -Encoding UTF8
+            $templateContent =
+                Get-Content -LiteralPath $templatePath -Raw -Encoding UTF8
+
             if ($templateContent -notmatch 'QItemBase\.xaml') {
                 Add-Failure "$subTemplate must merge QItemBase.xaml so subtemplate StaticResource lookups are self-contained."
             }
@@ -985,57 +1267,73 @@ function Test-NoPartialRefactorSlicing {
         'partial\s+class\s+QueueManager',
         'partial\s+class\s+ChdConversionService',
         'static\s+partial\s+class\s+WorkflowPathUtilities',
-        'partial\s+class\s+WorkflowPathUtilities')
+        'partial\s+class\s+WorkflowPathUtilities'
+    )
 
-    Get-AllFiles @('*.cs') | ForEach-Object {
-        $content = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
-        foreach ($pattern in $blockedPatterns) {
-            if ($content -match $pattern) {
-                Add-Failure "Partial-slicing refactor pattern is not allowed in $($_.FullName): $pattern"
+    Get-AllFiles @('*.cs') |
+        ForEach-Object {
+            $content =
+                Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
+
+            foreach ($pattern in $blockedPatterns) {
+                if ($content -match $pattern) {
+                    Add-Failure "Partial-slicing refactor pattern is not allowed in $($_.FullName): $pattern"
+                }
             }
         }
-    }
 }
 
 function Test-OptionsCoordinatorPlacement {
-    $applicationLayerCoordinator = Join-Path $root 'Application\Options\HqOptionsShell.cs'
+    $applicationLayerCoordinator =
+        Join-Path $root 'Application\Options\HqOptionsShell.cs'
+
     if (Test-Path -LiteralPath $applicationLayerCoordinator -PathType Leaf) {
         Add-Failure "HqOptionsShell is WPF-heavy and must not live under Application: $applicationLayerCoordinator"
     }
 
-    Get-AllFiles @('*.cs') | ForEach-Object {
-        $content = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
-        if ($content -match 'ApplicationLayer\.Options') {
-            Add-Failure "Stale Options ApplicationLayer namespace reference: $($_.FullName)"
+    Get-AllFiles @('*.cs') |
+        ForEach-Object {
+            $content =
+                Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
+
+            if ($content -match 'ApplicationLayer\.Options') {
+                Add-Failure "Stale Options ApplicationLayer namespace reference: $($_.FullName)"
+            }
         }
-    }
 }
 
-
 function Test-NoWpfShellUnderServices {
-    $servicesWpfShell = Join-Path $root 'Services\WpfShell'
+    $servicesWpfShell =
+        Join-Path $root 'Services\WpfShell'
+
     if (Test-Path -LiteralPath $servicesWpfShell) {
         Add-Failure "WPF shell files must live under Ui\Shell, not Services\WpfShell."
     }
 
-    Get-AllFiles @('*.cs') | Where-Object {
-        $_.FullName -like (Join-Path $root 'Services\*')
-    } | ForEach-Object {
-        $content = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
-        if ($content -match 'HakamiqChdTool\.App\.Views' -or
-            $content -match 'HakamiqChdTool\.App\.ViewModels') {
-            Add-Failure "Services layer must not reference Views/ViewModels directly: $($_.FullName)"
-        }
-    }
+    Get-AllFiles @('*.cs') |
+        Where-Object {
+            $_.FullName -like (Join-Path $root 'Services\*')
+        } |
+        ForEach-Object {
+            $content =
+                Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
 
-    Get-AllFiles @('*.cs') | ForEach-Object {
-        $content = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
-        if ($content -match 'HakamiqChdTool\.App\.Services\.WpfShell') {
-            Add-Failure "Stale Services.WpfShell namespace reference: $($_.FullName)"
+            if ($content -match 'HakamiqChdTool\.App\.Views' -or
+                $content -match 'HakamiqChdTool\.App\.ViewModels') {
+                Add-Failure "Services layer must not reference Views/ViewModels directly: $($_.FullName)"
+            }
         }
-    }
+
+    Get-AllFiles @('*.cs') |
+        ForEach-Object {
+            $content =
+                Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
+
+            if ($content -match 'HakamiqChdTool\.App\.Services\.WpfShell') {
+                Add-Failure "Stale Services.WpfShell namespace reference: $($_.FullName)"
+            }
+        }
 }
-
 
 function Test-LayerDependencyDirection {
     $rules = @(
@@ -1062,7 +1360,9 @@ function Test-LayerDependencyDirection {
     )
 
     foreach ($rule in $rules) {
-        $layerRoot = Join-Path $root $rule.RelativeRoot
+        $layerRoot =
+            Join-Path $root $rule.RelativeRoot
+
         if (-not (Test-Path -LiteralPath $layerRoot -PathType Container)) {
             continue
         }
@@ -1070,22 +1370,29 @@ function Test-LayerDependencyDirection {
         Get-ChildItem -LiteralPath $layerRoot -Recurse -File -Filter '*.cs' |
             Select-String -Pattern $rule.Pattern |
             ForEach-Object {
-                $relativePath = $_.Path.Substring($root.Length).TrimStart('\')
+                $relativePath =
+                    $_.Path.Substring($root.Length).TrimStart('\')
+
                 Add-Failure "$($rule.Message): ${relativePath}:$($_.LineNumber)"
             }
     }
 }
 
-
 function Test-PathSafetyDuplicationBudget {
-    $helperPattern = '^\s*(private|internal|public)\s+static\s+bool\s+(HasReparsePointInExistingPath|HasReparsePointInExistingPathFromVolumeRoot|IsSamePathOrChild)\s*\('
+    $helperPattern =
+        '^\s*(private|internal|public)\s+static\s+bool\s+(HasReparsePointInExistingPath|HasReparsePointInExistingPathFromVolumeRoot|IsSamePathOrChild)\s*\('
+
     $definitions = @()
 
     foreach ($relativeRoot in @('Core', 'Services')) {
-        $layerRoot = Join-Path $root $relativeRoot
+        $layerRoot =
+            Join-Path $root $relativeRoot
+
         if (Test-Path -LiteralPath $layerRoot -PathType Container) {
-            $definitions += @(Get-ChildItem -LiteralPath $layerRoot -Recurse -File -Filter '*.cs' |
-                Select-String -Pattern $helperPattern)
+            $definitions += @(
+                Get-ChildItem -LiteralPath $layerRoot -Recurse -File -Filter '*.cs' |
+                    Select-String -Pattern $helperPattern
+            )
         }
     }
 
@@ -1094,104 +1401,142 @@ function Test-PathSafetyDuplicationBudget {
     }
 }
 
-
 function Test-EmbeddedRuntimeToolIntegrityPolicy {
-    $runtimeToolService = Join-Path $root 'Services\RunToolSvc.cs'
+    $runtimeToolService =
+        Join-Path $root 'Services\RunToolSvc.cs'
+
     if (-not (Test-Path -LiteralPath $runtimeToolService -PathType Leaf)) {
         Add-Failure 'RunToolSvc.cs is required for the embedded runtime-tool security boundary.'
         return
     }
 
-    $content = Get-Content -LiteralPath $runtimeToolService -Raw -Encoding UTF8
+    $content =
+        Get-Content -LiteralPath $runtimeToolService -Raw -Encoding UTF8
+
     foreach ($required in @(
         'SHA256\.HashData',
         'CryptographicOperations\.FixedTimeEquals',
         'ComputeEmbeddedToolSha256',
         'ValidateExtractedChdman\(_chdmanPath\)')) {
+
         if ($content -notmatch $required) {
             Add-Failure "RuntimeToolService must verify embedded chdman integrity with SHA-256 before use: $required"
         }
     }
 }
 
-
 function Test-BundledToolIntegrityManifest {
     $expectedDigests = @{
-        'Tools\chdman.exe' = '8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F'
-        'Tools\7zip\7z.exe' = '83967F1B02B43C4EFEDA302795722C809E0E81B8307DE73558D10484D5676A7D'
-        'Tools\7zip\7z.dll' = '69FD4DF057985C40E510E2FAC182881C7F85E90AA13EC703F763A8FDB2CE61F8'
-        'Tools\hakamiq-cso\win-x64\csokit.exe' = 'FB1BF1E6BD0C51CAB54F505E7E44404F1E5CBFBFF3CB0FFC7EEC159D7D9254C0'
-        'Tools\hakamiq-cso\win-x64\CsoKit.Native.dll' = 'B396B0CA41BE7F905E8EA73C285C1F5089C8DA4FB1E4C157775BF198B1F70589'
+        'Tools\chdman.exe' =
+            '8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F'
+
+        'Tools\7zip\7z.exe' =
+            '83967F1B02B43C4EFEDA302795722C809E0E81B8307DE73558D10484D5676A7D'
+
+        'Tools\7zip\7z.dll' =
+            '69FD4DF057985C40E510E2FAC182881C7F85E90AA13EC703F763A8FDB2CE61F8'
+
+        'Tools\hakamiq-cso\win-x64\csokit.exe' =
+            'FB1BF1E6BD0C51CAB54F505E7E44404F1E5CBFBFF3CB0FFC7EEC159D7D9254C0'
+
+        'Tools\hakamiq-cso\win-x64\CsoKit.Native.dll' =
+            'B396B0CA41BE7F905E8EA73C285C1F5089C8DA4FB1E4C157775BF198B1F70589'
     }
 
     foreach ($relativePath in $expectedDigests.Keys) {
-        $toolPath = Join-Path $root $relativePath
+        $toolPath =
+            Join-Path $root $relativePath
+
         if (-not (Test-Path -LiteralPath $toolPath -PathType Leaf)) {
             Add-Failure "Pinned bundled tool is missing: $relativePath"
             continue
         }
 
-        $actualDigest = (Get-FileHash -LiteralPath $toolPath -Algorithm SHA256).Hash
+        $actualDigest =
+            (Get-FileHash -LiteralPath $toolPath -Algorithm SHA256).Hash
+
         if (-not [string]::Equals(
-                $actualDigest,
-                $expectedDigests[$relativePath],
-                [StringComparison]::OrdinalIgnoreCase)) {
+            $actualDigest,
+            $expectedDigests[$relativePath],
+            [StringComparison]::OrdinalIgnoreCase)) {
+
             Add-Failure "Bundled tool SHA-256 does not match the reviewed manifest: $relativePath"
         }
     }
 
-    $sevenZipService = Join-Path $root 'Services\SevenZipSvc.cs'
+    $sevenZipService =
+        Join-Path $root 'Services\SevenZipSvc.cs'
+
     if (Test-Path -LiteralPath $sevenZipService -PathType Leaf) {
-        $content = Get-Content -LiteralPath $sevenZipService -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $sevenZipService -Raw -Encoding UTF8
+
         foreach ($required in @(
             'BundledSevenZipExeSha256',
             'BundledSevenZipDllSha256',
             'CryptographicOperations\.FixedTimeEquals')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "SevenZipToolService must pin bundled executable and DLL integrity: $required"
             }
         }
     }
 
-    $sevenZipRunner = Join-Path $root 'Services\SevenZipRun.cs'
+    $sevenZipRunner =
+        Join-Path $root 'Services\SevenZipRun.cs'
+
     if (Test-Path -LiteralPath $sevenZipRunner -PathType Leaf) {
-        $content = Get-Content -LiteralPath $sevenZipRunner -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $sevenZipRunner -Raw -Encoding UTF8
+
         if ($content -notmatch 'SevenZipToolService\.IsValidSevenZipExecutable') {
             Add-Failure 'SevenZipProcessRunner must use the centralized SevenZipToolService integrity policy.'
         }
     }
 
-    $csoToolLocator = Join-Path $root 'Services\ExternalTools\CsoToolLocator.cs'
+    $csoToolLocator =
+        Join-Path $root 'Services\ExternalTools\CsoToolLocator.cs'
+
     if (Test-Path -LiteralPath $csoToolLocator -PathType Leaf) {
-        $content = Get-Content -LiteralPath $csoToolLocator -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $csoToolLocator -Raw -Encoding UTF8
+
         foreach ($required in @(
             'BundledToolSha256',
             'BundledNativeDllSha256',
             'HasExpectedBundledRuntime',
             'CryptographicOperations\.FixedTimeEquals')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "CsoToolLocator must pin bundled CsoKit integrity: $required"
             }
         }
     }
 
-    $externalToolRunner = Join-Path $root 'Services\ExternalTools\ToolProcRun.cs'
+    $externalToolRunner =
+        Join-Path $root 'Services\ExternalTools\ToolProcRun.cs'
+
     if (Test-Path -LiteralPath $externalToolRunner -PathType Leaf) {
-        $content = Get-Content -LiteralPath $externalToolRunner -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $externalToolRunner -Raw -Encoding UTF8
+
         if ($content -notmatch 'CsoToolLocator\.TryValidateCandidate') {
             Add-Failure 'ExternalToolProcessRunner must revalidate CsoKit immediately before process start.'
         }
     }
 }
 
-
 function Test-RedumpDetailsViewModelPurity {
-    $viewModel = Join-Path $root 'ViewModels\Dialogs\RedDlgVM.cs'
+    $viewModel =
+        Join-Path $root 'ViewModels\Dialogs\RedDlgVM.cs'
+
     if (-not (Test-Path -LiteralPath $viewModel -PathType Leaf)) {
         return
     }
 
-    $content = Get-Content -LiteralPath $viewModel -Raw -Encoding UTF8
+    $content =
+        Get-Content -LiteralPath $viewModel -Raw -Encoding UTF8
+
     foreach ($pattern in @(
         'Clipboard',
         'DispatcherTimer',
@@ -1199,123 +1544,166 @@ function Test-RedumpDetailsViewModelPurity {
         '\bBrush\b',
         '\bVisibility\b',
         'System\.Windows')) {
+
         if ($content -match $pattern) {
             Add-Failure "RedumpDetailsDialogViewModel must not depend on WPF primitives: $pattern"
         }
     }
 }
 
-
 function Test-ChdProgressParserImplementation {
-    $parser = Join-Path $root 'Services\Conversion\ChdProgParse.cs'
+    $parser =
+        Join-Path $root 'Services\Conversion\ChdProgParse.cs'
+
     if (-not (Test-Path -LiteralPath $parser -PathType Leaf)) {
         Add-Failure "ChdProgParse.cs is missing."
         return
     }
 
-    $content = Get-Content -LiteralPath $parser -Raw -Encoding UTF8
+    $content =
+        Get-Content -LiteralPath $parser -Raw -Encoding UTF8
+
     foreach ($method in @(
         'ParseSnapshot',
         'TryParseLastPercent',
         'TryParseActiveProgressSnapshot',
         'StripPercentTokensForNarrative',
         'ToCleanLogLine')) {
+
         if ($content -notmatch "\b$method\s*\(") {
             Add-Failure "ChdProgressParser must implement $method."
         }
     }
 
-    if ($content -match 'placeholder' -or $content -match 'delegated to ChdmanCliRunner') {
+    if ($content -match 'placeholder' -or
+        $content -match 'delegated to ChdmanCliRunner') {
         Add-Failure "ChdProgressParser must not be a placeholder."
     }
 
-    $runner = Join-Path $root 'Services\ChdProcRun.cs'
+    $runner =
+        Join-Path $root 'Services\ChdProcRun.cs'
+
     if (Test-Path -LiteralPath $runner -PathType Leaf) {
-        $runnerContent = Get-Content -LiteralPath $runner -Raw -Encoding UTF8
+        $runnerContent =
+            Get-Content -LiteralPath $runner -Raw -Encoding UTF8
+
         if ($runnerContent -notmatch 'IChdProgressParser') {
             Add-Failure "ChdmanProcessRunner must use IChdProgressParser."
         }
     }
 }
 
-
-
-
 function Test-ConversionRuntimeReliabilityPolicy {
-    $progressPolicy = Join-Path $root 'Services\Conversion\ChdProgPolicy.cs'
+    $progressPolicy =
+        Join-Path $root 'Services\Conversion\ChdProgPolicy.cs'
+
     if (-not (Test-Path -LiteralPath $progressPolicy -PathType Leaf)) {
         Add-Failure 'ChdProgPolicy.cs is required to prevent unreliable extractcd raw percent from driving UI progress.'
     }
     else {
-        $content = Get-Content -LiteralPath $progressPolicy -Raw -Encoding UTF8
-        if ($content -notmatch 'StartsWith\("extract"' -or $content -notmatch 'return\s+!command\.StartsWith') {
+        $content =
+            Get-Content -LiteralPath $progressPolicy -Raw -Encoding UTF8
+
+        if ($content -notmatch 'StartsWith\("extract"' -or
+            $content -notmatch 'return\s+!command\.StartsWith') {
             Add-Failure 'ChdProgressPolicy must reject raw chdman percent parsing for extractcd/extractdvd commands.'
         }
     }
 
-    $conversionService = Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
+    $conversionService =
+        Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
+
     if (Test-Path -LiteralPath $conversionService -PathType Leaf) {
-        $content = Get-Content -LiteralPath $conversionService -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $conversionService -Raw -Encoding UTF8
+
         if ($content -notmatch 'ChdProgressPolicy\.ShouldParseRawPercent\(arguments\)') {
             Add-Failure 'ChdConversionService must route chdman raw progress through ChdProgressPolicy.'
         }
-        if ($content -notmatch 'extractCdBinOutputPathForArgument' -or $content -notmatch 'monitoredOutputPath:\s*monitoredOutputPath') {
+
+        if ($content -notmatch 'extractCdBinOutputPathForArgument' -or
+            $content -notmatch 'monitoredOutputPath:\s*monitoredOutputPath') {
             Add-Failure 'extractcd performance monitoring must track the produced BIN/ISO payload output, not the tiny CUE file.'
         }
+
         if ($content -notmatch 'ConversionMetricsResolver\.TryParseLogicalSizeBytes') {
             Add-Failure 'ChdConversionService must parse chdman Logical size for reliable conversion metrics.'
         }
     }
 
-    $metricsResolver = Join-Path $root 'Services\Conversion\ConvMetrics.cs'
+    $metricsResolver =
+        Join-Path $root 'Services\Conversion\ConvMetrics.cs'
+
     if (-not (Test-Path -LiteralPath $metricsResolver -PathType Leaf)) {
         Add-Failure 'ConvMetrics.cs is required for logical media-size based conversion reports.'
     }
 
-    $resultModel = Join-Path $root 'Models\Chd\ChdConvResult.cs'
+    $resultModel =
+        Join-Path $root 'Models\Chd\ChdConvResult.cs'
+
     if (Test-Path -LiteralPath $resultModel -PathType Leaf) {
-        $content = Get-Content -LiteralPath $resultModel -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $resultModel -Raw -Encoding UTF8
+
         if ($content -notmatch 'LogicalInputBytes') {
             Add-Failure 'ChdConversionResult must carry LogicalInputBytes so reports do not use descriptor text file size.'
         }
     }
 
-    $conversionStage = Join-Path $root 'Core\Workflow\FlowConv.cs'
+    $conversionStage =
+        Join-Path $root 'Core\Workflow\FlowConv.cs'
+
     if (Test-Path -LiteralPath $conversionStage -PathType Leaf) {
-        $content = Get-Content -LiteralPath $conversionStage -Raw -Encoding UTF8
-        if ($content -notmatch 'ResolveConversionInputBytes' -or $content -notmatch 'conversionResult\.LogicalInputBytes') {
+        $content =
+            Get-Content -LiteralPath $conversionStage -Raw -Encoding UTF8
+
+        if ($content -notmatch 'ResolveConversionInputBytes' -or
+            $content -notmatch 'conversionResult\.LogicalInputBytes') {
             Add-Failure 'WorkflowConversionStage must prefer logical input bytes over descriptor file size for performance reports.'
         }
     }
 
-    $extractionStage = Join-Path $root 'Core\Workflow\FlowExtract.cs'
+    $extractionStage =
+        Join-Path $root 'Core\Workflow\FlowExtract.cs'
+
     if (Test-Path -LiteralPath $extractionStage -PathType Leaf) {
-        $content = Get-Content -LiteralPath $extractionStage -Raw -Encoding UTF8
-        if ($content -notmatch 'ReportReliableExtractionPercent' -or $content -notmatch 'sample\.OutputBytes \* 100d / logicalBytes') {
+        $content =
+            Get-Content -LiteralPath $extractionStage -Raw -Encoding UTF8
+
+        if ($content -notmatch 'ReportReliableExtractionPercent' -or
+            $content -notmatch 'sample\.OutputBytes \* 100d / logicalBytes') {
             Add-Failure 'WorkflowExtractionStage must derive extract progress from output growth and logical bytes.'
         }
     }
 
-    $safePathValidator = Join-Path $root 'Core\Workflow\Paths\SafePathValid.cs'
+    $safePathValidator =
+        Join-Path $root 'Core\Workflow\Paths\SafePathValid.cs'
+
     if (Test-Path -LiteralPath $safePathValidator -PathType Leaf) {
-        $content = Get-Content -LiteralPath $safePathValidator -Raw -Encoding UTF8
-        if ($content -notmatch 'Path\.ChangeExtension\(finalCueFullPath, "\.bin"\)' -or $content -notmatch 'RelativeReference\s*=\s*finalBinName') {
+        $content =
+            Get-Content -LiteralPath $safePathValidator -Raw -Encoding UTF8
+
+        if ($content -notmatch 'Path\.ChangeExtension\(finalCueFullPath, "\.bin"\)' -or
+            $content -notmatch 'RelativeReference\s*=\s*finalBinName') {
             Add-Failure 'Extracted single-bin CUE output must be renamed to the final game stem, not left as output.bin.'
         }
     }
 }
 
-
-
 function Test-CompressionPresetTruthLayer {
-    $commandPreparation = Join-Path $root 'Services\Conversion\ChdCmdPrep.cs'
+    $commandPreparation =
+        Join-Path $root 'Services\Conversion\ChdCmdPrep.cs'
+
     if (Test-Path -LiteralPath $commandPreparation -PathType Leaf) {
-        $content = Get-Content -LiteralPath $commandPreparation -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $commandPreparation -Raw -Encoding UTF8
+
         foreach ($required in @(
             'ResolveCompressionSettingWithTruth',
             'MameCreateCdDefaultCompression',
             'EffectiveCompression',
             'SameAsMameDefault')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "Compression preset truth layer missing command-preparation marker: $required"
             }
@@ -1325,61 +1713,86 @@ function Test-CompressionPresetTruthLayer {
         Add-Failure 'ChdCommandPreparationService is required for compression preset truth resolution.'
     }
 
-    $resolutionModel = Join-Path $root 'Models\Chd\ChdCompRes.cs'
+    $resolutionModel =
+        Join-Path $root 'Models\Chd\ChdCompRes.cs'
+
     if (-not (Test-Path -LiteralPath $resolutionModel -PathType Leaf)) {
         Add-Failure 'ChdCompressionResolution model is required to report requested/resolved/effective compression truth.'
     }
 
-    $resultModel = Join-Path $root 'Models\Chd\ChdConvResult.cs'
+    $resultModel =
+        Join-Path $root 'Models\Chd\ChdConvResult.cs'
+
     if (Test-Path -LiteralPath $resultModel -PathType Leaf) {
-        $content = Get-Content -LiteralPath $resultModel -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $resultModel -Raw -Encoding UTF8
+
         foreach ($required in @(
             'RequestedCompressionPreset',
             'ResolvedCompressionCodecs',
             'EffectiveCompressionCodecs',
             'EffectiveCompressionSameAsMameDefault')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "ChdConversionResult missing compression truth field: $required"
             }
         }
     }
 
-    $conversionService = Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
+    $conversionService =
+        Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
+
     if (Test-Path -LiteralPath $conversionService -PathType Leaf) {
-        $content = Get-Content -LiteralPath $conversionService -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $conversionService -Raw -Encoding UTF8
+
         foreach ($required in @(
             'RequestedPreset:',
             'ResolvedCompression:',
             'SameAsMameDefault:',
             'CHD compression preset resolved')) {
+
             if ($content -notmatch [Regex]::Escape($required)) {
                 Add-Failure "Conversion log must include compression truth marker: $required"
             }
         }
     }
 
-    $performanceReport = Join-Path $root 'Models\Chd\ConvPerfRep.cs'
+    $performanceReport =
+        Join-Path $root 'Models\Chd\ConvPerfRep.cs'
+
     if (Test-Path -LiteralPath $performanceReport -PathType Leaf) {
-        $content = Get-Content -LiteralPath $performanceReport -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $performanceReport -Raw -Encoding UTF8
+
         foreach ($required in @(
             'RequestedCompressionPreset',
             'ResolvedCompressionCodecs',
             'EffectiveCompressionCodecs',
             'EffectiveCompressionSameAsMameDefault')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "ConversionPerformanceReport missing compression truth field: $required"
             }
         }
     }
 
-    $arabic = Join-Path $root 'Resources\ArabicStrings.xaml'
-    $english = Join-Path $root 'Resources\EnglishStrings.xaml'
+    $arabic =
+        Join-Path $root 'Resources\ArabicStrings.xaml'
+
+    $english =
+        Join-Path $root 'Resources\EnglishStrings.xaml'
+
     foreach ($resourceFile in @($arabic, $english)) {
         if (Test-Path -LiteralPath $resourceFile -PathType Leaf) {
-            $content = Get-Content -LiteralPath $resourceFile -Raw -Encoding UTF8
-            if ($content -match 'أعلى ضغط — LZMA' -or $content -match 'Maximum compression') {
+            $content =
+                Get-Content -LiteralPath $resourceFile -Raw -Encoding UTF8
+
+            if ($content -match 'أعلى ضغط — LZMA' -or
+                $content -match 'Maximum compression') {
                 Add-Failure "Compression preset UI must not imply LZMA always produces the smallest file: $resourceFile"
             }
+
             if ($content -notmatch 'cdlz,cdzl,cdfl') {
                 Add-Failure "Compression preset UI must disclose the actual CD max/default codec set: $resourceFile"
             }
@@ -1387,14 +1800,20 @@ function Test-CompressionPresetTruthLayer {
     }
 }
 
-
 function Test-CoreServicesDependencyReduction {
-    $coreRoot = Join-Path $root 'Core'
+    $coreRoot =
+        Join-Path $root 'Core'
+
     if (-not (Test-Path -LiteralPath $coreRoot)) {
         return
     }
 
-    $coreServiceReferences = @(Get-ChildItem -LiteralPath $coreRoot -Recurse -File -Filter '*.cs' | Select-String -Pattern 'using HakamiqChdTool\.App\.Services')
+    $coreServiceReferences =
+        @(
+            Get-ChildItem -LiteralPath $coreRoot -Recurse -File -Filter '*.cs' |
+                Select-String -Pattern 'using HakamiqChdTool\.App\.Services'
+        )
+
     if ($coreServiceReferences.Count -gt 30) {
         Add-Failure "Core -> Services dependency count is too high after v1.0.5 P4 refactor: $($coreServiceReferences.Count)."
     }
@@ -1405,7 +1824,10 @@ function Test-CoreServicesDependencyReduction {
         'Services\ChdConvResult.cs',
         'Services\PlatformResult.cs',
         'Services\ChdExtKind.cs')) {
-        $candidate = Join-Path $root $relativePath
+
+        $candidate =
+            Join-Path $root $relativePath
+
         if (Test-Path -LiteralPath $candidate -PathType Leaf) {
             Add-Failure "Neutral DTO/model must not remain under Services: $relativePath"
         }
@@ -1419,22 +1841,29 @@ function Test-CoreServicesDependencyReduction {
         'Models\Chd\PerfSample.cs',
         'Models\Chd\ConvPerfRep.cs',
         'Models\Chd\ChdExtKind.cs')) {
-        $candidate = Join-Path $root $requiredPath
+
+        $candidate =
+            Join-Path $root $requiredPath
+
         if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
             Add-Failure "Expected v1.0.5 P4 refactor file is missing: $requiredPath"
         }
     }
 }
 
-
 function Test-OptionsWindowEarlyEventSafety {
-    $windowCodeBehind = Join-Path $root 'Views\OptionsWindow.xaml.cs'
+    $windowCodeBehind =
+        Join-Path $root 'Views\OptionsWindow.xaml.cs'
+
     if (-not (Test-Path -LiteralPath $windowCodeBehind -PathType Leaf)) {
         return
     }
 
-    $content = Get-Content -LiteralPath $windowCodeBehind -Raw -Encoding UTF8
-    if ($content -match 'private\s+void\s+OnTabButtonChecked\s*\([^)]*\)\s*=>\s*_coordinator\.OnTabButtonChecked') {
+    $content =
+        Get-Content -LiteralPath $windowCodeBehind -Raw -Encoding UTF8
+
+    if ($content -match
+        'private\s+void\s+OnTabButtonChecked\s*\([^)]*\)\s*=>\s*_coordinator\.OnTabButtonChecked') {
         Add-Failure "OptionsWindow.OnTabButtonChecked must be null-safe because XAML Checked can fire during InitializeComponent."
     }
 
@@ -1450,32 +1879,48 @@ function Test-OptionsWindowEarlyEventSafety {
         Add-Failure "OptionsWindow must call HqOptionsShell.Attach() after creating the coordinator."
     }
 
-    $coordinatorPath = Join-Path $root 'Ui\Shell\HqOptionsShell.cs'
+    $coordinatorPath =
+        Join-Path $root 'Ui\Shell\HqOptionsShell.cs'
+
     if (Test-Path -LiteralPath $coordinatorPath -PathType Leaf) {
-        $coordinator = Get-Content -LiteralPath $coordinatorPath -Raw -Encoding UTF8
-        if ($coordinator -notmatch 'private\s+readonly\s+ToolTipEventHandler\s+_toolTipOpeningHandler') {
+        $coordinator =
+            Get-Content -LiteralPath $coordinatorPath -Raw -Encoding UTF8
+
+        if ($coordinator -notmatch
+            'private\s+readonly\s+ToolTipEventHandler\s+_toolTipOpeningHandler') {
             Add-Failure "HqOptionsShell must keep a typed ToolTipEventHandler delegate for Attach/Dispose symmetry."
         }
 
-        if ($coordinator -notmatch 'public\s+void\s+Attach\s*\(\s*\)' -or $coordinator -notmatch 'AddHandler\s*\(\s*ToolTipService\.ToolTipOpeningEvent\s*,\s*_toolTipOpeningHandler') {
+        if ($coordinator -notmatch
+            'public\s+void\s+Attach\s*\(\s*\)' -or
+            $coordinator -notmatch
+            'AddHandler\s*\(\s*ToolTipService\.ToolTipOpeningEvent\s*,\s*_toolTipOpeningHandler') {
             Add-Failure "HqOptionsShell.Attach() must attach ToolTipOpening with the typed delegate."
         }
 
-        if ($coordinator -notmatch 'RemoveHandler\s*\(\s*ToolTipService\.ToolTipOpeningEvent\s*,\s*_toolTipOpeningHandler\s*\)') {
+        if ($coordinator -notmatch
+            'RemoveHandler\s*\(\s*ToolTipService\.ToolTipOpeningEvent\s*,\s*_toolTipOpeningHandler\s*\)') {
             Add-Failure "HqOptionsShell.Dispose() must remove ToolTipOpening with the same typed delegate."
         }
     }
 }
 
-
 function Test-RedumpAutoSyncStartupPolicy {
-    $settingsPath = Join-Path $root 'Models\Configuration\AppSettings.cs'
-    $startupPath = Join-Path $root 'Startup\MainStartup.cs'
-    $autoSyncPath = Join-Path $root 'Services\RedAutoSync.cs'
+    $settingsPath =
+        Join-Path $root 'Models\Configuration\AppSettings.cs'
+
+    $startupPath =
+        Join-Path $root 'Startup\MainStartup.cs'
+
+    $autoSyncPath =
+        Join-Path $root 'Services\RedAutoSync.cs'
 
     if (Test-Path -LiteralPath $settingsPath -PathType Leaf) {
-        $settings = Get-Content -LiteralPath $settingsPath -Raw -Encoding UTF8
-        if ($settings -notmatch 'EnableRedumpAutoSync\s*\{\s*get;\s*set;\s*\}\s*=\s*false\s*;') {
+        $settings =
+            Get-Content -LiteralPath $settingsPath -Raw -Encoding UTF8
+
+        if ($settings -notmatch
+            'EnableRedumpAutoSync\s*\{\s*get;\s*set;\s*\}\s*=\s*false\s*;') {
             Add-Failure 'EnableRedumpAutoSync must remain false by default.'
         }
 
@@ -1485,8 +1930,11 @@ function Test-RedumpAutoSyncStartupPolicy {
     }
 
     if (Test-Path -LiteralPath $startupPath -PathType Leaf) {
-        $startup = Get-Content -LiteralPath $startupPath -Raw -Encoding UTF8
-        if ($startup -match 'Task\s+redumpAutoSyncTask\s*=\s*StartRedumpAutoSyncIfConfiguredAsync\(cancellationToken\)\s*;\s*ObserveDeferredTask\(redumpAutoSyncTask,\s*"Redump startup auto-sync"\)\s*;\s*return\s+RunStartupUpdateCheckAsync') {
+        $startup =
+            Get-Content -LiteralPath $startupPath -Raw -Encoding UTF8
+
+        if ($startup -match
+            'Task\s+redumpAutoSyncTask\s*=\s*StartRedumpAutoSyncIfConfiguredAsync\(cancellationToken\)\s*;\s*ObserveDeferredTask\(redumpAutoSyncTask,\s*"Redump startup auto-sync"\)\s*;\s*return\s+RunStartupUpdateCheckAsync') {
             Add-Failure 'Redump auto-sync must not start directly in the MainWindow startup path; queue it after MainWindow is rendered.'
         }
 
@@ -1502,13 +1950,16 @@ function Test-RedumpAutoSyncStartupPolicy {
             Add-Failure 'Redump auto-sync must be dispatched at ApplicationIdle so it does not delay startup UI.'
         }
 
-        if ($startup -notmatch 'ObserveDeferredTask\(redumpAutoSyncTask,\s*"Redump startup auto-sync"\)') {
+        if ($startup -notmatch
+            'ObserveDeferredTask\(redumpAutoSyncTask,\s*"Redump startup auto-sync"\)') {
             Add-Failure 'Redump auto-sync background task must remain observed.'
         }
     }
 
     if (Test-Path -LiteralPath $autoSyncPath -PathType Leaf) {
-        $autoSync = Get-Content -LiteralPath $autoSyncPath -Raw -Encoding UTF8
+        $autoSync =
+            Get-Content -LiteralPath $autoSyncPath -Raw -Encoding UTF8
+
         if ($autoSync -notmatch 'StartupSyncTimeout') {
             Add-Failure 'Redump auto-sync must use a short startup timeout.'
         }
@@ -1517,11 +1968,13 @@ function Test-RedumpAutoSyncStartupPolicy {
             Add-Failure 'Redump auto-sync must cancel using the short startup timeout.'
         }
 
-        if ($autoSync -notmatch 'RedumpGitHubSyncManager\s+syncManager\s*=\s*new\(StartupSyncTimeout\)') {
+        if ($autoSync -notmatch
+            'RedumpGitHubSyncManager\s+syncManager\s*=\s*new\(StartupSyncTimeout\)') {
             Add-Failure 'Redump auto-sync manager must receive the short startup timeout.'
         }
 
-        if ($autoSync -notmatch 'FailureBackoffHours' -or $autoSync -notmatch 'BackoffUntilUtc') {
+        if ($autoSync -notmatch 'FailureBackoffHours' -or
+            $autoSync -notmatch 'BackoffUntilUtc') {
             Add-Failure 'Redump auto-sync must apply a failure backoff after startup sync failures.'
         }
 
@@ -1531,28 +1984,41 @@ function Test-RedumpAutoSyncStartupPolicy {
     }
 }
 
-
 function Test-DispatcherUnhandledExceptionPolicy {
-    $app = Join-Path $root 'App.xaml.cs'
+    $app =
+        Join-Path $root 'App.xaml.cs'
+
     if (-not (Test-Path -LiteralPath $app -PathType Leaf)) {
         Add-Failure 'App.xaml.cs is missing.'
         return
     }
 
-    $content = Get-Content -LiteralPath $app -Raw -Encoding UTF8
-    $methodMatch = [regex]::Match(
-        $content,
-        'private\s+static\s+void\s+OnDispatcherUnhandledException\s*\([^)]*\)\s*\{([\s\S]*?)\n\s*\}\s*\n\s*private\s+static\s+void\s+RequestFatalShutdown',
-        [System.Text.RegularExpressions.RegexOptions]::Singleline)
+    $content =
+        Get-Content -LiteralPath $app -Raw -Encoding UTF8
+
+    $methodMatch =
+        [regex]::Match(
+            $content,
+            'private\s+static\s+void\s+OnDispatcherUnhandledException\s*\([^)]*\)\s*\{([\s\S]*?)\n\s*\}\s*\n\s*private\s+static\s+void\s+RequestFatalShutdown',
+            [System.Text.RegularExpressions.RegexOptions]::Singleline)
 
     if (-not $methodMatch.Success) {
         Add-Failure 'DispatcherUnhandledException policy method could not be inspected.'
         return
     }
 
-    $method = $methodMatch.Groups[1].Value
-    $expectedIndex = $method.IndexOf('DiagnosticLogPolicy.IsExpectedCancellation(ex)', [System.StringComparison]::Ordinal)
-    $firstHandledTrueIndex = $method.IndexOf('e.Handled = true', [System.StringComparison]::Ordinal)
+    $method =
+        $methodMatch.Groups[1].Value
+
+    $expectedIndex =
+        $method.IndexOf(
+            'DiagnosticLogPolicy.IsExpectedCancellation(ex)',
+            [System.StringComparison]::Ordinal)
+
+    $firstHandledTrueIndex =
+        $method.IndexOf(
+            'e.Handled = true',
+            [System.StringComparison]::Ordinal)
 
     if ($expectedIndex -lt 0) {
         Add-Failure 'DispatcherUnhandledException must classify expected cancellation before handling.'
@@ -1561,7 +2027,8 @@ function Test-DispatcherUnhandledExceptionPolicy {
     if ($firstHandledTrueIndex -lt 0) {
         Add-Failure 'Expected dispatcher cancellation should be marked handled.'
     }
-    elseif ($expectedIndex -lt 0 -or $firstHandledTrueIndex -lt $expectedIndex) {
+    elseif ($expectedIndex -lt 0 -or
+        $firstHandledTrueIndex -lt $expectedIndex) {
         Add-Failure 'DispatcherUnhandledException must not mark exceptions handled before expected-cancellation classification.'
     }
 
@@ -1573,27 +2040,36 @@ function Test-DispatcherUnhandledExceptionPolicy {
         Add-Failure 'Unexpected dispatcher faults must request a clean fatal shutdown.'
     }
 
-    if ($content -notmatch 'private\s+static\s+void\s+RequestFatalShutdown\s*\(' -or $content -notmatch 'Shutdown\s*\(\s*1\s*\)') {
+    if ($content -notmatch
+        'private\s+static\s+void\s+RequestFatalShutdown\s*\(' -or
+        $content -notmatch 'Shutdown\s*\(\s*1\s*\)') {
         Add-Failure 'Fatal dispatcher faults must shut down the application with a non-zero exit code.'
     }
 
-    if ($method -match 'BuildCrashDialogMessage\(ex\)' -or $method -match 'ShowApplicationNotice\([\s\S]*RuntimeDiagnosticFormatter\.BuildCrashDialogMessage') {
+    if ($method -match 'BuildCrashDialogMessage\(ex\)' -or
+        $method -match
+        'ShowApplicationNotice\([\s\S]*RuntimeDiagnosticFormatter\.BuildCrashDialogMessage') {
         Add-Failure 'DispatcherUnhandledException must not try to show a UI crash dialog for fatal UI faults.'
     }
 }
 
 function Test-SingleInstanceGuard {
-    $app = Join-Path $root 'App.xaml.cs'
+    $app =
+        Join-Path $root 'App.xaml.cs'
+
     if (-not (Test-Path -LiteralPath $app -PathType Leaf)) {
         return
     }
 
-    $content = Get-Content -LiteralPath $app -Raw -Encoding UTF8
+    $content =
+        Get-Content -LiteralPath $app -Raw -Encoding UTF8
+
     if ($content -notmatch 'Local\\HakamiqChdTool\.App\.SingleInstance') {
         Add-Failure 'App must use the fixed single-instance mutex name Local\HakamiqChdTool.App.SingleInstance.'
     }
 
-    if ($content -notmatch 'new\s+Mutex\s*\(\s*initiallyOwned:\s*true\s*,\s*name:\s*SingleInstanceMutexName\s*,\s*createdNew:\s*out\s+bool\s+createdNew') {
+    if ($content -notmatch
+        'new\s+Mutex\s*\(\s*initiallyOwned:\s*true\s*,\s*name:\s*SingleInstanceMutexName\s*,\s*createdNew:\s*out\s+bool\s+createdNew') {
         Add-Failure 'App must create a named Mutex with createdNew for single-instance guarding.'
     }
 
@@ -1611,17 +2087,22 @@ function Test-SingleInstanceGuard {
 }
 
 function Test-OptionsConstructorGuard {
-    $modals = Join-Path $root 'Views\MainWindow\MW.Modals.cs'
+    $modals =
+        Join-Path $root 'Views\MainWindow\MW.Modals.cs'
+
     if (-not (Test-Path -LiteralPath $modals -PathType Leaf)) {
         return
     }
 
-    $content = Get-Content -LiteralPath $modals -Raw -Encoding UTF8
+    $content =
+        Get-Content -LiteralPath $modals -Raw -Encoding UTF8
+
     if ($content -notmatch 'try[\s\S]*new\s+OptionsWindow') {
         Add-Failure 'OpenOptionsDialog must wrap OptionsWindow construction in try/catch.'
     }
 
-    if ($content -notmatch 'catch\s*\(\s*Exception\s+ex\s*\)[\s\S]*Options window construction failed') {
+    if ($content -notmatch
+        'catch\s*\(\s*Exception\s+ex\s*\)[\s\S]*Options window construction failed') {
         Add-Failure 'OpenOptionsDialog must log constructor failures safely.'
     }
 
@@ -1631,68 +2112,93 @@ function Test-OptionsConstructorGuard {
 }
 
 function Test-ShutdownBackgroundTimeouts {
-    $lifecycle = Join-Path $root 'Views\MainWindow\MW.Life.cs'
+    $lifecycle =
+        Join-Path $root 'Views\MainWindow\MW.Life.cs'
+
     if (-not (Test-Path -LiteralPath $lifecycle -PathType Leaf)) {
         return
     }
 
-    $content = Get-Content -LiteralPath $lifecycle -Raw -Encoding UTF8
+    $content =
+        Get-Content -LiteralPath $lifecycle -Raw -Encoding UTF8
+
     foreach ($name in @(
         'StartupUpdateCheckShutdownTimeout',
         'RuntimeDeferredCleanupShutdownTimeout',
         'QueueDisposeShutdownTimeout',
         'PendingWorkspaceCleanupShutdownTimeout',
         'RuntimeSessionCleanupShutdownTimeout')) {
+
         if ($content -notmatch $name) {
             Add-Failure "Shutdown timeout is missing: $name"
         }
     }
 
-    if ($content -notmatch 'WaitAsync\s*\(\s*timeout\.Value\s*\)' -or $content -notmatch 'TimeoutException') {
+    if ($content -notmatch 'WaitAsync\s*\(\s*timeout\.Value\s*\)' -or
+        $content -notmatch 'TimeoutException') {
         Add-Failure 'Background shutdown steps must enforce timeout using WaitAsync and handle TimeoutException.'
     }
 }
 
 function Test-ShowRedumpDetailsReturnsTask {
-    $commands = Join-Path $root 'Views\MainWindow\MW.Cmds.cs'
-    $session = Join-Path $root 'Views\MainWindow\MW.Session.cs'
-    $sessionInterface = Join-Path $root 'ViewModels\IMainSession.cs'
-    $mainVm = Join-Path $root 'ViewModels\MainVM.cs'
+    $commands =
+        Join-Path $root 'Views\MainWindow\MW.Cmds.cs'
+
+    $session =
+        Join-Path $root 'Views\MainWindow\MW.Session.cs'
+
+    $sessionInterface =
+        Join-Path $root 'ViewModels\IMainSession.cs'
+
+    $mainVm =
+        Join-Path $root 'ViewModels\MainVM.cs'
 
     if (Test-Path -LiteralPath $commands -PathType Leaf) {
-        $content = Get-Content -LiteralPath $commands -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $commands -Raw -Encoding UTF8
+
         if ($content -match 'public\s+async\s+void\s+ShowRedumpDetails') {
             Add-Failure 'ShowRedumpDetails must not be public async void.'
         }
+
         if ($content -notmatch 'public\s+async\s+Task\s+ShowRedumpDetails') {
             Add-Failure 'ShowRedumpDetails must return Task.'
         }
     }
 
     if (Test-Path -LiteralPath $sessionInterface -PathType Leaf) {
-        $content = Get-Content -LiteralPath $sessionInterface -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $sessionInterface -Raw -Encoding UTF8
+
         if ($content -notmatch 'Task\s+ShowRedumpDetails\s*\(') {
             Add-Failure 'IMainWindowSession.ShowRedumpDetails must return Task.'
         }
     }
 
     if (Test-Path -LiteralPath $session -PathType Leaf) {
-        $content = Get-Content -LiteralPath $session -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $session -Raw -Encoding UTF8
+
         if ($content -notmatch 'public\s+Task\s+ShowRedumpDetails\s*\(') {
             Add-Failure 'MainWindow.Session ShowRedumpDetails adapter must return Task.'
         }
     }
 
     if (Test-Path -LiteralPath $mainVm -PathType Leaf) {
-        $content = Get-Content -LiteralPath $mainVm -Raw -Encoding UTF8
-        if ($content -notmatch 'new\s+AsyncRelayCommand<TaskQueueItemViewModel\?>\s*\([\s\S]*ShowRedumpDetails') {
+        $content =
+            Get-Content -LiteralPath $mainVm -Raw -Encoding UTF8
+
+        if ($content -notmatch
+            'new\s+AsyncRelayCommand<TaskQueueItemViewModel\?>\s*\([\s\S]*ShowRedumpDetails') {
             Add-Failure 'ShowRedumpDetailsCommand must use AsyncRelayCommand.'
         }
     }
 }
 
 function Test-BinCueConsoleIdentityArchitecture {
-    $serviceRoot = Join-Path $root 'Services\ConsoleMedia'
+    $serviceRoot =
+        Join-Path $root 'Services\ConsoleMedia'
+
     $requiredFiles = @(
         'DiscIdResult.cs',
         'DiscScanCtx.cs',
@@ -1701,15 +2207,21 @@ function Test-BinCueConsoleIdentityArchitecture {
     )
 
     foreach ($file in $requiredFiles) {
-        $path = Join-Path $serviceRoot $file
+        $path =
+            Join-Path $serviceRoot $file
+
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
             Add-Failure "BIN/CUE console identity layer file is missing: Services\ConsoleMedia\$file"
         }
     }
 
-    $identityService = Join-Path $serviceRoot 'DiscIdSvc.cs'
+    $identityService =
+        Join-Path $serviceRoot 'DiscIdSvc.cs'
+
     if (Test-Path -LiteralPath $identityService -PathType Leaf) {
-        $content = Get-Content -LiteralPath $identityService -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $identityService -Raw -Encoding UTF8
+
         foreach ($probe in @(
             'PlayStationConsoleDiscProbe',
             'SegaSaturnConsoleDiscProbe',
@@ -1718,85 +2230,187 @@ function Test-BinCueConsoleIdentityArchitecture {
             'NeoGeoCdConsoleDiscProbe',
             'ThreeDoConsoleDiscProbe',
             'PcEngineCdConsoleDiscProbe')) {
+
             if ($content -notmatch $probe) {
                 Add-Failure "BIN/CUE console identity probe is missing: $probe"
             }
         }
     }
 
-    $platformDetection = Join-Path $root 'Services\PlatformSvc.cs'
+    $platformDetection =
+        Join-Path $root 'Services\PlatformSvc.cs'
+
     if (Test-Path -LiteralPath $platformDetection -PathType Leaf) {
-        $content = Get-Content -LiteralPath $platformDetection -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $platformDetection -Raw -Encoding UTF8
+
         if ($content -notmatch 'ConsoleDiscIdentityService\.Shared\.Detect') {
             Add-Failure 'PlatformDetectionService must use ConsoleDiscIdentityService for standalone BIN platform detection.'
         }
     }
 
-    $assembler = Join-Path $root 'Services\BinCueRescue\MultiBinAsm.cs'
-    if (Test-Path -LiteralPath $assembler -PathType Leaf) {
-        $content = Get-Content -LiteralPath $assembler -Raw -Encoding UTF8
-        if ($content -notmatch 'ConsoleDiscIdentityService\.Shared\.Detect') {
-            Add-Failure 'BIN/CUE rescue must verify console identity before generating a temporary CUE.'
+    $assembler =
+        Join-Path $root 'Services\BinCueRescue\MultiBinAsm.cs'
+
+    if (-not (Test-Path -LiteralPath $assembler -PathType Leaf)) {
+        Add-Failure 'MultiBinDiscAssembler is required for standalone BIN sector/layout analysis.'
+    }
+    else {
+        $content =
+            Get-Content -LiteralPath $assembler -Raw -Encoding UTF8
+
+        foreach ($required in @(
+            'BinSectorProbe\.Probe',
+            'BinCueRescueDecision\.UseAdjacentCue',
+            'BinCueRescueDecision\.GenerateTempCue',
+            'BinCueRescueDecision\.Refuse')) {
+
+            if ($content -notmatch $required) {
+                Add-Failure "MultiBinDiscAssembler missing required BIN/CUE layout marker: $required"
+            }
         }
-        if ($content -notmatch 'BinCueRescueRefusalReason\.UnsupportedPlatform') {
-            Add-Failure 'BIN/CUE rescue must refuse standalone BIN when console identity is unknown.'
+
+        if ($content -match 'ConsoleDiscIdentityService\.Shared\.Detect') {
+            Add-Failure 'MultiBinDiscAssembler must not perform console identity detection; identity policy belongs to DiscLayout/MediaInputPolicy.'
+        }
+
+        if ($content -match
+            'BinCueRescueRefusalReason\.(UnsupportedPlatform|PathHintOnly)') {
+            Add-Failure 'MultiBinDiscAssembler must not encode console identity policy as sector/layout refusal reasons.'
         }
     }
 
-    $mediaPolicy = Join-Path $root 'Services\MediaInputPolicy\MediaPolicy.cs'
+    $discLayout =
+        Join-Path $root 'Services\DiscLayout\DiscLayout.cs'
+
+    if (-not (Test-Path -LiteralPath $discLayout -PathType Leaf)) {
+        Add-Failure 'DiscLayout is required to combine BIN layout evidence with console identity evidence.'
+    }
+    else {
+        $content =
+            Get-Content -LiteralPath $discLayout -Raw -Encoding UTF8
+
+        foreach ($required in @(
+            'ConsoleDiscIdentityResult',
+            '!identity\.IsIdentified',
+            'identity\.IsPathHintOnly',
+            'LocIntake_BinWithoutCueUnknownPlatform',
+            'LocIntake_BinWithoutCueUnsafeSectorLayout',
+            'GenerateTemporaryCue')) {
+
+            if ($content -notmatch $required) {
+                Add-Failure "DiscLayout missing required standalone BIN identity-policy marker: $required"
+            }
+        }
+    }
+
+    $mediaPolicy =
+        Join-Path $root 'Services\MediaInputPolicy\MediaPolicy.cs'
+
     if (-not (Test-Path -LiteralPath $mediaPolicy -PathType Leaf)) {
         Add-Failure 'MediaInputPolicy is required to centralize standalone BIN/CUE intake decisions.'
     }
     else {
-        $content = Get-Content -LiteralPath $mediaPolicy -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $mediaPolicy -Raw -Encoding UTF8
+
         foreach ($required in @(
-            'FindAdjacentCue',
-            'ConsoleDiscIdentityService\.Shared\.Detect',
             'MultiBinDiscAssembler\.AssembleForBin',
+            'rescuePlan\.CanUseAdjacentCue',
+            'rescuePlan\.AdjacentCuePath',
+            'GetConsoleIdentityProbePath',
+            'ConsoleDiscIdentityService\.Shared\.Detect',
+            'DiscLayoutDecision\.FromStandaloneBinPlan',
             'AcceptTemporaryCue',
             'Block')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "MediaInputPolicy missing required standalone BIN policy marker: $required"
             }
         }
     }
 
-    $planner = Join-Path $root 'Services\ChdProfPlan.cs'
+    $workflowAdapter =
+        Join-Path $root 'Services\BinCueRescue\CueFlowAdapt.cs'
+
+    if (-not (Test-Path -LiteralPath $workflowAdapter -PathType Leaf)) {
+        Add-Failure 'CueRescueWorkflowAdapter is required for runtime temporary-CUE preparation.'
+    }
+    else {
+        $content =
+            Get-Content -LiteralPath $workflowAdapter -Raw -Encoding UTF8
+
+        foreach ($required in @(
+            'MultiBinDiscAssembler\.AssembleForBin',
+            'GetConsoleIdentityProbePath',
+            'ConsoleDiscIdentityService\.Shared\.Detect',
+            'DiscLayoutDecision\.FromStandaloneBinPlan',
+            'CueRescueWriter\.Write')) {
+
+            if ($content -notmatch $required) {
+                Add-Failure "CueRescueWorkflowAdapter missing required runtime BIN/CUE marker: $required"
+            }
+        }
+
+        if ($content -match 'plan\.IsAmbiguous') {
+            Add-Failure 'CueRescueWorkflowAdapter contains stale BinCueRescuePlan.IsAmbiguous usage.'
+        }
+    }
+
+    $planner =
+        Join-Path $root 'Services\ChdProfPlan.cs'
+
     if (Test-Path -LiteralPath $planner -PathType Leaf) {
-        $content = Get-Content -LiteralPath $planner -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $planner -Raw -Encoding UTF8
+
         if ($content -match '"\.bin"\s*=>\s*ChdWorkflowProfilePlan\.Unsupported') {
             Add-Failure 'ChdWorkflowProfilePlanner must not hard-block .bin before MediaInputPolicy/CueRescue can evaluate it.'
         }
-        if ($content -notmatch 'PlanStandaloneBinCreate' -or $content -notmatch 'MediaInputPolicy\.Evaluate') {
+
+        if ($content -notmatch 'PlanStandaloneBinCreate' -or
+            $content -notmatch 'MediaInputPolicy\.Evaluate') {
             Add-Failure 'ChdWorkflowProfilePlanner must route .bin through MediaInputPolicy.'
         }
     }
 
-    $queueIntake = Join-Path $root 'ViewModels\MainVM.Intake.cs'
+    $queueIntake =
+        Join-Path $root 'ViewModels\MainVM.Intake.cs'
+
     if (Test-Path -LiteralPath $queueIntake -PathType Leaf) {
-        $content = Get-Content -LiteralPath $queueIntake -Raw -Encoding UTF8
-        if ($content -notmatch 'MediaInputPolicy\.Evaluate' -or $content -notmatch 'mediaDecision\.EffectivePath') {
+        $content =
+            Get-Content -LiteralPath $queueIntake -Raw -Encoding UTF8
+
+        if ($content -notmatch 'MediaInputPolicy\.Evaluate' -or
+            $content -notmatch 'mediaDecision\.EffectivePath') {
             Add-Failure 'Queue intake must apply MediaInputPolicy and use EffectivePath for BIN->CUE redirects.'
         }
     }
 
-    $capability = Join-Path $root 'Services\QOpCapsSvc.cs'
+    $capability =
+        Join-Path $root 'Services\QOpCapsSvc.cs'
+
     if (Test-Path -LiteralPath $capability -PathType Leaf) {
-        $content = Get-Content -LiteralPath $capability -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $capability -Raw -Encoding UTF8
+
         if ($content -notmatch 'MediaInputPolicy\.Evaluate') {
             Add-Failure 'QueueOperationCapabilityService must use MediaInputPolicy before exposing BIN conversion operations.'
         }
     }
 }
 
-
 function Test-ChdmanCapabilityPolicyGates {
-    $capabilityService = Join-Path $root 'Services\Conversion\ChdCapsSvc.cs'
+    $capabilityService =
+        Join-Path $root 'Services\Conversion\ChdCapsSvc.cs'
+
     if (-not (Test-Path -LiteralPath $capabilityService -PathType Leaf)) {
         Add-Failure 'ChdmanCapabilityService is required to inspect the actual chdman binary before CHD execution.'
     }
     else {
-        $content = Get-Content -LiteralPath $capabilityService -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $capabilityService -Raw -Encoding UTF8
+
         foreach ($required in @(
             'Version',
             'supportsCreateDvd',
@@ -1805,36 +2419,46 @@ function Test-ChdmanCapabilityPolicyGates {
             'SupportsRequestedCompression',
             'SupportsRequestedHunkSize',
             'WaitForExitAsync')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "ChdmanCapabilityService missing required capability marker: $required"
             }
         }
     }
 
-    $capabilitySnapshot = Join-Path $root 'Models\Chd\ChdCapsSnap.cs'
+    $capabilitySnapshot =
+        Join-Path $root 'Models\Chd\ChdCapsSnap.cs'
+
     if (-not (Test-Path -LiteralPath $capabilitySnapshot -PathType Leaf)) {
         Add-Failure 'ChdmanCapabilitySnapshot model is required for centralized CHD capability decisions.'
     }
     else {
-        $content = Get-Content -LiteralPath $capabilitySnapshot -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $capabilitySnapshot -Raw -Encoding UTF8
+
         foreach ($required in @(
             'SupportsCreateDvd',
             'SupportsExtractDvd',
             'SupportsZstd',
             'SupportsRequestedCompression',
             'SupportsRequestedHunkSize')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "ChdmanCapabilitySnapshot missing required marker: $required"
             }
         }
     }
 
-    $policyGate = Join-Path $root 'Services\Conversion\ChdOpGate.cs'
+    $policyGate =
+        Join-Path $root 'Services\Conversion\ChdOpGate.cs'
+
     if (-not (Test-Path -LiteralPath $policyGate -PathType Leaf)) {
         Add-Failure 'ChdOperationPolicyGate is required to centralize CHD command decisions.'
     }
     else {
-        $content = Get-Content -LiteralPath $policyGate -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $policyGate -Raw -Encoding UTF8
+
         foreach ($required in @(
             'PspIsoCreateCdBlocked',
             'Ps2DvdIsoCreateCdBlocked',
@@ -1844,20 +2468,23 @@ function Test-ChdmanCapabilityPolicyGates {
             'SupportsRequestedCompression',
             'SupportsRequestedHunkSize',
             'UnknownIsoMediaKindRequired')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "ChdOperationPolicyGate missing required safety marker: $required"
             }
         }
     }
 
+    $profilePolicy =
+        Join-Path $root 'Services\Conversion\PlatformChd.cs'
 
-
-    $profilePolicy = Join-Path $root 'Services\Conversion\PlatformChd.cs'
     if (-not (Test-Path -LiteralPath $profilePolicy -PathType Leaf)) {
         Add-Failure 'PlatformAwareChdProfilePolicy is required to centralize platform-aware CHD profile selection.'
     }
     else {
-        $content = Get-Content -LiteralPath $profilePolicy -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $profilePolicy -Raw -Encoding UTF8
+
         foreach ($required in @(
             'PlatformAwareChdProfileRequest',
             'PlatformAwareChdProfileDecision',
@@ -1870,26 +2497,33 @@ function Test-ChdmanCapabilityPolicyGates {
             'ResolveCdProfileSettings',
             'ResolveDvdProfileSettings',
             'ChdDiscHunkIntent')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "PlatformAwareChdProfilePolicy missing required marker: $required"
             }
         }
 
-        if ($content -match 'PreserveRequestedCdHunk' -or $content -match 'PreserveRequestedAdvancedDvdHunk') {
+        if ($content -match 'PreserveRequestedCdHunk' -or
+            $content -match 'PreserveRequestedAdvancedDvdHunk') {
             Add-Failure 'PlatformAwareChdProfilePolicy must use separate CD/DVD profile policies instead of generic hunk preservation helpers.'
         }
 
-        if ($content -match 'Gdi[\s\S]{0,500}2048' -or $content -match 'Cue[\s\S]{0,500}2048') {
+        if ($content -match 'Gdi[\s\S]{0,500}2048' -or
+            $content -match 'Cue[\s\S]{0,500}2048') {
             Add-Failure 'PlatformAwareChdProfilePolicy must not apply 2048-byte hunk policy to CD/GDI/BIN+CUE paths.'
         }
     }
 
-    $mediaSpecificPolicy = Join-Path $root 'Services\Conversion\ChdMediaPol.cs'
+    $mediaSpecificPolicy =
+        Join-Path $root 'Services\Conversion\ChdMediaPol.cs'
+
     if (-not (Test-Path -LiteralPath $mediaSpecificPolicy -PathType Leaf)) {
         Add-Failure 'ChdMediaSpecificProfilePolicies is required to separate CHD CD/DVD compression and hunk decisions internally.'
     }
     else {
-        $content = Get-Content -LiteralPath $mediaSpecificPolicy -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $mediaSpecificPolicy -Raw -Encoding UTF8
+
         foreach ($required in @(
             'ChdCdCompressionPolicy',
             'ChdDvdCompressionPolicy',
@@ -1902,21 +2536,29 @@ function Test-ChdmanCapabilityPolicyGates {
             'PspPpssppDvd',
             'Ps2Dvd',
             'requestedHunkSizeBytes == 2048')) {
+
             if ($content -notmatch [regex]::Escape($required)) {
                 Add-Failure "ChdMediaSpecificProfilePolicies missing required marker: $required"
             }
         }
 
-        if ($content -match 'ChdDiscHunkIntent\.Gdi[\s\S]{0,500}PspPpssppCompatibilityHunkSizeBytes' -or
-            $content -match 'ChdDiscHunkIntent\.CdDescriptor[\s\S]{0,500}PspPpssppCompatibilityHunkSizeBytes' -or
-            $content -match 'ChdDiscHunkIntent\.IsoCd[\s\S]{0,500}PspPpssppCompatibilityHunkSizeBytes') {
+        if ($content -match
+            'ChdDiscHunkIntent\.Gdi[\s\S]{0,500}PspPpssppCompatibilityHunkSizeBytes' -or
+            $content -match
+            'ChdDiscHunkIntent\.CdDescriptor[\s\S]{0,500}PspPpssppCompatibilityHunkSizeBytes' -or
+            $content -match
+            'ChdDiscHunkIntent\.IsoCd[\s\S]{0,500}PspPpssppCompatibilityHunkSizeBytes') {
             Add-Failure 'DVD hunk policy must not leak PSP/2048 DVD hunk settings into CD/GDI/BIN+CUE paths.'
         }
     }
 
-    $conversion = Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
+    $conversion =
+        Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
+
     if (Test-Path -LiteralPath $conversion -PathType Leaf) {
-        $content = Get-Content -LiteralPath $conversion -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $conversion -Raw -Encoding UTF8
+
         foreach ($required in @(
             '_operationPolicyGate',
             'ChdOperationPolicyRequest',
@@ -1924,33 +2566,43 @@ function Test-ChdmanCapabilityPolicyGates {
             'policyDecision\.IsAllowed',
             '_profilePolicy',
             'PlatformAwareChdProfileRequest')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "ChdConversionService missing centralized CHD policy gate marker: $required"
             }
         }
     }
 
-    $extractionStage = Join-Path $root 'Core\Workflow\FlowExtract.cs'
+    $extractionStage =
+        Join-Path $root 'Core\Workflow\FlowExtract.cs'
+
     if (Test-Path -LiteralPath $extractionStage -PathType Leaf) {
-        $content = Get-Content -LiteralPath $extractionStage -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $extractionStage -Raw -Encoding UTF8
+
         foreach ($required in @(
             'MetadataAwareChdExtractionPolicy',
             'RestoreTargetPolicy',
             'extractionMetadataDecisionConfirmed:\s*true',
             'extractCdCueOutputPath:\s*restoreTarget\.ExtractCdCueOutputPath',
             'verifyExtractCdCueBinContract:\s*restoreTarget\.VerifyExtractCdCueBinContract')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "CHD extraction metadata/restore policy missing workflow marker: $required"
             }
         }
     }
 
-    $metadataExtractionPolicy = Join-Path $root 'Services\Conversion\MetaExtract.cs'
+    $metadataExtractionPolicy =
+        Join-Path $root 'Services\Conversion\MetaExtract.cs'
+
     if (-not (Test-Path -LiteralPath $metadataExtractionPolicy -PathType Leaf)) {
         Add-Failure 'MetadataAwareChdExtractionPolicy is required for metadata-based CHD extraction routing.'
     }
     else {
-        $content = Get-Content -LiteralPath $metadataExtractionPolicy -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $metadataExtractionPolicy -Raw -Encoding UTF8
+
         foreach ($required in @(
             'DvdMetadataExtractDvd',
             'CdMetadataExtractCd',
@@ -1959,50 +2611,66 @@ function Test-ChdmanCapabilityPolicyGates {
             'LegacyCdMetadataToIsoRestore',
             'Wrong-profile / Legacy CHD',
             'ChdRestoreTargetMode\.LegacyCdProfileToIso')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "MetadataAwareChdExtractionPolicy missing required marker: $required"
             }
         }
     }
 
-    $restoreTargetPolicy = Join-Path $root 'Services\Conversion\RestorePolicy.cs'
+    $restoreTargetPolicy =
+        Join-Path $root 'Services\Conversion\RestorePolicy.cs'
+
     if (-not (Test-Path -LiteralPath $restoreTargetPolicy -PathType Leaf)) {
         Add-Failure 'RestoreTargetPolicy is required for Legacy CD-profile CHD restore targets.'
     }
     else {
-        $content = Get-Content -LiteralPath $restoreTargetPolicy -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $restoreTargetPolicy -Raw -Encoding UTF8
+
         foreach ($required in @(
             'LegacyCdProfileToIso',
             'ExtractCdCueOutputPath',
             'ExtractCdBinOutputPath',
             'VerifyExtractCdCueBinContract: false',
             'FinalizationKind: ChdmanExtractionKind.ExtractDvd')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "RestoreTargetPolicy missing required marker: $required"
             }
         }
     }
 
-    $cleanupStage = Join-Path $root 'Core\Workflow\FlowCleanup.cs'
+    $cleanupStage =
+        Join-Path $root 'Core\Workflow\FlowCleanup.cs'
+
     if (Test-Path -LiteralPath $cleanupStage -PathType Leaf) {
-        $content = Get-Content -LiteralPath $cleanupStage -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $cleanupStage -Raw -Encoding UTF8
+
         foreach ($required in @(
             'sourceDeletionWasVerified',
             'QueueItemTerminalOutcome\.Healthy',
             'QueueItemTerminalOutcome\.Extracted')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "Source cleanup must remain gated by verified success marker: $required"
             }
         }
     }
 
-    $cleanupPipeline = Join-Path $root 'Core\Workflow\FlowSrcClean.cs'
+    $cleanupPipeline =
+        Join-Path $root 'Core\Workflow\FlowSrcClean.cs'
+
     if (Test-Path -LiteralPath $cleanupPipeline -PathType Leaf) {
-        $content = Get-Content -LiteralPath $cleanupPipeline -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $cleanupPipeline -Raw -Encoding UTF8
+
         foreach ($required in @(
             '!request\.IsEnabled\s*\|\|\s*!request\.IsVerified',
             'IsVerifiedOutputReadyForCleanup',
             'File\.Delete')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "Source cleanup pipeline must not delete originals before verified success marker: $required"
             }
@@ -2010,14 +2678,17 @@ function Test-ChdmanCapabilityPolicyGates {
     }
 }
 
-
 function Test-SafeRecompressPipelinePolicy {
-    $pipeline = Join-Path $root 'Services\Conversion\SafeRecomp.cs'
+    $pipeline =
+        Join-Path $root 'Services\Conversion\SafeRecomp.cs'
+
     if (-not (Test-Path -LiteralPath $pipeline -PathType Leaf)) {
         Add-Failure 'SafeRecompressPipeline is required so CHD recompression uses CHD -> original-like extraction -> platform-aware rebuild.'
     }
     else {
-        $content = Get-Content -LiteralPath $pipeline -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $pipeline -Raw -Encoding UTF8
+
         foreach ($required in @(
             'ReadInfoAsync',
             'MetadataAwareChdExtractionPolicy',
@@ -2026,27 +2697,37 @@ function Test-SafeRecompressPipelinePolicy {
             'extractCdCueOutputPath:\s*restoreTarget\.ExtractCdCueOutputPath',
             'ChdmanExtractionKind\.None',
             'PlatformAwareChdProfilePolicy')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "SafeRecompressPipeline missing required safe recompress marker: $required"
             }
         }
     }
 
-    $conversion = Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
+    $conversion =
+        Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
+
     if (Test-Path -LiteralPath $conversion -PathType Leaf) {
-        $content = Get-Content -LiteralPath $conversion -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $conversion -Raw -Encoding UTF8
+
         foreach ($required in @(
             'Direct CHD to CHD recompression was blocked',
             'DirectChdRecompressBlockedMessageKey')) {
+
             if ($content -notmatch [Regex]::Escape($required)) {
                 Add-Failure "ChdConversionService must block direct CHD-to-CHD recompression marker: $required"
             }
         }
     }
 
-    $resultModel = Join-Path $root 'Models\Chd\ChdConvResult.cs'
+    $resultModel =
+        Join-Path $root 'Models\Chd\ChdConvResult.cs'
+
     if (Test-Path -LiteralPath $resultModel -PathType Leaf) {
-        $content = Get-Content -LiteralPath $resultModel -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $resultModel -Raw -Encoding UTF8
+
         foreach ($required in @(
             'RequestedProfile',
             'ResolvedCommand',
@@ -2057,15 +2738,20 @@ function Test-SafeRecompressPipelinePolicy {
             'SameAsMameDefault',
             'CompatibilityNotes',
             'ChdmanVersion')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "ChdConversionResult missing phase 5 final report field: $required"
             }
         }
     }
 
-    $reportModel = Join-Path $root 'Models\Chd\ConvPerfRep.cs'
+    $reportModel =
+        Join-Path $root 'Models\Chd\ConvPerfRep.cs'
+
     if (Test-Path -LiteralPath $reportModel -PathType Leaf) {
-        $content = Get-Content -LiteralPath $reportModel -Raw -Encoding UTF8
+        $content =
+            Get-Content -LiteralPath $reportModel -Raw -Encoding UTF8
+
         foreach ($required in @(
             'RequestedProfile',
             'ResolvedCommand',
@@ -2076,6 +2762,7 @@ function Test-SafeRecompressPipelinePolicy {
             'SameAsMameDefault',
             'CompatibilityNotes',
             'ChdmanVersion')) {
+
             if ($content -notmatch $required) {
                 Add-Failure "ConversionPerformanceReport missing phase 5 final report field: $required"
             }
@@ -2084,29 +2771,37 @@ function Test-SafeRecompressPipelinePolicy {
 }
 
 function Test-NoVisualBasicSources {
-    Get-RepositoryFiles | Where-Object {
-        $_.Extension -eq '.vb'
-    } | ForEach-Object {
-        Add-Failure "Visual Basic source is not allowed in this C# WPF project: $($_.FullName)"
-    }
+    Get-RepositoryFiles |
+        Where-Object {
+            $_.Extension -eq '.vb'
+        } |
+        ForEach-Object {
+            Add-Failure "Visual Basic source is not allowed in this C# WPF project: $($_.FullName)"
+        }
 }
 
 function Test-NoEmptyExtensionlessUiResourceFiles {
-    Get-RepositoryFiles | Where-Object {
-        ($_.Extension -eq '' -or $null -eq $_.Extension) -and
-        $_.Length -eq 0 -and
-        (Test-IsUnderUiResourceFolder $_.FullName)
-    } | ForEach-Object {
-        Add-Failure "Empty extensionless stray file under UI/resource folder: $($_.FullName)"
-    }
+    Get-RepositoryFiles |
+        Where-Object {
+            ($_.Extension -eq '' -or
+                $null -eq $_.Extension) -and
+            $_.Length -eq 0 -and
+            (Test-IsUnderUiResourceFolder $_.FullName)
+        } |
+        ForEach-Object {
+            Add-Failure "Empty extensionless stray file under UI/resource folder: $($_.FullName)"
+        }
 }
 
 function Test-NoSedScratchUnderUiResources {
-    Get-RepositoryFiles | Where-Object {
-        $_.Name -like 'sed*' -and (Test-IsUnderUiResourceFolder $_.FullName)
-    } | ForEach-Object {
-        Add-Failure "sed* scratch file under UI/resource folder: $($_.FullName)"
-    }
+    Get-RepositoryFiles |
+        Where-Object {
+            $_.Name -like 'sed*' -and
+            (Test-IsUnderUiResourceFolder $_.FullName)
+        } |
+        ForEach-Object {
+            Add-Failure "sed* scratch file under UI/resource folder: $($_.FullName)"
+        }
 }
 
 function Test-SecurityHardeningRegressionGates {
@@ -2118,28 +2813,52 @@ function Test-SecurityHardeningRegressionGates {
         'scripts\PackSource.ps1',
         'Core\Input\MediaInputProbeStatus.cs',
         'Services\ArchiveResourcePolicy.cs')) {
-        if (-not (Test-Path -LiteralPath (Join-Path $root $requiredFile) -PathType Leaf)) {
+
+        if (-not (Test-Path -LiteralPath (
+            Join-Path $root $requiredFile) -PathType Leaf)) {
+
             Add-Failure "Security hardening artifact is required: $requiredFile"
         }
     }
 
-    $project = Get-Content -LiteralPath (Join-Path $root 'HakamiqChdTool.App.csproj') -Raw -Encoding UTF8
-    if ($project -notmatch '<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>') {
+    $project =
+        Get-Content -LiteralPath (
+            Join-Path $root 'HakamiqChdTool.App.csproj') `
+            -Raw `
+            -Encoding UTF8
+
+    if ($project -notmatch
+        '<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>') {
         Add-Failure 'The application project must generate and consume a NuGet lock file.'
     }
 
-    $ci = Get-Content -LiteralPath (Join-Path $root '.github\workflows\ci.yml') -Raw -Encoding UTF8
-    foreach ($required in @('--locked-mode', 'GenerateSbom\.ps1', 'docs\\sbom\.cdx\.json')) {
+    $ci =
+        Get-Content -LiteralPath (
+            Join-Path $root '.github\workflows\ci.yml') `
+            -Raw `
+            -Encoding UTF8
+
+    foreach ($required in @(
+        '--locked-mode',
+        'GenerateSbom\.ps1',
+        'docs\\sbom\.cdx\.json')) {
+
         if ($ci -notmatch $required) {
             Add-Failure "CI security/supply-chain gate is missing: $required"
         }
     }
 
-    $sbomPath = Join-Path $root 'docs\sbom.cdx.json'
+    $sbomPath =
+        Join-Path $root 'docs\sbom.cdx.json'
+
     if (Test-Path -LiteralPath $sbomPath -PathType Leaf) {
         try {
-            $sbom = Get-Content -LiteralPath $sbomPath -Raw -Encoding UTF8 | ConvertFrom-Json
-            if ($sbom.bomFormat -ne 'CycloneDX' -or $sbom.specVersion -ne '1.7') {
+            $sbom =
+                Get-Content -LiteralPath $sbomPath -Raw -Encoding UTF8 |
+                    ConvertFrom-Json
+
+            if ($sbom.bomFormat -ne 'CycloneDX' -or
+                $sbom.specVersion -ne '1.7') {
                 Add-Failure 'SBOM must use the current CycloneDX 1.7 format.'
             }
         }
@@ -2148,7 +2867,12 @@ function Test-SecurityHardeningRegressionGates {
         }
     }
 
-    $mediaClassifier = Get-Content -LiteralPath (Join-Path $root 'Core\Input\MediaClass.cs') -Raw -Encoding UTF8
+    $mediaClassifier =
+        Get-Content -LiteralPath (
+            Join-Path $root 'Core\Input\MediaClass.cs') `
+            -Raw `
+            -Encoding UTF8
+
     foreach ($required in @(
         'ChdMaxHeaderSize\s*=\s*124',
         'BinaryPrimitives\.ReadUInt32BigEndian',
@@ -2156,44 +2880,88 @@ function Test-SecurityHardeningRegressionGates {
         'InvalidHeaderLength',
         'HeaderEnvelopeValid',
         'while\s*\(totalRead\s*<\s*buffer\.Length\)')) {
+
         if ($mediaClassifier -notmatch $required) {
             Add-Failure "Typed CHD evidence gate is missing: $required"
         }
     }
 
-    $mediaPipeline = Get-Content -LiteralPath (Join-Path $root 'Core\Input\MediaPipe.cs') -Raw -Encoding UTF8
-    if ($mediaPipeline -notmatch 'ProbeStatus\s*!=\s*MediaInputProbeStatus\.HeaderEnvelopeValid') {
+    $mediaPipeline =
+        Get-Content -LiteralPath (
+            Join-Path $root 'Core\Input\MediaPipe.cs') `
+            -Raw `
+            -Encoding UTF8
+
+    if ($mediaPipeline -notmatch
+        'ProbeStatus\s*!=\s*MediaInputProbeStatus\.HeaderEnvelopeValid') {
         Add-Failure 'The intake pipeline must fail closed when CHD header evidence is not valid.'
     }
 
-    $sevenZipRunner = Get-Content -LiteralPath (Join-Path $root 'Services\SevenZipRun.cs') -Raw -Encoding UTF8
-    foreach ($required in @('FullCaptureMaxChars', 'OutputLimitExceeded', 'output capture limit exceeded', 'ResourceLimitExitCode')) {
+    $sevenZipRunner =
+        Get-Content -LiteralPath (
+            Join-Path $root 'Services\SevenZipRun.cs') `
+            -Raw `
+            -Encoding UTF8
+
+    foreach ($required in @(
+        'FullCaptureMaxChars',
+        'OutputLimitExceeded',
+        'output capture limit exceeded',
+        'ResourceLimitExitCode')) {
+
         if ($sevenZipRunner -notmatch [Regex]::Escape($required)) {
             Add-Failure "7-Zip output resource gate is missing: $required"
         }
     }
 
-    $archivePolicy = Get-Content -LiteralPath (Join-Path $root 'Services\ArchiveResourcePolicy.cs') -Raw -Encoding UTF8
-    foreach ($required in @('MaxArchiveEntries', 'MaxExpandedBytes', 'MinimumFreeSpaceReserveBytes', 'ArchiveExtractionBudget')) {
+    $archivePolicy =
+        Get-Content -LiteralPath (
+            Join-Path $root 'Services\ArchiveResourcePolicy.cs') `
+            -Raw `
+            -Encoding UTF8
+
+    foreach ($required in @(
+        'MaxArchiveEntries',
+        'MaxExpandedBytes',
+        'MinimumFreeSpaceReserveBytes',
+        'ArchiveExtractionBudget')) {
+
         if ($archivePolicy -notmatch $required) {
             Add-Failure "Archive resource policy marker is missing: $required"
         }
     }
 
-    $zipExtraction = Get-Content -LiteralPath (Join-Path $root 'Services\ZipExtract.cs') -Raw -Encoding UTF8
-    if ($zipExtraction -notmatch 'resource monitor could not sample[\s\S]{0,240}return false;') {
+    $zipExtraction =
+        Get-Content -LiteralPath (
+            Join-Path $root 'Services\ZipExtract.cs') `
+            -Raw `
+            -Encoding UTF8
+
+    if ($zipExtraction -notmatch
+        'resource monitor could not sample[\s\S]{0,240}return false;') {
         Add-Failure '7-Zip extraction-root measurement errors must fail closed.'
     }
 
-    $archiveService = Get-Content -LiteralPath (Join-Path $root 'Services\ArchiveSvc.cs') -Raw -Encoding UTF8
+    $archiveService =
+        Get-Content -LiteralPath (
+            Join-Path $root 'Services\ArchiveSvc.cs') `
+            -Raw `
+            -Encoding UTF8
+
     if ($archiveService -match 'return\s+ExtractAsync\(') {
         Add-Failure 'SharpCompress extraction fallback must remain disabled until it has equivalent reparse-point protection.'
     }
+
     if ($archiveService -notmatch 'CreateSevenZipUnavailableResult') {
         Add-Failure 'Archive extraction must fail closed when the pinned 7-Zip runtime is unavailable.'
     }
 
-    $redumpSync = Get-Content -LiteralPath (Join-Path $root 'Services\RedumpSync.cs') -Raw -Encoding UTF8
+    $redumpSync =
+        Get-Content -LiteralPath (
+            Join-Path $root 'Services\RedumpSync.cs') `
+            -Raw `
+            -Encoding UTF8
+
     foreach ($required in @(
         'MaxRedumpDownloadBytes',
         'CleanRebuildFromDatFilesAsync',
@@ -2202,15 +2970,23 @@ function Test-SecurityHardeningRegressionGates {
         'MaxRedirectHops\s*=\s*5',
         'SendWithValidatedRedirectsAsync',
         'visited\.Contains')) {
+
         if ($redumpSync -notmatch $required) {
             Add-Failure "Redump bounded/atomic activation gate is missing: $required"
         }
     }
-    if ($redumpSync -match 'response\.RequestMessage\?\.RequestUri') {
+
+    if ($redumpSync -match
+        'response\.RequestMessage\?\.RequestUri') {
         Add-Failure 'Redump redirect validation must happen before each request, not after automatic redirects.'
     }
 
-    $securityTests = Get-Content -LiteralPath (Join-Path $root 'HakamiqChdTool.App.Tests\Program.cs') -Raw -Encoding UTF8
+    $securityTests =
+        Get-Content -LiteralPath (
+            Join-Path $root 'HakamiqChdTool.App.Tests\Program.cs') `
+            -Raw `
+            -Encoding UTF8
+
     foreach ($required in @(
         'TestArchiveResourceMonitorFailsClosed',
         'TestSevenZipOutputFloodTerminatesProcess',
@@ -2218,20 +2994,39 @@ function Test-SecurityHardeningRegressionGates {
         'TestRedumpRollback',
         'TestShutdownTimeout',
         'TestBundledCsoKitRoundTrip')) {
+
         if ($securityTests -notmatch $required) {
             Add-Failure "Runtime security regression test is missing: $required"
         }
     }
 
-    $runtimeTools = Get-Content -LiteralPath (Join-Path $root 'Services\RunToolSvc.cs') -Raw -Encoding UTF8
-    foreach ($required in @('IsX8664V2Supported', 'X86Base\.CpuId', 'chdman 0\.289')) {
+    $runtimeTools =
+        Get-Content -LiteralPath (
+            Join-Path $root 'Services\RunToolSvc.cs') `
+            -Raw `
+            -Encoding UTF8
+
+    foreach ($required in @(
+        'IsX8664V2Supported',
+        'X86Base\.CpuId',
+        'chdman 0\.289')) {
+
         if ($runtimeTools -notmatch $required) {
             Add-Failure "MAME 0.289 runtime compatibility gate is missing: $required"
         }
     }
 
-    $shutdown = Get-Content -LiteralPath (Join-Path $root 'Views\MainWindow\MW.Life.cs') -Raw -Encoding UTF8
-    foreach ($required in @('ShutdownStepResult', 'queueQuiesced', 'ObserveLateShutdownTask')) {
+    $shutdown =
+        Get-Content -LiteralPath (
+            Join-Path $root 'Views\MainWindow\MW.Life.cs') `
+            -Raw `
+            -Encoding UTF8
+
+    foreach ($required in @(
+        'ShutdownStepResult',
+        'queueQuiesced',
+        'ObserveLateShutdownTask')) {
+
         if ($shutdown -notmatch $required) {
             Add-Failure "Deterministic shutdown result gate is missing: $required"
         }
@@ -2289,9 +3084,12 @@ Test-SecurityHardeningRegressionGates
 
 if ($failures.Count -gt 0) {
     Write-Host 'Repository convention verification failed:' -ForegroundColor Red
-    $failures | Sort-Object -Unique | ForEach-Object {
-        Write-Host " - $_" -ForegroundColor Red
-    }
+
+    $failures |
+        Sort-Object -Unique |
+        ForEach-Object {
+            Write-Host " - $_" -ForegroundColor Red
+        }
 
     exit 1
 }
