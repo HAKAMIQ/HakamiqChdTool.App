@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -34,33 +33,23 @@ internal static class BinSectorProbe
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         string fullPath;
+
         try
         {
             fullPath = NormalizeFullPath(path);
         }
         catch (Exception ex) when (IsPathFailure(ex))
         {
-            return CreateResult(
-                path,
-                0,
-                null,
-                BinTrackKind.Unknown,
-                null,
-                0,
-                BinSectorProbeReasonCode.FileDoesNotExist);
+            return new BinSectorProbeResult(
+                BinTrackKind.Unknown);
         }
 
         FileInfo file = new(fullPath);
-        if (!TryGetSafeFileLength(file, out long length, out BinSectorProbeReasonCode refusalReason))
+
+        if (!TryGetSafeFileLength(file, out long length))
         {
-            return CreateResult(
-                fullPath,
-                length,
-                null,
-                BinTrackKind.Unknown,
-                null,
-                0,
-                refusalReason);
+            return new BinSectorProbeResult(
+                BinTrackKind.Unknown);
         }
 
         try
@@ -73,19 +62,30 @@ internal static class BinSectorProbe
                 bufferSize: RawSectorSize,
                 FileOptions.SequentialScan);
 
-            bool canBeRaw2352 = length % RawSectorSize == 0;
-            bool canBeCooked2048 = length % CookedSectorSize == 0;
+            bool canBeRaw2352 =
+                length % RawSectorSize == 0;
+
+            bool canBeCooked2048 =
+                length % CookedSectorSize == 0;
 
             if (canBeRaw2352)
             {
-                BinSectorProbeResult rawResult = ProbeRaw2352(fullPath, length, stream);
+                BinSectorProbeResult rawResult =
+                    ProbeRaw2352(
+                        length,
+                        stream);
 
                 if (canBeCooked2048
-                    && rawResult.Kind is BinTrackKind.Raw2352AudioCandidate or BinTrackKind.Unknown)
+                    && rawResult.Kind is
+                        BinTrackKind.Raw2352AudioCandidate
+                        or BinTrackKind.Unknown)
                 {
-                    BinSectorProbeResult cookedResult = ProbeCooked2048(fullPath, length, stream);
-                    if (cookedResult.ConfidenceReasons.Contains(
-                            BinSectorProbeReasonCode.Iso9660PrimaryVolumeDescriptorObserved))
+                    BinSectorProbeResult cookedResult =
+                        ProbeCooked2048(
+                            length,
+                            stream);
+
+                    if (cookedResult.HasConfirmedIso9660Pvd)
                     {
                         return cookedResult;
                     }
@@ -96,38 +96,27 @@ internal static class BinSectorProbe
 
             if (canBeCooked2048)
             {
-                return ProbeCooked2048(fullPath, length, stream);
+                return ProbeCooked2048(
+                    length,
+                    stream);
             }
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
-            return CreateResult(
-                fullPath,
-                length,
-                null,
-                BinTrackKind.Unknown,
-                null,
-                0,
-                BinSectorProbeReasonCode.InsufficientRaw2352Evidence);
+            return new BinSectorProbeResult(
+                BinTrackKind.Unknown);
         }
 
-        return CreateResult(
-            fullPath,
-            length,
-            null,
-            BinTrackKind.NonStandard,
-            null,
-            0,
-            BinSectorProbeReasonCode.LengthNotDivisibleBySupportedSectorSize);
+        return new BinSectorProbeResult(
+            BinTrackKind.NonStandard);
     }
 
     private static bool TryGetSafeFileLength(
         FileInfo file,
-        out long length,
-        out BinSectorProbeReasonCode refusalReason)
+        out long length)
     {
         length = 0;
-        refusalReason = BinSectorProbeReasonCode.FileDoesNotExist;
 
         try
         {
@@ -136,43 +125,46 @@ internal static class BinSectorProbe
                 return false;
             }
 
-            if (HasReparsePointInExistingPathFromVolumeRoot(file.FullName))
+            if (HasReparsePointInExistingPathFromVolumeRoot(
+                    file.FullName))
             {
-                refusalReason = BinSectorProbeReasonCode.InsufficientRaw2352Evidence;
                 return false;
             }
 
             length = file.Length;
-            if (length <= 0)
-            {
-                refusalReason = BinSectorProbeReasonCode.FileIsEmpty;
-                return false;
-            }
 
-            return true;
+            return length > 0;
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             length = 0;
-            refusalReason = BinSectorProbeReasonCode.InsufficientRaw2352Evidence;
             return false;
         }
     }
 
-    private static BinSectorProbeResult ProbeRaw2352(string path, long length, FileStream stream)
+    private static BinSectorProbeResult ProbeRaw2352(
+        long length,
+        FileStream stream)
     {
-        List<BinSectorProbeReasonCode> reasons = [];
-        long[] offsets = BuildSampleOffsets(length, RawSectorSize);
+        long[] offsets =
+            BuildSampleOffsets(
+                length,
+                RawSectorSize);
 
         int mode1Count = 0;
         int mode2Count = 0;
         int zeroModeCount = 0;
         int syncCount = 0;
-        byte? firstModeByte = null;
 
         foreach (long offset in offsets)
         {
-            byte[] sector = ReadSector(stream, offset, RawSectorSize);
+            byte[] sector =
+                ReadBytes(
+                    stream,
+                    offset,
+                    RawSectorSize);
+
             if (sector.Length < ModeByteOffset + 1)
             {
                 continue;
@@ -184,97 +176,121 @@ internal static class BinSectorProbe
             }
 
             syncCount++;
-            byte modeByte = sector[ModeByteOffset];
-            firstModeByte ??= modeByte;
 
-            if (modeByte == 0x01)
+            switch (sector[ModeByteOffset])
             {
-                mode1Count++;
-            }
-            else if (modeByte == 0x02)
-            {
-                mode2Count++;
-            }
-            else if (modeByte == 0x00)
-            {
-                zeroModeCount++;
-            }
-            else
-            {
-                reasons.Add(BinSectorProbeReasonCode.UnexpectedRawModeByteObserved);
+                case 0x01:
+                    mode1Count++;
+                    break;
+
+                case 0x02:
+                    mode2Count++;
+                    break;
+
+                case 0x00:
+                    zeroModeCount++;
+                    break;
             }
         }
 
         if (mode1Count > 0 && mode2Count > 0)
         {
-            reasons.Add(BinSectorProbeReasonCode.MixedRawDataModeBytesObserved);
-            return CreateResult(path, length, RawSectorSize, BinTrackKind.NonStandard, firstModeByte, syncCount, reasons);
+            return new BinSectorProbeResult(
+                BinTrackKind.NonStandard);
         }
 
         if (mode1Count > 0)
         {
-            reasons.Add(BinSectorProbeReasonCode.Raw2352Mode1Observed);
-            return CreateResult(path, length, RawSectorSize, BinTrackKind.Raw2352Mode1, 0x01, syncCount, reasons);
+            return new BinSectorProbeResult(
+                BinTrackKind.Raw2352Mode1);
         }
 
         if (mode2Count > 0)
         {
-            reasons.Add(BinSectorProbeReasonCode.Raw2352Mode2Observed);
-            return CreateResult(path, length, RawSectorSize, BinTrackKind.Raw2352Mode2, 0x02, syncCount, reasons);
+            return new BinSectorProbeResult(
+                BinTrackKind.Raw2352Mode2);
         }
 
         if (zeroModeCount > 0)
         {
-            reasons.Add(BinSectorProbeReasonCode.OnlyZeroModeRawSyncObserved);
-            return CreateResult(path, length, RawSectorSize, BinTrackKind.Unknown, 0x00, syncCount, reasons);
+            return new BinSectorProbeResult(
+                BinTrackKind.Unknown);
         }
 
-        if (LooksLikeAudioCandidate(length, offsets.Length, syncCount))
+        if (LooksLikeAudioCandidate(
+                length,
+                offsets.Length,
+                syncCount))
         {
-            reasons.Add(BinSectorProbeReasonCode.Raw2352AudioCandidate);
-            return CreateResult(path, length, RawSectorSize, BinTrackKind.Raw2352AudioCandidate, null, syncCount, reasons);
+            return new BinSectorProbeResult(
+                BinTrackKind.Raw2352AudioCandidate);
         }
 
-        reasons.Add(BinSectorProbeReasonCode.InsufficientRaw2352Evidence);
-        return CreateResult(path, length, RawSectorSize, BinTrackKind.Unknown, null, syncCount, reasons);
+        return new BinSectorProbeResult(
+            BinTrackKind.Unknown);
     }
 
-    private static BinSectorProbeResult ProbeCooked2048(string path, long length, FileStream stream)
+    private static BinSectorProbeResult ProbeCooked2048(
+        long length,
+        FileStream stream)
     {
-        List<BinSectorProbeReasonCode> reasons = [];
+        long pvdOffset =
+            (long)IsoPrimaryVolumeDescriptorSector
+            * CookedSectorSize;
 
-        long pvdOffset = (long)IsoPrimaryVolumeDescriptorSector * CookedSectorSize;
         if (pvdOffset + 6 <= length)
         {
-            byte[] pvd = ReadBytes(stream, pvdOffset, 6);
-            if (pvd.Length >= 6 && pvd[0] == 0x01 && IsCd001(pvd, 1))
+            byte[] pvd =
+                ReadBytes(
+                    stream,
+                    pvdOffset,
+                    6);
+
+            if (pvd.Length >= 6
+                && pvd[0] == 0x01
+                && IsCd001(pvd, 1))
             {
-                reasons.Add(BinSectorProbeReasonCode.Iso9660PrimaryVolumeDescriptorObserved);
-                return CreateResult(path, length, CookedSectorSize, BinTrackKind.Cooked2048Data, null, 0, reasons);
+                return new BinSectorProbeResult(
+                    BinTrackKind.Cooked2048Data,
+                    HasConfirmedIso9660Pvd: true);
             }
         }
 
-        reasons.Add(BinSectorProbeReasonCode.Cooked2048WithoutConfirmedIso9660Pvd);
-        return CreateResult(path, length, CookedSectorSize, BinTrackKind.Cooked2048Data, null, 0, reasons);
+        return new BinSectorProbeResult(
+            BinTrackKind.Cooked2048Data);
     }
 
-    private static bool LooksLikeAudioCandidate(long length, int sampleCount, int syncCount)
+    private static bool LooksLikeAudioCandidate(
+        long length,
+        int sampleCount,
+        int syncCount)
     {
         return length >= RawSectorSize
-               && sampleCount >= MinimumUsefulSampleCount
-               && syncCount == 0;
+            && sampleCount >= MinimumUsefulSampleCount
+            && syncCount == 0;
     }
 
-    private static long[] BuildSampleOffsets(long length, int sectorSize)
+    private static long[] BuildSampleOffsets(
+        long length,
+        int sectorSize)
     {
-        long sectorCount = length / sectorSize;
+        long sectorCount =
+            length / sectorSize;
+
         if (sectorCount <= 0)
         {
             return [];
         }
 
-        long middleSector = Math.Max(0, sectorCount / 2);
-        long lastSector = Math.Max(0, sectorCount - 1);
+        long middleSector =
+            Math.Max(
+                0,
+                sectorCount / 2);
+
+        long lastSector =
+            Math.Max(
+                0,
+                sectorCount - 1);
 
         long[] requestedSectors =
         [
@@ -289,34 +305,51 @@ internal static class BinSectorProbe
         return
         [
             .. requestedSectors
-                .Where(sector => sector >= 0 && sector < sectorCount)
+                .Where(
+                    sector =>
+                        sector >= 0
+                        && sector < sectorCount)
                 .Distinct()
-                .Select(sector => sector * sectorSize)
+                .Select(
+                    sector =>
+                        sector * sectorSize)
                 .Order()
         ];
     }
 
-    private static byte[] ReadSector(FileStream stream, long offset, int sectorSize)
+    private static byte[] ReadBytes(
+        FileStream stream,
+        long offset,
+        int count)
     {
-        return ReadBytes(stream, offset, sectorSize);
-    }
-
-    private static byte[] ReadBytes(FileStream stream, long offset, int count)
-    {
-        if (offset < 0 || offset >= stream.Length || count <= 0)
+        if (offset < 0
+            || offset >= stream.Length
+            || count <= 0)
         {
             return [];
         }
 
-        int safeCount = (int)Math.Min(count, stream.Length - offset);
-        byte[] buffer = new byte[safeCount];
+        int safeCount =
+            (int)Math.Min(
+                count,
+                stream.Length - offset);
 
-        stream.Seek(offset, SeekOrigin.Begin);
+        byte[] buffer =
+            new byte[safeCount];
+
+        stream.Seek(
+            offset,
+            SeekOrigin.Begin);
+
         int totalRead = 0;
 
         while (totalRead < buffer.Length)
         {
-            int read = stream.Read(buffer, totalRead, buffer.Length - totalRead);
+            int read = stream.Read(
+                buffer,
+                totalRead,
+                buffer.Length - totalRead);
+
             if (read == 0)
             {
                 break;
@@ -330,18 +363,24 @@ internal static class BinSectorProbe
             return buffer;
         }
 
-        Array.Resize(ref buffer, totalRead);
+        Array.Resize(
+            ref buffer,
+            totalRead);
+
         return buffer;
     }
 
-    private static bool HasSyncPattern(byte[] sector)
+    private static bool HasSyncPattern(
+        byte[] sector)
     {
         if (sector.Length < SyncPattern.Length)
         {
             return false;
         }
 
-        for (int i = 0; i < SyncPattern.Length; i++)
+        for (int i = 0;
+             i < SyncPattern.Length;
+             i++)
         {
             if (sector[i] != SyncPattern[i])
             {
@@ -352,44 +391,61 @@ internal static class BinSectorProbe
         return true;
     }
 
-    private static bool IsCd001(byte[] buffer, int offset)
+    private static bool IsCd001(
+        byte[] buffer,
+        int offset)
     {
         return buffer.Length >= offset + 5
-               && buffer[offset] == (byte)'C'
-               && buffer[offset + 1] == (byte)'D'
-               && buffer[offset + 2] == (byte)'0'
-               && buffer[offset + 3] == (byte)'0'
-               && buffer[offset + 4] == (byte)'1';
+            && buffer[offset] == (byte)'C'
+            && buffer[offset + 1] == (byte)'D'
+            && buffer[offset + 2] == (byte)'0'
+            && buffer[offset + 3] == (byte)'0'
+            && buffer[offset + 4] == (byte)'1';
     }
 
-    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    private static bool
+        HasReparsePointInExistingPathFromVolumeRoot(
+            string candidatePath)
     {
         try
         {
-            string candidate = NormalizeFullPath(candidatePath);
-            string? root = Path.GetPathRoot(candidate);
+            string candidate =
+                NormalizeFullPath(candidatePath);
+
+            string? root =
+                Path.GetPathRoot(candidate);
 
             if (string.IsNullOrWhiteSpace(root))
             {
                 return true;
             }
 
-            return HasReparsePointInExistingPath(candidate, root);
+            return HasReparsePointInExistingPath(
+                candidate,
+                root);
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             return true;
         }
     }
 
-    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    private static bool HasReparsePointInExistingPath(
+        string candidatePath,
+        string rootPath)
     {
         try
         {
-            string candidate = NormalizeFullPath(candidatePath);
-            string root = NormalizeFullPath(rootPath);
+            string candidate =
+                NormalizeFullPath(candidatePath);
 
-            if (!IsSamePathOrChild(candidate, root))
+            string root =
+                NormalizeFullPath(rootPath);
+
+            if (!IsSamePathOrChild(
+                    candidate,
+                    root))
             {
                 return true;
             }
@@ -398,58 +454,86 @@ internal static class BinSectorProbe
 
             while (true)
             {
-                if ((File.Exists(current) || Directory.Exists(current)) && IsExistingPathReparsePoint(current))
+                if ((File.Exists(current)
+                        || Directory.Exists(current))
+                    && IsExistingPathReparsePoint(current))
                 {
                     return true;
                 }
 
-                if (PathsEqual(current, root))
+                if (PathsEqual(
+                        current,
+                        root))
                 {
                     return false;
                 }
 
-                string? parent = Directory.GetParent(current)?.FullName;
-                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                string? parent =
+                    Directory.GetParent(current)?.FullName;
+
+                if (string.IsNullOrWhiteSpace(parent)
+                    || PathsEqual(
+                        parent,
+                        current))
                 {
                     return true;
                 }
 
-                current = NormalizeFullPath(parent);
+                current =
+                    NormalizeFullPath(parent);
             }
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             return true;
         }
     }
 
-    private static bool IsExistingPathReparsePoint(string path)
+    private static bool IsExistingPathReparsePoint(
+        string path)
     {
         try
         {
-            if (!File.Exists(path) && !Directory.Exists(path))
+            if (!File.Exists(path)
+                && !Directory.Exists(path))
             {
                 return false;
             }
 
-            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+            return (File.GetAttributes(path)
+                    & FileAttributes.ReparsePoint)
+                == FileAttributes.ReparsePoint;
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             return true;
         }
     }
 
-    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    private static bool IsSamePathOrChild(
+        string candidatePath,
+        string rootPath)
     {
-        string candidate = NormalizeFullPath(candidatePath);
-        string root = NormalizeFullPath(rootPath);
+        string candidate =
+            NormalizeFullPath(candidatePath);
 
-        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
-               || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+        string root =
+            NormalizeFullPath(rootPath);
+
+        return string.Equals(
+                candidate,
+                root,
+                StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(
+                EnsureDirectorySeparatorSuffix(root),
+                StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool PathsEqual(string left, string right)
+    private static bool PathsEqual(
+        string left,
+        string right)
     {
         return string.Equals(
             NormalizeFullPath(left),
@@ -457,13 +541,19 @@ internal static class BinSectorProbe
             StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string NormalizeFullPath(string path)
+    private static string NormalizeFullPath(
+        string path)
     {
-        string fullPath = Path.GetFullPath(path);
-        string? root = Path.GetPathRoot(fullPath);
+        string fullPath =
+            Path.GetFullPath(path);
+
+        string? root =
+            Path.GetPathRoot(fullPath);
 
         if (!string.IsNullOrWhiteSpace(root)
-            && fullPath.Equals(root, StringComparison.OrdinalIgnoreCase))
+            && fullPath.Equals(
+                root,
+                StringComparison.OrdinalIgnoreCase))
         {
             return fullPath;
         }
@@ -473,15 +563,19 @@ internal static class BinSectorProbe
             Path.AltDirectorySeparatorChar);
     }
 
-    private static string EnsureDirectorySeparatorSuffix(string path)
+    private static string EnsureDirectorySeparatorSuffix(
+        string path)
     {
-        return path.EndsWith(Path.DirectorySeparatorChar)
-               || path.EndsWith(Path.AltDirectorySeparatorChar)
+        return path.EndsWith(
+                Path.DirectorySeparatorChar)
+            || path.EndsWith(
+                Path.AltDirectorySeparatorChar)
             ? path
             : path + Path.DirectorySeparatorChar;
     }
 
-    private static bool IsPathFailure(Exception ex)
+    private static bool IsPathFailure(
+        Exception ex)
     {
         return ex is ArgumentException
             or NotSupportedException
@@ -489,47 +583,10 @@ internal static class BinSectorProbe
             or System.Security.SecurityException;
     }
 
-    private static bool IsIoFailure(Exception ex)
+    private static bool IsIoFailure(
+        Exception ex)
     {
         return ex is IOException
             or UnauthorizedAccessException;
-    }
-
-    private static BinSectorProbeResult CreateResult(
-        string path,
-        long length,
-        int? sectorSize,
-        BinTrackKind kind,
-        byte? modeByte,
-        int syncObservedAt,
-        params BinSectorProbeReasonCode[] reasons)
-    {
-        return new BinSectorProbeResult(
-            path,
-            length,
-            sectorSize,
-            kind,
-            modeByte,
-            syncObservedAt,
-            reasons.Length == 0 ? [] : [.. reasons]);
-    }
-
-    private static BinSectorProbeResult CreateResult(
-        string path,
-        long length,
-        int? sectorSize,
-        BinTrackKind kind,
-        byte? modeByte,
-        int syncObservedAt,
-        List<BinSectorProbeReasonCode> reasons)
-    {
-        return new BinSectorProbeResult(
-            path,
-            length,
-            sectorSize,
-            kind,
-            modeByte,
-            syncObservedAt,
-            reasons.Count == 0 ? [] : [.. reasons]);
     }
 }

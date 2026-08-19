@@ -472,6 +472,8 @@ public partial class MainWindowViewModel
                     Array.Empty<PreparedQueueCandidate>(),
                     acceptedArchives,
                     rejectedArchiveMessageKeys,
+                    skippedCorruptArchives,
+                    skippedUnsupportedInputs,
                     WasCancelled: true);
             }
 
@@ -481,74 +483,58 @@ public partial class MainWindowViewModel
                 continue;
             }
 
-            MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(normalizedPath);
+            MediaInputDecision mediaDecision =
+                global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(
+                    normalizedPath);
+
             if (mediaDecision.IsBlocked)
             {
                 skippedUnsupportedInputs = true;
                 continue;
             }
 
-            if (!TryNormalizeExistingFilePathForIntake(mediaDecision.EffectivePath, out string effectivePath))
+            if (!TryNormalizeExistingFilePathForIntake(
+                    mediaDecision.EffectivePath,
+                    out string effectivePath))
             {
                 skippedUnsupportedInputs = true;
                 continue;
             }
 
-            QueueInputClassification classification = QueueInputClassifier.Classify(effectivePath);
+            QueueInputClassification classification =
+                QueueInputClassifier.Classify(effectivePath);
 
-            if (ArchivePreviewIntakePolicy.ShouldPreviewArchive(classification, intakeSource))
-            {
-                ArchiveContentPreviewResult preview = ArchivePreviewService.PreviewForIntake(
-                    effectivePath,
-                    intakeSource,
-                    cancellationToken,
-                    archivePreviewCache,
-                    sevenZipListingCache);
-
-                if (preview.WasCancelled)
-                {
-                    return new PreparedQueueBatchResult(
-                        Array.Empty<PreparedQueueCandidate>(),
-                        acceptedArchives,
-                        rejectedArchiveMessageKeys,
-                        WasCancelled: true);
-                }
-
-                if (!preview.CanUnpackThenConvert)
-                {
-                    string messageKey = string.IsNullOrWhiteSpace(preview.MessageResourceKey)
-                        ? "LocArchive_NoConvertibleDiscImage"
-                        : preview.MessageResourceKey;
-
-                    rejectedArchiveMessageKeys.Add(messageKey);
-                    skippedCorruptArchives |= IsCorruptOrUnreadableArchiveMessageKey(messageKey);
-
-                    continue;
-                }
-
-                acceptedArchives++;
-            }
-
-            string action = ResolveRequestedAction(effectivePath, executionProfile);
-
-            if (ArchivePreviewIntakePolicy.BlocksQueuedArchiveProcessing(effectivePath, intakeSource))
-            {
-                action = TaskActionCodes.StageArchiveForConversion;
-            }
-
-            if (string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal))
-            {
-                skippedUnsupportedInputs = true;
-                continue;
-            }
-
-            QueuePlatformView platform = BuildQueuePlatformView(effectivePath);
-
-            candidates.Add(new PreparedQueueCandidate(
+            PreparedQueueBatchResult prepared = PrepareClassifiedQueueInput(
                 effectivePath,
-                action,
-                platform.PlatformName,
-                platform.Reason));
+                classification,
+                executionProfile,
+                intakeSource,
+                cancellationToken,
+                archivePreviewCache,
+                sevenZipListingCache);
+
+            if (prepared.WasCancelled)
+            {
+                var cancelledRejectedArchiveMessageKeys =
+                    new List<string>(rejectedArchiveMessageKeys.Count + prepared.RejectedArchiveMessageKeys.Count);
+
+                cancelledRejectedArchiveMessageKeys.AddRange(rejectedArchiveMessageKeys);
+                cancelledRejectedArchiveMessageKeys.AddRange(prepared.RejectedArchiveMessageKeys);
+
+                return new PreparedQueueBatchResult(
+                    Array.Empty<PreparedQueueCandidate>(),
+                    acceptedArchives + prepared.AcceptedArchives,
+                    cancelledRejectedArchiveMessageKeys,
+                    skippedCorruptArchives || prepared.SkippedCorruptArchives,
+                    skippedUnsupportedInputs || prepared.SkippedUnsupportedInputs,
+                    WasCancelled: true);
+            }
+
+            candidates.AddRange(prepared.Candidates);
+            acceptedArchives += prepared.AcceptedArchives;
+            rejectedArchiveMessageKeys.AddRange(prepared.RejectedArchiveMessageKeys);
+            skippedCorruptArchives |= prepared.SkippedCorruptArchives;
+            skippedUnsupportedInputs |= prepared.SkippedUnsupportedInputs;
         }
 
         return new PreparedQueueBatchResult(
@@ -559,6 +545,163 @@ public partial class MainWindowViewModel
             skippedUnsupportedInputs);
     }
 
+    private static PreparedQueueBatchResult PrepareQueueBatch(
+        MediaInputPipelineDecision decision,
+        QueueExecutionProfile executionProfile,
+        QueueIntakeSource intakeSource,
+        CancellationToken cancellationToken,
+        IDictionary<ArchiveInspectionCacheKey, ArchiveContentPreviewResult>? archivePreviewCache = null,
+        IDictionary<ArchiveInspectionCacheKey, SevenZipProcessResult>? sevenZipListingCache = null)
+    {
+        ArgumentNullException.ThrowIfNull(decision);
+
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return new PreparedQueueBatchResult(
+                Array.Empty<PreparedQueueCandidate>(),
+                AcceptedArchives: 0,
+                Array.Empty<string>(),
+                WasCancelled: true);
+        }
+
+        MediaInputDescriptor descriptor = decision.Descriptor;
+        string? candidatePath = decision.EffectivePath ?? descriptor.FullPath;
+
+        if (decision.IsBlocked
+            || !descriptor.IsFile
+            || !TryNormalizeExistingFilePathForIntake(candidatePath, out string effectivePath))
+        {
+            return new PreparedQueueBatchResult(
+                Array.Empty<PreparedQueueCandidate>(),
+                AcceptedArchives: 0,
+                Array.Empty<string>(),
+                SkippedUnsupportedInputs: true);
+        }
+
+        QueueInputClassification classification =
+            QueueInputClassifier.FromDecision(decision);
+
+        return PrepareClassifiedQueueInput(
+            effectivePath,
+            classification,
+            executionProfile,
+            intakeSource,
+            cancellationToken,
+            archivePreviewCache,
+            sevenZipListingCache);
+    }
+
+    private static PreparedQueueBatchResult PrepareClassifiedQueueInput(
+        string effectivePath,
+        QueueInputClassification classification,
+        QueueExecutionProfile executionProfile,
+        QueueIntakeSource intakeSource,
+        CancellationToken cancellationToken,
+        IDictionary<ArchiveInspectionCacheKey, ArchiveContentPreviewResult>? archivePreviewCache,
+        IDictionary<ArchiveInspectionCacheKey, SevenZipProcessResult>? sevenZipListingCache)
+    {
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return new PreparedQueueBatchResult(
+                Array.Empty<PreparedQueueCandidate>(),
+                AcceptedArchives: 0,
+                Array.Empty<string>(),
+                WasCancelled: true);
+        }
+
+        if (!classification.IsSupported)
+        {
+            return new PreparedQueueBatchResult(
+                Array.Empty<PreparedQueueCandidate>(),
+                AcceptedArchives: 0,
+                Array.Empty<string>(),
+                SkippedUnsupportedInputs: true);
+        }
+
+        var rejectedArchiveMessageKeys = new List<string>();
+        int acceptedArchives = 0;
+        bool skippedCorruptArchives = false;
+
+        if (ArchivePreviewIntakePolicy.ShouldPreviewArchive(
+                classification,
+                intakeSource))
+        {
+            ArchiveContentPreviewResult preview = ArchivePreviewService.PreviewForIntake(
+                effectivePath,
+                intakeSource,
+                cancellationToken,
+                archivePreviewCache,
+                sevenZipListingCache);
+
+            if (preview.WasCancelled)
+            {
+                return new PreparedQueueBatchResult(
+                    Array.Empty<PreparedQueueCandidate>(),
+                    AcceptedArchives: 0,
+                    rejectedArchiveMessageKeys,
+                    WasCancelled: true);
+            }
+
+            if (!preview.CanUnpackThenConvert)
+            {
+                string messageKey = string.IsNullOrWhiteSpace(preview.MessageResourceKey)
+                    ? "LocArchive_NoConvertibleDiscImage"
+                    : preview.MessageResourceKey;
+
+                rejectedArchiveMessageKeys.Add(messageKey);
+                skippedCorruptArchives =
+                    IsCorruptOrUnreadableArchiveMessageKey(messageKey);
+
+                return new PreparedQueueBatchResult(
+                    Array.Empty<PreparedQueueCandidate>(),
+                    AcceptedArchives: 0,
+                    rejectedArchiveMessageKeys,
+                    skippedCorruptArchives);
+            }
+
+            acceptedArchives++;
+        }
+
+        string action =
+            QueueOperationModeProjection.ResolveInitialRequestedAction(
+                classification,
+                executionProfile);
+
+        if (!ArchivePreviewIntakePolicy.AllowsQueuedArchiveProcessing(
+                classification,
+                intakeSource))
+        {
+            action = TaskActionCodes.StageArchiveForConversion;
+        }
+
+        if (string.Equals(
+                action,
+                TaskActionCodes.Unsupported,
+                StringComparison.Ordinal))
+        {
+            return new PreparedQueueBatchResult(
+                Array.Empty<PreparedQueueCandidate>(),
+                acceptedArchives,
+                rejectedArchiveMessageKeys,
+                skippedCorruptArchives,
+                SkippedUnsupportedInputs: true);
+        }
+
+        QueuePlatformView platform = BuildQueuePlatformView(effectivePath);
+
+        PreparedQueueCandidate candidate = new(
+            effectivePath,
+            action,
+            platform.PlatformName,
+            platform.Reason);
+
+        return new PreparedQueueBatchResult(
+            [candidate],
+            acceptedArchives,
+            rejectedArchiveMessageKeys,
+            skippedCorruptArchives);
+    }
+
     private static bool IsCorruptOrUnreadableArchiveMessageKey(string messageResourceKey)
     {
         return string.Equals(messageResourceKey, "LocArchive_PreviewUnreadable", StringComparison.Ordinal)
@@ -566,7 +709,7 @@ public partial class MainWindowViewModel
             || string.Equals(messageResourceKey, "LocQueueAdd_ArchivePreviewCancelled", StringComparison.Ordinal);
     }
 
-    private static async IAsyncEnumerable<string> EnumerateInputPathsAsync(
+    private static async IAsyncEnumerable<MediaInputPipelineDecision> EnumerateInputDecisionsAsync(
         IReadOnlyList<string> rawList,
         QueueIngestKind inputKind,
         SearchOption searchOption,
@@ -579,28 +722,40 @@ public partial class MainWindowViewModel
                 continue;
             }
 
-            MediaInputDescriptor descriptor = await MediaInputPipelineStatic
-                .IntakeAsync(rawPath, cancellationToken)
+            MediaInputPipelineDecision decision = await MediaInputPipelineStatic
+                .DecideAsync(rawPath, cancellationToken)
                 .ConfigureAwait(false);
 
+            MediaInputDescriptor descriptor = decision.Descriptor;
+
             if (inputKind != QueueIngestKind.FilesOnly
-                && descriptor.Kind == MediaInputKind.Folder
+                && decision.ShouldEnumerateFolder
                 && descriptor.Exists
                 && descriptor.IsDirectory
-                && TryNormalizeExistingDirectoryPathForIntake(descriptor.FullPath, out string safeDirectoryPath))
+                && TryNormalizeExistingDirectoryPathForIntake(
+                    descriptor.FullPath,
+                    out string safeDirectoryPath))
             {
-                foreach (string resolvedPath in InputResolverStatic.Resolve(safeDirectoryPath, searchOption))
+                foreach (string resolvedPath in InputResolverStatic.Resolve(
+                             safeDirectoryPath,
+                             searchOption))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    MediaInputDescriptor resolvedDescriptor = await MediaInputPipelineStatic
-                        .IntakeAsync(resolvedPath, cancellationToken)
-                        .ConfigureAwait(false);
+                    MediaInputPipelineDecision resolvedDecision =
+                        await MediaInputPipelineStatic
+                            .DecideAsync(resolvedPath, cancellationToken)
+                            .ConfigureAwait(false);
+
+                    MediaInputDescriptor resolvedDescriptor =
+                        resolvedDecision.Descriptor;
 
                     if (resolvedDescriptor.Kind != MediaInputKind.Folder
-                        && TryNormalizeExistingFilePathForIntake(resolvedDescriptor.FullPath, out string safeResolvedPath))
+                        && TryNormalizeExistingFilePathForIntake(
+                            resolvedDescriptor.FullPath,
+                            out _))
                     {
-                        yield return safeResolvedPath;
+                        yield return resolvedDecision;
                     }
                 }
 
@@ -608,7 +763,31 @@ public partial class MainWindowViewModel
             }
 
             if (descriptor.Kind != MediaInputKind.Folder
-                && TryNormalizeExistingFilePathForIntake(descriptor.FullPath, out string safeFilePath))
+                && TryNormalizeExistingFilePathForIntake(
+                    descriptor.FullPath,
+                    out _))
+            {
+                yield return decision;
+            }
+        }
+    }
+
+    private static async IAsyncEnumerable<string> EnumerateInputPathsAsync(
+        IReadOnlyList<string> rawList,
+        QueueIngestKind inputKind,
+        SearchOption searchOption,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        await foreach (MediaInputPipelineDecision decision in EnumerateInputDecisionsAsync(
+                           rawList,
+                           inputKind,
+                           searchOption,
+                           cancellationToken)
+                       .ConfigureAwait(false))
+        {
+            if (TryNormalizeExistingFilePathForIntake(
+                    decision.Descriptor.FullPath,
+                    out string safeFilePath))
             {
                 yield return safeFilePath;
             }

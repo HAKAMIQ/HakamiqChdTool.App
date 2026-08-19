@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using HakamiqChdTool.App.Services.BinCueRescue;
 using HakamiqChdTool.App.Services.ConsoleMedia;
 
@@ -24,44 +22,57 @@ internal sealed record DiscLayoutDecision(
     string? EffectiveCuePath,
     string? PlatformName,
     int PlatformConfidence,
-    string MessageKey,
-    IReadOnlyList<BinCueRescueRefusalReason> Refusals)
+    string MessageKey)
 {
-    public bool IsAccepted => Action != DiscLayoutDecisionAction.Reject;
+    public bool IsAccepted =>
+        Action != DiscLayoutDecisionAction.Reject;
 
-    public bool RequiresTemporaryCue => Action == DiscLayoutDecisionAction.GenerateTemporaryCue;
+    public bool RequiresTemporaryCue =>
+        Action == DiscLayoutDecisionAction.GenerateTemporaryCue;
 
-    public bool UsesAdjacentCue => Action == DiscLayoutDecisionAction.UseAdjacentCue;
+    public bool UsesAdjacentCue =>
+        Action == DiscLayoutDecisionAction.UseAdjacentCue;
 
     public static DiscLayoutDecision Reject(
-        string messageKey,
-        IReadOnlyList<BinCueRescueRefusalReason>? refusals = null) => new(
-        DiscLayoutDecisionAction.Reject,
-        null,
-        null,
-        0,
-        string.IsNullOrWhiteSpace(messageKey)
-            ? "LocIntake_BinWithoutCueUnsafeSectorLayout"
-            : messageKey,
-        refusals is null ? [] : [.. refusals]);
+        string messageKey)
+    {
+        return new DiscLayoutDecision(
+            DiscLayoutDecisionAction.Reject,
+            null,
+            null,
+            0,
+            string.IsNullOrWhiteSpace(messageKey)
+                ? "LocIntake_BinWithoutCueUnsafeSectorLayout"
+                : messageKey);
+    }
 
-    public static DiscLayoutDecision UseAdjacentCue(string cuePath) => new(
-        DiscLayoutDecisionAction.UseAdjacentCue,
-        cuePath,
-        null,
-        0,
-        "LocIntake_BinRedirectedToCue",
-        []);
+    public static DiscLayoutDecision UseAdjacentCue(
+        string cuePath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(cuePath);
+
+        return new DiscLayoutDecision(
+            DiscLayoutDecisionAction.UseAdjacentCue,
+            cuePath,
+            null,
+            0,
+            "LocIntake_BinRedirectedToCue");
+    }
 
     public static DiscLayoutDecision GenerateTemporaryCue(
         string platformName,
-        int platformConfidence) => new(
-        DiscLayoutDecisionAction.GenerateTemporaryCue,
-        null,
-        platformName,
-        Math.Clamp(platformConfidence, 0, 100),
-        "LocIntake_BinWithoutCueConsoleIdentified",
-        []);
+        int platformConfidence)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            platformName);
+
+        return new DiscLayoutDecision(
+            DiscLayoutDecisionAction.GenerateTemporaryCue,
+            null,
+            platformName,
+            Math.Clamp(platformConfidence, 0, 100),
+            "LocIntake_BinWithoutCueConsoleIdentified");
+    }
 
     public static DiscLayoutDecision FromStandaloneBinPlan(
         BinCueRescuePlan plan,
@@ -71,40 +82,36 @@ internal sealed record DiscLayoutDecision(
         ArgumentNullException.ThrowIfNull(plan);
         ArgumentNullException.ThrowIfNull(identity);
 
-        if (plan.CanUseAdjacentCue && !string.IsNullOrWhiteSpace(plan.AdjacentCuePath))
+        if (plan.CanUseAdjacentCue
+            && !string.IsNullOrWhiteSpace(
+                plan.AdjacentCuePath))
         {
-            return UseAdjacentCue(plan.AdjacentCuePath);
+            return UseAdjacentCue(
+                plan.AdjacentCuePath);
         }
 
         if (!plan.CanGenerateTempCue)
         {
-            if (plan.Refusals.Contains(BinCueRescueRefusalReason.UnsupportedPlatform)
-                || plan.Refusals.Contains(BinCueRescueRefusalReason.PathHintOnly))
-            {
-                return Reject(
-                    "LocIntake_BinWithoutCueUnknownPlatform",
-                    plan.Refusals);
-            }
-
             return Reject(
-                "LocIntake_BinWithoutCueUnsafeSectorLayout",
-                plan.Refusals);
+                "LocIntake_BinWithoutCueUnsafeSectorLayout");
         }
 
         if (!identity.IsIdentified)
         {
             return Reject(
-                "LocIntake_BinWithoutCueUnknownPlatform",
-                plan.Refusals.Append(BinCueRescueRefusalReason.UnsupportedPlatform).Distinct().ToArray());
+                "LocIntake_BinWithoutCueUnknownPlatform");
         }
 
-        if (identity.IsPathHintOnly && trustMode != DiscLayoutTrustMode.ExplicitOperationalTrust)
+        if (identity.IsPathHintOnly
+            && trustMode
+                != DiscLayoutTrustMode.ExplicitOperationalTrust)
         {
             return Reject(
-                "LocIntake_BinWithoutCueUnknownPlatform",
-                plan.Refusals.Append(BinCueRescueRefusalReason.PathHintOnly).Distinct().ToArray());
+                "LocIntake_BinWithoutCueUnknownPlatform");
         }
 
-        return GenerateTemporaryCue(identity.PlatformName, identity.Confidence);
+        return GenerateTemporaryCue(
+            identity.PlatformName,
+            identity.Confidence);
     }
 }

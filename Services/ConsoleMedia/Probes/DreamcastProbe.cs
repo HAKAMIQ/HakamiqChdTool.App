@@ -4,10 +4,13 @@ namespace HakamiqChdTool.App.Services.ConsoleMedia.Probes;
 
 internal sealed class DreamcastConsoleDiscProbe : IConsoleDiscIdentityProbe
 {
-    public ConsoleDiscIdentityResult Probe(ConsoleDiscScanContext context)
+    public ConsoleDiscIdentityResult Probe(
+        ConsoleDiscScanContext context)
     {
         if (context.ContainsText("SEGA SEGAKATANA")
-            || context.ContainsText("SEGA ENTERPRISES") && (context.ContainsText("MIL-CD") || context.ContainsText("GD-ROM")))
+            || (context.ContainsText("SEGA ENTERPRISES")
+                && (context.ContainsText("MIL-CD")
+                    || context.ContainsText("GD-ROM"))))
         {
             return ConsoleDiscIdentityResult.Create(
                 "SEGA Dreamcast",

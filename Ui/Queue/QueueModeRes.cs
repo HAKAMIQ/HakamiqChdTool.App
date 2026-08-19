@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Input;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
@@ -20,20 +21,47 @@ internal static class QueueModeResolver
     public static string QueueModeFromRequestedAction(string? requestedAction) =>
         QueueOperationModeProjection.QueueModeFromRequestedAction(requestedAction);
 
-    public static string ResolveInitialRequestedAction(string? path, QueueExecutionProfile executionProfile) =>
-        QueueOperationModeProjection.ResolveInitialRequestedAction(path, executionProfile);
+    public static string ResolveInitialRequestedAction(
+        string? path,
+        QueueExecutionProfile executionProfile) =>
+        QueueOperationModeProjection.ResolveInitialRequestedAction(
+            path,
+            executionProfile);
 
-    public static bool IsPathVisibleForExecutionProfile(string? path, QueueExecutionProfile executionProfile) =>
-        QueueOperationModeProjection.IsPathVisibleForExecutionProfile(path, executionProfile);
+    public static string ResolveInitialRequestedAction(
+        QueueInputClassification classification,
+        QueueExecutionProfile executionProfile) =>
+        QueueOperationModeProjection.ResolveInitialRequestedAction(
+            classification,
+            executionProfile);
 
-    public static bool IsPathVisibleForMode(string? path, QueueOperationMode selectedMode) =>
-        QueueOperationModeProjection.IsPathVisibleForMode(path, selectedMode);
+    public static bool IsPathVisibleForExecutionProfile(
+        string? path,
+        QueueExecutionProfile executionProfile) =>
+        QueueOperationModeProjection.IsPathVisibleForExecutionProfile(
+            path,
+            executionProfile);
+
+    public static bool IsClassificationVisibleForExecutionProfile(
+        QueueInputClassification classification,
+        QueueExecutionProfile executionProfile) =>
+        QueueOperationModeProjection.IsClassificationVisibleForExecutionProfile(
+            classification,
+            executionProfile);
+
+    public static bool IsPathVisibleForMode(
+        string? path,
+        QueueOperationMode selectedMode) =>
+        QueueOperationModeProjection.IsPathVisibleForMode(
+            path,
+            selectedMode);
 
     public static QueueModeResolution ResolveRequestedActionForMode(
         string? path,
         QueueOperationMode selectedMode)
     {
-        QueueOperationModeProjectionResult projection = QueueOperationModeProjection.ProjectPath(path, selectedMode);
+        QueueOperationModeProjectionResult projection =
+            QueueOperationModeProjection.ProjectPath(path, selectedMode);
 
         return new QueueModeResolution(
             projection.RequestedAction,
@@ -42,7 +70,9 @@ internal static class QueueModeResolver
             projection.HasSingleSupportedOperation);
     }
 
-    public static bool IsWaitingRowRunnableForMode(QueueRowData row, QueueOperationMode selectedMode)
+    public static bool IsWaitingRowRunnableForMode(
+        QueueRowData row,
+        QueueOperationMode selectedMode)
     {
         if (!row.IsVisibleInCurrentOperationMode)
         {
@@ -66,10 +96,14 @@ internal static class QueueModeResolver
             return false;
         }
 
-        QueueModeResolution resolution = ResolveRequestedActionForMode(operationPath, selectedMode);
+        QueueModeResolution resolution =
+            ResolveRequestedActionForMode(operationPath, selectedMode);
 
         return resolution.IsSupportedForSelectedMode
-            && string.Equals(row.RequestedAction, resolution.RequestedAction, StringComparison.Ordinal);
+            && string.Equals(
+                row.RequestedAction,
+                resolution.RequestedAction,
+                StringComparison.Ordinal);
     }
 
     public static bool IsRequestedActionRunnable(QueueRowData row)
@@ -79,25 +113,38 @@ internal static class QueueModeResolver
             return false;
         }
 
-        QueueOperationMode operationMode = QueueOperationCapabilityService.GetOperationMode(row.RequestedAction);
-        string operationPath = ResolveRunnableOperationPath(row, operationMode);
+        QueueOperationMode operationMode =
+            QueueOperationCapabilityService.GetOperationMode(row.RequestedAction);
+
+        string operationPath =
+            ResolveRunnableOperationPath(row, operationMode);
 
         if (BlocksArchivePreviewProcessing(row, operationMode))
         {
             return false;
         }
 
-        if (string.Equals(row.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal)
-            || string.Equals(row.RequestedAction, TaskActionCodes.Unsupported, StringComparison.Ordinal))
+        if (string.Equals(
+                row.RequestedAction,
+                TaskActionCodes.PendingSelection,
+                StringComparison.Ordinal)
+            || string.Equals(
+                row.RequestedAction,
+                TaskActionCodes.Unsupported,
+                StringComparison.Ordinal))
         {
             return false;
         }
 
         return TaskQueueStateCodes.IsWaiting(row.CurrentState)
-            && QueueOperationCapabilityService.IsOperationAllowed(operationPath, row.RequestedAction);
+            && QueueOperationCapabilityService.IsOperationAllowed(
+                operationPath,
+                row.RequestedAction);
     }
 
-    private static string ResolveRunnableOperationPath(QueueRowData row, QueueOperationMode operationMode)
+    private static string ResolveRunnableOperationPath(
+        QueueRowData row,
+        QueueOperationMode operationMode)
     {
         if (operationMode == QueueOperationMode.Verify
             && !string.IsNullOrWhiteSpace(row.SourcePath))
@@ -108,7 +155,11 @@ internal static class QueueModeResolver
         return row.OriginalPath;
     }
 
-    private static bool BlocksArchivePreviewProcessing(QueueRowData row, QueueOperationMode operationMode) =>
+    private static bool BlocksArchivePreviewProcessing(
+        QueueRowData row,
+        QueueOperationMode operationMode) =>
         operationMode != QueueOperationMode.Verify
-        && ArchivePreviewIntakePolicy.BlocksQueuedArchiveProcessing(row.OriginalPath, row.IntakeSource);
+        && ArchivePreviewIntakePolicy.BlocksQueuedArchiveProcessing(
+            row.OriginalPath,
+            row.IntakeSource);
 }

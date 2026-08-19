@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using HakamiqChdTool.App.Core.Disc;
-using HakamiqChdTool.App.Services.ConsoleMedia;
 
 namespace HakamiqChdTool.App.Services.BinCueRescue;
 
@@ -13,12 +12,17 @@ internal static class MultiBinDiscAssembler
     private const long MaximumCueProbeBytes = 1024 * 1024;
     private const int RegexTimeoutMilliseconds = 250;
 
-    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(RegexTimeoutMilliseconds);
-    private static readonly StringComparer PathComparer = StringComparer.OrdinalIgnoreCase;
+    private static readonly TimeSpan RegexTimeout =
+        TimeSpan.FromMilliseconds(RegexTimeoutMilliseconds);
+
+    private static readonly StringComparer PathComparer =
+        StringComparer.OrdinalIgnoreCase;
 
     private static readonly Regex DiscPartNumberRegex = new(
         @"(?:^|[\s_\-\.\(\[])(?:disc|disk|cd|dvd|side|part)\s*0*\d{1,3}(?:$|[\s_\-\.\)\]])",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase,
+        RegexOptions.Compiled
+        | RegexOptions.CultureInvariant
+        | RegexOptions.IgnoreCase,
         RegexTimeout);
 
     public static BinCueRescuePlan AssembleForBin(
@@ -28,6 +32,7 @@ internal static class MultiBinDiscAssembler
         ArgumentException.ThrowIfNullOrWhiteSpace(binPath);
 
         string fullBinPath;
+
         try
         {
             fullBinPath = NormalizeFullPath(binPath);
@@ -40,6 +45,7 @@ internal static class MultiBinDiscAssembler
         }
 
         FileInfo selectedBin = new(fullBinPath);
+
         if (!IsSafeExistingReferencedFile(selectedBin.FullName))
         {
             return Refuse(
@@ -47,7 +53,19 @@ internal static class MultiBinDiscAssembler
                 [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
         }
 
-        string? adjacentCue = FindAdjacentCueForBin(selectedBin.FullName);
+        string? adjacentCue;
+
+        try
+        {
+            adjacentCue = FindAdjacentCueForBin(selectedBin.FullName);
+        }
+        catch (Exception ex) when (IsIoOrPathFailure(ex))
+        {
+            return Refuse(
+                leaderCueWriteTarget,
+                [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
+        }
+
         if (!string.IsNullOrWhiteSpace(adjacentCue))
         {
             return new BinCueRescuePlan(
@@ -55,13 +73,25 @@ internal static class MultiBinDiscAssembler
                 adjacentCue,
                 null,
                 [],
-                null,
-                false,
-                [],
                 []);
         }
 
-        FileInfo[] orderedBins = FindOrderedCandidateBins(selectedBin, out bool ambiguousOrder);
+        FileInfo[] orderedBins;
+        bool ambiguousOrder;
+
+        try
+        {
+            orderedBins = FindOrderedCandidateBins(
+                selectedBin,
+                out ambiguousOrder);
+        }
+        catch (Exception ex) when (IsIoOrPathFailure(ex))
+        {
+            return Refuse(
+                leaderCueWriteTarget,
+                [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
+        }
+
         if (ambiguousOrder)
         {
             return Refuse(
@@ -77,85 +107,84 @@ internal static class MultiBinDiscAssembler
         }
 
         List<BinSectorProbeResult> probes = [];
+
         foreach (FileInfo bin in orderedBins)
         {
-            probes.Add(BinSectorProbe.Probe(bin.FullName));
+            probes.Add(
+                BinSectorProbe.Probe(bin.FullName));
         }
 
         List<BinCueRescueRefusalReason> refusals = [];
-        List<BinCueRescueWarningCode> warnings = [];
 
-        if (probes.Any(probe => probe.Kind == BinTrackKind.Cooked2048Data))
+        if (probes.Any(
+                probe => probe.Kind == BinTrackKind.Cooked2048Data))
         {
-            refusals.Add(BinCueRescueRefusalReason.Cooked2048ShouldBeIso);
+            refusals.Add(
+                BinCueRescueRefusalReason.Cooked2048ShouldBeIso);
         }
 
-        if (probes.Any(probe => probe.Kind == BinTrackKind.NonStandard))
+        if (probes.Any(
+                probe => probe.Kind == BinTrackKind.NonStandard))
         {
-            refusals.Add(BinCueRescueRefusalReason.NonStandardSectorLayout);
+            refusals.Add(
+                BinCueRescueRefusalReason.NonStandardSectorLayout);
         }
 
-        if (probes.Any(probe => probe.Kind == BinTrackKind.Unknown))
+        if (probes.Any(
+                probe => probe.Kind == BinTrackKind.Unknown))
         {
-            refusals.Add(BinCueRescueRefusalReason.InsufficientSectorEvidence);
+            refusals.Add(
+                BinCueRescueRefusalReason.InsufficientSectorEvidence);
         }
 
-        int dataTrackCount = probes.Count(probe => probe.Kind is BinTrackKind.Raw2352Mode1 or BinTrackKind.Raw2352Mode2);
+        int dataTrackCount = probes.Count(
+            probe => probe.Kind is
+                BinTrackKind.Raw2352Mode1
+                or BinTrackKind.Raw2352Mode2);
+
         if (dataTrackCount == 0)
         {
-            refusals.Add(BinCueRescueRefusalReason.NoSyncProof);
+            refusals.Add(
+                BinCueRescueRefusalReason.NoSyncProof);
         }
 
         if (dataTrackCount > 1)
         {
-            refusals.Add(BinCueRescueRefusalReason.MultipleDataTracksConflict);
+            refusals.Add(
+                BinCueRescueRefusalReason.MultipleDataTracksConflict);
         }
 
-        int firstDataIndex = probes.FindIndex(probe => probe.Kind is BinTrackKind.Raw2352Mode1 or BinTrackKind.Raw2352Mode2);
+        int firstDataIndex = probes.FindIndex(
+            probe => probe.Kind is
+                BinTrackKind.Raw2352Mode1
+                or BinTrackKind.Raw2352Mode2);
+
         if (firstDataIndex > 0)
         {
-            refusals.Add(BinCueRescueRefusalReason.AmbiguousOrder);
+            refusals.Add(
+                BinCueRescueRefusalReason.AmbiguousOrder);
         }
 
-        if (orderedBins.Length > 1 && probes.Skip(1).Any(probe => probe.Kind is not BinTrackKind.Raw2352AudioCandidate))
+        if (orderedBins.Length > 1
+            && probes
+                .Skip(1)
+                .Any(
+                    probe => probe.Kind
+                        is not BinTrackKind.Raw2352AudioCandidate))
         {
-            refusals.Add(BinCueRescueRefusalReason.MixedSectorSizes);
+            refusals.Add(
+                BinCueRescueRefusalReason.MixedSectorSizes);
         }
 
         List<BinCueRescueTrackPlan> trackPlans = [];
+
         for (int i = 0; i < orderedBins.Length; i++)
         {
-            BinSectorProbeResult probe = probes[i];
-            string cueTrackMode = ToCueTrackMode(probe.Kind);
-
             trackPlans.Add(
                 new BinCueRescueTrackPlan(
                     i + 1,
                     orderedBins[i].FullName,
-                    probe.Kind,
-                    cueTrackMode,
-                    probe.Kind is BinTrackKind.Raw2352Mode1 or BinTrackKind.Raw2352Mode2,
-                    probe.Kind == BinTrackKind.Raw2352AudioCandidate));
-        }
-
-        if (trackPlans.Count > 1)
-        {
-            warnings.Add(BinCueRescueWarningCode.MultipleOrderedBinTracksAssumed);
-        }
-
-        string identityProbePath =
-            firstDataIndex >= 0 && firstDataIndex < orderedBins.Length
-                ? orderedBins[firstDataIndex].FullName
-                : selectedBin.FullName;
-
-        ConsoleDiscIdentityResult identity = ConsoleDiscIdentityService.Shared.Detect(identityProbePath);
-        if (!identity.IsIdentified)
-        {
-            refusals.Add(BinCueRescueRefusalReason.UnsupportedPlatform);
-        }
-        else if (!identity.HasOperationalEvidence)
-        {
-            refusals.Add(BinCueRescueRefusalReason.PathHintOnly);
+                    probes[i].Kind));
         }
 
         if (refusals.Count > 0)
@@ -165,25 +194,17 @@ internal static class MultiBinDiscAssembler
                 null,
                 leaderCueWriteTarget,
                 trackPlans,
-                InferPlatformHint(trackPlans),
-                true,
-                [.. refusals.Distinct()],
-                [.. warnings.Distinct()]);
+                [.. refusals.Distinct()]);
         }
 
         if (string.IsNullOrWhiteSpace(leaderCueWriteTarget))
         {
-            warnings.Add(BinCueRescueWarningCode.LeaderCueWriteTargetMissing);
-
             return new BinCueRescuePlan(
                 BinCueRescueDecision.Refuse,
                 null,
                 null,
                 trackPlans,
-                InferPlatformHint(trackPlans),
-                false,
-                [BinCueRescueRefusalReason.InsufficientSectorEvidence],
-                [.. warnings.Distinct()]);
+                [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
         }
 
         return new BinCueRescuePlan(
@@ -191,17 +212,17 @@ internal static class MultiBinDiscAssembler
             null,
             leaderCueWriteTarget,
             trackPlans,
-            InferPlatformHint(trackPlans),
-            false,
-            [],
-            [.. warnings.Distinct()]);
+            []);
     }
 
-    private static FileInfo[] FindOrderedCandidateBins(FileInfo selectedBin, out bool ambiguousOrder)
+    private static FileInfo[] FindOrderedCandidateBins(
+        FileInfo selectedBin,
+        out bool ambiguousOrder)
     {
         ambiguousOrder = false;
 
         DirectoryInfo? directory = selectedBin.Directory;
+
         if (directory is null || !directory.Exists)
         {
             return [selectedBin];
@@ -210,7 +231,9 @@ internal static class MultiBinDiscAssembler
         FileInfo[] allBins =
         [
             .. directory
-                .EnumerateFiles("*.bin", SearchOption.TopDirectoryOnly)
+                .EnumerateFiles(
+                    "*.bin",
+                    SearchOption.TopDirectoryOnly)
                 .Where(file => file.Exists)
         ];
 
@@ -220,11 +243,17 @@ internal static class MultiBinDiscAssembler
         }
 
         string selectedPrefix = BuildDiscPrefix(selectedBin);
+
         List<FileInfo> grouped =
         [
             .. allBins
-                .Where(file => PathComparer.Equals(BuildDiscPrefix(file), selectedPrefix))
-                .GroupBy(file => file.FullName, PathComparer)
+                .Where(
+                    file => PathComparer.Equals(
+                        BuildDiscPrefix(file),
+                        selectedPrefix))
+                .GroupBy(
+                    file => file.FullName,
+                    PathComparer)
                 .Select(group => group.First())
         ];
 
@@ -233,15 +262,31 @@ internal static class MultiBinDiscAssembler
             return [selectedBin];
         }
 
+        if (grouped.Any(
+                file => !IsSafeExistingReferencedFile(file.FullName)))
+        {
+            ambiguousOrder = true;
+            return [];
+        }
+
         List<(FileInfo File, int? TrackNumber)> numbered =
         [
-            .. grouped.Select(file => (File: file, TrackNumber: TryExtractTrackNumber(file)))
+            .. grouped.Select(
+                file => (
+                    File: file,
+                    TrackNumber: TryExtractTrackNumber(file)))
         ];
 
         if (numbered.Any(item => item.TrackNumber is null))
         {
             ambiguousOrder = true;
-            return [.. grouped.OrderBy(file => file.Name, StringComparer.OrdinalIgnoreCase)];
+
+            return
+            [
+                .. grouped.OrderBy(
+                    file => file.Name,
+                    StringComparer.OrdinalIgnoreCase)
+            ];
         }
 
         bool hasDuplicates = numbered
@@ -251,7 +296,13 @@ internal static class MultiBinDiscAssembler
         if (hasDuplicates)
         {
             ambiguousOrder = true;
-            return [.. grouped.OrderBy(file => file.Name, StringComparer.OrdinalIgnoreCase)];
+
+            return
+            [
+                .. grouped.OrderBy(
+                    file => file.Name,
+                    StringComparer.OrdinalIgnoreCase)
+            ];
         }
 
         int[] sortedNumbers =
@@ -280,7 +331,8 @@ internal static class MultiBinDiscAssembler
 
     private static string BuildDiscPrefix(FileInfo file)
     {
-        string name = Path.GetFileNameWithoutExtension(file.Name);
+        string name =
+            Path.GetFileNameWithoutExtension(file.Name);
 
         string normalized = SafeRegexReplace(
             name,
@@ -306,17 +358,22 @@ internal static class MultiBinDiscAssembler
 
     private static int? TryExtractTrackNumber(FileInfo file)
     {
-        string name = Path.GetFileNameWithoutExtension(file.Name);
+        string name =
+            Path.GetFileNameWithoutExtension(file.Name);
 
         try
         {
             Match explicitTrack = Regex.Match(
                 name,
                 @"(?:track|trk|tk)\s*0*(?<number>\d{1,3})",
-                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase,
+                RegexOptions.CultureInvariant
+                | RegexOptions.IgnoreCase,
                 RegexTimeout);
 
-            if (explicitTrack.Success && int.TryParse(explicitTrack.Groups["number"].Value, out int explicitNumber))
+            if (explicitTrack.Success
+                && int.TryParse(
+                    explicitTrack.Groups["number"].Value,
+                    out int explicitNumber))
             {
                 return explicitNumber;
             }
@@ -332,7 +389,10 @@ internal static class MultiBinDiscAssembler
                 RegexOptions.CultureInvariant,
                 RegexTimeout);
 
-            if (trailingNumber.Success && int.TryParse(trailingNumber.Groups["number"].Value, out int trailing))
+            if (trailingNumber.Success
+                && int.TryParse(
+                    trailingNumber.Groups["number"].Value,
+                    out int trailing))
             {
                 return trailing;
             }
@@ -345,24 +405,36 @@ internal static class MultiBinDiscAssembler
         return null;
     }
 
-    private static string? FindAdjacentCueForBin(string binPath)
+    private static string? FindAdjacentCueForBin(
+        string binPath)
     {
         FileInfo bin = new(binPath);
         DirectoryInfo? directory = bin.Directory;
+
         if (directory is null || !directory.Exists)
         {
             return null;
         }
 
-        string sameBaseCue = Path.Combine(directory.FullName, Path.GetFileNameWithoutExtension(bin.Name) + ".cue");
-        if (File.Exists(sameBaseCue) && CueReferencesBin(sameBaseCue, bin.FullName))
+        string sameBaseCue = Path.Combine(
+            directory.FullName,
+            Path.GetFileNameWithoutExtension(bin.Name) + ".cue");
+
+        if (File.Exists(sameBaseCue)
+            && CueReferencesBin(
+                sameBaseCue,
+                bin.FullName))
         {
             return sameBaseCue;
         }
 
-        foreach (FileInfo cue in directory.EnumerateFiles("*.cue", SearchOption.TopDirectoryOnly))
+        foreach (FileInfo cue in directory.EnumerateFiles(
+                     "*.cue",
+                     SearchOption.TopDirectoryOnly))
         {
-            if (CueReferencesBin(cue.FullName, bin.FullName))
+            if (CueReferencesBin(
+                    cue.FullName,
+                    bin.FullName))
             {
                 return cue.FullName;
             }
@@ -371,20 +443,27 @@ internal static class MultiBinDiscAssembler
         return null;
     }
 
-    private static bool CueReferencesBin(string cuePath, string binPath)
+    private static bool CueReferencesBin(
+        string cuePath,
+        string binPath)
     {
         FileInfo cueFile = new(cuePath);
-        if (!cueFile.Exists || cueFile.Length <= 0 || cueFile.Length > MaximumCueProbeBytes)
+
+        if (!cueFile.Exists
+            || cueFile.Length <= 0
+            || cueFile.Length > MaximumCueProbeBytes)
         {
             return false;
         }
 
-        if (HasReparsePointInExistingPathFromVolumeRoot(cueFile.FullName))
+        if (HasReparsePointInExistingPathFromVolumeRoot(
+                cueFile.FullName))
         {
             return false;
         }
 
         string[] cueLines;
+
         try
         {
             cueLines = File.ReadAllLines(cueFile.FullName);
@@ -395,6 +474,7 @@ internal static class MultiBinDiscAssembler
         }
 
         DirectoryInfo? cueDirectory = cueFile.Directory;
+
         if (cueDirectory is null)
         {
             return false;
@@ -402,25 +482,35 @@ internal static class MultiBinDiscAssembler
 
         string cueDirectoryPath;
         string fullBinPath;
+
         try
         {
-            cueDirectoryPath = NormalizeFullPath(cueDirectory.FullName);
-            fullBinPath = NormalizeFullPath(binPath);
+            cueDirectoryPath =
+                NormalizeFullPath(cueDirectory.FullName);
+
+            fullBinPath =
+                NormalizeFullPath(binPath);
         }
         catch (Exception ex) when (IsPathFailure(ex))
         {
             return false;
         }
 
-        if (HasReparsePointInExistingPathFromVolumeRoot(cueDirectoryPath))
+        if (HasReparsePointInExistingPathFromVolumeRoot(
+                cueDirectoryPath))
         {
             return false;
         }
 
         List<string> referencedFiles = [];
+
         foreach (string line in cueLines)
         {
-            if (!CueSheetFileStatementReader.TryRead(line, requireFileType: true, out string referenced, out bool hasFileStatement))
+            if (!CueSheetFileStatementReader.TryRead(
+                    line,
+                    requireFileType: true,
+                    out string referenced,
+                    out bool hasFileStatement))
             {
                 if (hasFileStatement)
                 {
@@ -442,7 +532,10 @@ internal static class MultiBinDiscAssembler
 
         foreach (string referenced in referencedFiles)
         {
-            if (!TryResolveSafeCueReference(referenced, cueDirectoryPath, out string? resolved))
+            if (!TryResolveSafeCueReference(
+                    referenced,
+                    cueDirectoryPath,
+                    out string? resolved))
             {
                 return false;
             }
@@ -452,7 +545,9 @@ internal static class MultiBinDiscAssembler
                 return false;
             }
 
-            if (PathComparer.Equals(resolved, fullBinPath))
+            if (PathComparer.Equals(
+                    resolved,
+                    fullBinPath))
             {
                 referencesSelectedBin = true;
             }
@@ -480,8 +575,14 @@ internal static class MultiBinDiscAssembler
                 return false;
             }
 
-            string candidate = NormalizeFullPath(Path.Combine(cueDirectoryPath, referenced));
-            if (!IsSameOrChildPath(candidate, cueDirectoryPath))
+            string candidate = NormalizeFullPath(
+                Path.Combine(
+                    cueDirectoryPath,
+                    referenced));
+
+            if (!IsSameOrChildPath(
+                    candidate,
+                    cueDirectoryPath))
             {
                 return false;
             }
@@ -495,7 +596,8 @@ internal static class MultiBinDiscAssembler
         }
     }
 
-    private static bool IsSafeExistingReferencedFile(string resolvedPath)
+    private static bool IsSafeExistingReferencedFile(
+        string resolvedPath)
     {
         try
         {
@@ -506,39 +608,13 @@ internal static class MultiBinDiscAssembler
                 return false;
             }
 
-            return !HasReparsePointInExistingPathFromVolumeRoot(file.FullName);
+            return !HasReparsePointInExistingPathFromVolumeRoot(
+                file.FullName);
         }
         catch (Exception ex) when (IsIoOrPathFailure(ex))
         {
             return false;
         }
-    }
-
-    private static string ToCueTrackMode(BinTrackKind kind)
-    {
-        return kind switch
-        {
-            BinTrackKind.Raw2352Mode1 => "MODE1/2352",
-            BinTrackKind.Raw2352Mode2 => "MODE2/2352",
-            BinTrackKind.Raw2352AudioCandidate => "AUDIO",
-            _ => string.Empty
-        };
-    }
-
-    private static BinCueRescuePlatformHint? InferPlatformHint(IReadOnlyList<BinCueRescueTrackPlan> tracks)
-    {
-        BinCueRescueTrackPlan? dataTrack = tracks.FirstOrDefault(track => track.IsDataTrack);
-        if (dataTrack is null)
-        {
-            return null;
-        }
-
-        return dataTrack.Kind switch
-        {
-            BinTrackKind.Raw2352Mode2 => BinCueRescuePlatformHint.Raw2352Mode2Data,
-            BinTrackKind.Raw2352Mode1 => BinCueRescuePlatformHint.Raw2352Mode1Data,
-            _ => null
-        };
     }
 
     private static BinCueRescuePlan Refuse(
@@ -550,10 +626,7 @@ internal static class MultiBinDiscAssembler
             null,
             leaderCueWriteTarget,
             [],
-            null,
-            true,
-            reasons,
-            []);
+            reasons);
     }
 
     private static string SafeRegexReplace(
@@ -567,7 +640,8 @@ internal static class MultiBinDiscAssembler
                 input,
                 pattern,
                 replacement,
-                RegexOptions.CultureInvariant | RegexOptions.IgnoreCase,
+                RegexOptions.CultureInvariant
+                | RegexOptions.IgnoreCase,
                 RegexTimeout);
         }
         catch (RegexMatchTimeoutException)
@@ -576,7 +650,8 @@ internal static class MultiBinDiscAssembler
         }
     }
 
-    private static string CollapseWhitespace(string value)
+    private static string CollapseWhitespace(
+        string value)
     {
         try
         {
@@ -593,7 +668,8 @@ internal static class MultiBinDiscAssembler
         }
     }
 
-    private static bool LooksLikeDiscPartNumber(string name)
+    private static bool LooksLikeDiscPartNumber(
+        string name)
     {
         try
         {
@@ -605,19 +681,25 @@ internal static class MultiBinDiscAssembler
         }
     }
 
-    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(
+        string candidatePath)
     {
         try
         {
-            string candidate = NormalizeFullPath(candidatePath);
-            string? root = Path.GetPathRoot(candidate);
+            string candidate =
+                NormalizeFullPath(candidatePath);
+
+            string? root =
+                Path.GetPathRoot(candidate);
 
             if (string.IsNullOrWhiteSpace(root))
             {
                 return true;
             }
 
-            return HasReparsePointInExistingPath(candidate, root);
+            return HasReparsePointInExistingPath(
+                candidate,
+                root);
         }
         catch (Exception ex) when (IsIoOrPathFailure(ex))
         {
@@ -625,14 +707,21 @@ internal static class MultiBinDiscAssembler
         }
     }
 
-    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    private static bool HasReparsePointInExistingPath(
+        string candidatePath,
+        string rootPath)
     {
         try
         {
-            string candidate = NormalizeFullPath(candidatePath);
-            string root = NormalizeFullPath(rootPath);
+            string candidate =
+                NormalizeFullPath(candidatePath);
 
-            if (!IsSameOrChildPath(candidate, root))
+            string root =
+                NormalizeFullPath(rootPath);
+
+            if (!IsSameOrChildPath(
+                    candidate,
+                    root))
             {
                 return true;
             }
@@ -641,7 +730,8 @@ internal static class MultiBinDiscAssembler
 
             while (true)
             {
-                if ((File.Exists(current) || Directory.Exists(current))
+                if ((File.Exists(current)
+                        || Directory.Exists(current))
                     && IsExistingPathReparsePoint(current))
                 {
                     return true;
@@ -652,8 +742,11 @@ internal static class MultiBinDiscAssembler
                     return false;
                 }
 
-                string? parent = Directory.GetParent(current)?.FullName;
-                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                string? parent =
+                    Directory.GetParent(current)?.FullName;
+
+                if (string.IsNullOrWhiteSpace(parent)
+                    || PathsEqual(parent, current))
                 {
                     return true;
                 }
@@ -667,16 +760,20 @@ internal static class MultiBinDiscAssembler
         }
     }
 
-    private static bool IsExistingPathReparsePoint(string path)
+    private static bool IsExistingPathReparsePoint(
+        string path)
     {
         try
         {
-            if (!File.Exists(path) && !Directory.Exists(path))
+            if (!File.Exists(path)
+                && !Directory.Exists(path))
             {
                 return false;
             }
 
-            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+            return (File.GetAttributes(path)
+                    & FileAttributes.ReparsePoint)
+                == FileAttributes.ReparsePoint;
         }
         catch (Exception ex) when (IsIoOrPathFailure(ex))
         {
@@ -684,13 +781,19 @@ internal static class MultiBinDiscAssembler
         }
     }
 
-    private static string NormalizeFullPath(string path)
+    private static string NormalizeFullPath(
+        string path)
     {
-        string fullPath = Path.GetFullPath(path);
-        string? root = Path.GetPathRoot(fullPath);
+        string fullPath =
+            Path.GetFullPath(path);
+
+        string? root =
+            Path.GetPathRoot(fullPath);
 
         if (!string.IsNullOrWhiteSpace(root)
-            && fullPath.Equals(root, StringComparison.OrdinalIgnoreCase))
+            && fullPath.Equals(
+                root,
+                StringComparison.OrdinalIgnoreCase))
         {
             return fullPath;
         }
@@ -700,22 +803,34 @@ internal static class MultiBinDiscAssembler
             Path.AltDirectorySeparatorChar);
     }
 
-    private static bool IsSameOrChildPath(string path, string parent)
+    private static bool IsSameOrChildPath(
+        string path,
+        string parent)
     {
-        string fullPath = NormalizeFullPath(path);
-        string fullParent = NormalizeFullPath(parent);
+        string fullPath =
+            NormalizeFullPath(path);
 
-        if (fullPath.Equals(fullParent, StringComparison.OrdinalIgnoreCase))
+        string fullParent =
+            NormalizeFullPath(parent);
+
+        if (fullPath.Equals(
+                fullParent,
+                StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        string fullParentWithSeparator = EnsureDirectorySeparatorSuffix(fullParent);
+        string fullParentWithSeparator =
+            EnsureDirectorySeparatorSuffix(fullParent);
 
-        return fullPath.StartsWith(fullParentWithSeparator, StringComparison.OrdinalIgnoreCase);
+        return fullPath.StartsWith(
+            fullParentWithSeparator,
+            StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool PathsEqual(string left, string right)
+    private static bool PathsEqual(
+        string left,
+        string right)
     {
         return string.Equals(
             NormalizeFullPath(left),
@@ -723,15 +838,17 @@ internal static class MultiBinDiscAssembler
             StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string EnsureDirectorySeparatorSuffix(string path)
+    private static string EnsureDirectorySeparatorSuffix(
+        string path)
     {
         return path.EndsWith(Path.DirectorySeparatorChar)
-               || path.EndsWith(Path.AltDirectorySeparatorChar)
+            || path.EndsWith(Path.AltDirectorySeparatorChar)
             ? path
             : path + Path.DirectorySeparatorChar;
     }
 
-    private static bool IsIoOrPathFailure(Exception ex)
+    private static bool IsIoOrPathFailure(
+        Exception ex)
     {
         return ex is IOException
             or UnauthorizedAccessException
@@ -741,7 +858,8 @@ internal static class MultiBinDiscAssembler
             or System.Security.SecurityException;
     }
 
-    private static bool IsPathFailure(Exception ex)
+    private static bool IsPathFailure(
+        Exception ex)
     {
         return ex is ArgumentException
             or NotSupportedException

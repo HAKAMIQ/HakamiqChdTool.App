@@ -550,6 +550,10 @@ internal static partial class Program
         AssertMediaKind(empty, "Unknown");
         AssertFalse(GetBool(empty, "Exists"), "Empty path should not exist.");
 
+        object invalid = app.ClassifyMediaInput("\0invalid");
+        AssertMediaKind(invalid, "Unknown");
+        AssertFalse(GetBool(invalid, "Exists"), "Invalid input should classify as Unknown without throwing.");
+
         string missingPath = Path.Combine(root, "missing.iso");
         object missing = app.ClassifyMediaInput(missingPath);
         AssertMediaKind(missing, "Unknown");
@@ -564,6 +568,12 @@ internal static partial class Program
 
         string isoPath = WriteMediaFile(root, "disc.iso", [0, 1, 2, 3]);
         AssertMediaKind(app.ClassifyMediaInput(isoPath), "ISO");
+
+        string upperIsoPath = WriteMediaFile(root, "case-upper.ISO", [0, 1, 2, 3]);
+        AssertMediaKind(app.ClassifyMediaInput(upperIsoPath), "ISO");
+
+        string mixedIsoPath = WriteMediaFile(root, "case-mixed.Iso", [0, 1, 2, 3]);
+        AssertMediaKind(app.ClassifyMediaInput(mixedIsoPath), "ISO");
 
         string pkgPath = WriteMediaFile(root, "package.pkg", [0x7F, 0x50, 0x4B, 0x47, 0]);
         AssertMediaKind(app.ClassifyMediaInput(pkgPath), "PKG");
@@ -598,7 +608,11 @@ internal static partial class Program
         AssertEqual("InvalidHeaderLength", GetEnumName(invalidLengthChd, "ProbeStatus"), "Invalid CHD header length should be rejected.");
 
         string csoPath = WriteMediaFile(root, "disc.cso", Encoding.ASCII.GetBytes("CISO"));
+        byte[] csoBeforeClassification = File.ReadAllBytes(csoPath);
         AssertMediaKind(app.ClassifyMediaInput(csoPath), "CSO");
+        AssertTrue(
+            csoBeforeClassification.SequenceEqual(File.ReadAllBytes(csoPath)),
+            "Media classification must not modify the input file.");
 
         string cuePath = WriteMediaFile(root, "disc.cue", Encoding.ASCII.GetBytes("FILE \"track.bin\" BINARY\r\n"));
         AssertMediaKind(app.ClassifyMediaInput(cuePath), "CUE");
@@ -613,6 +627,15 @@ internal static partial class Program
         object other = app.ClassifyMediaInput(otherPath);
         AssertMediaKind(other, "Other");
         AssertEqual("file-other", GetString(other, "DetectionReason"), "Unknown extension should use file-other reason.");
+
+        string imgPath = WriteMediaFile(root, "disc.img", [1, 2, 3, 4]);
+        AssertMediaKind(app.ClassifyMediaInput(imgPath), "Other");
+
+        string xyzPath = WriteMediaFile(root, "disc.xyz", [1, 2, 3, 4]);
+        AssertMediaKind(app.ClassifyMediaInput(xyzPath), "Other");
+
+        string extensionlessPath = WriteMediaFile(root, "extensionless", [1, 2, 3, 4]);
+        AssertMediaKind(app.ClassifyMediaInput(extensionlessPath), "Other");
 
         string lockedChdPath = WriteMediaFile(root, "locked.chd", BuildChdHeader(version: 5));
         using FileStream lockStream = new(
@@ -1241,7 +1264,7 @@ internal static partial class Program
         private readonly Type queueExecutionProfileType;
         private readonly Type queueIngestKindType;
         private readonly object mainWindowViewModelForFastPathTests;
-        private readonly MethodInfo tryBuildFastDirectFileCandidates;
+        private readonly MethodInfo tryBuildFastDirectFileCandidatesAsync;
         private readonly MethodInfo getSupportedOperationCodes;
         private readonly Type runtimeToolServiceType;
         private readonly MethodInfo runtimeToolGetChdmanPath;
@@ -1321,7 +1344,7 @@ internal static partial class Program
             planCreateFromSource = GetRequiredMethod(profilePlannerType, "PlanCreateFromSource", [typeof(string), isoCreateOverrideType, mediaContainerKindType, typeof(string)]);
             mediaInputClassifyAsync = GetRequiredInstanceMethod(mediaInputClassifierType, "ClassifyAsync", [typeof(string), typeof(CancellationToken)]);
             mediaInputPipelineDecideAsync = GetRequiredInstanceMethod(mediaInputPipelineType, "DecideAsync", [typeof(string), typeof(CancellationToken)]);
-            tryBuildFastDirectFileCandidates = GetRequiredInstanceMethod(mainWindowViewModelType, "TryBuildFastDirectFileCandidates");
+            tryBuildFastDirectFileCandidatesAsync = GetRequiredInstanceMethod(mainWindowViewModelType, "TryBuildFastDirectFileCandidatesAsync");
             getSupportedOperationCodes = GetRequiredMethod(queueOperationCapabilityServiceType, "GetSupportedOperationCodes", [typeof(string)]);
             runtimeToolGetChdmanPath = GetRequiredInstanceMethod(runtimeToolServiceType, "GetChdmanPath", Type.EmptyTypes);
             runtimeToolCleanup = GetRequiredInstanceMethod(runtimeToolServiceType, "TryCleanupCurrentSession", Type.EmptyTypes);
@@ -1505,9 +1528,18 @@ internal static partial class Program
         {
             object executionProfile = Enum.Parse(queueExecutionProfileType, executionProfileName, ignoreCase: false);
             object inputKind = Enum.Parse(queueIngestKindType, "FilesOnly", ignoreCase: false);
-            object?[] arguments = [new List<string> { path }, inputKind, executionProfile, null];
-            object? result = tryBuildFastDirectFileCandidates.Invoke(mainWindowViewModelForFastPathTests, arguments);
-            return result is bool accepted && accepted;
+            object? valueTask = tryBuildFastDirectFileCandidatesAsync.Invoke(
+                mainWindowViewModelForFastPathTests,
+                [new List<string> { path }, inputKind, executionProfile, CancellationToken.None]);
+
+            object result = AwaitValueTaskResult(
+                valueTask ?? throw new InvalidOperationException("Fast intake returned null."),
+                "Fast intake");
+
+            FieldInfo successField = result.GetType().GetField("Item1", BindingFlags.Instance | BindingFlags.Public)
+                ?? throw new MissingFieldException(result.GetType().FullName, "Item1");
+
+            return successField.GetValue(result) is bool accepted && accepted;
         }
 
         public IReadOnlyList<string> GetSupportedQueueOperations(string path)

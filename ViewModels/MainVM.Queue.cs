@@ -33,7 +33,8 @@ public partial class MainWindowViewModel
         string Path,
         string Action,
         string DetectedPlatform,
-        string DetectionReason);
+        string DetectionReason,
+        QueueInputClassification? Classification = null);
 
     private sealed record PreparedQueueBatchResult(
         IReadOnlyList<PreparedQueueCandidate> Candidates,
@@ -112,11 +113,15 @@ public partial class MainWindowViewModel
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (TryBuildFastDirectFileCandidates(
-                rawList,
-                inputKind,
-                executionProfile,
-                out IReadOnlyList<PreparedIntakeCandidate> fastCandidates))
+        (bool canUseFastPath, IReadOnlyList<PreparedIntakeCandidate> fastCandidates) =
+            await TryBuildFastDirectFileCandidatesAsync(
+                    rawList,
+                    inputKind,
+                    executionProfile,
+                    cancellationToken)
+                .ConfigureAwait(true);
+
+        if (canUseFastPath)
         {
             return await AddPreparedCandidatesFastAsync(
                     dispatcher,
@@ -161,22 +166,19 @@ public partial class MainWindowViewModel
             var archivePreviewCache = new Dictionary<ArchiveInspectionCacheKey, ArchiveContentPreviewResult>();
             var sevenZipListingCache = new Dictionary<ArchiveInspectionCacheKey, SevenZipProcessResult>();
 
-            int archiveFileCount = 0;
             int unsupportedFileCount = 0;
             int duplicateFileCount = 0;
             int missingPathCount = 0;
             int acceptedArchiveTotal = 0;
-            int directoryCount = CountExistingDirectories(rawList);
 
             var progress = new QueueAddProgressState
             {
-                TotalCount = Math.Max(rawList.Count, 1),
-                HasKnownTotal = directoryCount == 0
+                TotalCount = Math.Max(rawList.Count, 1)
             };
 
             await UpdateQueueAddProgressAsync(dispatcher, intakeUiVersion, progress, force: true).ConfigureAwait(false);
 
-            await foreach (string discoveredPath in EnumerateInputPathsAsync(
+            await foreach (MediaInputPipelineDecision discoveredDecision in EnumerateInputDecisionsAsync(
                     rawList,
                     inputKind,
                     searchOption,
@@ -190,42 +192,67 @@ public partial class MainWindowViewModel
                 progress.PhaseKey = "LocQueueAdd_ScanningFiles";
                 await UpdateQueueAddProgressAsync(dispatcher, intakeUiVersion, progress).ConfigureAwait(false);
 
-                if (!IsExistingQueueInputPath(discoveredPath))
+                string? discoveredCandidatePath =
+                    discoveredDecision.EffectivePath ?? discoveredDecision.Descriptor.FullPath;
+
+                if (!TryNormalizeExistingFilePathForIntake(
+                        discoveredCandidatePath,
+                        out string discoveredPath))
                 {
                     missingPathCount++;
                     continue;
                 }
 
-                MediaInputDecision mediaDecision = global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(discoveredPath);
-                if (mediaDecision.IsBlocked)
-                {
-                    unsupportedFileCount++;
-                    progress.SkippedUnsupportedOrDuplicate = true;
+                MediaInputPipelineDecision effectiveDecision = discoveredDecision;
+                string effectiveDiscoveredPath = discoveredPath;
 
-                    if (ShouldCreateFailedIntakeRow(discoveredPath, directRawFilePaths)
-                        && TryAddUnsupportedIntakeCandidate(
-                            discoveredPath,
-                            mediaDecision.MessageKey,
-                            existingPaths,
-                            seenImportedPaths,
-                            preparedCandidates,
-                            ref duplicateFileCount))
+                if (discoveredDecision.RequiresStandaloneBinPolicy)
+                {
+                    MediaInputDecision mediaDecision =
+                        global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(
+                            discoveredPath);
+
+                    if (mediaDecision.IsBlocked)
                     {
-                        progress.AcceptedCount = preparedCandidates.Count;
+                        unsupportedFileCount++;
+                        progress.SkippedUnsupportedOrDuplicate = true;
+
+                        if (ShouldCreateFailedIntakeRow(discoveredPath, directRawFilePaths)
+                            && TryAddUnsupportedIntakeCandidate(
+                                discoveredPath,
+                                mediaDecision.MessageKey,
+                                existingPaths,
+                                seenImportedPaths,
+                                preparedCandidates,
+                                ref duplicateFileCount))
+                        {
+                            progress.AcceptedCount = preparedCandidates.Count;
+                        }
+
+                        continue;
                     }
 
-                    continue;
+                    if (!TryNormalizeExistingFilePathForIntake(
+                            mediaDecision.EffectivePath,
+                            out effectiveDiscoveredPath))
+                    {
+                        unsupportedFileCount++;
+                        progress.SkippedUnsupportedOrDuplicate = true;
+                        continue;
+                    }
+
+                    if (mediaDecision.IsRedirectedToCue)
+                    {
+                        effectiveDecision = await MediaInputPipelineStatic
+                            .DecideAsync(effectiveDiscoveredPath, intakeToken)
+                            .ConfigureAwait(false);
+                    }
                 }
 
-                if (!TryNormalizeExistingFilePathForIntake(mediaDecision.EffectivePath, out string effectiveDiscoveredPath))
-                {
-                    unsupportedFileCount++;
-                    progress.SkippedUnsupportedOrDuplicate = true;
-                    continue;
-                }
+                QueueInputClassification classification =
+                    QueueInputClassifier.FromDecision(effectiveDecision);
 
-                QueueInputClassification classification = QueueInputClassifier.Classify(effectiveDiscoveredPath);
-                if (!classification.IsSupported)
+                if (effectiveDecision.IsBlocked || !classification.IsSupported)
                 {
                     unsupportedFileCount++;
                     progress.SkippedUnsupportedOrDuplicate = true;
@@ -255,14 +282,17 @@ public partial class MainWindowViewModel
 
                 if (classification.IsArchiveContainer)
                 {
-                    archiveFileCount++;
                     progress.PhaseKey = "LocQueueAdd_ScanningArchives";
-                    await UpdateQueueAddProgressAsync(dispatcher, intakeUiVersion, progress, force: true).ConfigureAwait(false);
+                    await UpdateQueueAddProgressAsync(
+                        dispatcher,
+                        intakeUiVersion,
+                        progress,
+                        force: true).ConfigureAwait(false);
                 }
 
                 PreparedQueueBatchResult prepared = await Task.Run(
                     () => PrepareQueueBatch(
-                        [effectiveDiscoveredPath],
+                        effectiveDecision,
                         executionProfile,
                         intakeSource,
                         intakeToken,
@@ -291,16 +321,28 @@ public partial class MainWindowViewModel
 
                 foreach (PreparedQueueCandidate candidate in prepared.Candidates)
                 {
-                    QueueIntakeAdvisory? advisory = Ps2CompatibilityAdvisoryService.BuildQueueAdvisory(
-                        candidate.Path,
-                        candidate.DetectedPlatform);
+                    PreparedQueueCandidate classifiedCandidate =
+                        candidate.Classification.HasValue
+                            ? candidate
+                            : candidate with { Classification = classification };
 
-                    preparedCandidates.Add(new PreparedIntakeCandidate(candidate, advisory));
+                    QueueIntakeAdvisory? advisory = Ps2CompatibilityAdvisoryService.BuildQueueAdvisory(
+                        classifiedCandidate.Path,
+                        classifiedCandidate.DetectedPlatform);
+
+                    preparedCandidates.Add(new PreparedIntakeCandidate(
+                        classifiedCandidate,
+                        advisory));
+
                     progress.AcceptedCount = preparedCandidates.Count;
                 }
 
                 progress.PhaseKey = "LocQueueAdd_ScanningFiles";
-                await UpdateQueueAddProgressAsync(dispatcher, intakeUiVersion, progress, force: prepared.Candidates.Count > 0).ConfigureAwait(false);
+                await UpdateQueueAddProgressAsync(
+                    dispatcher,
+                    intakeUiVersion,
+                    progress,
+                    force: prepared.Candidates.Count > 0).ConfigureAwait(false);
             }
 
             if (preparedCandidates.Count == 0)
@@ -355,7 +397,8 @@ public partial class MainWindowViewModel
                             candidate.DetectionReason,
                             executionProfile,
                             intakeSource,
-                            intakeAdvisory: TryGetPreparedAdvisory(advisoryByPath, candidate.Path));
+                            intakeAdvisory: TryGetPreparedAdvisory(advisoryByPath, candidate.Path),
+                            inputClassification: candidate.Classification);
 
                         _session.QueueRows.Append(row);
                         currentExistingPaths.Add(normalizedCandidatePath);
@@ -824,11 +867,6 @@ public partial class MainWindowViewModel
             or System.Security.SecurityException;
     }
 
-    private static string ResolveRequestedAction(string path, QueueExecutionProfile executionProfile)
-    {
-        return QueueModeResolver.ResolveInitialRequestedAction(path, executionProfile);
-    }
-
     private void QueueConsoleIdentityEnrichment(QueueRowData row)
     {
         ArgumentNullException.ThrowIfNull(row);
@@ -921,7 +959,8 @@ public partial class MainWindowViewModel
         string detectionReason,
         QueueExecutionProfile executionProfile,
         QueueIntakeSource intakeSource,
-        QueueIntakeAdvisory? intakeAdvisory = null)
+        QueueIntakeAdvisory? intakeAdvisory = null,
+        QueueInputClassification? inputClassification = null)
     {
         QueueIntakeAdvisory? resolvedIntakeAdvisory = FormatSafetyAdvisorStatic.BuildQueueAdvisory(
             path,
@@ -971,8 +1010,17 @@ public partial class MainWindowViewModel
             StatusDetail = initialDetail,
             IsNamingCompliant = isCompliant,
             SuggestedStandardName = suggestedName,
-            IsVisibleInCurrentOperationMode = string.Equals(action, TaskActionCodes.Unsupported, StringComparison.Ordinal)
-                || QueueModeResolver.IsPathVisibleForExecutionProfile(path, executionProfile)
+            IsVisibleInCurrentOperationMode = string.Equals(
+                    action,
+                    TaskActionCodes.Unsupported,
+                    StringComparison.Ordinal)
+                || (inputClassification.HasValue
+                    ? QueueModeResolver.IsClassificationVisibleForExecutionProfile(
+                        inputClassification.Value,
+                        executionProfile)
+                    : QueueModeResolver.IsPathVisibleForExecutionProfile(
+                        path,
+                        executionProfile))
         };
     }
 

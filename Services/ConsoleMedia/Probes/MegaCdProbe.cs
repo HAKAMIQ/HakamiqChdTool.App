@@ -4,7 +4,8 @@ namespace HakamiqChdTool.App.Services.ConsoleMedia.Probes;
 
 internal sealed class SegaMegaCdConsoleDiscProbe : IConsoleDiscIdentityProbe
 {
-    public ConsoleDiscIdentityResult Probe(ConsoleDiscScanContext context)
+    public ConsoleDiscIdentityResult Probe(
+        ConsoleDiscScanContext context)
     {
         if (context.ContainsText("SEGADISCSYSTEM")
             || context.ContainsText("SEGA MEGA DRIVE")
