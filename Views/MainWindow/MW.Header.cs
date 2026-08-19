@@ -134,6 +134,8 @@ public partial class MainWindow
 
     private void ThemeService_ThemeChanged(object? sender, EventArgs e)
     {
+        CaptureThemeIntoSettings();
+        PersistSettings();
         SyncThemeSelectorFromService();
         SyncFeatureVisibility();
         RefreshThemeRuntimeResources();

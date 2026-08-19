@@ -119,6 +119,7 @@ internal sealed partial class HqOptionsShell
             ResolveUiText(ExternalToolsStatusCheckingKey),
             unavailableText,
             selectedPath,
+            isAvailable: false,
             showSetupNote: false);
 
         QueueExternalToolsRefresh(showCheckingState: false);
@@ -147,6 +148,7 @@ internal sealed partial class HqOptionsShell
                 ResolveUiText(ExternalToolsStatusCheckingKey),
                 unavailableText,
                 unavailableText,
+                isAvailable: false,
                 showSetupNote: false);
         }
 
@@ -215,6 +217,7 @@ internal sealed partial class HqOptionsShell
             ResolveUiText(statusKey),
             versionDisplayText,
             isAvailable && !string.IsNullOrWhiteSpace(result.ToolPath) ? result.ToolPath : ResolvePreferredToolsFolder(),
+            isAvailable: isAvailable,
             showSetupNote: !isAvailable);
     }
 
@@ -238,6 +241,12 @@ internal sealed partial class HqOptionsShell
             && char.IsDigit(value[1]))
         {
             value = value.Substring(1).Trim();
+        }
+
+        int buildMetadataIndex = value.IndexOf('+');
+        if (buildMetadataIndex > 0)
+        {
+            value = value.Substring(0, buildMetadataIndex).Trim();
         }
 
         return string.IsNullOrWhiteSpace(value)

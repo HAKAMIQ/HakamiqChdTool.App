@@ -86,9 +86,6 @@
                         Command="{Binding SelectFilesCommand}"
                         IsEnabled="{Binding IsShellEnabled}"
                         Style="{DynamicResource QueueWorkspaceToolButton}"
-                        Background="{DynamicResource Brush.Accent.Subtle}"
-                        Foreground="{DynamicResource Brush.Accent.Text}"
-                        BorderBrush="{DynamicResource Brush.Accent.SelectedBorder}"
                         AutomationProperties.Name="{DynamicResource LocUi_Hub_AddFiles}">
 
                     <Grid>

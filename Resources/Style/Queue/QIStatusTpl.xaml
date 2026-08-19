@@ -5,6 +5,27 @@
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QItemBase.xaml" />
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QWShared.xaml" />
 </ResourceDictionary.MergedDictionaries>
+    <ToolTip x:Key="AppTip.QIStatusTpl.1"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocQueue_RedumpVerifyTooltip}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
 
     <DataTemplate x:Key="QueueItemStatusFieldsTemplate">
         <Grid Margin="{DynamicResource Inset.0.8.0.0}"
@@ -107,7 +128,7 @@
                     Command="{Binding DataContext.VerifyRowRedumpCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                     CommandParameter="{Binding}"
                     AutomationProperties.Name="{DynamicResource LocQueue_RedumpVerifyButton}"
-                    ToolTip="{DynamicResource LocQueue_RedumpVerifyTooltip}"
+                    ToolTip="{StaticResource AppTip.QIStatusTpl.1}"
                     ToolTipService.ShowOnDisabled="True">
                 <Button.Style>
                     <Style TargetType="{x:Type Button}"
