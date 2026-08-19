@@ -8,6 +8,71 @@
              UseLayoutRounding="True">
 
     <UserControl.Resources>
+        <ToolTip x:Key="AppTip.ProcActions.1"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocRedump_Tool_Subtitle}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.ProcActions.2"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocRedump_Tool_VerifySelectedTooltip}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.ProcActions.3"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocRedump_Tool_VerifyAllTooltip}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
         <Style x:Key="ProcessingActionsPanelText"
                TargetType="{x:Type TextBlock}">
             <Setter Property="FontFamily"
@@ -256,7 +321,7 @@
 
                 <TextBlock Grid.Column="2"
                            Text="{DynamicResource LocRedump_Tool_Title}"
-                           ToolTip="{DynamicResource LocRedump_Tool_Subtitle}"
+                           ToolTip="{StaticResource AppTip.ProcActions.1}"
                            TextAlignment="Left"
                            Style="{StaticResource ProcessingActionsPanelHeaderTitleText}"
                            Foreground="{DynamicResource Brush.Text.Secondary}" />
@@ -266,7 +331,7 @@
                     Command="{Binding VerifySelectedRedumpToolbarCommand}"
                     Tag="{StaticResource Icon.DatabaseSearch}"
                     Content="{DynamicResource LocRedump_Tool_VerifySelected}"
-                    ToolTip="{DynamicResource LocRedump_Tool_VerifySelectedTooltip}"
+                    ToolTip="{StaticResource AppTip.ProcActions.2}"
                     ToolTipService.ShowOnDisabled="True"
                     Style="{StaticResource ProcessingActionsPanelActionChip}" />
 
@@ -274,7 +339,7 @@
                     Command="{Binding VerifyAllRedumpToolbarCommand}"
                     Tag="{StaticResource Icon.Operation.Verify}"
                     Content="{DynamicResource LocRedump_Tool_VerifyAll}"
-                    ToolTip="{DynamicResource LocRedump_Tool_VerifyAllTooltip}"
+                    ToolTip="{StaticResource AppTip.ProcActions.3}"
                     ToolTipService.ShowOnDisabled="True"
                     Style="{StaticResource ProcessingActionsPanelActionChip}" />
         </Grid>

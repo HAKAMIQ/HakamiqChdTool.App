@@ -26,6 +26,27 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <ToolTip x:Key="AppTip.OrphanClean.1"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocCommon_Close}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
 
             <Style x:Key="OrphanedCleanupDialog.RootFrame"
                    TargetType="{x:Type Border}">
@@ -351,7 +372,7 @@
                             Padding="{DynamicResource Inset.None}"
                             VerticalAlignment="Center"
                             Style="{StaticResource HeaderIconButtonStyle}"
-                            ToolTip="{DynamicResource LocCommon_Close}"
+                            ToolTip="{StaticResource AppTip.OrphanClean.1}"
                             AutomationProperties.Name="{DynamicResource LocCommon_Close}"
                             Click="SkipButton_Click"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">

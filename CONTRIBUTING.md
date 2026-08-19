@@ -71,7 +71,7 @@ After a Release build, launch the app and check:
 - Main window opens.
 - Options window opens.
 - About window opens.
-- Light, Dark, and Hakamiq themes load.
+- Light and Dark themes load.
 - Arabic/English switching works after restart.
 - A small file can be added.
 - Verify and Extract paths still show clear results.

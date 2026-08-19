@@ -8,6 +8,115 @@
              UseLayoutRounding="True">
 
     <UserControl.Resources>
+        <ToolTip x:Key="AppTip.MainHeaderView.1"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocGeneralSettings_LanguageTitle}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.MainHeaderView.2"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocGeneralSettings_ThemeDescription}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.MainHeaderView.3"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Header_Minimize}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.MainHeaderView.4"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Header_Maximize}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.MainHeaderView.5"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Header_Close}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
         <Style x:Key="MainHeaderBrandGroup"
                TargetType="{x:Type Grid}">
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -342,6 +451,8 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="{DynamicResource Grid.Space.2}" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.2}" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <Button x:Name="HeaderSettingsButton"
@@ -357,7 +468,7 @@
                                 Grid.Column="2"
                                 Click="ForwardLanguageToggleRequested"
                                 Style="{StaticResource MainHeaderLanguageButton}"
-                                ToolTip="{DynamicResource LocGeneralSettings_LanguageTitle}"
+                                ToolTip="{StaticResource AppTip.MainHeaderView.1}"
                                 AutomationProperties.Name="{DynamicResource LocGeneralSettings_LanguageTitle}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True">
                             <TextBlock x:Name="HeaderLanguageText"
@@ -365,8 +476,20 @@
                                        Style="{StaticResource MainHeaderLanguageButtonText}" />
                         </Button>
 
-                        <Button x:Name="HeaderAboutButton"
+                        <Button x:Name="HeaderThemeButton"
                                 Grid.Column="4"
+                                Click="ThemeCycleButton_Click"
+                                Style="{StaticResource MainHeaderLanguageButton}"
+                                ToolTip="{StaticResource AppTip.MainHeaderView.2}"
+                                AutomationProperties.Name="{DynamicResource LocGeneralSettings_ThemeTitle}"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                            <TextBlock x:Name="HeaderThemeText"
+                                       Text="🌙"
+                                       Style="{StaticResource MainHeaderLanguageButtonText}" />
+                        </Button>
+
+                        <Button x:Name="HeaderAboutButton"
+                                Grid.Column="6"
                                 Command="{Binding OpenAboutCommand}"
                                 Style="{StaticResource MainHeaderGhostButton}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -387,7 +510,7 @@
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
 
                     <Button x:Name="CaptionMinimizeButton"
-                            ToolTip="{DynamicResource LocUi_Header_Minimize}"
+                            ToolTip="{StaticResource AppTip.MainHeaderView.3}"
                             Click="ForwardMinimizeRequested"
                             Style="{StaticResource MainHeaderCaptionBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -402,7 +525,7 @@
                     </Button>
 
                     <Button x:Name="CaptionMaximizeRestoreButton"
-                            ToolTip="{DynamicResource LocUi_Header_Maximize}"
+                            ToolTip="{StaticResource AppTip.MainHeaderView.4}"
                             Click="ForwardMaximizeRestoreRequested"
                             Style="{StaticResource MainHeaderCaptionBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -418,7 +541,7 @@
                     </Button>
 
                     <Button x:Name="CaptionCloseButton"
-                            ToolTip="{DynamicResource LocUi_Header_Close}"
+                            ToolTip="{StaticResource AppTip.MainHeaderView.5}"
                             Click="ForwardCloseRequested"
                             Style="{StaticResource MainHeaderCaptionCloseBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">

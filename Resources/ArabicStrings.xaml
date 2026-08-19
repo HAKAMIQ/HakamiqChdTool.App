@@ -1109,7 +1109,7 @@
     <sys:String x:Key="LocPerformance_ChdmanOptionsDesc">تخصيص وضع الأداء، وعدد مسارات المعالجة، وإعدادات الضغط. لاحظ أن رفع الإعدادات يسرع عملية التحويل ولكنه يستهلك المزيد من موارد المعالج وذاكرة النظام.</sys:String>
 
     <sys:String x:Key="LocPerformance_ProcessorCount">عدد مسارات الضغط (Threads)</sys:String>
-    <sys:String x:Key="LocPerformance_ConcurrentConversions">عمليات التحويل المتزامنة</sys:String>
+    <sys:String x:Key="LocPerformance_ConcurrentConversions">عدد الملفات التي يتم تحويلها في نفس الوقت</sys:String>
     <sys:String x:Key="LocPerformance_PerformanceMode">وضع الأداء (Performance Mode)</sys:String>
     <sys:String x:Key="LocPerformance_ProcessPriority">أولوية العملية (Priority)</sys:String>
     <sys:String x:Key="LocPerformance_IsoCreateMode">نمط إنشاء ملفات CHD</sys:String>
@@ -1156,7 +1156,7 @@
     <sys:String x:Key="LocRedumpSettings_Description">إجراء فحص Redump يدوياً من الواجهة الرئيسية. ملاحظة: الفحص لا يبدأ تلقائياً عند إضافة الملفات أو أثناء معالجتها.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_ManualScanSection">إعدادات الفحص اليدوي (Redump)</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">إظهار أدوات Redump في الواجهة الرئيسية</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">تفعيل أدوات Redump في الواجهة الرئيسية</sys:String>
     <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">إضافة زر الفحص وحالة المطابقة للملف المختار. ملاحظة: عملية الفحص تتم يدوياً فقط.</sys:String>
     <sys:String x:Key="LocRedumpSettings_ShowInMainTooltip">تفعيل أدوات فحص Redump وعرض نتائج المطابقة في الواجهة الرئيسية.</sys:String>
 
@@ -1186,7 +1186,7 @@
     <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">اختر مجلد Redump</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">استعراض...</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختر مجلد Redump من جهازك.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص مجلد Redump DAT</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص المجلد</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">يعرض أعداد DAT/XML و CUE قبل تجهيز القاعدة.</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">تجهيز قاعدة المطابقة</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">يستورد ملفات DAT/XML المختارة إلى SQLite لتفعيل فحص الألعاب.</sys:String>
@@ -1231,18 +1231,26 @@
     <sys:String x:Key="LocCommon_Apply">تطبيق</sys:String>
 
     <sys:String x:Key="LocOptions_WindowTitle">الخيارات المتقدمة</sys:String>
-    <sys:String x:Key="LocOptions_HeaderDescription">ضبط إعدادات التشغيل، والتحقق، والمسارات، والضغط.</sys:String>
+    <sys:String x:Key="LocOptions_HeaderDescription">&#x2067;إدارة التحويل والملفات وريدمب والأداء والإضافات.&#x2069;</sys:String>
     <sys:String x:Key="LocOptions_SectionsTitle">الأقسام</sys:String>
     <sys:String x:Key="LocOptions_SectionsDescription">اختيار القسم المراد تعديله.</sys:String>
     <sys:String x:Key="LocOptions_TabGeneral">عام</sys:String>
-    <sys:String x:Key="LocOptions_TabPaths">المسارات</sys:String>
-    <sys:String x:Key="LocOptions_TabRedump">Redump</sys:String>
-    <sys:String x:Key="LocOptions_TabProcessing">المعالجة</sys:String>
-    <sys:String x:Key="LocOptions_TabPerformance">الأداء</sys:String>
+    <sys:String x:Key="LocOptions_TabPaths">&#x2067;الملفات&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabRedump">&#x2067;ريدمب&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabProcessing">&#x2067;التحويل&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabPerformance">&#x2067;الأداء&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabAddons">&#x2067;الإضافات&#x2069;</sys:String>
+    <sys:String x:Key="LocConversion_EngineSection">&#x2067;محرك التحويل&#x2069;</sys:String>
+    <sys:String x:Key="LocConversion_ChdSection">&#x2067;إعدادات CHD&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_OrganizeSection">&#x2067;إدارة الملفات&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_OutputSection">&#x2067;الإخراج ومساحة العمل&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_ResultsSection">&#x2067;إدارة النتائج&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_CleanupSection">&#x2067;التنظيف&#x2069;</sys:String>
+    <sys:String x:Key="LocPerformance_RuntimeSection">&#x2067;الموارد والتنفيذ&#x2069;</sys:String>
     <sys:String x:Key="LocExternalTools_Title">Hakamiq-CsoKit</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">متاح</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">غير موجود</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">تعذر التحقق</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">الأداة متصلة بنجاح</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">الأداة غير متوفرة في المسار المخصص:</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">تعذر الاتصال بالأداة في المسار:</sys:String>
     <sys:String x:Key="LocExternalTools_OpenFolder">فتح مجلد الأدوات</sys:String>
     <sys:String x:Key="LocExternalTools_Recheck">إعادة الفحص</sys:String>
     <sys:String x:Key="LocExternalTools_CopySetupInstructions">نسخ تعليمات الإعداد</sys:String>
@@ -1775,7 +1783,7 @@
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">تم منع إعادة ضغط ملف CHD إلى CHD مباشرة. المسار الآمن هو استخراج ملف الوسائط الأصلي أولًا، ثم إعادة بناء ملف CHD وفقًا لسياسة المنصة.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">ملخص سريع للملفات قبل تجهيز قاعدة المطابقة.</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جارٍ إعادة الفحص...</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جارٍ التحقق من الأداة...</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">ملاحظة</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">تعذر التحقق من سلامة ملف CHD.&#x0A;قد يكون الملف تالفاً، غير مكتمل، أو بصيغة غير مدعومة.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">تنبيه</sys:String>

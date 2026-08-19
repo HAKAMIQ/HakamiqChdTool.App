@@ -26,6 +26,49 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <ToolTip x:Key="AppTip.RedDetails.1"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocCommon_Close}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
+
+            <ToolTip x:Key="AppTip.RedDetails.2"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocRedumpDetails_ApplyNameTooltip}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
 
             <Style x:Key="RedumpDetails.Root"
                    TargetType="{x:Type Border}">
@@ -668,7 +711,7 @@
                             Padding="{DynamicResource Inset.None}"
                             VerticalAlignment="Center"
                             Style="{StaticResource HeaderIconButtonStyle}"
-                            ToolTip="{DynamicResource LocCommon_Close}"
+                            ToolTip="{StaticResource AppTip.RedDetails.1}"
                             AutomationProperties.Name="{DynamicResource LocCommon_Close}"
                             Command="{Binding CloseCommand}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -967,7 +1010,7 @@
 
                                     <Button Grid.Column="6"
                                             Content="{DynamicResource LocRedumpDetails_ApplyName}"
-                                            ToolTip="{DynamicResource LocRedumpDetails_ApplyNameTooltip}"
+                                            ToolTip="{StaticResource AppTip.RedDetails.2}"
                                             AutomationProperties.Name="{DynamicResource LocRedumpDetails_ApplyName}"
                                             Command="{Binding ApplyNameCommand}"
                                             IsEnabled="{Binding CanApplyName, Mode=OneWay}"
