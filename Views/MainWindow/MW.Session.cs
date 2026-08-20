@@ -162,6 +162,16 @@ public partial class MainWindow
             return _w.CanRunRedumpIntegrityForAnyQueueItem();
         }
 
+        public void CancelRedumpIntegrityScan()
+        {
+            _w.CancelRedumpIntegrityScan();
+        }
+
+        public bool CanCancelRedumpIntegrityScan()
+        {
+            return _w.CanCancelRedumpIntegrityScan();
+        }
+
         public Task ShowRedumpDetails(TaskQueueItemViewModel? item)
         {
             return _w.ShowRedumpDetails(item);

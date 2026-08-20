@@ -7,8 +7,8 @@ using HakamiqChdTool.App.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App;
@@ -24,10 +24,120 @@ public partial class MainWindow
     private const string RedumpAllScanCompletedWithFailuresFooterFormatKey = "LocRedump_AllScanCompletedWithFailuresFooterFormat";
     private const string RedumpAllScanCompletedFooterFormatKey = "LocRedump_AllScanCompletedFooterFormat";
     private const string CommonCancelKey = "LocCommon_Cancel";
+    private const string RedumpCancelRequestedFooterKey = "LocRedump_CancelRequestedFooter";
+
+    private readonly object _redumpScanSync = new();
+    private CancellationTokenSource? _redumpScanCts;
 
     private sealed record RedumpScanCandidate(
         Guid ItemId,
         string Path);
+
+    private bool TryBeginRedumpScanSession(
+        out CancellationTokenSource? scanSession)
+    {
+        scanSession = null;
+
+        lock (_redumpScanSync)
+        {
+            if (_redumpScanCts is not null)
+            {
+                return false;
+            }
+
+            scanSession = CancellationTokenSource.CreateLinkedTokenSource(
+                _windowLifetimeCts.Token);
+
+            _redumpScanCts = scanSession;
+        }
+
+        UpdateUiState();
+        return true;
+    }
+
+    private void EndRedumpScanSession(
+        CancellationTokenSource scanSession)
+    {
+        bool ownsSession = false;
+
+        lock (_redumpScanSync)
+        {
+            if (ReferenceEquals(_redumpScanCts, scanSession))
+            {
+                _redumpScanCts = null;
+                ownsSession = true;
+            }
+        }
+
+        if (ownsSession)
+        {
+            scanSession.Dispose();
+            UpdateUiState();
+        }
+    }
+
+    public bool CanCancelRedumpIntegrityScan()
+    {
+        lock (_redumpScanSync)
+        {
+            return _redumpScanCts is
+            {
+                IsCancellationRequested: false
+            };
+        }
+    }
+
+    public void CancelRedumpIntegrityScan()
+    {
+        CancellationTokenSource? scanSession;
+
+        lock (_redumpScanSync)
+        {
+            scanSession = _redumpScanCts;
+
+            if (scanSession is null ||
+                scanSession.IsCancellationRequested)
+            {
+                return;
+            }
+        }
+
+        try
+        {
+            scanSession.Cancel();
+            SetFooterStatus(Ui(RedumpCancelRequestedFooterKey));
+        }
+        catch (ObjectDisposedException)
+        {
+            return;
+        }
+
+        UpdateUiState();
+    }
+
+    private async Task RunSingleRedumpScanAsync(
+        TaskQueueItemViewModel item,
+        string path)
+    {
+        if (!TryBeginRedumpScanSession(out CancellationTokenSource? scanSession) ||
+            scanSession is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await RunDeepIntegrityValidationAsync(
+                    item,
+                    path,
+                    scanSession.Token)
+                .ConfigureAwait(true);
+        }
+        finally
+        {
+            EndRedumpScanSession(scanSession);
+        }
+    }
 
     private async Task RunIntegrityContextAsync(TaskQueueItemViewModel? item)
     {
@@ -52,7 +162,7 @@ public partial class MainWindow
             return;
         }
 
-        await RunDeepIntegrityValidationAsync(item, path).ConfigureAwait(true);
+        await RunSingleRedumpScanAsync(item, path).ConfigureAwait(true);
     }
 
     public bool CanRunRedumpIntegrityForSelectedQueueItem(TaskQueueItemViewModel? item)
@@ -62,7 +172,8 @@ public partial class MainWindow
         if (item is null ||
             IsQueueInteractionLocked ||
             !_settings.EnableDeepIntegrityCheck ||
-            !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity))
+            !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity) ||
+            _queueView.IndexOf(item) < 0)
         {
             return false;
         }
@@ -74,7 +185,10 @@ public partial class MainWindow
     {
         item ??= TasksDataGrid.SelectedItem as TaskQueueItemViewModel;
 
-        if (item is null || IsQueueInteractionLocked || !_settings.EnableDeepIntegrityCheck)
+        if (item is null ||
+            IsQueueInteractionLocked ||
+            !_settings.EnableDeepIntegrityCheck ||
+            _queueView.IndexOf(item) < 0)
         {
             return;
         }
@@ -92,7 +206,7 @@ public partial class MainWindow
 
         try
         {
-            await RunDeepIntegrityValidationAsync(item, path).ConfigureAwait(true);
+            await RunSingleRedumpScanAsync(item, path).ConfigureAwait(true);
         }
         catch (OperationCanceledException)
         {
@@ -127,9 +241,7 @@ public partial class MainWindow
             return;
         }
 
-        Guid[] itemIds = _queueRowStore.Rows
-            .Select(row => row.ItemId)
-            .ToArray();
+        Guid[] itemIds = _queueView.GetVisibleRowIdsSnapshot();
 
         if (itemIds.Length == 0)
         {
@@ -144,6 +256,13 @@ public partial class MainWindow
             return;
         }
 
+        if (!TryBeginRedumpScanSession(out CancellationTokenSource? scanSession) ||
+            scanSession is null)
+        {
+            return;
+        }
+
+        CancellationToken cancellationToken = scanSession.Token;
         int eligibleCount = candidates.Length;
         int scannedCount = 0;
         int failedCount = 0;
@@ -154,10 +273,7 @@ public partial class MainWindow
         {
             foreach (RedumpScanCandidate candidate in candidates)
             {
-                if (_windowLifetimeCts.IsCancellationRequested || IsQueueInteractionLocked)
-                {
-                    break;
-                }
+                cancellationToken.ThrowIfCancellationRequested();
 
                 TaskQueueItemViewModel? item = _viewport.TryGetMaterialized(candidate.ItemId);
                 bool realizedForScan = false;
@@ -189,9 +305,11 @@ public partial class MainWindow
 
                         await RunDeepIntegrityValidationAsync(
                                 item,
-                                candidate.Path)
+                                candidate.Path,
+                                cancellationToken)
                             .ConfigureAwait(true);
 
+                        cancellationToken.ThrowIfCancellationRequested();
                         scannedCount = SaturatingAdd(scannedCount, 1);
                     }
                     catch (OperationCanceledException)
@@ -201,7 +319,9 @@ public partial class MainWindow
                     catch (Exception ex) when (IsExpectedRedumpRuntimeException(ex))
                     {
                         failedCount = SaturatingAdd(failedCount, 1);
-                        SetFooterStatus(UiFormat(RedumpItemScanFailedContinueFooterFormatKey, failedCount));
+                        SetFooterStatus(UiFormat(
+                            RedumpItemScanFailedContinueFooterFormatKey,
+                            failedCount));
                     }
                 }
                 finally
@@ -212,26 +332,29 @@ public partial class MainWindow
                     }
                 }
             }
+
+            if (failedCount > 0)
+            {
+                SetFooterStatus(UiFormat(
+                    RedumpAllScanCompletedWithFailuresFooterFormatKey,
+                    scannedCount,
+                    failedCount));
+
+                return;
+            }
+
+            SetFooterStatus(UiFormat(
+                RedumpAllScanCompletedFooterFormatKey,
+                scannedCount));
         }
         catch (OperationCanceledException)
         {
             SetFooterStatus(Ui(RedumpScanCancelledFooterKey));
-            return;
         }
-
-        if (_windowLifetimeCts.IsCancellationRequested || IsQueueInteractionLocked)
+        finally
         {
-            SetFooterStatus(UiFormat(RedumpAllScanStoppedFooterFormatKey, scannedCount));
-            return;
+            EndRedumpScanSession(scanSession);
         }
-
-        if (failedCount > 0)
-        {
-            SetFooterStatus(UiFormat(RedumpAllScanCompletedWithFailuresFooterFormatKey, scannedCount, failedCount));
-            return;
-        }
-
-        SetFooterStatus(UiFormat(RedumpAllScanCompletedFooterFormatKey, scannedCount));
     }
 
     private RedumpScanCandidate[] BuildRedumpScanCandidates(IReadOnlyList<Guid> itemIds)

@@ -58,7 +58,8 @@ public partial class MainWindow
 
     private async Task RunDeepIntegrityValidationAsync(
         TaskQueueItemViewModel item,
-        string probePath)
+        string probePath,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -86,8 +87,6 @@ public partial class MainWindow
 
             return;
         }
-
-        CancellationToken cancellationToken = _windowLifetimeCts.Token;
 
         if (!_settings.EnableDeepIntegrityCheck ||
             !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity))
@@ -350,12 +349,9 @@ public partial class MainWindow
         RedumpOperationState redumpState = ResolveRedumpOperationState(progressEvent);
 
         bool isIndeterminate =
+            progressEvent.CurrentStep <= 1 &&
             progressEvent.TotalBytes <= 0 &&
-            progressEvent.Percent <= 0 &&
-            progressEvent.OperationType is
-                ProgressOperationType.TemporaryNormalization or
-                ProgressOperationType.RedumpScan or
-                ProgressOperationType.Hashing;
+            progressEvent.Percent <= 0;
 
         string progressStatus = BuildRedumpProgressStatus(
             message,
@@ -373,9 +369,28 @@ public partial class MainWindow
                 progressStatus,
                 detailPath);
 
-            bool hasHashMetrics =
-                progressEvent.OperationType == ProgressOperationType.Hashing &&
-                progressEvent.TotalBytes > 0L;
+            bool hasByteMetrics =
+                progressEvent.TotalBytes > 0L &&
+                progressEvent.OperationType is
+                    ProgressOperationType.Hashing or
+                    ProgressOperationType.TemporaryNormalization;
+
+            long displayedCurrentBytes = progressEvent.CurrentBytes;
+
+            if (hasByteMetrics &&
+                displayedCurrentBytes <= 0L &&
+                progressEvent.Percent > 0d)
+            {
+                displayedCurrentBytes = Math.Min(
+                    progressEvent.TotalBytes,
+                    (long)Math.Round(
+                        progressEvent.TotalBytes *
+                        Math.Clamp(progressEvent.Percent, 0d, 100d) /
+                        100d));
+            }
+
+            bool hasRateMetrics =
+                progressEvent.OperationType == ProgressOperationType.Hashing;
 
             ApplyRedumpProgressAndSync(
                 item,
@@ -383,10 +398,10 @@ public partial class MainWindow
                 message,
                 overallProgress,
                 isIndeterminate,
-                hasHashMetrics ? progressEvent.CurrentBytes : 0L,
-                hasHashMetrics ? progressEvent.TotalBytes : 0L,
-                hasHashMetrics ? progressEvent.SpeedBytesPerSecond : 0d,
-                hasHashMetrics ? progressEvent.Eta : null);
+                hasByteMetrics ? displayedCurrentBytes : 0L,
+                hasByteMetrics ? progressEvent.TotalBytes : 0L,
+                hasRateMetrics ? progressEvent.SpeedBytesPerSecond : 0d,
+                hasRateMetrics ? progressEvent.Eta : null);
 
             SetFooterStatus(progressStatus);
         });

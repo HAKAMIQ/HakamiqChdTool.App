@@ -81,6 +81,7 @@ internal static partial class Program
                 new("Media input pipeline makes P0 decisions", () => TestMediaInputPipelineP0Decisions(app, workDirectory)),
                 new("Fast direct intake honors P0 media evidence", () => TestFastDirectIntakeHonorsP0Evidence(app, workDirectory)),
                 new("Queue operation capabilities honor P0 media evidence", () => TestQueueOperationCapabilitiesHonorP0Evidence(app, workDirectory)),
+                new("Visible queue snapshot scopes Redump to the current section", TestVisibleQueueSnapshotScopesRedump),
                 new("Queue operation intent isolates mode navigation from workflow paths", TestQueueOperationIntentOwnership),
                 new("Archive and Redump security policies reject unsafe inputs", () => TestSecurityResourcePolicies(app)),
                 new("Archive resource monitor fails closed", () => TestArchiveResourceMonitorFailsClosed(app)),
@@ -1249,6 +1250,96 @@ internal static partial class Program
             HakamiqChdTool.App.Services.QueueOperationMode.Convert,
             row.OperationIntent,
             "Working/output path changes must not change queue operation ownership.");
+    }
+
+    private static void TestVisibleQueueSnapshotScopesRedump()
+    {
+        var store =
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueRowStore();
+
+        Guid visibleId = Guid.NewGuid();
+        Guid hiddenId = Guid.NewGuid();
+
+        store.Append(
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueRowData
+            {
+                ItemId = visibleId,
+                OriginalPath = "visible.iso",
+                IsVisibleInCurrentOperationMode = true
+            });
+
+        store.Append(
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueRowData
+            {
+                ItemId = hiddenId,
+                OriginalPath = "hidden.iso",
+                IsVisibleInCurrentOperationMode = false
+            });
+
+        using var viewport =
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueViewportService(
+                store,
+                static _ => throw new InvalidOperationException(
+                    "Visible-row snapshot must not materialize queue view models."),
+                static (_, _) => { });
+
+        using var view =
+            new HakamiqChdTool.App.ViewModels.Virtualization.VirtualizedQueueCollection(
+                store,
+                viewport,
+                static row => row.IsVisibleInCurrentOperationMode);
+
+        Guid[] firstSnapshot =
+            view.GetVisibleRowIdsSnapshot();
+
+        AssertEqual(
+            1,
+            firstSnapshot.Length,
+            "Only the visible section row should be captured.");
+
+        AssertEqual(
+            visibleId,
+            firstSnapshot[0],
+            "The visible row id was not captured.");
+
+        AssertEqual(
+            0,
+            viewport.MaterializedCount,
+            "Snapshotting the visible section must not materialize rows.");
+
+        AssertTrue(
+            store.Mutate(
+                visibleId,
+                static row =>
+                    row.IsVisibleInCurrentOperationMode = false),
+            "Failed to hide the first row.");
+
+        AssertTrue(
+            store.Mutate(
+                hiddenId,
+                static row =>
+                    row.IsVisibleInCurrentOperationMode = true),
+            "Failed to show the second row.");
+
+        view.RefreshView();
+
+        Guid[] secondSnapshot =
+            view.GetVisibleRowIdsSnapshot();
+
+        AssertEqual(
+            1,
+            secondSnapshot.Length,
+            "The refreshed section should contain one visible row.");
+
+        AssertEqual(
+            hiddenId,
+            secondSnapshot[0],
+            "Visible Redump scope did not follow the current section.");
+
+        AssertEqual(
+            0,
+            viewport.MaterializedCount,
+            "Refreshing Redump scope must not materialize rows.");
     }
 
     private static void AssertTrue(bool condition, string message)
