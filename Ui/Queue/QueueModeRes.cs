@@ -84,6 +84,12 @@ internal static class QueueModeResolver
             return IsRequestedActionRunnable(row);
         }
 
+        if (row.OperationIntent != QueueOperationMode.None
+            && row.OperationIntent != selectedMode)
+        {
+            return false;
+        }
+
         if (row.HasActiveQueueBinding || !TaskQueueStateCodes.IsWaiting(row.CurrentState))
         {
             return false;

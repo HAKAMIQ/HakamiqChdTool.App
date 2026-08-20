@@ -31,6 +31,16 @@ internal static class QueueOperationModeProjection
             _ => "Convert"
         };
 
+    public static QueueOperationMode ResolveOperationIntent(
+        string? requestedAction,
+        QueueExecutionProfile executionProfile)
+    {
+        QueueOperationMode profileMode = FromExecutionProfile(executionProfile);
+
+        return profileMode != QueueOperationMode.None
+            ? profileMode
+            : QueueOperationCapabilityService.GetOperationMode(requestedAction);
+    }
     public static string ResolveInitialRequestedAction(
         string? path,
         QueueExecutionProfile executionProfile) =>

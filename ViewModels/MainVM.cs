@@ -80,7 +80,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
         VerifySelectedToolbarCommand = new AsyncRelayCommand(
             () => _coordinator.VerifySelectedChdAsync(SelectedTask),
-            () => SelectedTask is { IsDirectChd: true } && !_session.IsQueueInteractionLocked);
+            () => SelectedTask is { IsDirectChd: true }
+                && string.Equals(
+                    SelectedTask.RequestedAction,
+                    TaskActionCodes.VerifyChd,
+                    StringComparison.Ordinal)
+                && !_session.IsQueueInteractionLocked);
 
         VerifySelectedRedumpToolbarCommand = new AsyncRelayCommand(
             () => _session.RunRedumpIntegrityForSelectedQueueItemAsync(SelectedTask),

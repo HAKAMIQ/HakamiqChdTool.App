@@ -216,6 +216,9 @@ public partial class MainWindowViewModel
             DetectionReason = string.Empty,
             RequestedAction = action,
             ExecutionProfile = executionProfile,
+            OperationIntent = QueueOperationModeProjection.ResolveOperationIntent(
+                action,
+                executionProfile),
             IntakeSource = intakeSource,
             IntakeAdvisory = null,
             CurrentState = initialState,

@@ -219,15 +219,7 @@ internal sealed class QueueRunCoordinator(
 
         if (!string.Equals(selected.RequestedAction, TaskActionCodes.VerifyChd, StringComparison.Ordinal))
         {
-            if (string.Equals(selected.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal)
-                || string.Equals(selected.RequestedAction, TaskActionCodes.RestoreDiscImageFromChd, StringComparison.Ordinal))
-            {
-                selected.RequestedAction = TaskActionCodes.VerifyChd;
-            }
-            else
-            {
-                return;
-            }
+            return;
         }
 
         if (!TryBeginRun(out CancellationToken runToken))

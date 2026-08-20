@@ -81,6 +81,7 @@ internal static partial class Program
                 new("Media input pipeline makes P0 decisions", () => TestMediaInputPipelineP0Decisions(app, workDirectory)),
                 new("Fast direct intake honors P0 media evidence", () => TestFastDirectIntakeHonorsP0Evidence(app, workDirectory)),
                 new("Queue operation capabilities honor P0 media evidence", () => TestQueueOperationCapabilitiesHonorP0Evidence(app, workDirectory)),
+                new("Queue operation intent isolates mode navigation from workflow paths", TestQueueOperationIntentOwnership),
                 new("Archive and Redump security policies reject unsafe inputs", () => TestSecurityResourcePolicies(app)),
                 new("Archive resource monitor fails closed", () => TestArchiveResourceMonitorFailsClosed(app)),
                 new("7-Zip output flood terminates the process", () => TestSevenZipOutputFloodTerminatesProcess(app, workDirectory)),
@@ -1170,6 +1171,84 @@ internal static partial class Program
 
         return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
             || candidate.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void TestQueueOperationIntentOwnership()
+    {
+        HakamiqChdTool.App.Services.QueueOperationMode convertIntent =
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveOperationIntent(
+                HakamiqChdTool.App.Localization.TaskActionCodes.ConvertToChd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.Standard);
+
+        HakamiqChdTool.App.Services.QueueOperationMode verifyIntent =
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveOperationIntent(
+                HakamiqChdTool.App.Localization.TaskActionCodes.VerifyChd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickVerify);
+
+        HakamiqChdTool.App.Services.QueueOperationMode extractIntent =
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveOperationIntent(
+                HakamiqChdTool.App.Localization.TaskActionCodes.ExtractFromChd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickExtract);
+
+        AssertEqual(
+            HakamiqChdTool.App.Services.QueueOperationMode.Convert,
+            convertIntent,
+            "Standard conversion action should own the Convert queue mode.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Services.QueueOperationMode.Verify,
+            verifyIntent,
+            "QuickVerify should own the Verify queue mode.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Services.QueueOperationMode.Extract,
+            extractIntent,
+            "QuickExtract should own the Extract queue mode.");
+
+        var row =
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueRowData
+            {
+                ItemId = Guid.NewGuid(),
+                OriginalPath = "input.iso",
+                SourcePath = "input.iso",
+                RequestedAction =
+                    HakamiqChdTool.App.Localization.TaskActionCodes.ConvertToChd,
+                ExecutionProfile =
+                    HakamiqChdTool.App.Models.QueueExecutionProfile.QuickConvert,
+                OperationIntent = convertIntent,
+                OutputPath = "output.chd",
+                IsVisibleInCurrentOperationMode = true
+            };
+
+        string originalAction = row.RequestedAction;
+        string originalSource = row.SourcePath;
+
+        bool runnableAsVerify =
+            HakamiqChdTool.App.Ui.Queue.QueueModeResolver.IsWaitingRowRunnableForMode(
+                row,
+                HakamiqChdTool.App.Services.QueueOperationMode.Verify);
+
+        AssertFalse(
+            runnableAsVerify,
+            "A Convert-owned row must never become runnable as Verify.");
+
+        AssertEqual(
+            originalAction,
+            row.RequestedAction,
+            "Mode probing must not mutate RequestedAction.");
+
+        AssertEqual(
+            originalSource,
+            row.SourcePath,
+            "Mode probing must not mutate SourcePath.");
+
+        row.SourcePath = "working.iso";
+        row.OutputPath = "final.chd";
+
+        AssertEqual(
+            HakamiqChdTool.App.Services.QueueOperationMode.Convert,
+            row.OperationIntent,
+            "Working/output path changes must not change queue operation ownership.");
     }
 
     private static void AssertTrue(bool condition, string message)
