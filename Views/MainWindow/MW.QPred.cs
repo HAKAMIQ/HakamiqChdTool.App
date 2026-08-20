@@ -150,8 +150,7 @@ public partial class MainWindow
         }
 
         return string.Equals(item.RequestedAction, TaskActionCodes.ExtractFromChd, StringComparison.Ordinal) ||
-            string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal) ||
-            string.Equals(item.RequestedAction, TaskActionCodes.VerifyChd, StringComparison.Ordinal);
+            string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal);
     }
 
     private static bool CanQueueItemVerifyChd(TaskQueueItemViewModel? item)
@@ -168,8 +167,7 @@ public partial class MainWindow
         }
 
         return string.Equals(item.RequestedAction, TaskActionCodes.VerifyChd, StringComparison.Ordinal) ||
-            string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal) ||
-            string.Equals(item.RequestedAction, TaskActionCodes.ExtractFromChd, StringComparison.Ordinal);
+            string.Equals(item.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal);
     }
 
     private bool CanQueueItemIntegrityCheck(TaskQueueItemViewModel? item)

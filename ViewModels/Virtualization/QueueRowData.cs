@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Conversion;
 using System;
 
@@ -20,6 +21,7 @@ public sealed class QueueRowData
     public string ConsoleIdentityReason { get; set; } = string.Empty;
     public string RequestedAction { get; set; } = string.Empty;
     public QueueExecutionProfile ExecutionProfile { get; set; } = QueueExecutionProfile.Standard;
+    internal QueueOperationMode OperationIntent { get; init; } = QueueOperationMode.None;
     public QueueIntakeSource IntakeSource { get; set; } = QueueIntakeSource.UserInitiatedAdd;
 
     public string CurrentState { get; set; } = TaskQueueStateCodes.Pending;
