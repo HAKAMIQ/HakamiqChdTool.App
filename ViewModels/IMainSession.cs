@@ -62,6 +62,10 @@ public interface IMainWindowSession
 
     bool CanRunRedumpIntegrityForAnyQueueItem();
 
+    void CancelRedumpIntegrityScan();
+
+    bool CanCancelRedumpIntegrityScan();
+
     Task ShowRedumpDetails(TaskQueueItemViewModel? item);
 
     Task ApplyRedumpSuggestedNameAsync(TaskQueueItemViewModel? item);

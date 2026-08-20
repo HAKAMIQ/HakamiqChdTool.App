@@ -95,6 +95,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             () => _session.RunRedumpIntegrityForAllQueueItemsAsync(),
             () => IsRedumpFeatureVisible && _session.CanRunRedumpIntegrityForAnyQueueItem());
 
+        CancelRedumpIntegrityCommand = new RelayCommand(
+            () => _session.CancelRedumpIntegrityScan(),
+            () => IsRedumpFeatureVisible && _session.CanCancelRedumpIntegrityScan());
+
         VerifyRowRedumpCommand = new AsyncRelayCommand<TaskQueueItemViewModel?>(
             item => _session.RunRedumpIntegrityForSelectedQueueItemAsync(item ?? SelectedTask),
             item => IsRedumpFeatureVisible && _session.CanRunRedumpIntegrityForSelectedQueueItem(item ?? SelectedTask));
@@ -184,6 +188,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     public IAsyncRelayCommand ProcessSelectedToolbarCommand { get; }
     public IAsyncRelayCommand VerifySelectedRedumpToolbarCommand { get; }
     public IAsyncRelayCommand VerifyAllRedumpToolbarCommand { get; }
+    public IRelayCommand CancelRedumpIntegrityCommand { get; }
     public IAsyncRelayCommand<TaskQueueItemViewModel?> VerifyRowRedumpCommand { get; }
     public IAsyncRelayCommand<TaskQueueItemViewModel?> ShowRedumpDetailsCommand { get; }
     public IAsyncRelayCommand<TaskQueueItemViewModel?> ApplyRedumpSuggestedNameCommand { get; }
@@ -222,6 +227,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         ProcessSelectedToolbarCommand.NotifyCanExecuteChanged();
         VerifySelectedRedumpToolbarCommand.NotifyCanExecuteChanged();
         VerifyAllRedumpToolbarCommand.NotifyCanExecuteChanged();
+        CancelRedumpIntegrityCommand.NotifyCanExecuteChanged();
         VerifyRowRedumpCommand.NotifyCanExecuteChanged();
         ShowRedumpDetailsCommand.NotifyCanExecuteChanged();
         ApplyRedumpSuggestedNameCommand.NotifyCanExecuteChanged();
