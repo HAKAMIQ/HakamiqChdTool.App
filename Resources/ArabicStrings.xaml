@@ -166,7 +166,6 @@
     <sys:String x:Key="LocUi_NoTasksAddOrDrag">لا توجد مهام — أضف ملفات أو اسحبها إلى هنا</sys:String>
     <sys:String x:Key="LocUi_ReadyForProcessing">جاهز للمعالجة</sys:String>
     <sys:String x:Key="LocUi_ArchiveWillUnpackThenConvert">سيتم استخراج الأرشيف تلقائيًا، ثم تحويل صور القرص الموجودة داخله.</sys:String>
-    <sys:String x:Key="LocUi_ArchiveAwaitingPreviewAtStartup">أرشيف بانتظار المعاينة عند بدء التحويل</sys:String>
     <sys:String x:Key="LocUi_ChooseOperationForItem">اختر العملية المدعومة لهذا الملف</sys:String>
     <sys:String x:Key="LocUi_UnsupportedQueueFile">هذا الملف غير مدعوم في العملية الحالية</sys:String>
     <sys:String x:Key="LocUi_Verified">تم التحقق</sys:String>
@@ -312,7 +311,6 @@
     <sys:String x:Key="LocFooter_NoSupportedFiles">لا توجد ملفات مدعومة.</sys:String>
     <sys:String x:Key="LocFooter_AnalyzingFiles">جارٍ تحليل الملفات...</sys:String>
     <sys:String x:Key="LocFooter_AlreadyInQueue">العناصر موجودة بالفعل في قائمة المعالجة.</sys:String>
-    <sys:String x:Key="LocFooter_ArchiveWillUnpackThenConvert">سيتم استخراج الأرشيف ثم تحويل صورة القرص المدعومة.</sys:String>
     <sys:String x:Key="LocFooter_AddedOne">تمت إضافة عنصر واحد.</sys:String>
     <sys:String x:Key="LocFmt_AddedMany">تمت إضافة {0} من العناصر.</sys:String>
     <sys:String x:Key="LocFmt_AddFilesFailed">تعذر إضافة الملفات: {0}</sys:String>
@@ -469,10 +467,7 @@
     <sys:String x:Key="LocRedumpCatalog_Artifact_NoCustomLinks">لا توجد روابط مخصصة لهذه المنصة في الكتالوج الحالي.</sys:String>
 
     <sys:String x:Key="LocArchive_VerificationFailed">تعذر التحقق من الأرشيف. قد يكون الملف تالفًا أو غير مكتمل.</sys:String>
-    <sys:String x:Key="LocArchive_PreviewUnreadable">تعذر قراءة الأرشيف. يرجى التحقق من الملف والمحاولة مرة أخرى.</sys:String>
     <sys:String x:Key="LocArchive_PasswordProtected">الأرشيف محمي بكلمة مرور؛ لا يمكن معالجته تلقائيًا.</sys:String>
-    <sys:String x:Key="LocArchive_WillUnpackThenConvert">سيتم استخراج الأرشيف ثم تحويل صورة القرص.</sys:String>
-    <sys:String x:Key="LocArchive_ContainsOnlyChd">الأرشيف يحتوي على ملف CHD فقط. يرجى استخراجه يدويًا.</sys:String>
     <sys:String x:Key="LocArchive_InvalidNamingConvention">اسم الأرشيف لا يطابق نمط التسمية المتوقع.</sys:String>
     <sys:String x:Key="LocArchive_NoConvertibleDiscImage">لا يحتوي الأرشيف على صورة قرص قابلة للتحويل. ملفات التطبيقات (مثل Vita ZIP أو PKG) غير مدعومة.</sys:String>
     <sys:String x:Key="LocArchive_MultipleConvertibleDiscImages">يحتوي الأرشيف على أكثر من صورة قرص. يرجى الاستخراج يدويًا لاختيار الملف المطلوب.</sys:String>
@@ -1555,10 +1550,8 @@
     <sys:String x:Key="LocQueueAdd_ScannedItemsFormat">تم تجهيز {0} من أصل {1} عنصر.</sys:String>
     <sys:String x:Key="LocQueueAdd_CancelAdd">إلغاء الإضافة</sys:String>
     <sys:String x:Key="LocQueueAdd_AddCancelled">تم إيقاف عملية إضافة الملفات.</sys:String>
-    <sys:String x:Key="LocQueueAdd_SkippedCorruptArchives">تم تجاهل بعض الأرشيفات لأنها تالفة أو غير قابلة للقراءة.</sys:String>
     <sys:String x:Key="LocQueueAdd_SkippedUnsupportedOrDuplicate">تم تجاهل الملفات غير المدعومة أو التالفة أو المكررة.</sys:String>
-    <sys:String x:Key="LocQueueAdd_ArchivePreviewTimeout">استغرق فحص الأرشيف وقتاً طويلاً، لذا تم تخطيه.</sys:String>
-    <sys:String x:Key="LocQueueAdd_ArchivePreviewCancelled">تم إلغاء فحص الأرشيف.</sys:String>
+    <sys:String x:Key="LocArchive_DescriptorReadTimeout">استغرقت قراءة ملف الوصف داخل الأرشيف وقتًا طويلاً.</sys:String>
     <sys:String x:Key="LocQueue_OperationLogDisplay">سجل العملية: {0}</sys:String>
 
     <sys:String x:Key="LocIntakeReview_Title">مراجعة الملفات قبل الإضافة</sys:String>

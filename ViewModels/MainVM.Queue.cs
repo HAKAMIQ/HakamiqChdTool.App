@@ -23,7 +23,6 @@ public partial class MainWindowViewModel
 {
     private static readonly IInputResolver InputResolverStatic = new Core.Input.InputResolver();
     private static readonly IMediaInputPipeline MediaInputPipelineStatic = new MediaInputPipeline(MediaInputClassifier.Shared);
-    private static readonly ArchiveContentPreviewService ArchivePreviewService = new();
     private static readonly global::HakamiqChdTool.App.Services.ConsoleIdBg ConsoleIdentityEnricher = new();
     private static readonly FormatSafetyAdvisor FormatSafetyAdvisorStatic = new();
 
@@ -38,9 +37,6 @@ public partial class MainWindowViewModel
 
     private sealed record PreparedQueueBatchResult(
         IReadOnlyList<PreparedQueueCandidate> Candidates,
-        int AcceptedArchives,
-        IReadOnlyList<string> RejectedArchiveMessageKeys,
-        bool SkippedCorruptArchives = false,
         bool SkippedUnsupportedInputs = false,
         bool WasCancelled = false);
 
@@ -161,14 +157,10 @@ public partial class MainWindowViewModel
 
             var seenImportedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var preparedCandidates = new List<PreparedIntakeCandidate>();
-            var rejectedArchiveMessageKeys = new List<string>();
-            var archivePreviewCache = new Dictionary<ArchiveInspectionCacheKey, ArchiveContentPreviewResult>();
-            var sevenZipListingCache = new Dictionary<ArchiveInspectionCacheKey, SevenZipProcessResult>();
 
             int unsupportedFileCount = 0;
             int duplicateFileCount = 0;
             int missingPathCount = 0;
-            int acceptedArchiveTotal = 0;
 
             var progress = new QueueAddProgressState
             {
@@ -293,10 +285,7 @@ public partial class MainWindowViewModel
                     () => PrepareQueueBatch(
                         effectiveDecision,
                         executionProfile,
-                        intakeSource,
-                        intakeToken,
-                        archivePreviewCache,
-                        sevenZipListingCache),
+                        intakeToken),
                     intakeToken).ConfigureAwait(false);
 
                 if (prepared.WasCancelled)
@@ -307,15 +296,11 @@ public partial class MainWindowViewModel
                     await ShowIntakeResultAsync(
                         dispatcher,
                         actualAddedDelta: 0,
-                        skippedCorruptArchives: progress.SkippedCorruptArchives,
                         skippedUnsupportedOrDuplicate: progress.SkippedUnsupportedOrDuplicate,
                         wasCancelled: true).ConfigureAwait(false);
                     return Array.Empty<Guid>();
                 }
 
-                acceptedArchiveTotal += prepared.AcceptedArchives;
-                rejectedArchiveMessageKeys.AddRange(prepared.RejectedArchiveMessageKeys);
-                progress.SkippedCorruptArchives |= prepared.SkippedCorruptArchives;
                 progress.SkippedUnsupportedOrDuplicate |= prepared.SkippedUnsupportedInputs;
 
                 foreach (PreparedQueueCandidate candidate in prepared.Candidates)
@@ -361,7 +346,6 @@ public partial class MainWindowViewModel
                 await ShowIntakeResultAsync(
                     dispatcher,
                     actualAddedDelta: 0,
-                    skippedCorruptArchives: progress.SkippedCorruptArchives || rejectedArchiveMessageKeys.Any(IsCorruptOrUnreadableArchiveMessageKey),
                     skippedUnsupportedOrDuplicate: progress.SkippedUnsupportedOrDuplicate || unsupportedFileCount > 0 || duplicateFileCount > 0 || missingPathCount > 0,
                     wasCancelled: false).ConfigureAwait(false);
                 return Array.Empty<Guid>();
@@ -433,15 +417,6 @@ public partial class MainWindowViewModel
 
                         _session.SetFooterStatus(footer);
                     }
-                    else if (acceptedArchiveTotal > 0)
-                    {
-                        string addedText = actualAddedDelta == 1
-                            ? ArabicUi.Get(MainWindowMessages.AddedOne)
-                            : ArabicUi.Format(MainWindowMessages.Fmt_AddedMany, actualAddedDelta);
-
-                        footer = addedText + " " + ArabicUi.Get(MainWindowMessages.ArchiveWillUnpackThenConvertFooter);
-                        _session.SetFooterStatus(footer);
-                    }
                     else if (actualAddedDelta == 1)
                     {
                         footer = ArabicUi.Get(MainWindowMessages.AddedOne);
@@ -462,7 +437,6 @@ public partial class MainWindowViewModel
             await ShowIntakeResultAsync(
                 dispatcher,
                 actualAddedDelta,
-                progress.SkippedCorruptArchives || rejectedArchiveMessageKeys.Any(IsCorruptOrUnreadableArchiveMessageKey),
                 progress.SkippedUnsupportedOrDuplicate || unsupportedFileCount > 0 || duplicateFileCount > 0 || missingPathCount > 0,
                 wasCancelled: false).ConfigureAwait(false);
 
@@ -481,7 +455,6 @@ public partial class MainWindowViewModel
             await ShowIntakeResultAsync(
                 dispatcher,
                 actualAddedDelta: 0,
-                skippedCorruptArchives: false,
                 skippedUnsupportedOrDuplicate: false,
                 wasCancelled: true).ConfigureAwait(false);
             return Array.Empty<Guid>();
@@ -983,7 +956,6 @@ public partial class MainWindowViewModel
             TaskActionCodes.Unsupported => string.IsNullOrWhiteSpace(detectionReason)
                 ? MainWindowMessages.UnsupportedQueueFile
                 : detectionReason,
-            TaskActionCodes.StageArchiveForConversion when !ArchivePreviewIntakePolicy.AllowsArchivePreview(intakeSource) => MainWindowMessages.ArchiveAwaitingPreviewAtStartup,
             TaskActionCodes.StageArchiveForConversion => MainWindowMessages.ArchiveWillUnpackThenConvertDetail,
             _ => MainWindowMessages.ReadyForProcessing
         };

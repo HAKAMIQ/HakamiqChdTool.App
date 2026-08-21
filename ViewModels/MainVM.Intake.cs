@@ -51,7 +51,6 @@ public partial class MainWindowViewModel
         private int _lastAcceptedCount = -1;
         private int _lastScannedCount = -1;
         private string _lastPhaseKey = string.Empty;
-        private bool _lastSkippedCorruptArchives;
         private bool _lastSkippedUnsupportedOrDuplicate;
 
         public int AcceptedCount { get; set; }
@@ -63,8 +62,6 @@ public partial class MainWindowViewModel
         public bool HasKnownTotal { get; init; }
 
         public string PhaseKey { get; set; } = "LocQueueAdd_ScanningFiles";
-
-        public bool SkippedCorruptArchives { get; set; }
 
         public bool SkippedUnsupportedOrDuplicate { get; set; }
 
@@ -79,7 +76,6 @@ public partial class MainWindowViewModel
             bool changed = AcceptedCount != _lastAcceptedCount
                 || ScannedCount != _lastScannedCount
                 || !string.Equals(PhaseKey, _lastPhaseKey, StringComparison.Ordinal)
-                || SkippedCorruptArchives != _lastSkippedCorruptArchives
                 || SkippedUnsupportedOrDuplicate != _lastSkippedUnsupportedOrDuplicate;
 
             return changed && now - _lastUiUpdate >= MinimumUpdateInterval;
@@ -91,7 +87,6 @@ public partial class MainWindowViewModel
             _lastAcceptedCount = AcceptedCount;
             _lastScannedCount = ScannedCount;
             _lastPhaseKey = PhaseKey;
-            _lastSkippedCorruptArchives = SkippedCorruptArchives;
             _lastSkippedUnsupportedOrDuplicate = SkippedUnsupportedOrDuplicate;
         }
     }
@@ -280,11 +275,6 @@ public partial class MainWindowViewModel
     {
         var lines = new List<string>();
 
-        if (progress.SkippedCorruptArchives)
-        {
-            lines.Add(ArabicUi.Get("LocQueueAdd_SkippedCorruptArchives"));
-        }
-
         if (progress.SkippedUnsupportedOrDuplicate)
         {
             lines.Add(ArabicUi.Get("LocQueueAdd_SkippedUnsupportedOrDuplicate"));
@@ -293,16 +283,9 @@ public partial class MainWindowViewModel
         return string.Join(Environment.NewLine, lines);
     }
 
-    private static string BuildNoValidFilesAddedMessage(
-        bool skippedCorruptArchives,
-        bool skippedUnsupportedOrDuplicate)
+    private static string BuildNoValidFilesAddedMessage(bool skippedUnsupportedOrDuplicate)
     {
         var lines = new List<string>();
-
-        if (skippedCorruptArchives)
-        {
-            lines.Add(ArabicUi.Get("LocQueueAdd_SkippedCorruptArchives"));
-        }
 
         if (skippedUnsupportedOrDuplicate || lines.Count == 0)
         {
@@ -315,7 +298,6 @@ public partial class MainWindowViewModel
     private async Task ShowIntakeResultAsync(
         Dispatcher dispatcher,
         int actualAddedDelta,
-        bool skippedCorruptArchives,
         bool skippedUnsupportedOrDuplicate,
         bool wasCancelled)
     {
@@ -333,24 +315,19 @@ public partial class MainWindowViewModel
         {
             title = ArabicUi.Get("LocQueueActivity_AddedTitle");
             message = ArabicUi.Format("LocQueueActivity_AddedMessage", actualAddedDelta);
-            if (skippedCorruptArchives)
-            {
-                message += Environment.NewLine + ArabicUi.Get("LocQueueAdd_SkippedCorruptArchives");
-            }
-
             if (skippedUnsupportedOrDuplicate)
             {
                 message += Environment.NewLine + ArabicUi.Get("LocQueueAdd_SkippedUnsupportedOrDuplicate");
             }
 
-            severity = skippedCorruptArchives || skippedUnsupportedOrDuplicate ? "Warning" : "Success";
+            severity = skippedUnsupportedOrDuplicate ? "Warning" : "Success";
         }
         else
         {
             title = ArabicUi.Get("LocQueueActivity_AddSkippedTitle");
             message = ArabicUi.Get("LocQueueActivity_AddSkippedTitle")
                 + Environment.NewLine
-                + BuildNoValidFilesAddedMessage(skippedCorruptArchives, skippedUnsupportedOrDuplicate);
+                + BuildNoValidFilesAddedMessage(skippedUnsupportedOrDuplicate);
             severity = "Warning";
         }
 
@@ -365,9 +342,8 @@ public partial class MainWindowViewModel
             DispatcherPriority.Background);
 
         Log.ForContext<MainWindowViewModel>().Debug(
-            "Intake result displayed. Added={Added}, SkippedCorrupt={SkippedCorrupt}, SkippedUnsupported={SkippedUnsupported}, Cancelled={Cancelled}",
+            "Intake result displayed. Added={Added}, SkippedUnsupported={SkippedUnsupported}, Cancelled={Cancelled}",
             actualAddedDelta,
-            skippedCorruptArchives,
             skippedUnsupportedOrDuplicate,
             wasCancelled);
 
@@ -453,10 +429,7 @@ public partial class MainWindowViewModel
     private static PreparedQueueBatchResult PrepareQueueBatch(
         MediaInputPipelineDecision decision,
         QueueExecutionProfile executionProfile,
-        QueueIntakeSource intakeSource,
-        CancellationToken cancellationToken,
-        IDictionary<ArchiveInspectionCacheKey, ArchiveContentPreviewResult>? archivePreviewCache = null,
-        IDictionary<ArchiveInspectionCacheKey, SevenZipProcessResult>? sevenZipListingCache = null)
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(decision);
 
@@ -464,8 +437,6 @@ public partial class MainWindowViewModel
         {
             return new PreparedQueueBatchResult(
                 Array.Empty<PreparedQueueCandidate>(),
-                AcceptedArchives: 0,
-                Array.Empty<string>(),
                 WasCancelled: true);
         }
 
@@ -478,8 +449,6 @@ public partial class MainWindowViewModel
         {
             return new PreparedQueueBatchResult(
                 Array.Empty<PreparedQueueCandidate>(),
-                AcceptedArchives: 0,
-                Array.Empty<string>(),
                 SkippedUnsupportedInputs: true);
         }
 
@@ -490,27 +459,19 @@ public partial class MainWindowViewModel
             effectivePath,
             classification,
             executionProfile,
-            intakeSource,
-            cancellationToken,
-            archivePreviewCache,
-            sevenZipListingCache);
+            cancellationToken);
     }
 
     private static PreparedQueueBatchResult PrepareClassifiedQueueInput(
         string effectivePath,
         QueueInputClassification classification,
         QueueExecutionProfile executionProfile,
-        QueueIntakeSource intakeSource,
-        CancellationToken cancellationToken,
-        IDictionary<ArchiveInspectionCacheKey, ArchiveContentPreviewResult>? archivePreviewCache,
-        IDictionary<ArchiveInspectionCacheKey, SevenZipProcessResult>? sevenZipListingCache)
+        CancellationToken cancellationToken)
     {
         if (cancellationToken.IsCancellationRequested)
         {
             return new PreparedQueueBatchResult(
                 Array.Empty<PreparedQueueCandidate>(),
-                AcceptedArchives: 0,
-                Array.Empty<string>(),
                 WasCancelled: true);
         }
 
@@ -518,66 +479,13 @@ public partial class MainWindowViewModel
         {
             return new PreparedQueueBatchResult(
                 Array.Empty<PreparedQueueCandidate>(),
-                AcceptedArchives: 0,
-                Array.Empty<string>(),
                 SkippedUnsupportedInputs: true);
-        }
-
-        var rejectedArchiveMessageKeys = new List<string>();
-        int acceptedArchives = 0;
-        bool skippedCorruptArchives = false;
-
-        if (ArchivePreviewIntakePolicy.ShouldPreviewArchive(
-                classification,
-                intakeSource))
-        {
-            ArchiveContentPreviewResult preview = ArchivePreviewService.PreviewForIntake(
-                effectivePath,
-                intakeSource,
-                cancellationToken,
-                archivePreviewCache,
-                sevenZipListingCache);
-
-            if (preview.WasCancelled)
-            {
-                return new PreparedQueueBatchResult(
-                    Array.Empty<PreparedQueueCandidate>(),
-                    AcceptedArchives: 0,
-                    rejectedArchiveMessageKeys,
-                    WasCancelled: true);
-            }
-
-            if (!preview.CanUnpackThenConvert)
-            {
-                string messageKey = string.IsNullOrWhiteSpace(preview.MessageResourceKey)
-                    ? "LocArchive_NoConvertibleDiscImage"
-                    : preview.MessageResourceKey;
-
-                rejectedArchiveMessageKeys.Add(messageKey);
-                skippedCorruptArchives =
-                    IsCorruptOrUnreadableArchiveMessageKey(messageKey);
-
-                return new PreparedQueueBatchResult(
-                    Array.Empty<PreparedQueueCandidate>(),
-                    AcceptedArchives: 0,
-                    rejectedArchiveMessageKeys,
-                    skippedCorruptArchives);
-            }
-
-            acceptedArchives++;
         }
 
         string action =
             QueueOperationModeProjection.ResolveInitialRequestedAction(
                 classification,
                 executionProfile);
-
-        if (!ArchivePreviewIntakePolicy.AllowsQueuedArchiveProcessing(
-                classification,
-                intakeSource))
-        {
-            action = TaskActionCodes.StageArchiveForConversion;
-        }
 
         if (string.Equals(
                 action,
@@ -586,9 +494,6 @@ public partial class MainWindowViewModel
         {
             return new PreparedQueueBatchResult(
                 Array.Empty<PreparedQueueCandidate>(),
-                acceptedArchives,
-                rejectedArchiveMessageKeys,
-                skippedCorruptArchives,
                 SkippedUnsupportedInputs: true);
         }
 
@@ -600,19 +505,9 @@ public partial class MainWindowViewModel
             platform.PlatformName,
             platform.Reason);
 
-        return new PreparedQueueBatchResult(
-            [candidate],
-            acceptedArchives,
-            rejectedArchiveMessageKeys,
-            skippedCorruptArchives);
+        return new PreparedQueueBatchResult([candidate]);
     }
 
-    private static bool IsCorruptOrUnreadableArchiveMessageKey(string messageResourceKey)
-    {
-        return string.Equals(messageResourceKey, "LocArchive_PreviewUnreadable", StringComparison.Ordinal)
-            || string.Equals(messageResourceKey, "LocQueueAdd_ArchivePreviewTimeout", StringComparison.Ordinal)
-            || string.Equals(messageResourceKey, "LocQueueAdd_ArchivePreviewCancelled", StringComparison.Ordinal);
-    }
 
     private static async IAsyncEnumerable<MediaInputPipelineDecision> EnumerateInputDecisionsAsync(
         IReadOnlyList<string> rawList,
