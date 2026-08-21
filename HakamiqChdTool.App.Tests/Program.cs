@@ -78,6 +78,7 @@ internal static partial class Program
                 new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
                 new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
                 new("Verified conversion source cleanup contract is unchanged", () => TestConversionSourceCleanupContractUnchanged(app)),
+                new("Verified conversion source cleanup includes CSO", () => TestVerifiedConversionSourceCleanupIncludesCso(app, workDirectory)),
                 new("Final extract output uses CHD stem and requested extension", () => TestFinalExtractOutputPathUsesChdStem(app, workDirectory)),
                 new("Final extract output can organize by platform", () => TestFinalExtractOutputPathCanOrganizeByPlatform(app, workDirectory)),
                 new("Verified CHD path is unchanged without organization", () => TestVerifiedChdPathIsUnchangedWithoutOrganization(app, workDirectory)),
@@ -609,6 +610,17 @@ internal static partial class Program
                 verifyAfterConversion: false,
                 sourceDeletionProofVerified: false),
             "Conversion cleanup must still require VerifyAfterConversion.");
+    }
+
+    private static void TestVerifiedConversionSourceCleanupIncludesCso(AppReflection app, string workDirectory)
+    {
+        string sourcePath = Path.Combine(workDirectory, "verified-conversion-source.cso");
+        string outputPath = Path.Combine(workDirectory, "verified-conversion-output.chd");
+
+        string[] candidates = app.BuildVerifiedConversionSourceCleanupCandidates(sourcePath, outputPath);
+
+        AssertEqual(1, candidates.Length, "Verified CSO conversion should produce one source cleanup candidate.");
+        AssertEqual(sourcePath, candidates[0], "Verified CSO conversion should delete the original CSO source.");
     }
 
     private static void TestFinalExtractOutputPathUsesChdStem(AppReflection app, string workDirectory)
@@ -1786,6 +1798,8 @@ internal static partial class Program
         private readonly ConstructorInfo extractionOutputBundleValidatorConstructor;
         private readonly MethodInfo finalizeExtractionOutputBundle;
         private readonly MethodInfo deleteFailedCueBinBundle;
+        private readonly object workflowSourceCleanupPipelineForTests;
+        private readonly MethodInfo buildVerifiedConversionCandidates;
         private readonly MethodInfo createCsoTempWorkspace;
 
         public AppReflection(Assembly appAssembly)
@@ -1800,6 +1814,7 @@ internal static partial class Program
             Type outputPathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowOutputPathPlanner");
             Type workflowOrchestratorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.ChdWorkflowOrchestrator");
             Type workflowCleanupStageType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowCleanupStage");
+            Type workflowSourceCleanupPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSourceCleanupPipeline");
             Type workflowExecutionResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowExecutionResult");
             Type chdInfoServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdInfoService");
             chdInfoResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdInfoResult");
@@ -1817,6 +1832,7 @@ internal static partial class Program
             queueExecutionProfileType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.QueueExecutionProfile");
             queueIngestKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.QueueIngestKind");
             mainWindowViewModelForFastPathTests = RuntimeHelpers.GetUninitializedObject(mainWindowViewModelType);
+            workflowSourceCleanupPipelineForTests = RuntimeHelpers.GetUninitializedObject(workflowSourceCleanupPipelineType);
             Type sevenZipInspectorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveInspector");
             Type sevenZipProcessRunnerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipProcessRunner");
             Type sevenZipExtractionType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveExtractionService");
@@ -1869,6 +1885,10 @@ internal static partial class Program
                 workflowCleanupStageType,
                 "TryDeleteFailedCueBinBundle",
                 [typeof(string)]);
+            buildVerifiedConversionCandidates = GetRequiredInstanceMethod(
+                workflowSourceCleanupPipelineType,
+                "BuildVerifiedConversionCandidates",
+                [typeof(string), typeof(string)]);
             verifySingleFileExtractionProofAsync = GetRequiredMethod(
                 extractionOutputProofVerifierType,
                 "VerifySingleFileAsync",
@@ -2024,6 +2044,23 @@ internal static partial class Program
                 ?? throw new MissingMemberException(stats.GetType().FullName, "DeletedFiles"));
 
             return (deletedBytes, deletedFiles);
+        }
+
+        public string[] BuildVerifiedConversionSourceCleanupCandidates(string sourcePath, string outputPath)
+        {
+            object? value = buildVerifiedConversionCandidates.Invoke(
+                workflowSourceCleanupPipelineForTests,
+                [sourcePath, outputPath]);
+
+            if (value is not IEnumerable candidates)
+            {
+                throw new InvalidOperationException("Verified conversion source cleanup candidates were unavailable.");
+            }
+
+            return candidates
+                .Cast<object>()
+                .Select(static candidate => GetString(candidate, "Path"))
+                .ToArray();
         }
 
         public string ParseChdInfoSha1Digest(string infoText, string label) =>
