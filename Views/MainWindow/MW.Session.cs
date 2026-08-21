@@ -2,7 +2,6 @@ using HakamiqChdTool.App.Core.Session;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
@@ -43,13 +42,6 @@ public partial class MainWindow
             return _w._settings;
         }
 
-        public IAppFeatureService AppFeatures => _w._appFeatureService;
-
-        public bool RequireAppFeature(AppFeature feature)
-        {
-            return _w.RequireAppFeature(feature);
-        }
-
         public QueueRowStore QueueRows => _w._queueRowStore;
 
         public (bool IsCompliant, string SuggestedStandardName) AnalyzeNamingForPath(string sourcePath)
@@ -60,8 +52,7 @@ public partial class MainWindow
             }
 
             AppSettings settings = _w._settings;
-            if (!settings.EnableDeepIntegrityCheck ||
-                !_w._appFeatureService.IsEnabled(AppFeature.StandardNamingSuggestion))
+            if (!settings.EnableDeepIntegrityCheck)
             {
                 return (true, string.Empty);
             }

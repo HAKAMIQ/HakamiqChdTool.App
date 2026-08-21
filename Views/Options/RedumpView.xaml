@@ -332,7 +332,6 @@
                                     <CheckBox x:Name="EnableDeepIntegrityCheckCheckBox"
                                               Grid.Column="0"
                                               IsChecked="{Binding EnableDeepIntegrityCheck, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                              IsEnabled="{Binding CanEnableDeepIntegrityCheck}"
                                               Style="{StaticResource Win11SettingsCheckBox}"
                                               ToolTip="{StaticResource AppTip.RedumpView.1}"
                                               AutomationProperties.Name="{DynamicResource LocRedumpSettings_ShowInMainTitle}" />
@@ -362,7 +361,6 @@
                                     <CheckBox x:Name="ApplyStandardNamingBasedOnHashCheckBox"
                                               Grid.Column="0"
                                               IsChecked="{Binding ApplyStandardNamingBasedOnHash, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                              IsEnabled="{Binding CanEnableStandardNaming}"
                                               Style="{StaticResource Win11SettingsCheckBox}"
                                               ToolTip="{StaticResource AppTip.RedumpView.3}"
                                               AutomationProperties.Name="{DynamicResource LocRedumpSettings_SuggestNameTitle}" />
@@ -443,7 +441,6 @@
                                              MinHeight="{DynamicResource Space.32}"
                                              FontSize="{DynamicResource FontSize.BodySmall}"
                                              Text="{Binding RedumpLocalLibraryRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
-                                             IsEnabled="{Binding CanUseRedumpDatabaseImport}"
                                              FlowDirection="LeftToRight"
                                              Language="en-US"
                                              TextAlignment="Left"
@@ -465,7 +462,6 @@
                                             MinHeight="{DynamicResource Space.32}"
                                             FontSize="{DynamicResource FontSize.BodySmall}"
                                             Command="{Binding BrowseRedumpLocalLibraryCommand}"
-                                            IsEnabled="{Binding CanUseRedumpDatabaseImport}"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             ToolTip="{StaticResource AppTip.RedumpView.6}"
                                             AutomationProperties.Name="{DynamicResource LocRedumpSettings_BrowseLocalFolderButton}">
@@ -658,7 +654,6 @@
                                          MinHeight="{DynamicResource Space.32}"
                                          FontSize="{DynamicResource FontSize.BodySmall}"
                                          Text="{Binding RedumpDatXmlPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
-                                         IsEnabled="{Binding CanUseRedumpDatabaseImport}"
                                          FlowDirection="LeftToRight"
                                          Language="en-US"
                                          TextAlignment="Left"
@@ -681,7 +676,6 @@
                                         MinHeight="{DynamicResource Space.32}"
                                         FontSize="{DynamicResource FontSize.BodySmall}"
                                         Command="{Binding BrowseRedumpDatCommand}"
-                                        IsEnabled="{Binding CanUseRedumpDatabaseImport}"
                                         ToolTip="{StaticResource AppTip.RedumpView.10}"
                                         AutomationProperties.Name="{DynamicResource LocRedumpSettings_BrowseDatButton}"
                                         Style="{StaticResource SecondaryButtonStyle}">
@@ -699,7 +693,6 @@
                                         MinHeight="{DynamicResource Space.32}"
                                         FontSize="{DynamicResource FontSize.BodySmall}"
                                         Click="ImportRedumpDatabaseButton_Click"
-                                        IsEnabled="{Binding CanUseRedumpDatabaseImport}"
                                         ToolTip="{StaticResource AppTip.RedumpView.11}"
                                         AutomationProperties.Name="{DynamicResource LocRedumpSettings_ImportButton}"
                                         Style="{StaticResource SecondaryButtonStyle}">

@@ -51,8 +51,6 @@ internal sealed class ChdWorkflowTaskContext
         }
     }
 
-    public Func<AppFeature, bool> CanUseAppFeature { get; init; } = static feature => Enum.IsDefined(feature);
-
     public ChdWorkflowMode Mode { get; init; } = ChdWorkflowMode.ProcessQueueItem;
 
     public Action? OnUiRefresh { get; init; }

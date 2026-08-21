@@ -28,10 +28,9 @@ public sealed class QueueManager : IQueueManager
         IChdWorkflowOrchestrator orchestrator,
         Func<AppSettings> getSettings,
         Func<string> getChdmanPath,
-        int maxConcurrentItems = DefaultMaxConcurrentItems,
-        Func<AppFeature, bool>? canUseAppFeature = null)
+        int maxConcurrentItems = DefaultMaxConcurrentItems)
     {
-        _state = new QueueRuntimeState(orchestrator, getSettings, getChdmanPath, maxConcurrentItems, canUseAppFeature);
+        _state = new QueueRuntimeState(orchestrator, getSettings, getChdmanPath, maxConcurrentItems);
         _notifications = new QueueNotificationPublisher();
         _stateStore = new QueueStateStore(_state, _notifications);
         _transitionService = new QueueTransitionService(_state, _notifications);
@@ -45,9 +44,8 @@ public sealed class QueueManager : IQueueManager
         Func<Guid, QueueItemSnapshot?> resolveSnapshot,
         Func<Guid, IQueueItemStateSink?> resolveSink,
         Action onUiRefresh,
-        int maxConcurrentItems = DefaultMaxConcurrentItems,
-        Func<AppFeature, bool>? canUseAppFeature = null)
-        : this(orchestrator, getSettings, getChdmanPath, maxConcurrentItems, canUseAppFeature)
+        int maxConcurrentItems = DefaultMaxConcurrentItems)
+        : this(orchestrator, getSettings, getChdmanPath, maxConcurrentItems)
     {
         ConfigureUiBindings(resolveSnapshot, resolveSink, onUiRefresh);
     }

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
 using Serilog;
 
@@ -88,8 +87,7 @@ public partial class MainWindow
             return;
         }
 
-        if (!_settings.EnableDeepIntegrityCheck ||
-            !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity))
+        if (!_settings.EnableDeepIntegrityCheck)
         {
             await InvokeOnUiIfAvailableAsync(() =>
             {

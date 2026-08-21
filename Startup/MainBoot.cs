@@ -2,7 +2,6 @@ using HakamiqChdTool.App.Core.Workflow;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Configuration;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.PostProcessing;
 using HakamiqChdTool.App.Ui.Shell;
 using Serilog;
@@ -22,7 +21,6 @@ internal sealed class MainWindowBootstrap
         IChdWorkflowOrchestrator workflowOrchestrator,
         IExternalLinkService externalLinkService,
         PostConversionArtifactService postConversionArtifacts,
-        IAppFeatureService appFeatureService,
         OrphanedWorkItemScanner orphanedScanner,
         OrphanedWorkItemCleanupService orphanedCleanup,
         IWindowActivationService windowActivationService)
@@ -35,7 +33,6 @@ internal sealed class MainWindowBootstrap
         ArgumentNullException.ThrowIfNull(workflowOrchestrator);
         ArgumentNullException.ThrowIfNull(externalLinkService);
         ArgumentNullException.ThrowIfNull(postConversionArtifacts);
-        ArgumentNullException.ThrowIfNull(appFeatureService);
         ArgumentNullException.ThrowIfNull(orphanedScanner);
         ArgumentNullException.ThrowIfNull(orphanedCleanup);
         ArgumentNullException.ThrowIfNull(windowActivationService);
@@ -48,7 +45,6 @@ internal sealed class MainWindowBootstrap
         WorkflowOrchestrator = workflowOrchestrator;
         ExternalLinkService = externalLinkService;
         PostConversionArtifacts = postConversionArtifacts;
-        AppFeatureService = appFeatureService;
         OrphanedScanner = orphanedScanner;
         OrphanedCleanup = orphanedCleanup;
         WindowActivationService = windowActivationService;
@@ -69,9 +65,6 @@ internal sealed class MainWindowBootstrap
     public IExternalLinkService ExternalLinkService { get; }
 
     public PostConversionArtifactService PostConversionArtifacts { get; }
-
-
-    public IAppFeatureService AppFeatureService { get; }
 
     public OrphanedWorkItemScanner OrphanedScanner { get; }
 
@@ -108,7 +101,6 @@ internal sealed class MainWindowBootstrap
         PostConversionArtifactService postConversionArtifacts = new();
         IChdWorkflowOrchestrator workflowOrchestrator = CreateWorkflowOrchestrator(postConversionArtifacts);
         IExternalLinkService externalLinkService = new ExternalLinkService();
-        IAppFeatureService appFeatureService = new AppFeatureService();
         OrphanedWorkItemScanner orphanedScanner = new(settings);
         OrphanedWorkItemCleanupService orphanedCleanup = new(settings);
         IWindowActivationService windowActivationService = new WindowActivator();
@@ -122,7 +114,6 @@ internal sealed class MainWindowBootstrap
             workflowOrchestrator,
             externalLinkService,
             postConversionArtifacts,
-            appFeatureService,
             orphanedScanner,
             orphanedCleanup,
             windowActivationService);
