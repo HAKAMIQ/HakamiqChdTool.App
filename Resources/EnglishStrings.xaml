@@ -1636,56 +1636,7 @@ Path:
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">This file type does not currently support a detailed verification report.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">A successful check does not guarantee that the game will run on every emulator or device; compatibility depends on platform support, settings, and launch method.</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Title">Before you start</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Subtitle">Conversion may be slower than usual</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SummaryTitle">Summary</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SourceLabel">Source</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputLabel">Output</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WorkspaceLabel">Temporary workspace</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_DeviceKindLabel">Storage type</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_RecommendationTitle">Recommended option</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WarningsTitle">Reason for recommendation</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_TechnicalPathLabel">Path</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_DoNotShowAgain">Do not show this dialog again</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_ContinueRecommended">Continue with recommended setting</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OpenOptions">Open advanced options</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Cancel">Cancel</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Device_Unknown">Unknown</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Hdd">HDD</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_SataSsd">SATA SSD</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_NvmeSsd">NVMe SSD</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Removable">Removable storage</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Network">Network path</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_Severity_Info">Info</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Recommendation">Recommendation</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Warning">Warning</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Blocking">Action required</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_SourceDeviceUnknown">Could not detect the source storage type. The app will use safe settings to keep the operation stable.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputDeviceUnknown">Could not detect the output storage type. The destination path will be handled carefully to avoid move issues.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_PendingWorkspaceDeviceUnknown">Could not detect the temporary workspace storage type. The path will be handled carefully.</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_SourceIsHdd">The source is on an HDD. Reading may be slower for large or multi-track files.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputIsHdd">The output is on an HDD. Writing CHD files may be slower than on SSD or NVMe storage.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SourceAndOutputSameHdd">The source and output are on the same HDD. Performance may be reduced because the same disk is used for reading and writing.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputIsFastStorage">Output is on SSD/NVMe, which is suitable for writing CHD files directly.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputFastStorage">Output is on SSD/NVMe, which is suitable for writing CHD files directly.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputCrossVolumeIsAllowed">A different drive can be used for source and output. The app will read the source file from one drive and write the CHD file directly to the selected output folder.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_LargeOutputShouldBeWrittenDirectly">For best performance with large CHD files, write the output file directly to the final output folder, or to a temporary workspace on the same output drive.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CrossVolumeFinalMoveShouldBeAvoided">Avoid creating a CHD file on one drive and moving it to another after completion; this can add a long wait and require extra space.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_BinCueRescueRequiresSameVolumeWorkspace">BIN/CUE handling needs a workspace on the same drive as the BIN files to complete safely.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CustomPendingWorkspaceDifferentVolumeForBinCueRescue">The temporary workspace you selected is on a different drive than the BIN files, so the app will use a safe option for this operation.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_AutoSameVolumeWorkspaceRecommended">A safe automatic workspace on the same source drive is recommended for this operation.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_HardLinkMayFailAcrossVolumes">Windows hard links usually cannot be created across different drives.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CustomWorkspaceUnsafe">The selected temporary workspace is not suitable or safe for this operation.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WorkspaceFallsBackToAuto">The app will use a safe automatic workspace instead of the custom workspace for this operation only.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UnknownStoragePolicyUsed">The app will use a safe storage policy because some drive information is unavailable.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Summary">The app will write large CHD files directly to the output folder, avoid large moves between drives, and use a safe same-drive temporary workspace when needed.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SafetyNote">The app will use a safe workspace for this operation and avoid copying large BIN files or moving CHD files between drives after completion.</sys:String>
-    <sys:String x:Key="LocPaths_ShowStorageAdvisorDialog">Show speed and performance tips before conversion</sys:String>
-    <sys:String x:Key="LocPaths_ShowStorageAdvisorDialogDesc">Shows a simple warning if the selected file locations may slow the process, such as using an HDD instead of an SSD or NVMe drive.</sys:String>
     <sys:String x:Key="LocAbout_DiscordTooltip">Discord</sys:String>
 
     <sys:String x:Key="LocChdLogicalReport_Title">CHD report</sys:String>
@@ -1707,14 +1658,6 @@ Path:
 	<sys:String x:Key="LocQueue_RuntimeProgress_EtaCalculating">Calculating</sys:String>
 	<sys:String x:Key="LocMeta_Target_Folder">Folder</sys:String>
     <sys:String x:Key="LocMeta_Target_SplitIso">ISO parts</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryTitle">Conversion may be slower</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryText">The source and output are on the same HDD, so conversion may be slower with large files.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserRecommendationText">Use an SSD/NVMe or a different output folder if available. You can continue as-is if this is acceptable.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_ShowDetails">Show details</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UseRecommended">Use recommended setting</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Continue">Continue</sys:String>
-
 
     <sys:String x:Key="LocPs3Intake_PipelineIsoToChd">ISO → chdman createdvd → CHD</sys:String>
     <sys:String x:Key="LocPs3Intake_PipelineFolderToChd">Folder → temporary ISO → chdman createdvd → CHD</sys:String>

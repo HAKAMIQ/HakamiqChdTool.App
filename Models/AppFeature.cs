@@ -9,7 +9,6 @@ public enum AppFeature
     RedumpDatabaseImport = 4,
     StandardNamingSuggestion = 5,
     PostProcessingAutomation = 6,
-    StorageAdvisor = 7,
     AdvancedSafetyChecks = 8,
     Dashboard = 9,
     SessionReports = 10,
