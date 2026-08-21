@@ -694,7 +694,7 @@
             <Border Grid.Row="0"
                     Style="{StaticResource RedumpDetails.Bar}"
                     FlowDirection="LeftToRight"
-                    Padding="8,8,16,8"
+                    Padding="{DynamicResource Inset.8.8.16.8}"
                     BorderThickness="{DynamicResource Inset.0.0.0.1}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
 
@@ -808,7 +808,7 @@
                                                 <TextBlock Text="{DynamicResource LocRedumpDetails_ConsoleTypeLabel}"
                                                            Style="{StaticResource RedumpDetails.Label}" />
 
-                                                <TextBlock Margin="8,0,0,0"
+                                                <TextBlock Margin="{DynamicResource Inset.8.0.0.0}"
                                                            Text="{Binding ConsoleTypeName, Mode=OneWay}"
                                                            ToolTip="{Binding ConsoleTypeName, Mode=OneWay}"
                                                            Style="{StaticResource RedumpDetails.Value}" />
@@ -827,7 +827,7 @@
                                                 <TextBlock Text="{DynamicResource LocRedumpDetails_SizeLabel}"
                                                            Style="{StaticResource RedumpDetails.Label}" />
 
-                                                <TextBlock Margin="8,0,0,0"
+                                                <TextBlock Margin="{DynamicResource Inset.8.0.0.0}"
                                                            Text="{Binding SizeDisplay, Mode=OneWay}"
                                                            ToolTip="{Binding SizeDisplay, Mode=OneWay}"
                                                            Style="{StaticResource RedumpDetails.Value}" />
