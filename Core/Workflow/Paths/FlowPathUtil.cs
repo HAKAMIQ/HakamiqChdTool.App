@@ -118,9 +118,6 @@ internal static class WorkflowPathUtilities
     public static double MapProgressRange(int rawValue, double minimum, double maximum) =>
         WorkflowPendingPathPolicy.MapProgressRange(rawValue, minimum, maximum);
 
-    public static string DetermineRequestedAction(string path) =>
-        WorkflowPendingPathPolicy.DetermineRequestedAction(path);
-
     public static void NormalizeCuePrimaryBinReference(string cuePath) =>
         WorkflowSafePathValidator.NormalizeCuePrimaryBinReference(cuePath);
 

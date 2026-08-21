@@ -1204,7 +1204,6 @@ function Test-RefactorCompositionCompletion {
 
         foreach ($viewName in @(
             'QueueToolbarView',
-            'QueueSummaryView',
             'QueueEmptyStateView',
             'QueueListView')) {
 
@@ -2375,15 +2374,56 @@ function Test-BinCueConsoleIdentityArchitecture {
     }
 
     $queueIntake =
-        Join-Path $root 'ViewModels\MainVM.Intake.cs'
+        Join-Path $root 'ViewModels\MainVM.Queue.cs'
 
-    if (Test-Path -LiteralPath $queueIntake -PathType Leaf) {
+    if (-not (Test-Path -LiteralPath $queueIntake -PathType Leaf)) {
+        Add-Failure 'Queue intake implementation is missing: ViewModels\MainVM.Queue.cs'
+    }
+    else {
         $content =
             Get-Content -LiteralPath $queueIntake -Raw -Encoding UTF8
 
-        if ($content -notmatch 'MediaInputPolicy\.Evaluate' -or
-            $content -notmatch 'mediaDecision\.EffectivePath') {
-            Add-Failure 'Queue intake must apply MediaInputPolicy and use EffectivePath for BIN->CUE redirects.'
+        foreach ($required in @(
+            'EnumerateInputDecisionsAsync',
+            'MediaInputPolicy(?:\.MediaInputPolicy)?\.Evaluate',
+            'mediaDecision\.EffectivePath',
+            'MediaInputPipelineStatic[\s\S]*?\.DecideAsync',
+            'QueueInputClassifier\.FromDecision\(effectiveDecision\)')) {
+
+            if ($content -notmatch $required) {
+                Add-Failure "Queue intake missing unified BIN->CUE pipeline marker: $required"
+            }
+        }
+    }
+
+    $intakeHelpers =
+        Join-Path $root 'ViewModels\MainVM.Intake.cs'
+
+    if (-not (Test-Path -LiteralPath $intakeHelpers -PathType Leaf)) {
+        Add-Failure 'Unified intake helper implementation is missing: ViewModels\MainVM.Intake.cs'
+    }
+    else {
+        $content =
+            Get-Content -LiteralPath $intakeHelpers -Raw -Encoding UTF8
+
+        foreach ($required in @(
+            'EnumerateInputDecisionsAsync',
+            'MediaInputPipelineStatic[\s\S]*?\.DecideAsync',
+            'PrepareQueueBatch\s*\(\s*MediaInputPipelineDecision\s+decision',
+            'QueueInputClassifier\.FromDecision\(decision\)')) {
+
+            if ($content -notmatch $required) {
+                Add-Failure "Unified intake helper missing pipeline-decision marker: $required"
+            }
+        }
+
+        if ($content -match
+            'PrepareQueueBatch\s*\(\s*IReadOnlyList<string>\s+paths') {
+            Add-Failure 'Legacy path-based PrepareQueueBatch overload must not be restored.'
+        }
+
+        if ($content -match 'EnumerateInputPathsAsync') {
+            Add-Failure 'Legacy path-only intake enumeration must not be restored.'
         }
     }
 

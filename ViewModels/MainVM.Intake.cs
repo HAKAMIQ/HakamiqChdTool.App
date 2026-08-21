@@ -451,101 +451,6 @@ public partial class MainWindowViewModel
     }
 
     private static PreparedQueueBatchResult PrepareQueueBatch(
-        IReadOnlyList<string> paths,
-        QueueExecutionProfile executionProfile,
-        QueueIntakeSource intakeSource,
-        CancellationToken cancellationToken,
-        IDictionary<ArchiveInspectionCacheKey, ArchiveContentPreviewResult>? archivePreviewCache = null,
-        IDictionary<ArchiveInspectionCacheKey, SevenZipProcessResult>? sevenZipListingCache = null)
-    {
-        var candidates = new List<PreparedQueueCandidate>(paths.Count);
-        var rejectedArchiveMessageKeys = new List<string>();
-        int acceptedArchives = 0;
-        bool skippedCorruptArchives = false;
-        bool skippedUnsupportedInputs = false;
-
-        foreach (string path in paths)
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return new PreparedQueueBatchResult(
-                    Array.Empty<PreparedQueueCandidate>(),
-                    acceptedArchives,
-                    rejectedArchiveMessageKeys,
-                    skippedCorruptArchives,
-                    skippedUnsupportedInputs,
-                    WasCancelled: true);
-            }
-
-            if (!TryNormalizeExistingFilePathForIntake(path, out string normalizedPath))
-            {
-                skippedUnsupportedInputs = true;
-                continue;
-            }
-
-            MediaInputDecision mediaDecision =
-                global::HakamiqChdTool.App.Services.MediaInputPolicy.MediaInputPolicy.Evaluate(
-                    normalizedPath);
-
-            if (mediaDecision.IsBlocked)
-            {
-                skippedUnsupportedInputs = true;
-                continue;
-            }
-
-            if (!TryNormalizeExistingFilePathForIntake(
-                    mediaDecision.EffectivePath,
-                    out string effectivePath))
-            {
-                skippedUnsupportedInputs = true;
-                continue;
-            }
-
-            QueueInputClassification classification =
-                QueueInputClassifier.Classify(effectivePath);
-
-            PreparedQueueBatchResult prepared = PrepareClassifiedQueueInput(
-                effectivePath,
-                classification,
-                executionProfile,
-                intakeSource,
-                cancellationToken,
-                archivePreviewCache,
-                sevenZipListingCache);
-
-            if (prepared.WasCancelled)
-            {
-                var cancelledRejectedArchiveMessageKeys =
-                    new List<string>(rejectedArchiveMessageKeys.Count + prepared.RejectedArchiveMessageKeys.Count);
-
-                cancelledRejectedArchiveMessageKeys.AddRange(rejectedArchiveMessageKeys);
-                cancelledRejectedArchiveMessageKeys.AddRange(prepared.RejectedArchiveMessageKeys);
-
-                return new PreparedQueueBatchResult(
-                    Array.Empty<PreparedQueueCandidate>(),
-                    acceptedArchives + prepared.AcceptedArchives,
-                    cancelledRejectedArchiveMessageKeys,
-                    skippedCorruptArchives || prepared.SkippedCorruptArchives,
-                    skippedUnsupportedInputs || prepared.SkippedUnsupportedInputs,
-                    WasCancelled: true);
-            }
-
-            candidates.AddRange(prepared.Candidates);
-            acceptedArchives += prepared.AcceptedArchives;
-            rejectedArchiveMessageKeys.AddRange(prepared.RejectedArchiveMessageKeys);
-            skippedCorruptArchives |= prepared.SkippedCorruptArchives;
-            skippedUnsupportedInputs |= prepared.SkippedUnsupportedInputs;
-        }
-
-        return new PreparedQueueBatchResult(
-            ApplySiblingPlatformConsensus(candidates),
-            acceptedArchives,
-            rejectedArchiveMessageKeys,
-            skippedCorruptArchives,
-            skippedUnsupportedInputs);
-    }
-
-    private static PreparedQueueBatchResult PrepareQueueBatch(
         MediaInputPipelineDecision decision,
         QueueExecutionProfile executionProfile,
         QueueIntakeSource intakeSource,
@@ -768,28 +673,6 @@ public partial class MainWindowViewModel
                     out _))
             {
                 yield return decision;
-            }
-        }
-    }
-
-    private static async IAsyncEnumerable<string> EnumerateInputPathsAsync(
-        IReadOnlyList<string> rawList,
-        QueueIngestKind inputKind,
-        SearchOption searchOption,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
-        await foreach (MediaInputPipelineDecision decision in EnumerateInputDecisionsAsync(
-                           rawList,
-                           inputKind,
-                           searchOption,
-                           cancellationToken)
-                       .ConfigureAwait(false))
-        {
-            if (TryNormalizeExistingFilePathForIntake(
-                    decision.Descriptor.FullPath,
-                    out string safeFilePath))
-            {
-                yield return safeFilePath;
             }
         }
     }
