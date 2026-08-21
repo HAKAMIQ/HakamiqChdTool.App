@@ -96,7 +96,7 @@
     <sys:String x:Key="LocUi_DropZone_ScanExtract">Select a folder to scan CHD files and extract supported items.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ActionHint">Drop files here, or select Add files or Add folder.</sys:String>
     <sys:String x:Key="LocUi_QueueRowCancel">Cancel</sys:String>
-    <sys:String x:Key="LocUi_QueueRowOpen">Open file location</sys:String>
+    <sys:String x:Key="LocUi_QueueRowOpen">Open location</sys:String>
     <sys:String x:Key="LocUi_QueueProgressPanelTooltip">Current phase and total task progress from 0 to 100%.</sys:String>
     <sys:String x:Key="LocQueue_Label_InputFormat">Input format</sys:String>
     <sys:String x:Key="LocQueue_Label_OutputFormat">Output format</sys:String>
@@ -1507,7 +1507,7 @@ Path:
     <sys:String x:Key="LocAbout_CreditsPrivacyNotice">Only public names are shown here, included as acknowledgment of their contribution.</sys:String>
     <sys:String x:Key="LocAbout_CreditDiscordTooltip">Open Discord server</sys:String>
 
-    <sys:String x:Key="LocAbout_WindowTitle">About {0}</sys:String>
+    <sys:String x:Key="LocAbout_WindowTitle">About</sys:String>
     <sys:String x:Key="LocAbout_DeveloperColumnTitle">Developer</sys:String>
     <sys:String x:Key="LocAbout_ContributorsColumnTitle">Contributors</sys:String>
     <sys:String x:Key="LocAbout_LicenseColumnTitle">License and notes</sys:String>
@@ -1617,7 +1617,7 @@ Path:
 
     <sys:String x:Key="LocQueue_OpenOperationLogButton">Show log</sys:String>
     <sys:String x:Key="LocQueue_OpenOperationLogTooltip">Open the operation log for this row.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultButton">Show verification result</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultButton">View result</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultTooltip">Show this file's verification result in a clear format.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultDialogTitle">CHD verification result</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFileLine">File: {0}</sys:String>
@@ -1701,7 +1701,7 @@ Path:
     <sys:String x:Key="LocChdLogicalReport_HunkSizeLabel">Hunk size</sys:String>
     <sys:String x:Key="LocChdLogicalReport_TotalHunksLabel">Total hunks</sys:String>
     <sys:String x:Key="LocChdLogicalReport_DecodedCacheLabel">Cache</sys:String>
-	<sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">Elapsed: {0}, output: {1}, speed: {2}, remaining: {3}</sys:String>
+	<sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">Elapsed {0} · Output {1} · Speed {2} · Remaining {3}</sys:String>
 	<sys:String x:Key="LocQueue_RuntimeProgress_RateFormat">{0}/s</sys:String>
 	<sys:String x:Key="LocQueue_RuntimeProgress_RateCalculating">Measuring speed</sys:String>
 	<sys:String x:Key="LocQueue_RuntimeProgress_EtaCalculating">Calculating</sys:String>

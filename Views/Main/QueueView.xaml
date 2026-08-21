@@ -15,6 +15,8 @@
             PreviewDragLeave="ForwardWorkspacePreviewDragLeave"
             PreviewDrop="ForwardWorkspacePreviewDrop"
             Style="{StaticResource FluentWorkspaceCard}"
+            CornerRadius="{DynamicResource Radius.None}"
+            Background="{DynamicResource Brush.Layer.Surface}"
             ClipToBounds="True">
 
         <Grid Background="{DynamicResource Brush.Layer.Surface}">
@@ -34,7 +36,7 @@
 
                 <Grid>
                     <Rectangle x:Name="DropZoneDashedFrame"
-                               Margin="{DynamicResource Inset.16.All}"
+                               Margin="{DynamicResource Inset.12.All}"
                                RadiusX="10"
                                RadiusY="10"
                                Stroke="{DynamicResource DropZoneBorderBrush}"
@@ -89,7 +91,7 @@
                 </Grid>
 
                 <Border x:Name="DropHighlightOverlay"
-                        Margin="{DynamicResource Inset.16.All}"
+                        Margin="{DynamicResource Inset.12.All}"
                         Background="{DynamicResource Brush.Accent}"
                         CornerRadius="{DynamicResource Radius.Card.Large}"
                         IsHitTestVisible="False"
@@ -98,7 +100,7 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Padding="{DynamicResource Inset.16.12}"
+                    Padding="{DynamicResource Inset.12.8}"
                     Background="{DynamicResource Brush.Layer.Surface}"
                     BorderBrush="{DynamicResource Brush.Border.Subtle}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}">
@@ -106,21 +108,18 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <main:QueueSummaryView Grid.Column="0"
-                                           HorizontalAlignment="Stretch"
-                                           VerticalAlignment="Center" />
 
                     <Border Grid.Column="2"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Padding="{DynamicResource Inset.4.All}"
-                            Background="{DynamicResource Brush.Layer.Canvas}"
-                            BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                            BorderThickness="{DynamicResource Inset.1.All}"
+                            Padding="{DynamicResource Inset.None}"
+                            Background="{DynamicResource Brush.Transparent}"
+                            BorderBrush="{DynamicResource Brush.Transparent}"
+                            BorderThickness="{DynamicResource Inset.None}"
                             CornerRadius="{DynamicResource Radius.Control.Large}">
 
                         <Grid>
@@ -133,7 +132,8 @@
                             </Grid.ColumnDefinitions>
 
                             <Button Grid.Column="0"
-                                    MinWidth="132"
+                                    MinWidth="104"
+                                    MinHeight="32"
                                     Command="{Binding StartProcessingCommand}"
                                     Style="{StaticResource QueueWorkspaceFooterPrimaryCommand}"
                                     AutomationProperties.Name="{DynamicResource LocUi_Hub_StartProcessing}">
@@ -144,7 +144,8 @@
                             </Button>
 
                             <Button Grid.Column="2"
-                                    MinWidth="92"
+                                    MinWidth="72"
+                                    MinHeight="32"
                                     Command="{Binding CancelProcessingCommand}"
                                     Style="{StaticResource QueueWorkspaceFooterDangerCommand}"
                                     AutomationProperties.Name="{DynamicResource LocUi_Hub_Stop}">
@@ -155,7 +156,8 @@
                             </Button>
 
                             <Button Grid.Column="4"
-                                    MinWidth="108"
+                                    MinWidth="88"
+                                    MinHeight="32"
                                     Command="{Binding ClearQueueCommand}"
                                     Style="{StaticResource QueueWorkspaceFooterSecondaryCommand}"
                                     AutomationProperties.Name="{DynamicResource LocUi_Hub_ClearQueue}">

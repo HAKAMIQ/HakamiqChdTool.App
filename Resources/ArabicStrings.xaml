@@ -1501,7 +1501,7 @@
     <sys:String x:Key="LocAbout_CreditsPrivacyNotice">تُعرض الأسماء العامة فقط، وتم إدراجها تقديراً لمساهمتهم.</sys:String>
     <sys:String x:Key="LocAbout_CreditDiscordTooltip">فتح خادم Discord</sys:String>
 
-    <sys:String x:Key="LocAbout_WindowTitle">حول {0}</sys:String>
+    <sys:String x:Key="LocAbout_WindowTitle">حول</sys:String>
     <sys:String x:Key="LocAbout_DeveloperColumnTitle">المطور</sys:String>
     <sys:String x:Key="LocAbout_ContributorsColumnTitle">المساهمون</sys:String>
     <sys:String x:Key="LocAbout_LicenseColumnTitle">الترخيص والملاحظات</sys:String>
@@ -1695,7 +1695,7 @@
     <sys:String x:Key="LocChdLogicalReport_HunkSizeLabel">حجم الكتلة</sys:String>
     <sys:String x:Key="LocChdLogicalReport_TotalHunksLabel">عدد الكتل</sys:String>
     <sys:String x:Key="LocChdLogicalReport_DecodedCacheLabel">ذاكرة التخزين المؤقت</sys:String>
-    <sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">الوقت: {0}، الناتج: {1}، السرعة: {2}، المتبقي: {3}</sys:String>
+    <sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">الوقت {0} · الناتج {1} · السرعة {2} · المتبقي {3}</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateFormat">{0}/ث</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateCalculating">جارٍ قياس السرعة</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_EtaCalculating">جارٍ الحساب</sys:String>

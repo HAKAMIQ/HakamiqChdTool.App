@@ -28,7 +28,7 @@
     </ToolTip>
 
     <DataTemplate x:Key="QueueItemProgressFieldsTemplate">
-        <Border Margin="{DynamicResource Inset.0.8.0.0}"
+        <Border Margin="{DynamicResource Inset.0.4.0.0}"
                 Style="{StaticResource FluentQueueProgressPanelBorder}"
                 ToolTip="{StaticResource AppTip.QIProgTpl.1}"
                 Visibility="{Binding UiShowProgressRow, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -38,7 +38,7 @@
                   UseLayoutRounding="True">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
@@ -51,7 +51,7 @@
                              Style="{StaticResource FluentQueueCardProgressBar}" />
 
                 <TextBlock Grid.Column="2"
-                           MinWidth="{DynamicResource Space.48}"
+                           MinWidth="{DynamicResource Space.40}"
                            VerticalAlignment="Center"
                            FlowDirection="{DynamicResource TechnicalText.FlowDirection}"
                            Language="{DynamicResource TechnicalText.Language}"

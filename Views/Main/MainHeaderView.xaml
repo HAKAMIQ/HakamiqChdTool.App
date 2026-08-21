@@ -314,7 +314,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Root"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Layer.Surface}" />
+                                        Value="{DynamicResource Brush.HoverSurface}" />
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
                             </Trigger>
@@ -322,7 +322,7 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Root"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Layer.Card}" />
+                                        Value="{DynamicResource Brush.PressedSurface}" />
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
                             </Trigger>
@@ -436,8 +436,6 @@
                         <TextBlock Style="{StaticResource MainHeaderTitleText}"
                                    Text="{DynamicResource LocUi_WindowTitle}" />
 
-                        <TextBlock Style="{StaticResource MainHeaderSubtitleText}"
-                                   Text="{DynamicResource LocUi_WindowSubtitle}" />
                     </StackPanel>
                 </Grid>
 

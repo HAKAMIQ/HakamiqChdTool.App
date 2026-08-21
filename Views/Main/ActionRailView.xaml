@@ -19,7 +19,7 @@
                   VerticalAlignment="Top">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="{DynamicResource Grid.Space.16}" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 

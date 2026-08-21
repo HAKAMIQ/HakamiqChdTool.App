@@ -104,9 +104,9 @@
                TargetType="{x:Type TextBlock}"
                BasedOn="{StaticResource ProcessingActionsPanelText}">
             <Setter Property="FontSize"
-                    Value="{DynamicResource FontSize.BodySmall}" />
+                    Value="{DynamicResource FontSize.Body}" />
             <Setter Property="FontWeight"
-                    Value="{DynamicResource FontWeight.SemiBold}" />
+                    Value="{DynamicResource FontWeight.Regular}" />
             <Setter Property="TextTrimming"
                     Value="CharacterEllipsis" />
             <Setter Property="TextWrapping"
@@ -122,13 +122,13 @@
             <Setter Property="BorderBrush"
                     Value="{DynamicResource Brush.Transparent}" />
             <Setter Property="BorderThickness"
-                    Value="{DynamicResource Inset.1.All}" />
+                    Value="{DynamicResource Inset.None}" />
             <Setter Property="Padding"
-                    Value="{DynamicResource Inset.10.6}" />
+                    Value="{DynamicResource Inset.8.4}" />
             <Setter Property="Cursor"
                     Value="{x:Static input:Cursors.Hand}" />
             <Setter Property="MinHeight"
-                    Value="40" />
+                    Value="{DynamicResource Space.40}" />
             <Setter Property="HorizontalContentAlignment"
                     Value="Stretch" />
             <Setter Property="VerticalContentAlignment"
@@ -143,7 +143,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource Radius.Card.Medium}"
+                                CornerRadius="{DynamicResource Radius.Control}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
 
@@ -152,39 +152,27 @@
                                   SnapsToDevicePixels="True">
 
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <Border x:Name="ActionIndicator"
-                                        Grid.Column="0"
-                                        Width="0"
-                                        Height="18"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Background="{DynamicResource Brush.Transparent}"
-                                        CornerRadius="{DynamicResource Radius.Small}"
-                                        Opacity="{DynamicResource Opacity.Hidden}" />
-
-                                <TextBlock Grid.Column="2"
+                                <TextBlock Grid.Column="0"
                                            Text="{TemplateBinding Content}"
                                            Foreground="{TemplateBinding Foreground}"
                                            Style="{StaticResource ProcessingActionsPanelActionChipText}" />
 
                                 <Border x:Name="IconPlate"
-                                        Grid.Column="4"
-                                        Width="28"
-                                        Height="28"
+                                        Grid.Column="2"
+                                        Width="{DynamicResource Space.24}"
+                                        Height="{DynamicResource Space.24}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Background="{DynamicResource Brush.Transparent}"
                                         CornerRadius="{DynamicResource Radius.Control}">
 
-                                    <Viewbox Width="{DynamicResource Space.18}"
-                                             Height="{DynamicResource Space.18}"
+                                    <Viewbox Width="{DynamicResource Space.20}"
+                                             Height="{DynamicResource Space.20}"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"
                                              FlowDirection="LeftToRight"
@@ -199,73 +187,41 @@
                         </Border>
 
                         <ControlTemplate.Triggers>
+
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsMouseOver"
                                                Value="True" />
-                                    <Condition Property="IsPressed"
-                                               Value="False" />
                                     <Condition Property="IsEnabled"
                                                Value="True" />
                                 </MultiTrigger.Conditions>
 
                                 <Setter TargetName="Bd"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Control.Fill.Hover}" />
-
-                                <Setter TargetName="Bd"
-                                        Property="BorderBrush"
-                                        Value="{DynamicResource Brush.Transparent}" />
+                                        Value="{DynamicResource Brush.HoverSurface}" />
 
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
-
-                                <Setter TargetName="ActionIndicator"
-                                        Property="Opacity"
-                                        Value="{DynamicResource Opacity.Subtle}" />
                             </MultiTrigger>
 
                             <Trigger Property="IsPressed"
                                      Value="True">
                                 <Setter TargetName="Bd"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Control.Fill.Pressed}" />
-
-                                <Setter TargetName="Bd"
-                                        Property="BorderBrush"
-                                        Value="{DynamicResource Brush.Transparent}" />
+                                        Value="{DynamicResource Brush.PressedSurface}" />
 
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
 
-                                <Setter TargetName="ActionIndicator"
-                                        Property="Opacity"
-                                        Value="1" />
-
                                 <Setter TargetName="IconPlate"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Control.Fill.Hover}" />
-                            </Trigger>
-
-                            <Trigger Property="IsKeyboardFocused"
-                                     Value="True">
-                                <Setter TargetName="Bd"
-                                        Property="BorderBrush"
-                                        Value="{DynamicResource Brush.Control.Stroke.Focus}" />
-
-                                <Setter TargetName="ActionIndicator"
-                                        Property="Opacity"
-                                        Value="1" />
+                                        Value="{DynamicResource Brush.HoverSurface}" />
                             </Trigger>
 
                             <Trigger Property="IsEnabled"
                                      Value="False">
                                 <Setter TargetName="Bd"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Transparent}" />
-
-                                <Setter TargetName="Bd"
-                                        Property="BorderBrush"
                                         Value="{DynamicResource Brush.Transparent}" />
 
                                 <Setter Property="Foreground"
@@ -278,6 +234,7 @@
                                         Property="Opacity"
                                         Value="0.50" />
                             </Trigger>
+
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -319,10 +276,12 @@
                         CornerRadius="{DynamicResource Radius.Small}"
                         Opacity="{DynamicResource Opacity.Subtle}" />
 
-                <TextBlock Grid.Column="2"
+                <TextBlock Grid.Column="0"
+                           Grid.ColumnSpan="3"
+                           HorizontalAlignment="Center"
                            Text="{DynamicResource LocRedump_Tool_Title}"
                            ToolTip="{StaticResource AppTip.ProcActions.1}"
-                           TextAlignment="Left"
+                           TextAlignment="Center"
                            Style="{StaticResource ProcessingActionsPanelHeaderTitleText}"
                            Foreground="{DynamicResource Brush.Text.Secondary}" />
             </Grid>

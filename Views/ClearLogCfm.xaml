@@ -103,6 +103,8 @@
                         Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius"
                         Value="{DynamicResource Radius.Card}" />
+                <Setter Property="ClipToBounds"
+                        Value="True" />
                 <Setter Property="Padding"
                         Value="{DynamicResource Inset.16.All}" />
                 <Setter Property="HorizontalAlignment"
@@ -274,7 +276,10 @@
 
                     <Button x:Name="CancelButton"
                             Grid.Column="1"
-                            MinWidth="{DynamicResource Space.96}"
+                            Padding="{DynamicResource Inset.12.8}"
+                            MinHeight="{DynamicResource Space.40}"
+                            MaxWidth="136"
+                            MinWidth="104"
                             Content="{Binding CancelText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding CancelText, Mode=OneWay}"
                             IsCancel="True"
@@ -283,7 +288,10 @@
 
                     <Button x:Name="ConfirmButton"
                             Grid.Column="3"
-                            MinWidth="{DynamicResource Space.112}"
+                            Padding="{DynamicResource Inset.12.8}"
+                            MinHeight="{DynamicResource Space.40}"
+                            MaxWidth="136"
+                            MinWidth="104"
                             Content="{Binding ConfirmText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding ConfirmText, Mode=OneWay}"
                             Style="{StaticResource DangerButtonStyle}"
