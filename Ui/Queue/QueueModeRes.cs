@@ -97,11 +97,6 @@ internal static class QueueModeResolver
 
         string operationPath = ResolveRunnableOperationPath(row, selectedMode);
 
-        if (BlocksArchivePreviewProcessing(row, selectedMode))
-        {
-            return false;
-        }
-
         QueueModeResolution resolution =
             ResolveRequestedActionForMode(operationPath, selectedMode);
 
@@ -124,11 +119,6 @@ internal static class QueueModeResolver
 
         string operationPath =
             ResolveRunnableOperationPath(row, operationMode);
-
-        if (BlocksArchivePreviewProcessing(row, operationMode))
-        {
-            return false;
-        }
 
         if (string.Equals(
                 row.RequestedAction,
@@ -161,11 +151,4 @@ internal static class QueueModeResolver
         return row.OriginalPath;
     }
 
-    private static bool BlocksArchivePreviewProcessing(
-        QueueRowData row,
-        QueueOperationMode operationMode) =>
-        operationMode != QueueOperationMode.Verify
-        && ArchivePreviewIntakePolicy.BlocksQueuedArchiveProcessing(
-            row.OriginalPath,
-            row.IntakeSource);
 }

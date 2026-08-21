@@ -166,7 +166,6 @@
     <sys:String x:Key="LocUi_NoTasksAddOrDrag">No tasks. Add files or drop them here.</sys:String>
     <sys:String x:Key="LocUi_ReadyForProcessing">Ready to process</sys:String>
     <sys:String x:Key="LocUi_ArchiveWillUnpackThenConvert">The archive will be extracted automatically, then supported disc images inside it will be converted.</sys:String>
-    <sys:String x:Key="LocUi_ArchiveAwaitingPreviewAtStartup">Archive waiting for analysis</sys:String>
     <sys:String x:Key="LocUi_ChooseOperationForItem">Select a supported operation for this file</sys:String>
     <sys:String x:Key="LocUi_UnsupportedQueueFile">This file type is not supported for this operation</sys:String>
     <sys:String x:Key="LocUi_Verified">Verified</sys:String>
@@ -312,7 +311,6 @@
     <sys:String x:Key="LocFooter_NoSupportedFiles">No supported files</sys:String>
     <sys:String x:Key="LocFooter_AnalyzingFiles">Analyzing files...</sys:String>
     <sys:String x:Key="LocFooter_AlreadyInQueue">Items are already in the queue</sys:String>
-    <sys:String x:Key="LocFooter_ArchiveWillUnpackThenConvert">The archive will be extracted, then the supported disc image will be converted.</sys:String>
     <sys:String x:Key="LocFooter_AddedOne">Added 1 item</sys:String>
     <sys:String x:Key="LocFmt_AddedMany">Added {0} items</sys:String>
     <sys:String x:Key="LocFmt_AddFilesFailed">Could not add files: {0}</sys:String>
@@ -469,10 +467,7 @@
     <sys:String x:Key="LocRedumpCatalog_Artifact_NoCustomLinks">No custom links are available for this platform in the current catalog.</sys:String>
 
     <sys:String x:Key="LocArchive_VerificationFailed">Could not verify the archive. The file may be damaged or incomplete.</sys:String>
-    <sys:String x:Key="LocArchive_PreviewUnreadable">Could not read the archive. Check the file and try again.</sys:String>
     <sys:String x:Key="LocArchive_PasswordProtected">This archive is password protected and cannot be processed automatically.</sys:String>
-    <sys:String x:Key="LocArchive_WillUnpackThenConvert">The archive will be extracted, then the disc image will be converted.</sys:String>
-    <sys:String x:Key="LocArchive_ContainsOnlyChd">The archive contains only a CHD file. Extract it manually.</sys:String>
     <sys:String x:Key="LocArchive_InvalidNamingConvention">The archive name does not match the expected naming pattern.</sys:String>
     <sys:String x:Key="LocArchive_NoConvertibleDiscImage">The archive does not contain a disc image that can be converted to CHD. Application/package archives such as Vita ZIP or PKG are not CHD disc-image inputs.</sys:String>
     <sys:String x:Key="LocArchive_MultipleConvertibleDiscImages">The archive contains more than one disc image. Extract the files manually, then choose the file to process.</sys:String>
@@ -1561,10 +1556,8 @@ Path:
     <sys:String x:Key="LocQueueAdd_ScannedItemsFormat">Prepared {0} of {1} items.</sys:String>
     <sys:String x:Key="LocQueueAdd_CancelAdd">Cancel adding</sys:String>
     <sys:String x:Key="LocQueueAdd_AddCancelled">Adding files was canceled.</sys:String>
-    <sys:String x:Key="LocQueueAdd_SkippedCorruptArchives">Some archives were skipped because they are damaged or unreadable.</sys:String>
     <sys:String x:Key="LocQueueAdd_SkippedUnsupportedOrDuplicate">Unsupported, damaged, or duplicate files were skipped.</sys:String>
-    <sys:String x:Key="LocQueueAdd_ArchivePreviewTimeout">Archive preview took too long and was skipped.</sys:String>
-    <sys:String x:Key="LocQueueAdd_ArchivePreviewCancelled">Archive preview was canceled.</sys:String>
+    <sys:String x:Key="LocArchive_DescriptorReadTimeout">Reading the archive descriptor took too long.</sys:String>
     <sys:String x:Key="LocQueue_OperationLogDisplay">Operation log: {0}</sys:String>
 
     <sys:String x:Key="LocIntakeReview_Title">Review files before adding</sys:String>
