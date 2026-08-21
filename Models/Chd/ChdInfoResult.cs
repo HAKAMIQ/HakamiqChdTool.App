@@ -12,6 +12,10 @@ public sealed class ChdInfoResult
 
     public string MediaType { get; init; } = "Unknown";
 
+    public string Sha1 { get; init; } = string.Empty;
+
+    public string DataSha1 { get; init; } = string.Empty;
+
     public string SuggestedExtractCommand { get; init; } = string.Empty;
 
     public long? LogicalBytes { get; init; }

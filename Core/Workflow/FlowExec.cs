@@ -25,13 +25,16 @@ public sealed class WorkflowExecutionResult
 
     public string? LogPath { get; }
 
+    internal bool SourceDeletionProofVerified { get; }
+
     private WorkflowExecutionResult(
         WorkflowExecutionOutcome outcome,
         QueueItemTerminalOutcome? terminalSuccessOutcome,
         QueueItemFailureKind? terminalFailureKind,
         string? statusDetail,
         string? outputPath,
-        string? logPath)
+        string? logPath,
+        bool sourceDeletionProofVerified)
     {
         Outcome = outcome;
         TerminalSuccessOutcome = terminalSuccessOutcome;
@@ -39,6 +42,7 @@ public sealed class WorkflowExecutionResult
         StatusDetail = statusDetail;
         OutputPath = outputPath;
         LogPath = logPath;
+        SourceDeletionProofVerified = sourceDeletionProofVerified;
     }
 
     public static WorkflowExecutionResult Success(
@@ -65,7 +69,31 @@ public sealed class WorkflowExecutionResult
             terminalFailureKind: null,
             statusDetail,
             outputPath,
-            logPath);
+            logPath,
+            sourceDeletionProofVerified: false);
+    }
+
+    internal WorkflowExecutionResult WithSourceDeletionProofVerified()
+    {
+        if (Outcome != WorkflowExecutionOutcome.Success)
+        {
+            throw new InvalidOperationException(
+                "Source deletion proof can be attached only to a successful workflow result.");
+        }
+
+        if (SourceDeletionProofVerified)
+        {
+            return this;
+        }
+
+        return new WorkflowExecutionResult(
+            Outcome,
+            TerminalSuccessOutcome,
+            terminalFailureKind: null,
+            StatusDetail,
+            OutputPath,
+            LogPath,
+            sourceDeletionProofVerified: true);
     }
 
     public static WorkflowExecutionResult Skipped(
@@ -87,7 +115,8 @@ public sealed class WorkflowExecutionResult
             terminalFailureKind: null,
             statusDetail,
             outputPath,
-            logPath);
+            logPath,
+            sourceDeletionProofVerified: false);
     }
 
     public static WorkflowExecutionResult Failure(
@@ -114,7 +143,8 @@ public sealed class WorkflowExecutionResult
             kind,
             statusDetail,
             outputPath,
-            logPath);
+            logPath,
+            sourceDeletionProofVerified: false);
     }
 
     public static WorkflowExecutionResult Cancelled(
@@ -128,6 +158,7 @@ public sealed class WorkflowExecutionResult
             QueueItemFailureKind.Cancelled,
             statusDetail,
             outputPath,
-            logPath);
+            logPath,
+            sourceDeletionProofVerified: false);
     }
 }

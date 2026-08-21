@@ -69,6 +69,10 @@ internal static partial class Program
                 new("CUE absolute BIN references require explicit allowance", () => TestCueAbsoluteBinReferenceRequiresExplicitAllowance(app, workDirectory)),
                 new("Extracted CUE/BIN finalization rewrites single BIN name", () => TestExtractedCueBinFinalizationRewritesSingleBinName(app, workDirectory)),
                 new("Extracted CUE/BIN finalization rejects traversal references", () => TestExtractedCueBinFinalizationRejectsTraversal(app, workDirectory)),
+                new("CHD info parser captures combined and data SHA1", () => TestChdInfoSha1Parsing(app)),
+                new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
+                new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
+                new("Verified conversion source cleanup contract is unchanged", () => TestConversionSourceCleanupContractUnchanged(app)),
                 new("Final extract output uses CHD stem and requested extension", () => TestFinalExtractOutputPathUsesChdStem(app, workDirectory)),
                 new("Final extract output can organize by platform", () => TestFinalExtractOutputPathCanOrganizeByPlatform(app, workDirectory)),
                 new("Verified CHD path is unchanged without organization", () => TestVerifiedChdPathIsUnchangedWithoutOrganization(app, workDirectory)),
@@ -350,6 +354,98 @@ internal static partial class Program
         AssertTrue(File.Exists(pendingCuePath), "Rejected pending CUE should remain in place for diagnostics.");
         AssertTrue(File.Exists(outsideBinPath), "Rejected outside BIN should not be moved or deleted.");
         AssertFalse(File.Exists(finalCuePath), "Rejected final CUE should not be created.");
+    }
+
+    private static void TestChdInfoSha1Parsing(AppReflection app)
+    {
+        const string combinedSha1 = "0123456789abcdef0123456789abcdef01234567";
+        const string dataSha1 = "89abcdef0123456789abcdef0123456789abcdef";
+
+        string info = string.Join(
+            Environment.NewLine,
+            "Input file: sample.chd",
+            "SHA1:         " + combinedSha1.ToUpperInvariant(),
+            "Data SHA1:    " + dataSha1.ToUpperInvariant(),
+            "Metadata: Tag='CHT2'");
+
+        AssertEqual(
+            combinedSha1,
+            app.ParseChdInfoSha1Digest(info, "SHA1"),
+            "Combined CHD SHA1 was not parsed correctly.");
+
+        AssertEqual(
+            dataSha1,
+            app.ParseChdInfoSha1Digest(info, "Data SHA1"),
+            "CHD data SHA1 was not parsed correctly.");
+
+        AssertEqual(
+            string.Empty,
+            app.ParseChdInfoSha1Digest("Data SHA1: not-a-digest", "Data SHA1"),
+            "Malformed CHD data SHA1 must fail closed.");
+    }
+
+    private static void TestExtractedSingleFileProof(AppReflection app, string workDirectory)
+    {
+        string outputPath = Path.Combine(workDirectory, "extraction-proof.iso");
+        byte[] bytes = Encoding.ASCII.GetBytes("HAKAMIQ extraction output proof");
+        File.WriteAllBytes(outputPath, bytes);
+
+        string matchingSha1 = Convert.ToHexString(SHA1.HashData(bytes)).ToLowerInvariant();
+        const string mismatchedSha1 = "0000000000000000000000000000000000000000";
+
+        AssertTrue(
+            app.VerifySingleFileExtractionProof(outputPath, matchingSha1, bytes.LongLength),
+            "Matching extracted output SHA1 should produce source-deletion proof.");
+
+        AssertFalse(
+            app.VerifySingleFileExtractionProof(outputPath, mismatchedSha1, bytes.LongLength),
+            "Mismatched extracted output SHA1 must fail closed.");
+    }
+
+    private static void TestExtractionSourceCleanupRequiresOutputProof(AppReflection app)
+    {
+        AssertFalse(
+            app.ResolveSourceCleanupVerifiedFlag(
+                sourcePath: "source.chd",
+                outputPath: "output.iso",
+                terminalOutcomeName: "Extracted",
+                requestVerify: true,
+                verifyAfterConversion: true,
+                sourceDeletionProofVerified: false),
+            "Source CHD deletion must not trust source verification alone after extraction.");
+
+        AssertTrue(
+            app.ResolveSourceCleanupVerifiedFlag(
+                sourcePath: "source.chd",
+                outputPath: "output.iso",
+                terminalOutcomeName: "Extracted",
+                requestVerify: true,
+                verifyAfterConversion: true,
+                sourceDeletionProofVerified: true),
+            "Source CHD deletion should be allowed after extraction only when output proof is recorded.");
+    }
+
+    private static void TestConversionSourceCleanupContractUnchanged(AppReflection app)
+    {
+        AssertTrue(
+            app.ResolveSourceCleanupVerifiedFlag(
+                sourcePath: "source.iso",
+                outputPath: "output.chd",
+                terminalOutcomeName: "Healthy",
+                requestVerify: true,
+                verifyAfterConversion: true,
+                sourceDeletionProofVerified: false),
+            "Verified conversion cleanup behavior should remain unchanged.");
+
+        AssertFalse(
+            app.ResolveSourceCleanupVerifiedFlag(
+                sourcePath: "source.iso",
+                outputPath: "output.chd",
+                terminalOutcomeName: "Healthy",
+                requestVerify: true,
+                verifyAfterConversion: false,
+                sourceDeletionProofVerified: false),
+            "Conversion cleanup must still require VerifyAfterConversion.");
     }
 
     private static void TestFinalExtractOutputPathUsesChdStem(AppReflection app, string workDirectory)
@@ -1474,6 +1570,16 @@ internal static partial class Program
         private readonly MethodInfo cueNormalize;
         private readonly MethodInfo cueNormalizeConstrained;
         private readonly MethodInfo finalizeExtractedCueBinOutput;
+        private readonly MethodInfo parseChdInfoSha1Digest;
+        private readonly Type chdInfoResultType;
+        private readonly Type extractionOutputBundleType;
+        private readonly Type extractionOutputKindType;
+        private readonly ConstructorInfo extractionOutputBundleConstructor;
+        private readonly MethodInfo verifySingleFileExtractionProofAsync;
+        private readonly MethodInfo resolveSourceCleanupVerifiedFlag;
+        private readonly MethodInfo workflowExecutionSuccess;
+        private readonly MethodInfo withSourceDeletionProofVerified;
+        private readonly Type queueItemTerminalOutcomeType;
         private readonly MethodInfo buildFinalExtractOutputPath;
         private readonly MethodInfo buildFinalVerifiedChdPath;
         private readonly MethodInfo buildPendingOutputPath;
@@ -1525,6 +1631,14 @@ internal static partial class Program
             Type advisoryType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2CompatibilityAdvisoryService");
             Type safePathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSafePathValidator");
             Type outputPathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowOutputPathPlanner");
+            Type workflowOrchestratorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.ChdWorkflowOrchestrator");
+            Type workflowExecutionResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowExecutionResult");
+            Type chdInfoServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdInfoService");
+            chdInfoResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdInfoResult");
+            extractionOutputBundleType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputBundle");
+            extractionOutputKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputKind");
+            Type extractionOutputProofVerifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputProofVerifier");
+            queueItemTerminalOutcomeType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Queue.QueueItemTerminalOutcome");
             Type profilePlannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdWorkflowProfilePlanner");
             Type mediaInputClassifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputClassifier");
             Type mediaInputPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputPipeline");
@@ -1562,6 +1676,26 @@ internal static partial class Program
             cueNormalize = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(string).MakeByRefType()]);
             cueNormalizeConstrained = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(bool), typeof(string).MakeByRefType()]);
             finalizeExtractedCueBinOutput = GetRequiredMethod(safePathType, "TryFinalizeExtractedCueBinOutput", [typeof(string), typeof(string), typeof(string).MakeByRefType()]);
+            parseChdInfoSha1Digest = GetRequiredMethod(chdInfoServiceType, "TryParseSha1Digest", [typeof(string), typeof(string)]);
+            extractionOutputBundleConstructor = GetRequiredConstructor(
+                extractionOutputBundleType,
+                [extractionOutputKindType, typeof(string), typeof(IReadOnlyList<string>), typeof(long)]);
+            verifySingleFileExtractionProofAsync = GetRequiredMethod(
+                extractionOutputProofVerifierType,
+                "VerifySingleFileAsync",
+                [chdInfoResultType, typeof(string), extractionOutputBundleType, typeof(CancellationToken)]);
+            resolveSourceCleanupVerifiedFlag = GetRequiredMethod(
+                workflowOrchestratorType,
+                "ResolveSourceCleanupVerifiedFlag",
+                [typeof(string), workflowExecutionResultType, typeof(bool), settingsType]);
+            workflowExecutionSuccess = GetRequiredMethod(
+                workflowExecutionResultType,
+                "Success",
+                [queueItemTerminalOutcomeType, typeof(string), typeof(string), typeof(string)]);
+            withSourceDeletionProofVerified = GetRequiredInstanceMethod(
+                workflowExecutionResultType,
+                "WithSourceDeletionProofVerified",
+                Type.EmptyTypes);
             buildFinalExtractOutputPath = GetRequiredMethod(outputPathType, "BuildFinalExtractOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
             buildFinalVerifiedChdPath = GetRequiredMethod(outputPathType, "BuildFinalVerifiedChdPath", [typeof(string), typeof(string), typeof(string), settingsType]);
             buildPendingOutputPath = GetRequiredMethod(outputPathType, "BuildPendingOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
@@ -1671,6 +1805,78 @@ internal static partial class Program
             bool success = (bool)(finalizeExtractedCueBinOutput.Invoke(null, arguments) ?? false);
             failureMessageKey = arguments[2] as string ?? string.Empty;
             return success;
+        }
+
+        public string ParseChdInfoSha1Digest(string infoText, string label) =>
+            (string)(parseChdInfoSha1Digest.Invoke(null, [infoText, label]) ?? string.Empty);
+
+        public bool VerifySingleFileExtractionProof(
+            string outputPath,
+            string dataSha1,
+            long logicalBytes)
+        {
+            object sourceInfo = Activator.CreateInstance(chdInfoResultType)
+                ?? throw new InvalidOperationException("Unable to create ChdInfoResult.");
+
+            SetProperty(sourceInfo, "DataSha1", dataSha1);
+            SetProperty(sourceInfo, "LogicalBytes", (long?)logicalBytes);
+
+            object outputKind = Enum.Parse(
+                extractionOutputKindType,
+                "SingleFile",
+                ignoreCase: false);
+
+            object bundle = extractionOutputBundleConstructor.Invoke(
+                [outputKind, outputPath, new[] { outputPath }, logicalBytes]);
+
+            object? taskObject = verifySingleFileExtractionProofAsync.Invoke(
+                null,
+                [sourceInfo, dataSha1, bundle, CancellationToken.None]);
+
+            if (taskObject is not Task task)
+            {
+                throw new InvalidOperationException("Extraction output proof did not return a Task.");
+            }
+
+            task.GetAwaiter().GetResult();
+
+            object proofResult = task.GetType().GetProperty("Result", BindingFlags.Public | BindingFlags.Instance)
+                ?.GetValue(task)
+                ?? throw new InvalidOperationException("Extraction output proof returned no result.");
+
+            return GetBool(proofResult, "IsVerified");
+        }
+
+        public bool ResolveSourceCleanupVerifiedFlag(
+            string sourcePath,
+            string outputPath,
+            string terminalOutcomeName,
+            bool requestVerify,
+            bool verifyAfterConversion,
+            bool sourceDeletionProofVerified)
+        {
+            object settings = CreateSettings();
+            SetProperty(settings, "VerifyAfterConversion", verifyAfterConversion);
+
+            object terminalOutcome = Enum.Parse(
+                queueItemTerminalOutcomeType,
+                terminalOutcomeName,
+                ignoreCase: false);
+
+            object result = workflowExecutionSuccess.Invoke(
+                null,
+                [terminalOutcome, string.Empty, outputPath, null])
+                ?? throw new InvalidOperationException("WorkflowExecutionResult.Success returned null.");
+
+            if (sourceDeletionProofVerified)
+            {
+                result = withSourceDeletionProofVerified.Invoke(result, null)
+                    ?? throw new InvalidOperationException("Source deletion proof marker returned null.");
+            }
+
+            return (bool)(resolveSourceCleanupVerifiedFlag.Invoke(
+                null,
+                [sourcePath, result, requestVerify, settings]) ?? false);
         }
 
         public object CreateSettings(
