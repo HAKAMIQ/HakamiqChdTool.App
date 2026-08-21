@@ -1,7 +1,6 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
 using System;
@@ -147,11 +146,6 @@ public partial class MainWindow
             return;
         }
 
-        if (!RequireAppFeature(AppFeature.RedumpDeepIntegrity))
-        {
-            return;
-        }
-
         string? path = ResolveQueueItemProbePath(item);
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -172,7 +166,6 @@ public partial class MainWindow
         if (item is null ||
             IsQueueInteractionLocked ||
             !_settings.EnableDeepIntegrityCheck ||
-            !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity) ||
             _queueView.IndexOf(item) < 0)
         {
             return false;
@@ -189,11 +182,6 @@ public partial class MainWindow
             IsQueueInteractionLocked ||
             !_settings.EnableDeepIntegrityCheck ||
             _queueView.IndexOf(item) < 0)
-        {
-            return;
-        }
-
-        if (!RequireAppFeature(AppFeature.RedumpDeepIntegrity))
         {
             return;
         }
@@ -225,18 +213,12 @@ public partial class MainWindow
     {
         return !IsQueueInteractionLocked &&
             _settings.EnableDeepIntegrityCheck &&
-            _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity) &&
             _queueView.Count > 0;
     }
 
     public async Task RunRedumpIntegrityForAllQueueItemsAsync()
     {
         if (IsQueueInteractionLocked || !_settings.EnableDeepIntegrityCheck)
-        {
-            return;
-        }
-
-        if (!RequireAppFeature(AppFeature.RedumpDeepIntegrity))
         {
             return;
         }

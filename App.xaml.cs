@@ -158,8 +158,7 @@ public partial class App : WpfApplication
             bootstrap.WorkflowOrchestrator,
             () => Settings,
             () => bootstrap.ChdmanPathResolver.ResolvePath(Settings),
-            maxConcurrentItems: AppSettings.NormalizeMaxConcurrentConversions(Settings.MaxConcurrentConversions),
-            canUseAppFeature: bootstrap.AppFeatureService.IsEnabled);
+            maxConcurrentItems: AppSettings.NormalizeMaxConcurrentConversions(Settings.MaxConcurrentConversions));
     }
 
     protected override void OnExit(WpfExitEventArgs e)

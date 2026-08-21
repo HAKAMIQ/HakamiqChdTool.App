@@ -13,7 +13,6 @@ using System.Windows.Threading;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
 using Microsoft.Win32;
@@ -57,7 +56,6 @@ internal sealed partial class HqOptionsShell : IDisposable
 
     private readonly OptionsWindow _owner;
     private readonly AppSettings _currentSettings;
-    private readonly IAppFeatureService _appFeatureService;
     private readonly RedumpGitHubSyncManager _syncManager = new();
     private readonly CancellationTokenSource _windowLifetimeCts = new();
     private readonly ToolTipEventHandler _toolTipOpeningHandler;
@@ -71,12 +69,10 @@ internal sealed partial class HqOptionsShell : IDisposable
 
     public HqOptionsShell(
         OptionsWindow owner,
-        AppSettings currentSettings,
-        IAppFeatureService appFeatureService)
+        AppSettings currentSettings)
     {
         _owner = owner ?? throw new ArgumentNullException(nameof(owner));
         _currentSettings = currentSettings ?? throw new ArgumentNullException(nameof(currentSettings));
-        _appFeatureService = appFeatureService ?? throw new ArgumentNullException(nameof(appFeatureService));
         _toolTipOpeningHandler = OnToolTipOpening;
     }
 
@@ -93,9 +89,7 @@ internal sealed partial class HqOptionsShell : IDisposable
 
     public void Initialize()
     {
-        ApplyFeatureAvailabilityToViewModel();
         _owner.ViewModel.Load(_owner.ResultSettings);
-        EnforceFeatureAvailabilityOnViewModel();
         _owner.ResultSettings = _currentSettings.Clone();
         InitializeDatabaseState();
     }

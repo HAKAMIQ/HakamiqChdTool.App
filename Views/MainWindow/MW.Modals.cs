@@ -15,7 +15,7 @@ public partial class MainWindow
         OptionsWindow dialog;
         try
         {
-            dialog = new OptionsWindow(_settings, _appFeatureService)
+            dialog = new OptionsWindow(_settings)
             {
                 Owner = this
             };
@@ -45,7 +45,6 @@ public partial class MainWindow
 
             _settings.CopyFrom(settings);
             _queue.UpdateMaxConcurrentItems(_settings.MaxConcurrentConversions);
-            _appFeatureService.ApplyFeatureAvailability(_settings);
             _settings.UiLanguage = requestedLanguage;
 
             if (languageChanged)

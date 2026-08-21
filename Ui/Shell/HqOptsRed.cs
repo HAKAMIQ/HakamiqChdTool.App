@@ -1,6 +1,5 @@
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
 using Microsoft.Win32;
 using System;
@@ -18,11 +17,6 @@ internal sealed partial class HqOptionsShell
 {
     public void ImportRedumpDatabase(object sender, RoutedEventArgs e)
     {
-        if (!RequireAppFeature(AppFeature.RedumpDatabaseImport))
-        {
-            return;
-        }
-
         _ = ImportRedumpDatabaseAsync();
     }
 
@@ -131,11 +125,6 @@ internal sealed partial class HqOptionsShell
 
     public void DownloadDatabase(object sender, RoutedEventArgs e)
     {
-        if (!RequireAppFeature(AppFeature.RedumpDatabaseImport))
-        {
-            return;
-        }
-
         _ = DownloadDatabaseAsync();
     }
 
