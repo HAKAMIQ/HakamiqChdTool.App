@@ -13,35 +13,35 @@ internal sealed partial class HqOptionsShell
         if (pendingSettings.EnableDeepIntegrityCheck
             && !RequireAppFeature(AppFeature.RedumpDeepIntegrity))
         {
-            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel();
             return false;
         }
 
         if (pendingSettings.ApplyStandardNamingBasedOnHash
             && !RequireAppFeature(AppFeature.StandardNamingSuggestion))
         {
-            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel();
             return false;
         }
 
         if (pendingSettings.EnableRedumpAutoSync
             && !RequireAppFeature(AppFeature.RedumpDatabaseImport))
         {
-            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel();
             return false;
         }
 
         if (!pendingSettings.SuppressStorageAdvisorDialog
             && !RequireAppFeature(AppFeature.StorageAdvisor))
         {
-            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel();
             return false;
         }
 
         if (RequiresPostProcessingAutomation(pendingSettings)
             && !RequireAppFeature(AppFeature.PostProcessingAutomation))
         {
-            EnforceFeatureAvailabilityOnViewModel(showDialog: false);
+            EnforceFeatureAvailabilityOnViewModel();
             return false;
         }
 
@@ -53,7 +53,7 @@ internal sealed partial class HqOptionsShell
         || settings.EnableAutoM3uGeneration
         || settings.OverwriteExistingM3uPlaylists;
 
-    private void EnforceFeatureAvailabilityOnViewModel(bool showDialog)
+    private void EnforceFeatureAvailabilityOnViewModel()
     {
         ApplyFeatureAvailabilityToViewModel();
 
@@ -84,7 +84,6 @@ internal sealed partial class HqOptionsShell
             _owner.ViewModel.OverwriteExistingM3uPlaylists = false;
         }
 
-        _ = showDialog;
     }
 
     private void ApplyFeatureAvailabilityToViewModel()

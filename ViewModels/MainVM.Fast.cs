@@ -17,12 +17,9 @@ public partial class MainWindowViewModel
 {
     private async ValueTask<(bool Success, IReadOnlyList<PreparedIntakeCandidate> Candidates)> TryBuildFastDirectFileCandidatesAsync(
         IReadOnlyList<string> rawList,
-        QueueIngestKind inputKind,
         QueueExecutionProfile executionProfile,
         CancellationToken cancellationToken)
     {
-        _ = inputKind;
-
         if (rawList.Count == 0)
         {
             return (false, Array.Empty<PreparedIntakeCandidate>());

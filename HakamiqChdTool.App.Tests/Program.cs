@@ -1769,7 +1769,6 @@ internal static partial class Program
         private readonly object mediaInputPipeline;
         private readonly MethodInfo mediaInputPipelineDecideAsync;
         private readonly Type queueExecutionProfileType;
-        private readonly Type queueIngestKindType;
         private readonly object mainWindowViewModelForFastPathTests;
         private readonly MethodInfo tryBuildFastDirectFileCandidatesAsync;
         private readonly MethodInfo getSupportedOperationCodes;
@@ -1830,7 +1829,6 @@ internal static partial class Program
             Type mainWindowViewModelType = GetRequiredType(appAssembly, "HakamiqChdTool.App.ViewModels.MainWindowViewModel");
             Type queueOperationCapabilityServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.QueueOperationCapabilityService");
             queueExecutionProfileType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.QueueExecutionProfile");
-            queueIngestKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.QueueIngestKind");
             mainWindowViewModelForFastPathTests = RuntimeHelpers.GetUninitializedObject(mainWindowViewModelType);
             workflowSourceCleanupPipelineForTests = RuntimeHelpers.GetUninitializedObject(workflowSourceCleanupPipelineType);
             Type sevenZipInspectorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveInspector");
@@ -2215,10 +2213,9 @@ internal static partial class Program
         public bool CanUseFastDirectFileCandidates(string path, string executionProfileName)
         {
             object executionProfile = Enum.Parse(queueExecutionProfileType, executionProfileName, ignoreCase: false);
-            object inputKind = Enum.Parse(queueIngestKindType, "FilesOnly", ignoreCase: false);
             object? valueTask = tryBuildFastDirectFileCandidatesAsync.Invoke(
                 mainWindowViewModelForFastPathTests,
-                [new List<string> { path }, inputKind, executionProfile, CancellationToken.None]);
+                [new List<string> { path }, executionProfile, CancellationToken.None]);
 
             object result = AwaitValueTaskResult(
                 valueTask ?? throw new InvalidOperationException("Fast intake returned null."),
