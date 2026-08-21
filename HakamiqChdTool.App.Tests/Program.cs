@@ -72,6 +72,8 @@ internal static partial class Program
                 new("CUE/BIN finalization blocks overwrite when disabled", () => TestCueBinOverwriteDisabledPreservesExistingBundle(app, workDirectory)),
                 new("CUE/BIN finalization replaces an existing bundle transactionally", () => TestCueBinOverwriteReplacesExistingBundle(app, workDirectory)),
                 new("CUE/BIN finalization rolls back a partial overwrite", () => TestCueBinOverwriteRollsBackPartialPromotion(app, workDirectory)),
+                new("Failed CUE/BIN cleanup deletes the validated bundle", () => TestFailedCueBinCleanupDeletesBundle(app, workDirectory)),
+                new("Failed CUE/BIN cleanup rejects unsafe references", () => TestFailedCueBinCleanupRejectsUnsafeReference(app, workDirectory)),
                 new("CHD info parser captures combined and data SHA1", () => TestChdInfoSha1Parsing(app)),
                 new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
                 new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
@@ -464,6 +466,57 @@ internal static partial class Program
         AssertTrue(newTrack1Bytes.SequenceEqual(File.ReadAllBytes(pendingTrack1Path)), "Rollback changed the pending BIN contents.");
         AssertTrue(File.Exists(pendingTrack2Path), "The unpromoted locked BIN should remain pending.");
         AssertFalse(Directory.EnumerateFiles(finalDirectory, ".hcb-*", SearchOption.AllDirectories).Any(), "Rollback should not leave backup files after restoration.");
+    }
+
+    private static void TestFailedCueBinCleanupDeletesBundle(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "failed-cue-cleanup");
+        Directory.CreateDirectory(rootDirectory);
+
+        string cuePath = Path.Combine(rootDirectory, "Game.cue");
+        string track1Path = Path.Combine(rootDirectory, "Game (Track 01).bin");
+        string track2Path = Path.Combine(rootDirectory, "Game (Track 02).bin");
+
+        byte[] track1Bytes = [1, 2, 3, 4];
+        byte[] track2Bytes = [5, 6, 7, 8, 9];
+        File.WriteAllBytes(track1Path, track1Bytes);
+        File.WriteAllBytes(track2Path, track2Bytes);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"Game (Track 01).bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\nFILE \"Game (Track 02).bin\" BINARY\r\n  TRACK 02 AUDIO\r\n    INDEX 01 00:02:00\r\n",
+            Encoding.ASCII);
+
+        long expectedBytes = new FileInfo(cuePath).Length + track1Bytes.LongLength + track2Bytes.LongLength;
+        (long DeletedBytes, int DeletedFiles) stats = app.DeleteFailedCueBinBundle(cuePath);
+
+        AssertEqual(3, stats.DeletedFiles, "Failed CUE/BIN cleanup should delete the CUE and both referenced BIN files.");
+        AssertEqual(expectedBytes, stats.DeletedBytes, "Failed CUE/BIN cleanup reported an unexpected deleted byte count.");
+        AssertFalse(File.Exists(cuePath), "Failed CUE/BIN cleanup left the CUE behind.");
+        AssertFalse(File.Exists(track1Path), "Failed CUE/BIN cleanup left track 1 behind.");
+        AssertFalse(File.Exists(track2Path), "Failed CUE/BIN cleanup left track 2 behind.");
+    }
+
+    private static void TestFailedCueBinCleanupRejectsUnsafeReference(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "failed-cue-cleanup-unsafe");
+        string bundleDirectory = Path.Combine(rootDirectory, "bundle");
+        Directory.CreateDirectory(bundleDirectory);
+
+        string outsideBinPath = Path.Combine(rootDirectory, "outside.bin");
+        string cuePath = Path.Combine(bundleDirectory, "Game.cue");
+
+        File.WriteAllBytes(outsideBinPath, [9, 8, 7, 6]);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"..\\outside.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        (long DeletedBytes, int DeletedFiles) stats = app.DeleteFailedCueBinBundle(cuePath);
+
+        AssertEqual(0, stats.DeletedFiles, "Unsafe CUE cleanup must fail closed without deleting files.");
+        AssertEqual(0L, stats.DeletedBytes, "Unsafe CUE cleanup must report zero deleted bytes.");
+        AssertTrue(File.Exists(cuePath), "Unsafe CUE should remain for diagnostics.");
+        AssertTrue(File.Exists(outsideBinPath), "Cleanup must never delete a traversal-referenced BIN.");
     }
 
     private static void TestChdInfoSha1Parsing(AppReflection app)
@@ -1732,6 +1785,7 @@ internal static partial class Program
         private readonly ConstructorInfo extractionOutputContractConstructor;
         private readonly ConstructorInfo extractionOutputBundleValidatorConstructor;
         private readonly MethodInfo finalizeExtractionOutputBundle;
+        private readonly MethodInfo deleteFailedCueBinBundle;
         private readonly MethodInfo createCsoTempWorkspace;
 
         public AppReflection(Assembly appAssembly)
@@ -1745,6 +1799,7 @@ internal static partial class Program
             Type safePathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSafePathValidator");
             Type outputPathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowOutputPathPlanner");
             Type workflowOrchestratorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.ChdWorkflowOrchestrator");
+            Type workflowCleanupStageType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowCleanupStage");
             Type workflowExecutionResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowExecutionResult");
             Type chdInfoServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdInfoService");
             chdInfoResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdInfoResult");
@@ -1810,6 +1865,10 @@ internal static partial class Program
                     extractionOutputBundleType.MakeByRefType(),
                     typeof(string).MakeByRefType()
                 ]);
+            deleteFailedCueBinBundle = GetRequiredMethod(
+                workflowCleanupStageType,
+                "TryDeleteFailedCueBinBundle",
+                [typeof(string)]);
             verifySingleFileExtractionProofAsync = GetRequiredMethod(
                 extractionOutputProofVerifierType,
                 "VerifySingleFileAsync",
@@ -1952,6 +2011,19 @@ internal static partial class Program
             bool success = (bool)(finalizeExtractionOutputBundle.Invoke(validator, arguments) ?? false);
             failureMessageKey = arguments[3] as string ?? string.Empty;
             return success;
+        }
+
+        public (long DeletedBytes, int DeletedFiles) DeleteFailedCueBinBundle(string cuePath)
+        {
+            object stats = deleteFailedCueBinBundle.Invoke(null, [cuePath])
+                ?? throw new InvalidOperationException("Failed CUE/BIN cleanup returned null stats.");
+
+            long deletedBytes = (long)(stats.GetType().GetProperty("DeletedBytes")?.GetValue(stats)
+                ?? throw new MissingMemberException(stats.GetType().FullName, "DeletedBytes"));
+            int deletedFiles = (int)(stats.GetType().GetProperty("DeletedFiles")?.GetValue(stats)
+                ?? throw new MissingMemberException(stats.GetType().FullName, "DeletedFiles"));
+
+            return (deletedBytes, deletedFiles);
         }
 
         public string ParseChdInfoSha1Digest(string infoText, string label) =>
