@@ -95,7 +95,7 @@ internal sealed partial class HqOptionsShell : IDisposable
     {
         ApplyFeatureAvailabilityToViewModel();
         _owner.ViewModel.Load(_owner.ResultSettings);
-        EnforceFeatureAvailabilityOnViewModel(showDialog: false);
+        EnforceFeatureAvailabilityOnViewModel();
         _owner.ResultSettings = _currentSettings.Clone();
         InitializeDatabaseState();
     }

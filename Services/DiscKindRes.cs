@@ -13,12 +13,9 @@ internal static class DiscMediaKindResolver
     private const string DiscProbePs3BluRayStructureReasonKey = "LocDiscProbe_Ps3BluRayStructure";
 
     public static DiscMediaKind ResolveIsoMediaKind(
-        string path,
         PlatformDetectionResult detection,
         long fileLengthBytes)
     {
-        _ = path;
-
         if (fileLengthBytes <= 0)
         {
             return DiscMediaKind.Unknown;
@@ -31,77 +28,6 @@ internal static class DiscMediaKindResolver
         }
 
         return ResolveFromIsoLength(fileLengthBytes);
-    }
-
-    public static DiscMediaKind ResolveFromPlatformName(string? platformName, long fileLengthBytes)
-    {
-        _ = platformName;
-
-        return ResolveFromIsoLength(fileLengthBytes);
-    }
-
-    public static bool IsSafePathHintDetection(PlatformDetectionResult detection, long fileLengthBytes)
-    {
-        _ = detection;
-        _ = fileLengthBytes;
-
-        return false;
-    }
-
-    public static bool IsCdRomPlatform(string? platformName)
-    {
-        _ = platformName;
-
-        return false;
-    }
-
-    public static bool IsPlayStation2(string? platformName)
-    {
-        _ = platformName;
-
-        return false;
-    }
-
-    public static bool IsPlayStationPortable(string? platformName)
-    {
-        _ = platformName;
-
-        return false;
-    }
-
-    public static bool IsDvdRomPlatform(string? platformName)
-    {
-        _ = platformName;
-
-        return false;
-    }
-
-    public static bool IsChdRecommendedDiscPlatform(string? platformName)
-    {
-        _ = platformName;
-
-        return false;
-    }
-
-    public static bool IsNonChdRecommendedDiscPlatform(string? platformName)
-    {
-        _ = platformName;
-
-        return false;
-    }
-
-    public static bool HasCdRomPathHint(string path)
-    {
-        _ = path;
-
-        return false;
-    }
-
-    public static bool HasDvdRomPathHint(string path)
-    {
-        _ = path;
-
-        return false;
     }
 
     private static DiscMediaKind ResolveFromDiscProbeReason(string? reason, long fileLengthBytes)

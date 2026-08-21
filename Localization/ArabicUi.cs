@@ -277,11 +277,8 @@ public static class ArabicUi
 
     public static string IntegrityColumnDisplay(
         IntegrityValidationState state,
-        string statusMessage,
-        string? detailTooltip)
+        string statusMessage)
     {
-        _ = detailTooltip;
-
         if (state == IntegrityValidationState.None)
         {
             return string.Empty;

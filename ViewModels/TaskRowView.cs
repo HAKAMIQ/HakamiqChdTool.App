@@ -406,8 +406,7 @@ public sealed partial class TaskQueueItemViewModel
     public string IntegrityColumnDisplayArabic =>
         ArabicUi.IntegrityColumnDisplay(
             IntegrityState,
-            IntegrityStatusMessage,
-            IntegrityDetailTooltip);
+            IntegrityStatusMessage);
 
     public bool HasIntegrityColumnDetail =>
         !string.IsNullOrWhiteSpace(

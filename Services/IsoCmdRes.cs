@@ -16,8 +16,6 @@ public readonly record struct IsoChdmanCreateDiagnostics(
 
 public static class IsoChdmanCreateCommandResolver
 {
-    internal const long SafeCdIsoUpperBoundBytes = DiscMediaKindResolver.SafeCdIsoUpperBoundBytes;
-
     private const string CreateCdCommand = "createcd";
     private const string CreateDvdCommand = "createdvd";
     private const string UnknownPlatformName = "Unknown";
@@ -25,11 +23,6 @@ public static class IsoChdmanCreateCommandResolver
     private const string DiscProbeInsufficientMetadataReasonKey = "LocDiscProbe_InsufficientMetadata";
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext(typeof(IsoChdmanCreateCommandResolver));
-
-    public static string ResolveCreateCompressionCommand(
-        string isoPath,
-        IsoCreateCommandOverride overrideMode = IsoCreateCommandOverride.Auto) =>
-        ResolveCreateCompressionCommandWithDiagnostics(isoPath, overrideMode).Command;
 
     public static IsoChdmanCreateDiagnostics ResolveCreateCompressionCommandWithDiagnostics(
         string isoPath,
@@ -69,7 +62,7 @@ public static class IsoChdmanCreateCommandResolver
         }
 
         PlatformDetectionResult detection = DetectPlatformSafely(fullPath);
-        DiscMediaKind mediaKind = DiscMediaKindResolver.ResolveIsoMediaKind(fullPath, detection, length);
+        DiscMediaKind mediaKind = DiscMediaKindResolver.ResolveIsoMediaKind(detection, length);
         string autoSuggested = ToChdmanCreateCommand(mediaKind);
 
         if (mediaKind == DiscMediaKind.Unknown)
@@ -113,31 +106,6 @@ public static class IsoChdmanCreateCommandResolver
             IsoCreateCommandOverride.CreateDvd => CreateDvdCommand,
             _ => string.IsNullOrWhiteSpace(autoSuggestedCommand) ? CreateDvdCommand : autoSuggestedCommand
         };
-
-    public static string ResolveFromDetection(string? platformName, long fileLengthBytes)
-    {
-        if (!string.IsNullOrWhiteSpace(platformName))
-        {
-            Logger.Debug(
-                "ISO create command ignored platform name in legacy ResolveFromDetection call. Platform={Platform}, SizeBytes={SizeBytes}",
-                platformName,
-                fileLengthBytes);
-        }
-
-        return ToChdmanCreateCommand(ResolveIsoMediaKindFromLength(fileLengthBytes));
-    }
-
-    private static DiscMediaKind ResolveIsoMediaKindFromLength(long fileLengthBytes)
-    {
-        if (fileLengthBytes <= 0)
-        {
-            return DiscMediaKind.Unknown;
-        }
-
-        return fileLengthBytes <= SafeCdIsoUpperBoundBytes
-            ? DiscMediaKind.CdRom
-            : DiscMediaKind.DvdRom;
-    }
 
     private static string ToChdmanCreateCommand(DiscMediaKind mediaKind) =>
         mediaKind switch

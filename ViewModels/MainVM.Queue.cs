@@ -116,7 +116,6 @@ public partial class MainWindowViewModel
         (bool canUseFastPath, IReadOnlyList<PreparedIntakeCandidate> fastCandidates) =
             await TryBuildFastDirectFileCandidatesAsync(
                     rawList,
-                    inputKind,
                     executionProfile,
                     cancellationToken)
                 .ConfigureAwait(true);

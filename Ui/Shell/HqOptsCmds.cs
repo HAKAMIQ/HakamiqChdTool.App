@@ -10,7 +10,7 @@ internal sealed partial class HqOptionsShell
     public void RestoreDefaults(object sender, RoutedEventArgs e)
     {
         _owner.ViewModel.ApplyProgramDefaults();
-        EnforceFeatureAvailabilityOnViewModel(showDialog: false);
+        EnforceFeatureAvailabilityOnViewModel();
     }
 
     public void Apply(object sender, RoutedEventArgs e)
