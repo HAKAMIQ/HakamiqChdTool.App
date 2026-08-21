@@ -69,6 +69,9 @@ internal static partial class Program
                 new("CUE absolute BIN references require explicit allowance", () => TestCueAbsoluteBinReferenceRequiresExplicitAllowance(app, workDirectory)),
                 new("Extracted CUE/BIN finalization rewrites single BIN name", () => TestExtractedCueBinFinalizationRewritesSingleBinName(app, workDirectory)),
                 new("Extracted CUE/BIN finalization rejects traversal references", () => TestExtractedCueBinFinalizationRejectsTraversal(app, workDirectory)),
+                new("CUE/BIN finalization blocks overwrite when disabled", () => TestCueBinOverwriteDisabledPreservesExistingBundle(app, workDirectory)),
+                new("CUE/BIN finalization replaces an existing bundle transactionally", () => TestCueBinOverwriteReplacesExistingBundle(app, workDirectory)),
+                new("CUE/BIN finalization rolls back a partial overwrite", () => TestCueBinOverwriteRollsBackPartialPromotion(app, workDirectory)),
                 new("CHD info parser captures combined and data SHA1", () => TestChdInfoSha1Parsing(app)),
                 new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
                 new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
@@ -354,6 +357,113 @@ internal static partial class Program
         AssertTrue(File.Exists(pendingCuePath), "Rejected pending CUE should remain in place for diagnostics.");
         AssertTrue(File.Exists(outsideBinPath), "Rejected outside BIN should not be moved or deleted.");
         AssertFalse(File.Exists(finalCuePath), "Rejected final CUE should not be created.");
+    }
+
+    private static void TestCueBinOverwriteDisabledPreservesExistingBundle(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "cue-overwrite-disabled");
+        string pendingDirectory = Path.Combine(rootDirectory, "pending");
+        string finalDirectory = Path.Combine(rootDirectory, "final");
+        Directory.CreateDirectory(pendingDirectory);
+        Directory.CreateDirectory(finalDirectory);
+
+        string pendingCuePath = Path.Combine(pendingDirectory, "output.cue");
+        string pendingBinPath = Path.Combine(pendingDirectory, "track.bin");
+        string finalCuePath = Path.Combine(finalDirectory, "Game.cue");
+        string finalBinPath = Path.Combine(finalDirectory, "Game.bin");
+
+        byte[] oldBytes = [9, 9, 9, 9];
+        byte[] newBytes = [1, 2, 3, 4];
+
+        File.WriteAllBytes(finalBinPath, oldBytes);
+        File.WriteAllText(finalCuePath, "FILE \"Game.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+        File.WriteAllBytes(pendingBinPath, newBytes);
+        File.WriteAllText(pendingCuePath, "FILE \"track.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertFalse(
+            app.TryFinalizeCueBinBundle(pendingCuePath, finalCuePath, allowOverwrite: false, out _),
+            "CUE/BIN finalization must not replace an existing bundle when overwrite is disabled.");
+        AssertTrue(oldBytes.SequenceEqual(File.ReadAllBytes(finalBinPath)), "Existing BIN changed while overwrite was disabled.");
+        AssertTrue(File.ReadAllText(finalCuePath, Encoding.UTF8).Contains("FILE \"Game.bin\" BINARY", StringComparison.Ordinal), "Existing CUE changed while overwrite was disabled.");
+        AssertTrue(File.Exists(pendingCuePath), "Rejected pending CUE should remain available.");
+        AssertTrue(File.Exists(pendingBinPath), "Rejected pending BIN should remain available.");
+    }
+
+    private static void TestCueBinOverwriteReplacesExistingBundle(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "cue-overwrite-success");
+        string pendingDirectory = Path.Combine(rootDirectory, "pending");
+        string finalDirectory = Path.Combine(rootDirectory, "final");
+        Directory.CreateDirectory(pendingDirectory);
+        Directory.CreateDirectory(finalDirectory);
+
+        string pendingCuePath = Path.Combine(pendingDirectory, "output.cue");
+        string pendingBinPath = Path.Combine(pendingDirectory, "track.bin");
+        string finalCuePath = Path.Combine(finalDirectory, "Game.cue");
+        string finalBinPath = Path.Combine(finalDirectory, "Game.bin");
+        string legacyBinPath = Path.Combine(finalDirectory, "Legacy.bin");
+
+        byte[] newBytes = [1, 2, 3, 4, 5, 6];
+        File.WriteAllBytes(legacyBinPath, [8, 8, 8, 8]);
+        File.WriteAllText(finalCuePath, "FILE \"Legacy.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+        File.WriteAllBytes(pendingBinPath, newBytes);
+        File.WriteAllText(pendingCuePath, "FILE \"track.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertTrue(
+            app.TryFinalizeCueBinBundle(pendingCuePath, finalCuePath, allowOverwrite: true, out string failureMessageKey),
+            "CUE/BIN overwrite should replace a valid existing bundle. Failure: " + failureMessageKey);
+        AssertTrue(File.Exists(finalCuePath), "Expected replacement CUE to exist.");
+        AssertTrue(File.Exists(finalBinPath), "Expected replacement BIN to exist.");
+        AssertTrue(newBytes.SequenceEqual(File.ReadAllBytes(finalBinPath)), "Replacement BIN contents did not match the pending output.");
+        AssertTrue(File.ReadAllText(finalCuePath, Encoding.UTF8).Contains("FILE \"Game.bin\" BINARY", StringComparison.Ordinal), "Replacement CUE did not reference the rebased BIN name.");
+        AssertFalse(File.Exists(legacyBinPath), "Old CUE dependency should be removed after a successful transactional overwrite.");
+        AssertFalse(File.Exists(pendingCuePath), "Pending CUE should be removed after successful finalization.");
+        AssertFalse(File.Exists(pendingBinPath), "Pending BIN should be promoted after successful finalization.");
+        AssertFalse(Directory.EnumerateFiles(finalDirectory, ".hcb-*", SearchOption.AllDirectories).Any(), "Successful overwrite should not leave rollback files.");
+    }
+
+    private static void TestCueBinOverwriteRollsBackPartialPromotion(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "cue-overwrite-rollback");
+        string pendingDirectory = Path.Combine(rootDirectory, "pending");
+        string finalDirectory = Path.Combine(rootDirectory, "final");
+        Directory.CreateDirectory(pendingDirectory);
+        Directory.CreateDirectory(finalDirectory);
+
+        string pendingCuePath = Path.Combine(pendingDirectory, "output.cue");
+        string pendingTrack1Path = Path.Combine(pendingDirectory, "track1.bin");
+        string pendingTrack2Path = Path.Combine(pendingDirectory, "track2.bin");
+        string finalCuePath = Path.Combine(finalDirectory, "Game.cue");
+        string finalTrack1Path = Path.Combine(finalDirectory, "Game (Track 01).bin");
+
+        byte[] oldTrack1Bytes = [7, 7, 7, 7];
+        byte[] newTrack1Bytes = [1, 1, 1, 1];
+        File.WriteAllBytes(finalTrack1Path, oldTrack1Bytes);
+        File.WriteAllBytes(pendingTrack1Path, newTrack1Bytes);
+        File.WriteAllBytes(pendingTrack2Path, [2, 2, 2, 2]);
+        File.WriteAllText(
+            pendingCuePath,
+            "FILE \"track1.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\nFILE \"track2.bin\" BINARY\r\n  TRACK 02 AUDIO\r\n    INDEX 01 00:02:00\r\n",
+            Encoding.ASCII);
+
+        using (FileStream lockedTrack = new(
+                   pendingTrack2Path,
+                   FileMode.Open,
+                   FileAccess.Read,
+                   FileShare.None))
+        {
+            AssertFalse(
+                app.TryFinalizeCueBinBundle(pendingCuePath, finalCuePath, allowOverwrite: true, out _),
+                "A sharing violation during the second track promotion should fail the bundle transaction.");
+        }
+
+        AssertTrue(oldTrack1Bytes.SequenceEqual(File.ReadAllBytes(finalTrack1Path)), "Rollback did not restore the original final BIN.");
+        AssertFalse(File.Exists(finalCuePath), "Failed overwrite should not leave a new final CUE.");
+        AssertTrue(File.Exists(pendingCuePath), "Failed overwrite should preserve the pending CUE.");
+        AssertTrue(File.Exists(pendingTrack1Path), "Rollback should return an already-promoted BIN to the pending workspace.");
+        AssertTrue(newTrack1Bytes.SequenceEqual(File.ReadAllBytes(pendingTrack1Path)), "Rollback changed the pending BIN contents.");
+        AssertTrue(File.Exists(pendingTrack2Path), "The unpromoted locked BIN should remain pending.");
+        AssertFalse(Directory.EnumerateFiles(finalDirectory, ".hcb-*", SearchOption.AllDirectories).Any(), "Rollback should not leave backup files after restoration.");
     }
 
     private static void TestChdInfoSha1Parsing(AppReflection app)
@@ -1619,6 +1729,9 @@ internal static partial class Program
         private readonly ConstructorInfo csoToolProbePathConstructor;
         private readonly ConstructorInfo csoPreprocessorConstructor;
         private readonly MethodInfo preprocessCsoAsync;
+        private readonly ConstructorInfo extractionOutputContractConstructor;
+        private readonly ConstructorInfo extractionOutputBundleValidatorConstructor;
+        private readonly MethodInfo finalizeExtractionOutputBundle;
         private readonly MethodInfo createCsoTempWorkspace;
 
         public AppReflection(Assembly appAssembly)
@@ -1637,6 +1750,8 @@ internal static partial class Program
             chdInfoResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdInfoResult");
             extractionOutputBundleType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputBundle");
             extractionOutputKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputKind");
+            Type extractionOutputContractType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputContract");
+            Type extractionOutputBundleValidatorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputBundleValidator");
             Type extractionOutputProofVerifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputProofVerifier");
             queueItemTerminalOutcomeType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Queue.QueueItemTerminalOutcome");
             Type profilePlannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdWorkflowProfilePlanner");
@@ -1680,6 +1795,21 @@ internal static partial class Program
             extractionOutputBundleConstructor = GetRequiredConstructor(
                 extractionOutputBundleType,
                 [extractionOutputKindType, typeof(string), typeof(IReadOnlyList<string>), typeof(long)]);
+            extractionOutputContractConstructor = GetRequiredConstructor(
+                extractionOutputContractType,
+                [extractionOutputKindType, typeof(string), typeof(string)]);
+            extractionOutputBundleValidatorConstructor = GetRequiredConstructor(
+                extractionOutputBundleValidatorType,
+                Type.EmptyTypes);
+            finalizeExtractionOutputBundle = GetRequiredInstanceMethod(
+                extractionOutputBundleValidatorType,
+                "TryFinalize",
+                [
+                    extractionOutputContractType,
+                    typeof(bool),
+                    extractionOutputBundleType.MakeByRefType(),
+                    typeof(string).MakeByRefType()
+                ]);
             verifySingleFileExtractionProofAsync = GetRequiredMethod(
                 extractionOutputProofVerifierType,
                 "VerifySingleFileAsync",
@@ -1804,6 +1934,23 @@ internal static partial class Program
             object?[] arguments = [pendingCuePath, finalCuePath, null];
             bool success = (bool)(finalizeExtractedCueBinOutput.Invoke(null, arguments) ?? false);
             failureMessageKey = arguments[2] as string ?? string.Empty;
+            return success;
+        }
+
+        public bool TryFinalizeCueBinBundle(
+            string pendingCuePath,
+            string finalCuePath,
+            bool allowOverwrite,
+            out string failureMessageKey)
+        {
+            object kind = Enum.Parse(extractionOutputKindType, "CueBinBundle", ignoreCase: false);
+            object contract = extractionOutputContractConstructor.Invoke(
+                [kind, pendingCuePath, finalCuePath]);
+            object validator = extractionOutputBundleValidatorConstructor.Invoke(null);
+
+            object?[] arguments = [contract, allowOverwrite, null, null];
+            bool success = (bool)(finalizeExtractionOutputBundle.Invoke(validator, arguments) ?? false);
+            failureMessageKey = arguments[3] as string ?? string.Empty;
             return success;
         }
 

@@ -468,6 +468,7 @@ internal sealed class WorkflowExtractionStage(
 
         if (!_outputBundleValidator.TryFinalize(
                 outputContract,
+                allowOverwrite: !settings.SkipExistingOutput,
                 out ExtractionOutputBundle finalOutputBundle,
                 out string finalizeFailureMessageKey))
         {
