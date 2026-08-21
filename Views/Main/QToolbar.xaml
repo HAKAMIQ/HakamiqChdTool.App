@@ -7,11 +7,11 @@
              UseLayoutRounding="True">
 
     <Border Style="{DynamicResource FluentQueueWorkspaceHeader}"
-            Padding="{DynamicResource Inset.16.12}">
+            Padding="{DynamicResource Inset.12.8}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
@@ -19,13 +19,13 @@
                   VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Width="{DynamicResource Space.32}"
-                        Height="{DynamicResource Space.32}"
+                        Width="{DynamicResource Space.24}"
+                        Height="{DynamicResource Space.24}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Background="{DynamicResource Brush.Layer.Canvas}"
@@ -33,8 +33,8 @@
                         BorderThickness="{DynamicResource Inset.1.All}"
                         CornerRadius="{DynamicResource Radius.Control.Large}">
 
-                    <Viewbox Width="{DynamicResource Space.18}"
-                             Height="{DynamicResource Space.18}"
+                    <Viewbox Width="{DynamicResource Space.16}"
+                             Height="{DynamicResource Space.16}"
                              HorizontalAlignment="Center"
                              VerticalAlignment="Center"
                              FlowDirection="LeftToRight"
@@ -53,22 +53,6 @@
                                Text="{DynamicResource LocUi_QueueSection_Title}"
                                TextAlignment="Left" />
 
-                    <TextBlock Text="{DynamicResource LocUi_QueueSection_Subtitle}"
-                               TextAlignment="Left"
-                               TextTrimming="CharacterEllipsis"
-                               TextWrapping="NoWrap">
-                        <TextBlock.Style>
-                            <Style TargetType="{x:Type TextBlock}"
-                                   BasedOn="{StaticResource QueueWorkspaceHeaderSubtitleText}">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding QueueItems.Count}" Value="0">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
                 </StackPanel>
             </Grid>
 
@@ -85,6 +69,8 @@
                 <Button Grid.Column="0"
                         Command="{Binding SelectFilesCommand}"
                         IsEnabled="{Binding IsShellEnabled}"
+                        MinWidth="96"
+                        MinHeight="32"
                         Style="{DynamicResource QueueWorkspaceToolButton}"
                         AutomationProperties.Name="{DynamicResource LocUi_Hub_AddFiles}">
 
@@ -118,6 +104,8 @@
                 <Button Grid.Column="2"
                         Command="{Binding SelectFolderCommand}"
                         IsEnabled="{Binding IsShellEnabled}"
+                        MinWidth="96"
+                        MinHeight="32"
                         Style="{DynamicResource QueueWorkspaceToolButton}"
                         AutomationProperties.Name="{DynamicResource LocUi_Hub_AddFolder}">
 

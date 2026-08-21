@@ -352,11 +352,6 @@
                         <TextBlock Text="{DynamicResource LocOptions_WindowTitle}"
                                    Style="{StaticResource OptionsWindow.TitleText}" />
 
-                        <TextBlock Margin="{DynamicResource Inset.0.2.0.0}"
-                                   Text="{DynamicResource LocOptions_HeaderDescription}"
-                                   Style="{StaticResource OptionsWindow.BodyText}"
-                                   TextWrapping="NoWrap"
-                                   TextTrimming="CharacterEllipsis" />
                     </StackPanel>
 
                     <Button Grid.Column="2"

@@ -3,16 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="{DynamicResource LocRedumpDetails_Title}"
-        Width="840"
-        MinWidth="760"
-        MaxHeight="720"
+        Width="680"
+        MinWidth="620"
+        MaxHeight="580"
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="None"
         ShowInTaskbar="False"
         AllowsTransparency="False"
-        Background="{DynamicResource Brush.Layer.Canvas}"
+        Background="{DynamicResource Brush.Layer.Card}"
         Foreground="{DynamicResource Brush.Text.Primary}"
         FlowDirection="{DynamicResource App.FlowDirection}"
         Language="{DynamicResource App.XmlLanguage}"
@@ -43,7 +43,7 @@
                                    FontSize="{DynamicResource FontSize.Caption}"
                                    FlowDirection="{DynamicResource App.FlowDirection}"
                                    Language="{DynamicResource App.XmlLanguage}"
-                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                                   TextAlignment="Left" />
                     </DataTemplate>
                 </ToolTip.ContentTemplate>
             </ToolTip>
@@ -65,7 +65,7 @@
                                    FontSize="{DynamicResource FontSize.Caption}"
                                    FlowDirection="{DynamicResource App.FlowDirection}"
                                    Language="{DynamicResource App.XmlLanguage}"
-                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                                   TextAlignment="Left" />
                     </DataTemplate>
                 </ToolTip.ContentTemplate>
             </ToolTip>
@@ -95,7 +95,7 @@
                 <Setter Property="BorderBrush"
                         Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.16.10}" />
+                        Value="{DynamicResource Inset.12.8}" />
                 <Setter Property="SnapsToDevicePixels"
                         Value="True" />
                 <Setter Property="UseLayoutRounding"
@@ -107,7 +107,7 @@
                 <Setter Property="Background"
                         Value="{DynamicResource Brush.Layer.Canvas}" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.16.All}" />
+                        Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="SnapsToDevicePixels"
                         Value="True" />
                 <Setter Property="UseLayoutRounding"
@@ -119,13 +119,13 @@
                 <Setter Property="Background"
                         Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Default}" />
+                        Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness"
                         Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius"
                         Value="{DynamicResource Radius.Card.Large}" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.16.All}" />
+                        Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="HorizontalAlignment"
                         Value="Stretch" />
                 <Setter Property="ClipToBounds"
@@ -140,15 +140,15 @@
                    TargetType="{x:Type Border}"
                    BasedOn="{StaticResource RedumpDetails.Card}">
                 <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Strong}" />
+                        Value="{DynamicResource Brush.Border.Subtle}" />
             </Style>
 
             <Style x:Key="RedumpDetails.IconPlate"
                    TargetType="{x:Type Border}">
                 <Setter Property="Width"
-                        Value="44" />
+                        Value="40" />
                 <Setter Property="Height"
-                        Value="44" />
+                        Value="40" />
                 <Setter Property="Background"
                         Value="{DynamicResource Brush.Accent.Subtle}" />
                 <Setter Property="BorderBrush"
@@ -166,9 +166,9 @@
             <Style x:Key="RedumpDetails.SectionIconPlate"
                    TargetType="{x:Type Border}">
                 <Setter Property="Width"
-                        Value="32" />
+                        Value="28" />
                 <Setter Property="Height"
-                        Value="32" />
+                        Value="28" />
                 <Setter Property="Background"
                         Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush"
@@ -186,13 +186,13 @@
             <Style x:Key="RedumpDetails.MetaStrip"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Surface}" />
+                        Value="{DynamicResource Brush.Transparent}" />
                 <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Subtle}" />
+                        Value="{DynamicResource Brush.Transparent}" />
                 <Setter Property="BorderThickness"
-                        Value="{DynamicResource Inset.1.All}" />
+                        Value="{DynamicResource Inset.None}" />
                 <Setter Property="CornerRadius"
-                        Value="{DynamicResource Radius.Control}" />
+                        Value="0" />
                 <Setter Property="ClipToBounds"
                         Value="True" />
                 <Setter Property="SnapsToDevicePixels"
@@ -206,9 +206,9 @@
                 <Setter Property="Background"
                         Value="{DynamicResource Brush.Transparent}" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.14.10}" />
+                        Value="8,4" />
                 <Setter Property="MinHeight"
-                        Value="64" />
+                        Value="40" />
                 <Setter Property="VerticalAlignment"
                         Value="Stretch" />
             </Style>
@@ -220,11 +220,11 @@
                 <Setter Property="BorderBrush"
                         Value="{DynamicResource Brush.Accent.SelectedBorder}" />
                 <Setter Property="BorderThickness"
-                        Value="{DynamicResource Inset.1.All}" />
+                        Value="{DynamicResource Inset.None}" />
                 <Setter Property="CornerRadius"
-                        Value="{DynamicResource Radius.Control}" />
+                        Value="{DynamicResource Radius.Control.Large}" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.12.10}" />
+                        Value="{DynamicResource Inset.12.8}" />
                 <Setter Property="HorizontalAlignment"
                         Value="Stretch" />
             </Style>
@@ -234,17 +234,17 @@
                 <Setter Property="Background"
                         Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Subtle}" />
+                        Value="{DynamicResource Brush.Transparent}" />
                 <Setter Property="BorderThickness"
-                        Value="{DynamicResource Inset.1.All}" />
+                        Value="{DynamicResource Inset.None}" />
                 <Setter Property="CornerRadius"
                         Value="{DynamicResource Radius.Control}" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.14.10}" />
+                        Value="10,8" />
                 <Setter Property="MinHeight"
-                        Value="84" />
+                        Value="56" />
                 <Setter Property="MaxHeight"
-                        Value="180" />
+                        Value="120" />
                 <Setter Property="HorizontalAlignment"
                         Value="Stretch" />
                 <Setter Property="ClipToBounds"
@@ -455,13 +455,13 @@
             <Style x:Key="RedumpDetails.StatusBadge"
                    TargetType="{x:Type Border}">
                 <Setter Property="MinWidth"
-                        Value="136" />
+                        Value="96" />
                 <Setter Property="MaxWidth"
-                        Value="320" />
+                        Value="220" />
                 <Setter Property="MinHeight"
-                        Value="40" />
+                        Value="28" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.12.8}" />
+                        Value="10,4" />
                 <Setter Property="Background"
                         Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush"
@@ -469,7 +469,7 @@
                 <Setter Property="BorderThickness"
                         Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius"
-                        Value="{DynamicResource Radius.Control}" />
+                        Value="14" />
                 <Setter Property="HorizontalAlignment"
                         Value="Center" />
                 <Setter Property="VerticalAlignment"
@@ -526,13 +526,13 @@
                 <Setter Property="LineStackingStrategy"
                         Value="BlockLineHeight" />
                 <Setter Property="LineHeight"
-                        Value="18" />
+                        Value="16" />
                 <Setter Property="HorizontalAlignment"
                         Value="Center" />
                 <Setter Property="VerticalAlignment"
                         Value="Center" />
                 <Setter Property="MaxWidth"
-                        Value="296" />
+                        Value="200" />
 
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding VerificationTone}"
@@ -562,11 +562,11 @@
                 <Setter Property="BorderBrush"
                         Value="{DynamicResource Brush.Accent.SelectedBorder}" />
                 <Setter Property="BorderThickness"
-                        Value="{DynamicResource Inset.1.All}" />
+                        Value="{DynamicResource Inset.None}" />
                 <Setter Property="CornerRadius"
-                        Value="{DynamicResource Radius.Control}" />
+                        Value="{DynamicResource Radius.Control.Large}" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.12.10}" />
+                        Value="{DynamicResource Inset.12.8}" />
                 <Setter Property="Visibility"
                         Value="Collapsed" />
 
@@ -622,11 +622,13 @@
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource PrimaryButtonStyle}">
                 <Setter Property="MinWidth"
-                        Value="140" />
+                        Value="148" />
+                <Setter Property="MaxWidth"
+                        Value="164" />
                 <Setter Property="MinHeight"
                         Value="{DynamicResource Space.40}" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.14.10}" />
+                        Value="{DynamicResource Inset.12.8}" />
                 <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome"
                         Value="True" />
             </Style>
@@ -635,11 +637,13 @@
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource SecondaryButtonStyle}">
                 <Setter Property="MinWidth"
-                        Value="112" />
+                        Value="104" />
+                <Setter Property="MaxWidth"
+                        Value="136" />
                 <Setter Property="MinHeight"
                         Value="{DynamicResource Space.40}" />
                 <Setter Property="Padding"
-                        Value="{DynamicResource Inset.12.10}" />
+                        Value="{DynamicResource Inset.12.8}" />
                 <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome"
                         Value="True" />
             </Style>
@@ -689,22 +693,24 @@
 
             <Border Grid.Row="0"
                     Style="{StaticResource RedumpDetails.Bar}"
+                    FlowDirection="LeftToRight"
+                    Padding="8,8,16,8"
                     BorderThickness="{DynamicResource Inset.0.0.0.1}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
 
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0"
+                    <TextBlock Grid.Column="2"
                                Text="{DynamicResource LocRedumpDetails_Title}"
                                Style="{StaticResource RedumpDetails.WindowTitle}"
                                VerticalAlignment="Center" />
 
-                    <Button Grid.Column="2"
+                    <Button Grid.Column="0"
                             Width="{DynamicResource Space.32}"
                             Height="{DynamicResource Space.32}"
                             MinWidth="{DynamicResource Space.32}"
@@ -732,7 +738,7 @@
             <Border Grid.Row="1"
                     Style="{StaticResource RedumpDetails.ContentHost}">
 
-                <ScrollViewer MaxHeight="560"
+                <ScrollViewer MaxHeight="420"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Auto"
                               CanContentScroll="False"
@@ -769,7 +775,7 @@
                                                VerticalAlignment="Center" />
                                 </Grid>
 
-                                <Border Margin="{DynamicResource Inset.0.12.0.0}"
+                                <Border Margin="{DynamicResource Inset.0.8.0.0}"
                                         Style="{StaticResource RedumpDetails.ProgressPanel}">
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -787,7 +793,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Margin="{DynamicResource Inset.0.12.0.0}"
+                                <Border Margin="{DynamicResource Inset.0.8.0.0}"
                                         Style="{StaticResource RedumpDetails.MetaStrip}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -798,11 +804,11 @@
 
                                         <Border Grid.Column="0"
                                                 Style="{StaticResource RedumpDetails.MetaCell}">
-                                            <StackPanel VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                 <TextBlock Text="{DynamicResource LocRedumpDetails_ConsoleTypeLabel}"
                                                            Style="{StaticResource RedumpDetails.Label}" />
 
-                                                <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
+                                                <TextBlock Margin="8,0,0,0"
                                                            Text="{Binding ConsoleTypeName, Mode=OneWay}"
                                                            ToolTip="{Binding ConsoleTypeName, Mode=OneWay}"
                                                            Style="{StaticResource RedumpDetails.Value}" />
@@ -817,11 +823,11 @@
 
                                         <Border Grid.Column="2"
                                                 Style="{StaticResource RedumpDetails.MetaCell}">
-                                            <StackPanel VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                 <TextBlock Text="{DynamicResource LocRedumpDetails_SizeLabel}"
                                                            Style="{StaticResource RedumpDetails.Label}" />
 
-                                                <TextBlock Margin="{DynamicResource Inset.0.5.0.0}"
+                                                <TextBlock Margin="8,0,0,0"
                                                            Text="{Binding SizeDisplay, Mode=OneWay}"
                                                            ToolTip="{Binding SizeDisplay, Mode=OneWay}"
                                                            Style="{StaticResource RedumpDetails.Value}" />
@@ -830,7 +836,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Margin="{DynamicResource Inset.0.12.0.0}"
+                                <Border Margin="{DynamicResource Inset.0.8.0.0}"
                                         Style="{StaticResource RedumpDetails.ResultPanel}">
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -885,7 +891,7 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Margin="{DynamicResource Inset.0.12.0.0}"
+                        <Border Margin="{DynamicResource Inset.0.8.0.0}"
                                 Style="{StaticResource RedumpDetails.Card}">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -964,7 +970,7 @@
                             </Grid>
                         </Border>
 
-                        <Border Margin="{DynamicResource Inset.0.12.0.0}"
+                        <Border Margin="{DynamicResource Inset.0.8.0.0}"
                                 Style="{StaticResource RedumpDetails.Card}"
                                 Visibility="{Binding CanApplyName, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                             <Grid>

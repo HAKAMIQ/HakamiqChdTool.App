@@ -172,9 +172,9 @@
             <Style x:Key="About.LinkButton"
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource SecondaryButtonStyle}">
-                <Setter Property="Height" Value="{DynamicResource Space.40}" />
-                <Setter Property="MinHeight" Value="{DynamicResource Space.40}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.8}" />
+                <Setter Property="Height" Value="36" />
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="Padding" Value="10,6" />
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
             </Style>
@@ -182,17 +182,17 @@
             <Style x:Key="About.ContributorCard"
                    TargetType="{x:Type Border}"
                    BasedOn="{StaticResource InnerCardStyle}">
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
-                <Setter Property="Margin" Value="{DynamicResource Inset.4.All}" />
+                <Setter Property="Padding" Value="8,6" />
+                <Setter Property="Margin" Value="2" />
             </Style>
 
             <Style x:Key="About.ContributorAction"
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource TransparentButtonStyle}">
-                <Setter Property="Width" Value="{DynamicResource Space.32}" />
-                <Setter Property="Height" Value="{DynamicResource Space.32}" />
-                <Setter Property="MinWidth" Value="{DynamicResource Space.32}" />
-                <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
+                <Setter Property="Width" Value="28" />
+                <Setter Property="Height" Value="28" />
+                <Setter Property="MinWidth" Value="28" />
+                <Setter Property="MinHeight" Value="28" />
                 <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
                 <Setter Property="Visibility" Value="Collapsed" />
                 <Setter Property="ToolTip" Value="{DynamicResource LocAbout_CreditDiscordTooltip}" />
@@ -212,8 +212,8 @@
 
             <Style x:Key="About.StaticContributorIcon"
                    TargetType="{x:Type Border}">
-                <Setter Property="Width" Value="{DynamicResource Space.32}" />
-                <Setter Property="Height" Value="{DynamicResource Space.32}" />
+                <Setter Property="Width" Value="28" />
+                <Setter Property="Height" Value="28" />
                 <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
