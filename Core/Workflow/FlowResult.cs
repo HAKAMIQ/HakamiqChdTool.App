@@ -15,8 +15,19 @@ internal static class WorkflowResultBuilder
         QueueItemTerminalOutcome outcome,
         string statusDetail,
         string? outputPath,
-        string? logPath) =>
-        WorkflowExecutionResult.Success(outcome, statusDetail, outputPath, logPath);
+        string? logPath,
+        bool sourceDeletionProofVerified = false)
+    {
+        WorkflowExecutionResult result = WorkflowExecutionResult.Success(
+            outcome,
+            statusDetail,
+            outputPath,
+            logPath);
+
+        return sourceDeletionProofVerified
+            ? result.WithSourceDeletionProofVerified()
+            : result;
+    }
 
     public static WorkflowExecutionResult Skipped(
         QueueItemTerminalOutcome outcome,

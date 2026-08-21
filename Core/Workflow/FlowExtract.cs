@@ -23,6 +23,7 @@ internal sealed class WorkflowExtractionStage(
     private const string FinalizingExtractedOutputStageKey = "LocStatus_FinalizingExtractedOutput";
     private const string MovingExtractedOutputStageKey = "LocStatus_MovingExtractedOutputFile";
     private const string VerifyingSourceChdStageKey = "LocStatus_ExtractionDoneVerifyingSourceChd";
+    private const string VerifyingExtractedArtifactsStageKey = "LocStatus_ExtractionDoneVerifyingArtifacts";
     private const string ExtractCompletedCueBinKey = "LocStatus_ExtractCompletedCueBin";
     private const string ExtractCompletedIsoKey = "LocStatus_ExtractCompletedIso";
     private const string ExtractCompletedImgKey = "LocStatus_ExtractCompletedImg";
@@ -37,6 +38,10 @@ internal sealed class WorkflowExtractionStage(
     private readonly IMetadataAwareChdExtractionPolicy _extractionPolicy = new MetadataAwareChdExtractionPolicy();
     private readonly IRestoreTargetPolicy _restoreTargetPolicy = new RestoreTargetPolicy();
     private readonly ExtractionOutputBundleValidator _outputBundleValidator = new();
+    private readonly ExtractionOutputProofVerifier _outputProofVerifier = new(
+        chdInfo ?? throw new ArgumentNullException(nameof(chdInfo)),
+        conversion ?? throw new ArgumentNullException(nameof(conversion)),
+        log ?? throw new ArgumentNullException(nameof(log)));
 
     public async Task<WorkflowExecutionResult> ExecuteAsync(
         ChdTaskRequest request,
@@ -550,6 +555,58 @@ internal sealed class WorkflowExtractionStage(
             }
         }
 
+        bool sourceDeletionProofVerified = false;
+
+        if (request.Verify && settings.DeleteSourceAfterVerifiedExtraction)
+        {
+            sink.ReportStage(QueueItemStage.Verifying, VerifyingExtractedArtifactsStageKey);
+            sink.ReportProgress(98, indeterminate: true);
+            WorkflowPathUtilities.RaiseProgress(request, 98);
+
+            try
+            {
+                ExtractionOutputProofResult proofResult = await _outputProofVerifier
+                    .VerifyAsync(
+                        ctx.GetChdmanPath(),
+                        chdPath,
+                        infoResult,
+                        extractionDecision,
+                        finalOutputBundle,
+                        settings,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                sourceDeletionProofVerified = proofResult.IsVerified;
+
+                if (!proofResult.IsVerified)
+                {
+                    _log.Warning(
+                        "Extracted output could not be proven equivalent to source CHD. Source deletion is blocked. SourcePath={SourcePath}; OutputPath={OutputPath}; Reason={Reason}",
+                        chdPath,
+                        finalOutputBundle.PrimaryPath,
+                        proofResult.ReasonCode);
+                }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                sink.ReportTerminalFailure(QueueItemFailureKind.Cancelled, CancelledDetailKey);
+                return WorkflowExecutionResult.Cancelled(
+                    CancelledDetailKey,
+                    finalOutputBundle.PrimaryPath,
+                    lastLogPath);
+            }
+            catch (Exception ex) when (IsExpectedExtractionStageException(ex))
+            {
+                sourceDeletionProofVerified = false;
+
+                _log.Warning(
+                    ex,
+                    "Extracted output proof failed unexpectedly. Extraction remains successful and source deletion is blocked. SourcePath={SourcePath}; OutputPath={OutputPath}",
+                    chdPath,
+                    finalOutputBundle.PrimaryPath);
+            }
+        }
+
         sink.AttachArtifact(QueueItemArtifactKind.OutputFile, finalOutputBundle.PrimaryPath);
         sink.RecordInputOutputBytes(
             WorkflowPathUtilities.TryGetFileSize(chdPath),
@@ -567,7 +624,8 @@ internal sealed class WorkflowExtractionStage(
             QueueItemTerminalOutcome.Extracted,
             extractedDetail,
             finalOutputBundle.PrimaryPath,
-            lastLogPath);
+            lastLogPath,
+            sourceDeletionProofVerified);
     }
 
     private static async Task MonitorEstimatedExtractionProgressAsync(
