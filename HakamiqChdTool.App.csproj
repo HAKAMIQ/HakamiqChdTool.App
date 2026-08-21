@@ -57,12 +57,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Page Remove="Views\Options\GenView.xaml" />
 		<Page Remove="Views\Options\PathsView.xaml" />
 		<Page Remove="Views\Options\RedumpView.xaml" />
 		<Page Remove="Views\Options\ProcView.xaml" />
 		<Page Remove="Views\Options\PerfView.xaml" />
-		<Compile Remove="Views\Options\GenView.xaml.cs" />
 		<Compile Remove="Views\Options\PathsView.xaml.cs" />
 		<Compile Remove="Views\Options\RedumpView.xaml.cs" />
 		<Compile Remove="Views\Options\ProcView.xaml.cs" />
@@ -70,10 +68,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Page Include="Views\Options\GenView.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
 		<Page Include="Views\Options\PathsView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
@@ -90,10 +84,6 @@
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Compile Include="Views\Options\GenView.xaml.cs">
-			<DependentUpon>GenView.xaml</DependentUpon>
-			<SubType>Code</SubType>
-		</Compile>
 		<Compile Include="Views\Options\PathsView.xaml.cs">
 			<DependentUpon>PathsView.xaml</DependentUpon>
 			<SubType>Code</SubType>
