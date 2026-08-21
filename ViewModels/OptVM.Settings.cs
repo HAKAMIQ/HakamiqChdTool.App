@@ -42,7 +42,6 @@ public sealed partial class OptionsViewModel
         OrganizeByPlatform = settings.OrganizeByPlatform;
         OrganizeByRegion = settings.OrganizeByRegion;
         IncludeSubfolders = settings.IncludeSubfolders;
-        ShowStorageAdvisorDialog = !settings.SuppressStorageAdvisorDialog;
         UseBundledChdman = settings.UseBundledChdman;
         ExternalChdmanPath = settings.ExternalChdmanPath;
         PortableMode = settings.PortableMode;
@@ -106,7 +105,6 @@ public sealed partial class OptionsViewModel
         result.OrganizeByPlatform = OrganizeByPlatform;
         result.OrganizeByRegion = OrganizeByRegion;
         result.IncludeSubfolders = IncludeSubfolders;
-        result.SuppressStorageAdvisorDialog = !ShowStorageAdvisorDialog;
         result.UseBundledChdman = UseBundledChdman;
         result.ExternalChdmanPath = ExternalChdmanPath.Trim();
         result.PortableMode = PortableMode;

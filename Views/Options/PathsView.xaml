@@ -344,26 +344,6 @@
                 </ToolTip.ContentTemplate>
             </ToolTip>
 
-            <ToolTip x:Key="PathsTip.StorageAdvisor"
-                     Content="{DynamicResource LocPaths_ShowStorageAdvisorDialogDesc}"
-                     FlowDirection="{DynamicResource App.FlowDirection}"
-                     Language="{DynamicResource App.XmlLanguage}">
-                <ToolTip.ContentTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
-                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
-                                   TextWrapping="Wrap"
-                                   TextTrimming="None"
-                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
-                                   Foreground="{DynamicResource Brush.Text.Primary}"
-                                   FontFamily="{DynamicResource FontFamily.Base}"
-                                   FontSize="{DynamicResource FontSize.Caption}"
-                                   FlowDirection="{DynamicResource App.FlowDirection}"
-                                   Language="{DynamicResource App.XmlLanguage}"
-                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
-                    </DataTemplate>
-                </ToolTip.ContentTemplate>
-            </ToolTip>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -395,59 +375,27 @@
                                 Style="{StaticResource Win11SettingsRow}"
                                 Padding="{DynamicResource Inset.8.4}"
                                 MinHeight="{DynamicResource Space.36}">
-                            <Grid SnapsToDevicePixels="True">
+                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
-                                <Grid Style="{StaticResource Win11SettingsRowGrid}" Grid.Column="0">
-                                                                                        <Grid.ColumnDefinitions>
-                                                                                            <ColumnDefinition Width="Auto" />
-                                                                                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                                                                            <ColumnDefinition Width="Auto" />
-                                                                                            <ColumnDefinition Width="*" />
-                                                                                        </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
+                                               Text="{DynamicResource LocPaths_IncludeSubfolders}"
+                                               ToolTip="{StaticResource AppTip.PathsView.1}"
+                                               TextAlignment="Left" />
+                                </Grid>
 
-                                                                                        <Grid Grid.Column="2"
-                                                                                              Style="{StaticResource Win11SettingsRowTextArea}">
-                                                                                            <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                                                                                       Text="{DynamicResource LocPaths_IncludeSubfolders}"
-                                                                                                       ToolTip="{StaticResource AppTip.PathsView.1}"
-                                                                                                       TextAlignment="Left" />
-                                                                                        </Grid>
-
-                                                                                        <CheckBox Grid.Column="0"
-                                                                                                  IsChecked="{Binding IncludeSubfolders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                                                                                  ToolTip="{StaticResource AppTip.PathsView.1}"
-                                                                                                  AutomationProperties.Name="{DynamicResource LocPaths_IncludeSubfolders}" />
-                                                                                    </Grid>
-
-                                <Grid Style="{StaticResource Win11SettingsRowGrid}" Grid.Column="2">
-                                                                                        <Grid.ColumnDefinitions>
-                                                                                            <ColumnDefinition Width="Auto" />
-                                                                                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                                                                            <ColumnDefinition Width="Auto" />
-                                                                                            <ColumnDefinition Width="*" />
-                                                                                        </Grid.ColumnDefinitions>
-
-                                                                                        <Grid Grid.Column="2"
-                                                                                              Style="{StaticResource Win11SettingsRowTextArea}">
-                                                                                            <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                                                                                       Text="{DynamicResource LocPaths_ShowStorageAdvisorDialog}"
-                                                                                                       ToolTip="{StaticResource PathsTip.StorageAdvisor}"
-                                                                                                       TextAlignment="Left" />
-                                                                                        </Grid>
-
-                                                                                        <CheckBox Grid.Column="0"
-                                                                                                  IsChecked="{Binding ShowStorageAdvisorDialog, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                                                  IsEnabled="{Binding CanUseStorageAdvisor}"
-                                                                                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                                                                                  ToolTip="{StaticResource PathsTip.StorageAdvisor}"
-                                                                                                  AutomationProperties.Name="{DynamicResource LocPaths_ShowStorageAdvisorDialog}" />
-                                                                                    </Grid>
+                                <CheckBox Grid.Column="0"
+                                          IsChecked="{Binding IncludeSubfolders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Style="{StaticResource Win11SettingsCheckBox}"
+                                          ToolTip="{StaticResource AppTip.PathsView.1}"
+                                          AutomationProperties.Name="{DynamicResource LocPaths_IncludeSubfolders}" />
                             </Grid>
                         </Border>
 

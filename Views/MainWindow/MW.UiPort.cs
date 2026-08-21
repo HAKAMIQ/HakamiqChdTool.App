@@ -91,22 +91,6 @@ public partial class MainWindow
             _w.PersistSettings();
         }
 
-        public bool ConfirmStorageAdvisorBeforeProcessing(
-            IReadOnlyList<TaskQueueItemViewModel> items,
-            bool processedSelectionOnly)
-        {
-            ArgumentNullException.ThrowIfNull(items);
-
-            if (items.Count == 0 || _w._settings.SuppressStorageAdvisorDialog)
-            {
-                return true;
-            }
-
-            return _w.ConfirmStorageAdvisorBeforeProcessing(
-                items,
-                processedSelectionOnly);
-        }
-
         public void ResetRunSummary()
         {
             _w.ResetRunSummary();

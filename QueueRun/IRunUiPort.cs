@@ -39,10 +39,6 @@ public interface IQueueRunUiPort
 
     void PersistSettings();
 
-    bool ConfirmStorageAdvisorBeforeProcessing(
-        IReadOnlyList<TaskQueueItemViewModel> items,
-        bool processedSelectionOnly);
-
     void ResetRunSummary();
 
     void BuildRunSummary(

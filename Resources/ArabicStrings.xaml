@@ -1630,56 +1630,7 @@
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">هذا النوع من الملفات لا يدعم تقرير التحقق التفصيلي حالياً.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">نجاح الفحص لا يضمن تشغيل اللعبة على كل محاكي أو جهاز؛ التوافق يعتمد على دعم المنصة والإعدادات وطريقة التشغيل.</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Title">تنبيه قبل البدء</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Subtitle">قد تكون سرعة التحويل أقل من المعتاد</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SummaryTitle">الملخص</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SourceLabel">المصدر</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputLabel">الإخراج</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WorkspaceLabel">مجلد العمل المؤقت</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_DeviceKindLabel">نوع القرص</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_RecommendationTitle">الخيار الموصى به</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WarningsTitle">التفاصيل</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_TechnicalPathLabel">المسار</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_DoNotShowAgain">عدم إظهار هذه النافذة مرة أخرى</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_ContinueRecommended">متابعة بالإعداد الموصى به</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OpenOptions">فتح الإعدادات المتقدمة</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Cancel">إلغاء</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Device_Unknown">غير معروف</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Hdd">قرص HDD</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_SataSsd">SSD (SATA)</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_NvmeSsd">SSD (NVMe)</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Removable">وحدة تخزين خارجية</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Network">مسار شبكي</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_Severity_Info">معلومة</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Recommendation">توصية</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Warning">تنبيه</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Blocking">إجراء مطلوب</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_SourceDeviceUnknown">تعذر تحديد نوع وحدة تخزين المصدر. سيستخدم التطبيق إعدادات آمنة لضمان استقرار العملية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputDeviceUnknown">تعذر تحديد نوع وحدة تخزين الإخراج. سيتم التعامل مع مسار الوجهة بحذر لتفادي مشاكل النقل.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_PendingWorkspaceDeviceUnknown">تعذر تحديد نوع وحدة تخزين مجلد العمل المؤقت. سيتم التعامل مع المسار بحذر.</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_SourceIsHdd">المصدر على قرص HDD؛ قد تكون القراءة أبطأ مع الملفات الكبيرة أو متعددة المسارات.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputIsHdd">الإخراج على قرص HDD؛ قد تكون كتابة ملفات CHD أبطأ من SSD أو NVMe.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SourceAndOutputSameHdd">المصدر والإخراج على نفس قرص HDD. قد يقل الأداء بسبب القراءة والكتابة على نفس القرص.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputIsFastStorage">الإخراج على SSD/NVMe، وهذا مناسب لكتابة ملفات CHD مباشرة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputFastStorage">الإخراج على SSD/NVMe، وهذا مناسب لكتابة ملفات CHD مباشرة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputCrossVolumeIsAllowed">يمكن استخدام قرص مختلف للمصدر والإخراج. سيقرأ التطبيق ملف المصدر من قرص، ويكتب ملف CHD مباشرة في مجلد الإخراج المحدد.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_LargeOutputShouldBeWrittenDirectly">لأفضل أداء مع ملفات CHD الكبيرة، يُفضل كتابة الملف الناتج مباشرة في مجلد الإخراج النهائي، أو داخل مجلد عمل مؤقت على نفس قرص الإخراج.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CrossVolumeFinalMoveShouldBeAvoided">تجنب إنشاء ملف CHD على قرص ثم نقله إلى قرص آخر بعد الانتهاء؛ لأن ذلك قد يضيف وقتًا طويلًا ويحتاج إلى مساحة إضافية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_BinCueRescueRequiresSameVolumeWorkspace">معالجة ملفات BIN/CUE تحتاج إلى مجلد عمل على نفس قرص ملفات BIN حتى تتم العملية بأمان.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CustomPendingWorkspaceDifferentVolumeForBinCueRescue">مجلد العمل المؤقت الذي اخترته موجود على قرص مختلف عن ملفات BIN، لذلك سيستخدم التطبيق خيارًا آمنًا لهذه العملية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_AutoSameVolumeWorkspaceRecommended">يوصى باستخدام مجلد عمل تلقائي آمن على نفس قرص المصدر لهذه العملية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_HardLinkMayFailAcrossVolumes">إنشاء الروابط الصلبة (Hard Links) لا يعمل عادةً إذا كانت الملفات على أقراص مختلفة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CustomWorkspaceUnsafe">مجلد العمل المؤقت المحدد غير مناسب أو غير آمن لهذه العملية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WorkspaceFallsBackToAuto">سيستخدم التطبيق مجلد عمل آمنًا تلقائيًا لهذه العملية فقط.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UnknownStoragePolicyUsed">سيستخدم التطبيق إعداد تخزين آمن لأن بعض معلومات الأقراص غير متاحة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Summary">سيكتب التطبيق ملفات CHD الكبيرة مباشرة في مجلد الإخراج، ويتجنب النقل الكبير بين الأقراص، ويستخدم مجلد عمل مؤقتًا آمنًا على نفس قرص المصدر عند الحاجة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SafetyNote">سيستخدم التطبيق مجلد عمل آمنًا لهذه العملية، ويتجنب نسخ ملفات BIN الكبيرة أو نقل ملفات CHD بين الأقراص بعد الانتهاء.</sys:String>
-    <sys:String x:Key="LocPaths_ShowStorageAdvisorDialog">إظهار نصائح السرعة والأداء قبل التحويل</sys:String>
-    <sys:String x:Key="LocPaths_ShowStorageAdvisorDialogDesc">يعرض تنبيهًا بسيطًا إذا كان مكان الملفات قد يبطئ العملية، مثل استخدام قرص HDD بدل SSD أو NVMe.</sys:String>
     <sys:String x:Key="LocAbout_DiscordTooltip">Discord</sys:String>
 
     <sys:String x:Key="LocChdLogicalReport_Title">تقرير CHD</sys:String>
@@ -1701,14 +1652,6 @@
     <sys:String x:Key="LocQueue_RuntimeProgress_EtaCalculating">جارٍ الحساب</sys:String>
     <sys:String x:Key="LocMeta_Target_Folder">مجلد</sys:String>
     <sys:String x:Key="LocMeta_Target_SplitIso">أجزاء ISO</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryTitle">قد يكون التحويل أبطأ</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryText">المصدر والإخراج على نفس قرص HDD. قد يجعل هذا التحويل أبطأ مع الملفات الكبيرة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserRecommendationText">الأفضل أن تكون ملفات اللعبة ومجلد الإخراج على SSD. إذا كانت اللعبة على HDD، اختر مجلد إخراج على SSD لتقليل الضغط على القرص. لا ينقل البرنامج ملفات اللعبة تلقائيًا.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_ShowDetails">عرض التفاصيل</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UseRecommended">مراجعة الإعدادات</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Continue">متابعة</sys:String>
-
 
     <sys:String x:Key="LocPs3Intake_PipelineIsoToChd">ISO → chdman createdvd → CHD</sys:String>
     <sys:String x:Key="LocPs3Intake_PipelineFolderToChd">مجلد → ISO مؤقت → chdman createdvd → CHD</sys:String>

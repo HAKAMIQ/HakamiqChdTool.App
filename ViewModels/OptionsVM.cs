@@ -58,13 +58,11 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private ChoiceOption? _selectedIsoCreateOverride;
     private ChoiceOption? _selectedChdPlatformProfile;
     private bool _useCustomPendingWorkspace;
-    private bool _showStorageAdvisorDialog = true;
     private string _pendingWorkspaceCustomRoot = string.Empty;
     private bool _canUsePostProcessingAutomation = true;
     private bool _canUseRedumpDeepIntegrity = true;
     private bool _canUseRedumpDatabaseImport = true;
     private bool _canUseStandardNamingSuggestion = true;
-    private bool _canUseStorageAdvisor = true;
 
     public IReadOnlyList<string> ThemeOptions { get; } = new[] { "Light", "Dark", "Hakamiq" };
 
@@ -393,19 +391,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         set => SetProperty(ref _includeSubfolders, value);
     }
 
-    public bool ShowStorageAdvisorDialog
-    {
-        get => _showStorageAdvisorDialog;
-        set
-        {
-            bool normalized = CanUseStorageAdvisor && value;
-            if (SetProperty(ref _showStorageAdvisorDialog, normalized))
-            {
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
     public bool UseBundledChdman
     {
         get => _useBundledChdman;
@@ -717,23 +702,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
                 }
 
                 OnPropertyChanged(nameof(CanEnableStandardNaming));
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
-    public bool CanUseStorageAdvisor
-    {
-        get => _canUseStorageAdvisor;
-        set
-        {
-            if (SetProperty(ref _canUseStorageAdvisor, value))
-            {
-                if (!value)
-                {
-                    ShowStorageAdvisorDialog = false;
-                }
-
                 OnPropertyChanged(nameof(CanSave));
             }
         }

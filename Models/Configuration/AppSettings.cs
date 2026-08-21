@@ -44,8 +44,6 @@ public sealed class AppSettings
 
     public bool UseCustomPendingWorkspace { get; set; } = false;
 
-    public bool SuppressStorageAdvisorDialog { get; set; } = false;
-
     public bool OrganizeByPlatform { get; set; } = false;
 
     public bool OrganizeByRegion { get; set; } = false;
@@ -157,7 +155,6 @@ public sealed class AppSettings
         PendingWorkspaceMode = other.PendingWorkspaceMode;
         PendingWorkspaceCustomRoot = other.PendingWorkspaceCustomRoot;
         UseCustomPendingWorkspace = other.UseCustomPendingWorkspace;
-        SuppressStorageAdvisorDialog = other.SuppressStorageAdvisorDialog;
         OrganizeByPlatform = other.OrganizeByPlatform;
         OrganizeByRegion = other.OrganizeByRegion;
         VerifyAfterConversion = other.VerifyAfterConversion;
@@ -216,7 +213,6 @@ public sealed class AppSettings
             PendingWorkspaceMode = PendingWorkspaceMode,
             PendingWorkspaceCustomRoot = PendingWorkspaceCustomRoot,
             UseCustomPendingWorkspace = UseCustomPendingWorkspace,
-            SuppressStorageAdvisorDialog = SuppressStorageAdvisorDialog,
             OrganizeByPlatform = OrganizeByPlatform,
             OrganizeByRegion = OrganizeByRegion,
             VerifyAfterConversion = VerifyAfterConversion,

@@ -31,13 +31,6 @@ internal sealed partial class HqOptionsShell
             return false;
         }
 
-        if (!pendingSettings.SuppressStorageAdvisorDialog
-            && !RequireAppFeature(AppFeature.StorageAdvisor))
-        {
-            EnforceFeatureAvailabilityOnViewModel();
-            return false;
-        }
-
         if (RequiresPostProcessingAutomation(pendingSettings)
             && !RequireAppFeature(AppFeature.PostProcessingAutomation))
         {
@@ -72,11 +65,6 @@ internal sealed partial class HqOptionsShell
             _owner.ViewModel.EnableRedumpAutoSync = false;
         }
 
-        if (!_appFeatureService.IsEnabled(AppFeature.StorageAdvisor))
-        {
-            _owner.ViewModel.ShowStorageAdvisorDialog = false;
-        }
-
         if (!_appFeatureService.IsEnabled(AppFeature.PostProcessingAutomation))
         {
             _owner.ViewModel.CopyMatchingSbi = false;
@@ -92,7 +80,6 @@ internal sealed partial class HqOptionsShell
         _owner.ViewModel.CanUseRedumpDeepIntegrity = _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity);
         _owner.ViewModel.CanUseRedumpDatabaseImport = _appFeatureService.IsEnabled(AppFeature.RedumpDatabaseImport);
         _owner.ViewModel.CanUseStandardNamingSuggestion = _appFeatureService.IsEnabled(AppFeature.StandardNamingSuggestion);
-        _owner.ViewModel.CanUseStorageAdvisor = _appFeatureService.IsEnabled(AppFeature.StorageAdvisor);
     }
 
     private bool RequireAppFeature(AppFeature feature) =>
