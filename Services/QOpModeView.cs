@@ -106,10 +106,9 @@ internal static class QueueOperationModeProjection
                 supportedOperations,
                 selectedMode);
 
-            if (projection.IsRunnableInSelectedMode)
-            {
-                return projection.RequestedAction;
-            }
+            return projection.IsRunnableInSelectedMode
+                ? projection.RequestedAction
+                : TaskActionCodes.Unsupported;
         }
 
         return supportedOperations.Count switch

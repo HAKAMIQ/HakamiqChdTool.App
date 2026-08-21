@@ -83,6 +83,7 @@ internal static partial class Program
                 new("Queue operation capabilities honor P0 media evidence", () => TestQueueOperationCapabilitiesHonorP0Evidence(app, workDirectory)),
                 new("Visible queue snapshot scopes Redump to the current section", TestVisibleQueueSnapshotScopesRedump),
                 new("Queue operation intent isolates mode navigation from workflow paths", TestQueueOperationIntentOwnership),
+                new("Quick profile rejects mismatched operation ownership", TestQuickProfileRejectsMismatchedOperation),
                 new("Archive and Redump security policies reject unsafe inputs", () => TestSecurityResourcePolicies(app)),
                 new("Archive resource monitor fails closed", () => TestArchiveResourceMonitorFailsClosed(app)),
                 new("7-Zip output flood terminates the process", () => TestSevenZipOutputFloodTerminatesProcess(app, workDirectory)),
@@ -1250,6 +1251,61 @@ internal static partial class Program
             HakamiqChdTool.App.Services.QueueOperationMode.Convert,
             row.OperationIntent,
             "Working/output path changes must not change queue operation ownership.");
+    }
+
+    private static void TestQuickProfileRejectsMismatchedOperation()
+    {
+        var convertible =
+            new HakamiqChdTool.App.Core.Input.QueueInputClassification(
+                HakamiqChdTool.App.Core.Input.QueueInputRole.ConvertibleDiscImage,
+                ".iso");
+
+        var chd =
+            new HakamiqChdTool.App.Core.Input.QueueInputClassification(
+                HakamiqChdTool.App.Core.Input.QueueInputRole.ChdImage,
+                ".chd");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.ConvertToChd,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                convertible,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickConvert),
+            "QuickConvert should accept a convertible disc image.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.Unsupported,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                convertible,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickVerify),
+            "QuickVerify must not reinterpret a convertible disc image as another operation.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.Unsupported,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                convertible,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickExtract),
+            "QuickExtract must not reinterpret a convertible disc image as another operation.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.VerifyChd,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                chd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickVerify),
+            "QuickVerify should select CHD verification.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.RestoreDiscImageFromChd,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                chd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickExtract),
+            "QuickExtract should select CHD extraction.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.Unsupported,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                chd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickConvert),
+            "QuickConvert must not reinterpret a CHD as another operation.");
     }
 
     private static void TestVisibleQueueSnapshotScopesRedump()
