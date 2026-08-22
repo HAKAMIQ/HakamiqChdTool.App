@@ -99,6 +99,8 @@ internal static partial class Program
                 new("7-Zip output flood terminates the process", () => TestSevenZipOutputFloodTerminatesProcess(app, workDirectory)),
                 new("Redump redirects are validated before every request", () => TestRedumpRedirectValidation(app)),
                 new("Redump clean rebuild rolls back on parse failure", () => TestRedumpRollback(app, workDirectory)),
+                new("Redump ISO and CHD paths complete with explicit stages", () => TestRedumpIsoAndChdPaths(app, workDirectory)),
+                new("Redump commands honor the enabled state", TestRedumpCommandsHonorEnabledState),
                 new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
                 new("Bundled CsoKit 0.6.1 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
                 new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app))

@@ -26,7 +26,8 @@ public sealed class ChdInfoService
         string chdmanPath,
         string chdFilePath,
         Action<int>? onProcessStarted = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool callerHoldsExclusiveFileLease = false)
     {
         if (string.IsNullOrWhiteSpace(chdmanPath))
         {
@@ -79,7 +80,9 @@ public sealed class ChdInfoService
                     progress: null,
                     onProcessStarted,
                     cancellationToken,
-                    exclusiveFileAccessPath: resolvedChdPath)
+                    exclusiveFileAccessPath: callerHoldsExclusiveFileLease
+                        ? null
+                        : resolvedChdPath)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -403,7 +406,14 @@ public sealed class ChdInfoService
             return "CD-ROM";
         }
 
-        if (ContainsAny(line, "dvd-rom", "dvdrom", "dvdi", "dvdt"))
+        if (ContainsAny(
+                line,
+                "dvd-rom",
+                "dvdrom",
+                "dvdi",
+                "dvdt",
+                "Tag='DVD '",
+                "Tag=\"DVD \""))
         {
             return "DVD-ROM";
         }

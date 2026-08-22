@@ -40,14 +40,12 @@ public sealed partial class RedumpV2Engine(
     private const string TipConflictingMatchesKey = "LocDeepHash_TipConflictingMatches";
 
     private const string StepClassifyKey = "LocRedumpV2_StepClassifySource";
-    private const string StepNormalizeKey = "LocRedumpV2_StepNormalize";
     private const string StepHashKey = "LocRedumpV2_StepHash";
     private const string StepMatchKey = "LocRedumpV2_StepMatch";
     private const string StepCleanupKey = "LocRedumpV2_StepCleanup";
     private const string StepReturnKey = "LocRedumpV2_StepReturnResult";
     private const string NormalizeCsoKey = "LocRedumpV2_NormalizeCsoIso";
-    private const string NormalizeChdCdKey = "LocRedumpV2_NormalizeChdCd";
-    private const string NormalizeChdDvdKey = "LocRedumpV2_NormalizeChdDvd";
+    private const string NormalizeChdKey = "LocRedumpV2_NormalizeChd";
     private const string NormalizeArchiveKey = "LocRedumpV2_NormalizeArchive";
     private const string NormalizeDolphinUnavailableKey = "LocRedumpV2_NormalizeDolphinUnavailable";
     private const string Ps3JbIrdOnlyKey = "LocRedumpV2_Ps3JbIrdOnly";
@@ -152,7 +150,6 @@ public sealed partial class RedumpV2Engine(
                     TipNoDatabaseKey);
             }
 
-            Report(progress, operationId, ProgressOperationType.RedumpScan, itemName, 2, 0, 0, 0, StepNormalizeKey);
             NormalizationOutcome normalization = await NormalizeAsync(
                     classification,
                     options,
@@ -443,8 +440,24 @@ public sealed partial class RedumpV2Engine(
                 "LocConversion_ChdmanNotFound");
         }
 
+        Report(
+            progress,
+            operationId,
+            ProgressOperationType.TemporaryNormalization,
+            itemName,
+            2,
+            0,
+            classification.SourceBytes,
+            0,
+            NormalizeChdKey);
+
         ChdInfoResult info = await _chdInfo
-            .ReadInfoAsync(options.ChdmanPath, classification.InputPath, null, cancellationToken)
+            .ReadInfoAsync(
+                options.ChdmanPath,
+                classification.InputPath,
+                null,
+                cancellationToken,
+                callerHoldsExclusiveFileLease: options.SourcePathLeaseHeld)
             .ConfigureAwait(false);
 
         if (!info.IsSuccess)
@@ -480,7 +493,7 @@ public sealed partial class RedumpV2Engine(
             string cuePath = Path.Combine(root, "normalized.cue");
             string binPath = Path.Combine(root, "normalized.bin");
 
-            Report(progress, operationId, ProgressOperationType.TemporaryNormalization, itemName, 2, 0, requiredTempSpaceBytes, 0, NormalizeChdCdKey);
+            Report(progress, operationId, ProgressOperationType.TemporaryNormalization, itemName, 2, 0, requiredTempSpaceBytes, 0, NormalizeChdKey);
             bool ok = await RunChdmanExtractionAsync(
                     options.ChdmanPath,
                     classification.InputPath,
@@ -489,19 +502,20 @@ public sealed partial class RedumpV2Engine(
                     operationId,
                     itemName,
                     requiredTempSpaceBytes,
-                    NormalizeChdCdKey,
+                    NormalizeChdKey,
+                    options.SourcePathLeaseHeld,
                     progress,
                     cancellationToken)
                 .ConfigureAwait(false);
 
             return ok && File.Exists(cuePath)
                 ? NormalizationOutcome.Success(cuePath, RedumpNormalizedFormat.CueBin, usedTemporaryNormalization: true, requiredTempSpaceBytes)
-                : NormalizationOutcome.Failure(RedumpV2ResultState.Failed, RedumpNormalizedFormat.CueBin, usedTemporaryNormalization: true, requiredTempSpaceBytes, StatusErrorKey, NormalizeChdCdKey);
+                : NormalizationOutcome.Failure(RedumpV2ResultState.Failed, RedumpNormalizedFormat.CueBin, usedTemporaryNormalization: true, requiredTempSpaceBytes, StatusErrorKey, NormalizeChdKey);
         }
 
         string isoPath = Path.Combine(root, "normalized.iso");
 
-        Report(progress, operationId, ProgressOperationType.TemporaryNormalization, itemName, 2, 0, requiredTempSpaceBytes, 0, NormalizeChdDvdKey);
+        Report(progress, operationId, ProgressOperationType.TemporaryNormalization, itemName, 2, 0, requiredTempSpaceBytes, 0, NormalizeChdKey);
         bool extracted = await RunChdmanExtractionAsync(
                 options.ChdmanPath,
                 classification.InputPath,
@@ -510,14 +524,15 @@ public sealed partial class RedumpV2Engine(
                 operationId,
                 itemName,
                 requiredTempSpaceBytes,
-                NormalizeChdDvdKey,
+                NormalizeChdKey,
+                options.SourcePathLeaseHeld,
                 progress,
                 cancellationToken)
             .ConfigureAwait(false);
 
         return extracted && File.Exists(isoPath)
             ? NormalizationOutcome.Success(isoPath, RedumpNormalizedFormat.Iso, usedTemporaryNormalization: true, requiredTempSpaceBytes)
-            : NormalizationOutcome.Failure(RedumpV2ResultState.Failed, RedumpNormalizedFormat.Iso, usedTemporaryNormalization: true, requiredTempSpaceBytes, StatusErrorKey, NormalizeChdDvdKey);
+            : NormalizationOutcome.Failure(RedumpV2ResultState.Failed, RedumpNormalizedFormat.Iso, usedTemporaryNormalization: true, requiredTempSpaceBytes, StatusErrorKey, NormalizeChdKey);
     }
 
     private async Task<NormalizationOutcome> NormalizeArchiveAsync(
@@ -602,6 +617,7 @@ public sealed partial class RedumpV2Engine(
         string itemName,
         long totalBytes,
         string messageKey,
+        bool callerHoldsExclusiveFileLease,
         IProgress<ProgressEvent>? progress,
         CancellationToken cancellationToken)
     {
@@ -627,7 +643,9 @@ public sealed partial class RedumpV2Engine(
                 progress: percentProgress,
                 onProcessStarted: null,
                 cancellationToken: cancellationToken,
-                exclusiveFileAccessPath: inputPath,
+                exclusiveFileAccessPath: callerHoldsExclusiveFileLease
+                    ? null
+                    : inputPath,
                 monitoredOutputPath: monitoredOutputPath,
                 priorityMode: ChdmanProcessPriorityMode.Quiet)
             .ConfigureAwait(false);

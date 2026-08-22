@@ -218,7 +218,10 @@ public partial class MainWindow
                             probePath,
                             database,
                             cancellationToken,
-                            new RedumpV2ScanOptions(GetChdmanPath(), _settings),
+                            new RedumpV2ScanOptions(
+                                GetChdmanPath(),
+                                _settings,
+                                SourcePathLeaseHeld: true),
                             redumpProgress)
                         .ConfigureAwait(false);
                 }

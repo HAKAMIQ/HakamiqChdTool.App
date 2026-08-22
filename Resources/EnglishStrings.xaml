@@ -89,7 +89,7 @@
     <sys:String x:Key="LocUi_PlaceholderDash">—</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line1">Select an operation mode to show supported files.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">Drop files here, or select Add files or Add folder.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Convert">Drag a supported disc image here to convert it to CHD&#x0A;Supports ISO, CSO, GDI, CUE, and ZIP, 7Z, RAR archives containing a single disc image.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Convert">Add or drop source files to convert them to CHD&#x0A;Supports ISO, CSO, GDI, CUE, and ZIP, 7Z, RAR archives containing a single disc image. An existing CHD is for verification or extraction.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Extract">Drag CHD files here to extract them&#x0A;CDs are extracted as CUE + BIN files, and DVDs as ISO files.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Verify">Drag CHD files here to verify their integrity&#x0A;Checks the CHD file without extracting its contents.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">Select a folder to scan CUE, GDI, ISO, and supported archive files, then convert valid disc images to CHD.</sys:String>
@@ -563,14 +563,12 @@ Path:
     <sys:String x:Key="LocDeepHash_TipVerifiedHeader">Redump match:</sys:String>
     <sys:String x:Key="LocRedumpV2_DetailNormalizedFormat">Source: {0}&#x0a;Temporary normalized format: {1}&#x0a;Required temp space: {2}&#x0a;Result: {3}</sys:String>
     <sys:String x:Key="LocRedumpV2_StepClassifySource">Analyzing source file...</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepNormalize">Preparing disc data for verification...</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepHash">Calculating file hashes...</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepMatch">Matching hashes with the Redump database...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepHash">Calculating the disc fingerprint...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepMatch">Matching the disc with the Redump database...</sys:String>
     <sys:String x:Key="LocRedumpV2_StepCleanup">Cleaning temporary files...</sys:String>
     <sys:String x:Key="LocRedumpV2_StepReturnResult">Finishing Redump verification...</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeCsoIso">Preparing ISO data for verification...</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeChdCd">Extracting disc data from CHD...</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeChdDvd">Extracting disc data from CHD...</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeChd">Reading disc data from the CHD file...</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeArchive">Extracting archive data for verification...</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">This source requires temporary normalization to ISO/GCM, but the normalization tool is not available yet.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">PS3 JB folders are not converted into Redump ISO; this is IRD-only.</sys:String>

@@ -89,7 +89,7 @@
     <sys:String x:Key="LocUi_PlaceholderDash">—</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line1">اختر وضع العملية لعرض الملفات المدعومة.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">أفلت الملفات هنا أو استخدم أزرار الإضافة.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Convert">اسحب صورة قرص مدعومة هنا للتحويل إلى CHD&#x0A;يدعم ISO، CSO، GDI، CUE، وأرشيف ZIP، 7Z، RAR يحتوي على صورة قرص واحدة.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Convert">أضف أو اسحب ملفات المصدر للتحويل إلى CHD&#x0A;يدعم ISO، CSO، GDI، CUE، وأرشيف ZIP، 7Z، RAR يحتوي على صورة قرص واحدة. ملف CHD الجاهز مخصص للتحقق أو الاستخراج.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Extract">اسحب ملفات CHD هنا لاستخراجها&#x0A;تُستخرج أقراص CD كملفات CUE + BIN، وأقراص DVD كملف ISO.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Verify">اسحب ملفات CHD هنا للتحقق من سلامتها&#x0A;يتحقق من سلامة الملف بدون استخراج محتواه.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">اختر مجلدًا لفحص ملفات CUE / GDI / ISO والأرشيفات المدعومة جزئيًا، ثم تحويل الصور الصالحة فقط إلى CHD.</sys:String>
@@ -563,14 +563,12 @@
     <sys:String x:Key="LocDeepHash_TipNoRedumpMatch">لم يتم العثور على مطابقة في قاعدة بيانات Redump المحلية.</sys:String>
     <sys:String x:Key="LocRedumpV2_DetailNormalizedFormat">المصدر: {0}&#x0a;التمثيل المؤقت: {1}&#x0a;المساحة المؤقتة المطلوبة: {2}&#x0a;النتيجة: {3}</sys:String>
     <sys:String x:Key="LocRedumpV2_StepClassifySource">تحليل ملف المصدر...</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepNormalize">تجهيز بيانات القرص للفحص...</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepHash">حساب بصمات الملف...</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepMatch">مطابقة البصمات مع قاعدة Redump...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepHash">حساب بصمة القرص...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepMatch">مطابقة النسخة مع قاعدة Redump...</sys:String>
     <sys:String x:Key="LocRedumpV2_StepCleanup">تنظيف الملفات المؤقتة...</sys:String>
     <sys:String x:Key="LocRedumpV2_StepReturnResult">إنهاء فحص Redump...</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeCsoIso">تجهيز بيانات ISO للفحص...</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeChdCd">استخراج بيانات القرص من CHD...</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeChdDvd">استخراج بيانات القرص من CHD...</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeChd">قراءة بيانات القرص من ملف CHD...</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeArchive">استخراج بيانات الأرشيف للفحص...</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">هذه الصيغة تحتاج تطبيعًا مؤقتًا إلى ISO/GCM، لكن أداة التطبيع غير متاحة حاليًا.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">مجلد PS3 JB لا يتحول إلى Redump ISO؛ هذا مسار IRD فقط.</sys:String>
