@@ -17,6 +17,25 @@ $resolvedLockFile = [System.IO.Path]::GetFullPath($LockFile)
 $resolvedOutputPath = [System.IO.Path]::GetFullPath($OutputPath)
 $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 
+$applicationProject = Join-Path $repositoryRoot 'HakamiqChdTool.App.csproj'
+
+if (-not (Test-Path -LiteralPath $applicationProject -PathType Leaf)) {
+    throw "Application project file was not found: $applicationProject"
+}
+
+[xml] $applicationProjectXml = Get-Content -LiteralPath $applicationProject -Raw
+$applicationVersionNodes = @($applicationProjectXml.SelectNodes('/Project/PropertyGroup/Version'))
+
+if ($applicationVersionNodes.Count -ne 1) {
+    throw "Application project must declare exactly one Version property."
+}
+
+$applicationVersion = $applicationVersionNodes[0].InnerText.Trim()
+
+if ([string]::IsNullOrWhiteSpace($applicationVersion)) {
+    throw "Application Version property must not be empty."
+}
+
 if (-not (Test-Path -LiteralPath $resolvedLockFile -PathType Leaf)) {
     throw "NuGet lock file was not found: $resolvedLockFile"
 }
@@ -152,7 +171,7 @@ foreach ($tool in $bundledTools) {
     })
 }
 
-$applicationRef = 'pkg:generic/hakamiq-chd-tool@1.2.2'
+$applicationRef = "pkg:generic/hakamiq-chd-tool@$applicationVersion"
 $dependencyGraph.Insert(0, [ordered]@{
     ref = $applicationRef
     dependsOn = @($rootDependencies | Sort-Object -Unique)
@@ -178,7 +197,7 @@ $bom = [ordered]@{
             type = 'application'
             'bom-ref' = $applicationRef
             name = 'Hakamiq CHD Tool'
-            version = '1.2.2'
+            version = $applicationVersion
             licenses = @([ordered]@{ license = [ordered]@{ id = 'MIT' } })
         }
     }
