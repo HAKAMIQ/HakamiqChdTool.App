@@ -84,7 +84,6 @@
                    FontSize="{DynamicResource FontSize.BodyStrong}"
                    FontWeight="{DynamicResource FontWeight.SemiBold}"
                    Foreground="{DynamicResource Brush.Text.Primary}"
-                   Text="{DynamicResource LocUi_DropZone_ActionHint}"
                    TextAlignment="Center"
                    TextWrapping="Wrap"
                    TextTrimming="None"
@@ -92,30 +91,40 @@
 
             <TextBlock.Style>
                 <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Text"
+                            Value="{DynamicResource LocUi_DropZone_Convert}" />
                     <Setter Property="ToolTip"
                             Value="{DynamicResource LocUi_DropZone_Convert}" />
 
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
                                      Value="Extract">
+                            <Setter Property="Text"
+                                    Value="{DynamicResource LocUi_DropZone_Extract}" />
                             <Setter Property="ToolTip"
                                     Value="{DynamicResource LocUi_DropZone_Extract}" />
                         </DataTrigger>
 
                         <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
                                      Value="Verify">
+                            <Setter Property="Text"
+                                    Value="{DynamicResource LocUi_DropZone_Verify}" />
                             <Setter Property="ToolTip"
                                     Value="{DynamicResource LocUi_DropZone_Verify}" />
                         </DataTrigger>
 
                         <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
                                      Value="ScanConvert">
+                            <Setter Property="Text"
+                                    Value="{DynamicResource LocUi_DropZone_ScanConvert}" />
                             <Setter Property="ToolTip"
                                     Value="{DynamicResource LocUi_DropZone_ScanConvert}" />
                         </DataTrigger>
 
                         <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
                                      Value="ScanExtract">
+                            <Setter Property="Text"
+                                    Value="{DynamicResource LocUi_DropZone_ScanExtract}" />
                             <Setter Property="ToolTip"
                                     Value="{DynamicResource LocUi_DropZone_ScanExtract}" />
                         </DataTrigger>
