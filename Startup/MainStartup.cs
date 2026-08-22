@@ -74,14 +74,11 @@ internal sealed class MainWindowStartupCoordinator
         _setFooterStatus(MainWindowMessages.InitializingTools);
 
         await Task.Run(
-                () => _runtimeTools.EnsureInitialized(cleanupStaleSessions: false),
+                _runtimeTools.EnsureInitialized,
                 cancellationToken)
             .ConfigureAwait(true);
 
         cancellationToken.ThrowIfCancellationRequested();
-
-        Task deferredCleanupTask = _runtimeTools.StartDeferredCleanupAsync();
-        ObserveDeferredTask(deferredCleanupTask, "Runtime tools deferred cleanup");
 
         if (IsOwnerDispatcherUnavailable())
         {

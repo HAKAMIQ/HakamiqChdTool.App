@@ -2,8 +2,10 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Views;
 using Serilog;
 using System;
+#if DEBUG
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,7 +17,11 @@ namespace HakamiqChdTool.App.Ui.Shell;
 
 public static class UpdateService
 {
+    private const string OfficialGitHubRepositoryUrl = "https://github.com/HAKAMIQ/HakamiqChdTool.App";
+
+#if DEBUG
     public static string? ConfiguredUpdateSource { get; set; }
+#endif
 
     public static async Task CheckSilentlyAndOfferRestartAsync(Window ownerWindow, CancellationToken cancellationToken = default)
     {
@@ -27,11 +33,6 @@ public static class UpdateService
         try
         {
             manager = CreateUpdateManager();
-            if (manager is null)
-            {
-                return;
-            }
-
             UpdateManager updateManager = manager;
 
             UpdateInfo? info = await updateManager.CheckForUpdatesAsync().ConfigureAwait(false);
@@ -93,8 +94,9 @@ public static class UpdateService
         }
     }
 
-    private static UpdateManager? CreateUpdateManager()
+    private static UpdateManager CreateUpdateManager()
     {
+#if DEBUG
         if (TryNormalizeUpdateSource(ConfiguredUpdateSource, out string? configuredSource))
         {
             return new UpdateManager(configuredSource);
@@ -107,14 +109,16 @@ public static class UpdateService
         }
 
         string? githubRepo = Environment.GetEnvironmentVariable("HAKAMIQ_GITHUB_REPO");
-        if (!TryBuildGitHubSource(githubRepo, out GithubSource? githubSource))
+        if (TryBuildGitHubSource(githubRepo, out GithubSource? githubSource))
         {
-            return null;
+            return new UpdateManager(githubSource);
         }
+#endif
 
-        return new UpdateManager(githubSource);
+        return new UpdateManager(new GithubSource(OfficialGitHubRepositoryUrl, string.Empty, false));
     }
 
+#if DEBUG
     private static bool TryNormalizeUpdateSource(
         string? source,
         [NotNullWhen(true)] out string? normalizedSource)
@@ -409,4 +413,5 @@ public static class UpdateService
             or InvalidOperationException
             or System.Security.SecurityException;
     }
+#endif
 }

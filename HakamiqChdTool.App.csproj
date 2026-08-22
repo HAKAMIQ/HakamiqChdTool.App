@@ -84,9 +84,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Tools\chdman.exe">
-			<LogicalName>HakamiqChdTool.App.Tools.chdman.exe</LogicalName>
-		</EmbeddedResource>
+		<Content Include="Tools\chdman.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
 
 
 		<Resource Include="Resources\HakamiqLogo.png">

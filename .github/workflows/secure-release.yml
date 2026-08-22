@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: Tag or commit to build
+        description: Release tag to build
         required: true
       version:
         description: Release version without v prefix
@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 90
     env:
       RELEASE_VERSION: ${{ inputs.version }}
-      PUBLISH_RELEASE: ${{ inputs.publish_release }}
+      REQUESTED_REF: ${{ inputs.ref }}
 
     steps:
       - name: Checkout requested source
@@ -34,11 +34,6 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
-        with:
-          dotnet-version: 10.0.x
 
       - name: Validate release inputs and tag binding
         shell: powershell
@@ -58,27 +53,35 @@ jobs:
             throw "Release input version $env:RELEASE_VERSION does not match project version $projectVersion."
           }
 
-          if ($env:PUBLISH_RELEASE -eq 'true') {
-            $tag = "v$env:RELEASE_VERSION"
-            git fetch --force --tags origin
-            if ($LASTEXITCODE -ne 0) {
-              throw "Could not refresh Git tags before release publication."
-            }
-
-            $tagCommit = (git rev-parse "$tag^{commit}" 2>$null | Select-Object -First 1)
-            if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($tagCommit)) {
-              throw "Release tag does not exist: $tag"
-            }
-
-            $headCommit = (git rev-parse HEAD).Trim()
-            if ($LASTEXITCODE -ne 0) {
-              throw "Could not resolve checked-out HEAD."
-            }
-
-            if ($tagCommit.Trim() -ne $headCommit) {
-              throw "Release tag $tag does not point to the checked-out revision."
-            }
+          $tag = "v$env:RELEASE_VERSION"
+          $allowedRefs = @($tag, "refs/tags/$tag")
+          if ($allowedRefs -notcontains $env:REQUESTED_REF) {
+            throw "ref must be the immutable release tag $tag (or refs/tags/$tag)."
           }
+
+          git fetch --force --tags origin
+          if ($LASTEXITCODE -ne 0) {
+            throw "Could not refresh Git tags before release signing."
+          }
+
+          $tagCommit = (git rev-parse "$tag^{commit}" 2>$null | Select-Object -First 1)
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($tagCommit)) {
+            throw "Release tag does not exist: $tag"
+          }
+
+          $headCommit = (git rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0) {
+            throw "Could not resolve checked-out HEAD."
+          }
+
+          if ($tagCommit.Trim() -ne $headCommit) {
+            throw "Release tag $tag does not point to the checked-out revision."
+          }
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 10.0.x
 
       - name: Require signing secrets
         shell: powershell
@@ -102,6 +105,13 @@ jobs:
       - name: Restore locked dependencies
         shell: powershell
         run: dotnet restore .\HakamiqChdTool.App.sln --locked-mode
+
+      - name: Verify SBOM matches locked release inputs
+        shell: pwsh
+        run: |
+          .\scripts\GenerateSbom.ps1
+          git diff --exit-code -- .\docs\sbom.cdx.json
+          if ($LASTEXITCODE -ne 0) { throw "Committed SBOM does not match the locked release inputs." }
 
       - name: Build and test
         shell: powershell
@@ -161,6 +171,14 @@ jobs:
           -Output .\Release\signed-candidate
           -RequireAuthenticode
 
+      - name: Microsoft Defender scan signed candidate directory
+        shell: powershell
+        run: >-
+          powershell.exe -NoProfile -ExecutionPolicy Bypass
+          -File .\scripts\ScanReleaseDefender.ps1
+          -Target .\Release\signed-candidate
+          -ReportPath .\TestResults\Security\defender-signed-directory-report.json
+
       - name: Create deterministic signed package
         shell: powershell
         run: |
@@ -172,6 +190,14 @@ jobs:
             -PackageName $packageName `
             -RequireAuthenticode
           if ($LASTEXITCODE -ne 0) { throw "Signed package creation failed." }
+
+      - name: Microsoft Defender scan final ZIP
+        shell: powershell
+        run: >-
+          powershell.exe -NoProfile -ExecutionPolicy Bypass
+          -File .\scripts\ScanReleaseDefender.ps1
+          -Target .\Release\packages\HakamiqChdTool-v${{ env.RELEASE_VERSION }}-win-x64-runtime-required.zip
+          -ReportPath .\TestResults\Security\defender-final-zip-report.json
 
       - name: Attest build provenance
         uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4
@@ -194,6 +220,8 @@ jobs:
           path: |
             Release/packages/*
             TestResults/Security/reproducible-build-report.json
+            TestResults/Security/defender-signed-directory-report.json
+            TestResults/Security/defender-final-zip-report.json
           if-no-files-found: error
 
       - name: Publish GitHub Release

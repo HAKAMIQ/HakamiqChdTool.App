@@ -94,6 +94,12 @@ function Assert-CodeSigningCertificate {
     if (-not $hasCodeSigningEku) {
         throw "The selected certificate does not contain the Code Signing EKU."
     }
+
+    $rsaPublicKey = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPublicKey($Certificate)
+    if ($null -eq $rsaPublicKey) {
+        throw "The selected Authenticode certificate must use an RSA public key."
+    }
+    $rsaPublicKey.Dispose()
 }
 
 $OutputPath = if ([System.IO.Path]::IsPathRooted($Output)) {
@@ -216,6 +222,7 @@ try {
         certificateThumbprint = $normalizedThumbprint
         certificateSubject = $certificate.Subject
         certificateNotAfterUtc = $certificate.NotAfter.ToUniversalTime().ToString("O")
+        publicKeyAlgorithm = "RSA"
         fileDigestAlgorithm = "SHA256"
         timestampProtocol = "RFC3161"
         timestampDigestAlgorithm = "SHA256"

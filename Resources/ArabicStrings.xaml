@@ -848,17 +848,9 @@
     <sys:String x:Key="LocOptions_DatabaseMissing">غير موجودة</sys:String>
     <sys:String x:Key="LocOptions_DatabaseReadFailed">الحالة: تعذر قراءة قاعدة البيانات.</sys:String>
 
-    <sys:String x:Key="LocRuntimeTools_UnsafeRuntimeRoot">مسار بيئة التشغيل يقع خارج نطاق المجلد الآمن للتطبيق.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_UnsafeToolExtractionPath">مسار استخراج الأداة يقع خارج نطاق المجلد الآمن للتطبيق.</sys:String>
-
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolMissing">تعذر العثور على أدوات المعالجة الداخلية.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolInvalid">ملف أدوات المعالجة الداخلية غير صالح.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolEmptyWrite">فشل في تهيئة أدوات المعالجة الداخلية (خطأ في الكتابة).</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolSizeMismatch">عدم تطابق في حجم أدوات المعالجة الداخلية.</sys:String>
-
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolUnsafe">مسار أداة chdman المستخرجة يقع خارج المجلد الآمن.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolMissing">تعذر العثور على أداة chdman بعد اكتمال التهيئة.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolInvalid">ملف أداة chdman المستخرج غير صالح أو تالف.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolUnsafe">مسار أداة chdman المرفقة ليس المسار الآمن المتوقع داخل مجلد التطبيق.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolMissing">تعذر العثور على أداة chdman المرفقة.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolInvalid">أداة chdman المرفقة غير صالحة أو تم تعديلها.</sys:String>
     <sys:String x:Key="LocRuntimeTools_UnsupportedCpu">هذا المعالج لا يدعم مجموعة تعليمات x86-64-v2 المطلوبة لتشغيل chdman 0.289.</sys:String>
 
     <sys:String x:Key="LocArchive_NoChdFile">لم يتم العثور على ملف CHD داخل الأرشيف.</sys:String>

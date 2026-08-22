@@ -413,12 +413,11 @@ internal static partial class Program
 
         string? syntheticRoot = null;
         string corpusRoot;
-        object? runtimeTools = null;
         string chdmanPath;
 
         try
         {
-            runtimeTools = app.CreateRuntimeToolService();
+            object runtimeTools = app.CreateRuntimeToolService();
             chdmanPath = app.GetRuntimeChdmanPath(runtimeTools);
 
             if (string.IsNullOrWhiteSpace(requestedRoot))
@@ -547,11 +546,6 @@ internal static partial class Program
         }
         finally
         {
-            if (runtimeTools is not null)
-            {
-                app.CleanupRuntimeToolSession(runtimeTools);
-            }
-
             if (syntheticRoot is not null)
             {
                 TryDeleteDirectory(syntheticRoot);

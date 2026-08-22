@@ -854,17 +854,9 @@ Path:
     <sys:String x:Key="LocOptions_DatabaseMissing">Missing</sys:String>
     <sys:String x:Key="LocOptions_DatabaseReadFailed">Status: Could not read database.</sys:String>
 
-    <sys:String x:Key="LocRuntimeTools_UnsafeRuntimeRoot">The internal runtime path is outside the safe application folder.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_UnsafeToolExtractionPath">The internal tool extraction path is outside the safe application folder.</sys:String>
-
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolMissing">Could not initialize internal processing tools.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolInvalid">Could not initialize internal processing tools.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolEmptyWrite">Could not initialize internal processing tools.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolSizeMismatch">Could not initialize internal processing tools.</sys:String>
-
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolUnsafe">The extracted chdman path is outside the safe runtime folder.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolMissing">Could not find chdman after initialization.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolInvalid">The extracted chdman file is invalid.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolUnsafe">The bundled chdman path is not the expected safe application path.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolMissing">Could not find the bundled chdman tool.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolInvalid">The bundled chdman tool is invalid or has been modified.</sys:String>
     <sys:String x:Key="LocRuntimeTools_UnsupportedCpu">This processor does not support the x86-64-v2 instruction set required by chdman 0.289.</sys:String>
 
     <sys:String x:Key="LocArchive_NoChdFile">No CHD file was found inside the archive.</sys:String>

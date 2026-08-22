@@ -8,6 +8,7 @@ $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $ScriptDir '..')).Path
+$Solution = Join-Path $ProjectRoot 'HakamiqChdTool.App.sln'
 $AppProject = Join-Path $ProjectRoot 'HakamiqChdTool.App.csproj'
 $TestProject = Join-Path $ProjectRoot 'HakamiqChdTool.App.Tests\HakamiqChdTool.App.Tests.csproj'
 $AppAssembly = Join-Path $ProjectRoot 'bin\Debug\net10.0-windows10.0.17763.0\HakamiqChdTool.dll'
@@ -59,16 +60,25 @@ function Invoke-NativeCommand {
 Push-Location $ProjectRoot
 try {
     Assert-CommandExists 'dotnet'
+    Assert-FileExists -Path $Solution -Message 'Solution file was not found:'
     Assert-FileExists -Path $AppProject -Message 'App project was not found:'
     Assert-FileExists -Path $TestProject -Message 'PS2 advisory test project was not found:'
 
     if (-not $SkipAppBuild) {
+        Write-Host 'Restore locked solution dependencies ...' -ForegroundColor Cyan
+        Invoke-NativeCommand -FilePath 'dotnet' -Arguments @(
+            'restore',
+            $Solution,
+            '--locked-mode'
+        )
+
         Write-Host 'Build app Debug for PS2 advisory tests ...' -ForegroundColor Cyan
         Invoke-NativeCommand -FilePath 'dotnet' -Arguments @(
             'build',
             $AppProject,
             '-c',
             'Debug',
+            '--no-restore',
             '--nologo'
         )
     }
@@ -82,6 +92,7 @@ try {
         $TestProject,
         '-c',
         'Debug',
+        '--no-restore',
         '--nologo',
         '--',
         '--app-assembly',
