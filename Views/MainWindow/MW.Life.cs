@@ -10,10 +10,8 @@ namespace HakamiqChdTool.App;
 public partial class MainWindow
 {
     private static readonly TimeSpan StartupUpdateCheckShutdownTimeout = TimeSpan.FromSeconds(3);
-    private static readonly TimeSpan RuntimeDeferredCleanupShutdownTimeout = TimeSpan.FromSeconds(3);
     private static readonly TimeSpan QueueDisposeShutdownTimeout = TimeSpan.FromSeconds(45);
     private static readonly TimeSpan PendingWorkspaceCleanupShutdownTimeout = TimeSpan.FromSeconds(5);
-    private static readonly TimeSpan RuntimeSessionCleanupShutdownTimeout = TimeSpan.FromSeconds(3);
 
     private async Task ShutdownAsync()
     {
@@ -63,14 +61,6 @@ public partial class MainWindow
                 },
                 StartupUpdateCheckShutdownTimeout).ConfigureAwait(false);
         }
-
-        await RunBackgroundShutdownStepAsync(
-            "Wait for runtime tool deferred cleanup.",
-            async () =>
-            {
-                await _runtimeTools.WaitForDeferredCleanupAsync().ConfigureAwait(false);
-            },
-            RuntimeDeferredCleanupShutdownTimeout).ConfigureAwait(false);
 
         await RunUiShutdownStepAsync("Dispose MainWindow view model.", () =>
         {
@@ -124,23 +114,6 @@ public partial class MainWindow
         {
             _viewport.Dispose();
         }).ConfigureAwait(false);
-
-        if (queueQuiesced)
-        {
-            await RunBackgroundShutdownStepAsync(
-                "Clean up runtime tool session.",
-                async () =>
-                {
-                    await Task.Run(_runtimeTools.TryCleanupCurrentSession).ConfigureAwait(false);
-                },
-                RuntimeSessionCleanupShutdownTimeout).ConfigureAwait(false);
-        }
-        else
-        {
-            Log.Warning(
-                "Skipping runtime tool cleanup because queue shutdown did not complete. Result={Result}",
-                queueDisposeResult);
-        }
 
         await RunUiShutdownStepAsync("Dispose window lifetime token source.", () =>
         {

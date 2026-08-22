@@ -10,11 +10,11 @@ by Hakamiq CHD Tool.
 
 - Tool: chdman.exe
 - Project: MAME
-- Version: 0.286
-- Build: mame0286
+- Version: 0.289
+- Build: mame0289
 - Platform: Windows x64
 - SHA-256:
-  a0ebe23efee237c29ce81f5436979b20ef9fba8d9605ddc77cad72c1db7e0c7a
+  8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F
 
 ## Required license files
 

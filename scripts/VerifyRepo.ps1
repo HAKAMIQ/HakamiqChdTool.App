@@ -928,8 +928,17 @@ function Test-ReleaseScriptConventions {
             Add-Failure "7-Zip publish content must be an explicit allowlist, not Tools\7zip\**\*."
         }
 
-        if ($projectText -notmatch 'EmbeddedResource\s+Include="Tools\\chdman\.exe"') {
-            Add-Failure "chdman.exe must remain embedded as a runtime resource in the project file."
+        if ($projectText -match 'EmbeddedResource\s+Include="Tools\\chdman\.exe"') {
+            Add-Failure "chdman.exe must not be embedded as a runtime resource in the project file."
+        }
+
+        if ($projectText -notmatch 'Content\s+Include="Tools\\chdman\.exe"') {
+            Add-Failure "chdman.exe must be shipped as visible Tools\chdman.exe content."
+        }
+
+        if ($projectText -notmatch '(?s)Content\s+Include="Tools\\chdman\.exe".*?CopyToOutputDirectory>PreserveNewest' -or
+            $projectText -notmatch '(?s)Content\s+Include="Tools\\chdman\.exe".*?CopyToPublishDirectory>PreserveNewest') {
+            Add-Failure "chdman.exe content must copy to both build output and publish output."
         }
     }
 
@@ -950,16 +959,64 @@ function Test-ReleaseScriptConventions {
         $gateText =
             Get-Content -LiteralPath $endUserGate -Raw -Encoding UTF8
 
-        if ($gateText -match '"Tools\\chdman\.exe"') {
-            Add-Failure "End-user release gate must not require standalone Tools\chdman.exe because chdman is embedded and extracted at runtime."
+        if ($gateText -notmatch '"Tools\\chdman\.exe"') {
+            Add-Failure "End-user release gate must require visible Tools\chdman.exe."
         }
 
-        if ($gateText -notmatch 'Assert-NoStandaloneChdmanExecutable') {
-            Add-Failure "End-user release gate must reject standalone chdman.exe in Release output."
+        if ($gateText -notmatch 'Assert-BundledChdmanContract') {
+            Add-Failure "End-user release gate must validate the bundled chdman path and SHA-256 digest."
         }
 
         if ($gateText -notmatch 'Assert-ReleaseManifest') {
             Add-Failure "End-user release gate must validate release-manifest.json for final package integrity."
+        }
+
+        foreach ($required in @(
+            'SignatureStatus\]::Valid',
+            'SignerCertificate',
+            'TimeStamperCertificate',
+            'RSACertificateExtensions\]::GetRSAPublicKey',
+            'ExpectedSignerThumbprint',
+            'Assert-AuthenticodeReport')) {
+
+            if ($gateText -notmatch $required) {
+                Add-Failure "VerifyRelease.ps1 is missing an Authenticode verification control: $required"
+            }
+        }
+    }
+
+    $signingScript =
+        Join-Path $root 'scripts\SignRelease.ps1'
+
+    if (-not (Test-Path -LiteralPath $signingScript -PathType Leaf)) {
+        Add-Failure "SignRelease.ps1 is required for owned Hakamiq release binaries."
+    }
+    else {
+        $signingText =
+            Get-Content -LiteralPath $signingScript -Raw -Encoding UTF8
+
+        foreach ($required in @(
+            'RSACertificateExtensions\]::GetRSAPublicKey',
+            '"/fd", "SHA256"',
+            '"/tr", \$TimestampUrl',
+            '"/td", "SHA256"',
+            'HakamiqChdTool\.exe',
+            'HakamiqChdTool\.dll')) {
+
+            if ($signingText -notmatch $required) {
+                Add-Failure "SignRelease.ps1 is missing a required RSA/SHA256/RFC3161 signing control: $required"
+            }
+        }
+
+        foreach ($forbiddenTarget in @(
+            'Tools\\chdman\.exe',
+            'Tools\\7zip\\7z\.exe',
+            'Tools\\7zip\\7z\.dll',
+            'Tools\\hakamiq-cso')) {
+
+            if ($signingText -match $forbiddenTarget) {
+                Add-Failure "SignRelease.ps1 must not sign bundled third-party or independently released tools: $forbiddenTarget"
+            }
         }
     }
 
@@ -985,8 +1042,8 @@ function Test-ReleaseScriptConventions {
             Add-Failure "PublishRel.ps1 must use `${LASTEXITCODE}` before ':' inside interpolated strings."
         }
 
-        if ($publishText -match '"Tools\\chdman\.exe"') {
-            Add-Failure "PublishRel.ps1 must not require standalone Tools\chdman.exe in the end-user Release output."
+        if ($publishText -notmatch '"Tools\\chdman\.exe"') {
+            Add-Failure "PublishRel.ps1 must require the source Tools\chdman.exe used in end-user Release output."
         }
     }
 
@@ -1400,12 +1457,12 @@ function Test-PathSafetyDuplicationBudget {
     }
 }
 
-function Test-EmbeddedRuntimeToolIntegrityPolicy {
+function Test-BundledRuntimeToolIntegrityPolicy {
     $runtimeToolService =
         Join-Path $root 'Services\RunToolSvc.cs'
 
     if (-not (Test-Path -LiteralPath $runtimeToolService -PathType Leaf)) {
-        Add-Failure 'RunToolSvc.cs is required for the embedded runtime-tool security boundary.'
+        Add-Failure 'RunToolSvc.cs is required for the bundled runtime-tool security boundary.'
         return
     }
 
@@ -1415,12 +1472,200 @@ function Test-EmbeddedRuntimeToolIntegrityPolicy {
     foreach ($required in @(
         'SHA256\.HashData',
         'CryptographicOperations\.FixedTimeEquals',
-        'ComputeEmbeddedToolSha256',
-        'ValidateExtractedChdman\(_chdmanPath\)')) {
+        'BundledChdmanSha256Hex',
+        'ValidateBundledChdman\(_chdmanPath\)')) {
 
         if ($content -notmatch $required) {
-            Add-Failure "RuntimeToolService must verify embedded chdman integrity with SHA-256 before use: $required"
+            Add-Failure "RuntimeToolService must verify bundled chdman integrity with pinned SHA-256 before use: $required"
         }
+    }
+
+    foreach ($forbidden in @(
+        'GetManifestResourceStream',
+        'ExtractEmbeddedTool',
+        'ShouldExtractEmbeddedChdman',
+        'owner\.pid',
+        'FileAttributes\.Hidden',
+        'FileAttributes\.Temporary')) {
+
+        if ($content -match $forbidden) {
+            Add-Failure "RuntimeToolService must not extract or hide chdman at runtime: $forbidden"
+        }
+    }
+}
+
+function Test-ProductionUpdateTrustPolicy {
+    $updateService =
+        Join-Path $root 'Ui\Shell\UpdateService.cs'
+
+    if (-not (Test-Path -LiteralPath $updateService -PathType Leaf)) {
+        Add-Failure 'UpdateService.cs is required for the production update trust boundary.'
+        return
+    }
+
+    $content =
+        Get-Content -LiteralPath $updateService -Raw -Encoding UTF8
+
+    if ($content -notmatch 'OfficialGitHubRepositoryUrl\s*=\s*"https://github\.com/HAKAMIQ/HakamiqChdTool\.App"') {
+        Add-Failure 'Release updater must pin the official HAKAMIQ/HakamiqChdTool.App GitHub repository.'
+    }
+
+    if ($content -notmatch 'new UpdateManager\(new GithubSource\(OfficialGitHubRepositoryUrl, string\.Empty, false\)\)') {
+        Add-Failure 'Release updater must construct Velopack GithubSource only from the pinned official repository.'
+    }
+
+    $releaseView = [System.Text.RegularExpressions.Regex]::Replace(
+        $content,
+        '(?ms)^[ \t]*#if DEBUG[ \t]*\r?\n.*?^[ \t]*#endif[ \t]*$',
+        '')
+
+    foreach ($forbidden in @(
+        'ConfiguredUpdateSource',
+        'HAKAMIQ_UPDATE_FEED',
+        'HAKAMIQ_GITHUB_REPO',
+        'Environment\.GetEnvironmentVariable',
+        'TryNormalizeUpdateSource',
+        'TryNormalizeLocalFeedDirectory',
+        'TryBuildGitHubSource')) {
+
+        if ($releaseView -match $forbidden) {
+            Add-Failure "Release updater contains a development-only mutable source path: $forbidden"
+        }
+    }
+}
+
+function Test-ReleaseTrustGates {
+    $publishScript = Join-Path $root 'scripts\PublishRel.ps1'
+    $localVerificationScript = Join-Path $root 'scripts\Verify-Local.ps1'
+    $advisoryTestsScript = Join-Path $root 'scripts\Ps2AdvTests.ps1'
+    $releaseVerificationScript = Join-Path $root 'scripts\VerifyRelease.ps1'
+    $defenderScript = Join-Path $root 'scripts\ScanReleaseDefender.ps1'
+    $workflow = Join-Path $root '.github\workflows\secure-release.yml'
+
+    foreach ($scriptPath in @($publishScript, $localVerificationScript)) {
+        if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
+            Add-Failure "Locked restore gate script is missing: $scriptPath"
+            continue
+        }
+
+        $scriptText = Get-Content -LiteralPath $scriptPath -Raw -Encoding UTF8
+        if ($scriptText -notmatch "--locked-mode") {
+            Add-Failure "Every release/local restore path must use --locked-mode: $scriptPath"
+        }
+    }
+
+    if (-not (Test-Path -LiteralPath $advisoryTestsScript -PathType Leaf)) {
+        Add-Failure 'Ps2AdvTests.ps1 is required for locked advisory-test execution.'
+    }
+    else {
+        $advisoryText = Get-Content -LiteralPath $advisoryTestsScript -Raw -Encoding UTF8
+        foreach ($required in @('--locked-mode', '--no-restore')) {
+            if ($advisoryText -notmatch $required) {
+                Add-Failure "Ps2AdvTests.ps1 is missing dependency-integrity control: $required"
+            }
+        }
+    }
+
+    if (-not (Test-Path -LiteralPath $releaseVerificationScript -PathType Leaf)) {
+        Add-Failure 'VerifyRelease.ps1 is required for release package integrity.'
+    }
+    else {
+        $releaseText = Get-Content -LiteralPath $releaseVerificationScript -Raw -Encoding UTF8
+        foreach ($required in @(
+            'Assert-BundledToolHashes',
+            'Assert-OnlyDeclaredRuntimeBinaries',
+            'owner\.pid',
+            '"\.runtime"',
+            '"\.bak"')) {
+
+            if ($releaseText -notmatch $required) {
+                Add-Failure "VerifyRelease.ps1 is missing a package integrity control: $required"
+            }
+        }
+    }
+
+    if (-not (Test-Path -LiteralPath $defenderScript -PathType Leaf)) {
+        Add-Failure 'ScanReleaseDefender.ps1 is required for final release malware scanning.'
+    }
+    else {
+        $defenderText = Get-Content -LiteralPath $defenderScript -Raw -Encoding UTF8
+        foreach ($required in @(
+            'Get-MpComputerStatus',
+            'AMServiceEnabled',
+            'AntivirusEnabled',
+            'RealTimeProtectionEnabled',
+            "'-ScanType'",
+            "'3'",
+            "'-File'",
+            "'-DisableRemediation'",
+            '\$scanExitCode -ne 0')) {
+
+            if ($defenderText -notmatch $required) {
+                Add-Failure "ScanReleaseDefender.ps1 is missing a fail-closed Defender control: $required"
+            }
+        }
+
+        if ($defenderText -match 'Set-MpPreference|Add-MpPreference|ExclusionPath|ExclusionProcess|DisableRealtimeMonitoring') {
+            Add-Failure 'ScanReleaseDefender.ps1 must not change Defender preferences, exclusions, or real-time protection.'
+        }
+    }
+
+    if (-not (Test-Path -LiteralPath $workflow -PathType Leaf)) {
+        Add-Failure 'secure-release.yml is required for the signed release trust pipeline.'
+        return
+    }
+
+    $workflowText = Get-Content -LiteralPath $workflow -Raw -Encoding UTF8
+    if ($workflowText -notmatch 'runs-on:\s*windows-2022') {
+        Add-Failure 'Secure release workflow must run the Defender gate on Windows.'
+    }
+
+    foreach ($required in @(
+        'REQUESTED_REF:\s*\$\{\{ inputs\.ref \}\}',
+        '\$allowedRefs\s*=\s*@\(\$tag,\s*"refs/tags/\$tag"\)',
+        '\$allowedRefs\s*-notcontains\s*\$env:REQUESTED_REF',
+        'git rev-parse "\$tag\^\{commit\}"',
+        'GenerateSbom\.ps1',
+        'git diff --exit-code -- \.\\docs\\sbom\.cdx\.json')) {
+
+        if ($workflowText -notmatch $required) {
+            Add-Failure "Secure release workflow is missing a ref/SBOM integrity control: $required"
+        }
+    }
+
+    $orderedSteps = @(
+        'Checkout requested source',
+        'Validate release inputs and tag binding',
+        'Setup .NET',
+        'Restore locked dependencies',
+        'Verify SBOM matches locked release inputs',
+        'Build and test',
+        'Verify same-runner reproducibility before signing',
+        'Publish unsigned deterministic candidate',
+        'Authenticode sign and RFC 3161 timestamp',
+        'Verify signed release policy',
+        'Microsoft Defender scan signed candidate directory',
+        'Create deterministic signed package',
+        'Microsoft Defender scan final ZIP',
+        'Attest build provenance',
+        'Verify generated attestation',
+        'Upload signed candidate',
+        'Publish GitHub Release'
+    )
+
+    $previousIndex = -1
+    foreach ($stepName in $orderedSteps) {
+        $currentIndex = $workflowText.IndexOf("- name: $stepName", [System.StringComparison]::Ordinal)
+        if ($currentIndex -lt 0) {
+            Add-Failure "Secure release workflow step is missing: $stepName"
+            continue
+        }
+
+        if ($currentIndex -le $previousIndex) {
+            Add-Failure "Secure release workflow step is out of trust-gate order: $stepName"
+        }
+
+        $previousIndex = $currentIndex
     }
 }
 
@@ -2123,10 +2368,8 @@ function Test-ShutdownBackgroundTimeouts {
 
     foreach ($name in @(
         'StartupUpdateCheckShutdownTimeout',
-        'RuntimeDeferredCleanupShutdownTimeout',
         'QueueDisposeShutdownTimeout',
-        'PendingWorkspaceCleanupShutdownTimeout',
-        'RuntimeSessionCleanupShutdownTimeout')) {
+        'PendingWorkspaceCleanupShutdownTimeout')) {
 
         if ($content -notmatch $name) {
             Add-Failure "Shutdown timeout is missing: $name"
@@ -3111,7 +3354,9 @@ Test-OptionsCoordinatorPlacement
 Test-NoWpfShellUnderServices
 Test-LayerDependencyDirection
 Test-PathSafetyDuplicationBudget
-Test-EmbeddedRuntimeToolIntegrityPolicy
+Test-BundledRuntimeToolIntegrityPolicy
+Test-ProductionUpdateTrustPolicy
+Test-ReleaseTrustGates
 Test-BundledToolIntegrityManifest
 Test-RedumpDetailsViewModelPurity
 Test-ChdProgressParserImplementation

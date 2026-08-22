@@ -258,6 +258,7 @@ function Assert-SourcePackageLayout {
         'scripts\Verify-Local.ps1',
         'scripts\VerifyRepo.ps1',
         'scripts\VerifyRelease.ps1',
+        'scripts\ScanReleaseDefender.ps1',
         'scripts\RelOutGate.ps1',
         'scripts\PackRel.ps1',
         'scripts\GenManifest.ps1',
@@ -285,7 +286,14 @@ function Invoke-SourceArchiveGate {
             throw 'git ls-files failed while preparing tracked source package candidate.'
         }
 
-        $relativeFiles = @($fileList | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique)
+        $requiredWorkingTreeFiles = @(
+            'scripts/ScanReleaseDefender.ps1'
+        )
+        $relativeFiles = @(
+            $fileList + $requiredWorkingTreeFiles |
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+                Sort-Object -Unique
+        )
         if ($relativeFiles.Count -eq 0) {
             throw 'No tracked source files were found.'
         }

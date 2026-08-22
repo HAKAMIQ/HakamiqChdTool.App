@@ -206,6 +206,7 @@ function Invoke-ReleaseComplianceChecks {
         "docs\legal\MAME_GPL-2.0.txt",
         "docs\legal\7ZIP.md",
         "docs\legal\CSOKIT_NOTICE.md",
+        "Tools\chdman.exe",
         "Tools\hakamiq-cso\win-x64\csokit.exe",
         "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll",
         "Tools\hakamiq-cso\win-x64\LICENSE.txt",
@@ -302,7 +303,8 @@ try {
         "restore",
         $MainProject,
         "-r",
-        $RuntimeIdentifier
+        $RuntimeIdentifier,
+        "--locked-mode"
     )
 
     Invoke-NativeCommand "dotnet" @(

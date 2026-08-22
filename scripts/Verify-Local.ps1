@@ -6,6 +6,7 @@ $ErrorActionPreference = 'Stop'
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $ScriptDir '..')).Path
+$Solution = Join-Path $ProjectRoot 'HakamiqChdTool.App.sln'
 $Project = Join-Path $ProjectRoot 'HakamiqChdTool.App.csproj'
 $RepoCheck = Join-Path $ScriptDir 'VerifyRepo.ps1'
 $Ps2AdvisoryTests = Join-Path $ScriptDir 'Ps2AdvTests.ps1'
@@ -87,6 +88,7 @@ function Invoke-PowerShellFile {
 Push-Location $ProjectRoot
 try {
     Assert-CommandExists 'dotnet'
+    Assert-FileExists -Path $Solution -Message 'Solution file was not found:'
     Assert-FileExists -Path $Project -Message 'Project file was not found:'
     Assert-FileExists -Path $RepoCheck -Message 'Repository convention script was not found:'
     Assert-FileExists -Path $Ps2AdvisoryTests -Message 'PS2 advisory validation script was not found:'
@@ -100,12 +102,20 @@ try {
     Write-Host 'Package cleanliness gate ...' -ForegroundColor Cyan
     Invoke-PowerShellFile -ScriptPath $PackageCleanlinessGate
 
-    Write-Host 'dotnet restore ...' -ForegroundColor Cyan
+    Write-Host 'dotnet restore solution (locked) ...' -ForegroundColor Cyan
+    Invoke-NativeCommand -FilePath 'dotnet' -Arguments @(
+        'restore',
+        $Solution,
+        '--locked-mode'
+    )
+
+    Write-Host 'dotnet restore win-x64 app graph (locked) ...' -ForegroundColor Cyan
     Invoke-NativeCommand -FilePath 'dotnet' -Arguments @(
         'restore',
         $Project,
         '-r',
-        'win-x64'
+        'win-x64',
+        '--locked-mode'
     )
 
     Write-Host 'Build Debug ...' -ForegroundColor Cyan

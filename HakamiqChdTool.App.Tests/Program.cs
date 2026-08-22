@@ -101,7 +101,7 @@ internal static partial class Program
                 new("Redump clean rebuild rolls back on parse failure", () => TestRedumpRollback(app, workDirectory)),
                 new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
                 new("Bundled CsoKit 0.6.1 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
-                new("Runtime chdman tampering is rejected", () => TestRuntimeChdmanTamperingIsRejected(app))
+                new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app))
             ];
 
             int passed = 0;
@@ -775,15 +775,28 @@ internal static partial class Program
         AssertFalse(GetBool(plan, "RequiresDescriptorDependencies"), "CSO plan should not require descriptor dependencies.");
     }
 
-    private static void TestRuntimeChdmanTamperingIsRejected(AppReflection app)
+    private static void TestBundledChdmanTamperingIsRejected(AppReflection app)
     {
         object runtimeToolService = app.CreateRuntimeToolService();
+        string chdmanPath = app.GetRuntimeChdmanPath(runtimeToolService);
+        string expectedOutputPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "Tools", "chdman.exe"));
+
+        AssertTrue(
+            string.Equals(Path.GetFullPath(chdmanPath), expectedOutputPath, StringComparison.OrdinalIgnoreCase),
+            "Expected RuntimeToolService to resolve Tools\\chdman.exe from the build output.");
+        AssertTrue(File.Exists(chdmanPath), "Expected the bundled chdman build-output copy to exist.");
+
+        byte[] originalBytes = File.ReadAllBytes(chdmanPath);
+        byte[] expectedSha256 = Convert.FromHexString(
+            "8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F");
+
+        AssertTrue(originalBytes.Length > 0, "Expected the bundled chdman build-output copy to be non-empty.");
+        AssertTrue(
+            CryptographicOperations.FixedTimeEquals(expectedSha256, SHA256.HashData(originalBytes)),
+            "Expected the bundled chdman build-output copy to match the pinned SHA-256 digest before tampering.");
 
         try
         {
-            string chdmanPath = app.GetRuntimeChdmanPath(runtimeToolService);
-            AssertTrue(File.Exists(chdmanPath), "Expected the embedded chdman runtime copy to exist.");
-
             using (FileStream stream = new(
                        chdmanPath,
                        FileMode.Open,
@@ -791,7 +804,7 @@ internal static partial class Program
                        FileShare.None))
             {
                 int originalByte = stream.ReadByte();
-                AssertTrue(originalByte >= 0, "Expected the runtime chdman copy to be non-empty.");
+                AssertTrue(originalByte >= 0, "Expected the bundled chdman build-output copy to be non-empty.");
                 stream.Position = 0;
                 stream.WriteByte((byte)(originalByte ^ 0xFF));
                 stream.Flush(flushToDisk: true);
@@ -807,11 +820,16 @@ internal static partial class Program
                 rejected = true;
             }
 
-            AssertTrue(rejected, "Expected a modified runtime chdman copy to be rejected.");
+            AssertTrue(rejected, "Expected a modified bundled chdman build-output copy to be rejected.");
         }
         finally
         {
-            app.CleanupRuntimeToolSession(runtimeToolService);
+            File.WriteAllBytes(chdmanPath, originalBytes);
+
+            byte[] restoredSha256 = SHA256.HashData(File.ReadAllBytes(chdmanPath));
+            AssertTrue(
+                CryptographicOperations.FixedTimeEquals(expectedSha256, restoredSha256),
+                "Expected the bundled chdman build-output copy to be restored byte-for-byte after the tampering test.");
         }
     }
 
@@ -1774,7 +1792,6 @@ internal static partial class Program
         private readonly MethodInfo getSupportedOperationCodes;
         private readonly Type runtimeToolServiceType;
         private readonly MethodInfo runtimeToolGetChdmanPath;
-        private readonly MethodInfo runtimeToolCleanup;
         private readonly MethodInfo parseSevenZipListEntries;
         private readonly MethodInfo runSevenZipProcess;
         private readonly MethodInfo tryMeasureExtractionRoot;
@@ -1914,7 +1931,6 @@ internal static partial class Program
             tryBuildFastDirectFileCandidatesAsync = GetRequiredInstanceMethod(mainWindowViewModelType, "TryBuildFastDirectFileCandidatesAsync");
             getSupportedOperationCodes = GetRequiredMethod(queueOperationCapabilityServiceType, "GetSupportedOperationCodes", [typeof(string)]);
             runtimeToolGetChdmanPath = GetRequiredInstanceMethod(runtimeToolServiceType, "GetChdmanPath", Type.EmptyTypes);
-            runtimeToolCleanup = GetRequiredInstanceMethod(runtimeToolServiceType, "TryCleanupCurrentSession", Type.EmptyTypes);
             parseSevenZipListEntries = GetRequiredMethod(sevenZipInspectorType, "ParseSevenZipListEntries", [typeof(string)]);
             runSevenZipProcess = GetRequiredMethod(
                 sevenZipProcessRunnerType,
@@ -2258,9 +2274,6 @@ internal static partial class Program
         public string GetRuntimeChdmanPath(object runtimeToolService) =>
             (string)(runtimeToolGetChdmanPath.Invoke(runtimeToolService, null)
                 ?? throw new InvalidOperationException("RuntimeToolService returned an empty chdman path."));
-
-        public void CleanupRuntimeToolSession(object runtimeToolService) =>
-            runtimeToolCleanup.Invoke(runtimeToolService, null);
 
         public IReadOnlyList<object> ParseSevenZipListEntries(string output)
         {
