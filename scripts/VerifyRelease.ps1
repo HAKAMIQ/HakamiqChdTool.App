@@ -6,7 +6,10 @@ param(
 
     [switch] $RequireAuthenticode,
 
-    [string] $ExpectedSignerThumbprint
+    [string] $ExpectedSignerThumbprint,
+
+    [ValidateSet("auto", "runtime-required", "self-contained")]
+    [string] $DeploymentMode = "auto"
 )
 
 $ErrorActionPreference = "Stop"
@@ -185,6 +188,7 @@ function Assert-RootIsClean {
         "HakamiqChdTool.runtimeconfig.json",
         "release-manifest.json"
     )
+    $runtimeBinaryPolicy = Get-DeclaredRuntimeBinaryPolicy
 
     $rootFiles = Get-ChildItem -LiteralPath $OutputPath -File -Force -ErrorAction Stop
     foreach ($file in $rootFiles) {
@@ -193,9 +197,9 @@ function Assert-RootIsClean {
         }
 
         $isApprovedRootFile = $approvedRootFiles -contains $file.Name
-        $isDependencyDll = $file.Extension.Equals(".dll", [System.StringComparison]::OrdinalIgnoreCase)
+        $isDeclaredRuntimeBinary = $runtimeBinaryPolicy.AllowedRootNames.Contains($file.Name)
 
-        if (-not ($isApprovedRootFile -or $isDependencyDll)) {
+        if (-not ($isApprovedRootFile -or $isDeclaredRuntimeBinary)) {
             throw "Root release file is not approved: $($file.Name). Keep only .NET publish dependencies in root and move documentation/legal files under docs."
         }
 
@@ -432,6 +436,52 @@ function Assert-NoDeveloperArtifacts {
         -Message "Development-only file must not be included in end-user release:"
 }
 
+function Assert-DeploymentMode {
+    $runtimeConfigPath = Join-Path $OutputPath "HakamiqChdTool.runtimeconfig.json"
+    try {
+        $runtimeConfig = Get-Content -LiteralPath $runtimeConfigPath -Raw -Encoding UTF8 |
+            ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        throw "Could not parse HakamiqChdTool.runtimeconfig.json for deployment-mode verification: $($_.Exception.Message)"
+    }
+
+    $runtimeOptions = $runtimeConfig.runtimeOptions
+    $frameworks = @($runtimeOptions.frameworks | Where-Object { $null -ne $_ })
+    $includedFrameworks = @($runtimeOptions.includedFrameworks | Where-Object { $null -ne $_ })
+
+    $actualMode = if ($frameworks.Count -gt 0 -and $includedFrameworks.Count -eq 0) {
+        "runtime-required"
+    }
+    elseif ($includedFrameworks.Count -gt 0 -and $frameworks.Count -eq 0) {
+        "self-contained"
+    }
+    else {
+        throw "Release runtime metadata does not identify exactly one supported deployment mode."
+    }
+
+    $declaredFrameworks = if ($actualMode -eq "self-contained") {
+        $includedFrameworks
+    }
+    else {
+        $frameworks
+    }
+
+    foreach ($requiredFramework in @("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App")) {
+        $framework = $declaredFrameworks | Where-Object { $_.name -eq $requiredFramework } | Select-Object -First 1
+        if ($null -eq $framework -or [string]$framework.version -notmatch '^10\.') {
+            throw "Release runtime metadata is missing the required .NET 10 framework: $requiredFramework"
+        }
+    }
+
+    if ($DeploymentMode -ne "auto" -and $DeploymentMode -ne $actualMode) {
+        throw "Release deployment mode mismatch. Expected=$DeploymentMode Actual=$actualMode"
+    }
+
+    $script:VerifiedDeploymentMode = $actualMode
+    Write-Info "Verified deployment mode from .NET runtime metadata: $actualMode"
+}
+
 function Assert-NoUnsupportedMameTools {
     $toolsRoot = Join-Path $OutputPath "Tools"
 
@@ -650,9 +700,27 @@ function Assert-NoSquashFsArtifacts {
 }
 
 function Assert-NoCrashDumpHelper {
-    Assert-NoFilesByNamePattern `
-        -Patterns @("createdump.exe") `
-        -Message "Crash dump helper must not be included in end-user release:"
+    $matches = Get-ChildItem -LiteralPath $OutputPath -File -Recurse -Force -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name.Equals("createdump.exe", [System.StringComparison]::OrdinalIgnoreCase) }
+
+    if (-not $matches) {
+        return
+    }
+
+    $approvedPath = Join-Path $OutputPath "createdump.exe"
+    $runtimeBinaryPolicy = Get-DeclaredRuntimeBinaryPolicy
+
+    foreach ($match in $matches) {
+        $isApprovedSelfContainedRuntimeFile =
+            $script:VerifiedDeploymentMode -eq "self-contained" -and
+            $match.FullName.Equals($approvedPath, [System.StringComparison]::OrdinalIgnoreCase) -and
+            $runtimeBinaryPolicy.AllowedRootNames.Contains($match.Name)
+
+        if (-not $isApprovedSelfContainedRuntimeFile) {
+            Write-Err "Crash dump helper must not be included in end-user release: $($match.FullName)"
+            throw "Crash dump helper must not be included in end-user release."
+        }
+    }
 }
 
 function Assert-NoSuspiciousNestedRelease {
@@ -745,7 +813,7 @@ function Assert-BundledToolHashes {
     }
 }
 
-function Assert-OnlyDeclaredRuntimeBinaries {
+function Get-DeclaredRuntimeBinaryPolicy {
     $depsPath = Join-Path $OutputPath "HakamiqChdTool.deps.json"
     try {
         $deps = Get-Content -LiteralPath $depsPath -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
@@ -793,6 +861,17 @@ function Assert-OnlyDeclaredRuntimeBinaries {
             }
         }
     }
+
+    return [pscustomobject]@{
+        AllowedRootNames = $allowedRootNames
+        AllowedNestedPaths = $allowedNestedPaths
+    }
+}
+
+function Assert-OnlyDeclaredRuntimeBinaries {
+    $policy = Get-DeclaredRuntimeBinaryPolicy
+    $allowedRootNames = $policy.AllowedRootNames
+    $allowedNestedPaths = $policy.AllowedNestedPaths
 
     $binaries = Get-ChildItem -LiteralPath $OutputPath -File -Recurse -Force -ErrorAction Stop |
         Where-Object {
@@ -1042,6 +1121,7 @@ Write-Info "Verifying end-user release output: $OutputPath"
 
 Assert-RequiredReleaseFiles
 Assert-RootIsClean -OutputPath $OutputPath
+Assert-DeploymentMode
 Assert-NoDeveloperArtifacts
 Assert-NoUnsupportedMameTools
 Assert-BundledChdmanContract

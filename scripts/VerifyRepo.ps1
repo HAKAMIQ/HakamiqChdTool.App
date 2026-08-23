@@ -1045,6 +1045,19 @@ function Test-ReleaseScriptConventions {
         if ($publishText -notmatch '"Tools\\chdman\.exe"') {
             Add-Failure "PublishRel.ps1 must require the source Tools\chdman.exe used in end-user Release output."
         }
+
+        foreach ($required in @(
+            'ValidateSet\("runtime-required",\s*"self-contained"\)',
+            '\$DeploymentMode\s*=\s*"runtime-required"',
+            '"--self-contained",\s*\r?\n\s*\$SelfContainedValue',
+            '"-p:PublishSingleFile=false"',
+            '"-p:PublishTrimmed=false"',
+            '"-p:PublishReadyToRun=false"')) {
+
+            if ($publishText -notmatch $required) {
+                Add-Failure "PublishRel.ps1 is missing a dual-package policy control: $required"
+            }
+        }
     }
 
     $legacyPublishScript =
@@ -1626,30 +1639,52 @@ function Test-ReleaseTrustGates {
         '\$allowedRefs\s*-notcontains\s*\$env:REQUESTED_REF',
         'git rev-parse "\$tag\^\{commit\}"',
         'GenerateSbom\.ps1',
-        'git diff --exit-code -- \.\\docs\\sbom\.cdx\.json')) {
+        'git diff --exit-code -- \.\\docs\\sbom\.cdx\.json',
+        'authenticode_policy:',
+        'options:\s*\r?\n\s*- required\s*\r?\n\s*- not-used\s*\r?\n\s*default: required',
+        'AUTHENTICODE_POLICY:\s*\$\{\{ inputs\.authenticode_policy \}\}',
+        '\$env:AUTHENTICODE_POLICY -eq ''required''',
+        '\$arguments \+= ''-RequireAuthenticode''',
+        '-DeploymentMode runtime-required',
+        '-DeploymentMode self-contained',
+        'HakamiqChdTool-v\$\{env:RELEASE_VERSION\}-win-x64-runtime-required\.zip',
+        'HakamiqChdTool-v\$\{env:RELEASE_VERSION\}-win-x64-self-contained\.zip',
+        'PreserveExistingPackages')) {
 
         if ($workflowText -notmatch $required) {
             Add-Failure "Secure release workflow is missing a ref/SBOM integrity control: $required"
         }
     }
 
+    if ([regex]::Matches($workflowText, "if: inputs\.authenticode_policy == 'required'").Count -lt 3) {
+        Add-Failure 'Secure release workflow must condition signing-secret materialization and Authenticode signing on the explicit required policy.'
+    }
+
+    if ($workflowText -match 'signed-candidate') {
+        Add-Failure 'Secure release workflow must not label an unsigned-capable artifact or directory as signed-candidate.'
+    }
+
     $orderedSteps = @(
         'Checkout requested source',
         'Validate release inputs and tag binding',
         'Setup .NET',
+        'Require signing secrets',
+        'Set deterministic source epoch',
         'Restore locked dependencies',
         'Verify SBOM matches locked release inputs',
         'Build and test',
-        'Verify same-runner reproducibility before signing',
-        'Publish unsigned deterministic candidate',
+        'Verify same-runner reproducibility for both packages',
+        'Publish deterministic candidates',
+        'Materialize signing certificate',
         'Authenticode sign and RFC 3161 timestamp',
-        'Verify signed release policy',
-        'Microsoft Defender scan signed candidate directory',
-        'Create deterministic signed package',
-        'Microsoft Defender scan final ZIP',
-        'Attest build provenance',
+        'Verify release policy for both candidates',
+        'Microsoft Defender scan candidate directories',
+        'Create deterministic packages',
+        'Microsoft Defender scan final ZIPs',
+        'Attest runtime-required build provenance',
+        'Attest self-contained build provenance',
         'Verify generated attestation',
-        'Upload signed candidate',
+        'Upload release candidate',
         'Publish GitHub Release'
     )
 
