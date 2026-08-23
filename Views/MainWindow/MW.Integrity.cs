@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
 using Serilog;
 
@@ -58,7 +57,8 @@ public partial class MainWindow
 
     private async Task RunDeepIntegrityValidationAsync(
         TaskQueueItemViewModel item,
-        string probePath)
+        string probePath,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -71,15 +71,23 @@ public partial class MainWindow
                     IntegrityValidationState.Error,
                     ArabicUi.Get(MainWindowMessages.IntegrityErrorShort),
                     ArabicUi.Get(MainWindowMessages.IntegrityNoDiskFileBody));
+
+                ApplyRedumpProgressAndSync(
+                    item,
+                    RedumpOperationState.Failed,
+                    ArabicUi.Get(MainWindowMessages.IntegrityErrorShort),
+                    0d,
+                    isIndeterminate: false,
+                    currentBytes: 0L,
+                    totalBytes: 0L,
+                    bytesPerSecond: 0d,
+                    eta: null);
             }).ConfigureAwait(false);
 
             return;
         }
 
-        CancellationToken cancellationToken = _windowLifetimeCts.Token;
-
-        if (!_settings.EnableDeepIntegrityCheck ||
-            !_appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity))
+        if (!_settings.EnableDeepIntegrityCheck)
         {
             await InvokeOnUiIfAvailableAsync(() =>
             {
@@ -88,6 +96,17 @@ public partial class MainWindow
                     IntegrityValidationState.None,
                     ArabicUi.Get(MainWindowMessages.DeepIntegrityDisabledShort),
                     ArabicUi.Get(MainWindowMessages.DeepIntegrityDisabledDetail));
+
+                ApplyRedumpProgressAndSync(
+                    item,
+                    RedumpOperationState.Idle,
+                    ArabicUi.Get(MainWindowMessages.DeepIntegrityDisabledShort),
+                    0d,
+                    isIndeterminate: false,
+                    currentBytes: 0L,
+                    totalBytes: 0L,
+                    bytesPerSecond: 0d,
+                    eta: null);
             }).ConfigureAwait(false);
 
             return;
@@ -120,7 +139,7 @@ public partial class MainWindow
             bool proceed = await InvokeOnUiIfAvailableAsync(
                     () =>
                     {
-                        if (item.IntegrityState == IntegrityValidationState.Validating)
+                        if (item.IsRedumpOperationActive)
                         {
                             return false;
                         }
@@ -132,6 +151,17 @@ public partial class MainWindow
                             IntegrityValidationState.Validating,
                             validatingMessage,
                             probePath);
+
+                        ApplyRedumpProgressAndSync(
+                            item,
+                            RedumpOperationState.Queued,
+                            validatingMessage,
+                            0d,
+                            isIndeterminate: true,
+                            currentBytes: 0L,
+                            totalBytes: 0L,
+                            bytesPerSecond: 0d,
+                            eta: null);
 
                         return true;
                     },
@@ -188,7 +218,10 @@ public partial class MainWindow
                             probePath,
                             database,
                             cancellationToken,
-                            new RedumpV2ScanOptions(GetChdmanPath(), _settings),
+                            new RedumpV2ScanOptions(
+                                GetChdmanPath(),
+                                _settings,
+                                SourcePathLeaseHeld: true),
                             redumpProgress)
                         .ConfigureAwait(false);
                 }
@@ -214,10 +247,14 @@ public partial class MainWindow
 
                 ApplyRedumpProgressAndSync(
                     item,
+                    RedumpOperationState.Completed,
                     presentation.StatusMessage,
                     100d,
-                    isProgressActive: false,
-                    isIndeterminate: false);
+                    isIndeterminate: false,
+                    currentBytes: 0L,
+                    totalBytes: 0L,
+                    bytesPerSecond: 0d,
+                    eta: null);
 
                 SetFooterStatus(ArabicUi.Format(
                     MainWindowMessages.Fmt_DeepIntegrityDone,
@@ -241,10 +278,14 @@ public partial class MainWindow
 
                 ApplyRedumpProgressAndSync(
                     item,
+                    RedumpOperationState.Idle,
                     ArabicUi.Get(MainWindowMessages.IntegrityCancelledDetail),
                     0d,
-                    isProgressActive: false,
-                    isIndeterminate: false);
+                    isIndeterminate: false,
+                    currentBytes: 0L,
+                    totalBytes: 0L,
+                    bytesPerSecond: 0d,
+                    eta: null);
 
                 SetFooterStatus(ArabicUi.Get(MainWindowMessages.IntegrityCancelledDetail));
             }).ConfigureAwait(false);
@@ -306,11 +347,12 @@ public partial class MainWindow
         }
 
         double overallProgress = CalculateRedumpOverallProgress(progressEvent);
-        bool isIndeterminate = progressEvent.TotalBytes <= 0
-            && progressEvent.Percent <= 0
-            && progressEvent.OperationType is ProgressOperationType.TemporaryNormalization
-                or ProgressOperationType.RedumpScan
-                or ProgressOperationType.Hashing;
+        RedumpOperationState redumpState = ResolveRedumpOperationState(progressEvent);
+
+        bool isIndeterminate =
+            progressEvent.CurrentStep <= 1 &&
+            progressEvent.TotalBytes <= 0 &&
+            progressEvent.Percent <= 0;
 
         string progressStatus = BuildRedumpProgressStatus(
             message,
@@ -328,15 +370,59 @@ public partial class MainWindow
                 progressStatus,
                 detailPath);
 
+            bool hasByteMetrics =
+                progressEvent.TotalBytes > 0L &&
+                progressEvent.OperationType is
+                    ProgressOperationType.Hashing or
+                    ProgressOperationType.TemporaryNormalization;
+
+            long displayedCurrentBytes = progressEvent.CurrentBytes;
+
+            if (hasByteMetrics &&
+                displayedCurrentBytes <= 0L &&
+                progressEvent.Percent > 0d)
+            {
+                displayedCurrentBytes = Math.Min(
+                    progressEvent.TotalBytes,
+                    (long)Math.Round(
+                        progressEvent.TotalBytes *
+                        Math.Clamp(progressEvent.Percent, 0d, 100d) /
+                        100d));
+            }
+
+            bool hasRateMetrics =
+                progressEvent.OperationType == ProgressOperationType.Hashing;
+
             ApplyRedumpProgressAndSync(
                 item,
-                progressStatus,
+                redumpState,
+                message,
                 overallProgress,
-                isProgressActive: true,
-                isIndeterminate: isIndeterminate);
+                isIndeterminate,
+                hasByteMetrics ? displayedCurrentBytes : 0L,
+                hasByteMetrics ? progressEvent.TotalBytes : 0L,
+                hasRateMetrics ? progressEvent.SpeedBytesPerSecond : 0d,
+                hasRateMetrics ? progressEvent.Eta : null);
 
             SetFooterStatus(progressStatus);
         });
+    }
+
+    private static RedumpOperationState ResolveRedumpOperationState(
+        ProgressEvent progressEvent)
+    {
+        if (progressEvent.OperationType == ProgressOperationType.Hashing ||
+            progressEvent.CurrentStep == 3)
+        {
+            return RedumpOperationState.Hashing;
+        }
+
+        if (progressEvent.CurrentStep >= 4)
+        {
+            return RedumpOperationState.Matching;
+        }
+
+        return RedumpOperationState.Queued;
     }
 
     private static double CalculateRedumpOverallProgress(ProgressEvent progressEvent)
@@ -366,8 +452,8 @@ public partial class MainWindow
             message
         };
 
-        if (progressEvent.OperationType == ProgressOperationType.Hashing
-            && progressEvent.TotalBytes > 0)
+        if (progressEvent.OperationType == ProgressOperationType.Hashing &&
+            progressEvent.TotalBytes > 0)
         {
             parts.Add(string.Create(
                 CultureInfo.InvariantCulture,
@@ -438,24 +524,45 @@ public partial class MainWindow
 
     private void ApplyRedumpProgressAndSync(
         TaskQueueItemViewModel item,
+        RedumpOperationState state,
         string statusDetail,
         double progress,
-        bool isProgressActive,
-        bool isIndeterminate)
+        bool isIndeterminate,
+        long currentBytes,
+        long totalBytes,
+        double bytesPerSecond,
+        TimeSpan? eta)
     {
         double normalizedProgress = Math.Clamp(progress, 0d, 100d);
+        long normalizedCurrentBytes = Math.Max(0L, currentBytes);
+        long normalizedTotalBytes = Math.Max(0L, totalBytes);
+        double normalizedBytesPerSecond = double.IsFinite(bytesPerSecond)
+            ? Math.Max(0d, bytesPerSecond)
+            : 0d;
+        long normalizedEtaTicks = Math.Max(0L, eta?.Ticks ?? 0L);
 
-        item.StatusDetail = statusDetail;
-        item.ProgressValue = normalizedProgress;
-        item.IsProgressActive = isProgressActive;
-        item.IsIndeterminate = isIndeterminate;
+        item.SetRedumpProgress(
+            state,
+            statusDetail,
+            normalizedProgress,
+            isIndeterminate,
+            normalizedCurrentBytes,
+            normalizedTotalBytes,
+            normalizedBytesPerSecond,
+            normalizedEtaTicks > 0L
+                ? TimeSpan.FromTicks(normalizedEtaTicks)
+                : null);
 
         _queueRowStore.Mutate(item.QueueItemId, row =>
         {
-            row.StatusDetail = statusDetail;
-            row.Progress = normalizedProgress;
-            row.IsProgressActive = isProgressActive;
-            row.IsIndeterminate = isIndeterminate;
+            row.RedumpState = state;
+            row.RedumpStatusText = statusDetail;
+            row.RedumpProgress = normalizedProgress;
+            row.RedumpIsIndeterminate = isIndeterminate;
+            row.RedumpCurrentBytes = normalizedCurrentBytes;
+            row.RedumpTotalBytes = normalizedTotalBytes;
+            row.RedumpBytesPerSecond = normalizedBytesPerSecond;
+            row.RedumpEtaTicks = normalizedEtaTicks;
         });
 
         RequestUiStateRefresh();
@@ -464,14 +571,19 @@ public partial class MainWindow
     private Task ClearRedumpProgressAfterErrorAsync(TaskQueueItemViewModel item)
     {
         string message = ArabicUi.Get(MainWindowMessages.IntegrityErrorShort);
+
         return InvokeOnUiIfAvailableAsync(() =>
         {
             ApplyRedumpProgressAndSync(
                 item,
+                RedumpOperationState.Failed,
                 message,
                 0d,
-                isProgressActive: false,
-                isIndeterminate: false);
+                isIndeterminate: false,
+                currentBytes: 0L,
+                totalBytes: 0L,
+                bytesPerSecond: 0d,
+                eta: null);
         });
     }
 
@@ -508,10 +620,14 @@ public partial class MainWindow
         {
             await Dispatcher.InvokeAsync(action);
         }
-        catch (TaskCanceledException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        catch (TaskCanceledException) when (
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
         }
-        catch (InvalidOperationException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        catch (InvalidOperationException) when (
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
         }
     }
@@ -536,11 +652,15 @@ public partial class MainWindow
         {
             return await Dispatcher.InvokeAsync(action);
         }
-        catch (TaskCanceledException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        catch (TaskCanceledException) when (
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
             return fallback;
         }
-        catch (InvalidOperationException) when (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished)
+        catch (InvalidOperationException) when (
+            Dispatcher.HasShutdownStarted ||
+            Dispatcher.HasShutdownFinished)
         {
             return fallback;
         }

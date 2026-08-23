@@ -36,8 +36,7 @@ internal sealed class QueueRuntimeState
         IChdWorkflowOrchestrator orchestrator,
         Func<AppSettings> getSettings,
         Func<string> getChdmanPath,
-        int maxConcurrentItems,
-        Func<AppFeature, bool>? canUseAppFeature)
+        int maxConcurrentItems)
     {
         ArgumentNullException.ThrowIfNull(orchestrator);
         ArgumentNullException.ThrowIfNull(getSettings);
@@ -48,7 +47,6 @@ internal sealed class QueueRuntimeState
         Orchestrator = orchestrator;
         GetSettings = getSettings;
         GetChdmanPath = getChdmanPath;
-        CanUseAppFeature = canUseAppFeature ?? (static feature => Enum.IsDefined(feature));
         MaxConcurrentItems = concurrency;
         ProcessConcurrency = new SemaphoreSlim(concurrency, concurrency);
     }
@@ -56,7 +54,6 @@ internal sealed class QueueRuntimeState
     internal IChdWorkflowOrchestrator Orchestrator { get; }
     internal Func<AppSettings> GetSettings { get; }
     internal Func<string> GetChdmanPath { get; }
-    internal Func<AppFeature, bool> CanUseAppFeature { get; }
 
     internal ConcurrentQueue<ChdQueueItem> WorkQueue { get; } = new();
     internal SemaphoreSlim Signal { get; } = new(0, int.MaxValue);

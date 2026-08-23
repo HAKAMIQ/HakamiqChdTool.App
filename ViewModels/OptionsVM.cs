@@ -58,13 +58,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private ChoiceOption? _selectedIsoCreateOverride;
     private ChoiceOption? _selectedChdPlatformProfile;
     private bool _useCustomPendingWorkspace;
-    private bool _showStorageAdvisorDialog = true;
     private string _pendingWorkspaceCustomRoot = string.Empty;
-    private bool _canUsePostProcessingAutomation = true;
-    private bool _canUseRedumpDeepIntegrity = true;
-    private bool _canUseRedumpDatabaseImport = true;
-    private bool _canUseStandardNamingSuggestion = true;
-    private bool _canUseStorageAdvisor = true;
 
     public IReadOnlyList<string> ThemeOptions { get; } = new[] { "Light", "Dark", "Hakamiq" };
 
@@ -393,19 +387,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         set => SetProperty(ref _includeSubfolders, value);
     }
 
-    public bool ShowStorageAdvisorDialog
-    {
-        get => _showStorageAdvisorDialog;
-        set
-        {
-            bool normalized = CanUseStorageAdvisor && value;
-            if (SetProperty(ref _showStorageAdvisorDialog, normalized))
-            {
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
     public bool UseBundledChdman
     {
         get => _useBundledChdman;
@@ -460,7 +441,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
     public bool CopyMatchingSbi
     {
         get => _copyMatchingSbi;
-        set => SetProperty(ref _copyMatchingSbi, value && CanUsePostProcessingAutomation);
+        set => SetProperty(ref _copyMatchingSbi, value);
     }
 
     public bool EnableAutoM3uGeneration
@@ -468,7 +449,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         get => _enableAutoM3uGeneration;
         set
         {
-            bool normalized = value && CanUsePostProcessingAutomation;
+            bool normalized = value;
             if (SetProperty(ref _enableAutoM3uGeneration, normalized))
             {
                 OnPropertyChanged(nameof(CanOverwriteExistingM3uPlaylists));
@@ -480,7 +461,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         }
     }
 
-    public bool CanOverwriteExistingM3uPlaylists => CanUsePostProcessingAutomation && EnableAutoM3uGeneration;
+    public bool CanOverwriteExistingM3uPlaylists => EnableAutoM3uGeneration;
 
     public bool OverwriteExistingM3uPlaylists
     {
@@ -512,17 +493,14 @@ public sealed partial class OptionsViewModel : ObservableValidator
         set => SetProperty(ref _deleteSourceAfterVerifiedExtraction, value);
     }
 
-    public bool CanEnableDeepIntegrityCheck => CanUseRedumpDeepIntegrity;
-
     public bool EnableDeepIntegrityCheck
     {
         get => _enableDeepIntegrityCheck;
         set
         {
-            bool normalized = value && CanUseRedumpDeepIntegrity;
+            bool normalized = value;
             if (SetProperty(ref _enableDeepIntegrityCheck, normalized))
             {
-                OnPropertyChanged(nameof(CanEnableStandardNaming));
                 OnPropertyChanged(nameof(CanSave));
             }
         }
@@ -533,7 +511,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         get => _applyStandardNamingBasedOnHash;
         set
         {
-            bool normalized = CanUseStandardNamingSuggestion && value;
+            bool normalized = value;
             SetProperty(ref _applyStandardNamingBasedOnHash, normalized);
         }
     }
@@ -573,7 +551,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
     public string SelectedRedumpArtifactDescription => ResolveOptionDescription(SelectedRedumpArtifactOption);
 
-    public bool CanDownloadSelectedRedumpDatabase => CanUseRedumpDatabaseImport && IsSafeDownloadUrl(RedumpDatabaseDownloadUrl);
+    public bool CanDownloadSelectedRedumpDatabase => IsSafeDownloadUrl(RedumpDatabaseDownloadUrl);
 
     public string RedumpDatabaseDownloadUrl
     {
@@ -594,7 +572,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         get => _enableRedumpAutoSync;
         set
         {
-            bool normalized = CanUseRedumpDatabaseImport && value;
+            bool normalized = value;
             if (SetProperty(ref _enableRedumpAutoSync, normalized))
             {
                 OnPropertyChanged(nameof(CanSave));
@@ -609,8 +587,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         {
             if (SetProperty(ref _isDatabaseAvailable, value))
             {
-                OnPropertyChanged(nameof(CanEnableDeepIntegrityCheck));
-                OnPropertyChanged(nameof(CanEnableStandardNaming));
                 OnPropertyChanged(nameof(IntegrityFeatureOpacity));
                 OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
                 OnPropertyChanged(nameof(CanSave));
@@ -643,101 +619,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     }
 
     public double IntegrityFeatureOpacity => IsDatabaseAvailable ? 1.0 : 0.55;
-
-    public bool CanEnableStandardNaming => CanUseStandardNamingSuggestion;
-
-    public bool CanUsePostProcessingAutomation
-    {
-        get => _canUsePostProcessingAutomation;
-        set
-        {
-            if (SetProperty(ref _canUsePostProcessingAutomation, value))
-            {
-                if (!value)
-                {
-                    CopyMatchingSbi = false;
-                    EnableAutoM3uGeneration = false;
-                    OverwriteExistingM3uPlaylists = false;
-                }
-
-                OnPropertyChanged(nameof(CanOverwriteExistingM3uPlaylists));
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
-    public bool CanUseRedumpDeepIntegrity
-    {
-        get => _canUseRedumpDeepIntegrity;
-        set
-        {
-            if (SetProperty(ref _canUseRedumpDeepIntegrity, value))
-            {
-                if (!value)
-                {
-                    EnableDeepIntegrityCheck = false;
-                }
-
-                OnPropertyChanged(nameof(CanEnableDeepIntegrityCheck));
-                OnPropertyChanged(nameof(CanEnableStandardNaming));
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
-    public bool CanUseRedumpDatabaseImport
-    {
-        get => _canUseRedumpDatabaseImport;
-        set
-        {
-            if (SetProperty(ref _canUseRedumpDatabaseImport, value))
-            {
-                if (!value)
-                {
-                    EnableRedumpAutoSync = false;
-                }
-
-                OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
-                NotifyRedumpLocalLibraryScanCommandState();
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
-    public bool CanUseStandardNamingSuggestion
-    {
-        get => _canUseStandardNamingSuggestion;
-        set
-        {
-            if (SetProperty(ref _canUseStandardNamingSuggestion, value))
-            {
-                if (!value)
-                {
-                    ApplyStandardNamingBasedOnHash = false;
-                }
-
-                OnPropertyChanged(nameof(CanEnableStandardNaming));
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
-    public bool CanUseStorageAdvisor
-    {
-        get => _canUseStorageAdvisor;
-        set
-        {
-            if (SetProperty(ref _canUseStorageAdvisor, value))
-            {
-                if (!value)
-                {
-                    ShowStorageAdvisorDialog = false;
-                }
-
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
 
     public bool HasPendingChanges => _appliedSnapshot is not null && !CurrentValuesEqual(_appliedSnapshot);
 

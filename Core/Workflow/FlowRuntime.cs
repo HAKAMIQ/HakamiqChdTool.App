@@ -84,7 +84,7 @@ public sealed partial class ChdWorkflowOrchestrator
         if (sourceExtension.Equals(".chd", StringComparison.OrdinalIgnoreCase)
             && !outputExtension.Equals(".chd", StringComparison.OrdinalIgnoreCase))
         {
-            return requestVerify;
+            return requestVerify && result.SourceDeletionProofVerified;
         }
 
         if (!sourceExtension.Equals(".chd", StringComparison.OrdinalIgnoreCase)

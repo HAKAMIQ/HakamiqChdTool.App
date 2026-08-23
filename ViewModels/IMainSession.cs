@@ -1,5 +1,4 @@
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels.Virtualization;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,9 +24,6 @@ public interface IMainWindowSession
 
     AppSettings GetSettings();
 
-    IAppFeatureService AppFeatures { get; }
-
-    bool RequireAppFeature(AppFeature feature);
 
     (bool IsCompliant, string SuggestedStandardName) AnalyzeNamingForPath(string sourcePath);
 
@@ -61,6 +57,10 @@ public interface IMainWindowSession
     Task RunRedumpIntegrityForAllQueueItemsAsync();
 
     bool CanRunRedumpIntegrityForAnyQueueItem();
+
+    void CancelRedumpIntegrityScan();
+
+    bool CanCancelRedumpIntegrityScan();
 
     Task ShowRedumpDetails(TaskQueueItemViewModel? item);
 

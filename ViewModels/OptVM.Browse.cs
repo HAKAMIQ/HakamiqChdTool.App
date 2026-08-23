@@ -145,8 +145,7 @@ public sealed partial class OptionsViewModel
     {
         string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
 
-        return CanUseRedumpDatabaseImport
-            && !IsRedumpLocalLibraryScanRunning
+        return !IsRedumpLocalLibraryScanRunning
             && TryGetSafeOptionsDirectory(root, out _);
     }
 

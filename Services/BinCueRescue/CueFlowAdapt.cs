@@ -10,278 +10,366 @@ namespace HakamiqChdTool.App.Services.BinCueRescue;
 
 internal sealed class CueRescueWorkflowAdapter : IDisposable
 {
-    private const string BinInputMissingDetailKey = "LocStatus_BinInputDoesNotExist";
-    private const string AdjacentCueMissingDetailKey = "LocStatus_AdjacentCueDoesNotExist";
-    private const string GeneratedCueMissingDetailKey = "LocStatus_GeneratedCueDoesNotExist";
-    private const string RescueCuePreparationFailedDetailKey = "LocStatus_RescueCuePreparationFailed";
-    private const string BinCueRescuePrepareFailedDetailKey = "LocBinCueRescue_PrepareFailed";
+    private const string RescueWorkspaceFolderName = "BinCueRescue";
+
+    private const string BinInputMissingDetailKey =
+        "LocStatus_BinInputDoesNotExist";
+
+    private const string AdjacentCueMissingDetailKey =
+        "LocStatus_AdjacentCueDoesNotExist";
+
+    private const string GeneratedCueMissingDetailKey =
+        "LocStatus_GeneratedCueDoesNotExist";
+
+    private const string RescueCuePreparationFailedDetailKey =
+        "LocStatus_RescueCuePreparationFailed";
+
+    private const string BinCueRescuePrepareFailedDetailKey =
+        "LocBinCueRescue_PrepareFailed";
+
+    private const string BinUnsafeSectorLayoutDetailKey =
+        "LocIntake_BinWithoutCueUnsafeSectorLayout";
 
     private readonly object _syncRoot = new();
-    private readonly List<CleanupDirectoryRegistration> _tempDirectoriesToCleanup = [];
+
+    private readonly List<CleanupDirectoryRegistration>
+        _tempDirectoriesToCleanup = [];
 
     private int _disposed;
 
     internal CueRescueWorkflowPrepareResult TryPrepare(
-    string? inputPath,
-    string? processTempRoot = null,
-    DiscLayoutTrustMode trustMode = DiscLayoutTrustMode.StrictEvidence,
-    bool allowConstrainedAbsoluteBinFallback = false,
-    CancellationToken cancellationToken = default)
+        string? inputPath,
+        string? processTempRoot = null,
+        DiscLayoutTrustMode trustMode =
+            DiscLayoutTrustMode.StrictEvidence,
+        bool allowConstrainedAbsoluteBinFallback = false,
+        CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
 
         if (string.IsNullOrWhiteSpace(inputPath))
         {
-            return CueRescueWorkflowPrepareResult.NotApplicable(inputPath);
+            return CueRescueWorkflowPrepareResult.NotApplicable();
         }
 
         string fullInputPath;
+
         try
         {
-            fullInputPath = NormalizeFullPath(inputPath);
+            fullInputPath =
+                NormalizeFullPath(inputPath.Trim());
         }
         catch (Exception ex) when (IsPathFailure(ex))
         {
             return CueRescueWorkflowPrepareResult.Failed(
-                inputPath,
                 BinCueRescuePrepareFailedDetailKey);
         }
 
-        if (!string.Equals(Path.GetExtension(fullInputPath), ".bin", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(
+                Path.GetExtension(fullInputPath),
+                ".bin",
+                StringComparison.OrdinalIgnoreCase))
         {
-            return CueRescueWorkflowPrepareResult.NotApplicable(fullInputPath);
+            return CueRescueWorkflowPrepareResult.NotApplicable();
         }
 
-        if (!File.Exists(fullInputPath) || HasReparsePointInExistingPathFromVolumeRoot(fullInputPath))
+        if (!File.Exists(fullInputPath)
+            || HasReparsePointInExistingPathFromVolumeRoot(
+                fullInputPath))
         {
             return CueRescueWorkflowPrepareResult.Failed(
-                fullInputPath,
                 BinInputMissingDetailKey);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        string leaderCueWriteTarget = Path.ChangeExtension(fullInputPath, ".cue");
+        string leaderCueWriteTarget =
+            Path.ChangeExtension(
+                fullInputPath,
+                ".cue");
 
         BinCueRescuePlan plan;
+
         try
         {
             plan = MultiBinDiscAssembler.AssembleForBin(
                 fullInputPath,
                 leaderCueWriteTarget);
         }
-        catch (Exception ex) when (IsExpectedAssemblerFailure(ex))
+        catch (Exception ex) when (
+            IsExpectedAssemblerFailure(ex))
         {
             return CueRescueWorkflowPrepareResult.Failed(
-                fullInputPath,
                 BinCueRescuePrepareFailedDetailKey);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        string identityProbePath = GetConsoleIdentityProbePath(plan, fullInputPath);
-        ConsoleDiscIdentityResult consoleIdentity = ConsoleDiscIdentityService.Shared.Detect(identityProbePath);
-        DiscLayoutDecision layoutDecision = DiscLayoutDecision.FromStandaloneBinPlan(
-            plan,
-            consoleIdentity,
-            trustMode);
+        if (plan.CanUseAdjacentCue)
+        {
+            return PrepareAdjacentCue(
+                fullInputPath,
+                plan);
+        }
+
+        if (plan.IsRefused
+            || !plan.CanGenerateTempCue)
+        {
+            return CueRescueWorkflowPrepareResult.Failed(
+                BinUnsafeSectorLayoutDetailKey);
+        }
+
+        string identityProbePath =
+            GetConsoleIdentityProbePath(
+                plan,
+                fullInputPath);
+
+        ConsoleDiscIdentityResult consoleIdentity =
+            ConsoleDiscIdentityService.Shared.Detect(
+                identityProbePath);
+
+        DiscLayoutDecision layoutDecision =
+            DiscLayoutDecision.FromStandaloneBinPlan(
+                plan,
+                consoleIdentity,
+                trustMode);
 
         if (!layoutDecision.IsAccepted)
         {
             return CueRescueWorkflowPrepareResult.Failed(
-                fullInputPath,
-                string.IsNullOrWhiteSpace(layoutDecision.MessageKey)
+                string.IsNullOrWhiteSpace(
+                    layoutDecision.MessageKey)
                     ? BinCueRescuePrepareFailedDetailKey
                     : layoutDecision.MessageKey);
         }
 
-        if (layoutDecision.UsesAdjacentCue && !string.IsNullOrWhiteSpace(layoutDecision.EffectiveCuePath))
-        {
-            plan = plan with { AdjacentCuePath = layoutDecision.EffectiveCuePath };
-        }
-
-        if (plan.CanUseAdjacentCue)
-        {
-            string adjacentCuePath;
-            try
-            {
-                adjacentCuePath = NormalizeFullPath(plan.AdjacentCuePath!);
-            }
-            catch (Exception ex) when (IsPathFailure(ex))
-            {
-                return CueRescueWorkflowPrepareResult.Failed(
-                    fullInputPath,
-                    BinCueRescuePrepareFailedDetailKey);
-            }
-
-            if (!File.Exists(adjacentCuePath))
-            {
-                return CueRescueWorkflowPrepareResult.Failed(
-                    fullInputPath,
-                    AdjacentCueMissingDetailKey);
-            }
-
-            if (!IsAdjacentCueInSameDirectory(fullInputPath, adjacentCuePath)
-                || HasReparsePointInExistingPathFromVolumeRoot(adjacentCuePath))
-            {
-                return CueRescueWorkflowPrepareResult.Failed(
-                    fullInputPath,
-                    BinCueRescuePrepareFailedDetailKey);
-            }
-
-            return CueRescueWorkflowPrepareResult.Prepared(
-                fullInputPath,
-                adjacentCuePath,
-                null,
-                null);
-        }
-
-        if (plan.CanGenerateTempCue)
-        {
-            string effectiveProcessTempRoot = string.IsNullOrWhiteSpace(processTempRoot)
-                ? AppPaths.ProcessTempRoot
-                : processTempRoot;
-
-            CueRescueWriteResult writeResult = CueRescueWriter.Write(
-                plan,
-                effectiveProcessTempRoot,
-                allowConstrainedAbsoluteBinFallback
-                    ? CueRescueWriteOptions.WithConstrainedAbsoluteFallback
-                    : CueRescueWriteOptions.Strict,
-                cancellationToken);
-
-            if (!writeResult.Succeeded || string.IsNullOrWhiteSpace(writeResult.CuePath))
-            {
-                TryCleanupPreparedTempDirectory(writeResult.TempDirectoryToCleanup, effectiveProcessTempRoot);
-
-                return CueRescueWorkflowPrepareResult.Failed(
-                    fullInputPath,
-                    RescueCuePreparationFailedDetailKey);
-            }
-
-            string generatedCuePath;
-            string fullTempDirectory;
-            string fullProcessTempRoot;
-
-            try
-            {
-                generatedCuePath = NormalizeFullPath(writeResult.CuePath);
-                fullTempDirectory = NormalizeFullPath(writeResult.TempDirectoryToCleanup!);
-                fullProcessTempRoot = NormalizeFullPath(effectiveProcessTempRoot);
-            }
-            catch (Exception ex) when (IsPathFailure(ex))
-            {
-                TryCleanupPreparedTempDirectory(writeResult.TempDirectoryToCleanup, effectiveProcessTempRoot);
-
-                return CueRescueWorkflowPrepareResult.Failed(
-                    fullInputPath,
-                    RescueCuePreparationFailedDetailKey);
-            }
-
-            if (!File.Exists(generatedCuePath))
-            {
-                TryCleanupPreparedTempDirectory(fullTempDirectory, fullProcessTempRoot);
-
-                return CueRescueWorkflowPrepareResult.Failed(
-                    fullInputPath,
-                    GeneratedCueMissingDetailKey);
-            }
-
-            if (!IsSafeCleanupDirectory(fullTempDirectory, fullProcessTempRoot))
-            {
-                TryCleanupPreparedTempDirectory(fullTempDirectory, fullProcessTempRoot);
-
-                return CueRescueWorkflowPrepareResult.Failed(
-                    fullInputPath,
-                    RescueCuePreparationFailedDetailKey);
-            }
-
-            if (!IsPathInsideDirectory(generatedCuePath, fullTempDirectory)
-                || HasReparsePointInExistingPath(generatedCuePath, fullTempDirectory))
-            {
-                TryCleanupPreparedTempDirectory(fullTempDirectory, fullProcessTempRoot);
-
-                return CueRescueWorkflowPrepareResult.Failed(
-                    fullInputPath,
-                    RescueCuePreparationFailedDetailKey);
-            }
-
-            try
-            {
-                RegisterTempDirectoryForCleanup(
-                    fullTempDirectory,
-                    fullProcessTempRoot);
-            }
-            catch (ObjectDisposedException)
-            {
-                TryCleanupPreparedTempDirectory(fullTempDirectory, fullProcessTempRoot);
-
-                return CueRescueWorkflowPrepareResult.Failed(
-                    fullInputPath,
-                    RescueCuePreparationFailedDetailKey);
-            }
-
-            return CueRescueWorkflowPrepareResult.Prepared(
-                fullInputPath,
-                generatedCuePath,
-                fullTempDirectory,
-                null);
-        }
-
-        if (plan.IsRefused || plan.IsAmbiguous)
+        if (!layoutDecision.RequiresTemporaryCue)
         {
             return CueRescueWorkflowPrepareResult.Failed(
-                fullInputPath,
                 BinCueRescuePrepareFailedDetailKey);
         }
 
-        return CueRescueWorkflowPrepareResult.Failed(
-            fullInputPath,
-            BinCueRescuePrepareFailedDetailKey);
+        string effectiveProcessTempRoot =
+            string.IsNullOrWhiteSpace(processTempRoot)
+                ? AppPaths.ProcessTempRoot
+                : processTempRoot;
+
+        CueRescueWriteResult writeResult =
+            CueRescueWriter.Write(
+                plan,
+                effectiveProcessTempRoot,
+                allowConstrainedAbsoluteBinFallback
+                    ? CueRescueWriteOptions
+                        .WithConstrainedAbsoluteFallback
+                    : CueRescueWriteOptions.Strict,
+                cancellationToken);
+
+        if (!writeResult.Succeeded
+            || string.IsNullOrWhiteSpace(
+                writeResult.CuePath))
+        {
+            TryCleanupPreparedTempDirectory(
+                writeResult.TempDirectoryToCleanup,
+                effectiveProcessTempRoot);
+
+            return CueRescueWorkflowPrepareResult.Failed(
+                RescueCuePreparationFailedDetailKey);
+        }
+
+        string generatedCuePath;
+        string fullTempDirectory;
+        string fullProcessTempRoot;
+
+        try
+        {
+            generatedCuePath =
+                NormalizeFullPath(
+                    writeResult.CuePath);
+
+            fullTempDirectory =
+                NormalizeFullPath(
+                    writeResult.TempDirectoryToCleanup!);
+
+            fullProcessTempRoot =
+                NormalizeFullPath(
+                    effectiveProcessTempRoot);
+        }
+        catch (Exception ex) when (IsPathFailure(ex))
+        {
+            TryCleanupPreparedTempDirectory(
+                writeResult.TempDirectoryToCleanup,
+                effectiveProcessTempRoot);
+
+            return CueRescueWorkflowPrepareResult.Failed(
+                RescueCuePreparationFailedDetailKey);
+        }
+
+        if (!File.Exists(generatedCuePath))
+        {
+            TryCleanupPreparedTempDirectory(
+                fullTempDirectory,
+                fullProcessTempRoot);
+
+            return CueRescueWorkflowPrepareResult.Failed(
+                GeneratedCueMissingDetailKey);
+        }
+
+        if (!IsSafeCleanupDirectory(
+                fullTempDirectory,
+                fullProcessTempRoot))
+        {
+            TryCleanupPreparedTempDirectory(
+                fullTempDirectory,
+                fullProcessTempRoot);
+
+            return CueRescueWorkflowPrepareResult.Failed(
+                RescueCuePreparationFailedDetailKey);
+        }
+
+        if (!IsPathInsideDirectory(
+                generatedCuePath,
+                fullTempDirectory)
+            || HasReparsePointInExistingPath(
+                generatedCuePath,
+                fullTempDirectory))
+        {
+            TryCleanupPreparedTempDirectory(
+                fullTempDirectory,
+                fullProcessTempRoot);
+
+            return CueRescueWorkflowPrepareResult.Failed(
+                RescueCuePreparationFailedDetailKey);
+        }
+
+        try
+        {
+            RegisterTempDirectoryForCleanup(
+                fullTempDirectory,
+                fullProcessTempRoot);
+        }
+        catch (ObjectDisposedException)
+        {
+            TryCleanupPreparedTempDirectory(
+                fullTempDirectory,
+                fullProcessTempRoot);
+
+            return CueRescueWorkflowPrepareResult.Failed(
+                RescueCuePreparationFailedDetailKey);
+        }
+
+        return CueRescueWorkflowPrepareResult.Prepared(
+            generatedCuePath,
+            fullTempDirectory);
     }
 
     public void Dispose()
     {
-        if (Interlocked.Exchange(ref _disposed, 1) != 0)
+        if (Interlocked.Exchange(
+                ref _disposed,
+                1) != 0)
         {
             return;
         }
 
-        List<CleanupDirectoryRegistration> cleanupRegistrations;
+        List<CleanupDirectoryRegistration>
+            cleanupRegistrations;
 
         lock (_syncRoot)
         {
-            cleanupRegistrations = [.. _tempDirectoriesToCleanup];
+            cleanupRegistrations =
+                [.. _tempDirectoriesToCleanup];
+
             _tempDirectoriesToCleanup.Clear();
         }
 
-        for (int i = cleanupRegistrations.Count - 1; i >= 0; i--)
+        for (int i = cleanupRegistrations.Count - 1;
+             i >= 0;
+             i--)
         {
-            CleanupDirectoryRegistration cleanup = cleanupRegistrations[i];
+            CleanupDirectoryRegistration cleanup =
+                cleanupRegistrations[i];
 
-            if (!IsSafeCleanupDirectory(cleanup.Directory, cleanup.ProcessTempRoot))
+            if (!IsSafeCleanupDirectory(
+                    cleanup.Directory,
+                    cleanup.ProcessTempRoot))
             {
                 continue;
             }
 
-            TryDeleteDirectoryTree(cleanup.Directory, cleanup.ProcessTempRoot);
+            TryDeleteDirectoryTree(
+                cleanup.Directory,
+                cleanup.ProcessTempRoot);
         }
+    }
+
+    private static CueRescueWorkflowPrepareResult
+        PrepareAdjacentCue(
+            string fullInputPath,
+            BinCueRescuePlan plan)
+    {
+        string? candidateCuePath =
+            plan.AdjacentCuePath;
+
+        if (string.IsNullOrWhiteSpace(
+                candidateCuePath))
+        {
+            return CueRescueWorkflowPrepareResult.Failed(
+                BinCueRescuePrepareFailedDetailKey);
+        }
+
+        string adjacentCuePath;
+
+        try
+        {
+            adjacentCuePath =
+                NormalizeFullPath(
+                    candidateCuePath);
+        }
+        catch (Exception ex) when (IsPathFailure(ex))
+        {
+            return CueRescueWorkflowPrepareResult.Failed(
+                BinCueRescuePrepareFailedDetailKey);
+        }
+
+        if (!File.Exists(adjacentCuePath))
+        {
+            return CueRescueWorkflowPrepareResult.Failed(
+                AdjacentCueMissingDetailKey);
+        }
+
+        if (!IsAdjacentCueInSameDirectory(
+                fullInputPath,
+                adjacentCuePath)
+            || HasReparsePointInExistingPathFromVolumeRoot(
+                adjacentCuePath))
+        {
+            return CueRescueWorkflowPrepareResult.Failed(
+                BinCueRescuePrepareFailedDetailKey);
+        }
+
+        return CueRescueWorkflowPrepareResult.Prepared(
+            adjacentCuePath,
+            null);
     }
 
     private static string GetConsoleIdentityProbePath(
         BinCueRescuePlan plan,
         string fallbackInputPath)
     {
-        foreach (BinCueRescueTrackPlan track in plan.OrderedTracks)
+        foreach (BinCueRescueTrackPlan track
+                 in plan.OrderedTracks)
         {
-            if (!track.IsDataTrack || string.IsNullOrWhiteSpace(track.SourceBinPath))
+            if (!track.IsDataTrack
+                || string.IsNullOrWhiteSpace(
+                    track.SourceBinPath))
             {
                 continue;
             }
 
             try
             {
-                return NormalizeFullPath(track.SourceBinPath);
+                return NormalizeFullPath(
+                    track.SourceBinPath);
             }
             catch (Exception ex) when (IsPathFailure(ex))
             {
@@ -296,6 +384,15 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
         string directory,
         string processTempRoot)
     {
+        if (!IsSafeCleanupDirectory(
+                directory,
+                processTempRoot))
+        {
+            throw new ArgumentException(
+                "Cleanup directory is outside the BIN/CUE rescue workspace.",
+                nameof(directory));
+        }
+
         lock (_syncRoot)
         {
             ThrowIfDisposed();
@@ -309,7 +406,9 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
 
     private void ThrowIfDisposed()
     {
-        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
+        ObjectDisposedException.ThrowIf(
+            Volatile.Read(ref _disposed) != 0,
+            this);
     }
 
     private static void TryCleanupPreparedTempDirectory(
@@ -318,12 +417,16 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
     {
         if (string.IsNullOrWhiteSpace(directory)
             || string.IsNullOrWhiteSpace(processTempRoot)
-            || !IsSafeCleanupDirectory(directory, processTempRoot))
+            || !IsSafeCleanupDirectory(
+                directory,
+                processTempRoot))
         {
             return;
         }
 
-        TryDeleteDirectoryTree(directory, processTempRoot);
+        TryDeleteDirectoryTree(
+            directory,
+            processTempRoot);
     }
 
     private static bool IsAdjacentCueInSameDirectory(
@@ -332,12 +435,22 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
     {
         try
         {
-            string? binDirectory = Path.GetDirectoryName(NormalizeFullPath(binPath));
-            string? cueDirectory = Path.GetDirectoryName(NormalizeFullPath(cuePath));
+            string? binDirectory =
+                Path.GetDirectoryName(
+                    NormalizeFullPath(binPath));
 
-            return !string.IsNullOrWhiteSpace(binDirectory)
-                   && !string.IsNullOrWhiteSpace(cueDirectory)
-                   && string.Equals(binDirectory, cueDirectory, StringComparison.OrdinalIgnoreCase);
+            string? cueDirectory =
+                Path.GetDirectoryName(
+                    NormalizeFullPath(cuePath));
+
+            return !string.IsNullOrWhiteSpace(
+                       binDirectory)
+                && !string.IsNullOrWhiteSpace(
+                    cueDirectory)
+                && string.Equals(
+                    binDirectory,
+                    cueDirectory,
+                    StringComparison.OrdinalIgnoreCase);
         }
         catch (Exception ex) when (IsPathFailure(ex))
         {
@@ -349,26 +462,50 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
         string directory,
         string processTempRoot)
     {
-        if (string.IsNullOrWhiteSpace(directory) || string.IsNullOrWhiteSpace(processTempRoot))
+        if (string.IsNullOrWhiteSpace(directory)
+            || string.IsNullOrWhiteSpace(
+                processTempRoot))
         {
             return false;
         }
 
         string fullDirectory;
         string fullProcessTempRoot;
+        string rescueWorkspaceRoot;
 
         try
         {
-            fullDirectory = NormalizeFullPath(directory);
-            fullProcessTempRoot = NormalizeFullPath(processTempRoot);
+            fullDirectory =
+                NormalizeFullPath(directory);
+
+            fullProcessTempRoot =
+                NormalizeFullPath(
+                    processTempRoot);
+
+            rescueWorkspaceRoot =
+                NormalizeFullPath(
+                    Path.Combine(
+                        fullProcessTempRoot,
+                        RescueWorkspaceFolderName));
         }
         catch (Exception ex) when (IsPathFailure(ex))
         {
             return false;
         }
 
-        return !PathsEqual(fullDirectory, fullProcessTempRoot)
-               && IsSamePathOrChild(fullDirectory, fullProcessTempRoot);
+        if (PathsEqual(
+                fullDirectory,
+                fullProcessTempRoot)
+            || PathsEqual(
+                fullDirectory,
+                rescueWorkspaceRoot))
+        {
+            return false;
+        }
+
+        return IsSamePathOrChild(
+            fullDirectory,
+            rescueWorkspaceRoot);
     }
 
     private static bool IsPathInsideDirectory(
@@ -377,13 +514,19 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
     {
         try
         {
-            string candidate = NormalizeFullPath(candidatePath);
-            string directory = NormalizeFullPath(directoryPath);
+            string candidate =
+                NormalizeFullPath(candidatePath);
 
-            return !PathsEqual(candidate, directory)
-                   && candidate.StartsWith(
-                       EnsureDirectorySeparatorSuffix(directory),
-                       StringComparison.OrdinalIgnoreCase);
+            string directory =
+                NormalizeFullPath(directoryPath);
+
+            return !PathsEqual(
+                       candidate,
+                       directory)
+                && candidate.StartsWith(
+                    EnsureDirectorySeparatorSuffix(
+                        directory),
+                    StringComparison.OrdinalIgnoreCase);
         }
         catch (Exception ex) when (IsPathFailure(ex))
         {
@@ -397,7 +540,10 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
     {
         try
         {
-            if (!IsSafeCleanupDirectory(directory, processTempRoot) || !Directory.Exists(directory))
+            if (!IsSafeCleanupDirectory(
+                    directory,
+                    processTempRoot)
+                || !Directory.Exists(directory))
             {
                 return;
             }
@@ -408,14 +554,19 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
                 return;
             }
 
-            if (HasReparsePointInExistingPath(directory, processTempRoot))
+            if (HasReparsePointInExistingPath(
+                    directory,
+                    processTempRoot))
             {
                 return;
             }
 
-            foreach (string file in Directory.EnumerateFiles(directory))
+            foreach (string file
+                     in Directory.EnumerateFiles(directory))
             {
-                if (!IsPathInsideDirectory(file, directory))
+                if (!IsPathInsideDirectory(
+                        file,
+                        directory))
                 {
                     continue;
                 }
@@ -423,31 +574,45 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
                 TryDeleteFile(file);
             }
 
-            foreach (string childDirectory in Directory.EnumerateDirectories(directory))
+            foreach (string childDirectory
+                     in Directory.EnumerateDirectories(
+                         directory))
             {
-                if (!IsPathInsideDirectory(childDirectory, directory))
+                if (!IsPathInsideDirectory(
+                        childDirectory,
+                        directory))
                 {
                     continue;
                 }
 
-                if (IsExistingPathReparsePoint(childDirectory))
+                if (IsExistingPathReparsePoint(
+                        childDirectory))
                 {
-                    TryDeleteDirectoryLinkOnly(childDirectory);
+                    TryDeleteDirectoryLinkOnly(
+                        childDirectory);
+
                     continue;
                 }
 
-                TryDeleteDirectoryTree(childDirectory, processTempRoot);
+                TryDeleteDirectoryTree(
+                    childDirectory,
+                    processTempRoot);
             }
 
-            ClearBlockingDirectoryAttributes(directory);
-            Directory.Delete(directory, recursive: false);
+            ClearBlockingDirectoryAttributes(
+                directory);
+
+            Directory.Delete(
+                directory,
+                recursive: false);
         }
         catch (Exception ex) when (IsCleanupFailure(ex))
         {
         }
     }
 
-    private static void TryDeleteFile(string file)
+    private static void TryDeleteFile(
+        string file)
     {
         try
         {
@@ -463,7 +628,8 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
         }
     }
 
-    private static void TryDeleteDirectoryLinkOnly(string directory)
+    private static void TryDeleteDirectoryLinkOnly(
+        string directory)
     {
         try
         {
@@ -472,14 +638,17 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
                 return;
             }
 
-            Directory.Delete(directory, recursive: false);
+            Directory.Delete(
+                directory,
+                recursive: false);
         }
         catch (Exception ex) when (IsCleanupFailure(ex))
         {
         }
     }
 
-    private static void ClearBlockingDirectoryAttributes(string directory)
+    private static void ClearBlockingDirectoryAttributes(
+        string directory)
     {
         try
         {
@@ -493,20 +662,25 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
                 return;
             }
 
-            FileAttributes attributes = File.GetAttributes(directory);
+            FileAttributes attributes =
+                File.GetAttributes(directory);
+
             FileAttributes cleaned = attributes
                 & ~FileAttributes.ReadOnly
                 & ~FileAttributes.Hidden
                 & ~FileAttributes.System;
 
-            if ((cleaned & FileAttributes.Directory) != FileAttributes.Directory)
+            if ((cleaned & FileAttributes.Directory)
+                != FileAttributes.Directory)
             {
                 cleaned |= FileAttributes.Directory;
             }
 
             if (cleaned != attributes)
             {
-                File.SetAttributes(directory, cleaned);
+                File.SetAttributes(
+                    directory,
+                    cleaned);
             }
         }
         catch (Exception ex) when (IsCleanupFailure(ex))
@@ -514,19 +688,26 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
         }
     }
 
-    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    private static bool
+        HasReparsePointInExistingPathFromVolumeRoot(
+            string candidatePath)
     {
         try
         {
-            string candidate = NormalizeFullPath(candidatePath);
-            string? root = Path.GetPathRoot(candidate);
+            string candidate =
+                NormalizeFullPath(candidatePath);
+
+            string? root =
+                Path.GetPathRoot(candidate);
 
             if (string.IsNullOrWhiteSpace(root))
             {
                 return true;
             }
 
-            return HasReparsePointInExistingPath(candidate, root);
+            return HasReparsePointInExistingPath(
+                candidate,
+                root);
         }
         catch (Exception ex) when (IsCleanupFailure(ex))
         {
@@ -540,10 +721,15 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
     {
         try
         {
-            string candidate = NormalizeFullPath(candidatePath);
-            string root = NormalizeFullPath(rootPath);
+            string candidate =
+                NormalizeFullPath(candidatePath);
 
-            if (!IsSamePathOrChild(candidate, root))
+            string root =
+                NormalizeFullPath(rootPath);
+
+            if (!IsSamePathOrChild(
+                    candidate,
+                    root))
             {
                 return true;
             }
@@ -552,23 +738,33 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
 
             while (true)
             {
-                if ((File.Exists(current) || Directory.Exists(current)) && IsExistingPathReparsePoint(current))
+                if ((File.Exists(current)
+                        || Directory.Exists(current))
+                    && IsExistingPathReparsePoint(current))
                 {
                     return true;
                 }
 
-                if (PathsEqual(current, root))
+                if (PathsEqual(
+                        current,
+                        root))
                 {
                     return false;
                 }
 
-                string? parent = Directory.GetParent(current)?.FullName;
-                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                string? parent =
+                    Directory.GetParent(current)?.FullName;
+
+                if (string.IsNullOrWhiteSpace(parent)
+                    || PathsEqual(
+                        parent,
+                        current))
                 {
                     return true;
                 }
 
-                current = NormalizeFullPath(parent);
+                current =
+                    NormalizeFullPath(parent);
             }
         }
         catch (Exception ex) when (IsCleanupFailure(ex))
@@ -577,16 +773,20 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
         }
     }
 
-    private static bool IsExistingPathReparsePoint(string path)
+    private static bool IsExistingPathReparsePoint(
+        string path)
     {
         try
         {
-            if (!File.Exists(path) && !Directory.Exists(path))
+            if (!File.Exists(path)
+                && !Directory.Exists(path))
             {
                 return false;
             }
 
-            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+            return (File.GetAttributes(path)
+                    & FileAttributes.ReparsePoint)
+                == FileAttributes.ReparsePoint;
         }
         catch (Exception ex) when (IsCleanupFailure(ex))
         {
@@ -598,11 +798,19 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
         string candidatePath,
         string rootPath)
     {
-        string candidate = NormalizeFullPath(candidatePath);
-        string root = NormalizeFullPath(rootPath);
+        string candidate =
+            NormalizeFullPath(candidatePath);
 
-        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
-               || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+        string root =
+            NormalizeFullPath(rootPath);
+
+        return string.Equals(
+                candidate,
+                root,
+                StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(
+                EnsureDirectorySeparatorSuffix(root),
+                StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool PathsEqual(
@@ -615,13 +823,19 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
             StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string NormalizeFullPath(string path)
+    private static string NormalizeFullPath(
+        string path)
     {
-        string fullPath = Path.GetFullPath(path);
-        string? root = Path.GetPathRoot(fullPath);
+        string fullPath =
+            Path.GetFullPath(path);
+
+        string? root =
+            Path.GetPathRoot(fullPath);
 
         if (!string.IsNullOrWhiteSpace(root)
-            && fullPath.Equals(root, StringComparison.OrdinalIgnoreCase))
+            && fullPath.Equals(
+                root,
+                StringComparison.OrdinalIgnoreCase))
         {
             return fullPath;
         }
@@ -631,15 +845,19 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
             Path.AltDirectorySeparatorChar);
     }
 
-    private static string EnsureDirectorySeparatorSuffix(string path)
+    private static string EnsureDirectorySeparatorSuffix(
+        string path)
     {
-        return path.EndsWith(Path.DirectorySeparatorChar)
-               || path.EndsWith(Path.AltDirectorySeparatorChar)
+        return path.EndsWith(
+                Path.DirectorySeparatorChar)
+            || path.EndsWith(
+                Path.AltDirectorySeparatorChar)
             ? path
             : path + Path.DirectorySeparatorChar;
     }
 
-    private static bool IsExpectedAssemblerFailure(Exception ex)
+    private static bool IsExpectedAssemblerFailure(
+        Exception ex)
     {
         return ex is ArgumentException
             or IOException
@@ -650,7 +868,8 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
             or System.Security.SecurityException;
     }
 
-    private static bool IsPathFailure(Exception ex)
+    private static bool IsPathFailure(
+        Exception ex)
     {
         return ex is ArgumentException
             or NotSupportedException
@@ -658,7 +877,8 @@ internal sealed class CueRescueWorkflowAdapter : IDisposable
             or System.Security.SecurityException;
     }
 
-    private static bool IsCleanupFailure(Exception ex)
+    private static bool IsCleanupFailure(
+        Exception ex)
     {
         return ex is IOException
             or UnauthorizedAccessException
@@ -679,31 +899,38 @@ internal sealed record CueRescueWorkflowPrepareResult
     private CueRescueWorkflowPrepareResult(
         bool applied,
         bool isFailed,
-        string? originalInputPath,
         string? effectiveInputPath,
         string? tempDirectoryToCleanup,
         string? detail)
     {
         if (applied && isFailed)
         {
-            throw new ArgumentException("Preparation result cannot be both applied and failed.");
+            throw new ArgumentException(
+                "Preparation result cannot be both applied and failed.");
         }
 
         if (applied)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(originalInputPath);
-            ArgumentException.ThrowIfNullOrWhiteSpace(effectiveInputPath);
+            ArgumentException.ThrowIfNullOrWhiteSpace(
+                effectiveInputPath);
         }
 
         if (isFailed)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(originalInputPath);
-            ArgumentException.ThrowIfNullOrWhiteSpace(detail);
+            ArgumentException.ThrowIfNullOrWhiteSpace(
+                detail);
+        }
+
+        if (!applied
+            && tempDirectoryToCleanup is not null)
+        {
+            throw new ArgumentException(
+                "Only a prepared result can carry a temporary cleanup directory.",
+                nameof(tempDirectoryToCleanup));
         }
 
         Applied = applied;
         IsFailed = isFailed;
-        OriginalInputPath = originalInputPath;
         EffectiveInputPath = effectiveInputPath;
         TempDirectoryToCleanup = tempDirectoryToCleanup;
         Detail = detail;
@@ -713,49 +940,42 @@ internal sealed record CueRescueWorkflowPrepareResult
 
     internal bool IsFailed { get; }
 
-    internal string? OriginalInputPath { get; }
-
     internal string? EffectiveInputPath { get; }
 
     internal string? TempDirectoryToCleanup { get; }
 
     internal string? Detail { get; }
 
-    internal static CueRescueWorkflowPrepareResult NotApplicable(string? inputPath)
+    internal static CueRescueWorkflowPrepareResult
+        NotApplicable()
     {
         return new CueRescueWorkflowPrepareResult(
             false,
             false,
-            inputPath,
-            inputPath,
+            null,
             null,
             null);
     }
 
     internal static CueRescueWorkflowPrepareResult Prepared(
-        string originalInputPath,
         string effectiveInputPath,
-        string? tempDirectoryToCleanup,
-        string? detail)
+        string? tempDirectoryToCleanup)
     {
         return new CueRescueWorkflowPrepareResult(
             true,
             false,
-            originalInputPath,
             effectiveInputPath,
             tempDirectoryToCleanup,
-            detail);
+            null);
     }
 
     internal static CueRescueWorkflowPrepareResult Failed(
-        string originalInputPath,
-        string? detail)
+        string detail)
     {
         return new CueRescueWorkflowPrepareResult(
             false,
             true,
-            originalInputPath,
-            originalInputPath,
+            null,
             null,
             detail);
     }

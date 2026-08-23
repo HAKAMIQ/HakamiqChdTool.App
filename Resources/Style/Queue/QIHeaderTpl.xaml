@@ -2,9 +2,52 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="QItemBase.xaml" />
-        <ResourceDictionary Source="QWShared.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QItemBase.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QWShared.xaml" />
     </ResourceDictionary.MergedDictionaries>
+    <ToolTip x:Key="AppTip.QIHeaderTpl.1"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocQueue_RedumpShowDetailsTooltip}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
+
+    <ToolTip x:Key="AppTip.QIHeaderTpl.2"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocCtx_Remove}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
 
     <DataTemplate x:Key="QueueItemHeaderFieldsTemplate">
         <Grid FlowDirection="{DynamicResource App.FlowDirection}"
@@ -13,11 +56,11 @@
               UseLayoutRounding="True">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                <ColumnDefinition Width="{DynamicResource Grid.Space.4}" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
@@ -26,8 +69,8 @@
                 <Grid FlowDirection="LeftToRight"
                       SnapsToDevicePixels="True"
                       UseLayoutRounding="True">
-                    <Viewbox Width="{DynamicResource Space.18}"
-                             Height="{DynamicResource Space.18}"
+                    <Viewbox Width="{DynamicResource Space.16}"
+                             Height="{DynamicResource Space.16}"
                              HorizontalAlignment="Center"
                              VerticalAlignment="Center"
                              FlowDirection="LeftToRight"
@@ -68,8 +111,8 @@
                         </Path>
                     </Viewbox>
 
-                    <Ellipse Width="{DynamicResource Space.18}"
-                             Height="{DynamicResource Space.18}"
+                    <Ellipse Width="{DynamicResource Space.16}"
+                             Height="{DynamicResource Space.16}"
                              HorizontalAlignment="Center"
                              VerticalAlignment="Center"
                              Stroke="{DynamicResource Brush.Accent}"
@@ -100,21 +143,35 @@
             </Border>
 
             <Grid Grid.Column="2"
-                  Style="{StaticResource FluentQueuePrimaryContentColumn}">
+                  Style="{StaticResource FluentQueuePrimaryContentColumn}"
+                  FlowDirection="LeftToRight">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.2}" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0"
-                           Style="{StaticResource FluentQueuePrimaryFileText}"
-                           Text="{Binding DisplayFileName, Converter={StaticResource BidiTextConverter}, ConverterParameter=FileName}"
-                           ToolTip="{Binding FullPathTooltip, Converter={StaticResource BidiTextConverter}, ConverterParameter=Path}" />
+                <Grid Grid.Row="0"
+                      FlowDirection="LeftToRight"
+                      SnapsToDevicePixels="True"
+                      UseLayoutRounding="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <WrapPanel Grid.Row="2"
-                           Style="{StaticResource FluentQueueMetaStrip}">
-                    <Border Style="{StaticResource FluentQueueStatusPillSpacing}">
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource FluentQueuePrimaryFileText}"
+                               Text="{Binding DisplayFileName, Converter={StaticResource BidiTextConverter}, ConverterParameter=FileName}"
+                               ToolTip="{Binding FullPathTooltip, Converter={StaticResource BidiTextConverter}, ConverterParameter=Path}" />
+
+                    <Border Grid.Column="2"
+                            VerticalAlignment="Center"
+                            FlowDirection="{DynamicResource App.FlowDirection}"
+                            Language="{DynamicResource App.XmlLanguage}"
+                            Style="{StaticResource FluentQueueStatusChipBorder}">
                         <TextBlock MaxWidth="{DynamicResource Queue.StatusChip.MaxWidth}"
                                    Style="{StaticResource FluentQueueStatusChipText}"
                                    Text="{Binding QueueCardBadgeTextIsolated, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
@@ -122,8 +179,15 @@
                                    Typography.NumeralAlignment="Tabular"
                                    Typography.NumeralStyle="Lining" />
                     </Border>
+                </Grid>
 
-                    <Border Style="{StaticResource FluentQueueMetaPillSpacing}">
+                <WrapPanel Grid.Row="2"
+                           HorizontalAlignment="Left"
+                           FlowDirection="LeftToRight"
+                           Style="{StaticResource FluentQueueMetaStrip}">
+                    <Border Style="{StaticResource FluentQueueMetaPillSpacing}"
+                            Background="{DynamicResource Brush.Transparent}"
+                            Padding="{DynamicResource Inset.4.0}">
                         <TextBlock MaxWidth="{DynamicResource Queue.Meta.Format.MaxWidth}"
                                    FlowDirection="LeftToRight"
                                    TextAlignment="Left"
@@ -135,6 +199,8 @@
                     </Border>
 
                     <Border Style="{StaticResource FluentQueueMetaPillSpacing}"
+                            Background="{DynamicResource Brush.Transparent}"
+                            Padding="{DynamicResource Inset.4.0}"
                             Visibility="{Binding HasPlatformBadge, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock MaxWidth="{DynamicResource Queue.Meta.Platform.MaxWidth}"
                                    FlowDirection="LeftToRight"
@@ -147,6 +213,8 @@
                     </Border>
 
                     <Border Style="{StaticResource FluentQueueMetaPillBorder}"
+                            Background="{DynamicResource Brush.Transparent}"
+                            Padding="{DynamicResource Inset.4.0}"
                             Visibility="{Binding HasFileSizeBadge, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock FlowDirection="LeftToRight"
                                    TextAlignment="Left"
@@ -164,7 +232,7 @@
                     Command="{Binding DataContext.ShowRedumpDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                     CommandParameter="{Binding}"
                     AutomationProperties.Name="{DynamicResource LocQueue_RedumpShowDetailsButton}"
-                    ToolTip="{DynamicResource LocQueue_RedumpShowDetailsTooltip}">
+                    ToolTip="{StaticResource AppTip.QIHeaderTpl.1}">
                 <Button.Style>
                     <Style TargetType="{x:Type Button}"
                            BasedOn="{StaticResource FluentQueueRedumpShowButton}">
@@ -232,9 +300,9 @@
                     Command="{Binding DataContext.RemoveQueueItemCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                     CommandParameter="{Binding}"
                     Style="{StaticResource FluentQueueRowIconActionButton}"
-                    Tag="{StaticResource Icon.Close}"
+                    Tag="{StaticResource Icon.Queue.Remove}"
                     AutomationProperties.Name="{DynamicResource LocCtx_Remove}"
-                    ToolTip="{DynamicResource LocCtx_Remove}" />
+                    ToolTip="{StaticResource AppTip.QIHeaderTpl.2}" />
         </Grid>
     </DataTemplate>
 

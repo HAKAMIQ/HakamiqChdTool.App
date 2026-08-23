@@ -1,7 +1,6 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
@@ -27,8 +26,7 @@ public partial class MainWindow
 
         if (item is null ||
             IsQueueInteractionLocked ||
-            !item.CanApplyRedumpSuggestedName ||
-            !_appFeatureService.IsEnabled(AppFeature.StandardNamingSuggestion))
+            !item.CanApplyRedumpSuggestedName)
         {
             return false;
         }
@@ -39,11 +37,6 @@ public partial class MainWindow
     public async Task ApplyRedumpSuggestedNameAsync(TaskQueueItemViewModel? item)
     {
         item ??= TasksDataGrid.SelectedItem as TaskQueueItemViewModel;
-
-        if (!RequireAppFeature(AppFeature.StandardNamingSuggestion))
-        {
-            return;
-        }
 
         if (item is null || !CanApplyRedumpSuggestedName(item))
         {

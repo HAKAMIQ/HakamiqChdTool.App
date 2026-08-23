@@ -6,7 +6,6 @@ using System.Windows.Input;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Ui.Shell;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views.Options;
 using Serilog;
@@ -40,12 +39,9 @@ public partial class OptionsWindow : Window
     private static readonly ILogger Logger = Log.ForContext<OptionsWindow>();
     private HqOptionsShell? _coordinator;
 
-    public OptionsWindow(
-        AppSettings currentSettings,
-        IAppFeatureService appFeatureService)
+    public OptionsWindow(AppSettings currentSettings)
     {
         ArgumentNullException.ThrowIfNull(currentSettings);
-        ArgumentNullException.ThrowIfNull(appFeatureService);
 
         InitializeComponent();
         AppLanguageService.ApplyToWindow(this);
@@ -57,8 +53,7 @@ public partial class OptionsWindow : Window
 
         _coordinator = new HqOptionsShell(
             this,
-            currentSettings,
-            appFeatureService);
+            currentSettings);
 
         _coordinator.Attach();
         RedumpPanel.DownloadDatabaseRequested += _coordinator.DownloadDatabase;
@@ -76,11 +71,9 @@ public partial class OptionsWindow : Window
 
     public AppSettings ResultSettings { get; internal set; }
 
-    public string ActiveTabKey => _coordinator?.ActiveTabKey ?? GeneralTabKey;
+    public string ActiveTabKey => _coordinator?.ActiveTabKey ?? ProcessingTabKey;
 
     public event EventHandler<OptionsAppliedEventArgs>? SettingsApplied;
-
-    internal RadioButton GeneralTabButtonView => GeneralTabButton;
 
     internal RadioButton PathsTabButtonView => PathsTabButton;
 
@@ -91,8 +84,6 @@ public partial class OptionsWindow : Window
     internal RadioButton ExternalToolsTabButtonView => ExternalToolsTabButton;
 
     internal RadioButton PerformanceTabButtonView => PerformanceTabButton;
-
-    internal GeneralSettingsView GeneralPanelView => GeneralPanel;
 
     internal PathsSettingsView PathsPanelView => PathsPanel;
 

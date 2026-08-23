@@ -88,7 +88,6 @@ public sealed partial class OptionsViewModel
             && OrganizeByPlatform == snapshot.OrganizeByPlatform
             && OrganizeByRegion == snapshot.OrganizeByRegion
             && IncludeSubfolders == snapshot.IncludeSubfolders
-            && ShowStorageAdvisorDialog == !snapshot.SuppressStorageAdvisorDialog
             && UseBundledChdman == snapshot.UseBundledChdman
             && StringEquals(ExternalChdmanPath.Trim(), snapshot.ExternalChdmanPath)
             && PortableMode == snapshot.PortableMode

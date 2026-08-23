@@ -6,44 +6,35 @@
              SnapsToDevicePixels="True"
              UseLayoutRounding="True">
 
-    <Border Style="{DynamicResource FluentQueueWorkspaceHeader}">
-        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-              Language="{DynamicResource App.XmlLanguage}"
-              SnapsToDevicePixels="True">
-
+    <Border Style="{DynamicResource FluentQueueWorkspaceHeader}"
+            Padding="{DynamicResource Inset.12.8}">
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0"
-                  MinWidth="0"
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Center"
-                  FlowDirection="{DynamicResource App.FlowDirection}"
-                  Language="{DynamicResource App.XmlLanguage}"
-                  SnapsToDevicePixels="True">
-
+                  VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Width="{DynamicResource Space.40}"
-                        Height="{DynamicResource Space.40}"
+                        Width="{DynamicResource Space.24}"
+                        Height="{DynamicResource Space.24}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Background="{DynamicResource Brush.Accent.Subtle}"
-                        BorderBrush="{DynamicResource Brush.Accent.SelectedBorder}"
+                        Background="{DynamicResource Brush.Layer.Canvas}"
+                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
                         BorderThickness="{DynamicResource Inset.1.All}"
-                        CornerRadius="{DynamicResource Radius.Control}"
-                        SnapsToDevicePixels="True">
+                        CornerRadius="{DynamicResource Radius.Control.Large}">
 
-                    <Viewbox Width="{DynamicResource Space.18}"
-                             Height="{DynamicResource Space.18}"
+                    <Viewbox Width="{DynamicResource Space.16}"
+                             Height="{DynamicResource Space.16}"
                              HorizontalAlignment="Center"
                              VerticalAlignment="Center"
                              FlowDirection="LeftToRight"
@@ -51,35 +42,23 @@
 
                         <Path Data="{StaticResource Icon.DocumentAdd}"
                               Fill="{DynamicResource Brush.Accent.Text}"
-                              Stretch="Uniform"
-                              SnapsToDevicePixels="True" />
+                              Stretch="Uniform" />
                     </Viewbox>
                 </Border>
 
                 <StackPanel Grid.Column="2"
-                            MinWidth="0"
                             Style="{DynamicResource QueueWorkspaceHeaderTextColumn}">
 
                     <TextBlock Style="{DynamicResource QueueWorkspaceHeaderTitleText}"
                                Text="{DynamicResource LocUi_QueueSection_Title}"
-                               TextAlignment="Left"
-                               TextTrimming="CharacterEllipsis"
-                               TextWrapping="NoWrap" />
+                               TextAlignment="Left" />
 
-                    <TextBlock Style="{DynamicResource QueueWorkspaceHeaderSubtitleText}"
-                               Text="{DynamicResource LocUi_QueueSection_Subtitle}"
-                               TextAlignment="Left"
-                               TextTrimming="CharacterEllipsis"
-                               TextWrapping="NoWrap" />
                 </StackPanel>
             </Grid>
 
             <Grid Grid.Column="2"
                   HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  FlowDirection="{DynamicResource App.FlowDirection}"
-                  Language="{DynamicResource App.XmlLanguage}"
-                  SnapsToDevicePixels="True">
+                  VerticalAlignment="Center">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -90,13 +69,12 @@
                 <Button Grid.Column="0"
                         Command="{Binding SelectFilesCommand}"
                         IsEnabled="{Binding IsShellEnabled}"
+                        MinWidth="96"
+                        MinHeight="32"
                         Style="{DynamicResource QueueWorkspaceToolButton}"
                         AutomationProperties.Name="{DynamicResource LocUi_Hub_AddFiles}">
 
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          SnapsToDevicePixels="True">
-
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
@@ -113,29 +91,25 @@
 
                             <Path Data="{StaticResource Icon.DocumentAdd}"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                                  Stretch="Uniform"
-                                  SnapsToDevicePixels="True" />
+                                  Stretch="Uniform" />
                         </Viewbox>
 
                         <TextBlock Grid.Column="2"
                                    Style="{DynamicResource QueueWorkspaceCommandText}"
                                    Text="{DynamicResource LocUi_Hub_AddFiles}"
-                                   TextAlignment="Left"
-                                   TextTrimming="CharacterEllipsis"
-                                   TextWrapping="NoWrap" />
+                                   TextAlignment="Left" />
                     </Grid>
                 </Button>
 
                 <Button Grid.Column="2"
                         Command="{Binding SelectFolderCommand}"
                         IsEnabled="{Binding IsShellEnabled}"
+                        MinWidth="96"
+                        MinHeight="32"
                         Style="{DynamicResource QueueWorkspaceToolButton}"
                         AutomationProperties.Name="{DynamicResource LocUi_Hub_AddFolder}">
 
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          SnapsToDevicePixels="True">
-
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
@@ -152,16 +126,13 @@
 
                             <Path Data="{StaticResource Icon.FolderAdd}"
                                   Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                                  Stretch="Uniform"
-                                  SnapsToDevicePixels="True" />
+                                  Stretch="Uniform" />
                         </Viewbox>
 
                         <TextBlock Grid.Column="2"
                                    Style="{DynamicResource QueueWorkspaceCommandText}"
                                    Text="{DynamicResource LocUi_Hub_AddFolder}"
-                                   TextAlignment="Left"
-                                   TextTrimming="CharacterEllipsis"
-                                   TextWrapping="NoWrap" />
+                                   TextAlignment="Left" />
                     </Grid>
                 </Button>
             </Grid>

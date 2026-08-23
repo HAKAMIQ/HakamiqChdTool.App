@@ -116,8 +116,4 @@ internal static class WorkflowPendingPathPolicy
         return minimum + ((maximum - minimum) * ratio);
     }
 
-    public static string DetermineRequestedAction(string path) =>
-        QueueItemOperationCatalog.GetInitialRequestedAction(path);
-
-
 }

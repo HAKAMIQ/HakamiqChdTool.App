@@ -26,7 +26,8 @@ public sealed class ChdInfoService
         string chdmanPath,
         string chdFilePath,
         Action<int>? onProcessStarted = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        bool callerHoldsExclusiveFileLease = false)
     {
         if (string.IsNullOrWhiteSpace(chdmanPath))
         {
@@ -79,7 +80,9 @@ public sealed class ChdInfoService
                     progress: null,
                     onProcessStarted,
                     cancellationToken,
-                    exclusiveFileAccessPath: resolvedChdPath)
+                    exclusiveFileAccessPath: callerHoldsExclusiveFileLease
+                        ? null
+                        : resolvedChdPath)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -125,6 +128,8 @@ public sealed class ChdInfoService
 
         string combined = $"{output}{Environment.NewLine}{error}";
         long? logicalBytes = TryParseLogicalBytes(combined);
+        string sha1 = TryParseSha1Digest(combined, "SHA1");
+        string dataSha1 = TryParseSha1Digest(combined, "Data SHA1");
 
         const bool logicalProbeAvailable = false;
         const bool logicalProbeSucceeded = false;
@@ -170,6 +175,8 @@ public sealed class ChdInfoService
         logBuilder.AppendLine($"ExitCode: {run.ExitCode}");
         logBuilder.AppendLine($"MediaType (metadata): {metadataType}");
         logBuilder.AppendLine($"MediaType (resolved): {mediaType}");
+        logBuilder.AppendLine($"SHA1: {(string.IsNullOrWhiteSpace(sha1) ? "unknown" : sha1)}");
+        logBuilder.AppendLine($"DataSHA1: {(string.IsNullOrWhiteSpace(dataSha1) ? "unknown" : dataSha1)}");
         logBuilder.AppendLine($"LogicalBytes: {(logicalBytes.HasValue ? logicalBytes.Value.ToString(CultureInfo.InvariantCulture) : "unknown")}");
         logBuilder.AppendLine($"LogicalProbeAvailable: {logicalProbeAvailable}");
         logBuilder.AppendLine($"LogicalProbeSucceeded: {logicalProbeSucceeded}");
@@ -203,6 +210,8 @@ public sealed class ChdInfoService
             WasCancelled = run.WasCancelled,
             ExitCode = run.ExitCode,
             MediaType = mediaType,
+            Sha1 = sha1,
+            DataSha1 = dataSha1,
             LogicalBytes = logicalBytes,
             PhysicalBytes = null,
             HunkBytes = null,
@@ -217,6 +226,58 @@ public sealed class ChdInfoService
             Message = success ? InfoReadSuccessMessageKey : InfoReadFailedMessageKey,
             LogPath = logPath
         };
+    }
+
+    private static string TryParseSha1Digest(string text, string label)
+    {
+        if (string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(label))
+        {
+            return string.Empty;
+        }
+
+        string prefix = label.Trim() + ":";
+
+        foreach (string rawLine in text.Split(LineSeparators, StringSplitOptions.RemoveEmptyEntries))
+        {
+            string line = rawLine.Trim();
+            if (!line.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string candidate = line[prefix.Length..].Trim();
+            int separator = candidate.IndexOfAny([' ', '\t']);
+            if (separator >= 0)
+            {
+                candidate = candidate[..separator];
+            }
+
+            if (candidate.Length != 40 || !IsHexDigest(candidate))
+            {
+                return string.Empty;
+            }
+
+            return candidate.ToLowerInvariant();
+        }
+
+        return string.Empty;
+    }
+
+    private static bool IsHexDigest(string value)
+    {
+        foreach (char ch in value)
+        {
+            bool isHex = ch is >= '0' and <= '9'
+                or >= 'a' and <= 'f'
+                or >= 'A' and <= 'F';
+
+            if (!isHex)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static long? TryParseLogicalBytes(string text)
@@ -345,7 +406,14 @@ public sealed class ChdInfoService
             return "CD-ROM";
         }
 
-        if (ContainsAny(line, "dvd-rom", "dvdrom", "dvdi", "dvdt"))
+        if (ContainsAny(
+                line,
+                "dvd-rom",
+                "dvdrom",
+                "dvdi",
+                "dvdt",
+                "Tag='DVD '",
+                "Tag=\"DVD \""))
         {
             return "DVD-ROM";
         }

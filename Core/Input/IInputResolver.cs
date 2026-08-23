@@ -5,7 +5,7 @@ namespace HakamiqChdTool.App.Core.Input;
 
 public interface IInputResolver
 {
-    IEnumerable<string> Resolve(string path);
-
-    IEnumerable<string> Resolve(string path, SearchOption searchOption);
+    IEnumerable<string> Resolve(
+        string path,
+        SearchOption searchOption);
 }

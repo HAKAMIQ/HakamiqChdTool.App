@@ -3,8 +3,8 @@
                     xmlns:input="clr-namespace:System.Windows.Input;assembly=PresentationCore">
 
     <Style x:Key="FluentQueueTaskRowCard" TargetType="{x:Type Border}">
-        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.8}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.12.10}" />
+        <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.4}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.8.6}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
@@ -14,6 +14,16 @@
         <Setter Property="UseLayoutRounding" Value="True" />
 
         <Style.Triggers>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding IsRedumpOperationActive}" Value="True" />
+                    <Condition Binding="{Binding DataContext.IsRedumpFeatureVisible, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Rest}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.QueueSurface}" />
+                <Setter Property="Margin" Value="{DynamicResource Inset.0.0.0.8}" />
+            </MultiDataTrigger>
             <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
                 <Setter Property="Background" Value="{DynamicResource Brush.Control.Fill.Hover}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Strong}" />
@@ -21,11 +31,11 @@
 
             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
                 <Setter Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent.SelectedBorder}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
             </DataTrigger>
 
             <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Focus}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
             </DataTrigger>
         </Style.Triggers>
     </Style>
@@ -99,8 +109,8 @@
     </Style>
 
     <Style x:Key="FluentQueueStatusChipBorder" TargetType="{x:Type Border}">
-        <Setter Property="Padding" Value="{DynamicResource Inset.10.5}" />
-        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Pill}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.4.2}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
         <Setter Property="Background" Value="{DynamicResource NeutralBadgeBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
@@ -172,7 +182,7 @@
 
     <Style x:Key="FluentQueueStatusChipText" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.CaptionSmall}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         <Setter Property="Foreground" Value="{DynamicResource NeutralBadgeForegroundBrush}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
@@ -251,11 +261,12 @@
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-        <Setter Property="Padding" Value="{DynamicResource Inset.10.6}" />
+        <Setter Property="Padding" Value="{DynamicResource Inset.10.4}" />
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Base}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
         <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-        <Setter Property="MinWidth" Value="{DynamicResource Space.68}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Space.64}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.28}" />
         <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="ToolTipService.ShowDuration" Value="{DynamicResource ToolTip.ShowDuration.Long}" />
@@ -344,7 +355,7 @@
     <Style x:Key="FluentDataGridRow" TargetType="{x:Type DataGridRow}">
         <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
         <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
-        <Setter Property="MinHeight" Value="{DynamicResource Space.72}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Space.56}" />
         <Setter Property="Margin" Value="{DynamicResource Inset.None}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
         <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />

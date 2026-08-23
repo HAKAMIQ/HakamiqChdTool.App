@@ -258,6 +258,7 @@ function Assert-SourcePackageLayout {
         'scripts\Verify-Local.ps1',
         'scripts\VerifyRepo.ps1',
         'scripts\VerifyRelease.ps1',
+        'scripts\ScanReleaseDefender.ps1',
         'scripts\RelOutGate.ps1',
         'scripts\PackRel.ps1',
         'scripts\GenManifest.ps1',
@@ -278,16 +279,23 @@ function Invoke-SourceArchiveGate {
     New-Item -ItemType Directory -Path $sourceCandidatePath -Force | Out-Null
 
     try {
-        Write-Info 'Creating temporary source package candidate from Git-managed files ...'
+        Write-Info 'Creating temporary source package candidate from tracked Git files ...'
 
-        $fileList = & git ls-files --cached --others --exclude-standard
+        $fileList = & git ls-files --cached
         if ($LASTEXITCODE -ne 0) {
-            throw 'git ls-files failed while preparing source package candidate.'
+            throw 'git ls-files failed while preparing tracked source package candidate.'
         }
 
-        $relativeFiles = @($fileList | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique)
+        $requiredWorkingTreeFiles = @(
+            'scripts/ScanReleaseDefender.ps1'
+        )
+        $relativeFiles = @(
+            $fileList + $requiredWorkingTreeFiles |
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+                Sort-Object -Unique
+        )
         if ($relativeFiles.Count -eq 0) {
-            throw 'No Git-managed source files were found.'
+            throw 'No tracked source files were found.'
         }
 
         foreach ($relativePath in $relativeFiles) {
@@ -301,7 +309,7 @@ function Invoke-SourceArchiveGate {
             $destinationDirectory = Split-Path -Parent $destinationPath
 
             if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
-                throw "Git-managed source file was not found on disk: $normalizedRelativePath"
+                throw "Tracked source file was not found on disk: $normalizedRelativePath"
             }
 
             New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null

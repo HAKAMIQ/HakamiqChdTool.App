@@ -1,20 +1,46 @@
 [CmdletBinding()]
 param(
-    [string]$LockFile = (Join-Path $PSScriptRoot '..\packages.lock.json'),
-    [string]$OutputPath = (Join-Path $PSScriptRoot '..\docs\sbom.cdx.json')
+    [string]$LockFile,
+    [string]$OutputPath
 )
 
 $ErrorActionPreference = 'Stop'
+
+if ([string]::IsNullOrWhiteSpace($LockFile)) {
+    $LockFile = Join-Path $PSScriptRoot '..\packages.lock.json'
+}
+if ([string]::IsNullOrWhiteSpace($OutputPath)) {
+    $OutputPath = Join-Path $PSScriptRoot '..\docs\sbom.cdx.json'
+}
 
 $resolvedLockFile = [System.IO.Path]::GetFullPath($LockFile)
 $resolvedOutputPath = [System.IO.Path]::GetFullPath($OutputPath)
 $repositoryRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 
+$applicationProject = Join-Path $repositoryRoot 'HakamiqChdTool.App.csproj'
+
+if (-not (Test-Path -LiteralPath $applicationProject -PathType Leaf)) {
+    throw "Application project file was not found: $applicationProject"
+}
+
+[xml] $applicationProjectXml = Get-Content -LiteralPath $applicationProject -Raw
+$applicationVersionNodes = @($applicationProjectXml.SelectNodes('/Project/PropertyGroup/Version'))
+
+if ($applicationVersionNodes.Count -ne 1) {
+    throw "Application project must declare exactly one Version property."
+}
+
+$applicationVersion = $applicationVersionNodes[0].InnerText.Trim()
+
+if ([string]::IsNullOrWhiteSpace($applicationVersion)) {
+    throw "Application Version property must not be empty."
+}
+
 if (-not (Test-Path -LiteralPath $resolvedLockFile -PathType Leaf)) {
     throw "NuGet lock file was not found: $resolvedLockFile"
 }
 
-$lock = Get-Content -LiteralPath $resolvedLockFile -Raw | ConvertFrom-Json -Depth 100
+$lock = Get-Content -LiteralPath $resolvedLockFile -Raw | ConvertFrom-Json
 $target = $lock.dependencies.PSObject.Properties | Select-Object -First 1
 if ($null -eq $target) {
     throw 'NuGet lock file does not contain a target framework.'
@@ -22,7 +48,7 @@ if ($null -eq $target) {
 
 function Convert-Base64Sha512ToHex([string]$Value) {
     $bytes = [Convert]::FromBase64String($Value)
-    return [Convert]::ToHexString($bytes)
+    return ([BitConverter]::ToString($bytes)).Replace('-', '')
 }
 
 function New-PackageUrl([string]$Name, [string]$Version) {
@@ -68,8 +94,9 @@ foreach ($packageProperty in ($target.Value.PSObject.Properties | Sort-Object Na
     }
 
     $dependsOn = [System.Collections.Generic.List[string]]::new()
-    if ($null -ne $package.dependencies) {
-        foreach ($dependencyProperty in ($package.dependencies.PSObject.Properties | Sort-Object Name)) {
+    $dependenciesProperty = $package.PSObject.Properties['dependencies']
+    if ($null -ne $dependenciesProperty -and $null -ne $dependenciesProperty.Value) {
+        foreach ($dependencyProperty in ($dependenciesProperty.Value.PSObject.Properties | Sort-Object Name)) {
             $resolvedDependency = $target.Value.PSObject.Properties[$dependencyProperty.Name]
             if ($null -ne $resolvedDependency) {
                 $dependsOn.Add((New-PackageUrl $dependencyProperty.Name ([string]$resolvedDependency.Value.resolved)))
@@ -133,16 +160,18 @@ $bundledTools = @(
 foreach ($tool in $bundledTools) {
     $components.Add($tool)
     $rootDependencies.Add([string]$tool.'bom-ref')
-    $toolDependencies = if ([string]$tool.'bom-ref' -eq 'pkg:generic/csokit@0.6.1') {
-        @('pkg:generic/csokit-native@0.6.1')
+    [string[]]$toolDependencies = @()
+    if ([string]$tool.'bom-ref' -eq 'pkg:generic/csokit@0.6.1') {
+        $toolDependencies = @('pkg:generic/csokit-native@0.6.1')
     }
-    else {
-        @()
-    }
-    $dependencyGraph.Add([ordered]@{ ref = [string]$tool.'bom-ref'; dependsOn = $toolDependencies })
+
+    $dependencyGraph.Add([ordered]@{
+        ref = [string]$tool.'bom-ref'
+        dependsOn = @($toolDependencies)
+    })
 }
 
-$applicationRef = 'pkg:generic/hakamiq-chd-tool@1.2.1'
+$applicationRef = "pkg:generic/hakamiq-chd-tool@$applicationVersion"
 $dependencyGraph.Insert(0, [ordered]@{
     ref = $applicationRef
     dependsOn = @($rootDependencies | Sort-Object -Unique)
@@ -168,7 +197,7 @@ $bom = [ordered]@{
             type = 'application'
             'bom-ref' = $applicationRef
             name = 'Hakamiq CHD Tool'
-            version = '1.2.1'
+            version = $applicationVersion
             licenses = @([ordered]@{ license = [ordered]@{ id = 'MIT' } })
         }
     }

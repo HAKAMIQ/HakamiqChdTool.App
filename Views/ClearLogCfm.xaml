@@ -13,7 +13,7 @@
         ShowInTaskbar="False"
         FlowDirection="{DynamicResource App.FlowDirection}"
         Language="{DynamicResource App.XmlLanguage}"
-        Icon="pack://application:,,,/Resources/HakamiqLogo.ico"
+        Icon="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.ico"
         Background="{DynamicResource Brush.Layer.Canvas}"
         Foreground="{DynamicResource Brush.Text.Primary}"
         FontFamily="{DynamicResource FontFamily.Text}"
@@ -23,8 +23,29 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/OptsStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <ToolTip x:Key="AppTip.ClearLogCfm.1"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocCommon_Close}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
 
             <Style x:Key="ClearTaskLogDialog.RootFrame"
                    TargetType="{x:Type Border}">
@@ -82,6 +103,8 @@
                         Value="{DynamicResource Inset.1.All}" />
                 <Setter Property="CornerRadius"
                         Value="{DynamicResource Radius.Card}" />
+                <Setter Property="ClipToBounds"
+                        Value="True" />
                 <Setter Property="Padding"
                         Value="{DynamicResource Inset.16.All}" />
                 <Setter Property="HorizontalAlignment"
@@ -191,7 +214,7 @@
                             Padding="{DynamicResource Inset.None}"
                             VerticalAlignment="Center"
                             Style="{StaticResource HeaderIconButtonStyle}"
-                            ToolTip="{DynamicResource LocCommon_Close}"
+                            ToolTip="{StaticResource AppTip.ClearLogCfm.1}"
                             AutomationProperties.Name="{DynamicResource LocCommon_Close}"
                             Click="CancelButton_Click"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -253,7 +276,10 @@
 
                     <Button x:Name="CancelButton"
                             Grid.Column="1"
-                            MinWidth="{DynamicResource Space.96}"
+                            Padding="{DynamicResource Inset.12.8}"
+                            MinHeight="{DynamicResource Space.40}"
+                            MaxWidth="136"
+                            MinWidth="104"
                             Content="{Binding CancelText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding CancelText, Mode=OneWay}"
                             IsCancel="True"
@@ -262,7 +288,10 @@
 
                     <Button x:Name="ConfirmButton"
                             Grid.Column="3"
-                            MinWidth="{DynamicResource Space.112}"
+                            Padding="{DynamicResource Inset.12.8}"
+                            MinHeight="{DynamicResource Space.40}"
+                            MaxWidth="136"
+                            MinWidth="104"
                             Content="{Binding ConfirmText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding ConfirmText, Mode=OneWay}"
                             Style="{StaticResource DangerButtonStyle}"

@@ -2,7 +2,6 @@ using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.ViewModels.Virtualization;
@@ -397,11 +396,6 @@ public partial class MainWindow
         item ??= TasksDataGrid.SelectedItem as TaskQueueItemViewModel;
 
         if (item is null || IsQueueInteractionLocked)
-        {
-            return;
-        }
-
-        if (!RequireAppFeature(AppFeature.AdvancedQueue))
         {
             return;
         }

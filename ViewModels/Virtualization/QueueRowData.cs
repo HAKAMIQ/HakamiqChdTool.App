@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Conversion;
 using System;
 
@@ -20,6 +21,7 @@ public sealed class QueueRowData
     public string ConsoleIdentityReason { get; set; } = string.Empty;
     public string RequestedAction { get; set; } = string.Empty;
     public QueueExecutionProfile ExecutionProfile { get; set; } = QueueExecutionProfile.Standard;
+    internal QueueOperationMode OperationIntent { get; init; } = QueueOperationMode.None;
     public QueueIntakeSource IntakeSource { get; set; } = QueueIntakeSource.UserInitiatedAdd;
 
     public string CurrentState { get; set; } = TaskQueueStateCodes.Pending;
@@ -29,6 +31,15 @@ public sealed class QueueRowData
     public double Progress { get; set; }
     public bool IsIndeterminate { get; set; }
     public bool IsProgressActive { get; set; }
+
+    public RedumpOperationState RedumpState { get; set; } = RedumpOperationState.Idle;
+    public double RedumpProgress { get; set; }
+    public bool RedumpIsIndeterminate { get; set; }
+    public string RedumpStatusText { get; set; } = string.Empty;
+    public long RedumpCurrentBytes { get; set; }
+    public long RedumpTotalBytes { get; set; }
+    public double RedumpBytesPerSecond { get; set; }
+    public long RedumpEtaTicks { get; set; }
 
     public QueueRuntimeProgressKind RuntimeProgressKind { get; set; } = QueueRuntimeProgressKind.None;
     public string RuntimeProgressPrimaryMessageKey { get; set; } = string.Empty;

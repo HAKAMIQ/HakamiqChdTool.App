@@ -17,6 +17,9 @@ If you only want to convert a few files, start with the root README. Come here w
 - [chdman integration](CHDMAN.md) — how the app prepares and runs chdman without exposing command lines to normal users.
 - [Architecture](ARCHITECTURE.md) — current app structure and boundaries.
 - [Architecture boundaries](architecture/ARCH_BOUND.md) — the current decision around `Core/Workflow`.
+- [Security assurance status](security/SECURITY_ASSURANCE.md) — implemented controls, verified evidence, and remaining external assurance work.
+- [Independent audit scope](security/INDEPENDENT_AUDIT_SCOPE.md) — trust boundaries, attack classes, deliverables, and exit criteria for an external review.
+- [CHD/CSO corpus guide](security/CORPUS_GUIDE.md) — bounded validation against user-owned real media kept outside the repository.
 
 ## Release and legal
 

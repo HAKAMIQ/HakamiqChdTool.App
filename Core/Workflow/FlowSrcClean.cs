@@ -170,7 +170,7 @@ internal sealed partial class WorkflowSourceCleanupPipeline
 
         string extension = Path.GetExtension(sourcePath).ToLowerInvariant();
 
-        if (extension is ".zip" or ".rar" or ".7z" or ".iso" or ".nrg")
+        if (extension is ".zip" or ".rar" or ".7z" or ".iso" or ".cso" or ".nrg")
         {
             return SingleFileCandidate(sourcePath);
         }

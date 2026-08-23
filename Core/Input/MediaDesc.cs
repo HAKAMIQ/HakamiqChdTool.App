@@ -12,16 +12,4 @@ public sealed record MediaInputDescriptor(
     MediaInputProbeStatus ProbeStatus = MediaInputProbeStatus.NotRequired)
 {
     public bool IsFile => Exists && !IsDirectory;
-
-    public bool IsKnownDiscFileKind => Kind is MediaInputKind.ISO
-        or MediaInputKind.CHD
-        or MediaInputKind.CSO
-        or MediaInputKind.CUE
-        or MediaInputKind.BIN
-        or MediaInputKind.GDI;
-
-    public bool IsKnownContainerKind => Kind is MediaInputKind.Folder or MediaInputKind.PKG;
-
-    public bool HasConfirmedHeaderEvidence => ProbeStatus is MediaInputProbeStatus.MagicConfirmed
-        or MediaInputProbeStatus.HeaderEnvelopeValid;
 }

@@ -1,9 +1,12 @@
 using HakamiqChdTool.App.Core.Queue;
+using HakamiqChdTool.App.Core.Workflow.Extraction;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace HakamiqChdTool.App.Core.Workflow;
 
@@ -104,9 +107,14 @@ internal sealed class WorkflowCleanupStage(
                 return;
             }
 
-            CleanupStats failedCleanup = _cleanup.DeleteFiles(
-                failedOutputCandidate,
-                Path.ChangeExtension(failedOutputCandidate, ".sbi"));
+            CleanupStats failedCleanup = string.Equals(
+                    Path.GetExtension(failedOutputCandidate),
+                    ".cue",
+                    StringComparison.OrdinalIgnoreCase)
+                ? TryDeleteFailedCueBinBundle(failedOutputCandidate)
+                : _cleanup.DeleteFiles(
+                    failedOutputCandidate,
+                    Path.ChangeExtension(failedOutputCandidate, ".sbi"));
 
             sink.AddCleanupDeletedBytes(failedCleanup.DeletedBytes);
 
@@ -121,6 +129,189 @@ internal sealed class WorkflowCleanupStage(
                 ex,
                 "Cleanup: failed-output cleanup was skipped after a non-fatal cleanup error. FailedOutputCandidate={FailedOutputCandidate}",
                 failedOutputCandidate);
+        }
+    }
+
+
+    internal static CleanupStats TryDeleteFailedCueBinBundle(string cuePath)
+    {
+        if (string.IsNullOrWhiteSpace(cuePath)
+            || !string.Equals(Path.GetExtension(cuePath), ".cue", StringComparison.OrdinalIgnoreCase)
+            || !File.Exists(cuePath))
+        {
+            return CleanupStats.Empty;
+        }
+
+        var validator = new ExtractionOutputBundleValidator();
+        if (!validator.TryValidateExistingFinal(
+                ExtractionOutputKind.CueBinBundle,
+                cuePath,
+                out ExtractionOutputBundle bundle,
+                out _)
+            || !TryBuildSafeCueBinCleanupSet(cuePath, bundle.FilePaths, out string[] cleanupPaths))
+        {
+            return CleanupStats.Empty;
+        }
+
+        long deletedBytes = 0;
+        int deletedFiles = 0;
+        string fullCuePath = Path.GetFullPath(cuePath);
+
+        foreach (string dependencyPath in cleanupPaths
+                     .Where(path => !WorkflowPathUtilities.PathsEqual(path, fullCuePath))
+                     .OrderByDescending(static path => path.Length))
+        {
+            if (!TryDeleteKnownFailedOutputFile(dependencyPath, out long length))
+            {
+                return new CleanupStats(deletedBytes, deletedFiles);
+            }
+
+            deletedBytes += length;
+            deletedFiles++;
+        }
+
+        if (!TryDeleteKnownFailedOutputFile(fullCuePath, out long cueLength))
+        {
+            return new CleanupStats(deletedBytes, deletedFiles);
+        }
+
+        deletedBytes += cueLength;
+        deletedFiles++;
+
+        string sbiPath = Path.ChangeExtension(fullCuePath, ".sbi");
+        string cueDirectory = Path.GetDirectoryName(fullCuePath)!;
+        if (File.Exists(sbiPath)
+            && IsSafeFailedOutputCleanupPath(cueDirectory, sbiPath)
+            && TryDeleteKnownFailedOutputFile(sbiPath, out long sbiLength))
+        {
+            deletedBytes += sbiLength;
+            deletedFiles++;
+        }
+
+        return new CleanupStats(deletedBytes, deletedFiles);
+    }
+
+    private static bool TryBuildSafeCueBinCleanupSet(
+        string cuePath,
+        IReadOnlyList<string> bundlePaths,
+        out string[] cleanupPaths)
+    {
+        cleanupPaths = [];
+
+        try
+        {
+            string fullCuePath = Path.GetFullPath(cuePath);
+            string? cueDirectory = Path.GetDirectoryName(fullCuePath);
+            if (string.IsNullOrWhiteSpace(cueDirectory)
+                || HasReparsePointInExistingPath(cueDirectory, cueDirectory))
+            {
+                return false;
+            }
+
+            string[] materialized =
+            [
+                .. bundlePaths
+                    .Where(static path => !string.IsNullOrWhiteSpace(path))
+                    .Select(Path.GetFullPath)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+            ];
+
+            if (materialized.Length < 2
+                || !materialized.Any(path => WorkflowPathUtilities.PathsEqual(path, fullCuePath))
+                || materialized.Any(path => !IsSafeFailedOutputCleanupPath(cueDirectory, path)))
+            {
+                return false;
+            }
+
+            cleanupPaths = materialized;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedCleanupStageException(ex))
+        {
+            cleanupPaths = [];
+            return false;
+        }
+    }
+
+    private static bool IsSafeFailedOutputCleanupPath(string cueDirectory, string candidatePath)
+    {
+        try
+        {
+            string root = Path.GetFullPath(cueDirectory);
+            string candidate = Path.GetFullPath(candidatePath);
+            string rootWithSeparator = Path.EndsInDirectorySeparator(root)
+                ? root
+                : root + Path.DirectorySeparatorChar;
+
+            return candidate.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase)
+                && File.Exists(candidate)
+                && !Directory.Exists(candidate)
+                && !HasReparsePointInExistingPath(candidate, root);
+        }
+        catch (Exception ex) when (IsExpectedCleanupStageException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    {
+        try
+        {
+            string candidate = Path.GetFullPath(candidatePath);
+            string root = Path.GetFullPath(rootPath);
+            string current = File.Exists(candidate) || Directory.Exists(candidate)
+                ? candidate
+                : Path.GetDirectoryName(candidate) ?? candidate;
+
+            while (true)
+            {
+                if ((File.Exists(current) || Directory.Exists(current))
+                    && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+                {
+                    return true;
+                }
+
+                if (WorkflowPathUtilities.PathsEqual(current, root))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent)
+                    || WorkflowPathUtilities.PathsEqual(parent, current))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedCleanupStageException(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool TryDeleteKnownFailedOutputFile(string path, out long length)
+    {
+        length = 0;
+
+        try
+        {
+            if (!File.Exists(path)
+                || (File.GetAttributes(path) & (FileAttributes.Directory | FileAttributes.ReparsePoint)) != 0)
+            {
+                return false;
+            }
+
+            length = new FileInfo(path).Length;
+            File.Delete(path);
+            return !File.Exists(path);
+        }
+        catch (Exception ex) when (IsExpectedCleanupStageException(ex))
+        {
+            return false;
         }
     }
 

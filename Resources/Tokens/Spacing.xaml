@@ -138,6 +138,7 @@
     <Thickness x:Key="Inset.0.0.0.16">0,0,0,16</Thickness>
     <Thickness x:Key="Inset.0.0.0.18">0,0,0,18</Thickness>
     <Thickness x:Key="Inset.0.0.0.24">0,0,0,24</Thickness>
+    <Thickness x:Key="Inset.0.0.4.0">0,0,4,0</Thickness>
     <Thickness x:Key="Inset.0.0.6.0">0,0,6,0</Thickness>
     <Thickness x:Key="Inset.0.0.12.0">0,0,12,0</Thickness>
     <Thickness x:Key="Inset.0.0.14.0">0,0,14,0</Thickness>
@@ -190,11 +191,13 @@
     <Thickness x:Key="Inset.16.0.16.0">16,0,16,0</Thickness>
     <Thickness x:Key="Inset.18.0.0.0">18,0,0,0</Thickness>
     <Thickness x:Key="Inset.34.0">34,0</Thickness>
+    <Thickness x:Key="Inset.4.0">4,0</Thickness>
 
     <Thickness x:Key="Inset.7.3">7,3</Thickness>
     <Thickness x:Key="Inset.4.2">4,2</Thickness>
     <Thickness x:Key="Inset.8.4">8,4</Thickness>
     <Thickness x:Key="Inset.8.6">8,6</Thickness>
+    <Thickness x:Key="Inset.10.4">10,4</Thickness>
     <Thickness x:Key="Inset.10.5">10,5</Thickness>
     <Thickness x:Key="Inset.10.6">10,6</Thickness>
     <Thickness x:Key="Inset.10.8">10,8</Thickness>
@@ -212,6 +215,7 @@
     <Thickness x:Key="Inset.20.12">20,12</Thickness>
     <Thickness x:Key="Inset.20.16">20,16</Thickness>
 
+    <Thickness x:Key="Inset.8.8.16.8">8,8,16,8</Thickness>
     <Thickness x:Key="Inset.10.8.10.8">10,8,10,8</Thickness>
     <Thickness x:Key="Inset.10.8.10.10">10,8,10,10</Thickness>
     <Thickness x:Key="Inset.12.12.10.12">12,12,10,12</Thickness>
@@ -246,10 +250,10 @@
     <sys:Double x:Key="Footer.Phase.MaxWidth">220</sys:Double>
     <sys:Double x:Key="Footer.Settings.MaxWidth">180</sys:Double>
 
-    <sys:Double x:Key="Window.About.Width">520</sys:Double>
-    <sys:Double x:Key="Window.About.Height">250</sys:Double>
-    <sys:Double x:Key="Window.About.MinWidth">500</sys:Double>
-    <sys:Double x:Key="Window.About.MinHeight">235</sys:Double>
+    <sys:Double x:Key="Window.About.Width">640</sys:Double>
+    <sys:Double x:Key="Window.About.Height">600</sys:Double>
+    <sys:Double x:Key="Window.About.MinWidth">600</sys:Double>
+    <sys:Double x:Key="Window.About.MinHeight">560</sys:Double>
     <sys:Double x:Key="Window.Options.Width">1000</sys:Double>
     <sys:Double x:Key="Window.Options.Height">760</sys:Double>
     <sys:Double x:Key="Window.Options.MinWidth">960</sys:Double>
@@ -260,7 +264,7 @@
     <sys:Double x:Key="Window.Rename.MaxHeight">520</sys:Double>
     <sys:Double x:Key="Window.Rename.ContentMaxHeight">320</sys:Double>
     <sys:Double x:Key="Layout.Rename.FileNameMaxHeight">96</sys:Double>
-    <sys:Int32 x:Key="Layout.About.LinkColumns">2</sys:Int32>
+    <sys:Int32 x:Key="Layout.About.LinkColumns">3</sys:Int32>
     <sys:Int32 x:Key="Panel.ZIndex.Overlay">2</sys:Int32>
 
     <sys:Double x:Key="Progress.Minimum">0</sys:Double>

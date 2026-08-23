@@ -8,7 +8,6 @@ using System.Text;
 namespace HakamiqChdTool.App.Services;
 
 internal readonly record struct DiscRawSerialProbeResult(
-    bool Success,
     string Platform,
     string Region,
     string Serial,
@@ -21,27 +20,43 @@ internal static class DiscRawSerialProbe
     private const int SerialScanOverlapChars = 128;
     private const int MaxDescriptorBytes = 1024 * 1024;
 
-    private const string NoResultReasonKey = "LocDiscRawProbe_NoResult";
-    private const string RawSerialDetectedReasonKey = "LocDiscRawProbe_RawSerialDetected";
+    private const string NoResultReasonKey =
+        "LocDiscRawProbe_NoResult";
 
-    public static bool TryDetectRegion(string? path, out string region)
+    private const string RawSerialDetectedReasonKey =
+        "LocDiscRawProbe_RawSerialDetected";
+
+    public static bool TryDetectRegion(
+        string? path,
+        out string region)
     {
         region = string.Empty;
 
-        if (!TryProbe(path, out DiscRawSerialProbeResult result))
+        if (!TryProbe(
+                path,
+                out DiscRawSerialProbeResult result))
         {
             return false;
         }
 
         region = result.Region;
+
         return !string.IsNullOrWhiteSpace(region);
     }
 
-    public static bool TryDetectPlatform(string? path, out PlatformDetectionResult detection)
+    public static bool TryDetectPlatform(
+        string? path,
+        out PlatformDetectionResult detection)
     {
-        detection = PlatformDetectionResult.Create(string.Empty, string.Empty, 10, NoResultReasonKey);
+        detection = PlatformDetectionResult.Create(
+            string.Empty,
+            string.Empty,
+            10,
+            NoResultReasonKey);
 
-        if (!TryProbe(path, out DiscRawSerialProbeResult result))
+        if (!TryProbe(
+                path,
+                out DiscRawSerialProbeResult result))
         {
             return false;
         }
@@ -55,7 +70,9 @@ internal static class DiscRawSerialProbe
         return true;
     }
 
-    public static bool TryProbe(string? path, out DiscRawSerialProbeResult result)
+    public static bool TryProbe(
+        string? path,
+        out DiscRawSerialProbeResult result)
     {
         result = default;
 
@@ -65,24 +82,32 @@ internal static class DiscRawSerialProbe
         }
 
         string fullPath;
+
         try
         {
-            fullPath = Path.GetFullPath(path.Trim());
+            fullPath =
+                Path.GetFullPath(path.Trim());
+
             ValidateReadableFilePath(fullPath);
         }
-        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedReadException(ex))
+        catch (Exception ex) when (
+            IsExpectedPathException(ex)
+            || IsExpectedReadException(ex))
         {
             return false;
         }
 
-        foreach (string candidate in EnumerateProbeFiles(fullPath))
+        foreach (string candidate
+                 in EnumerateProbeFiles(fullPath))
         {
             if (!IsReadableFilePath(candidate))
             {
                 continue;
             }
 
-            if (TryScanFile(candidate, out result))
+            if (TryScanFile(
+                    candidate,
+                    out result))
             {
                 return true;
             }
@@ -91,13 +116,17 @@ internal static class DiscRawSerialProbe
         return false;
     }
 
-    private static IEnumerable<string> EnumerateProbeFiles(string path)
+    private static IEnumerable<string> EnumerateProbeFiles(
+        string path)
     {
-        string extension = Path.GetExtension(path).ToLowerInvariant();
+        string extension =
+            Path.GetExtension(path)
+                .ToLowerInvariant();
 
         if (extension == ".cue")
         {
-            foreach (string referenced in EnumerateCueReferences(path))
+            foreach (string referenced
+                     in EnumerateCueReferences(path))
             {
                 yield return referenced;
             }
@@ -108,7 +137,8 @@ internal static class DiscRawSerialProbe
 
         if (extension == ".gdi")
         {
-            foreach (string referenced in EnumerateGdiReferences(path))
+            foreach (string referenced
+                     in EnumerateGdiReferences(path))
             {
                 yield return referenced;
             }
@@ -120,61 +150,84 @@ internal static class DiscRawSerialProbe
         yield return path;
     }
 
-    private static IEnumerable<string> EnumerateCueReferences(string cuePath)
+    private static IEnumerable<string> EnumerateCueReferences(
+        string cuePath)
     {
-        string? directory = Path.GetDirectoryName(cuePath);
+        string? directory =
+            Path.GetDirectoryName(cuePath);
+
         if (string.IsNullOrWhiteSpace(directory))
         {
             yield break;
         }
 
         string baseDirectory;
+
         try
         {
             ValidateReadableFilePath(cuePath);
-            baseDirectory = Path.GetFullPath(directory);
+
+            baseDirectory =
+                Path.GetFullPath(directory);
         }
-        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedReadException(ex))
+        catch (Exception ex) when (
+            IsExpectedPathException(ex)
+            || IsExpectedReadException(ex))
         {
             yield break;
         }
 
-        foreach (string line in ReadBoundedDescriptorLines(cuePath))
+        foreach (string line
+                 in ReadBoundedDescriptorLines(cuePath))
         {
-            if (!TryExtractCueFileName(line, out string value))
+            if (!TryExtractCueFileName(
+                    line,
+                    out string value))
             {
                 continue;
             }
 
-            if (TryResolveDescriptorReference(baseDirectory, value, out string resolved))
+            if (TryResolveDescriptorReference(
+                    baseDirectory,
+                    value,
+                    out string resolved))
             {
                 yield return resolved;
             }
         }
     }
 
-    private static IEnumerable<string> EnumerateGdiReferences(string gdiPath)
+    private static IEnumerable<string> EnumerateGdiReferences(
+        string gdiPath)
     {
-        string? directory = Path.GetDirectoryName(gdiPath);
+        string? directory =
+            Path.GetDirectoryName(gdiPath);
+
         if (string.IsNullOrWhiteSpace(directory))
         {
             yield break;
         }
 
         string baseDirectory;
+
         try
         {
             ValidateReadableFilePath(gdiPath);
-            baseDirectory = Path.GetFullPath(directory);
+
+            baseDirectory =
+                Path.GetFullPath(directory);
         }
-        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedReadException(ex))
+        catch (Exception ex) when (
+            IsExpectedPathException(ex)
+            || IsExpectedReadException(ex))
         {
             yield break;
         }
 
         bool skippedHeader = false;
 
-        foreach (string line in ReadBoundedDescriptorLines(gdiPath))
+        foreach (string line
+                 in ReadBoundedDescriptorLines(gdiPath))
         {
             if (!skippedHeader)
             {
@@ -182,40 +235,62 @@ internal static class DiscRawSerialProbe
                 continue;
             }
 
-            if (!TryExtractGdiFileName(line, out string value))
+            if (!TryExtractGdiFileName(
+                    line,
+                    out string value))
             {
                 continue;
             }
 
-            if (TryResolveDescriptorReference(baseDirectory, value, out string resolved))
+            if (TryResolveDescriptorReference(
+                    baseDirectory,
+                    value,
+                    out string resolved))
             {
                 yield return resolved;
             }
         }
     }
 
-    private static bool TryExtractCueFileName(string rawLine, out string fileName) =>
-        CueSheetFileStatementReader.TryRead(rawLine, out fileName, out _);
+    private static bool TryExtractCueFileName(
+        string rawLine,
+        out string fileName)
+    {
+        return CueSheetFileStatementReader.TryRead(
+            rawLine,
+            out fileName,
+            out _);
+    }
 
-    private static bool TryExtractGdiFileName(string line, out string fileName)
+    private static bool TryExtractGdiFileName(
+        string line,
+        out string fileName)
     {
         fileName = string.Empty;
 
-        ReadOnlySpan<char> span = line.AsSpan().Trim();
-        if (span.Length == 0 || span[0] == '#')
+        ReadOnlySpan<char> span =
+            line.AsSpan().Trim();
+
+        if (span.Length == 0
+            || span[0] == '#')
         {
             return false;
         }
 
-        for (int field = 0; field < 4; field++)
+        for (int field = 0;
+             field < 4;
+             field++)
         {
-            if (!TryConsumeToken(ref span, out _))
+            if (!TryConsumeToken(
+                    ref span,
+                    out _))
             {
                 return false;
             }
         }
 
         span = span.TrimStart();
+
         if (span.Length == 0)
         {
             return false;
@@ -223,26 +298,42 @@ internal static class DiscRawSerialProbe
 
         if (span[0] == '"')
         {
-            int closingQuote = span[1..].IndexOf('"');
+            int closingQuote =
+                span[1..].IndexOf('"');
+
             if (closingQuote < 0)
             {
                 return false;
             }
 
-            fileName = span.Slice(1, closingQuote).ToString().Trim();
+            fileName =
+                span.Slice(
+                        1,
+                        closingQuote)
+                    .ToString()
+                    .Trim();
+
             return fileName.Length > 0;
         }
 
-        if (!TryConsumeToken(ref span, out ReadOnlySpan<char> token))
+        if (!TryConsumeToken(
+                ref span,
+                out ReadOnlySpan<char> token))
         {
             return false;
         }
 
-        fileName = token.Trim('"').ToString().Trim();
+        fileName =
+            token.Trim('"')
+                .ToString()
+                .Trim();
+
         return fileName.Length > 0;
     }
 
-    private static bool TryConsumeToken(ref ReadOnlySpan<char> span, out ReadOnlySpan<char> token)
+    private static bool TryConsumeToken(
+        ref ReadOnlySpan<char> span,
+        out ReadOnlySpan<char> token)
     {
         span = span.TrimStart();
         token = default;
@@ -252,32 +343,40 @@ internal static class DiscRawSerialProbe
             return false;
         }
 
-        int separator = IndexOfWhiteSpace(span);
+        int separator =
+            IndexOfWhiteSpace(span);
+
         if (separator < 0)
         {
             token = span;
             span = [];
+
             return token.Length > 0;
         }
 
         token = span[..separator];
         span = span[(separator + 1)..];
+
         return token.Length > 0;
     }
 
-    private static IReadOnlyList<string> ReadBoundedDescriptorLines(string path)
+    private static List<string> ReadBoundedDescriptorLines(
+        string path)
     {
         try
         {
             ValidateReadableFilePath(path);
 
-            var info = new FileInfo(path);
-            if (!info.Exists || info.Length <= 0 || info.Length > MaxDescriptorBytes)
+            FileInfo info = new(path);
+
+            if (!info.Exists
+                || info.Length <= 0
+                || info.Length > MaxDescriptorBytes)
             {
                 return [];
             }
 
-            var lines = new List<string>();
+            List<string> lines = [];
 
             using FileStream stream = new(
                 path,
@@ -301,19 +400,24 @@ internal static class DiscRawSerialProbe
 
             return lines;
         }
-        catch (Exception ex) when (IsExpectedReadException(ex) || IsExpectedPathException(ex))
+        catch (Exception ex) when (
+            IsExpectedReadException(ex)
+            || IsExpectedPathException(ex))
         {
             return [];
         }
     }
 
-    private static bool TryResolveDescriptorReference(string baseDirectory, string relativePath, out string resolved)
+    private static bool TryResolveDescriptorReference(
+        string baseDirectory,
+        string relativePath,
+        out string resolved)
     {
         resolved = string.Empty;
 
         if (string.IsNullOrWhiteSpace(baseDirectory)
             || string.IsNullOrWhiteSpace(relativePath)
-            || relativePath.IndexOf('\0') >= 0
+            || relativePath.Contains('\0')
             || Path.IsPathRooted(relativePath))
         {
             return false;
@@ -321,10 +425,19 @@ internal static class DiscRawSerialProbe
 
         try
         {
-            string root = Path.GetFullPath(baseDirectory);
-            string candidate = Path.GetFullPath(Path.Combine(root, relativePath));
+            string root =
+                Path.GetFullPath(baseDirectory);
 
-            if (!IsUnderDirectory(root, candidate) || !IsReadableFilePath(candidate))
+            string candidate =
+                Path.GetFullPath(
+                    Path.Combine(
+                        root,
+                        relativePath));
+
+            if (!IsUnderDirectory(
+                    root,
+                    candidate)
+                || !IsReadableFilePath(candidate))
             {
                 return false;
             }
@@ -332,13 +445,17 @@ internal static class DiscRawSerialProbe
             resolved = candidate;
             return true;
         }
-        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedReadException(ex))
+        catch (Exception ex) when (
+            IsExpectedPathException(ex)
+            || IsExpectedReadException(ex))
         {
             return false;
         }
     }
 
-    private static bool TryScanFile(string path, out DiscRawSerialProbeResult result)
+    private static bool TryScanFile(
+        string path,
+        out DiscRawSerialProbeResult result)
     {
         result = default;
 
@@ -354,33 +471,57 @@ internal static class DiscRawSerialProbe
                 bufferSize: ReadBufferSize,
                 options: FileOptions.SequentialScan);
 
-            long remaining = Math.Min(stream.Length, MaxProbeBytesPerFile);
-            byte[] buffer = new byte[ReadBufferSize];
+            long remaining =
+                Math.Min(
+                    stream.Length,
+                    MaxProbeBytesPerFile);
+
+            byte[] buffer =
+                new byte[ReadBufferSize];
+
             string carry = string.Empty;
 
             while (remaining > 0)
             {
-                int targetRead = (int)Math.Min(buffer.Length, remaining);
-                int read = stream.Read(buffer, 0, targetRead);
+                int targetRead =
+                    (int)Math.Min(
+                        buffer.Length,
+                        remaining);
+
+                int read =
+                    stream.Read(
+                        buffer,
+                        0,
+                        targetRead);
+
                 if (read <= 0)
                 {
                     break;
                 }
 
                 remaining -= read;
-                string chunk = carry + BytesToSearchableAscii(buffer.AsSpan(0, read));
 
-                if (TryBuildFromText(chunk, out result))
+                string chunk =
+                    carry
+                    + BytesToSearchableAscii(
+                        buffer.AsSpan(0, read));
+
+                if (TryBuildFromText(
+                        chunk,
+                        out result))
                 {
                     return true;
                 }
 
-                carry = chunk.Length <= SerialScanOverlapChars
-                    ? chunk
-                    : chunk[^SerialScanOverlapChars..];
+                carry =
+                    chunk.Length <= SerialScanOverlapChars
+                        ? chunk
+                        : chunk[^SerialScanOverlapChars..];
             }
         }
-        catch (Exception ex) when (IsExpectedReadException(ex) || IsExpectedPathException(ex))
+        catch (Exception ex) when (
+            IsExpectedReadException(ex)
+            || IsExpectedPathException(ex))
         {
             return false;
         }
@@ -388,27 +529,31 @@ internal static class DiscRawSerialProbe
         return false;
     }
 
-    private static bool TryBuildFromText(string text, out DiscRawSerialProbeResult result)
+    private static bool TryBuildFromText(
+        string text,
+        out DiscRawSerialProbeResult result)
     {
         result = default;
 
-        string fallbackPlatform = text.IndexOf("BOOT2", StringComparison.OrdinalIgnoreCase) >= 0
-            ? "PlayStation 2"
-            : "PlayStation 1";
+        string fallbackPlatform =
+            text.Contains(
+                "BOOT2",
+                StringComparison.OrdinalIgnoreCase)
+                ? "PlayStation 2"
+                : "PlayStation 1";
 
         if (!DiscSerialCatalog.TryExtract(
-            text,
-            DiscSerialScanProfile.Raw,
-            fallbackPlatform,
-            includeOptionalTail: false,
-            serialSeparator: "-",
-            out DiscSerialCatalogResult serial))
+                text,
+                DiscSerialScanProfile.Raw,
+                fallbackPlatform,
+                includeOptionalTail: false,
+                serialSeparator: "-",
+                out DiscSerialCatalogResult serial))
         {
             return false;
         }
 
         result = new DiscRawSerialProbeResult(
-            true,
             serial.PlatformName,
             serial.Region,
             serial.Serial,
@@ -417,21 +562,29 @@ internal static class DiscRawSerialProbe
         return true;
     }
 
-    private static string BytesToSearchableAscii(ReadOnlySpan<byte> bytes)
+    private static string BytesToSearchableAscii(
+        ReadOnlySpan<byte> bytes)
     {
-        var builder = new StringBuilder(bytes.Length);
+        StringBuilder builder =
+            new(bytes.Length);
 
         foreach (byte value in bytes)
         {
-            builder.Append(value is >= 32 and <= 126 ? (char)value : ' ');
+            builder.Append(
+                value is >= 32 and <= 126
+                    ? (char)value
+                    : ' ');
         }
 
         return builder.ToString();
     }
 
-    private static int IndexOfWhiteSpace(ReadOnlySpan<char> span)
+    private static int IndexOfWhiteSpace(
+        ReadOnlySpan<char> span)
     {
-        for (int index = 0; index < span.Length; index++)
+        for (int index = 0;
+             index < span.Length;
+             index++)
         {
             if (char.IsWhiteSpace(span[index]))
             {
@@ -442,52 +595,79 @@ internal static class DiscRawSerialProbe
         return -1;
     }
 
-    private static bool IsReadableFilePath(string path)
+    private static bool IsReadableFilePath(
+        string path)
     {
         try
         {
             ValidateReadableFilePath(path);
             return true;
         }
-        catch (Exception ex) when (IsExpectedPathException(ex) || IsExpectedReadException(ex))
+        catch (Exception ex) when (
+            IsExpectedPathException(ex)
+            || IsExpectedReadException(ex))
         {
             return false;
         }
     }
 
-    private static void ValidateReadableFilePath(string path)
+    private static void ValidateReadableFilePath(
+        string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
-        string fullPath = Path.GetFullPath(path);
+        string fullPath =
+            Path.GetFullPath(path);
+
         if (!File.Exists(fullPath))
         {
-            throw new FileNotFoundException(NoResultReasonKey, fullPath);
+            throw new FileNotFoundException(
+                NoResultReasonKey,
+                fullPath);
         }
 
-        ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
+        ConversionPathValidator.ThrowIfUnsafeForChdman(
+            fullPath,
+            nameof(path));
     }
 
-    private static bool IsUnderDirectory(string baseDirectory, string candidate)
+    private static bool IsUnderDirectory(
+        string baseDirectory,
+        string candidate)
     {
-        string root = TrimDirectorySeparators(Path.GetFullPath(baseDirectory));
-        string path = TrimDirectorySeparators(Path.GetFullPath(candidate));
+        string root =
+            TrimDirectorySeparators(
+                Path.GetFullPath(baseDirectory));
 
-        return string.Equals(path, root, StringComparison.OrdinalIgnoreCase)
-            || path.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+        string path =
+            TrimDirectorySeparators(
+                Path.GetFullPath(candidate));
+
+        return string.Equals(
+                path,
+                root,
+                StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(
+                EnsureDirectorySeparatorSuffix(root),
+                StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string EnsureDirectorySeparatorSuffix(string path)
+    private static string EnsureDirectorySeparatorSuffix(
+        string path)
     {
-        return path.EndsWith(Path.DirectorySeparatorChar)
-            || path.EndsWith(Path.AltDirectorySeparatorChar)
+        return path.EndsWith(
+                Path.DirectorySeparatorChar)
+            || path.EndsWith(
+                Path.AltDirectorySeparatorChar)
             ? path
             : path + Path.DirectorySeparatorChar;
     }
 
-    private static string TrimDirectorySeparators(string path)
+    private static string TrimDirectorySeparators(
+        string path)
     {
-        string? root = Path.GetPathRoot(path);
+        string? root =
+            Path.GetPathRoot(path);
 
         if (!string.IsNullOrWhiteSpace(root)
             && path.Length <= root.Length)
@@ -495,25 +675,35 @@ internal static class DiscRawSerialProbe
             return root;
         }
 
-        string trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string trimmed =
+            path.TrimEnd(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar);
 
-        return string.IsNullOrEmpty(trimmed) && !string.IsNullOrWhiteSpace(root)
-            ? root
-            : trimmed;
+        return string.IsNullOrEmpty(trimmed)
+            && !string.IsNullOrWhiteSpace(root)
+                ? root
+                : trimmed;
     }
 
-    private static bool IsExpectedPathException(Exception ex) =>
-        ex is ArgumentException
-        or NotSupportedException
-        or PathTooLongException
-        or System.Security.SecurityException;
+    private static bool IsExpectedPathException(
+        Exception ex)
+    {
+        return ex is ArgumentException
+            or NotSupportedException
+            or PathTooLongException
+            or System.Security.SecurityException;
+    }
 
-    private static bool IsExpectedReadException(Exception ex) =>
-        ex is IOException
-        or UnauthorizedAccessException
-        or ArgumentException
-        or NotSupportedException
-        or InvalidDataException
-        or PathTooLongException
-        or System.Security.SecurityException;
+    private static bool IsExpectedReadException(
+        Exception ex)
+    {
+        return ex is IOException
+            or UnauthorizedAccessException
+            or ArgumentException
+            or NotSupportedException
+            or InvalidDataException
+            or PathTooLongException
+            or System.Security.SecurityException;
+    }
 }

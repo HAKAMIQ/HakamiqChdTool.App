@@ -150,7 +150,6 @@ internal sealed class QueueTransitionService
                     Sink = sink,
                     Settings = settings,
                     GetChdmanPath = _state.GetChdmanPath,
-                    CanUseAppFeature = _state.CanUseAppFeature,
                     Mode = workflowMode,
                     OnUiRefresh = _notifications.RefreshUi
                 }

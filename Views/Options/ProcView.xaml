@@ -2,6 +2,7 @@
              x:Name="ProcessingSettingsRoot"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              FlowDirection="{DynamicResource App.FlowDirection}"
              Language="{DynamicResource App.XmlLanguage}"
              HorizontalAlignment="Stretch"
@@ -14,6 +15,73 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../../Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <ToolTip x:Key="AppTip.ProcView.1"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocPaths_UseBundledChdmanDesc}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
+
+            <ToolTip x:Key="AppTip.ProcView.2"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocPaths_UseExternalChdmanDesc}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
+
+            <ToolTip x:Key="AppTip.ProcView.3"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocPaths_ExternalChdmanPathDesc}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
+
+            <sys:Double x:Key="Options.ChdComboMaxWidth">250</sys:Double>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -21,7 +89,161 @@
         <ScrollViewer Style="{StaticResource Win11SettingsScrollViewer}">
             <StackPanel Style="{StaticResource Win11SettingsContentStack}">
 
-                <Border Style="{StaticResource Win11SettingsSection}">
+                <Border Style="{StaticResource Win11SettingsSection}"
+                        Margin="{DynamicResource Inset.0.0.0.8}">
+
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}"
+                          SnapsToDevicePixels="True">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"
+                              Style="{StaticResource Win11SettingsSectionHeader}"
+                              MinHeight="{DynamicResource Space.32}">
+
+                            <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
+                                       Text="{DynamicResource LocConversion_EngineSection}"
+                                       TextAlignment="Center"
+                                       Margin="{DynamicResource Inset.8.4}" />
+                        </Grid>
+
+                        <Border Grid.Row="1"
+                                Style="{StaticResource Win11SettingsRow}"
+                                Padding="{DynamicResource Inset.8.4}"
+                                MinHeight="{DynamicResource Space.44}">
+
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  Language="{DynamicResource App.XmlLanguage}"
+                                  SnapsToDevicePixels="True">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <RadioButton x:Name="UseBundledChdmanRadioButton"
+                                             Grid.Column="0"
+                                             GroupName="ChdmanSource"
+                                             IsChecked="{Binding UseBundledChdman, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource Win11SettingsRadioButton}"
+                                             ToolTip="{StaticResource AppTip.ProcView.1}"
+                                             AutomationProperties.Name="{DynamicResource LocPaths_UseBundledChdman}" />
+
+                                <TextBlock Grid.Column="2"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource Win11SettingsRowTitleText}"
+                                           Text="{DynamicResource LocPaths_UseBundledChdman}"
+                                           ToolTip="{StaticResource AppTip.ProcView.1}"
+                                           TextAlignment="Left"
+                                           TextWrapping="NoWrap"
+                                           TextTrimming="CharacterEllipsis" />
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="2"
+                                Style="{StaticResource Win11SettingsLastRow}"
+                                BorderThickness="{DynamicResource Inset.None}"
+                                Padding="{DynamicResource Inset.8.4}"
+                                MinHeight="{DynamicResource Space.44}">
+
+                            <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                                  Language="{DynamicResource App.XmlLanguage}"
+                                  SnapsToDevicePixels="True">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <RadioButton x:Name="UseExternalChdmanRadioButton"
+                                             Grid.Column="0"
+                                             GroupName="ChdmanSource"
+                                             IsChecked="{Binding UseExternalChdman, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource Win11SettingsRadioButton}"
+                                             ToolTip="{StaticResource AppTip.ProcView.2}"
+                                             AutomationProperties.Name="{DynamicResource LocPaths_UseExternalChdman}" />
+
+                                <TextBlock Grid.Column="2"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource Win11SettingsRowTitleText}"
+                                           Text="{DynamicResource LocPaths_UseExternalChdman}"
+                                           ToolTip="{StaticResource AppTip.ProcView.2}"
+                                           TextAlignment="Left"
+                                           TextWrapping="NoWrap"
+                                           TextTrimming="CharacterEllipsis" />
+
+                                <Grid Grid.Column="4"
+                                      FlowDirection="{DynamicResource App.FlowDirection}"
+                                      Language="{DynamicResource App.XmlLanguage}"
+                                      SnapsToDevicePixels="True">
+
+                                    <Grid.Style>
+                                        <Style TargetType="{x:Type Grid}">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding UseExternalChdman}"
+                                                             Value="True">
+                                                    <Setter Property="Visibility"
+                                                            Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox x:Name="ExternalChdmanPathTextBox"
+                                             Grid.Column="0"
+                                             Height="{DynamicResource Space.36}"
+                                             MinHeight="{DynamicResource Space.36}"
+                                             VerticalContentAlignment="Center"
+                                             Text="{Binding ExternalChdmanPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                                             IsEnabled="{Binding UseExternalChdman}"
+                                             FlowDirection="LeftToRight"
+                                             Language="en-US"
+                                             TextAlignment="Left"
+                                             Style="{StaticResource Win11SettingsTechnicalTextBox}"
+                                             ToolTip="{StaticResource AppTip.ProcView.3}"
+                                             AutomationProperties.Name="{DynamicResource LocPaths_ExternalChdmanPath}" />
+
+                                    <Button x:Name="BrowseExternalChdmanButton"
+                                            Grid.Column="2"
+                                            Width="{DynamicResource Space.84}"
+                                            Height="{DynamicResource Space.36}"
+                                            MinWidth="{DynamicResource Space.84}"
+                                            MinHeight="{DynamicResource Space.36}"
+                                            Padding="{DynamicResource Inset.10.5}"
+                                            Command="{Binding BrowseExternalChdmanCommand}"
+                                            IsEnabled="{Binding UseExternalChdman}"
+                                            Style="{StaticResource Win11SettingsCompactButton}"
+                                            ToolTip="{StaticResource AppTip.ProcView.3}"
+                                            AutomationProperties.Name="{DynamicResource LocPaths_ExternalChdmanPath}">
+
+                                        <TextBlock Text="{DynamicResource LocCommon_Browse}"
+                                                   TextAlignment="Center" />
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource Win11SettingsSection}" Margin="{DynamicResource Inset.0.0.0.8}">
                     <Grid FlowDirection="{DynamicResource App.FlowDirection}"
                           Language="{DynamicResource App.XmlLanguage}"
                           SnapsToDevicePixels="True">
@@ -32,268 +254,158 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0"
-                              Style="{StaticResource Win11SettingsSectionHeader}">
+                              Style="{StaticResource Win11SettingsSectionHeader}" MinHeight="{DynamicResource Space.32}">
+
                             <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
-                                       Text="{DynamicResource LocProcessing_VerifyOutputSection}"
-                                       ToolTip="{DynamicResource LocProcessing_VerifyOutputDesc}"
-                                       TextAlignment="Center" />
+                                       Text="{DynamicResource LocConversion_ChdSection}"
+                                       TextAlignment="Center" Margin="{DynamicResource Inset.8.4}"/>
                         </Grid>
 
                         <Border Grid.Row="1"
-                                Style="{StaticResource Win11SettingsRow}">
+                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocPaths_IncludeSubfolders}"
-                                               ToolTip="{DynamicResource LocPaths_IncludeSubfoldersDesc}"
+
+                                    <TextBlock Text="{DynamicResource LocPerformance_IsoCreateMode}"
+                                               ToolTip="{Binding IsoCreateOverrideDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
                                                TextAlignment="Left" />
                                 </Grid>
 
-                                <CheckBox Grid.Column="2"
-                                          IsChecked="{Binding IncludeSubfolders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocPaths_IncludeSubfoldersDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocPaths_IncludeSubfolders}" />
+                                <ComboBox x:Name="IsoCreateCommandOverrideComboBox"
+                                          Width="340"
+                                          Grid.Column="1"
+                                          HorizontalAlignment="Right"
+                                          MaxWidth="{DynamicResource Options.ChdComboMaxWidth}"
+                                          Margin="{DynamicResource Inset.0.0.12.0}"
+                                          ItemsSource="{Binding IsoCreateOverrideOptions}"
+                                          SelectedItem="{Binding SelectedIsoCreateOverride, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                          IsTextSearchEnabled="True"
+                                          TextSearch.TextPath="Label"
+                                          Style="{StaticResource Win11SettingsComboBox}"
+                                          ToolTip="{Binding IsoCreateOverrideDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                          AutomationProperties.Name="{DynamicResource LocPerformance_IsoCreateMode}" Height="{DynamicResource Space.36}"/>
                             </Grid>
                         </Border>
 
                         <Border Grid.Row="2"
-                                Style="{StaticResource Win11SettingsRow}">
+                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocProcessing_VerifyAfterConversion}"
-                                               ToolTip="{DynamicResource LocProcessing_VerifyAfterConversionDesc}"
+
+                                    <TextBlock Text="{DynamicResource LocPerformance_ChdPlatformProfile}"
+                                               ToolTip="{Binding ChdPlatformProfileDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
                                                TextAlignment="Left" />
                                 </Grid>
 
-                                <CheckBox Grid.Column="2"
-                                          IsChecked="{Binding VerifyAfterConversion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocProcessing_VerifyAfterConversionDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocProcessing_VerifyAfterConversion}" />
+                                <ComboBox x:Name="ChdPlatformProfileComboBox"
+                                          Width="340"
+                                          Grid.Column="1"
+                                          HorizontalAlignment="Right"
+                                          MaxWidth="{DynamicResource Options.ChdComboMaxWidth}"
+                                          Margin="{DynamicResource Inset.0.0.12.0}"
+                                          ItemsSource="{Binding ChdPlatformProfileOptions}"
+                                          SelectedItem="{Binding SelectedChdPlatformProfile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                          IsTextSearchEnabled="True"
+                                          TextSearch.TextPath="Label"
+                                          Style="{StaticResource Win11SettingsComboBox}"
+                                          ToolTip="{Binding ChdPlatformProfileDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                          AutomationProperties.Name="{DynamicResource LocPerformance_ChdPlatformProfile}" Height="{DynamicResource Space.36}"/>
                             </Grid>
                         </Border>
 
                         <Border Grid.Row="3"
-                                Style="{StaticResource Win11SettingsRow}">
+                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocProcessing_SkipExistingOutput}"
-                                               ToolTip="{DynamicResource LocProcessing_SkipExistingOutputDesc}"
+
+                                    <TextBlock Text="{DynamicResource LocPerformance_CompressionPreset}"
+                                               ToolTip="{Binding CompressionPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
                                                TextAlignment="Left" />
                                 </Grid>
 
-                                <CheckBox Grid.Column="2"
-                                          IsChecked="{Binding SkipExistingOutput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocProcessing_SkipExistingOutputDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocProcessing_SkipExistingOutput}" />
+                                <ComboBox x:Name="CompressionPresetComboBox"
+                                          Width="340"
+                                          Grid.Column="1"
+                                          HorizontalAlignment="Right"
+                                          MaxWidth="{DynamicResource Options.ChdComboMaxWidth}"
+                                          Margin="{DynamicResource Inset.0.0.12.0}"
+                                          ItemsSource="{Binding CompressionPresetOptions}"
+                                          SelectedItem="{Binding SelectedCompressionPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                          IsTextSearchEnabled="True"
+                                          TextSearch.TextPath="Label"
+                                          Style="{StaticResource Win11SettingsComboBox}"
+                                          ToolTip="{Binding CompressionPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                          AutomationProperties.Name="{DynamicResource LocPerformance_CompressionPreset}" Height="{DynamicResource Space.36}"/>
                             </Grid>
                         </Border>
 
                         <Border Grid.Row="4"
-                                Style="{StaticResource Win11SettingsRow}">
+                                Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
                                 <Grid Grid.Column="0"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocProcessing_CopyMatchingSbi}"
-                                               ToolTip="{DynamicResource LocProcessing_CopyMatchingSbiDesc}"
+
+                                    <TextBlock Text="{DynamicResource LocPerformance_HunkSize}"
+                                               ToolTip="{Binding HunkPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
                                                TextAlignment="Left" />
                                 </Grid>
 
-                                <CheckBox Grid.Column="2"
-                                          IsEnabled="{Binding CanUsePostProcessingAutomation}"
-                                          IsChecked="{Binding CopyMatchingSbi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocProcessing_CopyMatchingSbiDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocProcessing_CopyMatchingSbi}" />
+                                <ComboBox x:Name="HunkPresetComboBox"
+                                          Width="340"
+                                          Grid.Column="1"
+                                          HorizontalAlignment="Right"
+                                          MaxWidth="{DynamicResource Options.ChdComboMaxWidth}"
+                                          Margin="{DynamicResource Inset.0.0.12.0}"
+                                          ItemsSource="{Binding HunkPresetOptions}"
+                                          SelectedItem="{Binding SelectedHunkPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                          IsTextSearchEnabled="True"
+                                          TextSearch.TextPath="Label"
+                                          Style="{StaticResource Win11SettingsComboBox}"
+                                          ToolTip="{Binding HunkPresetDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                          AutomationProperties.Name="{DynamicResource LocPerformance_HunkSize}" Height="{DynamicResource Space.36}"/>
                             </Grid>
                         </Border>
 
-                        <Border Grid.Row="5"
-                                Style="{StaticResource Win11SettingsLastRow}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
 
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocProcessing_AutoM3uGeneration}"
-                                               ToolTip="{DynamicResource LocProcessing_AutoM3uGenerationDesc}"
-                                               TextAlignment="Left" />
-                                </Grid>
 
-                                <CheckBox Grid.Column="2"
-                                          IsEnabled="{Binding CanUsePostProcessingAutomation}"
-                                          IsChecked="{Binding EnableAutoM3uGeneration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocProcessing_AutoM3uGenerationDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocProcessing_AutoM3uGeneration}" />
-                            </Grid>
-                        </Border>
                     </Grid>
                 </Border>
 
-                <Border Style="{StaticResource Win11SettingsSection}">
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          SnapsToDevicePixels="True">
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <Grid Grid.Row="0"
-                              Style="{StaticResource Win11SettingsSectionHeader}">
-                            <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
-                                       Text="{DynamicResource LocProcessing_CleanupSection}"
-                                       ToolTip="{DynamicResource LocProcessing_CleanupDesc}"
-                                       TextAlignment="Center" />
-                        </Grid>
-
-                        <Border Grid.Row="1"
-                                Style="{StaticResource Win11SettingsRow}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversion}"
-                                               ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversionDesc}"
-                                               TextAlignment="Left" />
-                                </Grid>
-
-                                <CheckBox Grid.Column="2"
-                                          IsChecked="{Binding DeleteSourceAfterVerifiedConversion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversionDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversion}" />
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="2"
-                                Style="{StaticResource Win11SettingsRow}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtraction}"
-                                               ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtractionDesc}"
-                                               TextAlignment="Left" />
-                                </Grid>
-
-                                <CheckBox Grid.Column="2"
-                                          IsChecked="{Binding DeleteSourceAfterVerifiedExtraction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtractionDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtraction}" />
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="3"
-                                Style="{StaticResource Win11SettingsRow}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocProcessing_DeleteTemporaryExtraction}"
-                                               ToolTip="{DynamicResource LocProcessing_DeleteTemporaryExtractionDesc}"
-                                               TextAlignment="Left" />
-                                </Grid>
-
-                                <CheckBox Grid.Column="2"
-                                          IsChecked="{Binding DeleteTemporaryExtraction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocProcessing_DeleteTemporaryExtractionDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocProcessing_DeleteTemporaryExtraction}" />
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="4"
-                                Style="{StaticResource Win11SettingsLastRow}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Style="{StaticResource Win11SettingsRowTitleText}"
-                                               Text="{DynamicResource LocProcessing_DeleteFailedOutput}"
-                                               ToolTip="{DynamicResource LocProcessing_DeleteFailedOutputDesc}"
-                                               TextAlignment="Left" />
-                                </Grid>
-
-                                <CheckBox Grid.Column="2"
-                                          IsChecked="{Binding DeleteFailedOutput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocProcessing_DeleteFailedOutputDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocProcessing_DeleteFailedOutput}" />
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </Border>
 
             </StackPanel>
         </ScrollViewer>

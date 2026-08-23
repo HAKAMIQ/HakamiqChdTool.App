@@ -4,7 +4,10 @@ param(
     [ValidateSet("Release")]
     [string] $Configuration = "Release",
 
-    [string] $Output = ".\Release"
+    [string] $Output = ".\Release",
+
+    [ValidateSet("runtime-required", "self-contained")]
+    [string] $DeploymentMode = "runtime-required"
 )
 
 $ErrorActionPreference = "Stop"
@@ -32,6 +35,7 @@ else {
 
 $RuntimeIdentifier = "win-x64"
 $ExeName = "HakamiqChdTool.exe"
+$SelfContainedValue = if ($DeploymentMode -eq "self-contained") { "true" } else { "false" }
 
 function Get-NormalizedFullPath {
     param(
@@ -129,6 +133,7 @@ function Remove-BuildArtifacts {
         Where-Object {
             ($_.Name -eq "bin" -or $_.Name -eq "obj") -and
             $_.FullName -notmatch '\\.git(\\|$)' -and
+            -not (Test-PathIsSameOrChild -Path $_.FullName -Parent $ReleaseRoot) -and
             -not (Test-PathIsInsideOutput $_.FullName)
         } |
         Sort-Object { $_.FullName.Length } -Descending
@@ -144,6 +149,7 @@ function Assert-NoStaleSourceArtifacts {
     $staleFiles = Get-ChildItem -LiteralPath $ProjectRoot -File -Recurse -Force -ErrorAction SilentlyContinue |
         Where-Object {
             $_.FullName -notmatch '\\.git(\\|$)' -and
+            -not (Test-PathIsSameOrChild -Path $_.FullName -Parent $ReleaseRoot) -and
             -not (Test-PathIsInsideOutput $_.FullName) -and
             ($_.Extension.ToLowerInvariant() -in @(".zip", ".tmp"))
         }
@@ -204,6 +210,7 @@ function Invoke-ReleaseComplianceChecks {
         "docs\legal\MAME_GPL-2.0.txt",
         "docs\legal\7ZIP.md",
         "docs\legal\CSOKIT_NOTICE.md",
+        "Tools\chdman.exe",
         "Tools\hakamiq-cso\win-x64\csokit.exe",
         "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll",
         "Tools\hakamiq-cso\win-x64\LICENSE.txt",
@@ -300,7 +307,9 @@ try {
         "restore",
         $MainProject,
         "-r",
-        $RuntimeIdentifier
+        $RuntimeIdentifier,
+        "--locked-mode",
+        "-p:SelfContained=$SelfContainedValue"
     )
 
     Invoke-NativeCommand "dotnet" @(
@@ -319,6 +328,7 @@ try {
         "-r",
         $RuntimeIdentifier,
         "--no-restore",
+        "-p:SelfContained=$SelfContainedValue",
         "-p:DebugType=none",
         "-p:DebugSymbols=false"
     )
@@ -335,7 +345,7 @@ try {
         "--no-restore",
         "--no-build",
         "--self-contained",
-        "false",
+        $SelfContainedValue,
         "-p:PublishSingleFile=false",
         "-p:PublishTrimmed=false",
         "-p:PublishReadyToRun=false",
@@ -406,7 +416,9 @@ try {
     Write-Host "[INFO] Running end-user release security gate..." -ForegroundColor Cyan
     Invoke-PowerShellFile $EndUserReleaseGateScript @(
         "-Output",
-        $OutputPath
+        $OutputPath,
+        "-DeploymentMode",
+        $DeploymentMode
     )
 
     Write-Host "[PASS] End-user release is ready: $OutputPath" -ForegroundColor Green

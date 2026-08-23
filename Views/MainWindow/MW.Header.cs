@@ -1,7 +1,6 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Ui.WpfAdapters;
 using HakamiqChdTool.App.ViewModels;
 using System;
@@ -83,9 +82,7 @@ public partial class MainWindow
 
     private void SyncFeatureVisibility()
     {
-        _viewModel.IsRedumpFeatureVisible =
-            _settings.EnableDeepIntegrityCheck &&
-            _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity);
+        _viewModel.IsRedumpFeatureVisible = _settings.EnableDeepIntegrityCheck;
 
         _viewModel.NotifyQueueCommandsCanExecuteChanged();
     }
@@ -134,6 +131,8 @@ public partial class MainWindow
 
     private void ThemeService_ThemeChanged(object? sender, EventArgs e)
     {
+        CaptureThemeIntoSettings();
+        PersistSettings();
         SyncThemeSelectorFromService();
         SyncFeatureVisibility();
         RefreshThemeRuntimeResources();
