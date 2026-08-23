@@ -89,7 +89,7 @@
     <sys:String x:Key="LocUi_PlaceholderDash">—</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line1">اختر وضع العملية لعرض الملفات المدعومة.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">أفلت الملفات هنا أو استخدم أزرار الإضافة.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Convert">اسحب صورة قرص مدعومة هنا للتحويل إلى CHD&#x0A;يدعم ISO، CSO، GDI، CUE، وأرشيف ZIP، 7Z، RAR يحتوي على صورة قرص واحدة.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Convert">أضف أو اسحب ملفات المصدر للتحويل إلى CHD&#x0A;يدعم ISO، CSO، GDI، CUE، وأرشيف ZIP، 7Z، RAR يحتوي على صورة قرص واحدة. ملف CHD الجاهز مخصص للتحقق أو الاستخراج.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Extract">اسحب ملفات CHD هنا لاستخراجها&#x0A;تُستخرج أقراص CD كملفات CUE + BIN، وأقراص DVD كملف ISO.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Verify">اسحب ملفات CHD هنا للتحقق من سلامتها&#x0A;يتحقق من سلامة الملف بدون استخراج محتواه.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">اختر مجلدًا لفحص ملفات CUE / GDI / ISO والأرشيفات المدعومة جزئيًا، ثم تحويل الصور الصالحة فقط إلى CHD.</sys:String>
@@ -166,7 +166,6 @@
     <sys:String x:Key="LocUi_NoTasksAddOrDrag">لا توجد مهام — أضف ملفات أو اسحبها إلى هنا</sys:String>
     <sys:String x:Key="LocUi_ReadyForProcessing">جاهز للمعالجة</sys:String>
     <sys:String x:Key="LocUi_ArchiveWillUnpackThenConvert">سيتم استخراج الأرشيف تلقائيًا، ثم تحويل صور القرص الموجودة داخله.</sys:String>
-    <sys:String x:Key="LocUi_ArchiveAwaitingPreviewAtStartup">أرشيف بانتظار المعاينة عند بدء التحويل</sys:String>
     <sys:String x:Key="LocUi_ChooseOperationForItem">اختر العملية المدعومة لهذا الملف</sys:String>
     <sys:String x:Key="LocUi_UnsupportedQueueFile">هذا الملف غير مدعوم في العملية الحالية</sys:String>
     <sys:String x:Key="LocUi_Verified">تم التحقق</sys:String>
@@ -312,7 +311,6 @@
     <sys:String x:Key="LocFooter_NoSupportedFiles">لا توجد ملفات مدعومة.</sys:String>
     <sys:String x:Key="LocFooter_AnalyzingFiles">جارٍ تحليل الملفات...</sys:String>
     <sys:String x:Key="LocFooter_AlreadyInQueue">العناصر موجودة بالفعل في قائمة المعالجة.</sys:String>
-    <sys:String x:Key="LocFooter_ArchiveWillUnpackThenConvert">سيتم استخراج الأرشيف ثم تحويل صورة القرص المدعومة.</sys:String>
     <sys:String x:Key="LocFooter_AddedOne">تمت إضافة عنصر واحد.</sys:String>
     <sys:String x:Key="LocFmt_AddedMany">تمت إضافة {0} من العناصر.</sys:String>
     <sys:String x:Key="LocFmt_AddFilesFailed">تعذر إضافة الملفات: {0}</sys:String>
@@ -469,10 +467,7 @@
     <sys:String x:Key="LocRedumpCatalog_Artifact_NoCustomLinks">لا توجد روابط مخصصة لهذه المنصة في الكتالوج الحالي.</sys:String>
 
     <sys:String x:Key="LocArchive_VerificationFailed">تعذر التحقق من الأرشيف. قد يكون الملف تالفًا أو غير مكتمل.</sys:String>
-    <sys:String x:Key="LocArchive_PreviewUnreadable">تعذر قراءة الأرشيف. يرجى التحقق من الملف والمحاولة مرة أخرى.</sys:String>
     <sys:String x:Key="LocArchive_PasswordProtected">الأرشيف محمي بكلمة مرور؛ لا يمكن معالجته تلقائيًا.</sys:String>
-    <sys:String x:Key="LocArchive_WillUnpackThenConvert">سيتم استخراج الأرشيف ثم تحويل صورة القرص.</sys:String>
-    <sys:String x:Key="LocArchive_ContainsOnlyChd">الأرشيف يحتوي على ملف CHD فقط. يرجى استخراجه يدويًا.</sys:String>
     <sys:String x:Key="LocArchive_InvalidNamingConvention">اسم الأرشيف لا يطابق نمط التسمية المتوقع.</sys:String>
     <sys:String x:Key="LocArchive_NoConvertibleDiscImage">لا يحتوي الأرشيف على صورة قرص قابلة للتحويل. ملفات التطبيقات (مثل Vita ZIP أو PKG) غير مدعومة.</sys:String>
     <sys:String x:Key="LocArchive_MultipleConvertibleDiscImages">يحتوي الأرشيف على أكثر من صورة قرص. يرجى الاستخراج يدويًا لاختيار الملف المطلوب.</sys:String>
@@ -567,16 +562,14 @@
     <sys:String x:Key="LocDeepHash_TipUnmatchedFilesHeader">الملفات غير المطابقة:</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoRedumpMatch">لم يتم العثور على مطابقة في قاعدة بيانات Redump المحلية.</sys:String>
     <sys:String x:Key="LocRedumpV2_DetailNormalizedFormat">المصدر: {0}&#x0a;التمثيل المؤقت: {1}&#x0a;المساحة المؤقتة المطلوبة: {2}&#x0a;النتيجة: {3}</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepClassifySource">تصنيف المصدر</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepNormalize">تجهيز تمثيل Redump الأصلي مؤقتًا</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepHash">حساب SHA1</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepMatch">مطابقة Redump</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepCleanup">تنظيف الملفات المؤقتة</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepReturnResult">إرجاع نتيجة التحقق</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeCsoIso">تجهيز ISO مؤقت للفحص</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeChdCd">استخراج CHD مؤقتًا إلى CUE/BIN</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeChdDvd">استخراج CHD مؤقتًا إلى ISO</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeArchive">استخراج الأرشيف مؤقتًا للفحص</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepClassifySource">تحليل ملف المصدر...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepHash">حساب بصمة القرص...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepMatch">مطابقة النسخة مع قاعدة Redump...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepCleanup">تنظيف الملفات المؤقتة...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepReturnResult">إنهاء فحص Redump...</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeCsoIso">تجهيز بيانات ISO للفحص...</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeChd">قراءة بيانات القرص من ملف CHD...</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeArchive">استخراج بيانات الأرشيف للفحص...</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">هذه الصيغة تحتاج تطبيعًا مؤقتًا إلى ISO/GCM، لكن أداة التطبيع غير متاحة حاليًا.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">مجلد PS3 JB لا يتحول إلى Redump ISO؛ هذا مسار IRD فقط.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3DecryptedNotOriginal">نسخة PS3 مفكوكة التشفير. استخدم ملف IRD للتحقق من المحتوى.</sys:String>
@@ -853,17 +846,9 @@
     <sys:String x:Key="LocOptions_DatabaseMissing">غير موجودة</sys:String>
     <sys:String x:Key="LocOptions_DatabaseReadFailed">الحالة: تعذر قراءة قاعدة البيانات.</sys:String>
 
-    <sys:String x:Key="LocRuntimeTools_UnsafeRuntimeRoot">مسار بيئة التشغيل يقع خارج نطاق المجلد الآمن للتطبيق.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_UnsafeToolExtractionPath">مسار استخراج الأداة يقع خارج نطاق المجلد الآمن للتطبيق.</sys:String>
-
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolMissing">تعذر العثور على أدوات المعالجة الداخلية.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolInvalid">ملف أدوات المعالجة الداخلية غير صالح.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolEmptyWrite">فشل في تهيئة أدوات المعالجة الداخلية (خطأ في الكتابة).</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolSizeMismatch">عدم تطابق في حجم أدوات المعالجة الداخلية.</sys:String>
-
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolUnsafe">مسار أداة chdman المستخرجة يقع خارج المجلد الآمن.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolMissing">تعذر العثور على أداة chdman بعد اكتمال التهيئة.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolInvalid">ملف أداة chdman المستخرج غير صالح أو تالف.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolUnsafe">مسار أداة chdman المرفقة ليس المسار الآمن المتوقع داخل مجلد التطبيق.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolMissing">تعذر العثور على أداة chdman المرفقة.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolInvalid">أداة chdman المرفقة غير صالحة أو تم تعديلها.</sys:String>
     <sys:String x:Key="LocRuntimeTools_UnsupportedCpu">هذا المعالج لا يدعم مجموعة تعليمات x86-64-v2 المطلوبة لتشغيل chdman 0.289.</sys:String>
 
     <sys:String x:Key="LocArchive_NoChdFile">لم يتم العثور على ملف CHD داخل الأرشيف.</sys:String>
@@ -1109,7 +1094,7 @@
     <sys:String x:Key="LocPerformance_ChdmanOptionsDesc">تخصيص وضع الأداء، وعدد مسارات المعالجة، وإعدادات الضغط. لاحظ أن رفع الإعدادات يسرع عملية التحويل ولكنه يستهلك المزيد من موارد المعالج وذاكرة النظام.</sys:String>
 
     <sys:String x:Key="LocPerformance_ProcessorCount">عدد مسارات الضغط (Threads)</sys:String>
-    <sys:String x:Key="LocPerformance_ConcurrentConversions">عمليات التحويل المتزامنة</sys:String>
+    <sys:String x:Key="LocPerformance_ConcurrentConversions">عدد الملفات التي يتم تحويلها في نفس الوقت</sys:String>
     <sys:String x:Key="LocPerformance_PerformanceMode">وضع الأداء (Performance Mode)</sys:String>
     <sys:String x:Key="LocPerformance_ProcessPriority">أولوية العملية (Priority)</sys:String>
     <sys:String x:Key="LocPerformance_IsoCreateMode">نمط إنشاء ملفات CHD</sys:String>
@@ -1156,7 +1141,7 @@
     <sys:String x:Key="LocRedumpSettings_Description">إجراء فحص Redump يدوياً من الواجهة الرئيسية. ملاحظة: الفحص لا يبدأ تلقائياً عند إضافة الملفات أو أثناء معالجتها.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_ManualScanSection">إعدادات الفحص اليدوي (Redump)</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">إظهار أدوات Redump في الواجهة الرئيسية</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">تفعيل أدوات Redump في الواجهة الرئيسية</sys:String>
     <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">إضافة زر الفحص وحالة المطابقة للملف المختار. ملاحظة: عملية الفحص تتم يدوياً فقط.</sys:String>
     <sys:String x:Key="LocRedumpSettings_ShowInMainTooltip">تفعيل أدوات فحص Redump وعرض نتائج المطابقة في الواجهة الرئيسية.</sys:String>
 
@@ -1186,7 +1171,7 @@
     <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">اختر مجلد Redump</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">استعراض...</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختر مجلد Redump من جهازك.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص مجلد Redump DAT</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص المجلد</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">يعرض أعداد DAT/XML و CUE قبل تجهيز القاعدة.</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">تجهيز قاعدة المطابقة</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">يستورد ملفات DAT/XML المختارة إلى SQLite لتفعيل فحص الألعاب.</sys:String>
@@ -1231,18 +1216,26 @@
     <sys:String x:Key="LocCommon_Apply">تطبيق</sys:String>
 
     <sys:String x:Key="LocOptions_WindowTitle">الخيارات المتقدمة</sys:String>
-    <sys:String x:Key="LocOptions_HeaderDescription">ضبط إعدادات التشغيل، والتحقق، والمسارات، والضغط.</sys:String>
+    <sys:String x:Key="LocOptions_HeaderDescription">&#x2067;إدارة التحويل والملفات وريدمب والأداء والإضافات.&#x2069;</sys:String>
     <sys:String x:Key="LocOptions_SectionsTitle">الأقسام</sys:String>
     <sys:String x:Key="LocOptions_SectionsDescription">اختيار القسم المراد تعديله.</sys:String>
     <sys:String x:Key="LocOptions_TabGeneral">عام</sys:String>
-    <sys:String x:Key="LocOptions_TabPaths">المسارات</sys:String>
-    <sys:String x:Key="LocOptions_TabRedump">Redump</sys:String>
-    <sys:String x:Key="LocOptions_TabProcessing">المعالجة</sys:String>
-    <sys:String x:Key="LocOptions_TabPerformance">الأداء</sys:String>
+    <sys:String x:Key="LocOptions_TabPaths">&#x2067;الملفات&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabRedump">&#x2067;ريدمب&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabProcessing">&#x2067;التحويل&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabPerformance">&#x2067;الأداء&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabAddons">&#x2067;الإضافات&#x2069;</sys:String>
+    <sys:String x:Key="LocConversion_EngineSection">&#x2067;محرك التحويل&#x2069;</sys:String>
+    <sys:String x:Key="LocConversion_ChdSection">&#x2067;إعدادات CHD&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_OrganizeSection">&#x2067;إدارة الملفات&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_OutputSection">&#x2067;الإخراج ومساحة العمل&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_ResultsSection">&#x2067;إدارة النتائج&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_CleanupSection">&#x2067;التنظيف&#x2069;</sys:String>
+    <sys:String x:Key="LocPerformance_RuntimeSection">&#x2067;الموارد والتنفيذ&#x2069;</sys:String>
     <sys:String x:Key="LocExternalTools_Title">Hakamiq-CsoKit</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">متاح</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">غير موجود</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">تعذر التحقق</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">الأداة متصلة بنجاح</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">الأداة غير متوفرة في المسار المخصص:</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">تعذر الاتصال بالأداة في المسار:</sys:String>
     <sys:String x:Key="LocExternalTools_OpenFolder">فتح مجلد الأدوات</sys:String>
     <sys:String x:Key="LocExternalTools_Recheck">إعادة الفحص</sys:String>
     <sys:String x:Key="LocExternalTools_CopySetupInstructions">نسخ تعليمات الإعداد</sys:String>
@@ -1316,7 +1309,10 @@
     <sys:String x:Key="LocMain_OpenSourceFailedFooter">تعذر فتح ملف المصدر.</sys:String>
     <sys:String x:Key="LocMain_OpenSourceFailedBody">تعذر فتح ملف المصدر في مستكشف الملفات.</sys:String>
 
-    <sys:String x:Key="LocRedump_ScanCancelledFooter">تم إلغاء فحص Redump.</sys:String>
+    <sys:String x:Key="LocRedump_ScanCancelledFooter">تم إيقاف فحص Redump.</sys:String>
+    <sys:String x:Key="LocRedump_CancelRequestedFooter">جارٍ إيقاف فحص Redump...</sys:String>
+    <sys:String x:Key="LocRedump_CancelScanAction">إيقاف</sys:String>
+    <sys:String x:Key="LocRedump_CancelScanTooltip">إيقاف فحص Redump الحالي</sys:String>
     <sys:String x:Key="LocRedump_SelectedScanFailedFooter">تعذر فحص العنصر المحدد عبر Redump.</sys:String>
     <sys:String x:Key="LocRedump_ScanTitle">فحص Redump</sys:String>
     <sys:String x:Key="LocRedump_AllScanStartedFooter">بدأ فحص Redump للعناصر المتاحة.</sys:String>
@@ -1490,7 +1486,7 @@
     <sys:String x:Key="LocAbout_CreditsPrivacyNotice">تُعرض الأسماء العامة فقط، وتم إدراجها تقديراً لمساهمتهم.</sys:String>
     <sys:String x:Key="LocAbout_CreditDiscordTooltip">فتح خادم Discord</sys:String>
 
-    <sys:String x:Key="LocAbout_WindowTitle">حول {0}</sys:String>
+    <sys:String x:Key="LocAbout_WindowTitle">حول</sys:String>
     <sys:String x:Key="LocAbout_DeveloperColumnTitle">المطور</sys:String>
     <sys:String x:Key="LocAbout_ContributorsColumnTitle">المساهمون</sys:String>
     <sys:String x:Key="LocAbout_LicenseColumnTitle">الترخيص والملاحظات</sys:String>
@@ -1544,10 +1540,8 @@
     <sys:String x:Key="LocQueueAdd_ScannedItemsFormat">تم تجهيز {0} من أصل {1} عنصر.</sys:String>
     <sys:String x:Key="LocQueueAdd_CancelAdd">إلغاء الإضافة</sys:String>
     <sys:String x:Key="LocQueueAdd_AddCancelled">تم إيقاف عملية إضافة الملفات.</sys:String>
-    <sys:String x:Key="LocQueueAdd_SkippedCorruptArchives">تم تجاهل بعض الأرشيفات لأنها تالفة أو غير قابلة للقراءة.</sys:String>
     <sys:String x:Key="LocQueueAdd_SkippedUnsupportedOrDuplicate">تم تجاهل الملفات غير المدعومة أو التالفة أو المكررة.</sys:String>
-    <sys:String x:Key="LocQueueAdd_ArchivePreviewTimeout">استغرق فحص الأرشيف وقتاً طويلاً، لذا تم تخطيه.</sys:String>
-    <sys:String x:Key="LocQueueAdd_ArchivePreviewCancelled">تم إلغاء فحص الأرشيف.</sys:String>
+    <sys:String x:Key="LocArchive_DescriptorReadTimeout">استغرقت قراءة ملف الوصف داخل الأرشيف وقتًا طويلاً.</sys:String>
     <sys:String x:Key="LocQueue_OperationLogDisplay">سجل العملية: {0}</sys:String>
 
     <sys:String x:Key="LocIntakeReview_Title">مراجعة الملفات قبل الإضافة</sys:String>
@@ -1619,56 +1613,7 @@
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">هذا النوع من الملفات لا يدعم تقرير التحقق التفصيلي حالياً.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">نجاح الفحص لا يضمن تشغيل اللعبة على كل محاكي أو جهاز؛ التوافق يعتمد على دعم المنصة والإعدادات وطريقة التشغيل.</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Title">تنبيه قبل البدء</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Subtitle">قد تكون سرعة التحويل أقل من المعتاد</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SummaryTitle">الملخص</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SourceLabel">المصدر</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputLabel">الإخراج</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WorkspaceLabel">مجلد العمل المؤقت</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_DeviceKindLabel">نوع القرص</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_RecommendationTitle">الخيار الموصى به</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WarningsTitle">التفاصيل</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_TechnicalPathLabel">المسار</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_DoNotShowAgain">عدم إظهار هذه النافذة مرة أخرى</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_ContinueRecommended">متابعة بالإعداد الموصى به</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OpenOptions">فتح الإعدادات المتقدمة</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Cancel">إلغاء</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Device_Unknown">غير معروف</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Hdd">قرص HDD</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_SataSsd">SSD (SATA)</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_NvmeSsd">SSD (NVMe)</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Removable">وحدة تخزين خارجية</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Network">مسار شبكي</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_Severity_Info">معلومة</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Recommendation">توصية</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Warning">تنبيه</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Blocking">إجراء مطلوب</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_SourceDeviceUnknown">تعذر تحديد نوع وحدة تخزين المصدر. سيستخدم التطبيق إعدادات آمنة لضمان استقرار العملية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputDeviceUnknown">تعذر تحديد نوع وحدة تخزين الإخراج. سيتم التعامل مع مسار الوجهة بحذر لتفادي مشاكل النقل.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_PendingWorkspaceDeviceUnknown">تعذر تحديد نوع وحدة تخزين مجلد العمل المؤقت. سيتم التعامل مع المسار بحذر.</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_SourceIsHdd">المصدر على قرص HDD؛ قد تكون القراءة أبطأ مع الملفات الكبيرة أو متعددة المسارات.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputIsHdd">الإخراج على قرص HDD؛ قد تكون كتابة ملفات CHD أبطأ من SSD أو NVMe.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SourceAndOutputSameHdd">المصدر والإخراج على نفس قرص HDD. قد يقل الأداء بسبب القراءة والكتابة على نفس القرص.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputIsFastStorage">الإخراج على SSD/NVMe، وهذا مناسب لكتابة ملفات CHD مباشرة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputFastStorage">الإخراج على SSD/NVMe، وهذا مناسب لكتابة ملفات CHD مباشرة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputCrossVolumeIsAllowed">يمكن استخدام قرص مختلف للمصدر والإخراج. سيقرأ التطبيق ملف المصدر من قرص، ويكتب ملف CHD مباشرة في مجلد الإخراج المحدد.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_LargeOutputShouldBeWrittenDirectly">لأفضل أداء مع ملفات CHD الكبيرة، يُفضل كتابة الملف الناتج مباشرة في مجلد الإخراج النهائي، أو داخل مجلد عمل مؤقت على نفس قرص الإخراج.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CrossVolumeFinalMoveShouldBeAvoided">تجنب إنشاء ملف CHD على قرص ثم نقله إلى قرص آخر بعد الانتهاء؛ لأن ذلك قد يضيف وقتًا طويلًا ويحتاج إلى مساحة إضافية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_BinCueRescueRequiresSameVolumeWorkspace">معالجة ملفات BIN/CUE تحتاج إلى مجلد عمل على نفس قرص ملفات BIN حتى تتم العملية بأمان.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CustomPendingWorkspaceDifferentVolumeForBinCueRescue">مجلد العمل المؤقت الذي اخترته موجود على قرص مختلف عن ملفات BIN، لذلك سيستخدم التطبيق خيارًا آمنًا لهذه العملية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_AutoSameVolumeWorkspaceRecommended">يوصى باستخدام مجلد عمل تلقائي آمن على نفس قرص المصدر لهذه العملية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_HardLinkMayFailAcrossVolumes">إنشاء الروابط الصلبة (Hard Links) لا يعمل عادةً إذا كانت الملفات على أقراص مختلفة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CustomWorkspaceUnsafe">مجلد العمل المؤقت المحدد غير مناسب أو غير آمن لهذه العملية.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WorkspaceFallsBackToAuto">سيستخدم التطبيق مجلد عمل آمنًا تلقائيًا لهذه العملية فقط.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UnknownStoragePolicyUsed">سيستخدم التطبيق إعداد تخزين آمن لأن بعض معلومات الأقراص غير متاحة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Summary">سيكتب التطبيق ملفات CHD الكبيرة مباشرة في مجلد الإخراج، ويتجنب النقل الكبير بين الأقراص، ويستخدم مجلد عمل مؤقتًا آمنًا على نفس قرص المصدر عند الحاجة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SafetyNote">سيستخدم التطبيق مجلد عمل آمنًا لهذه العملية، ويتجنب نسخ ملفات BIN الكبيرة أو نقل ملفات CHD بين الأقراص بعد الانتهاء.</sys:String>
-    <sys:String x:Key="LocPaths_ShowStorageAdvisorDialog">إظهار نصائح السرعة والأداء قبل التحويل</sys:String>
-    <sys:String x:Key="LocPaths_ShowStorageAdvisorDialogDesc">يعرض تنبيهًا بسيطًا إذا كان مكان الملفات قد يبطئ العملية، مثل استخدام قرص HDD بدل SSD أو NVMe.</sys:String>
     <sys:String x:Key="LocAbout_DiscordTooltip">Discord</sys:String>
 
     <sys:String x:Key="LocChdLogicalReport_Title">تقرير CHD</sys:String>
@@ -1684,20 +1629,12 @@
     <sys:String x:Key="LocChdLogicalReport_HunkSizeLabel">حجم الكتلة</sys:String>
     <sys:String x:Key="LocChdLogicalReport_TotalHunksLabel">عدد الكتل</sys:String>
     <sys:String x:Key="LocChdLogicalReport_DecodedCacheLabel">ذاكرة التخزين المؤقت</sys:String>
-    <sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">الوقت: {0}، الناتج: {1}، السرعة: {2}، المتبقي: {3}</sys:String>
+    <sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">الوقت {0} · الناتج {1} · السرعة {2} · المتبقي {3}</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateFormat">{0}/ث</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_RateCalculating">جارٍ قياس السرعة</sys:String>
     <sys:String x:Key="LocQueue_RuntimeProgress_EtaCalculating">جارٍ الحساب</sys:String>
     <sys:String x:Key="LocMeta_Target_Folder">مجلد</sys:String>
     <sys:String x:Key="LocMeta_Target_SplitIso">أجزاء ISO</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryTitle">قد يكون التحويل أبطأ</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryText">المصدر والإخراج على نفس قرص HDD. قد يجعل هذا التحويل أبطأ مع الملفات الكبيرة.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserRecommendationText">الأفضل أن تكون ملفات اللعبة ومجلد الإخراج على SSD. إذا كانت اللعبة على HDD، اختر مجلد إخراج على SSD لتقليل الضغط على القرص. لا ينقل البرنامج ملفات اللعبة تلقائيًا.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_ShowDetails">عرض التفاصيل</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UseRecommended">مراجعة الإعدادات</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Continue">متابعة</sys:String>
-
 
     <sys:String x:Key="LocPs3Intake_PipelineIsoToChd">ISO → chdman createdvd → CHD</sys:String>
     <sys:String x:Key="LocPs3Intake_PipelineFolderToChd">مجلد → ISO مؤقت → chdman createdvd → CHD</sys:String>
@@ -1775,7 +1712,7 @@
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">تم منع إعادة ضغط ملف CHD إلى CHD مباشرة. المسار الآمن هو استخراج ملف الوسائط الأصلي أولًا، ثم إعادة بناء ملف CHD وفقًا لسياسة المنصة.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">ملخص سريع للملفات قبل تجهيز قاعدة المطابقة.</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جارٍ إعادة الفحص...</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جارٍ التحقق من الأداة...</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">ملاحظة</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">تعذر التحقق من سلامة ملف CHD.&#x0A;قد يكون الملف تالفاً، غير مكتمل، أو بصيغة غير مدعومة.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">تنبيه</sys:String>

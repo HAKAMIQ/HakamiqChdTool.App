@@ -2,7 +2,14 @@
 [CmdletBinding()]
 param(
     [Alias("OutputPath")]
-    [string] $Output = ".\Release"
+    [string] $Output = ".\Release",
+
+    [switch] $RequireAuthenticode,
+
+    [string] $ExpectedSignerThumbprint,
+
+    [ValidateSet("auto", "runtime-required", "self-contained")]
+    [string] $DeploymentMode = "auto"
 )
 
 $ErrorActionPreference = "Stop"
@@ -181,6 +188,7 @@ function Assert-RootIsClean {
         "HakamiqChdTool.runtimeconfig.json",
         "release-manifest.json"
     )
+    $runtimeBinaryPolicy = Get-DeclaredRuntimeBinaryPolicy
 
     $rootFiles = Get-ChildItem -LiteralPath $OutputPath -File -Force -ErrorAction Stop
     foreach ($file in $rootFiles) {
@@ -189,9 +197,9 @@ function Assert-RootIsClean {
         }
 
         $isApprovedRootFile = $approvedRootFiles -contains $file.Name
-        $isDependencyDll = $file.Extension.Equals(".dll", [System.StringComparison]::OrdinalIgnoreCase)
+        $isDeclaredRuntimeBinary = $runtimeBinaryPolicy.AllowedRootNames.Contains($file.Name)
 
-        if (-not ($isApprovedRootFile -or $isDependencyDll)) {
+        if (-not ($isApprovedRootFile -or $isDeclaredRuntimeBinary)) {
             throw "Root release file is not approved: $($file.Name). Keep only .NET publish dependencies in root and move documentation/legal files under docs."
         }
 
@@ -325,6 +333,7 @@ function Assert-RequiredReleaseFiles {
         "HakamiqChdTool.deps.json",
         "HakamiqChdTool.runtimeconfig.json",
         "release-manifest.json",
+        "Tools\chdman.exe",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
@@ -357,6 +366,7 @@ function Assert-RequiredReleaseFiles {
         "HakamiqChdTool.deps.json",
         "HakamiqChdTool.runtimeconfig.json",
         "release-manifest.json",
+        "Tools\chdman.exe",
         "Tools\7zip\7z.exe",
         "Tools\7zip\7z.dll",
         "Tools\7zip\License.txt",
@@ -406,7 +416,7 @@ function Assert-NoDeveloperArtifacts {
     }
 
     Assert-NoDirectoriesByName `
-        -Names @(".git", ".github", ".vs", "scripts", "bin", "obj") `
+        -Names @(".git", ".github", ".vs", ".runtime", "scripts", "bin", "obj", "TestResults") `
         -Message "Developer/build directory must not be included in end-user release:"
 
     Assert-NoFilesByExtension `
@@ -418,12 +428,58 @@ function Assert-NoDeveloperArtifacts {
         -Message "Debug symbol file must not be included in public end-user release:"
 
     Assert-NoFilesByExtension `
-        -Extensions @(".tmp", ".log", ".zip", ".7z", ".rar") `
+        -Extensions @(".tmp", ".bak", ".log", ".zip", ".7z", ".rar") `
         -Message "Temporary/archive/log file must not be included in end-user release:"
 
     Assert-NoFilesByNamePattern `
-        -Patterns @("*.user", "*.suo", "*.cache", "*Development*.json", "*.deps.dev.json") `
+        -Patterns @("owner.pid", "*.user", "*.suo", "*.cache", "*Development*.json", "*.deps.dev.json") `
         -Message "Development-only file must not be included in end-user release:"
+}
+
+function Assert-DeploymentMode {
+    $runtimeConfigPath = Join-Path $OutputPath "HakamiqChdTool.runtimeconfig.json"
+    try {
+        $runtimeConfig = Get-Content -LiteralPath $runtimeConfigPath -Raw -Encoding UTF8 |
+            ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        throw "Could not parse HakamiqChdTool.runtimeconfig.json for deployment-mode verification: $($_.Exception.Message)"
+    }
+
+    $runtimeOptions = $runtimeConfig.runtimeOptions
+    $frameworks = @($runtimeOptions.frameworks | Where-Object { $null -ne $_ })
+    $includedFrameworks = @($runtimeOptions.includedFrameworks | Where-Object { $null -ne $_ })
+
+    $actualMode = if ($frameworks.Count -gt 0 -and $includedFrameworks.Count -eq 0) {
+        "runtime-required"
+    }
+    elseif ($includedFrameworks.Count -gt 0 -and $frameworks.Count -eq 0) {
+        "self-contained"
+    }
+    else {
+        throw "Release runtime metadata does not identify exactly one supported deployment mode."
+    }
+
+    $declaredFrameworks = if ($actualMode -eq "self-contained") {
+        $includedFrameworks
+    }
+    else {
+        $frameworks
+    }
+
+    foreach ($requiredFramework in @("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App")) {
+        $framework = $declaredFrameworks | Where-Object { $_.name -eq $requiredFramework } | Select-Object -First 1
+        if ($null -eq $framework -or [string]$framework.version -notmatch '^10\.') {
+            throw "Release runtime metadata is missing the required .NET 10 framework: $requiredFramework"
+        }
+    }
+
+    if ($DeploymentMode -ne "auto" -and $DeploymentMode -ne $actualMode) {
+        throw "Release deployment mode mismatch. Expected=$DeploymentMode Actual=$actualMode"
+    }
+
+    $script:VerifiedDeploymentMode = $actualMode
+    Write-Info "Verified deployment mode from .NET runtime metadata: $actualMode"
 }
 
 function Assert-NoUnsupportedMameTools {
@@ -468,6 +524,7 @@ function Assert-OnlyApprovedToolFiles {
     }
 
     $approved = @(
+        "chdman.exe",
         "7zip\7z.exe",
         "7zip\7z.dll",
         "7zip\license.txt",
@@ -523,16 +580,26 @@ function Assert-OnlyApprovedToolDirectories {
     }
 }
 
-function Assert-NoStandaloneChdmanExecutable {
-    $matches = Get-ChildItem -LiteralPath $OutputPath -File -Recurse -Force -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name.Equals("chdman.exe", [System.StringComparison]::OrdinalIgnoreCase) }
+function Assert-BundledChdmanContract {
+    $expectedPath = [System.IO.Path]::GetFullPath((Join-Path $OutputPath "Tools\chdman.exe"))
+    $matches = @(
+        Get-ChildItem -LiteralPath $OutputPath -File -Recurse -Force -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name.Equals("chdman.exe", [System.StringComparison]::OrdinalIgnoreCase) }
+    )
 
-    if ($matches) {
+    if ($matches.Count -ne 1 -or -not $matches[0].FullName.Equals($expectedPath, [System.StringComparison]::OrdinalIgnoreCase)) {
         foreach ($match in $matches) {
-            Write-Err "Standalone chdman.exe must not be included in the end-user release because it is embedded and extracted at runtime: $($match.FullName)"
+            Write-Err "Unexpected chdman.exe location in end-user release: $($match.FullName)"
         }
 
-        throw "Standalone chdman.exe detected in end-user release."
+        throw "End-user release must contain exactly one chdman.exe at Tools\chdman.exe."
+    }
+
+    $expectedSha256 = "8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F"
+    $actualSha256 = (Get-FileHash -LiteralPath $expectedPath -Algorithm SHA256).Hash
+
+    if (-not $actualSha256.Equals($expectedSha256, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Bundled Tools\chdman.exe SHA-256 mismatch. Expected=$expectedSha256 Actual=$actualSha256"
     }
 }
 
@@ -633,9 +700,27 @@ function Assert-NoSquashFsArtifacts {
 }
 
 function Assert-NoCrashDumpHelper {
-    Assert-NoFilesByNamePattern `
-        -Patterns @("createdump.exe") `
-        -Message "Crash dump helper must not be included in end-user release:"
+    $matches = Get-ChildItem -LiteralPath $OutputPath -File -Recurse -Force -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name.Equals("createdump.exe", [System.StringComparison]::OrdinalIgnoreCase) }
+
+    if (-not $matches) {
+        return
+    }
+
+    $approvedPath = Join-Path $OutputPath "createdump.exe"
+    $runtimeBinaryPolicy = Get-DeclaredRuntimeBinaryPolicy
+
+    foreach ($match in $matches) {
+        $isApprovedSelfContainedRuntimeFile =
+            $script:VerifiedDeploymentMode -eq "self-contained" -and
+            $match.FullName.Equals($approvedPath, [System.StringComparison]::OrdinalIgnoreCase) -and
+            $runtimeBinaryPolicy.AllowedRootNames.Contains($match.Name)
+
+        if (-not $isApprovedSelfContainedRuntimeFile) {
+            Write-Err "Crash dump helper must not be included in end-user release: $($match.FullName)"
+            throw "Crash dump helper must not be included in end-user release."
+        }
+    }
 }
 
 function Assert-NoSuspiciousNestedRelease {
@@ -667,6 +752,226 @@ function Assert-ExecutableFilesAreNotEmpty {
             throw "Executable file is empty: $($exe.FullName)"
         }
     }
+}
+
+function Assert-AuthenticodeSignature {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $RelativePath
+    )
+
+    $path = Join-Path $OutputPath $RelativePath
+    $signature = Get-AuthenticodeSignature -LiteralPath $path
+
+    if ($signature.Status -ne [System.Management.Automation.SignatureStatus]::Valid) {
+        throw "Authenticode signature is not valid for ${RelativePath}: $($signature.Status) $($signature.StatusMessage)"
+    }
+
+    if ($null -eq $signature.SignerCertificate) {
+        throw "Authenticode signer certificate is missing for: $RelativePath"
+    }
+
+    if ($null -eq $signature.TimeStamperCertificate) {
+        throw "RFC 3161 timestamp/countersigner certificate is missing for: $RelativePath"
+    }
+
+    $rsaPublicKey = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPublicKey(
+        $signature.SignerCertificate)
+    if ($null -eq $rsaPublicKey) {
+        throw "Authenticode signer certificate must use an RSA public key for: $RelativePath"
+    }
+    $rsaPublicKey.Dispose()
+
+    if (-not [string]::IsNullOrWhiteSpace($ExpectedSignerThumbprint)) {
+        $expected = ($ExpectedSignerThumbprint -replace '\s', '').ToUpperInvariant()
+        $actual = ($signature.SignerCertificate.Thumbprint -replace '\s', '').ToUpperInvariant()
+        if ($expected -ne $actual) {
+            throw "Authenticode signer thumbprint mismatch for ${RelativePath}. Expected $expected, actual $actual."
+        }
+    }
+
+    return $signature
+}
+
+function Assert-BundledToolHashes {
+    $expectedHashes = [ordered]@{
+        "Tools\chdman.exe" = "8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F"
+        "Tools\7zip\7z.exe" = "83967F1B02B43C4EFEDA302795722C809E0E81B8307DE73558D10484D5676A7D"
+        "Tools\7zip\7z.dll" = "69FD4DF057985C40E510E2FAC182881C7F85E90AA13EC703F763A8FDB2CE61F8"
+        "Tools\hakamiq-cso\win-x64\csokit.exe" = "FB1BF1E6BD0C51CAB54F505E7E44404F1E5CBFBFF3CB0FFC7EEC159D7D9254C0"
+        "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll" = "B396B0CA41BE7F905E8EA73C285C1F5089C8DA4FB1E4C157775BF198B1F70589"
+    }
+
+    foreach ($relativePath in $expectedHashes.Keys) {
+        $path = Join-Path $OutputPath $relativePath
+        $actualHash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
+        $expectedHash = $expectedHashes[$relativePath]
+
+        if (-not $actualHash.Equals($expectedHash, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Bundled tool SHA-256 mismatch for ${relativePath}. Expected=$expectedHash Actual=$actualHash"
+        }
+    }
+}
+
+function Get-DeclaredRuntimeBinaryPolicy {
+    $depsPath = Join-Path $OutputPath "HakamiqChdTool.deps.json"
+    try {
+        $deps = Get-Content -LiteralPath $depsPath -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        throw "Could not parse HakamiqChdTool.deps.json for runtime binary allowlisting: $($_.Exception.Message)"
+    }
+
+    $targetName = [string] $deps.runtimeTarget.name
+    $targetProperty = $deps.targets.PSObject.Properties |
+        Where-Object { $_.Name -eq $targetName } |
+        Select-Object -First 1
+    if ($null -eq $targetProperty) {
+        throw "Release dependency manifest does not contain runtime target: $targetName"
+    }
+
+    $allowedRootNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    [void] $allowedRootNames.Add("HakamiqChdTool.exe")
+    $allowedNestedPaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($libraryProperty in $targetProperty.Value.PSObject.Properties) {
+        $library = $libraryProperty.Value
+
+        foreach ($runtimeAsset in @($library.runtime.PSObject.Properties)) {
+            $extension = [System.IO.Path]::GetExtension($runtimeAsset.Name)
+            if ($extension -in @(".dll", ".exe")) {
+                [void] $allowedRootNames.Add([System.IO.Path]::GetFileName($runtimeAsset.Name))
+            }
+        }
+
+        foreach ($sectionName in @("native", "runtimeTargets")) {
+            $sectionProperty = $library.PSObject.Properties |
+                Where-Object { $_.Name -eq $sectionName } |
+                Select-Object -First 1
+            if ($null -eq $sectionProperty) {
+                continue
+            }
+
+            foreach ($asset in $sectionProperty.Value.PSObject.Properties) {
+                $extension = [System.IO.Path]::GetExtension($asset.Name)
+                if ($extension -in @(".dll", ".exe")) {
+                    [void] $allowedRootNames.Add([System.IO.Path]::GetFileName($asset.Name))
+                    [void] $allowedNestedPaths.Add($asset.Name.Replace('/', '\'))
+                }
+            }
+        }
+    }
+
+    return [pscustomobject]@{
+        AllowedRootNames = $allowedRootNames
+        AllowedNestedPaths = $allowedNestedPaths
+    }
+}
+
+function Assert-OnlyDeclaredRuntimeBinaries {
+    $policy = Get-DeclaredRuntimeBinaryPolicy
+    $allowedRootNames = $policy.AllowedRootNames
+    $allowedNestedPaths = $policy.AllowedNestedPaths
+
+    $binaries = Get-ChildItem -LiteralPath $OutputPath -File -Recurse -Force -ErrorAction Stop |
+        Where-Object {
+            $_.Extension -in @(".dll", ".exe") -and
+            -not $_.FullName.StartsWith((Join-Path $OutputPath "Tools") + "\", [System.StringComparison]::OrdinalIgnoreCase)
+        }
+
+    foreach ($binary in $binaries) {
+        $relativePath = Get-RelativeReleasePath $binary.FullName
+        $directory = [System.IO.Path]::GetDirectoryName($relativePath)
+
+        if ([string]::IsNullOrEmpty($directory)) {
+            if (-not $allowedRootNames.Contains($binary.Name)) {
+                throw "Unknown root executable/library is not declared by HakamiqChdTool.deps.json: $relativePath"
+            }
+        }
+        elseif (-not $allowedNestedPaths.Contains($relativePath)) {
+            throw "Unknown nested executable/library is not declared by HakamiqChdTool.deps.json: $relativePath"
+        }
+    }
+}
+
+function Assert-AuthenticodeReport {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Management.Automation.Signature[]] $Signatures
+    )
+
+    $reportPath = Join-Path $OutputPath "docs\authenticode-report.json"
+    if (-not (Test-Path -LiteralPath $reportPath -PathType Leaf)) {
+        throw "Authenticode signing report is missing: docs\authenticode-report.json"
+    }
+
+    try {
+        $report = Get-Content -LiteralPath $reportPath -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        throw "Authenticode signing report is not valid JSON: $($_.Exception.Message)"
+    }
+
+    if ($report.format -ne "HakamiqAuthenticodeReport.v1") {
+        throw "Authenticode signing report format is invalid."
+    }
+
+    $signerThumbprints = @(
+        $Signatures |
+            ForEach-Object { ($_.SignerCertificate.Thumbprint -replace '\s', '').ToUpperInvariant() } |
+            Select-Object -Unique
+    )
+    if ($signerThumbprints.Count -ne 1) {
+        throw "Owned Hakamiq release files must use the same Authenticode signer certificate."
+    }
+
+    $signerCertificate = $Signatures[0].SignerCertificate
+    $reportThumbprint = ([string] $report.certificateThumbprint -replace '\s', '').ToUpperInvariant()
+    if ($reportThumbprint -ne $signerThumbprints[0]) {
+        throw "Authenticode report signer thumbprint does not match the signed release files."
+    }
+
+    if ([string] $report.certificateSubject -ne $signerCertificate.Subject) {
+        throw "Authenticode report signer subject does not match the signed release files."
+    }
+
+    $expectedNotAfterUtc = $signerCertificate.NotAfter.ToUniversalTime().ToString("O")
+    if ([string] $report.certificateNotAfterUtc -ne $expectedNotAfterUtc) {
+        throw "Authenticode report certificate expiration does not match the signed release files."
+    }
+
+    if ($report.publicKeyAlgorithm -ne "RSA" -or
+        $report.fileDigestAlgorithm -ne "SHA256" -or
+        $report.timestampProtocol -ne "RFC3161" -or
+        $report.timestampDigestAlgorithm -ne "SHA256") {
+        throw "Authenticode report signing algorithms do not match the required RSA/SHA256/RFC3161 policy."
+    }
+
+    $timestampUri = $null
+    if (-not [System.Uri]::TryCreate([string] $report.timestampUrl, [System.UriKind]::Absolute, [ref] $timestampUri) -or
+        $timestampUri.Scheme -notin @("http", "https")) {
+        throw "Authenticode report timestamp URL is invalid."
+    }
+
+    $expectedFiles = @("HakamiqChdTool.dll", "HakamiqChdTool.exe")
+    $reportedFiles = @($report.files | ForEach-Object { [string] $_ } | Sort-Object -Unique)
+    $fileDifferences = @(Compare-Object -ReferenceObject $expectedFiles -DifferenceObject $reportedFiles)
+    if ($reportedFiles.Count -ne $expectedFiles.Count -or $fileDifferences.Count -ne 0) {
+        throw "Authenticode report file list does not match the owned Hakamiq release files."
+    }
+}
+
+function Assert-AuthenticodePolicy {
+    if (-not $RequireAuthenticode) {
+        return
+    }
+
+    $signatures = @(
+        Assert-AuthenticodeSignature "HakamiqChdTool.exe"
+        Assert-AuthenticodeSignature "HakamiqChdTool.dll"
+    )
+
+    Assert-AuthenticodeReport -Signatures $signatures
 }
 
 
@@ -816,18 +1121,22 @@ Write-Info "Verifying end-user release output: $OutputPath"
 
 Assert-RequiredReleaseFiles
 Assert-RootIsClean -OutputPath $OutputPath
+Assert-DeploymentMode
 Assert-NoDeveloperArtifacts
 Assert-NoUnsupportedMameTools
-Assert-NoStandaloneChdmanExecutable
+Assert-BundledChdmanContract
 Assert-NoLibchdrReleaseArtifacts
 Assert-NoOldCsoToolArtifacts
 Assert-NoForbiddenExternalArtifacts
 Assert-OnlyApprovedToolFiles
 Assert-OnlyApprovedToolDirectories
 Assert-CsoKitBundledToolContract
+Assert-BundledToolHashes
+Assert-OnlyDeclaredRuntimeBinaries
 Assert-NoSquashFsArtifacts
 Assert-NoCrashDumpHelper
 Assert-ExecutableFilesAreNotEmpty
+Assert-AuthenticodePolicy
 Assert-ReleaseManifest
 Assert-NoSuspiciousNestedRelease
 

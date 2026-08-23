@@ -52,8 +52,6 @@ public static class AppPaths
 
     public static string LogsDirectory => EnsureDirectory(Path.Combine(ActiveDataRoot, "Logs"));
 
-    public static string RuntimeDirectory => EnsureDirectory(Path.Combine(LocalAppRoot, ".runtime"));
-
     public static string ProcessTempRoot => LazyProcessTempRoot.Value;
 
     public static string TempDirectory => ProcessTempRoot;

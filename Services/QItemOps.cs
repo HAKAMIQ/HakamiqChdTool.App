@@ -10,7 +10,8 @@ public static class QueueItemOperationCatalog
 
     public static string GetInitialRequestedAction(string? path)
     {
-        IReadOnlyList<string> operations = GetSupportedOperationCodes(path);
+        IReadOnlyList<string> operations =
+            GetSupportedOperationCodes(path);
 
         return operations.Count switch
         {
@@ -20,6 +21,10 @@ public static class QueueItemOperationCatalog
         };
     }
 
-    public static bool IsOperationAllowed(string? path, string? actionCode) =>
-        QueueOperationCapabilityService.IsOperationAllowed(path, actionCode);
+    public static bool IsOperationAllowed(
+        string? path,
+        string? actionCode) =>
+        QueueOperationCapabilityService.IsOperationAllowed(
+            path,
+            actionCode);
 }

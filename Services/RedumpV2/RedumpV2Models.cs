@@ -55,7 +55,8 @@ public enum RedumpV2ResultState
 
 public sealed record RedumpV2ScanOptions(
     string ChdmanPath,
-    AppSettings? Settings = null);
+    AppSettings? Settings = null,
+    bool SourcePathLeaseHeld = false);
 
 public sealed record RedumpSourceClassification(
     string InputPath,

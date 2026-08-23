@@ -5,7 +5,10 @@ param(
 
     [switch] $VerifyOnly,
 
-    [switch] $KeepOutput
+    [switch] $KeepOutput,
+
+    [ValidateSet('runtime-required', 'self-contained')]
+    [string] $DeploymentMode = 'runtime-required'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -201,7 +204,9 @@ try {
         }
 
         Write-Info "Publishing disposable end-user release output: $outputPath"
-        Invoke-PowerShellFile -ScriptPath $PublishScript -Arguments @('-Output', $outputPath)
+        Invoke-PowerShellFile -ScriptPath $PublishScript -Arguments @(
+            '-Output', $outputPath,
+            '-DeploymentMode', $DeploymentMode)
 
         Write-Info 'Running package cleanliness gate against disposable release output ...'
         Invoke-PowerShellFile -ScriptPath $PackageCleanlinessGateScript -Arguments @('-ReleaseOutput', $outputPath)

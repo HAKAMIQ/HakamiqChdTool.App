@@ -406,8 +406,7 @@ public sealed partial class TaskQueueItemViewModel
     public string IntegrityColumnDisplayArabic =>
         ArabicUi.IntegrityColumnDisplay(
             IntegrityState,
-            IntegrityStatusMessage,
-            IntegrityDetailTooltip);
+            IntegrityStatusMessage);
 
     public bool HasIntegrityColumnDetail =>
         !string.IsNullOrWhiteSpace(
@@ -709,6 +708,34 @@ public sealed partial class TaskQueueItemViewModel
 
     private string BuildActiveRunningDetailArabic()
     {
+        if (RequestedAction == TaskActionCodes.VerifyChd)
+        {
+            return string.Equals(
+                    StatusDetail?.Trim(),
+                    "LocStatus_ReadingChdMetadata",
+                    StringComparison.Ordinal)
+                ? StatusDetailDisplay
+                : ArabicUi.Get("LocRowPhase_Verifying");
+        }
+
+        string conversionStageDetail =
+            StatusDetail?.Trim() switch
+            {
+                "LocConversion_Finalizing"
+                    or "LocConversion_VerifyingCreatedChd"
+                    or "LocConversion_SavingCreatedChd" =>
+                    StatusDetailDisplay,
+
+                _ => string.Empty
+            };
+
+        if (!string.IsNullOrWhiteSpace(
+                conversionStageDetail)
+            && conversionStageDetail != "-")
+        {
+            return conversionStageDetail;
+        }
+
         if (!HasRuntimeProgressDetail)
         {
             return "-";

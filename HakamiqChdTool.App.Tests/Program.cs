@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Tests;
 
-internal static class Program
+internal static partial class Program
 {
     private const int UserSectorSize = 2048;
 
@@ -42,6 +43,12 @@ internal static class Program
         Assembly appAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.GetFullPath(appAssemblyPath));
         var app = new AppReflection(appAssembly);
 
+        string? securityMode = ReadOptionalArgument(args, "--security-mode");
+        if (!string.IsNullOrWhiteSpace(securityMode))
+        {
+            return RunSecurityCampaign(securityMode, args, app, appDirectory);
+        }
+
         string workDirectory = Path.Combine(Path.GetTempPath(), "HakamiqChdTool.Ps2AdvisoryTests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(workDirectory);
 
@@ -62,6 +69,16 @@ internal static class Program
                 new("CUE absolute BIN references require explicit allowance", () => TestCueAbsoluteBinReferenceRequiresExplicitAllowance(app, workDirectory)),
                 new("Extracted CUE/BIN finalization rewrites single BIN name", () => TestExtractedCueBinFinalizationRewritesSingleBinName(app, workDirectory)),
                 new("Extracted CUE/BIN finalization rejects traversal references", () => TestExtractedCueBinFinalizationRejectsTraversal(app, workDirectory)),
+                new("CUE/BIN finalization blocks overwrite when disabled", () => TestCueBinOverwriteDisabledPreservesExistingBundle(app, workDirectory)),
+                new("CUE/BIN finalization replaces an existing bundle transactionally", () => TestCueBinOverwriteReplacesExistingBundle(app, workDirectory)),
+                new("CUE/BIN finalization rolls back a partial overwrite", () => TestCueBinOverwriteRollsBackPartialPromotion(app, workDirectory)),
+                new("Failed CUE/BIN cleanup deletes the validated bundle", () => TestFailedCueBinCleanupDeletesBundle(app, workDirectory)),
+                new("Failed CUE/BIN cleanup rejects unsafe references", () => TestFailedCueBinCleanupRejectsUnsafeReference(app, workDirectory)),
+                new("CHD info parser captures combined and data SHA1", () => TestChdInfoSha1Parsing(app)),
+                new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
+                new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
+                new("Verified conversion source cleanup contract is unchanged", () => TestConversionSourceCleanupContractUnchanged(app)),
+                new("Verified conversion source cleanup includes CSO", () => TestVerifiedConversionSourceCleanupIncludesCso(app, workDirectory)),
                 new("Final extract output uses CHD stem and requested extension", () => TestFinalExtractOutputPathUsesChdStem(app, workDirectory)),
                 new("Final extract output can organize by platform", () => TestFinalExtractOutputPathCanOrganizeByPlatform(app, workDirectory)),
                 new("Verified CHD path is unchanged without organization", () => TestVerifiedChdPathIsUnchangedWithoutOrganization(app, workDirectory)),
@@ -72,14 +89,21 @@ internal static class Program
                 new("Workflow planner creates DVD command for CSO input", () => TestWorkflowPlannerCsoCreatesDvd(app, workDirectory)),
                 new("Media input classifier covers P0 descriptors", () => TestMediaInputClassifierP0(app, workDirectory)),
                 new("Media input pipeline makes P0 decisions", () => TestMediaInputPipelineP0Decisions(app, workDirectory)),
+                new("Fast direct intake honors P0 media evidence", () => TestFastDirectIntakeHonorsP0Evidence(app, workDirectory)),
+                new("Queue operation capabilities honor P0 media evidence", () => TestQueueOperationCapabilitiesHonorP0Evidence(app, workDirectory)),
+                new("Visible queue snapshot scopes Redump to the current section", TestVisibleQueueSnapshotScopesRedump),
+                new("Queue operation intent isolates mode navigation from workflow paths", TestQueueOperationIntentOwnership),
+                new("Quick profile rejects mismatched operation ownership", TestQuickProfileRejectsMismatchedOperation),
                 new("Archive and Redump security policies reject unsafe inputs", () => TestSecurityResourcePolicies(app)),
                 new("Archive resource monitor fails closed", () => TestArchiveResourceMonitorFailsClosed(app)),
                 new("7-Zip output flood terminates the process", () => TestSevenZipOutputFloodTerminatesProcess(app, workDirectory)),
                 new("Redump redirects are validated before every request", () => TestRedumpRedirectValidation(app)),
                 new("Redump clean rebuild rolls back on parse failure", () => TestRedumpRollback(app, workDirectory)),
+                new("Redump ISO and CHD paths complete with explicit stages", () => TestRedumpIsoAndChdPaths(app, workDirectory)),
+                new("Redump commands honor the enabled state", TestRedumpCommandsHonorEnabledState),
                 new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
                 new("Bundled CsoKit 0.6.1 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
-                new("Runtime chdman tampering is rejected", () => TestRuntimeChdmanTamperingIsRejected(app))
+                new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app))
             ];
 
             int passed = 0;
@@ -340,6 +364,267 @@ internal static class Program
         AssertFalse(File.Exists(finalCuePath), "Rejected final CUE should not be created.");
     }
 
+    private static void TestCueBinOverwriteDisabledPreservesExistingBundle(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "cue-overwrite-disabled");
+        string pendingDirectory = Path.Combine(rootDirectory, "pending");
+        string finalDirectory = Path.Combine(rootDirectory, "final");
+        Directory.CreateDirectory(pendingDirectory);
+        Directory.CreateDirectory(finalDirectory);
+
+        string pendingCuePath = Path.Combine(pendingDirectory, "output.cue");
+        string pendingBinPath = Path.Combine(pendingDirectory, "track.bin");
+        string finalCuePath = Path.Combine(finalDirectory, "Game.cue");
+        string finalBinPath = Path.Combine(finalDirectory, "Game.bin");
+
+        byte[] oldBytes = [9, 9, 9, 9];
+        byte[] newBytes = [1, 2, 3, 4];
+
+        File.WriteAllBytes(finalBinPath, oldBytes);
+        File.WriteAllText(finalCuePath, "FILE \"Game.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+        File.WriteAllBytes(pendingBinPath, newBytes);
+        File.WriteAllText(pendingCuePath, "FILE \"track.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertFalse(
+            app.TryFinalizeCueBinBundle(pendingCuePath, finalCuePath, allowOverwrite: false, out _),
+            "CUE/BIN finalization must not replace an existing bundle when overwrite is disabled.");
+        AssertTrue(oldBytes.SequenceEqual(File.ReadAllBytes(finalBinPath)), "Existing BIN changed while overwrite was disabled.");
+        AssertTrue(File.ReadAllText(finalCuePath, Encoding.UTF8).Contains("FILE \"Game.bin\" BINARY", StringComparison.Ordinal), "Existing CUE changed while overwrite was disabled.");
+        AssertTrue(File.Exists(pendingCuePath), "Rejected pending CUE should remain available.");
+        AssertTrue(File.Exists(pendingBinPath), "Rejected pending BIN should remain available.");
+    }
+
+    private static void TestCueBinOverwriteReplacesExistingBundle(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "cue-overwrite-success");
+        string pendingDirectory = Path.Combine(rootDirectory, "pending");
+        string finalDirectory = Path.Combine(rootDirectory, "final");
+        Directory.CreateDirectory(pendingDirectory);
+        Directory.CreateDirectory(finalDirectory);
+
+        string pendingCuePath = Path.Combine(pendingDirectory, "output.cue");
+        string pendingBinPath = Path.Combine(pendingDirectory, "track.bin");
+        string finalCuePath = Path.Combine(finalDirectory, "Game.cue");
+        string finalBinPath = Path.Combine(finalDirectory, "Game.bin");
+        string legacyBinPath = Path.Combine(finalDirectory, "Legacy.bin");
+
+        byte[] newBytes = [1, 2, 3, 4, 5, 6];
+        File.WriteAllBytes(legacyBinPath, [8, 8, 8, 8]);
+        File.WriteAllText(finalCuePath, "FILE \"Legacy.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+        File.WriteAllBytes(pendingBinPath, newBytes);
+        File.WriteAllText(pendingCuePath, "FILE \"track.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n", Encoding.ASCII);
+
+        AssertTrue(
+            app.TryFinalizeCueBinBundle(pendingCuePath, finalCuePath, allowOverwrite: true, out string failureMessageKey),
+            "CUE/BIN overwrite should replace a valid existing bundle. Failure: " + failureMessageKey);
+        AssertTrue(File.Exists(finalCuePath), "Expected replacement CUE to exist.");
+        AssertTrue(File.Exists(finalBinPath), "Expected replacement BIN to exist.");
+        AssertTrue(newBytes.SequenceEqual(File.ReadAllBytes(finalBinPath)), "Replacement BIN contents did not match the pending output.");
+        AssertTrue(File.ReadAllText(finalCuePath, Encoding.UTF8).Contains("FILE \"Game.bin\" BINARY", StringComparison.Ordinal), "Replacement CUE did not reference the rebased BIN name.");
+        AssertFalse(File.Exists(legacyBinPath), "Old CUE dependency should be removed after a successful transactional overwrite.");
+        AssertFalse(File.Exists(pendingCuePath), "Pending CUE should be removed after successful finalization.");
+        AssertFalse(File.Exists(pendingBinPath), "Pending BIN should be promoted after successful finalization.");
+        AssertFalse(Directory.EnumerateFiles(finalDirectory, ".hcb-*", SearchOption.AllDirectories).Any(), "Successful overwrite should not leave rollback files.");
+    }
+
+    private static void TestCueBinOverwriteRollsBackPartialPromotion(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "cue-overwrite-rollback");
+        string pendingDirectory = Path.Combine(rootDirectory, "pending");
+        string finalDirectory = Path.Combine(rootDirectory, "final");
+        Directory.CreateDirectory(pendingDirectory);
+        Directory.CreateDirectory(finalDirectory);
+
+        string pendingCuePath = Path.Combine(pendingDirectory, "output.cue");
+        string pendingTrack1Path = Path.Combine(pendingDirectory, "track1.bin");
+        string pendingTrack2Path = Path.Combine(pendingDirectory, "track2.bin");
+        string finalCuePath = Path.Combine(finalDirectory, "Game.cue");
+        string finalTrack1Path = Path.Combine(finalDirectory, "Game (Track 01).bin");
+
+        byte[] oldTrack1Bytes = [7, 7, 7, 7];
+        byte[] newTrack1Bytes = [1, 1, 1, 1];
+        File.WriteAllBytes(finalTrack1Path, oldTrack1Bytes);
+        File.WriteAllBytes(pendingTrack1Path, newTrack1Bytes);
+        File.WriteAllBytes(pendingTrack2Path, [2, 2, 2, 2]);
+        File.WriteAllText(
+            pendingCuePath,
+            "FILE \"track1.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\nFILE \"track2.bin\" BINARY\r\n  TRACK 02 AUDIO\r\n    INDEX 01 00:02:00\r\n",
+            Encoding.ASCII);
+
+        using (FileStream lockedTrack = new(
+                   pendingTrack2Path,
+                   FileMode.Open,
+                   FileAccess.Read,
+                   FileShare.None))
+        {
+            AssertFalse(
+                app.TryFinalizeCueBinBundle(pendingCuePath, finalCuePath, allowOverwrite: true, out _),
+                "A sharing violation during the second track promotion should fail the bundle transaction.");
+        }
+
+        AssertTrue(oldTrack1Bytes.SequenceEqual(File.ReadAllBytes(finalTrack1Path)), "Rollback did not restore the original final BIN.");
+        AssertFalse(File.Exists(finalCuePath), "Failed overwrite should not leave a new final CUE.");
+        AssertTrue(File.Exists(pendingCuePath), "Failed overwrite should preserve the pending CUE.");
+        AssertTrue(File.Exists(pendingTrack1Path), "Rollback should return an already-promoted BIN to the pending workspace.");
+        AssertTrue(newTrack1Bytes.SequenceEqual(File.ReadAllBytes(pendingTrack1Path)), "Rollback changed the pending BIN contents.");
+        AssertTrue(File.Exists(pendingTrack2Path), "The unpromoted locked BIN should remain pending.");
+        AssertFalse(Directory.EnumerateFiles(finalDirectory, ".hcb-*", SearchOption.AllDirectories).Any(), "Rollback should not leave backup files after restoration.");
+    }
+
+    private static void TestFailedCueBinCleanupDeletesBundle(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "failed-cue-cleanup");
+        Directory.CreateDirectory(rootDirectory);
+
+        string cuePath = Path.Combine(rootDirectory, "Game.cue");
+        string track1Path = Path.Combine(rootDirectory, "Game (Track 01).bin");
+        string track2Path = Path.Combine(rootDirectory, "Game (Track 02).bin");
+
+        byte[] track1Bytes = [1, 2, 3, 4];
+        byte[] track2Bytes = [5, 6, 7, 8, 9];
+        File.WriteAllBytes(track1Path, track1Bytes);
+        File.WriteAllBytes(track2Path, track2Bytes);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"Game (Track 01).bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\nFILE \"Game (Track 02).bin\" BINARY\r\n  TRACK 02 AUDIO\r\n    INDEX 01 00:02:00\r\n",
+            Encoding.ASCII);
+
+        long expectedBytes = new FileInfo(cuePath).Length + track1Bytes.LongLength + track2Bytes.LongLength;
+        (long DeletedBytes, int DeletedFiles) stats = app.DeleteFailedCueBinBundle(cuePath);
+
+        AssertEqual(3, stats.DeletedFiles, "Failed CUE/BIN cleanup should delete the CUE and both referenced BIN files.");
+        AssertEqual(expectedBytes, stats.DeletedBytes, "Failed CUE/BIN cleanup reported an unexpected deleted byte count.");
+        AssertFalse(File.Exists(cuePath), "Failed CUE/BIN cleanup left the CUE behind.");
+        AssertFalse(File.Exists(track1Path), "Failed CUE/BIN cleanup left track 1 behind.");
+        AssertFalse(File.Exists(track2Path), "Failed CUE/BIN cleanup left track 2 behind.");
+    }
+
+    private static void TestFailedCueBinCleanupRejectsUnsafeReference(AppReflection app, string workDirectory)
+    {
+        string rootDirectory = Path.Combine(workDirectory, "failed-cue-cleanup-unsafe");
+        string bundleDirectory = Path.Combine(rootDirectory, "bundle");
+        Directory.CreateDirectory(bundleDirectory);
+
+        string outsideBinPath = Path.Combine(rootDirectory, "outside.bin");
+        string cuePath = Path.Combine(bundleDirectory, "Game.cue");
+
+        File.WriteAllBytes(outsideBinPath, [9, 8, 7, 6]);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"..\\outside.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        (long DeletedBytes, int DeletedFiles) stats = app.DeleteFailedCueBinBundle(cuePath);
+
+        AssertEqual(0, stats.DeletedFiles, "Unsafe CUE cleanup must fail closed without deleting files.");
+        AssertEqual(0L, stats.DeletedBytes, "Unsafe CUE cleanup must report zero deleted bytes.");
+        AssertTrue(File.Exists(cuePath), "Unsafe CUE should remain for diagnostics.");
+        AssertTrue(File.Exists(outsideBinPath), "Cleanup must never delete a traversal-referenced BIN.");
+    }
+
+    private static void TestChdInfoSha1Parsing(AppReflection app)
+    {
+        const string combinedSha1 = "0123456789abcdef0123456789abcdef01234567";
+        const string dataSha1 = "89abcdef0123456789abcdef0123456789abcdef";
+
+        string info = string.Join(
+            Environment.NewLine,
+            "Input file: sample.chd",
+            "SHA1:         " + combinedSha1.ToUpperInvariant(),
+            "Data SHA1:    " + dataSha1.ToUpperInvariant(),
+            "Metadata: Tag='CHT2'");
+
+        AssertEqual(
+            combinedSha1,
+            app.ParseChdInfoSha1Digest(info, "SHA1"),
+            "Combined CHD SHA1 was not parsed correctly.");
+
+        AssertEqual(
+            dataSha1,
+            app.ParseChdInfoSha1Digest(info, "Data SHA1"),
+            "CHD data SHA1 was not parsed correctly.");
+
+        AssertEqual(
+            string.Empty,
+            app.ParseChdInfoSha1Digest("Data SHA1: not-a-digest", "Data SHA1"),
+            "Malformed CHD data SHA1 must fail closed.");
+    }
+
+    private static void TestExtractedSingleFileProof(AppReflection app, string workDirectory)
+    {
+        string outputPath = Path.Combine(workDirectory, "extraction-proof.iso");
+        byte[] bytes = Encoding.ASCII.GetBytes("HAKAMIQ extraction output proof");
+        File.WriteAllBytes(outputPath, bytes);
+
+        string matchingSha1 = Convert.ToHexString(SHA1.HashData(bytes)).ToLowerInvariant();
+        const string mismatchedSha1 = "0000000000000000000000000000000000000000";
+
+        AssertTrue(
+            app.VerifySingleFileExtractionProof(outputPath, matchingSha1, bytes.LongLength),
+            "Matching extracted output SHA1 should produce source-deletion proof.");
+
+        AssertFalse(
+            app.VerifySingleFileExtractionProof(outputPath, mismatchedSha1, bytes.LongLength),
+            "Mismatched extracted output SHA1 must fail closed.");
+    }
+
+    private static void TestExtractionSourceCleanupRequiresOutputProof(AppReflection app)
+    {
+        AssertFalse(
+            app.ResolveSourceCleanupVerifiedFlag(
+                sourcePath: "source.chd",
+                outputPath: "output.iso",
+                terminalOutcomeName: "Extracted",
+                requestVerify: true,
+                verifyAfterConversion: true,
+                sourceDeletionProofVerified: false),
+            "Source CHD deletion must not trust source verification alone after extraction.");
+
+        AssertTrue(
+            app.ResolveSourceCleanupVerifiedFlag(
+                sourcePath: "source.chd",
+                outputPath: "output.iso",
+                terminalOutcomeName: "Extracted",
+                requestVerify: true,
+                verifyAfterConversion: true,
+                sourceDeletionProofVerified: true),
+            "Source CHD deletion should be allowed after extraction only when output proof is recorded.");
+    }
+
+    private static void TestConversionSourceCleanupContractUnchanged(AppReflection app)
+    {
+        AssertTrue(
+            app.ResolveSourceCleanupVerifiedFlag(
+                sourcePath: "source.iso",
+                outputPath: "output.chd",
+                terminalOutcomeName: "Healthy",
+                requestVerify: true,
+                verifyAfterConversion: true,
+                sourceDeletionProofVerified: false),
+            "Verified conversion cleanup behavior should remain unchanged.");
+
+        AssertFalse(
+            app.ResolveSourceCleanupVerifiedFlag(
+                sourcePath: "source.iso",
+                outputPath: "output.chd",
+                terminalOutcomeName: "Healthy",
+                requestVerify: true,
+                verifyAfterConversion: false,
+                sourceDeletionProofVerified: false),
+            "Conversion cleanup must still require VerifyAfterConversion.");
+    }
+
+    private static void TestVerifiedConversionSourceCleanupIncludesCso(AppReflection app, string workDirectory)
+    {
+        string sourcePath = Path.Combine(workDirectory, "verified-conversion-source.cso");
+        string outputPath = Path.Combine(workDirectory, "verified-conversion-output.chd");
+
+        string[] candidates = app.BuildVerifiedConversionSourceCleanupCandidates(sourcePath, outputPath);
+
+        AssertEqual(1, candidates.Length, "Verified CSO conversion should produce one source cleanup candidate.");
+        AssertEqual(sourcePath, candidates[0], "Verified CSO conversion should delete the original CSO source.");
+    }
+
     private static void TestFinalExtractOutputPathUsesChdStem(AppReflection app, string workDirectory)
     {
         string originalPath = Path.Combine(workDirectory, "input", "Original Name.chd");
@@ -492,15 +777,28 @@ internal static class Program
         AssertFalse(GetBool(plan, "RequiresDescriptorDependencies"), "CSO plan should not require descriptor dependencies.");
     }
 
-    private static void TestRuntimeChdmanTamperingIsRejected(AppReflection app)
+    private static void TestBundledChdmanTamperingIsRejected(AppReflection app)
     {
         object runtimeToolService = app.CreateRuntimeToolService();
+        string chdmanPath = app.GetRuntimeChdmanPath(runtimeToolService);
+        string expectedOutputPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "Tools", "chdman.exe"));
+
+        AssertTrue(
+            string.Equals(Path.GetFullPath(chdmanPath), expectedOutputPath, StringComparison.OrdinalIgnoreCase),
+            "Expected RuntimeToolService to resolve Tools\\chdman.exe from the build output.");
+        AssertTrue(File.Exists(chdmanPath), "Expected the bundled chdman build-output copy to exist.");
+
+        byte[] originalBytes = File.ReadAllBytes(chdmanPath);
+        byte[] expectedSha256 = Convert.FromHexString(
+            "8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F");
+
+        AssertTrue(originalBytes.Length > 0, "Expected the bundled chdman build-output copy to be non-empty.");
+        AssertTrue(
+            CryptographicOperations.FixedTimeEquals(expectedSha256, SHA256.HashData(originalBytes)),
+            "Expected the bundled chdman build-output copy to match the pinned SHA-256 digest before tampering.");
 
         try
         {
-            string chdmanPath = app.GetRuntimeChdmanPath(runtimeToolService);
-            AssertTrue(File.Exists(chdmanPath), "Expected the embedded chdman runtime copy to exist.");
-
             using (FileStream stream = new(
                        chdmanPath,
                        FileMode.Open,
@@ -508,7 +806,7 @@ internal static class Program
                        FileShare.None))
             {
                 int originalByte = stream.ReadByte();
-                AssertTrue(originalByte >= 0, "Expected the runtime chdman copy to be non-empty.");
+                AssertTrue(originalByte >= 0, "Expected the bundled chdman build-output copy to be non-empty.");
                 stream.Position = 0;
                 stream.WriteByte((byte)(originalByte ^ 0xFF));
                 stream.Flush(flushToDisk: true);
@@ -524,11 +822,16 @@ internal static class Program
                 rejected = true;
             }
 
-            AssertTrue(rejected, "Expected a modified runtime chdman copy to be rejected.");
+            AssertTrue(rejected, "Expected a modified bundled chdman build-output copy to be rejected.");
         }
         finally
         {
-            app.CleanupRuntimeToolSession(runtimeToolService);
+            File.WriteAllBytes(chdmanPath, originalBytes);
+
+            byte[] restoredSha256 = SHA256.HashData(File.ReadAllBytes(chdmanPath));
+            AssertTrue(
+                CryptographicOperations.FixedTimeEquals(expectedSha256, restoredSha256),
+                "Expected the bundled chdman build-output copy to be restored byte-for-byte after the tampering test.");
         }
     }
 
@@ -540,6 +843,10 @@ internal static class Program
         object empty = app.ClassifyMediaInput(string.Empty);
         AssertMediaKind(empty, "Unknown");
         AssertFalse(GetBool(empty, "Exists"), "Empty path should not exist.");
+
+        object invalid = app.ClassifyMediaInput("\0invalid");
+        AssertMediaKind(invalid, "Unknown");
+        AssertFalse(GetBool(invalid, "Exists"), "Invalid input should classify as Unknown without throwing.");
 
         string missingPath = Path.Combine(root, "missing.iso");
         object missing = app.ClassifyMediaInput(missingPath);
@@ -555,6 +862,12 @@ internal static class Program
 
         string isoPath = WriteMediaFile(root, "disc.iso", [0, 1, 2, 3]);
         AssertMediaKind(app.ClassifyMediaInput(isoPath), "ISO");
+
+        string upperIsoPath = WriteMediaFile(root, "case-upper.ISO", [0, 1, 2, 3]);
+        AssertMediaKind(app.ClassifyMediaInput(upperIsoPath), "ISO");
+
+        string mixedIsoPath = WriteMediaFile(root, "case-mixed.Iso", [0, 1, 2, 3]);
+        AssertMediaKind(app.ClassifyMediaInput(mixedIsoPath), "ISO");
 
         string pkgPath = WriteMediaFile(root, "package.pkg", [0x7F, 0x50, 0x4B, 0x47, 0]);
         AssertMediaKind(app.ClassifyMediaInput(pkgPath), "PKG");
@@ -589,7 +902,11 @@ internal static class Program
         AssertEqual("InvalidHeaderLength", GetEnumName(invalidLengthChd, "ProbeStatus"), "Invalid CHD header length should be rejected.");
 
         string csoPath = WriteMediaFile(root, "disc.cso", Encoding.ASCII.GetBytes("CISO"));
+        byte[] csoBeforeClassification = File.ReadAllBytes(csoPath);
         AssertMediaKind(app.ClassifyMediaInput(csoPath), "CSO");
+        AssertTrue(
+            csoBeforeClassification.SequenceEqual(File.ReadAllBytes(csoPath)),
+            "Media classification must not modify the input file.");
 
         string cuePath = WriteMediaFile(root, "disc.cue", Encoding.ASCII.GetBytes("FILE \"track.bin\" BINARY\r\n"));
         AssertMediaKind(app.ClassifyMediaInput(cuePath), "CUE");
@@ -604,6 +921,15 @@ internal static class Program
         object other = app.ClassifyMediaInput(otherPath);
         AssertMediaKind(other, "Other");
         AssertEqual("file-other", GetString(other, "DetectionReason"), "Unknown extension should use file-other reason.");
+
+        string imgPath = WriteMediaFile(root, "disc.img", [1, 2, 3, 4]);
+        AssertMediaKind(app.ClassifyMediaInput(imgPath), "Other");
+
+        string xyzPath = WriteMediaFile(root, "disc.xyz", [1, 2, 3, 4]);
+        AssertMediaKind(app.ClassifyMediaInput(xyzPath), "Other");
+
+        string extensionlessPath = WriteMediaFile(root, "extensionless", [1, 2, 3, 4]);
+        AssertMediaKind(app.ClassifyMediaInput(extensionlessPath), "Other");
 
         string lockedChdPath = WriteMediaFile(root, "locked.chd", BuildChdHeader(version: 5));
         using FileStream lockStream = new(
@@ -678,6 +1004,58 @@ internal static class Program
         object other = app.DecideMediaInput(otherPath);
         AssertEqual("Block", GetEnumName(other, "Action"), "Other file should be blocked.");
         AssertEqual("unsupported-media-input", GetString(other, "Reason"), "Unexpected block reason.");
+    }
+
+    private static void TestFastDirectIntakeHonorsP0Evidence(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "fast-direct-p0-evidence");
+        Directory.CreateDirectory(root);
+
+        string validCsoPath = WriteMediaFile(root, "valid.cso", Encoding.ASCII.GetBytes("CISO"));
+        string invalidCsoPath = WriteMediaFile(root, "invalid.cso", [0, 1, 2, 3]);
+        string validChdPath = WriteMediaFile(root, "valid.chd", BuildChdHeader(version: 5));
+        string invalidChdPath = WriteMediaFile(root, "invalid.chd", new byte[124]);
+
+        AssertTrue(
+            app.CanUseFastDirectFileCandidates(validCsoPath, "QuickConvert"),
+            "Valid CSO should remain eligible for the direct-file fast path.");
+        AssertFalse(
+            app.CanUseFastDirectFileCandidates(invalidCsoPath, "QuickConvert"),
+            "Wrong-magic CSO must fall out of the fast path before conversion.");
+        AssertTrue(
+            app.CanUseFastDirectFileCandidates(validChdPath, "QuickExtract"),
+            "Valid CHD should remain eligible for the direct-file fast path.");
+        AssertFalse(
+            app.CanUseFastDirectFileCandidates(invalidChdPath, "QuickExtract"),
+            "Invalid CHD header evidence must fall out of the fast path before extraction.");
+    }
+
+    private static void TestQueueOperationCapabilitiesHonorP0Evidence(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "queue-capabilities-p0-evidence");
+        Directory.CreateDirectory(root);
+
+        string validCsoPath = WriteMediaFile(root, "valid.cso", Encoding.ASCII.GetBytes("CISO"));
+        string invalidCsoPath = WriteMediaFile(root, "invalid.cso", [0, 1, 2, 3]);
+        string validChdPath = WriteMediaFile(root, "valid.chd", BuildChdHeader(version: 5));
+        string invalidChdPath = WriteMediaFile(root, "invalid.chd", new byte[124]);
+
+        AssertEqual(
+            1,
+            app.GetSupportedQueueOperations(validCsoPath).Count,
+            "Valid CSO should expose its conversion operation.");
+        AssertEqual(
+            0,
+            app.GetSupportedQueueOperations(invalidCsoPath).Count,
+            "Wrong-magic CSO must expose no queue operation.");
+        AssertEqual(
+            2,
+            app.GetSupportedQueueOperations(validChdPath).Count,
+            "Valid CHD should expose verify and extraction operations.");
+        AssertEqual(
+            0,
+            app.GetSupportedQueueOperations(invalidChdPath).Count,
+            "Invalid CHD header evidence must expose no queue operation.");
     }
 
     private static void TestSecurityResourcePolicies(AppReflection app)
@@ -922,6 +1300,19 @@ internal static class Program
         throw new ArgumentException("Missing required argument: " + name);
     }
 
+    private static string? ReadOptionalArgument(string[] args, string name)
+    {
+        for (int index = 0; index < args.Length - 1; index++)
+        {
+            if (string.Equals(args[index], name, StringComparison.OrdinalIgnoreCase))
+            {
+                return args[index + 1];
+            }
+        }
+
+        return null;
+    }
+
     private static void WriteIsoImage(string path, int physicalSectorSize, int dataOffset, string systemCnf)
     {
         if (physicalSectorSize < UserSectorSize || dataOffset < 0 || dataOffset + UserSectorSize > physicalSectorSize)
@@ -1075,6 +1466,229 @@ internal static class Program
             || candidate.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase);
     }
 
+    private static void TestQueueOperationIntentOwnership()
+    {
+        HakamiqChdTool.App.Services.QueueOperationMode convertIntent =
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveOperationIntent(
+                HakamiqChdTool.App.Localization.TaskActionCodes.ConvertToChd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.Standard);
+
+        HakamiqChdTool.App.Services.QueueOperationMode verifyIntent =
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveOperationIntent(
+                HakamiqChdTool.App.Localization.TaskActionCodes.VerifyChd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickVerify);
+
+        HakamiqChdTool.App.Services.QueueOperationMode extractIntent =
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveOperationIntent(
+                HakamiqChdTool.App.Localization.TaskActionCodes.ExtractFromChd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickExtract);
+
+        AssertEqual(
+            HakamiqChdTool.App.Services.QueueOperationMode.Convert,
+            convertIntent,
+            "Standard conversion action should own the Convert queue mode.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Services.QueueOperationMode.Verify,
+            verifyIntent,
+            "QuickVerify should own the Verify queue mode.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Services.QueueOperationMode.Extract,
+            extractIntent,
+            "QuickExtract should own the Extract queue mode.");
+
+        var row =
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueRowData
+            {
+                ItemId = Guid.NewGuid(),
+                OriginalPath = "input.iso",
+                SourcePath = "input.iso",
+                RequestedAction =
+                    HakamiqChdTool.App.Localization.TaskActionCodes.ConvertToChd,
+                ExecutionProfile =
+                    HakamiqChdTool.App.Models.QueueExecutionProfile.QuickConvert,
+                OperationIntent = convertIntent,
+                OutputPath = "output.chd",
+                IsVisibleInCurrentOperationMode = true
+            };
+
+        string originalAction = row.RequestedAction;
+        string originalSource = row.SourcePath;
+
+        bool runnableAsVerify =
+            HakamiqChdTool.App.Ui.Queue.QueueModeResolver.IsWaitingRowRunnableForMode(
+                row,
+                HakamiqChdTool.App.Services.QueueOperationMode.Verify);
+
+        AssertFalse(
+            runnableAsVerify,
+            "A Convert-owned row must never become runnable as Verify.");
+
+        AssertEqual(
+            originalAction,
+            row.RequestedAction,
+            "Mode probing must not mutate RequestedAction.");
+
+        AssertEqual(
+            originalSource,
+            row.SourcePath,
+            "Mode probing must not mutate SourcePath.");
+
+        row.SourcePath = "working.iso";
+        row.OutputPath = "final.chd";
+
+        AssertEqual(
+            HakamiqChdTool.App.Services.QueueOperationMode.Convert,
+            row.OperationIntent,
+            "Working/output path changes must not change queue operation ownership.");
+    }
+
+    private static void TestQuickProfileRejectsMismatchedOperation()
+    {
+        var convertible =
+            new HakamiqChdTool.App.Core.Input.QueueInputClassification(
+                HakamiqChdTool.App.Core.Input.QueueInputRole.ConvertibleDiscImage,
+                ".iso");
+
+        var chd =
+            new HakamiqChdTool.App.Core.Input.QueueInputClassification(
+                HakamiqChdTool.App.Core.Input.QueueInputRole.ChdImage,
+                ".chd");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.ConvertToChd,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                convertible,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickConvert),
+            "QuickConvert should accept a convertible disc image.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.Unsupported,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                convertible,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickVerify),
+            "QuickVerify must not reinterpret a convertible disc image as another operation.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.Unsupported,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                convertible,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickExtract),
+            "QuickExtract must not reinterpret a convertible disc image as another operation.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.VerifyChd,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                chd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickVerify),
+            "QuickVerify should select CHD verification.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.RestoreDiscImageFromChd,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                chd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickExtract),
+            "QuickExtract should select CHD extraction.");
+
+        AssertEqual(
+            HakamiqChdTool.App.Localization.TaskActionCodes.Unsupported,
+            HakamiqChdTool.App.Services.QueueOperationModeProjection.ResolveInitialRequestedAction(
+                chd,
+                HakamiqChdTool.App.Models.QueueExecutionProfile.QuickConvert),
+            "QuickConvert must not reinterpret a CHD as another operation.");
+    }
+
+    private static void TestVisibleQueueSnapshotScopesRedump()
+    {
+        var store =
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueRowStore();
+
+        Guid visibleId = Guid.NewGuid();
+        Guid hiddenId = Guid.NewGuid();
+
+        store.Append(
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueRowData
+            {
+                ItemId = visibleId,
+                OriginalPath = "visible.iso",
+                IsVisibleInCurrentOperationMode = true
+            });
+
+        store.Append(
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueRowData
+            {
+                ItemId = hiddenId,
+                OriginalPath = "hidden.iso",
+                IsVisibleInCurrentOperationMode = false
+            });
+
+        using var viewport =
+            new HakamiqChdTool.App.ViewModels.Virtualization.QueueViewportService(
+                store,
+                static _ => throw new InvalidOperationException(
+                    "Visible-row snapshot must not materialize queue view models."),
+                static (_, _) => { });
+
+        using var view =
+            new HakamiqChdTool.App.ViewModels.Virtualization.VirtualizedQueueCollection(
+                store,
+                viewport,
+                static row => row.IsVisibleInCurrentOperationMode);
+
+        Guid[] firstSnapshot =
+            view.GetVisibleRowIdsSnapshot();
+
+        AssertEqual(
+            1,
+            firstSnapshot.Length,
+            "Only the visible section row should be captured.");
+
+        AssertEqual(
+            visibleId,
+            firstSnapshot[0],
+            "The visible row id was not captured.");
+
+        AssertEqual(
+            0,
+            viewport.MaterializedCount,
+            "Snapshotting the visible section must not materialize rows.");
+
+        AssertTrue(
+            store.Mutate(
+                visibleId,
+                static row =>
+                    row.IsVisibleInCurrentOperationMode = false),
+            "Failed to hide the first row.");
+
+        AssertTrue(
+            store.Mutate(
+                hiddenId,
+                static row =>
+                    row.IsVisibleInCurrentOperationMode = true),
+            "Failed to show the second row.");
+
+        view.RefreshView();
+
+        Guid[] secondSnapshot =
+            view.GetVisibleRowIdsSnapshot();
+
+        AssertEqual(
+            1,
+            secondSnapshot.Length,
+            "The refreshed section should contain one visible row.");
+
+        AssertEqual(
+            hiddenId,
+            secondSnapshot[0],
+            "Visible Redump scope did not follow the current section.");
+
+        AssertEqual(
+            0,
+            viewport.MaterializedCount,
+            "Refreshing Redump scope must not materialize rows.");
+    }
+
     private static void AssertTrue(bool condition, string message)
     {
         if (!condition)
@@ -1151,6 +1765,16 @@ internal static class Program
         private readonly MethodInfo cueNormalize;
         private readonly MethodInfo cueNormalizeConstrained;
         private readonly MethodInfo finalizeExtractedCueBinOutput;
+        private readonly MethodInfo parseChdInfoSha1Digest;
+        private readonly Type chdInfoResultType;
+        private readonly Type extractionOutputBundleType;
+        private readonly Type extractionOutputKindType;
+        private readonly ConstructorInfo extractionOutputBundleConstructor;
+        private readonly MethodInfo verifySingleFileExtractionProofAsync;
+        private readonly MethodInfo resolveSourceCleanupVerifiedFlag;
+        private readonly MethodInfo workflowExecutionSuccess;
+        private readonly MethodInfo withSourceDeletionProofVerified;
+        private readonly Type queueItemTerminalOutcomeType;
         private readonly MethodInfo buildFinalExtractOutputPath;
         private readonly MethodInfo buildFinalVerifiedChdPath;
         private readonly MethodInfo buildPendingOutputPath;
@@ -1164,9 +1788,12 @@ internal static class Program
         private readonly MethodInfo mediaInputClassifyAsync;
         private readonly object mediaInputPipeline;
         private readonly MethodInfo mediaInputPipelineDecideAsync;
+        private readonly Type queueExecutionProfileType;
+        private readonly object mainWindowViewModelForFastPathTests;
+        private readonly MethodInfo tryBuildFastDirectFileCandidatesAsync;
+        private readonly MethodInfo getSupportedOperationCodes;
         private readonly Type runtimeToolServiceType;
         private readonly MethodInfo runtimeToolGetChdmanPath;
-        private readonly MethodInfo runtimeToolCleanup;
         private readonly MethodInfo parseSevenZipListEntries;
         private readonly MethodInfo runSevenZipProcess;
         private readonly MethodInfo tryMeasureExtractionRoot;
@@ -1185,6 +1812,12 @@ internal static class Program
         private readonly ConstructorInfo csoToolProbePathConstructor;
         private readonly ConstructorInfo csoPreprocessorConstructor;
         private readonly MethodInfo preprocessCsoAsync;
+        private readonly ConstructorInfo extractionOutputContractConstructor;
+        private readonly ConstructorInfo extractionOutputBundleValidatorConstructor;
+        private readonly MethodInfo finalizeExtractionOutputBundle;
+        private readonly MethodInfo deleteFailedCueBinBundle;
+        private readonly object workflowSourceCleanupPipelineForTests;
+        private readonly MethodInfo buildVerifiedConversionCandidates;
         private readonly MethodInfo createCsoTempWorkspace;
 
         public AppReflection(Assembly appAssembly)
@@ -1197,9 +1830,26 @@ internal static class Program
             Type advisoryType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.PlayStation.Ps2.Ps2CompatibilityAdvisoryService");
             Type safePathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSafePathValidator");
             Type outputPathType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowOutputPathPlanner");
+            Type workflowOrchestratorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.ChdWorkflowOrchestrator");
+            Type workflowCleanupStageType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowCleanupStage");
+            Type workflowSourceCleanupPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSourceCleanupPipeline");
+            Type workflowExecutionResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowExecutionResult");
+            Type chdInfoServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdInfoService");
+            chdInfoResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdInfoResult");
+            extractionOutputBundleType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputBundle");
+            extractionOutputKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputKind");
+            Type extractionOutputContractType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputContract");
+            Type extractionOutputBundleValidatorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputBundleValidator");
+            Type extractionOutputProofVerifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputProofVerifier");
+            queueItemTerminalOutcomeType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Queue.QueueItemTerminalOutcome");
             Type profilePlannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdWorkflowProfilePlanner");
             Type mediaInputClassifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputClassifier");
             Type mediaInputPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputPipeline");
+            Type mainWindowViewModelType = GetRequiredType(appAssembly, "HakamiqChdTool.App.ViewModels.MainWindowViewModel");
+            Type queueOperationCapabilityServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.QueueOperationCapabilityService");
+            queueExecutionProfileType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.QueueExecutionProfile");
+            mainWindowViewModelForFastPathTests = RuntimeHelpers.GetUninitializedObject(mainWindowViewModelType);
+            workflowSourceCleanupPipelineForTests = RuntimeHelpers.GetUninitializedObject(workflowSourceCleanupPipelineType);
             Type sevenZipInspectorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveInspector");
             Type sevenZipProcessRunnerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipProcessRunner");
             Type sevenZipExtractionType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.SevenZipArchiveExtractionService");
@@ -1229,6 +1879,49 @@ internal static class Program
             cueNormalize = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(string).MakeByRefType()]);
             cueNormalizeConstrained = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(bool), typeof(string).MakeByRefType()]);
             finalizeExtractedCueBinOutput = GetRequiredMethod(safePathType, "TryFinalizeExtractedCueBinOutput", [typeof(string), typeof(string), typeof(string).MakeByRefType()]);
+            parseChdInfoSha1Digest = GetRequiredMethod(chdInfoServiceType, "TryParseSha1Digest", [typeof(string), typeof(string)]);
+            extractionOutputBundleConstructor = GetRequiredConstructor(
+                extractionOutputBundleType,
+                [extractionOutputKindType, typeof(string), typeof(IReadOnlyList<string>), typeof(long)]);
+            extractionOutputContractConstructor = GetRequiredConstructor(
+                extractionOutputContractType,
+                [extractionOutputKindType, typeof(string), typeof(string)]);
+            extractionOutputBundleValidatorConstructor = GetRequiredConstructor(
+                extractionOutputBundleValidatorType,
+                Type.EmptyTypes);
+            finalizeExtractionOutputBundle = GetRequiredInstanceMethod(
+                extractionOutputBundleValidatorType,
+                "TryFinalize",
+                [
+                    extractionOutputContractType,
+                    typeof(bool),
+                    extractionOutputBundleType.MakeByRefType(),
+                    typeof(string).MakeByRefType()
+                ]);
+            deleteFailedCueBinBundle = GetRequiredMethod(
+                workflowCleanupStageType,
+                "TryDeleteFailedCueBinBundle",
+                [typeof(string)]);
+            buildVerifiedConversionCandidates = GetRequiredInstanceMethod(
+                workflowSourceCleanupPipelineType,
+                "BuildVerifiedConversionCandidates",
+                [typeof(string), typeof(string)]);
+            verifySingleFileExtractionProofAsync = GetRequiredMethod(
+                extractionOutputProofVerifierType,
+                "VerifySingleFileAsync",
+                [chdInfoResultType, typeof(string), extractionOutputBundleType, typeof(CancellationToken)]);
+            resolveSourceCleanupVerifiedFlag = GetRequiredMethod(
+                workflowOrchestratorType,
+                "ResolveSourceCleanupVerifiedFlag",
+                [typeof(string), workflowExecutionResultType, typeof(bool), settingsType]);
+            workflowExecutionSuccess = GetRequiredMethod(
+                workflowExecutionResultType,
+                "Success",
+                [queueItemTerminalOutcomeType, typeof(string), typeof(string), typeof(string)]);
+            withSourceDeletionProofVerified = GetRequiredInstanceMethod(
+                workflowExecutionResultType,
+                "WithSourceDeletionProofVerified",
+                Type.EmptyTypes);
             buildFinalExtractOutputPath = GetRequiredMethod(outputPathType, "BuildFinalExtractOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
             buildFinalVerifiedChdPath = GetRequiredMethod(outputPathType, "BuildFinalVerifiedChdPath", [typeof(string), typeof(string), typeof(string), settingsType]);
             buildPendingOutputPath = GetRequiredMethod(outputPathType, "BuildPendingOutputPath", [typeof(string), typeof(string), typeof(string), typeof(string), settingsType]);
@@ -1237,8 +1930,9 @@ internal static class Program
             planCreateFromSource = GetRequiredMethod(profilePlannerType, "PlanCreateFromSource", [typeof(string), isoCreateOverrideType, mediaContainerKindType, typeof(string)]);
             mediaInputClassifyAsync = GetRequiredInstanceMethod(mediaInputClassifierType, "ClassifyAsync", [typeof(string), typeof(CancellationToken)]);
             mediaInputPipelineDecideAsync = GetRequiredInstanceMethod(mediaInputPipelineType, "DecideAsync", [typeof(string), typeof(CancellationToken)]);
+            tryBuildFastDirectFileCandidatesAsync = GetRequiredInstanceMethod(mainWindowViewModelType, "TryBuildFastDirectFileCandidatesAsync");
+            getSupportedOperationCodes = GetRequiredMethod(queueOperationCapabilityServiceType, "GetSupportedOperationCodes", [typeof(string)]);
             runtimeToolGetChdmanPath = GetRequiredInstanceMethod(runtimeToolServiceType, "GetChdmanPath", Type.EmptyTypes);
-            runtimeToolCleanup = GetRequiredInstanceMethod(runtimeToolServiceType, "TryCleanupCurrentSession", Type.EmptyTypes);
             parseSevenZipListEntries = GetRequiredMethod(sevenZipInspectorType, "ParseSevenZipListEntries", [typeof(string)]);
             runSevenZipProcess = GetRequiredMethod(
                 sevenZipProcessRunnerType,
@@ -1338,6 +2032,125 @@ internal static class Program
             return success;
         }
 
+        public bool TryFinalizeCueBinBundle(
+            string pendingCuePath,
+            string finalCuePath,
+            bool allowOverwrite,
+            out string failureMessageKey)
+        {
+            object kind = Enum.Parse(extractionOutputKindType, "CueBinBundle", ignoreCase: false);
+            object contract = extractionOutputContractConstructor.Invoke(
+                [kind, pendingCuePath, finalCuePath]);
+            object validator = extractionOutputBundleValidatorConstructor.Invoke(null);
+
+            object?[] arguments = [contract, allowOverwrite, null, null];
+            bool success = (bool)(finalizeExtractionOutputBundle.Invoke(validator, arguments) ?? false);
+            failureMessageKey = arguments[3] as string ?? string.Empty;
+            return success;
+        }
+
+        public (long DeletedBytes, int DeletedFiles) DeleteFailedCueBinBundle(string cuePath)
+        {
+            object stats = deleteFailedCueBinBundle.Invoke(null, [cuePath])
+                ?? throw new InvalidOperationException("Failed CUE/BIN cleanup returned null stats.");
+
+            long deletedBytes = (long)(stats.GetType().GetProperty("DeletedBytes")?.GetValue(stats)
+                ?? throw new MissingMemberException(stats.GetType().FullName, "DeletedBytes"));
+            int deletedFiles = (int)(stats.GetType().GetProperty("DeletedFiles")?.GetValue(stats)
+                ?? throw new MissingMemberException(stats.GetType().FullName, "DeletedFiles"));
+
+            return (deletedBytes, deletedFiles);
+        }
+
+        public string[] BuildVerifiedConversionSourceCleanupCandidates(string sourcePath, string outputPath)
+        {
+            object? value = buildVerifiedConversionCandidates.Invoke(
+                workflowSourceCleanupPipelineForTests,
+                [sourcePath, outputPath]);
+
+            if (value is not IEnumerable candidates)
+            {
+                throw new InvalidOperationException("Verified conversion source cleanup candidates were unavailable.");
+            }
+
+            return candidates
+                .Cast<object>()
+                .Select(static candidate => GetString(candidate, "Path"))
+                .ToArray();
+        }
+
+        public string ParseChdInfoSha1Digest(string infoText, string label) =>
+            (string)(parseChdInfoSha1Digest.Invoke(null, [infoText, label]) ?? string.Empty);
+
+        public bool VerifySingleFileExtractionProof(
+            string outputPath,
+            string dataSha1,
+            long logicalBytes)
+        {
+            object sourceInfo = Activator.CreateInstance(chdInfoResultType)
+                ?? throw new InvalidOperationException("Unable to create ChdInfoResult.");
+
+            SetProperty(sourceInfo, "DataSha1", dataSha1);
+            SetProperty(sourceInfo, "LogicalBytes", (long?)logicalBytes);
+
+            object outputKind = Enum.Parse(
+                extractionOutputKindType,
+                "SingleFile",
+                ignoreCase: false);
+
+            object bundle = extractionOutputBundleConstructor.Invoke(
+                [outputKind, outputPath, new[] { outputPath }, logicalBytes]);
+
+            object? taskObject = verifySingleFileExtractionProofAsync.Invoke(
+                null,
+                [sourceInfo, dataSha1, bundle, CancellationToken.None]);
+
+            if (taskObject is not Task task)
+            {
+                throw new InvalidOperationException("Extraction output proof did not return a Task.");
+            }
+
+            task.GetAwaiter().GetResult();
+
+            object proofResult = task.GetType().GetProperty("Result", BindingFlags.Public | BindingFlags.Instance)
+                ?.GetValue(task)
+                ?? throw new InvalidOperationException("Extraction output proof returned no result.");
+
+            return GetBool(proofResult, "IsVerified");
+        }
+
+        public bool ResolveSourceCleanupVerifiedFlag(
+            string sourcePath,
+            string outputPath,
+            string terminalOutcomeName,
+            bool requestVerify,
+            bool verifyAfterConversion,
+            bool sourceDeletionProofVerified)
+        {
+            object settings = CreateSettings();
+            SetProperty(settings, "VerifyAfterConversion", verifyAfterConversion);
+
+            object terminalOutcome = Enum.Parse(
+                queueItemTerminalOutcomeType,
+                terminalOutcomeName,
+                ignoreCase: false);
+
+            object result = workflowExecutionSuccess.Invoke(
+                null,
+                [terminalOutcome, string.Empty, outputPath, null])
+                ?? throw new InvalidOperationException("WorkflowExecutionResult.Success returned null.");
+
+            if (sourceDeletionProofVerified)
+            {
+                result = withSourceDeletionProofVerified.Invoke(result, null)
+                    ?? throw new InvalidOperationException("Source deletion proof marker returned null.");
+            }
+
+            return (bool)(resolveSourceCleanupVerifiedFlag.Invoke(
+                null,
+                [sourcePath, result, requestVerify, settings]) ?? false);
+        }
+
         public object CreateSettings(
             bool useCustomOutputRoot = false,
             string? customOutputRoot = null,
@@ -1415,6 +2228,45 @@ internal static class Program
             return AwaitValueTaskResult(valueTask, "Pipeline");
         }
 
+        public bool CanUseFastDirectFileCandidates(string path, string executionProfileName)
+        {
+            object executionProfile = Enum.Parse(queueExecutionProfileType, executionProfileName, ignoreCase: false);
+            object? valueTask = tryBuildFastDirectFileCandidatesAsync.Invoke(
+                mainWindowViewModelForFastPathTests,
+                [new List<string> { path }, executionProfile, CancellationToken.None]);
+
+            object result = AwaitValueTaskResult(
+                valueTask ?? throw new InvalidOperationException("Fast intake returned null."),
+                "Fast intake");
+
+            FieldInfo successField = result.GetType().GetField("Item1", BindingFlags.Instance | BindingFlags.Public)
+                ?? throw new MissingFieldException(result.GetType().FullName, "Item1");
+
+            return successField.GetValue(result) is bool accepted && accepted;
+        }
+
+        public IReadOnlyList<string> GetSupportedQueueOperations(string path)
+        {
+            object value = getSupportedOperationCodes.Invoke(null, [path])
+                ?? throw new InvalidOperationException("Queue operation capability service returned null.");
+
+            if (value is not IEnumerable enumerable)
+            {
+                throw new InvalidOperationException("Queue operation capability service did not return an enumerable result.");
+            }
+
+            var operations = new List<string>();
+            foreach (object? item in enumerable)
+            {
+                if (item is string operation)
+                {
+                    operations.Add(operation);
+                }
+            }
+
+            return operations;
+        }
+
         public object CreateRuntimeToolService() =>
             runtimeToolServiceType
                 .GetProperty("Instance", BindingFlags.Static | BindingFlags.Public)
@@ -1424,9 +2276,6 @@ internal static class Program
         public string GetRuntimeChdmanPath(object runtimeToolService) =>
             (string)(runtimeToolGetChdmanPath.Invoke(runtimeToolService, null)
                 ?? throw new InvalidOperationException("RuntimeToolService returned an empty chdman path."));
-
-        public void CleanupRuntimeToolSession(object runtimeToolService) =>
-            runtimeToolCleanup.Invoke(runtimeToolService, null);
 
         public IReadOnlyList<object> ParseSevenZipListEntries(string output)
         {
@@ -1647,6 +2496,10 @@ internal static class Program
                 binder: null,
                 types: parameterTypes,
                 modifiers: null)
+            ?? throw new MissingMethodException(type.FullName, methodName);
+
+        private static MethodInfo GetRequiredInstanceMethod(Type type, string methodName) =>
+            type.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new MissingMethodException(type.FullName, methodName);
 
         private static MethodInfo GetRequiredInstanceMethod(Type type, string methodName, Type[] parameterTypes) =>

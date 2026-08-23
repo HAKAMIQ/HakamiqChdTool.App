@@ -7,7 +7,6 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Configuration;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.PostProcessing;
 using HakamiqChdTool.App.Ui.Shell;
 using HakamiqChdTool.App.ViewModels;
@@ -50,7 +49,6 @@ public partial class MainWindow : Window
     private readonly ChdmanPathResolver _chdmanPathResolver;
     private readonly IExternalLinkService _externalLinkService;
     private readonly PostConversionArtifactService _postConversionArtifacts;
-    private readonly IAppFeatureService _appFeatureService;
     private readonly OrphanedWorkItemScanner _orphanedScanner;
     private readonly OrphanedWorkItemCleanupService _orphanedCleanup;
     private readonly IWindowActivationService _windowActivationService;
@@ -121,14 +119,11 @@ public partial class MainWindow : Window
         _chdmanPathResolver = bootstrap.ChdmanPathResolver;
         _externalLinkService = bootstrap.ExternalLinkService;
         _postConversionArtifacts = bootstrap.PostConversionArtifacts;
-        _appFeatureService = bootstrap.AppFeatureService;
         _orphanedScanner = bootstrap.OrphanedScanner;
         _orphanedCleanup = bootstrap.OrphanedCleanup;
         _windowActivationService = bootstrap.WindowActivationService;
         _uiDispatcher = new UiDispatcher(Dispatcher);
         _resourceTextProvider = new ResourceTextProvider();
-
-        _appFeatureService.ApplyFeatureAvailability(_settings);
 
         _startupCoordinator = new MainWindowStartupCoordinator(
             this,
@@ -214,9 +209,7 @@ public partial class MainWindow : Window
             _coordinator,
             _queueView);
 
-        _viewModel.IsRedumpFeatureVisible =
-            _settings.EnableDeepIntegrityCheck
-            && _appFeatureService.IsEnabled(AppFeature.RedumpDeepIntegrity);
+        _viewModel.IsRedumpFeatureVisible = _settings.EnableDeepIntegrityCheck;
         DataContext = _viewModel;
 
         _taskbarSessionProgress = new TaskbarSessionProgressViewModel();

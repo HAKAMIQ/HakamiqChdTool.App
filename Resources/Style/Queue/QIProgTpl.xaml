@@ -2,14 +2,35 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="QItemBase.xaml" />
-        <ResourceDictionary Source="QWShared.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QItemBase.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Queue/QWShared.xaml" />
 </ResourceDictionary.MergedDictionaries>
+    <ToolTip x:Key="AppTip.QIProgTpl.1"
+             x:Shared="False"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             Content="{DynamicResource LocUi_QueueProgressPanelTooltip}">
+        <ToolTip.ContentTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                           MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None"
+                           LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           FontFamily="{DynamicResource FontFamily.Base}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           FlowDirection="{DynamicResource App.FlowDirection}"
+                           Language="{DynamicResource App.XmlLanguage}"
+                           TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+            </DataTemplate>
+        </ToolTip.ContentTemplate>
+    </ToolTip>
 
     <DataTemplate x:Key="QueueItemProgressFieldsTemplate">
-        <Border Margin="{DynamicResource Inset.0.8.0.0}"
+        <Border Margin="{DynamicResource Inset.0.4.0.0}"
                 Style="{StaticResource FluentQueueProgressPanelBorder}"
-                ToolTip="{DynamicResource LocUi_QueueProgressPanelTooltip}"
+                ToolTip="{StaticResource AppTip.QIProgTpl.1}"
                 Visibility="{Binding UiShowProgressRow, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid FlowDirection="{DynamicResource TechnicalText.FlowDirection}"
                   Language="{DynamicResource TechnicalText.Language}"
@@ -17,7 +38,7 @@
                   UseLayoutRounding="True">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
@@ -30,7 +51,7 @@
                              Style="{StaticResource FluentQueueCardProgressBar}" />
 
                 <TextBlock Grid.Column="2"
-                           MinWidth="{DynamicResource Space.48}"
+                           MinWidth="{DynamicResource Space.40}"
                            VerticalAlignment="Center"
                            FlowDirection="{DynamicResource TechnicalText.FlowDirection}"
                            Language="{DynamicResource TechnicalText.Language}"

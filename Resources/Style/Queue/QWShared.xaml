@@ -393,8 +393,8 @@
 
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
                             <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -461,8 +461,8 @@
 
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
                             <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -536,8 +536,8 @@
 
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Control.Fill.Disabled}" />
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Disabled}" />
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Control.Stroke.Default}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
                             <Setter Property="Cursor" Value="{x:Static input:Cursors.Arrow}" />
                         </Trigger>
                     </ControlTemplate.Triggers>

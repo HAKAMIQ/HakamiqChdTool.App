@@ -4,17 +4,17 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:options="clr-namespace:HakamiqChdTool.App.Views.Options"
         Title="{DynamicResource LocOptions_WindowTitle}"
-        Width="860"
-        Height="560"
-        MinWidth="780"
-        MinHeight="500"
+        Width="700"
+        Height="600"
+        MinWidth="680"
+        MinHeight="440"
         SizeToContent="Manual"
         ResizeMode="CanResize"
         WindowStyle="None"
         WindowStartupLocation="CenterOwner"
         FlowDirection="{DynamicResource App.FlowDirection}"
         Language="{DynamicResource App.XmlLanguage}"
-        Icon="pack://application:,,,/Resources/HakamiqLogo.ico"
+        Icon="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.ico"
         Background="{DynamicResource Brush.Layer.Canvas}"
         Foreground="{DynamicResource Brush.Text.Primary}"
         SnapsToDevicePixels="True"
@@ -24,15 +24,57 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Resources/Style/OptsStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <ToolTip x:Key="AppTip.OptionsWindow.1"
+                     x:Shared="False"
+                     FlowDirection="{DynamicResource App.FlowDirection}"
+                     Language="{DynamicResource App.XmlLanguage}"
+                     Content="{DynamicResource LocCommon_Close}">
+                <ToolTip.ContentTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                                   MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="None"
+                                   LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   FontFamily="{DynamicResource FontFamily.Base}"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   FlowDirection="{DynamicResource App.FlowDirection}"
+                                   Language="{DynamicResource App.XmlLanguage}"
+                                   TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                    </DataTemplate>
+                </ToolTip.ContentTemplate>
+            </ToolTip>
+
+            <CornerRadius x:Key="Radius.Control">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Control.Small">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Control.Large">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Input">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Button">0</CornerRadius>
+            <CornerRadius x:Key="Radius.ComboBox">0</CornerRadius>
+            <CornerRadius x:Key="Radius.CheckBox">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Card">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Card.Medium">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Card.Large">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Card.Dialog">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Overlay">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Flyout">0</CornerRadius>
+            <CornerRadius x:Key="Radius.Menu">0</CornerRadius>
+            <CornerRadius x:Key="Radius.ToolTip">0</CornerRadius>
+            <CornerRadius x:Key="Radius.HeaderButton">0</CornerRadius>
+            <CornerRadius x:Key="Radius.HeaderCluster">0</CornerRadius>
+            <CornerRadius x:Key="Radius.HeaderLogo">0</CornerRadius>
+
+            <Geometry x:Key="OptionsWindow.Icon.Extensions">M0,0 H5 V5 H0 Z M7,0 H12 V5 H7 Z M0,7 H5 V12 H0 Z M7,7 H12 V12 H7 Z</Geometry>
 
             <Style x:Key="OptionsWindow.RootFrame"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Canvas}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Window}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
@@ -42,7 +84,7 @@
                    TargetType="{x:Type Border}">
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.16.10}" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.16.8}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -52,7 +94,7 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
                 <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Stretch" />
@@ -63,11 +105,11 @@
 
             <Style x:Key="OptionsWindow.ContentPanel"
                    TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
+                <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="VerticalAlignment" Value="Stretch" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -115,16 +157,147 @@
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
             </Style>
 
-            <Style x:Key="OptionsWindow.TabText"
+                        <Style x:Key="OptionsWindow.TabText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource OptionsWindow.TextBlockBase}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="FontSize"
+                        Value="{DynamicResource FontSize.Body}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Primary}" />
+                <Setter Property="TextWrapping"
+                        Value="NoWrap" />
+                <Setter Property="TextTrimming"
+                        Value="CharacterEllipsis" />
             </Style>
 
+                        <Style x:Key="OptionsWindow.TopTab"
+                   TargetType="{x:Type RadioButton}">
+                <Setter Property="Background"
+                        Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource Brush.Transparent}" />
+                <Setter Property="BorderThickness"
+                        Value="{DynamicResource Inset.None}" />
+                <Setter Property="Padding"
+                        Value="{DynamicResource Inset.16.10}" />
+                <Setter Property="MinHeight"
+                        Value="{DynamicResource Space.40}" />
+                <Setter Property="FontWeight"
+                        Value="{DynamicResource FontWeight.Regular}" />
+                <Setter Property="Cursor"
+                        Value="{x:Static Cursors.Hand}" />
+                <Setter Property="HorizontalContentAlignment"
+                        Value="Center" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Center" />
+                <Setter Property="FocusVisualStyle"
+                        Value="{StaticResource FluentFocusVisualStyle}" />
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="UseLayoutRounding"
+                        Value="True" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type RadioButton}">
+                            <Grid SnapsToDevicePixels="True"
+                                  UseLayoutRounding="True">
+                                <Border x:Name="TabChrome"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="{DynamicResource Radius.None}"
+                                        Padding="{TemplateBinding Padding}"
+                                        SnapsToDevicePixels="True">
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center">
+                                        <Viewbox Width="{DynamicResource Space.12}"
+                                                 Height="{DynamicResource Space.12}"
+                                                 Stretch="Uniform">
+                                            <Path Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  Fill="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  Stretch="Uniform" />
+                                        </Viewbox>
+
+                                        <Border Width="{DynamicResource Space.8}" />
+
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          RecognizesAccessKey="True" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border x:Name="SelectionIndicator"
+                                        Width="{DynamicResource Space.24}"
+                                        Height="{DynamicResource Space.2}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"
+                                        Background="{DynamicResource Brush.Accent.SelectedBorder}"
+                                        CornerRadius="{DynamicResource Radius.None}"
+                                        Visibility="Collapsed"
+                                        IsHitTestVisible="False"
+                                        SnapsToDevicePixels="True" />
+                            </Grid>
+
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver"
+                                                   Value="True" />
+                                        <Condition Property="IsChecked"
+                                                   Value="False" />
+                                        <Condition Property="IsEnabled"
+                                                   Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="TabChrome"
+                                            Property="Background"
+                                            Value="{DynamicResource Brush.Control.Fill.Hover}" />
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource Brush.Text.Primary}" />
+                                </MultiTrigger>
+
+                                <Trigger Property="IsPressed"
+                                         Value="True">
+                                    <Setter TargetName="TabChrome"
+                                            Property="Background"
+                                            Value="{DynamicResource Brush.Control.Fill.Pressed}" />
+                                </Trigger>
+
+                                <Trigger Property="IsChecked"
+                                         Value="True">
+                                    <Setter TargetName="TabChrome"
+                                            Property="Background"
+                                            Value="{DynamicResource Brush.Accent.Subtle}" />
+                                    <Setter TargetName="SelectionIndicator"
+                                            Property="Visibility"
+                                            Value="Visible" />
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource Brush.Accent.Text}" />
+                                    <Setter Property="FontWeight"
+                                            Value="{DynamicResource FontWeight.SemiBold}" />
+                                </Trigger>
+
+                                <Trigger Property="IsEnabled"
+                                         Value="False">
+                                    <Setter TargetName="TabChrome"
+                                            Property="Background"
+                                            Value="{DynamicResource Brush.Transparent}" />
+                                    <Setter TargetName="SelectionIndicator"
+                                            Property="Visibility"
+                                            Value="Collapsed" />
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource Brush.Text.Disabled}" />
+                                    <Setter Property="Cursor"
+                                            Value="{x:Static Cursors.Arrow}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
             <Style x:Key="OptionsWindow.FooterPrimaryButton"
                    TargetType="{x:Type Button}"
                    BasedOn="{StaticResource PrimaryButtonStyle}">
@@ -147,7 +320,7 @@
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="{DynamicResource Space.48}"
-                            CornerRadius="{DynamicResource Radius.Dialog}"
+                            CornerRadius="{DynamicResource Radius.None}"
                             GlassFrameThickness="{DynamicResource Inset.None}"
                             ResizeBorderThickness="{DynamicResource Window.ResizeBorderThickness}"
                             UseAeroCaptionButtons="False" />
@@ -179,11 +352,6 @@
                         <TextBlock Text="{DynamicResource LocOptions_WindowTitle}"
                                    Style="{StaticResource OptionsWindow.TitleText}" />
 
-                        <TextBlock Margin="{DynamicResource Inset.0.2.0.0}"
-                                   Text="{DynamicResource LocOptions_HeaderDescription}"
-                                   Style="{StaticResource OptionsWindow.BodyText}"
-                                   TextWrapping="NoWrap"
-                                   TextTrimming="CharacterEllipsis" />
                     </StackPanel>
 
                     <Button Grid.Column="2"
@@ -193,7 +361,7 @@
                             Padding="{DynamicResource Inset.None}"
                             VerticalAlignment="Center"
                             Style="{StaticResource HeaderIconButtonStyle}"
-                            ToolTip="{DynamicResource LocCommon_Close}"
+                            ToolTip="{StaticResource AppTip.OptionsWindow.1}"
                             AutomationProperties.Name="{DynamicResource LocCommon_Close}"
                             Click="CancelButton_Click"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -210,103 +378,106 @@
             </Border>
 
             <Grid Grid.Row="1"
-                  Margin="{DynamicResource Inset.12.All}"
+                  Margin="{DynamicResource Inset.8.All}"
                   MinHeight="0"
                   VerticalAlignment="Stretch"
                   FlowDirection="{DynamicResource App.FlowDirection}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{DynamicResource Grid.OptionsSidebar.Width}" />
-                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0"
-                        Style="{StaticResource OptionsWindow.SidebarPanel}">
-                    <StackPanel FlowDirection="{DynamicResource App.FlowDirection}"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Top">
-                        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                              HorizontalAlignment="Stretch"
-                              Margin="{DynamicResource Inset.0.0.0.12}">
-                            <StackPanel FlowDirection="{DynamicResource App.FlowDirection}"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource LocOptions_SectionsTitle}"
-                                           Style="{StaticResource OptionsWindow.SectionTitleText}" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                                <TextBlock Margin="{DynamicResource Inset.0.4.0.0}"
-                                           Text="{DynamicResource LocOptions_SectionsDescription}"
-                                           Style="{StaticResource OptionsWindow.BodyText}" />
-                            </StackPanel>
-                        </Grid>
+                                <Border Grid.Row="0"
+                        Background="{DynamicResource Brush.Layer.Surface}"
+                        BorderBrush="{DynamicResource Brush.Transparent}"
+                        BorderThickness="{DynamicResource Inset.None}"
+                        CornerRadius="{DynamicResource Radius.None}"
+                        Padding="{DynamicResource Inset.8.All}"
+                        SnapsToDevicePixels="True">
 
-                        <RadioButton x:Name="GeneralTabButton"
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <RadioButton x:Name="ProcessingTabButton"
+                                     Grid.Column="0"
                                      GroupName="OptionsTabs"
                                      IsChecked="True"
-                                     Tag="{StaticResource Icon.Info}"
-                                     Style="{StaticResource RightSidebarRadioButtonStyle}"
+                                     Tag="{StaticResource Icon.Settings}"
+                                     Style="{StaticResource OptionsWindow.TopTab}"
                                      Checked="OnTabButtonChecked">
-                            <TextBlock Text="{DynamicResource LocOptions_TabGeneral}"
-                                       Style="{StaticResource OptionsWindow.TabText}" />
+                            <TextBlock Text="{DynamicResource LocOptions_TabProcessing}"
+                                       Style="{StaticResource OptionsWindow.TabText}"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                       TextAlignment="Center" />
                         </RadioButton>
 
                         <RadioButton x:Name="PathsTabButton"
+                                     Grid.Column="1"
                                      GroupName="OptionsTabs"
                                      Tag="{StaticResource Icon.Folder}"
-                                     Style="{StaticResource RightSidebarRadioButtonStyle}"
+                                     Style="{StaticResource OptionsWindow.TopTab}"
                                      Checked="OnTabButtonChecked">
                             <TextBlock Text="{DynamicResource LocOptions_TabPaths}"
-                                       Style="{StaticResource OptionsWindow.TabText}" />
+                                       Style="{StaticResource OptionsWindow.TabText}"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                       TextAlignment="Center" />
                         </RadioButton>
 
                         <RadioButton x:Name="RedumpTabButton"
+                                     Grid.Column="2"
                                      GroupName="OptionsTabs"
                                      Tag="{StaticResource Icon.DatabaseSearch}"
-                                     Style="{StaticResource RightSidebarRadioButtonStyle}"
+                                     Style="{StaticResource OptionsWindow.TopTab}"
                                      Checked="OnTabButtonChecked">
                             <TextBlock Text="{DynamicResource LocOptions_TabRedump}"
-                                       Style="{StaticResource OptionsWindow.TabText}" />
-                        </RadioButton>
-
-                        <RadioButton x:Name="ProcessingTabButton"
-                                     GroupName="OptionsTabs"
-                                     Tag="{StaticResource Icon.Settings}"
-                                     Style="{StaticResource RightSidebarRadioButtonStyle}"
-                                     Checked="OnTabButtonChecked">
-                            <TextBlock Text="{DynamicResource LocOptions_TabProcessing}"
-                                       Style="{StaticResource OptionsWindow.TabText}" />
-                        </RadioButton>
-
-                        <RadioButton x:Name="ExternalToolsTabButton"
-                                     GroupName="OptionsTabs"
-                                     Tag="{StaticResource Icon.External}"
-                                     Style="{StaticResource RightSidebarRadioButtonStyle}"
-                                     Checked="OnTabButtonChecked">
-                            <TextBlock Text="{DynamicResource LocExternalTools_Title}"
-                                       Style="{StaticResource OptionsWindow.TabText}" />
+                                       Style="{StaticResource OptionsWindow.TabText}"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                       TextAlignment="Center" />
                         </RadioButton>
 
                         <RadioButton x:Name="PerformanceTabButton"
+                                     Grid.Column="3"
                                      GroupName="OptionsTabs"
                                      Tag="{StaticResource Icon.Games}"
-                                     Style="{StaticResource RightSidebarRadioButtonStyle}"
+                                     Style="{StaticResource OptionsWindow.TopTab}"
                                      Checked="OnTabButtonChecked">
                             <TextBlock Text="{DynamicResource LocOptions_TabPerformance}"
-                                       Style="{StaticResource OptionsWindow.TabText}" />
+                                       Style="{StaticResource OptionsWindow.TabText}"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                       TextAlignment="Center" />
                         </RadioButton>
-                    </StackPanel>
+
+                        <RadioButton x:Name="ExternalToolsTabButton"
+                                     Grid.Column="4"
+                                     GroupName="OptionsTabs"
+                                     Tag="{StaticResource OptionsWindow.Icon.Extensions}"
+                                     Style="{StaticResource OptionsWindow.TopTab}"
+                                     Checked="OnTabButtonChecked">
+                            <TextBlock Text="{DynamicResource LocOptions_TabAddons}"
+                                       Style="{StaticResource OptionsWindow.TabText}"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                       TextAlignment="Center" />
+                        </RadioButton>
+                    </Grid>
                 </Border>
 
-                <Border Grid.Column="2"
+                <Border Grid.Row="2"
                         Style="{StaticResource OptionsWindow.ContentPanel}"
                         MinHeight="0">
+
                     <Grid Background="{DynamicResource Brush.Transparent}"
                           MinHeight="0"
                           ClipToBounds="True"
                           FlowDirection="{DynamicResource App.FlowDirection}">
-                        <options:GeneralSettingsView x:Name="GeneralPanel"
-                                                     HorizontalAlignment="Stretch"
-                                                     VerticalAlignment="Stretch" />
 
                         <options:PathsSettingsView x:Name="PathsPanel"
                                                    HorizontalAlignment="Stretch"
@@ -320,8 +491,7 @@
 
                         <options:ProcessingSettingsView x:Name="ProcessingPanel"
                                                         HorizontalAlignment="Stretch"
-                                                        VerticalAlignment="Stretch"
-                                                        Visibility="Collapsed" />
+                                                        VerticalAlignment="Stretch" />
 
                         <options:ExternalToolsSettingsView x:Name="ExternalToolsPanel"
                                                           HorizontalAlignment="Stretch"
@@ -335,7 +505,6 @@
                     </Grid>
                 </Border>
             </Grid>
-
             <Border Grid.Row="2"
                     Style="{StaticResource Win11.DialogActionBar}"
                     BorderThickness="{DynamicResource Inset.0.1.0.0}">

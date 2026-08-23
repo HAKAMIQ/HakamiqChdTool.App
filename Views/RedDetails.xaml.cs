@@ -18,7 +18,7 @@ public sealed partial class RedumpDetailsDialog : Window
         _viewModel = viewModel;
 
         InitializeComponent();
-        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyRoundedDialog(this);
         AppLanguageService.ApplyToWindow(this);
 
         DataContext = _viewModel;

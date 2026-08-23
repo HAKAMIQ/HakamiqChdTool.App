@@ -10,7 +10,7 @@ namespace HakamiqChdTool.App.Views.Main;
 public partial class TrayNotifyIconView : UserControl, IDisposable
 {
     private static readonly Uri TrayIconUri = new(
-        "pack://application:,,,/Resources/HakamiqLogo.ico",
+        "pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.ico",
         UriKind.Absolute);
 
     private bool _disposed;

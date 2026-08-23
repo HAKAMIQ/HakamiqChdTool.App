@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Ui.Shell;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
@@ -27,11 +26,6 @@ public partial class MainWindow
     {
         item ??= TasksDataGrid.SelectedItem as TaskQueueItemViewModel;
         if (item is null)
-        {
-            return;
-        }
-
-        if (!RequireAppFeature(AppFeature.RedumpDeepIntegrity))
         {
             return;
         }

@@ -1,5 +1,4 @@
 using HakamiqChdTool.App.Localization;
-using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
 
@@ -42,11 +41,6 @@ public partial class MainWindow
         };
 
         _ = dialog.ShowDialog();
-    }
-
-    private bool RequireAppFeature(AppFeature feature)
-    {
-        return _appFeatureService.IsEnabled(feature);
     }
 
     private bool ShowCloseWhileProcessingConfirmationDialog()

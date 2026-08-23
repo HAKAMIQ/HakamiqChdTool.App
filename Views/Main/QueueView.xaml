@@ -15,15 +15,11 @@
             PreviewDragLeave="ForwardWorkspacePreviewDragLeave"
             PreviewDrop="ForwardWorkspacePreviewDrop"
             Style="{StaticResource FluentWorkspaceCard}"
-            ClipToBounds="True"
-            SnapsToDevicePixels="True">
+            CornerRadius="{DynamicResource Radius.None}"
+            Background="{DynamicResource Brush.Layer.Surface}"
+            ClipToBounds="True">
 
-        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-              Language="{DynamicResource App.XmlLanguage}"
-              Background="{DynamicResource Brush.Layer.Surface}"
-              SnapsToDevicePixels="True"
-              ClipToBounds="True">
-
+        <Grid Background="{DynamicResource Brush.Layer.Surface}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -35,88 +31,64 @@
             <Grid x:Name="QueueHostSurface"
                   Grid.Row="1"
                   MinHeight="{DynamicResource Layout.Queue.MinHeight}"
-                  Background="{DynamicResource Brush.Transparent}"
-                  FlowDirection="{DynamicResource App.FlowDirection}"
-                  Language="{DynamicResource App.XmlLanguage}"
-                  ClipToBounds="True"
-                  SnapsToDevicePixels="True">
+                  Background="{DynamicResource Brush.Layer.Canvas}"
+                  ClipToBounds="True">
 
-                <Border Margin="{DynamicResource Inset.None}"
-                        Background="Transparent"
-                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                        BorderThickness="{DynamicResource Inset.None}"
-                        CornerRadius="{DynamicResource Radius.None}"
-                        ClipToBounds="True"
-                        SnapsToDevicePixels="True">
+                <Grid>
+                    <Rectangle x:Name="DropZoneDashedFrame"
+                               Margin="{DynamicResource Inset.12.All}"
+                               RadiusX="10"
+                               RadiusY="10"
+                               Stroke="{DynamicResource DropZoneBorderBrush}"
+                               StrokeDashArray="{DynamicResource StrokeDash.DropZone}"
+                               StrokeThickness="1"
+                               IsHitTestVisible="False">
 
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          ClipToBounds="True"
-                          SnapsToDevicePixels="True">
+                        <Rectangle.Style>
+                            <Style TargetType="{x:Type Rectangle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TaskGrid.HasItems, ElementName=QueueListSection}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Rectangle.Style>
+                    </Rectangle>
 
-                        <Rectangle x:Name="DropZoneDashedFrame"
-                                   Margin="{DynamicResource Inset.12.All}"
-                                   RadiusX="{DynamicResource Space.12}"
-                                   RadiusY="{DynamicResource Space.12}"
-                                   Fill="{DynamicResource Brush.Transparent}"
-                                   Stroke="{DynamicResource DropZoneBorderBrush}"
-                                   StrokeDashArray="{DynamicResource StrokeDash.DropZone}"
-                                   StrokeThickness="1"
-                                   IsHitTestVisible="False"
-                                   SnapsToDevicePixels="True">
+                    <main:QueueListView x:Name="QueueListSection"
+                                        TaskGridDrop="ForwardWorkspaceDrop"
+                                        TasksLoadingRow="ForwardTasksLoadingRow"
+                                        TasksUnloadingRow="ForwardTasksUnloadingRow"
+                                        TasksScrollChanged="ForwardTasksScrollChanged"
+                                        TasksPreviewMouseRightButtonDown="ForwardTasksPreviewMouseRightButtonDown"
+                                        TasksMouseDoubleClick="ForwardTasksMouseDoubleClick"
+                                        TasksSelectionChanged="ForwardTasksSelectionChanged"
+                                        QueueContextMenuOpened="ForwardQueueContextMenuOpened" />
 
-                            <Rectangle.Style>
-                                <Style TargetType="{x:Type Rectangle}">
-                                    <Setter Property="Visibility"
-                                            Value="Visible" />
+                    <Border x:Name="EmptyQueueDropHint"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Panel.ZIndex="{DynamicResource Panel.ZIndex.Overlay}"
+                            IsHitTestVisible="False"
+                            Padding="{DynamicResource Inset.24.All}">
 
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding TaskGrid.HasItems, ElementName=QueueListSection}"
-                                                     Value="True">
-                                            <Setter Property="Visibility"
-                                                    Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Rectangle.Style>
-                        </Rectangle>
+                        <Border.Style>
+                            <Style TargetType="{x:Type Border}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TaskGrid.HasItems, ElementName=QueueListSection}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
 
-                        <main:QueueListView x:Name="QueueListSection"
-                                            TaskGridDrop="ForwardWorkspaceDrop"
-                                            TasksLoadingRow="ForwardTasksLoadingRow"
-                                            TasksUnloadingRow="ForwardTasksUnloadingRow"
-                                            TasksScrollChanged="ForwardTasksScrollChanged"
-                                            TasksPreviewMouseRightButtonDown="ForwardTasksPreviewMouseRightButtonDown"
-                                            TasksMouseDoubleClick="ForwardTasksMouseDoubleClick"
-                                            TasksSelectionChanged="ForwardTasksSelectionChanged"
-                                            QueueContextMenuOpened="ForwardQueueContextMenuOpened" />
-
-                        <Border x:Name="EmptyQueueDropHint"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Panel.ZIndex="{DynamicResource Panel.ZIndex.Overlay}"
-                                IsHitTestVisible="False"
-                                Padding="{DynamicResource Inset.12.All}">
-
-                            <Border.Style>
-                                <Style TargetType="{x:Type Border}">
-                                    <Setter Property="Visibility"
-                                            Value="Visible" />
-
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding TaskGrid.HasItems, ElementName=QueueListSection}"
-                                                     Value="True">
-                                            <Setter Property="Visibility"
-                                                    Value="Collapsed" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-
-                            <main:QueueEmptyStateView OperationModeKey="{Binding OperationModeKey, ElementName=QueueWorkspaceRoot}" />
-                        </Border>
-                    </Grid>
-                </Border>
+                        <main:QueueEmptyStateView OperationModeKey="{Binding OperationModeKey, ElementName=QueueWorkspaceRoot}" />
+                    </Border>
+                </Grid>
 
                 <Border x:Name="DropHighlightOverlay"
                         Margin="{DynamicResource Inset.12.All}"
@@ -124,83 +96,78 @@
                         CornerRadius="{DynamicResource Radius.Card.Large}"
                         IsHitTestVisible="False"
                         Opacity="{DynamicResource Opacity.Hidden}"
-                        Panel.ZIndex="{DynamicResource Panel.ZIndex.Overlay}"
-                        SnapsToDevicePixels="True" />
+                        Panel.ZIndex="{DynamicResource Panel.ZIndex.Overlay}" />
             </Grid>
 
             <Border Grid.Row="2"
                     Padding="{DynamicResource Inset.12.8}"
                     Background="{DynamicResource Brush.Layer.Surface}"
                     BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                    BorderThickness="{DynamicResource Inset.0.1.0.0}"
-                    SnapsToDevicePixels="True">
+                    BorderThickness="{DynamicResource Inset.0.1.0.0}">
 
-                <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                      Language="{DynamicResource App.XmlLanguage}"
-                      SnapsToDevicePixels="True">
-
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <main:QueueSummaryView Grid.Column="0"
-                                           Visibility="Collapsed"
-                                           HorizontalAlignment="Stretch"
-                                           VerticalAlignment="Center" />
 
-                    <Grid Grid.Column="2"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          SnapsToDevicePixels="True">
+                    <Border Grid.Column="2"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Padding="{DynamicResource Inset.None}"
+                            Background="{DynamicResource Brush.Transparent}"
+                            BorderBrush="{DynamicResource Brush.Transparent}"
+                            BorderThickness="{DynamicResource Inset.None}"
+                            CornerRadius="{DynamicResource Radius.Control.Large}">
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="0"
-                                Command="{Binding StartProcessingCommand}"
-                                Style="{StaticResource QueueWorkspaceFooterPrimaryCommand}"
-                                AutomationProperties.Name="{DynamicResource LocUi_Hub_StartProcessing}">
+                            <Button Grid.Column="0"
+                                    MinWidth="104"
+                                    MinHeight="32"
+                                    Command="{Binding StartProcessingCommand}"
+                                    Style="{StaticResource QueueWorkspaceFooterPrimaryCommand}"
+                                    AutomationProperties.Name="{DynamicResource LocUi_Hub_StartProcessing}">
 
-                            <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
-                                       Text="{DynamicResource LocUi_Hub_StartProcessing}"
-                                       TextAlignment="Left"
-                                       TextTrimming="CharacterEllipsis"
-                                       TextWrapping="NoWrap" />
-                        </Button>
+                                <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
+                                           Text="{DynamicResource LocUi_Hub_StartProcessing}"
+                                           TextAlignment="Center" />
+                            </Button>
 
-                        <Button Grid.Column="2"
-                                Command="{Binding CancelProcessingCommand}"
-                                Style="{StaticResource QueueWorkspaceFooterDangerCommand}"
-                                AutomationProperties.Name="{DynamicResource LocUi_Hub_Stop}">
+                            <Button Grid.Column="2"
+                                    MinWidth="72"
+                                    MinHeight="32"
+                                    Command="{Binding CancelProcessingCommand}"
+                                    Style="{StaticResource QueueWorkspaceFooterDangerCommand}"
+                                    AutomationProperties.Name="{DynamicResource LocUi_Hub_Stop}">
 
-                            <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
-                                       Text="{DynamicResource LocUi_Hub_Stop}"
-                                       TextAlignment="Left"
-                                       TextTrimming="CharacterEllipsis"
-                                       TextWrapping="NoWrap" />
-                        </Button>
+                                <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
+                                           Text="{DynamicResource LocUi_Hub_Stop}"
+                                           TextAlignment="Center" />
+                            </Button>
 
-                        <Button Grid.Column="4"
-                                Command="{Binding ClearQueueCommand}"
-                                Style="{StaticResource QueueWorkspaceFooterSecondaryCommand}"
-                                AutomationProperties.Name="{DynamicResource LocUi_Hub_ClearQueue}">
+                            <Button Grid.Column="4"
+                                    MinWidth="88"
+                                    MinHeight="32"
+                                    Command="{Binding ClearQueueCommand}"
+                                    Style="{StaticResource QueueWorkspaceFooterSecondaryCommand}"
+                                    AutomationProperties.Name="{DynamicResource LocUi_Hub_ClearQueue}">
 
-                            <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
-                                       Text="{DynamicResource LocUi_Hub_ClearQueue}"
-                                       TextAlignment="Left"
-                                       TextTrimming="CharacterEllipsis"
-                                       TextWrapping="NoWrap" />
-                        </Button>
-                    </Grid>
+                                <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
+                                           Text="{DynamicResource LocUi_Hub_ClearQueue}"
+                                           TextAlignment="Center" />
+                            </Button>
+                        </Grid>
+                    </Border>
                 </Grid>
             </Border>
         </Grid>

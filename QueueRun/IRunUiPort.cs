@@ -15,10 +15,6 @@ public interface IQueueRunUiPort
 
     bool IsQueueInteractionLocked { get; }
 
-    bool CanUseAppFeature(AppFeature feature);
-
-    bool RequireAppFeature(AppFeature feature);
-
     QueueExecutionProfile GetSelectedInputExecutionProfile();
 
     bool IsSelectedScanMode();
@@ -38,10 +34,6 @@ public interface IQueueRunUiPort
     void CaptureThemeIntoSettings();
 
     void PersistSettings();
-
-    bool ConfirmStorageAdvisorBeforeProcessing(
-        IReadOnlyList<TaskQueueItemViewModel> items,
-        bool processedSelectionOnly);
 
     void ResetRunSummary();
 

@@ -22,219 +22,214 @@ internal static class CueRescueWriter
 
     internal static CueRescueWriteResult Write(
         BinCueRescuePlan? plan,
-        string? processTempRoot = null,
-        CancellationToken cancellationToken = default)
-    {
-        return Write(
-            plan,
-            processTempRoot,
-            CueRescueWriteOptions.Strict,
-            cancellationToken);
-    }
-
-    internal static CueRescueWriteResult Write(
-        BinCueRescuePlan? plan,
         string? processTempRoot,
         CueRescueWriteOptions options,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(options);
+
         if (plan is null)
         {
-            return CueRescueWriteResult.Fail(
-                CueRescueWriteFailureReason.PlanIsNull);
+            return CueRescueWriteResult.Fail();
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (plan.IsRefused)
+        if (!plan.CanGenerateTempCue)
         {
-            return CueRescueWriteResult.Fail(
-                CueRescueWriteFailureReason.PlanNotUsable);
+            return CueRescueWriteResult.Fail();
         }
 
-        if (plan.IsAmbiguous)
+        if (!TryResolveProcessTempRoot(
+                processTempRoot,
+                out string resolvedProcessTempRoot))
         {
-            return CueRescueWriteResult.Fail(
-                CueRescueWriteFailureReason.AmbiguousPlan);
-        }
-
-        if (plan.Decision != BinCueRescueDecision.GenerateTempCue || !plan.CanGenerateTempCue)
-        {
-            return CueRescueWriteResult.Fail(
-                CueRescueWriteFailureReason.PlanNotUsable);
-        }
-
-        if (plan.OrderedTracks.Count == 0)
-        {
-            return CueRescueWriteResult.Fail(
-                CueRescueWriteFailureReason.EmptyPlan);
-        }
-
-        if (!TryResolveProcessTempRoot(processTempRoot, out string resolvedProcessTempRoot))
-        {
-            return CueRescueWriteResult.Fail(
-                CueRescueWriteFailureReason.UnsafeTempRoot);
+            return CueRescueWriteResult.Fail();
         }
 
         string workspacePath;
+
         try
         {
-            workspacePath = CreateRescueWorkspace(resolvedProcessTempRoot);
+            workspacePath =
+                CreateRescueWorkspace(resolvedProcessTempRoot);
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
-            return CueRescueWriteResult.Fail(
-                CueRescueWriteFailureReason.CouldNotCreateWorkspace);
+            return CueRescueWriteResult.Fail();
         }
 
-        if (!IsPathUnderDirectory(workspacePath, resolvedProcessTempRoot)
-            || HasReparsePointInExistingPathFromVolumeRoot(workspacePath))
+        if (!IsPathUnderDirectory(
+                workspacePath,
+                resolvedProcessTempRoot)
+            || HasReparsePointInExistingPathFromVolumeRoot(
+                workspacePath))
         {
             TryDeleteDirectory(workspacePath);
 
             return CueRescueWriteResult.Fail(
-                CueRescueWriteFailureReason.UnsafeTempRoot);
+                workspacePath);
         }
 
         try
         {
-            if (!TryPrepareTracks(plan, out List<PreparedCueTrack> preparedTracks, out CueRescueWriteFailureReason prepareFailureReason))
+            if (!TryPrepareTracks(
+                    plan,
+                    out List<PreparedCueTrack> preparedTracks))
             {
                 TryDeleteDirectory(workspacePath);
 
                 return CueRescueWriteResult.Fail(
-                    prepareFailureReason);
+                    workspacePath);
             }
 
-            List<StagedCueTrack> stagedTracks = StageTrackFiles(
-                preparedTracks,
+            List<StagedCueTrack> stagedTracks =
+                StageTrackFiles(
+                    preparedTracks,
+                    workspacePath,
+                    options,
+                    cancellationToken);
+
+            string cueText =
+                BuildCueText(stagedTracks);
+
+            if (!IsCueContentSafe(
+                    cueText,
+                    options))
+            {
+                TryDeleteDirectory(workspacePath);
+
+                return CueRescueWriteResult.Fail(
+                    workspacePath);
+            }
+
+            string cuePath = Path.Combine(
                 workspacePath,
-                options,
+                GeneratedCueFileName);
+
+            if (!IsPathUnderDirectory(
+                    cuePath,
+                    workspacePath))
+            {
+                TryDeleteDirectory(workspacePath);
+
+                return CueRescueWriteResult.Fail(
+                    workspacePath);
+            }
+
+            AtomicWriteNewFile(
+                cuePath,
+                cueText,
                 cancellationToken);
 
-            string cueText = BuildCueText(stagedTracks);
-            if (!IsCueContentSafe(cueText, options))
+            if (!IsPathUnderDirectory(
+                    workspacePath,
+                    resolvedProcessTempRoot)
+                || HasReparsePointInExistingPathFromVolumeRoot(
+                    workspacePath))
             {
                 TryDeleteDirectory(workspacePath);
 
                 return CueRescueWriteResult.Fail(
-                    CueRescueWriteFailureReason.InvalidCueContent);
-            }
-
-            string cuePath = Path.Combine(workspacePath, GeneratedCueFileName);
-            if (!IsPathUnderDirectory(cuePath, workspacePath))
-            {
-                TryDeleteDirectory(workspacePath);
-
-                return CueRescueWriteResult.Fail(
-                    CueRescueWriteFailureReason.UnsafeTempRoot);
-            }
-
-            AtomicWriteNewFile(cuePath, cueText, cancellationToken);
-
-            if (!IsPathUnderDirectory(workspacePath, resolvedProcessTempRoot)
-                || HasReparsePointInExistingPathFromVolumeRoot(workspacePath))
-            {
-                TryDeleteDirectory(workspacePath);
-
-                return CueRescueWriteResult.Fail(
-                    CueRescueWriteFailureReason.UnsafeTempRoot);
+                    workspacePath);
             }
 
             return CueRescueWriteResult.Success(
                 cuePath,
-                workspacePath,
-                stagedTracks.Count);
+                workspacePath);
         }
         catch (OperationCanceledException)
         {
             TryDeleteDirectory(workspacePath);
             throw;
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             TryDeleteDirectory(workspacePath);
 
             return CueRescueWriteResult.Fail(
-                CueRescueWriteFailureReason.AtomicWriteFailed);
+                workspacePath);
         }
     }
 
     private static bool TryPrepareTracks(
         BinCueRescuePlan plan,
-        out List<PreparedCueTrack> preparedTracks,
-        out CueRescueWriteFailureReason failureReason)
+        out List<PreparedCueTrack> preparedTracks)
     {
         preparedTracks = [];
-        failureReason = CueRescueWriteFailureReason.None;
 
-        HashSet<int> usedTrackNumbers = [];
-
-        for (int i = 0; i < plan.OrderedTracks.Count; i++)
+        for (int i = 0;
+             i < plan.OrderedTracks.Count;
+             i++)
         {
-            BinCueRescueTrackPlan track = plan.OrderedTracks[i];
+            BinCueRescueTrackPlan track =
+                plan.OrderedTracks[i];
 
-            if (track.TrackNumber < 1 || track.TrackNumber > 99 || !usedTrackNumbers.Add(track.TrackNumber))
+            if (track.TrackNumber != i + 1
+                || track.TrackNumber > 99)
             {
-                failureReason = CueRescueWriteFailureReason.UnsupportedTrack;
                 preparedTracks.Clear();
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(track.SourceBinPath))
+            if (string.IsNullOrWhiteSpace(
+                    track.SourceBinPath))
             {
-                failureReason = CueRescueWriteFailureReason.MissingTrackFile;
                 preparedTracks.Clear();
                 return false;
             }
 
             string fullSourcePath;
+
             try
             {
-                fullSourcePath = NormalizeFullPath(track.SourceBinPath);
+                fullSourcePath =
+                    NormalizeFullPath(track.SourceBinPath);
             }
-            catch (Exception ex) when (IsPathFailure(ex) || IsIoFailure(ex))
+            catch (Exception ex) when (
+                IsPathFailure(ex) || IsIoFailure(ex))
             {
-                failureReason = CueRescueWriteFailureReason.MissingTrackFile;
                 preparedTracks.Clear();
                 return false;
             }
 
-            if (!File.Exists(fullSourcePath)
-                || HasReparsePointInExistingPathFromVolumeRoot(fullSourcePath)
-                || !string.Equals(Path.GetExtension(fullSourcePath), ".bin", StringComparison.OrdinalIgnoreCase))
+            if (!IsSafeExistingBinTrack(fullSourcePath))
             {
-                failureReason = CueRescueWriteFailureReason.MissingTrackFile;
                 preparedTracks.Clear();
                 return false;
             }
 
-            string cueTrackMode = NormalizeCueTrackMode(track.CueTrackMode);
+            string cueTrackMode =
+                NormalizeCueTrackMode(track.CueTrackMode);
+
             if (cueTrackMode.Length == 0)
             {
-                failureReason = CueRescueWriteFailureReason.UnsupportedTrack;
                 preparedTracks.Clear();
                 return false;
             }
 
-            preparedTracks.Add(new PreparedCueTrack(
-                track.TrackNumber,
-                fullSourcePath,
-                cueTrackMode));
+            preparedTracks.Add(
+                new PreparedCueTrack(
+                    track.TrackNumber,
+                    fullSourcePath,
+                    cueTrackMode));
         }
 
-        return true;
+        return preparedTracks.Count > 0;
     }
 
-    private static string NormalizeCueTrackMode(string cueTrackMode)
+    private static string NormalizeCueTrackMode(
+        string cueTrackMode)
     {
         if (string.IsNullOrWhiteSpace(cueTrackMode))
         {
             return string.Empty;
         }
 
-        string normalized = cueTrackMode.Trim().ToUpperInvariant();
+        string normalized =
+            cueTrackMode.Trim().ToUpperInvariant();
 
         return normalized switch
         {
@@ -252,20 +247,30 @@ internal static class CueRescueWriter
         CancellationToken cancellationToken)
     {
         List<StagedCueTrack> stagedTracks = [];
-        HashSet<string> usedFileNames = new(StringComparer.OrdinalIgnoreCase);
+
+        HashSet<string> usedFileNames =
+            new(StringComparer.OrdinalIgnoreCase);
 
         foreach (PreparedCueTrack track in preparedTracks)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            string relativeFileName = CreateSafeRelativeTrackFileName(
-                track.SourcePath,
-                track.TrackNumber,
-                usedFileNames);
+            string relativeFileName =
+                CreateSafeRelativeTrackFileName(
+                    track.SourcePath,
+                    track.TrackNumber,
+                    usedFileNames);
 
-            string destinationPath = Path.Combine(workspacePath, relativeFileName);
-            if (!IsPathUnderDirectory(destinationPath, workspacePath)
-                || HasReparsePointInExistingPathFromVolumeRoot(track.SourcePath))
+            string destinationPath =
+                Path.Combine(
+                    workspacePath,
+                    relativeFileName);
+
+            if (!IsPathUnderDirectory(
+                    destinationPath,
+                    workspacePath)
+                || !IsSafeExistingBinTrack(
+                    track.SourcePath))
             {
                 throw new IOException();
             }
@@ -281,13 +286,16 @@ internal static class CueRescueWriter
                     throw new IOException();
                 }
 
-                cueFilePath = CreateSafeAbsoluteCueFilePath(track.SourcePath);
+                cueFilePath =
+                    CreateSafeAbsoluteCueFilePath(
+                        track.SourcePath);
             }
 
-            stagedTracks.Add(new StagedCueTrack(
-                track.TrackNumber,
-                cueFilePath,
-                track.CueMode));
+            stagedTracks.Add(
+                new StagedCueTrack(
+                    track.TrackNumber,
+                    cueFilePath,
+                    track.CueMode));
         }
 
         return stagedTracks;
@@ -303,24 +311,38 @@ internal static class CueRescueWriter
 
         try
         {
-            if (File.Exists(destinationPath))
+            if (File.Exists(destinationPath)
+                || IsReadOnlyFile(sourcePath))
             {
                 return false;
             }
 
-            if (!TryCreateHardLink(destinationPath, sourcePath)
+            if (!TryCreateHardLink(
+                    destinationPath,
+                    sourcePath)
                 || !File.Exists(destinationPath)
-                || HasReparsePointInExistingPath(destinationPath, workspacePath))
+                || HasReparsePointInExistingPath(
+                    destinationPath,
+                    workspacePath))
             {
                 TryDeleteFile(destinationPath);
                 return false;
             }
 
-            string relativePath = Path.GetRelativePath(workspacePath, destinationPath)
-                .Replace(Path.DirectorySeparatorChar, '/')
-                .Replace(Path.AltDirectorySeparatorChar, '/');
+            string relativePath =
+                Path.GetRelativePath(
+                        workspacePath,
+                        destinationPath)
+                    .Replace(
+                        Path.DirectorySeparatorChar,
+                        '/')
+                    .Replace(
+                        Path.AltDirectorySeparatorChar,
+                        '/');
 
-            if (!IsCueFilePathSafe(relativePath, allowRootedPath: false))
+            if (!IsCueFilePathSafe(
+                    relativePath,
+                    allowRootedPath: false))
             {
                 TryDeleteFile(destinationPath);
                 return false;
@@ -329,28 +351,36 @@ internal static class CueRescueWriter
             cueFilePath = relativePath;
             return true;
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             TryDeleteFile(destinationPath);
             return false;
         }
     }
 
-    private static string CreateSafeAbsoluteCueFilePath(string sourcePath)
+    private static string CreateSafeAbsoluteCueFilePath(
+        string sourcePath)
     {
-        string fullSourcePath = NormalizeFullPath(sourcePath);
+        string fullSourcePath =
+            NormalizeFullPath(sourcePath);
 
-        if (!File.Exists(fullSourcePath)
-            || HasReparsePointInExistingPathFromVolumeRoot(fullSourcePath))
+        if (!IsSafeExistingBinTrack(fullSourcePath))
         {
             throw new IOException();
         }
 
         string cuePath = fullSourcePath
-            .Replace(Path.DirectorySeparatorChar, '/')
-            .Replace(Path.AltDirectorySeparatorChar, '/');
+            .Replace(
+                Path.DirectorySeparatorChar,
+                '/')
+            .Replace(
+                Path.AltDirectorySeparatorChar,
+                '/');
 
-        if (!IsCueFilePathSafe(cuePath, allowRootedPath: true))
+        if (!IsCueFilePathSafe(
+                cuePath,
+                allowRootedPath: true))
         {
             throw new IOException();
         }
@@ -358,24 +388,29 @@ internal static class CueRescueWriter
         return cuePath;
     }
 
-    private static string BuildCueText(IReadOnlyList<StagedCueTrack> stagedTracks)
+    private static string BuildCueText(
+        IReadOnlyList<StagedCueTrack> stagedTracks)
     {
         StringBuilder builder = new();
 
         foreach (StagedCueTrack track in stagedTracks)
         {
-            string quotedPath = EscapeCueQuotedText(track.CueFilePath);
-
             builder.Append("FILE \"");
-            builder.Append(quotedPath);
+            builder.Append(track.CueFilePath);
             builder.AppendLine("\" BINARY");
 
             builder.Append("  TRACK ");
-            builder.Append(track.TrackNumber.ToString("00", CultureInfo.InvariantCulture));
+
+            builder.Append(
+                track.TrackNumber.ToString(
+                    "00",
+                    CultureInfo.InvariantCulture));
+
             builder.Append(' ');
             builder.AppendLine(track.CueMode);
 
-            builder.AppendLine("    INDEX 01 00:00:00");
+            builder.AppendLine(
+                "    INDEX 01 00:00:00");
         }
 
         return builder.ToString();
@@ -390,30 +425,46 @@ internal static class CueRescueWriter
             return false;
         }
 
-        if (cueText.Contains('\0', StringComparison.Ordinal))
+        if (cueText.Contains(
+                '\0',
+                StringComparison.Ordinal))
         {
             return false;
         }
 
-        string[] lines = cueText.Split(CueLineSeparators, StringSplitOptions.None);
+        string[] lines = cueText.Split(
+            CueLineSeparators,
+            StringSplitOptions.None);
+
         foreach (string line in lines)
         {
-            if (!line.StartsWith("FILE \"", StringComparison.Ordinal))
+            if (!line.StartsWith(
+                    "FILE \"",
+                    StringComparison.Ordinal))
             {
                 continue;
             }
 
-            int firstQuote = line.IndexOf('"');
-            int lastQuote = line.LastIndexOf('"');
-            if (firstQuote < 0 || lastQuote <= firstQuote)
+            int firstQuote =
+                line.IndexOf('"');
+
+            int lastQuote =
+                line.LastIndexOf('"');
+
+            if (firstQuote < 0
+                || lastQuote <= firstQuote)
             {
                 return false;
             }
 
-            string cueFilePath = line.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
+            string cueFilePath = line.Substring(
+                firstQuote + 1,
+                lastQuote - firstQuote - 1);
+
             if (!IsCueFilePathSafe(
                     cueFilePath,
-                    allowRootedPath: options.AllowConstrainedAbsoluteBinFallback))
+                    allowRootedPath:
+                        options.AllowConstrainedAbsoluteBinFallback))
             {
                 return false;
             }
@@ -431,12 +482,14 @@ internal static class CueRescueWriter
             return false;
         }
 
-        if (cueFilePath.IndexOfAny(['\0', '\r', '\n', '"']) >= 0)
+        if (cueFilePath.IndexOfAny(
+                ['\0', '\r', '\n', '"']) >= 0)
         {
             return false;
         }
 
-        if (Path.IsPathRooted(cueFilePath) && !allowRootedPath)
+        if (Path.IsPathRooted(cueFilePath)
+            && !allowRootedPath)
         {
             return false;
         }
@@ -449,7 +502,8 @@ internal static class CueRescueWriter
         return true;
     }
 
-    private static bool ContainsParentTraversalSegment(string path)
+    private static bool ContainsParentTraversalSegment(
+        string path)
     {
         string[] segments = path.Split(
             ['/', '\\'],
@@ -457,7 +511,10 @@ internal static class CueRescueWriter
 
         foreach (string segment in segments)
         {
-            if (string.Equals(segment, "..", StringComparison.Ordinal))
+            if (string.Equals(
+                    segment,
+                    "..",
+                    StringComparison.Ordinal))
             {
                 return true;
             }
@@ -471,12 +528,14 @@ internal static class CueRescueWriter
         string cueText,
         CancellationToken cancellationToken)
     {
-        string directoryPath = Path.GetDirectoryName(cuePath)
+        string directoryPath =
+            Path.GetDirectoryName(cuePath)
             ?? throw new IOException();
 
         Directory.CreateDirectory(directoryPath);
 
-        if (HasReparsePointInExistingPathFromVolumeRoot(directoryPath))
+        if (HasReparsePointInExistingPathFromVolumeRoot(
+                directoryPath))
         {
             throw new IOException();
         }
@@ -485,7 +544,9 @@ internal static class CueRescueWriter
             directoryPath,
             $"{Path.GetFileName(cuePath)}.{Guid.NewGuid():N}.tmp");
 
-        if (!IsPathUnderDirectory(tmpCuePath, directoryPath))
+        if (!IsPathUnderDirectory(
+                tmpCuePath,
+                directoryPath))
         {
             throw new IOException();
         }
@@ -500,22 +561,36 @@ internal static class CueRescueWriter
                 bufferSize: 16 * 1024,
                 FileOptions.WriteThrough))
             {
-                byte[] bytes = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)
-                    .GetBytes(cueText);
+                byte[] bytes =
+                    new UTF8Encoding(
+                            encoderShouldEmitUTF8Identifier: false)
+                        .GetBytes(cueText);
 
                 cancellationToken.ThrowIfCancellationRequested();
-                stream.Write(bytes, 0, bytes.Length);
-                stream.Flush(flushToDisk: true);
+
+                stream.Write(
+                    bytes,
+                    0,
+                    bytes.Length);
+
+                stream.Flush(
+                    flushToDisk: true);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (File.Exists(cuePath) || HasReparsePointInExistingPath(tmpCuePath, directoryPath))
+            if (File.Exists(cuePath)
+                || HasReparsePointInExistingPath(
+                    tmpCuePath,
+                    directoryPath))
             {
                 throw new IOException();
             }
 
-            File.Move(tmpCuePath, cuePath, overwrite: false);
+            File.Move(
+                tmpCuePath,
+                cuePath,
+                overwrite: false);
         }
         finally
         {
@@ -532,17 +607,21 @@ internal static class CueRescueWriter
     {
         resolvedProcessTempRoot = string.Empty;
 
-        string candidate = string.IsNullOrWhiteSpace(explicitProcessTempRoot)
-            ? AppPaths.ProcessTempRoot
-            : explicitProcessTempRoot;
+        string candidate =
+            string.IsNullOrWhiteSpace(
+                explicitProcessTempRoot)
+                ? AppPaths.ProcessTempRoot
+                : explicitProcessTempRoot;
 
         string fullCandidate;
 
         try
         {
-            fullCandidate = NormalizeFullPath(candidate);
+            fullCandidate =
+                NormalizeFullPath(candidate);
         }
-        catch (Exception ex) when (IsPathFailure(ex) || IsIoFailure(ex))
+        catch (Exception ex) when (
+            IsPathFailure(ex) || IsIoFailure(ex))
         {
             return false;
         }
@@ -556,12 +635,14 @@ internal static class CueRescueWriter
         {
             Directory.CreateDirectory(fullCandidate);
         }
-        catch (Exception ex) when (IsPathFailure(ex) || IsIoFailure(ex))
+        catch (Exception ex) when (
+            IsPathFailure(ex) || IsIoFailure(ex))
         {
             return false;
         }
 
-        if (HasReparsePointInExistingPathFromVolumeRoot(fullCandidate))
+        if (HasReparsePointInExistingPathFromVolumeRoot(
+                fullCandidate))
         {
             return false;
         }
@@ -570,18 +651,27 @@ internal static class CueRescueWriter
         return true;
     }
 
-    private static string CreateRescueWorkspace(string processTempRoot)
+    private static string CreateRescueWorkspace(
+        string processTempRoot)
     {
-        string workspaceRoot = Path.Combine(processTempRoot, RescueWorkspaceFolderName);
+        string workspaceRoot = Path.Combine(
+            processTempRoot,
+            RescueWorkspaceFolderName);
+
         Directory.CreateDirectory(workspaceRoot);
 
-        if (!IsPathUnderDirectory(workspaceRoot, processTempRoot)
-            || HasReparsePointInExistingPathFromVolumeRoot(workspaceRoot))
+        if (!IsPathUnderDirectory(
+                workspaceRoot,
+                processTempRoot)
+            || HasReparsePointInExistingPathFromVolumeRoot(
+                workspaceRoot))
         {
             throw new IOException();
         }
 
-        for (int attempt = 0; attempt < 20; attempt++)
+        for (int attempt = 0;
+             attempt < 20;
+             attempt++)
         {
             string workspacePath = Path.Combine(
                 workspaceRoot,
@@ -594,8 +684,11 @@ internal static class CueRescueWriter
 
             Directory.CreateDirectory(workspacePath);
 
-            if (!IsPathUnderDirectory(workspacePath, processTempRoot)
-                || HasReparsePointInExistingPathFromVolumeRoot(workspacePath))
+            if (!IsPathUnderDirectory(
+                    workspacePath,
+                    processTempRoot)
+                || HasReparsePointInExistingPathFromVolumeRoot(
+                    workspacePath))
             {
                 TryDeleteDirectory(workspacePath);
                 throw new IOException();
@@ -612,45 +705,66 @@ internal static class CueRescueWriter
         int trackNumber,
         HashSet<string> usedFileNames)
     {
-        string fileName = Path.GetFileName(sourcePath);
+        string fileName =
+            Path.GetFileName(sourcePath);
+
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            fileName = $"track{trackNumber:00}.bin";
+            fileName =
+                $"track{trackNumber:00}.bin";
         }
 
-        foreach (char invalidChar in Path.GetInvalidFileNameChars())
+        foreach (char invalidChar
+                 in Path.GetInvalidFileNameChars())
         {
-            fileName = fileName.Replace(invalidChar, '_');
+            fileName =
+                fileName.Replace(
+                    invalidChar,
+                    '_');
         }
 
-        fileName = fileName.Replace('"', '_').Trim();
+        fileName =
+            fileName.Replace('"', '_').Trim();
+
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            fileName = $"track{trackNumber:00}.bin";
+            fileName =
+                $"track{trackNumber:00}.bin";
         }
 
-        string baseName = Path.GetFileNameWithoutExtension(fileName);
-        string extension = Path.GetExtension(fileName);
+        string baseName =
+            Path.GetFileNameWithoutExtension(fileName);
+
+        string extension =
+            Path.GetExtension(fileName);
+
         if (string.IsNullOrWhiteSpace(extension))
         {
             extension = ".bin";
         }
 
         string candidate = fileName;
+
         if (usedFileNames.Add(candidate))
         {
             return candidate;
         }
 
-        candidate = $"track{trackNumber:00}_{baseName}{extension}";
+        candidate =
+            $"track{trackNumber:00}_{baseName}{extension}";
+
         if (usedFileNames.Add(candidate))
         {
             return candidate;
         }
 
-        for (int i = 1; i <= 999; i++)
+        for (int i = 1;
+             i <= 999;
+             i++)
         {
-            candidate = $"track{trackNumber:00}_{i:000}_{baseName}{extension}";
+            candidate =
+                $"track{trackNumber:00}_{i:000}_{baseName}{extension}";
+
             if (usedFileNames.Add(candidate))
             {
                 return candidate;
@@ -660,23 +774,21 @@ internal static class CueRescueWriter
         throw new IOException();
     }
 
-    private static string EscapeCueQuotedText(string text)
-    {
-        return text.Replace("\\", "/").Replace("\"", "_");
-    }
-
     private static bool TryCreateHardLink(
         string destinationPath,
         string sourcePath)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!OperatingSystem.IsWindows())
         {
             return false;
         }
 
         try
         {
-            return CreateHardLinkW(destinationPath, sourcePath, IntPtr.Zero);
+            return CreateHardLinkW(
+                destinationPath,
+                sourcePath,
+                IntPtr.Zero);
         }
         catch (DllNotFoundException)
         {
@@ -686,7 +798,51 @@ internal static class CueRescueWriter
         {
             return false;
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool IsReadOnlyFile(
+        string path)
+    {
+        try
+        {
+            return (File.GetAttributes(path)
+                    & FileAttributes.ReadOnly)
+                == FileAttributes.ReadOnly;
+        }
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
+        {
+            return true;
+        }
+    }
+
+    private static bool IsSafeExistingBinTrack(
+        string path)
+    {
+        try
+        {
+            FileInfo file = new(path);
+
+            if (!file.Exists
+                || !string.Equals(
+                    file.Extension,
+                    ".bin",
+                    StringComparison.OrdinalIgnoreCase)
+                || HasReparsePointInExistingPathFromVolumeRoot(
+                    file.FullName))
+            {
+                return false;
+            }
+
+            return file.Length > 0;
+        }
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             return false;
         }
@@ -696,47 +852,70 @@ internal static class CueRescueWriter
         string childPath,
         string parentDirectory)
     {
-        string fullChild = NormalizeFullPath(childPath);
-        string fullParent = NormalizeFullPath(parentDirectory);
+        string fullChild =
+            NormalizeFullPath(childPath);
 
-        if (string.Equals(fullChild, fullParent, StringComparison.OrdinalIgnoreCase))
+        string fullParent =
+            NormalizeFullPath(parentDirectory);
+
+        if (string.Equals(
+                fullChild,
+                fullParent,
+                StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        string fullParentWithSeparator = EnsureDirectorySeparatorSuffix(fullParent);
+        string fullParentWithSeparator =
+            EnsureDirectorySeparatorSuffix(fullParent);
 
-        return fullChild.StartsWith(fullParentWithSeparator, StringComparison.OrdinalIgnoreCase);
+        return fullChild.StartsWith(
+            fullParentWithSeparator,
+            StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool HasReparsePointInExistingPathFromVolumeRoot(string candidatePath)
+    private static bool HasReparsePointInExistingPathFromVolumeRoot(
+        string candidatePath)
     {
         try
         {
-            string candidate = NormalizeFullPath(candidatePath);
-            string? root = Path.GetPathRoot(candidate);
+            string candidate =
+                NormalizeFullPath(candidatePath);
+
+            string? root =
+                Path.GetPathRoot(candidate);
 
             if (string.IsNullOrWhiteSpace(root))
             {
                 return true;
             }
 
-            return HasReparsePointInExistingPath(candidate, root);
+            return HasReparsePointInExistingPath(
+                candidate,
+                root);
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             return true;
         }
     }
 
-    private static bool HasReparsePointInExistingPath(string candidatePath, string rootPath)
+    private static bool HasReparsePointInExistingPath(
+        string candidatePath,
+        string rootPath)
     {
         try
         {
-            string candidate = NormalizeFullPath(candidatePath);
-            string root = NormalizeFullPath(rootPath);
+            string candidate =
+                NormalizeFullPath(candidatePath);
 
-            if (!IsSamePathOrChild(candidate, root))
+            string root =
+                NormalizeFullPath(rootPath);
+
+            if (!IsSamePathOrChild(
+                    candidate,
+                    root))
             {
                 return true;
             }
@@ -745,58 +924,86 @@ internal static class CueRescueWriter
 
             while (true)
             {
-                if ((File.Exists(current) || Directory.Exists(current)) && IsExistingPathReparsePoint(current))
+                if ((File.Exists(current)
+                        || Directory.Exists(current))
+                    && IsExistingPathReparsePoint(current))
                 {
                     return true;
                 }
 
-                if (PathsEqual(current, root))
+                if (PathsEqual(
+                        current,
+                        root))
                 {
                     return false;
                 }
 
-                string? parent = Directory.GetParent(current)?.FullName;
-                if (string.IsNullOrWhiteSpace(parent) || PathsEqual(parent, current))
+                string? parent =
+                    Directory.GetParent(current)?.FullName;
+
+                if (string.IsNullOrWhiteSpace(parent)
+                    || PathsEqual(
+                        parent,
+                        current))
                 {
                     return true;
                 }
 
-                current = NormalizeFullPath(parent);
+                current =
+                    NormalizeFullPath(parent);
             }
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             return true;
         }
     }
 
-    private static bool IsExistingPathReparsePoint(string path)
+    private static bool IsExistingPathReparsePoint(
+        string path)
     {
         try
         {
-            if (!File.Exists(path) && !Directory.Exists(path))
+            if (!File.Exists(path)
+                && !Directory.Exists(path))
             {
                 return false;
             }
 
-            return (File.GetAttributes(path) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint;
+            return (File.GetAttributes(path)
+                    & FileAttributes.ReparsePoint)
+                == FileAttributes.ReparsePoint;
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
             return true;
         }
     }
 
-    private static bool IsSamePathOrChild(string candidatePath, string rootPath)
+    private static bool IsSamePathOrChild(
+        string candidatePath,
+        string rootPath)
     {
-        string candidate = NormalizeFullPath(candidatePath);
-        string root = NormalizeFullPath(rootPath);
+        string candidate =
+            NormalizeFullPath(candidatePath);
 
-        return string.Equals(candidate, root, StringComparison.OrdinalIgnoreCase)
-            || candidate.StartsWith(EnsureDirectorySeparatorSuffix(root), StringComparison.OrdinalIgnoreCase);
+        string root =
+            NormalizeFullPath(rootPath);
+
+        return string.Equals(
+                candidate,
+                root,
+                StringComparison.OrdinalIgnoreCase)
+            || candidate.StartsWith(
+                EnsureDirectorySeparatorSuffix(root),
+                StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool PathsEqual(string left, string right)
+    private static bool PathsEqual(
+        string left,
+        string right)
     {
         return string.Equals(
             NormalizeFullPath(left),
@@ -804,27 +1011,42 @@ internal static class CueRescueWriter
             StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool IsRootDirectory(string path)
+    private static bool IsRootDirectory(
+        string path)
     {
-        string fullPath = NormalizeFullPath(path);
-        string? root = Path.GetPathRoot(fullPath);
+        string fullPath =
+            NormalizeFullPath(path);
+
+        string? root =
+            Path.GetPathRoot(fullPath);
 
         if (string.IsNullOrWhiteSpace(root))
         {
             return false;
         }
 
-        string fullRoot = NormalizeFullPath(root);
-        return string.Equals(fullPath, fullRoot, StringComparison.OrdinalIgnoreCase);
+        string fullRoot =
+            NormalizeFullPath(root);
+
+        return string.Equals(
+            fullPath,
+            fullRoot,
+            StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string NormalizeFullPath(string path)
+    private static string NormalizeFullPath(
+        string path)
     {
-        string fullPath = Path.GetFullPath(path);
-        string? root = Path.GetPathRoot(fullPath);
+        string fullPath =
+            Path.GetFullPath(path);
+
+        string? root =
+            Path.GetPathRoot(fullPath);
 
         if (!string.IsNullOrWhiteSpace(root)
-            && fullPath.Equals(root, StringComparison.OrdinalIgnoreCase))
+            && fullPath.Equals(
+                root,
+                StringComparison.OrdinalIgnoreCase))
         {
             return fullPath;
         }
@@ -834,15 +1056,19 @@ internal static class CueRescueWriter
             Path.AltDirectorySeparatorChar);
     }
 
-    private static string EnsureDirectorySeparatorSuffix(string path)
+    private static string EnsureDirectorySeparatorSuffix(
+        string path)
     {
-        return path.EndsWith(Path.DirectorySeparatorChar)
-               || path.EndsWith(Path.AltDirectorySeparatorChar)
+        return path.EndsWith(
+                Path.DirectorySeparatorChar)
+            || path.EndsWith(
+                Path.AltDirectorySeparatorChar)
             ? path
             : path + Path.DirectorySeparatorChar;
     }
 
-    private static bool IsPathFailure(Exception ex)
+    private static bool IsPathFailure(
+        Exception ex)
     {
         return ex is ArgumentException
             or NotSupportedException
@@ -850,13 +1076,15 @@ internal static class CueRescueWriter
             or System.Security.SecurityException;
     }
 
-    private static bool IsIoFailure(Exception ex)
+    private static bool IsIoFailure(
+        Exception ex)
     {
         return ex is IOException
             or UnauthorizedAccessException;
     }
 
-    private static void TryDeleteDirectory(string directoryPath)
+    private static void TryDeleteDirectory(
+        string directoryPath)
     {
         try
         {
@@ -865,51 +1093,72 @@ internal static class CueRescueWriter
                 return;
             }
 
-            if (IsExistingPathReparsePoint(directoryPath))
+            if (IsExistingPathReparsePoint(
+                    directoryPath))
             {
-                TryDeleteDirectoryLinkOnly(directoryPath);
+                TryDeleteDirectoryLinkOnly(
+                    directoryPath);
+
                 return;
             }
 
-            foreach (string file in Directory.EnumerateFiles(directoryPath))
+            foreach (string file
+                     in Directory.EnumerateFiles(
+                         directoryPath))
             {
                 TryDeleteFile(file);
             }
 
-            foreach (string childDirectory in Directory.EnumerateDirectories(directoryPath))
+            foreach (string childDirectory
+                     in Directory.EnumerateDirectories(
+                         directoryPath))
             {
-                if (IsExistingPathReparsePoint(childDirectory))
+                if (IsExistingPathReparsePoint(
+                        childDirectory))
                 {
-                    TryDeleteDirectoryLinkOnly(childDirectory);
+                    TryDeleteDirectoryLinkOnly(
+                        childDirectory);
+
                     continue;
                 }
 
-                TryDeleteDirectory(childDirectory);
+                TryDeleteDirectory(
+                    childDirectory);
             }
 
-            ClearBlockingDirectoryAttributes(directoryPath);
-            Directory.Delete(directoryPath, recursive: false);
+            ClearBlockingDirectoryAttributes(
+                directoryPath);
+
+            Directory.Delete(
+                directoryPath,
+                recursive: false);
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
         }
     }
 
-    private static void TryDeleteDirectoryLinkOnly(string directoryPath)
+    private static void TryDeleteDirectoryLinkOnly(
+        string directoryPath)
     {
         try
         {
             if (Directory.Exists(directoryPath))
             {
-                Directory.Delete(directoryPath, recursive: false);
+                Directory.Delete(
+                    directoryPath,
+                    recursive: false);
             }
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
         }
     }
 
-    private static void TryDeleteFile(string filePath)
+    private static void TryDeleteFile(
+        string filePath)
     {
         try
         {
@@ -920,12 +1169,14 @@ internal static class CueRescueWriter
 
             File.Delete(filePath);
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
         }
     }
 
-    private static void ClearBlockingDirectoryAttributes(string directoryPath)
+    private static void ClearBlockingDirectoryAttributes(
+        string directoryPath)
     {
         try
         {
@@ -934,35 +1185,45 @@ internal static class CueRescueWriter
                 return;
             }
 
-            if (IsExistingPathReparsePoint(directoryPath))
+            if (IsExistingPathReparsePoint(
+                    directoryPath))
             {
                 return;
             }
 
-            FileAttributes attributes = File.GetAttributes(directoryPath);
+            FileAttributes attributes =
+                File.GetAttributes(directoryPath);
+
             FileAttributes cleaned = attributes
                 & ~FileAttributes.ReadOnly
                 & ~FileAttributes.Hidden
                 & ~FileAttributes.System;
 
-            if ((cleaned & FileAttributes.Directory) != FileAttributes.Directory)
+            if ((cleaned & FileAttributes.Directory)
+                != FileAttributes.Directory)
             {
                 cleaned |= FileAttributes.Directory;
             }
 
             if (cleaned != attributes)
             {
-                File.SetAttributes(directoryPath, cleaned);
+                File.SetAttributes(
+                    directoryPath,
+                    cleaned);
             }
         }
-        catch (Exception ex) when (IsIoFailure(ex) || IsPathFailure(ex))
+        catch (Exception ex) when (
+            IsIoFailure(ex) || IsPathFailure(ex))
         {
         }
     }
 
 #pragma warning disable SYSLIB1054
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [DllImport(
+        "kernel32.dll",
+        CharSet = CharSet.Unicode,
+        SetLastError = true)]
     private static extern bool CreateHardLinkW(
         string lpFileName,
         string lpExistingFileName,

@@ -133,12 +133,6 @@ internal sealed class QueueRunCoordinator(
             return;
         }
 
-        if (ShouldRunStorageAdvisorForProcessingItem(selected)
-            && !_ui.ConfirmStorageAdvisorBeforeProcessing([selected], processedSelectionOnly: true))
-        {
-            return;
-        }
-
         if (!TryBeginRun(out CancellationToken runToken))
         {
             return;
@@ -219,15 +213,7 @@ internal sealed class QueueRunCoordinator(
 
         if (!string.Equals(selected.RequestedAction, TaskActionCodes.VerifyChd, StringComparison.Ordinal))
         {
-            if (string.Equals(selected.RequestedAction, TaskActionCodes.PendingSelection, StringComparison.Ordinal)
-                || string.Equals(selected.RequestedAction, TaskActionCodes.RestoreDiscImageFromChd, StringComparison.Ordinal))
-            {
-                selected.RequestedAction = TaskActionCodes.VerifyChd;
-            }
-            else
-            {
-                return;
-            }
+            return;
         }
 
         if (!TryBeginRun(out CancellationToken runToken))
@@ -570,17 +556,6 @@ internal sealed class QueueRunCoordinator(
             return;
         }
 
-        TaskQueueItemViewModel[] storageAdvisorItems =
-        [
-            .. queuedVms.Where(ShouldRunStorageAdvisorForProcessingItem)
-        ];
-
-        if (storageAdvisorItems.Length > 0
-            && !_ui.ConfirmStorageAdvisorBeforeProcessing(storageAdvisorItems, processedSelectionOnly))
-        {
-            return;
-        }
-
         if (!TryBeginRun(out CancellationToken runToken))
         {
             return;
@@ -757,20 +732,6 @@ internal sealed class QueueRunCoordinator(
     }
 
     private bool IsDisposedOrQueueLocked() => IsDisposed() || _ui.IsQueueInteractionLocked;
-
-    private static bool ShouldRunStorageAdvisorForProcessingItem(TaskQueueItemViewModel item)
-    {
-        ArgumentNullException.ThrowIfNull(item);
-
-        if (string.IsNullOrWhiteSpace(item.SourcePath))
-        {
-            return false;
-        }
-
-        string mode = QueueModeFromRequestedAction(item.RequestedAction);
-        return string.Equals(mode, "Convert", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(mode, "Extract", StringComparison.OrdinalIgnoreCase);
-    }
 
     private static string QueueModeFromRequestedAction(string? requestedAction) =>
         QueueModeResolver.QueueModeFromRequestedAction(requestedAction);

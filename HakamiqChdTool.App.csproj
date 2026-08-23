@@ -17,10 +17,10 @@
 		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Resources\HakamiqLogo.ico</ApplicationIcon>
-		<Version>1.2.1</Version>
-		<AssemblyVersion>1.2.1.0</AssemblyVersion>
-		<FileVersion>1.2.1.0</FileVersion>
-		<InformationalVersion>v1.2.1</InformationalVersion>
+		<Version>1.3.0</Version>
+		<AssemblyVersion>1.3.0.0</AssemblyVersion>
+		<FileVersion>1.3.0.0</FileVersion>
+		<InformationalVersion>v1.3.0</InformationalVersion>
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 		<Product>Hakamiq CHD Tool</Product>
 		<Company>Hakamiq</Company>
@@ -42,80 +42,52 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Adapters\**" />
-		<Compile Remove="Controls\**" />
 		<Compile Remove="HakamiqChdTool.App.Tests\**" />
-		<EmbeddedResource Remove="Adapters\**" />
-		<EmbeddedResource Remove="Controls\**" />
 		<EmbeddedResource Remove="HakamiqChdTool.App.Tests\**" />
-		<None Remove="Adapters\**" />
-		<None Remove="Controls\**" />
 		<None Remove="HakamiqChdTool.App.Tests\**" />
-		<Page Remove="Adapters\**" />
-		<Page Remove="Controls\**" />
 		<Page Remove="HakamiqChdTool.App.Tests\**" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Page Remove="Views\Options\GenView.xaml" />
-		<Page Remove="Views\Options\PathsView.xaml" />
-		<Page Remove="Views\Options\RedumpView.xaml" />
-		<Page Remove="Views\Options\ProcView.xaml" />
-		<Page Remove="Views\Options\PerfView.xaml" />
-		<Compile Remove="Views\Options\GenView.xaml.cs" />
-		<Compile Remove="Views\Options\PathsView.xaml.cs" />
-		<Compile Remove="Views\Options\RedumpView.xaml.cs" />
-		<Compile Remove="Views\Options\ProcView.xaml.cs" />
-		<Compile Remove="Views\Options\PerfView.xaml.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Page Include="Views\Options\GenView.xaml">
+		<Page Update="Views\Options\PathsView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\Options\PathsView.xaml">
+		<Page Update="Views\Options\RedumpView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\Options\RedumpView.xaml">
+		<Page Update="Views\Options\ProcView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\Options\ProcView.xaml">
+		<Page Update="Views\Options\PerfView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
 		</Page>
-		<Page Include="Views\Options\PerfView.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
-		<Compile Include="Views\Options\GenView.xaml.cs">
-			<DependentUpon>GenView.xaml</DependentUpon>
-			<SubType>Code</SubType>
-		</Compile>
-		<Compile Include="Views\Options\PathsView.xaml.cs">
+		<Compile Update="Views\Options\PathsView.xaml.cs">
 			<DependentUpon>PathsView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\Options\RedumpView.xaml.cs">
+		<Compile Update="Views\Options\RedumpView.xaml.cs">
 			<DependentUpon>RedumpView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\Options\ProcView.xaml.cs">
+		<Compile Update="Views\Options\ProcView.xaml.cs">
 			<DependentUpon>ProcView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Compile Include="Views\Options\PerfView.xaml.cs">
+		<Compile Update="Views\Options\PerfView.xaml.cs">
 			<DependentUpon>PerfView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Tools\chdman.exe">
-			<LogicalName>HakamiqChdTool.App.Tools.chdman.exe</LogicalName>
-		</EmbeddedResource>
+		<Content Include="Tools\chdman.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
 
 
 		<Resource Include="Resources\HakamiqLogo.png">

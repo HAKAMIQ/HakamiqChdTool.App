@@ -7,6 +7,7 @@ public sealed partial class OptionsViewModel
     private string _externalToolsCsoKitStatusText = ArabicUi.Get("LocExternalTools_CsoKitStatusMissing");
     private string _externalToolsCsoKitVersion = ArabicUi.Get("LocValue_Unavailable");
     private string _externalToolsCsoKitPath = ArabicUi.Get("LocValue_Unavailable");
+    private bool _externalToolsCsoKitIsAvailable;
     private bool _externalToolsCsoKitShowSetupNote = true;
 
     public string ExternalToolsCsoKitStatusText
@@ -27,6 +28,12 @@ public sealed partial class OptionsViewModel
         private set => SetProperty(ref _externalToolsCsoKitPath, value);
     }
 
+    public bool ExternalToolsCsoKitIsAvailable
+    {
+        get => _externalToolsCsoKitIsAvailable;
+        private set => SetProperty(ref _externalToolsCsoKitIsAvailable, value);
+    }
+
     public bool ExternalToolsCsoKitShowSetupNote
     {
         get => _externalToolsCsoKitShowSetupNote;
@@ -37,6 +44,7 @@ public sealed partial class OptionsViewModel
         string statusText,
         string version,
         string path,
+        bool isAvailable,
         bool showSetupNote)
     {
         ExternalToolsCsoKitStatusText = string.IsNullOrWhiteSpace(statusText)
@@ -51,6 +59,7 @@ public sealed partial class OptionsViewModel
             ? ArabicUi.Get("LocValue_Unavailable")
             : path;
 
+        ExternalToolsCsoKitIsAvailable = isAvailable;
         ExternalToolsCsoKitShowSetupNote = showSetupNote;
     }
 }

@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Input;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using System.Collections.Generic;
@@ -30,19 +31,86 @@ internal static class QueueOperationModeProjection
             _ => "Convert"
         };
 
-    public static string ResolveInitialRequestedAction(string? path, QueueExecutionProfile executionProfile)
+    public static QueueOperationMode ResolveOperationIntent(
+        string? requestedAction,
+        QueueExecutionProfile executionProfile)
+    {
+        QueueOperationMode profileMode = FromExecutionProfile(executionProfile);
+
+        return profileMode != QueueOperationMode.None
+            ? profileMode
+            : QueueOperationCapabilityService.GetOperationMode(requestedAction);
+    }
+    public static string ResolveInitialRequestedAction(
+        string? path,
+        QueueExecutionProfile executionProfile) =>
+        ResolveInitialRequestedAction(
+            QueueOperationCapabilityService.GetSupportedOperationCodes(path),
+            executionProfile);
+
+    public static string ResolveInitialRequestedAction(
+        QueueInputClassification classification,
+        QueueExecutionProfile executionProfile) =>
+        ResolveInitialRequestedAction(
+            QueueOperationCapabilityService.GetSupportedOperationCodes(classification),
+            executionProfile);
+
+    public static bool IsPathVisibleForExecutionProfile(
+        string? path,
+        QueueExecutionProfile executionProfile)
+    {
+        QueueOperationMode selectedMode = FromExecutionProfile(executionProfile);
+        return IsPathVisibleForMode(path, selectedMode);
+    }
+
+    public static bool IsClassificationVisibleForExecutionProfile(
+        QueueInputClassification classification,
+        QueueExecutionProfile executionProfile)
+    {
+        QueueOperationMode selectedMode = FromExecutionProfile(executionProfile);
+        return IsClassificationVisibleForMode(classification, selectedMode);
+    }
+
+    public static bool IsPathVisibleForMode(
+        string? path,
+        QueueOperationMode selectedMode) =>
+        ProjectPath(path, selectedMode).IsVisibleInSelectedMode;
+
+    public static bool IsClassificationVisibleForMode(
+        QueueInputClassification classification,
+        QueueOperationMode selectedMode) =>
+        ProjectClassification(classification, selectedMode).IsVisibleInSelectedMode;
+
+    public static QueueOperationModeProjectionResult ProjectPath(
+        string? path,
+        QueueOperationMode selectedMode) =>
+        ProjectSupportedOperations(
+            QueueOperationCapabilityService.GetSupportedOperationCodes(path),
+            selectedMode);
+
+    public static QueueOperationModeProjectionResult ProjectClassification(
+        QueueInputClassification classification,
+        QueueOperationMode selectedMode) =>
+        ProjectSupportedOperations(
+            QueueOperationCapabilityService.GetSupportedOperationCodes(classification),
+            selectedMode);
+
+    private static string ResolveInitialRequestedAction(
+        IReadOnlyList<string> supportedOperations,
+        QueueExecutionProfile executionProfile)
     {
         QueueOperationMode selectedMode = FromExecutionProfile(executionProfile);
         if (selectedMode != QueueOperationMode.None)
         {
-            QueueOperationModeProjectionResult projection = ProjectPath(path, selectedMode);
-            if (projection.IsRunnableInSelectedMode)
-            {
-                return projection.RequestedAction;
-            }
+            QueueOperationModeProjectionResult projection = ProjectSupportedOperations(
+                supportedOperations,
+                selectedMode);
+
+            return projection.IsRunnableInSelectedMode
+                ? projection.RequestedAction
+                : TaskActionCodes.Unsupported;
         }
 
-        IReadOnlyList<string> supportedOperations = QueueOperationCapabilityService.GetSupportedOperationCodes(path);
         return supportedOperations.Count switch
         {
             0 => TaskActionCodes.Unsupported,
@@ -51,18 +119,10 @@ internal static class QueueOperationModeProjection
         };
     }
 
-    public static bool IsPathVisibleForExecutionProfile(string? path, QueueExecutionProfile executionProfile)
+    private static QueueOperationModeProjectionResult ProjectSupportedOperations(
+        IReadOnlyList<string> supportedOperations,
+        QueueOperationMode selectedMode)
     {
-        QueueOperationMode selectedMode = FromExecutionProfile(executionProfile);
-        return IsPathVisibleForMode(path, selectedMode);
-    }
-
-    public static bool IsPathVisibleForMode(string? path, QueueOperationMode selectedMode) =>
-        ProjectPath(path, selectedMode).IsVisibleInSelectedMode;
-
-    public static QueueOperationModeProjectionResult ProjectPath(string? path, QueueOperationMode selectedMode)
-    {
-        IReadOnlyList<string> supportedOperations = QueueOperationCapabilityService.GetSupportedOperationCodes(path);
         bool hasAnySupportedOperation = supportedOperations.Count > 0;
         bool hasSingleSupportedOperation = supportedOperations.Count == 1;
 
@@ -83,7 +143,10 @@ internal static class QueueOperationModeProjection
                 hasSingleSupportedOperation);
         }
 
-        string selectedModeAction = ResolveActionForMode(supportedOperations, selectedMode);
+        string selectedModeAction = ResolveActionForMode(
+            supportedOperations,
+            selectedMode);
+
         bool isRunnable = selectedModeAction != TaskActionCodes.PendingSelection
             && selectedModeAction != TaskActionCodes.Unsupported;
 

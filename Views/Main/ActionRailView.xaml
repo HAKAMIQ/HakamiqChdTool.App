@@ -4,43 +4,38 @@
              xmlns:mainViews="clr-namespace:HakamiqChdTool.App.Views.Main"
              FlowDirection="{DynamicResource App.FlowDirection}"
              Language="{DynamicResource App.XmlLanguage}"
-             HorizontalAlignment="Stretch"
-             VerticalAlignment="Stretch"
              SnapsToDevicePixels="True"
              UseLayoutRounding="True"
              Focusable="False">
 
-	<Grid FlowDirection="{DynamicResource App.FlowDirection}"
-          SnapsToDevicePixels="True"
-          ClipToBounds="True">
-		<ScrollViewer Margin="{DynamicResource Inset.8.All}"
-                      FlowDirection="{DynamicResource App.FlowDirection}"
+    <Grid ClipToBounds="True">
+        <ScrollViewer Margin="{DynamicResource Inset.4.All}"
                       VerticalScrollBarVisibility="Hidden"
                       HorizontalScrollBarVisibility="Disabled"
                       CanContentScroll="False"
                       PanningMode="VerticalOnly"
                       Focusable="False">
-			<Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Top"
-                  SnapsToDevicePixels="True">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="{DynamicResource Grid.Space.12}" />
-					<RowDefinition Height="Auto" />
-				</Grid.RowDefinitions>
+            <Grid HorizontalAlignment="Stretch"
+                  VerticalAlignment="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-				<mainViews:OperationModePanel x:Name="ModePanel"
+                <mainViews:OperationModePanel x:Name="ModePanel"
                                               Grid.Row="0"
-                                              HorizontalAlignment="Stretch"
-                                              FlowDirection="{DynamicResource App.FlowDirection}"
                                               OperationModeChanged="OnOperationModeChanged" />
 
-				<mainViews:ProcessingActionsPanel x:Name="ActionsPanel"
-                                                  Grid.Row="2"
-                                                  HorizontalAlignment="Stretch"
-                                                  FlowDirection="{DynamicResource App.FlowDirection}" />
-			</Grid>
-		</ScrollViewer>
-	</Grid>
+                <Border Grid.Row="1"
+                        Height="{DynamicResource StrokeThickness.Control}"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource Brush.Border.Subtle}"
+                        Opacity="{DynamicResource Opacity.Divider.Subtle}" />
+
+                <mainViews:ProcessingActionsPanel x:Name="ActionsPanel"
+                                                  Grid.Row="2" />
+            </Grid>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

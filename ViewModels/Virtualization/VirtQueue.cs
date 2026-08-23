@@ -60,6 +60,23 @@ public sealed class VirtualizedQueueCollection : IList, INotifyCollectionChanged
         return IndexOfVisibleRow(visibleRows, rowId);
     }
 
+    public Guid[] GetVisibleRowIdsSnapshot()
+    {
+        QueueRowData[] visibleRows = Volatile.Read(ref _visibleRows);
+        if (visibleRows.Length == 0)
+        {
+            return Array.Empty<Guid>();
+        }
+
+        var ids = new Guid[visibleRows.Length];
+        for (int i = 0; i < visibleRows.Length; i++)
+        {
+            ids[i] = visibleRows[i].ItemId;
+        }
+
+        return ids;
+    }
+
     public int Add(object? value) => throw new NotSupportedException();
 
     public void Clear() => _store.Clear();

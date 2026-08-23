@@ -94,6 +94,7 @@ public sealed partial class TaskQueueItemViewModel
         OnPropertyChanged(nameof(HasIntegrityColumnDetail));
         OnPropertyChanged(nameof(RedumpStatusDisplay));
         OnPropertyChanged(nameof(RedumpDetailsDisplay));
+        OnPropertyChanged(nameof(RedumpProgressStatusDisplay));
         OnPropertyChanged(nameof(HasRedumpResult));
         OnPropertyChanged(nameof(CanApplyRedumpSuggestedName));
         OnPropertyChanged(nameof(ProgressRegionPhaseIsolated));
@@ -102,6 +103,7 @@ public sealed partial class TaskQueueItemViewModel
     public void ResetIntegrityView()
     {
         SetIntegrityView(IntegrityValidationState.None, "-", string.Empty);
+        ResetRedumpProgress();
     }
 
     public void InitializeFromPath(string path, string requestedAction, string detectedPlatform)
@@ -281,6 +283,18 @@ public sealed partial class TaskQueueItemViewModel
         IsIndeterminate = row.IsIndeterminate;
         IsProgressActive = row.IsProgressActive;
         ProgressValue = row.Progress;
+
+        SetRedumpProgress(
+            row.RedumpState,
+            row.RedumpStatusText,
+            row.RedumpProgress,
+            row.RedumpIsIndeterminate,
+            row.RedumpCurrentBytes,
+            row.RedumpTotalBytes,
+            row.RedumpBytesPerSecond,
+            row.RedumpEtaTicks > 0L
+                ? TimeSpan.FromTicks(row.RedumpEtaTicks)
+                : null);
         RuntimeProgressKind = row.RuntimeProgressKind;
         RuntimeProgressPrimaryMessageKey = row.RuntimeProgressPrimaryMessageKey;
         RuntimeProgressCurrentBytes = row.RuntimeProgressCurrentBytes;

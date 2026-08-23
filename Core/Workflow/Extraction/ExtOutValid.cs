@@ -23,6 +23,7 @@ internal sealed class ExtractionOutputBundleValidator
 
     public bool TryFinalize(
         ExtractionOutputContract contract,
+        bool allowOverwrite,
         out ExtractionOutputBundle finalBundle,
         out string failureMessageKey)
     {
@@ -34,7 +35,7 @@ internal sealed class ExtractionOutputBundleValidator
         return contract.Kind switch
         {
             ExtractionOutputKind.SingleFile => TryFinalizeSingleFile(contract, out finalBundle, out failureMessageKey),
-            ExtractionOutputKind.CueBinBundle => TryFinalizeCueBinBundle(contract, out finalBundle, out failureMessageKey),
+            ExtractionOutputKind.CueBinBundle => TryFinalizeCueBinBundle(contract, allowOverwrite, out finalBundle, out failureMessageKey),
             _ => false
         };
     }
@@ -81,12 +82,17 @@ internal sealed class ExtractionOutputBundleValidator
 
     private bool TryFinalizeCueBinBundle(
         ExtractionOutputContract contract,
+        bool allowOverwrite,
         out ExtractionOutputBundle finalBundle,
         out string failureMessageKey)
     {
         finalBundle = ExtractionOutputBundle.Create(contract.Kind, contract.FinalPrimaryPath, []);
         failureMessageKey = InvalidOutputKey;
-        var promotedTargets = new List<string>();
+
+        var promotedDependencies = new List<CueBundlePromotion>();
+        var backups = new List<CueBundleBackup>();
+        string? stagedCuePath = null;
+        bool finalCuePromoted = false;
 
         try
         {
@@ -95,11 +101,24 @@ internal sealed class ExtractionOutputBundleValidator
                 return false;
             }
 
-            if (File.Exists(plan.FinalCuePath)
-                || plan.UniqueDependencies.Any(static item => File.Exists(item.FinalPath)))
+            if (!TryBuildCueBundleTransactionTargets(
+                    plan,
+                    allowOverwrite,
+                    out string[] transactionTargets,
+                    out failureMessageKey))
+            {
+                return false;
+            }
+
+            if (!allowOverwrite && transactionTargets.Any(File.Exists))
             {
                 failureMessageKey = InvalidOutputKey;
                 return false;
+            }
+
+            if (allowOverwrite)
+            {
+                BackupExistingTargets(transactionTargets, backups);
             }
 
             foreach (CueBundleDependency dependency in plan.UniqueDependencies)
@@ -114,33 +133,329 @@ internal sealed class ExtractionOutputBundleValidator
                     dependency.PendingPath,
                     dependency.FinalPath);
 
-                promotedTargets.Add(dependency.FinalPath);
+                promotedDependencies.Add(new CueBundlePromotion(
+                    dependency.PendingPath,
+                    dependency.FinalPath));
             }
 
             Directory.CreateDirectory(plan.FinalDirectory);
-            WorkflowOutputPathContract.PromoteProducedFileToFinalLocation(plan.PendingCuePath, plan.FinalCuePath);
-            promotedTargets.Add(plan.FinalCuePath);
+            stagedCuePath = BuildUniqueSiblingPath(plan.FinalCuePath, ".cue.tmp");
 
             File.WriteAllLines(
-                plan.FinalCuePath,
+                stagedCuePath,
                 RewriteCueReferences(plan.SourceLines, plan.Dependencies),
                 new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 
-            if (!TryValidateBundle(ExtractionOutputKind.CueBinBundle, plan.FinalCuePath, out finalBundle, out failureMessageKey))
+            WorkflowOutputPathContract.PromoteProducedFileToFinalLocation(
+                stagedCuePath,
+                plan.FinalCuePath);
+            stagedCuePath = null;
+            finalCuePromoted = true;
+
+            if (!TryValidateBundle(
+                    ExtractionOutputKind.CueBinBundle,
+                    plan.FinalCuePath,
+                    out finalBundle,
+                    out failureMessageKey))
             {
-                CleanupPromotedTargets(promotedTargets);
+                RollbackCueBundle(
+                    plan.FinalCuePath,
+                    promotedDependencies,
+                    backups,
+                    stagedCuePath,
+                    finalCuePromoted);
                 return false;
             }
 
+            TryDeleteFile(plan.PendingCuePath);
+            CommitCueBundleBackups(backups);
             return true;
         }
         catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
         {
-            CleanupPromotedTargets(promotedTargets);
+            RollbackCueBundle(
+                contract.FinalPrimaryPath,
+                promotedDependencies,
+                backups,
+                stagedCuePath,
+                finalCuePromoted);
+
             failureMessageKey = InvalidOutputKey;
-            Log.Warning(ex, "Extraction output contract failed while finalizing CUE/BIN bundle. Pending={Pending}; Final={Final}", contract.PendingPrimaryPath, contract.FinalPrimaryPath);
+            Log.Warning(
+                ex,
+                "Extraction output contract failed while finalizing CUE/BIN bundle. Pending={Pending}; Final={Final}; AllowOverwrite={AllowOverwrite}",
+                contract.PendingPrimaryPath,
+                contract.FinalPrimaryPath,
+                allowOverwrite);
             return false;
         }
+    }
+
+    private bool TryBuildCueBundleTransactionTargets(
+        CueBundlePlan plan,
+        bool allowOverwrite,
+        out string[] transactionTargets,
+        out string failureMessageKey)
+    {
+        failureMessageKey = InvalidOutputKey;
+
+        var targets = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            plan.FinalCuePath
+        };
+
+        foreach (CueBundleDependency dependency in plan.UniqueDependencies)
+        {
+            targets.Add(dependency.FinalPath);
+        }
+
+        if (!allowOverwrite || !File.Exists(plan.FinalCuePath))
+        {
+            if (!TryMaterializeCueBundleTransactionTargets(targets, out transactionTargets))
+            {
+                return false;
+            }
+
+            failureMessageKey = string.Empty;
+            return true;
+        }
+
+        if (!_cueReader.TryRead(
+                plan.FinalCuePath,
+                out CueSheetReadResult existingCue,
+                out failureMessageKey))
+        {
+            failureMessageKey = string.IsNullOrWhiteSpace(failureMessageKey)
+                ? InvalidOutputKey
+                : failureMessageKey;
+            transactionTargets = [];
+            return false;
+        }
+
+        foreach (CueSheetFileReference reference in existingCue.References)
+        {
+            if (!IsSafeCueRelativeReference(reference.Reference))
+            {
+                transactionTargets = [];
+                failureMessageKey = InvalidOutputKey;
+                return false;
+            }
+
+            string referencedPath;
+            try
+            {
+                referencedPath = Path.GetFullPath(
+                    Path.Combine(plan.FinalDirectory, reference.Reference));
+            }
+            catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
+            {
+                transactionTargets = [];
+                failureMessageKey = InvalidOutputKey;
+                return false;
+            }
+
+            if (!IsSameDirectoryChild(plan.FinalDirectory, referencedPath)
+                || Directory.Exists(referencedPath))
+            {
+                transactionTargets = [];
+                failureMessageKey = InvalidOutputKey;
+                return false;
+            }
+
+            targets.Add(referencedPath);
+        }
+
+        if (!TryMaterializeCueBundleTransactionTargets(targets, out transactionTargets))
+        {
+            failureMessageKey = InvalidOutputKey;
+            return false;
+        }
+
+        failureMessageKey = string.Empty;
+        return true;
+    }
+
+    private static bool TryMaterializeCueBundleTransactionTargets(
+        IEnumerable<string> targets,
+        out string[] transactionTargets)
+    {
+        transactionTargets = [.. targets];
+
+        if (transactionTargets.Any(Directory.Exists)
+            || transactionTargets.Any(HasReparsePointInExistingPath))
+        {
+            transactionTargets = [];
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool HasReparsePointInExistingPath(string candidatePath)
+    {
+        try
+        {
+            string fullPath = Path.GetFullPath(candidatePath);
+            string? rootPath = Path.GetPathRoot(fullPath);
+            if (string.IsNullOrWhiteSpace(rootPath))
+            {
+                return true;
+            }
+
+            string current = File.Exists(fullPath) || Directory.Exists(fullPath)
+                ? fullPath
+                : Path.GetDirectoryName(fullPath) ?? fullPath;
+
+            while (!string.IsNullOrWhiteSpace(current))
+            {
+                if ((File.Exists(current) || Directory.Exists(current))
+                    && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+                {
+                    return true;
+                }
+
+                if (string.Equals(
+                        Path.TrimEndingDirectorySeparator(current),
+                        Path.TrimEndingDirectorySeparator(rootPath),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                string? parent = Directory.GetParent(current)?.FullName;
+                if (string.IsNullOrWhiteSpace(parent)
+                    || string.Equals(parent, current, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                current = parent;
+            }
+        }
+        catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
+        {
+        }
+
+        return true;
+    }
+
+    private static void BackupExistingTargets(
+        IEnumerable<string> targets,
+        ICollection<CueBundleBackup> backups)
+    {
+        foreach (string targetPath in targets)
+        {
+            if (!File.Exists(targetPath))
+            {
+                continue;
+            }
+
+            if ((File.GetAttributes(targetPath) & FileAttributes.ReparsePoint) != 0)
+            {
+                throw new InvalidOperationException(InvalidOutputKey);
+            }
+
+            string backupPath = BuildUniqueSiblingPath(targetPath, ".rollback");
+            File.Move(targetPath, backupPath);
+            backups.Add(new CueBundleBackup(targetPath, backupPath));
+        }
+    }
+
+    private static void RollbackCueBundle(
+        string finalCuePath,
+        IReadOnlyList<CueBundlePromotion> promotedDependencies,
+        IReadOnlyList<CueBundleBackup> backups,
+        string? stagedCuePath,
+        bool finalCuePromoted)
+    {
+        TryDeleteFile(stagedCuePath ?? string.Empty);
+        if (finalCuePromoted)
+        {
+            TryDeleteFile(finalCuePath);
+        }
+
+        for (int index = promotedDependencies.Count - 1; index >= 0; index--)
+        {
+            CueBundlePromotion promotion = promotedDependencies[index];
+            if (!File.Exists(promotion.FinalPath))
+            {
+                continue;
+            }
+
+            try
+            {
+                string? pendingDirectory = Path.GetDirectoryName(promotion.PendingPath);
+                if (!string.IsNullOrWhiteSpace(pendingDirectory))
+                {
+                    Directory.CreateDirectory(pendingDirectory);
+                }
+
+                WorkflowOutputPathContract.PromoteProducedFileToFinalLocation(
+                    promotion.FinalPath,
+                    promotion.PendingPath);
+            }
+            catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
+            {
+                TryDeleteFile(promotion.FinalPath);
+            }
+        }
+
+        for (int index = backups.Count - 1; index >= 0; index--)
+        {
+            CueBundleBackup backup = backups[index];
+            if (!File.Exists(backup.BackupPath))
+            {
+                continue;
+            }
+
+            try
+            {
+                TryDeleteFile(backup.OriginalPath);
+                File.Move(backup.BackupPath, backup.OriginalPath);
+            }
+            catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
+            {
+                Log.Error(
+                    ex,
+                    "Failed to restore CUE/BIN overwrite backup. Original={Original}; Backup={Backup}",
+                    backup.OriginalPath,
+                    backup.BackupPath);
+            }
+        }
+    }
+
+    private static void CommitCueBundleBackups(IEnumerable<CueBundleBackup> backups)
+    {
+        foreach (CueBundleBackup backup in backups)
+        {
+            TryDeleteFile(backup.BackupPath);
+
+            if (!File.Exists(backup.OriginalPath))
+            {
+                TryDeleteEmptyParentDirectory(backup.OriginalPath);
+            }
+        }
+    }
+
+    private static string BuildUniqueSiblingPath(string targetPath, string suffix)
+    {
+        string fullTargetPath = Path.GetFullPath(targetPath);
+        string directory = Path.GetDirectoryName(fullTargetPath)
+            ?? throw new InvalidOperationException(InvalidOutputKey);
+
+        for (int attempt = 0; attempt < 32; attempt++)
+        {
+            string candidate = Path.Combine(
+                directory,
+                ".hcb-" + Guid.NewGuid().ToString("N")[..12] + suffix);
+
+            if (!File.Exists(candidate) && !Directory.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        throw new IOException(InvalidOutputKey);
     }
 
     private bool TryBuildCueBundlePlan(
@@ -701,6 +1016,14 @@ internal sealed class ExtractionOutputBundleValidator
         or PathTooLongException
         or InvalidOperationException
         or System.Security.SecurityException;
+
+    private readonly record struct CueBundlePromotion(
+        string PendingPath,
+        string FinalPath);
+
+    private readonly record struct CueBundleBackup(
+        string OriginalPath,
+        string BackupPath);
 
     private readonly record struct CueBundleDependency(
         string PendingPath,

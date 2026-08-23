@@ -18,7 +18,6 @@ checks.
 
 - [ ] Light theme is readable.
 - [ ] Dark theme is readable.
-- [ ] HAKAMIQ theme is readable.
 - [ ] Arabic UI is RTL where expected.
 - [ ] Technical paths remain LTR and readable.
 - [ ] Advanced Options is not clipped at normal scaling.
@@ -30,7 +29,7 @@ checks.
 - [ ] Supported GDI can be added with its track files.
 - [ ] CHD can be added for verify or extract.
 - [ ] Unsupported input is blocked clearly.
-- [ ] Archive preview or staging is understandable.
+- [ ] Archive staging / extract-then-convert behavior is understandable.
 
 ## Workflow
 

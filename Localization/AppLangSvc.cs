@@ -5,7 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Markup;
+using System.Windows.Media;
 using System.Windows.Threading;
 using AppHost = System.Windows.Application;
 
@@ -21,6 +23,8 @@ public sealed class AppLanguageService
     private const string AppFlowDirectionResourceKey = "App.FlowDirection";
     private const string AppXmlLanguageResourceKey = "App.XmlLanguage";
     private const string AppCaptionButtonsFlowDirectionResourceKey = "App.CaptionButtonsFlowDirection";
+    private const string AppDefaultTextAlignmentResourceKey = "App.DefaultTextAlignment";
+    private const string OptionsSettingsTextAlignmentResourceKey = "Options.SettingsTextAlignment";
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext<AppLanguageService>();
     private static readonly Lazy<AppLanguageService> LazyInstance = new(() => new AppLanguageService());
@@ -204,9 +208,25 @@ public sealed class AppLanguageService
 
     private void ApplyApplicationLanguageResources(AppHost app)
     {
-        app.Resources[AppFlowDirectionResourceKey] = CurrentFlowDirection;
-        app.Resources[AppXmlLanguageResourceKey] = CurrentXmlLanguage;
-        app.Resources[AppCaptionButtonsFlowDirectionResourceKey] = FlowDirection.RightToLeft;
+        TextAlignment textAlignment =
+            CurrentFlowDirection == FlowDirection.RightToLeft
+                ? TextAlignment.Right
+                : TextAlignment.Left;
+
+        app.Resources[AppFlowDirectionResourceKey] =
+            CurrentFlowDirection;
+
+        app.Resources[AppXmlLanguageResourceKey] =
+            CurrentXmlLanguage;
+
+        app.Resources[AppDefaultTextAlignmentResourceKey] =
+            textAlignment;
+
+        app.Resources[OptionsSettingsTextAlignmentResourceKey] =
+            textAlignment;
+
+        app.Resources[AppCaptionButtonsFlowDirectionResourceKey] =
+            CurrentFlowDirection;
     }
 
     private static void ApplyLanguageToOpenWindows(AppHost app)
@@ -214,8 +234,37 @@ public sealed class AppLanguageService
         foreach (Window window in app.Windows.OfType<Window>())
         {
             ApplyToWindow(window);
-            window.InvalidateProperty(FrameworkElement.FlowDirectionProperty);
-            window.InvalidateProperty(FrameworkElement.LanguageProperty);
+            ReapplyLanguageResourcesToUserControls(window);
+
+            _ = window.Dispatcher.BeginInvoke(
+                new Action(() =>
+                    ReapplyLanguageResourcesToUserControls(window)),
+                DispatcherPriority.ContextIdle);
+        }
+    }
+
+    private static void ReapplyLanguageResourcesToUserControls(
+        DependencyObject root)
+    {
+        int childCount = VisualTreeHelper.GetChildrenCount(root);
+
+        for (int index = 0; index < childCount; index++)
+        {
+            DependencyObject child =
+                VisualTreeHelper.GetChild(root, index);
+
+            if (child is UserControl userControl)
+            {
+                userControl.SetResourceReference(
+                    FrameworkElement.FlowDirectionProperty,
+                    AppFlowDirectionResourceKey);
+
+                userControl.SetResourceReference(
+                    FrameworkElement.LanguageProperty,
+                    AppXmlLanguageResourceKey);
+            }
+
+            ReapplyLanguageResourcesToUserControls(child);
         }
     }
 

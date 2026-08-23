@@ -8,38 +8,136 @@
              UseLayoutRounding="True">
 
     <UserControl.Resources>
+        <ToolTip x:Key="AppTip.MainHeaderView.1"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocGeneralSettings_LanguageTitle}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.MainHeaderView.2"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocGeneralSettings_ThemeDescription}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.MainHeaderView.3"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Header_Minimize}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.MainHeaderView.4"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Header_Maximize}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+
+        <ToolTip x:Key="AppTip.MainHeaderView.5"
+                 x:Shared="False"
+                 FlowDirection="{DynamicResource App.FlowDirection}"
+                 Language="{DynamicResource App.XmlLanguage}"
+                 Content="{DynamicResource LocUi_Header_Close}">
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
+                               MaxWidth="{DynamicResource Layout.ToolTip.TextMaxWidth}"
+                               TextWrapping="Wrap"
+                               TextTrimming="None"
+                               LineHeight="{DynamicResource Font.LineHeight.ToolTip}"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               FontFamily="{DynamicResource FontFamily.Base}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FlowDirection="{DynamicResource App.FlowDirection}"
+                               Language="{DynamicResource App.XmlLanguage}"
+                               TextAlignment="{DynamicResource App.DefaultTextAlignment}" />
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
         <Style x:Key="MainHeaderBrandGroup"
                TargetType="{x:Type Grid}">
-            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
 
         <Style x:Key="MainHeaderTitleColumn"
                TargetType="{x:Type StackPanel}">
-            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
 
         <Style x:Key="MainHeaderGeneralText"
                TargetType="{x:Type TextBlock}">
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Text}" />
-            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-            <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
             <Setter Property="TextAlignment" Value="Left" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="TextWrapping" Value="Wrap" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
 
         <Style x:Key="MainHeaderTitleText"
                TargetType="{x:Type TextBlock}"
                BasedOn="{StaticResource MainHeaderGeneralText}">
             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
             <Setter Property="TextWrapping" Value="NoWrap" />
@@ -60,39 +158,35 @@
                BasedOn="{StaticResource MainHeaderGeneralText}">
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="TextAlignment" Value="Left" />
             <Setter Property="TextWrapping" Value="NoWrap" />
             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         </Style>
 
         <Style x:Key="MainHeaderLogoSurface"
                TargetType="{x:Type Border}">
-            <Setter Property="Width" Value="{DynamicResource Space.44}" />
-            <Setter Property="Height" Value="{DynamicResource Space.44}" />
+            <Setter Property="Width" Value="{DynamicResource Space.40}" />
+            <Setter Property="Height" Value="{DynamicResource Space.40}" />
             <Setter Property="Background" Value="{DynamicResource HeaderLogoPlateBackgroundBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource HeaderLogoPlateBorderBrush}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Large}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card.Medium}" />
             <Setter Property="ClipToBounds" Value="True" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="UseLayoutRounding" Value="True" />
         </Style>
 
         <Style x:Key="MainHeaderDivider"
                TargetType="{x:Type Border}">
             <Setter Property="Width" Value="{DynamicResource StrokeThickness.Control}" />
-            <Setter Property="Height" Value="{DynamicResource Space.24}" />
+            <Setter Property="Height" Value="{DynamicResource Space.20}" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Background" Value="{DynamicResource Brush.Border.Subtle}" />
             <Setter Property="Opacity" Value="{DynamicResource Opacity.Divider.Subtle}" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
 
         <Style x:Key="MainHeaderGhostButton"
                TargetType="{x:Type Button}">
-            <Setter Property="MinHeight" Value="34" />
-            <Setter Property="MinWidth" Value="58" />
-            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="MinWidth" Value="54" />
+            <Setter Property="Padding" Value="{DynamicResource Inset.10.5}" />
             <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
             <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
@@ -105,10 +199,6 @@
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-            <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="UseLayoutRounding" Value="True" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -118,8 +208,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{DynamicResource Radius.Control}"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"
@@ -164,7 +253,7 @@
                TargetType="{x:Type Button}"
                BasedOn="{StaticResource MainHeaderGhostButton}">
             <Setter Property="MinWidth" Value="46" />
-            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Padding" Value="{DynamicResource Inset.8.4}" />
             <Setter Property="FlowDirection" Value="LeftToRight" />
             <Setter Property="Language" Value="en-US" />
         </Style>
@@ -174,14 +263,23 @@
                BasedOn="{StaticResource MainHeaderButtonText}">
             <Setter Property="FlowDirection" Value="LeftToRight" />
             <Setter Property="Language" Value="en-US" />
-            <Setter Property="TextAlignment" Value="Left" />
             <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+        </Style>
+
+        <Style x:Key="MainHeaderCommandCluster"
+               TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
+            <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
+            <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
         <Style x:Key="MainHeaderCaptionBtnStyle"
                TargetType="{x:Type Button}">
             <Setter Property="Width" Value="46" />
-            <Setter Property="Height" Value="56" />
+            <Setter Property="Height" Value="{DynamicResource Space.56}" />
             <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
             <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
@@ -192,10 +290,6 @@
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FlowDirection" Value="{DynamicResource App.FlowDirection}" />
-            <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="UseLayoutRounding" Value="True" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -208,9 +302,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource Radius.HeaderButton}"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
+                                CornerRadius="{DynamicResource Radius.HeaderButton}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"
@@ -222,7 +314,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Root"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Layer.Surface}" />
+                                        Value="{DynamicResource Brush.HoverSurface}" />
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
                             </Trigger>
@@ -230,7 +322,7 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Root"
                                         Property="Background"
-                                        Value="{DynamicResource Brush.Layer.Card}" />
+                                        Value="{DynamicResource Brush.PressedSurface}" />
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Brush.Text.Primary}" />
                             </Trigger>
@@ -259,9 +351,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource Radius.HeaderButton}"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
+                                CornerRadius="{DynamicResource Radius.HeaderButton}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"
@@ -299,10 +389,8 @@
 
     <Border Background="{DynamicResource Brush.Layer.Surface}"
             BorderBrush="{DynamicResource Brush.Transparent}"
-            BorderThickness="{DynamicResource Inset.None}"
-            SnapsToDevicePixels="True">
-        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-              SnapsToDevicePixels="True">
+            BorderThickness="{DynamicResource Inset.None}">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="{DynamicResource Grid.Space.56}" />
                 <RowDefinition Height="Auto" />
@@ -310,9 +398,7 @@
 
             <Grid Grid.Row="0"
                   Margin="{DynamicResource Inset.16.0.16.0}"
-                  VerticalAlignment="Stretch"
-                  FlowDirection="{DynamicResource App.FlowDirection}"
-                  SnapsToDevicePixels="True">
+                  VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
@@ -334,15 +420,14 @@
 
                     <Border Grid.Column="0"
                             Style="{StaticResource MainHeaderLogoSurface}">
-                        <Image Width="38"
-                               Height="38"
+                        <Image Width="32"
+                               Height="32"
                                Margin="{DynamicResource Inset.None}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Source="pack://application:,,,/Resources/HakamiqLogo.png"
+                               Source="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.png"
                                Stretch="Uniform"
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               SnapsToDevicePixels="True" />
+                               RenderOptions.BitmapScalingMode="HighQuality" />
                     </Border>
 
                     <StackPanel Grid.Column="2"
@@ -351,54 +436,66 @@
                         <TextBlock Style="{StaticResource MainHeaderTitleText}"
                                    Text="{DynamicResource LocUi_WindowTitle}" />
 
-                        <TextBlock Style="{StaticResource MainHeaderSubtitleText}"
-                                   Text="{DynamicResource LocUi_WindowSubtitle}" />
                     </StackPanel>
                 </Grid>
 
-                <Grid Grid.Column="2"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      FlowDirection="{DynamicResource App.FlowDirection}"
-                      SnapsToDevicePixels="True">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                <Border Grid.Column="2"
+                        Style="{StaticResource MainHeaderCommandCluster}">
+                    <Grid HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.2}" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.2}" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="{DynamicResource Grid.Space.2}" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                    <Button x:Name="HeaderSettingsButton"
-                            Grid.Column="0"
-                            Command="{Binding OpenOptionsCommand}"
-                            Style="{StaticResource MainHeaderGhostButton}"
-                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                        <TextBlock Text="{DynamicResource LocUi_Header_Settings}"
-                                   Style="{StaticResource MainHeaderButtonText}" />
-                    </Button>
+                        <Button x:Name="HeaderSettingsButton"
+                                Grid.Column="0"
+                                Command="{Binding OpenOptionsCommand}"
+                                Style="{StaticResource MainHeaderGhostButton}"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                            <TextBlock Text="{DynamicResource LocUi_Header_Settings}"
+                                       Style="{StaticResource MainHeaderButtonText}" />
+                        </Button>
 
-                    <Button x:Name="HeaderLanguageButton"
-                            Grid.Column="2"
-                            Click="ForwardLanguageToggleRequested"
-                            Style="{StaticResource MainHeaderLanguageButton}"
-                            ToolTip="{DynamicResource LocGeneralSettings_LanguageTitle}"
-                            AutomationProperties.Name="{DynamicResource LocGeneralSettings_LanguageTitle}"
-                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                        <TextBlock x:Name="HeaderLanguageText"
-                                   Text="EN"
-                                   Style="{StaticResource MainHeaderLanguageButtonText}" />
-                    </Button>
+                        <Button x:Name="HeaderLanguageButton"
+                                Grid.Column="2"
+                                Click="ForwardLanguageToggleRequested"
+                                Style="{StaticResource MainHeaderLanguageButton}"
+                                ToolTip="{StaticResource AppTip.MainHeaderView.1}"
+                                AutomationProperties.Name="{DynamicResource LocGeneralSettings_LanguageTitle}"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                            <TextBlock x:Name="HeaderLanguageText"
+                                       Text="EN"
+                                       Style="{StaticResource MainHeaderLanguageButtonText}" />
+                        </Button>
 
-                    <Button x:Name="HeaderAboutButton"
-                            Grid.Column="4"
-                            Command="{Binding OpenAboutCommand}"
-                            Style="{StaticResource MainHeaderGhostButton}"
-                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                        <TextBlock Text="{DynamicResource LocUi_Header_About}"
-                                   Style="{StaticResource MainHeaderButtonText}" />
-                    </Button>
-                </Grid>
+                        <Button x:Name="HeaderThemeButton"
+                                Grid.Column="4"
+                                Click="ThemeCycleButton_Click"
+                                Style="{StaticResource MainHeaderLanguageButton}"
+                                ToolTip="{StaticResource AppTip.MainHeaderView.2}"
+                                AutomationProperties.Name="{DynamicResource LocGeneralSettings_ThemeTitle}"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                            <TextBlock x:Name="HeaderThemeText"
+                                       Text="🌙"
+                                       Style="{StaticResource MainHeaderLanguageButtonText}" />
+                        </Button>
+
+                        <Button x:Name="HeaderAboutButton"
+                                Grid.Column="6"
+                                Command="{Binding OpenAboutCommand}"
+                                Style="{StaticResource MainHeaderGhostButton}"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                            <TextBlock Text="{DynamicResource LocUi_Header_About}"
+                                       Style="{StaticResource MainHeaderButtonText}" />
+                        </Button>
+                    </Grid>
+                </Border>
 
                 <Border Grid.Column="4"
                         Style="{StaticResource MainHeaderDivider}" />
@@ -408,10 +505,10 @@
                             FlowDirection="{DynamicResource App.CaptionButtonsFlowDirection}"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
-                            SnapsToDevicePixels="True">
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+
                     <Button x:Name="CaptionMinimizeButton"
-                            ToolTip="{DynamicResource LocUi_Header_Minimize}"
+                            ToolTip="{StaticResource AppTip.MainHeaderView.3}"
                             Click="ForwardMinimizeRequested"
                             Style="{StaticResource MainHeaderCaptionBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -426,7 +523,7 @@
                     </Button>
 
                     <Button x:Name="CaptionMaximizeRestoreButton"
-                            ToolTip="{DynamicResource LocUi_Header_Maximize}"
+                            ToolTip="{StaticResource AppTip.MainHeaderView.4}"
                             Click="ForwardMaximizeRestoreRequested"
                             Style="{StaticResource MainHeaderCaptionBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -442,7 +539,7 @@
                     </Button>
 
                     <Button x:Name="CaptionCloseButton"
-                            ToolTip="{DynamicResource LocUi_Header_Close}"
+                            ToolTip="{StaticResource AppTip.MainHeaderView.5}"
                             Click="ForwardCloseRequested"
                             Style="{StaticResource MainHeaderCaptionCloseBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -461,8 +558,7 @@
             <Border Grid.Row="1"
                     Height="{DynamicResource StrokeThickness.Control}"
                     Background="{DynamicResource Brush.Border.Subtle}"
-                    Opacity="{DynamicResource Opacity.Divider.Subtle}"
-                    SnapsToDevicePixels="True" />
+                    Opacity="{DynamicResource Opacity.Divider.Subtle}" />
         </Grid>
     </Border>
 </UserControl>

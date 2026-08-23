@@ -20,9 +20,9 @@
     },
     "component": {
       "type": "application",
-      "bom-ref": "pkg:generic/hakamiq-chd-tool@1.2.1",
+      "bom-ref": "pkg:generic/hakamiq-chd-tool@1.3.0",
       "name": "Hakamiq CHD Tool",
-      "version": "1.2.1",
+      "version": "1.3.0",
       "licenses": [
         {
           "license": {
@@ -573,7 +573,7 @@
   ],
   "dependencies": [
     {
-      "ref": "pkg:generic/hakamiq-chd-tool@1.2.1",
+      "ref": "pkg:generic/hakamiq-chd-tool@1.3.0",
       "dependsOn": [
         "pkg:generic/7-zip@26.02",
         "pkg:generic/csokit-native@0.6.1",
@@ -716,19 +716,21 @@
     },
     {
       "ref": "pkg:generic/mame-chdman@0.289",
-      "dependsOn": null
+      "dependsOn": []
     },
     {
       "ref": "pkg:generic/7-zip@26.02",
-      "dependsOn": null
+      "dependsOn": []
     },
     {
       "ref": "pkg:generic/csokit@0.6.1",
-      "dependsOn": "pkg:generic/csokit-native@0.6.1"
+      "dependsOn": [
+        "pkg:generic/csokit-native@0.6.1"
+      ]
     },
     {
       "ref": "pkg:generic/csokit-native@0.6.1",
-      "dependsOn": null
+      "dependsOn": []
     }
   ]
 }

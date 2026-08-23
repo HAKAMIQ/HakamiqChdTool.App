@@ -41,11 +41,16 @@ public static class QueueInputClassifier
         }
 
         MediaInputDescriptor descriptor = MediaInputClassifier.Shared.Classify(path);
-        string extension = descriptor.Extension ?? string.Empty;
+        return FromDecision(MediaInputPipeline.Decide(descriptor));
+    }
 
-        QueueInputRole role = MediaInputPipeline.Decide(descriptor).QueueRole;
+    public static QueueInputClassification FromDecision(MediaInputPipelineDecision decision)
+    {
+        ArgumentNullException.ThrowIfNull(decision);
 
-        return new QueueInputClassification(role, extension);
+        return new QueueInputClassification(
+            decision.QueueRole,
+            decision.Descriptor.Extension ?? string.Empty);
     }
 
     public static bool IsConvertibleDiscImagePath(string? path) =>

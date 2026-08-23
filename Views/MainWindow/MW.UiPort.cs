@@ -1,6 +1,5 @@
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.QueueRun;
-using HakamiqChdTool.App.Services.Features;
 using HakamiqChdTool.App.Services.M3u;
 using HakamiqChdTool.App.Ui.Queue;
 using HakamiqChdTool.App.ViewModels;
@@ -30,16 +29,6 @@ public partial class MainWindow
         public bool IncludeSubfolders => _w._settings.IncludeSubfolders;
 
         public bool IsQueueInteractionLocked => _w.IsQueueInteractionLocked;
-
-        public bool CanUseAppFeature(AppFeature feature)
-        {
-            return _w._appFeatureService.IsEnabled(feature);
-        }
-
-        public bool RequireAppFeature(AppFeature feature)
-        {
-            return _w.RequireAppFeature(feature);
-        }
 
         public QueueExecutionProfile GetSelectedInputExecutionProfile()
         {
@@ -89,22 +78,6 @@ public partial class MainWindow
         public void PersistSettings()
         {
             _w.PersistSettings();
-        }
-
-        public bool ConfirmStorageAdvisorBeforeProcessing(
-            IReadOnlyList<TaskQueueItemViewModel> items,
-            bool processedSelectionOnly)
-        {
-            ArgumentNullException.ThrowIfNull(items);
-
-            if (items.Count == 0 || _w._settings.SuppressStorageAdvisorDialog)
-            {
-                return true;
-            }
-
-            return _w.ConfirmStorageAdvisorBeforeProcessing(
-                items,
-                processedSelectionOnly);
         }
 
         public void ResetRunSummary()

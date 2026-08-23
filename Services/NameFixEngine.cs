@@ -410,15 +410,6 @@ public static class NamingCorrectionEngine
         }
     }
 
-    public static bool TryApplyRename(string originalPath, string suggestedName, out string newPath, out string error)
-    {
-        _ = suggestedName;
-
-        newPath = originalPath;
-        error = AdvisoryOnlyMessageKey;
-        return false;
-    }
-
     public static bool TryApplyRedumpSuggestedRename(
         string originalPath,
         string suggestedFileName,

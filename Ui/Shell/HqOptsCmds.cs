@@ -10,7 +10,6 @@ internal sealed partial class HqOptionsShell
     public void RestoreDefaults(object sender, RoutedEventArgs e)
     {
         _owner.ViewModel.ApplyProgramDefaults();
-        EnforceFeatureAvailabilityOnViewModel(showDialog: false);
     }
 
     public void Apply(object sender, RoutedEventArgs e)
@@ -59,11 +58,6 @@ internal sealed partial class HqOptionsShell
         string previousLanguage = AppLanguageService.Instance.CurrentLanguageName;
 
         AppSettings pendingSettings = _owner.ViewModel.BuildResultSettings(_currentSettings);
-        if (!TryValidateAppFeatureChanges(pendingSettings))
-        {
-            return false;
-        }
-
         _owner.ResultSettings = pendingSettings;
         _owner.NotifySettingsApplied(_owner.ResultSettings.Clone());
         _owner.ViewModel.AcceptAppliedSettings(_owner.ResultSettings);

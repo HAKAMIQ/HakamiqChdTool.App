@@ -89,14 +89,14 @@
     <sys:String x:Key="LocUi_PlaceholderDash">—</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line1">Select an operation mode to show supported files.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">Drop files here, or select Add files or Add folder.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Convert">Drag a supported disc image here to convert it to CHD&#x0A;Supports ISO, CSO, GDI, CUE, and ZIP, 7Z, RAR archives containing a single disc image.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Convert">Add or drop source files to convert them to CHD&#x0A;Supports ISO, CSO, GDI, CUE, and ZIP, 7Z, RAR archives containing a single disc image. An existing CHD is for verification or extraction.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Extract">Drag CHD files here to extract them&#x0A;CDs are extracted as CUE + BIN files, and DVDs as ISO files.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Verify">Drag CHD files here to verify their integrity&#x0A;Checks the CHD file without extracting its contents.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">Select a folder to scan CUE, GDI, ISO, and supported archive files, then convert valid disc images to CHD.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanExtract">Select a folder to scan CHD files and extract supported items.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ActionHint">Drop files here, or select Add files or Add folder.</sys:String>
     <sys:String x:Key="LocUi_QueueRowCancel">Cancel</sys:String>
-    <sys:String x:Key="LocUi_QueueRowOpen">Open file location</sys:String>
+    <sys:String x:Key="LocUi_QueueRowOpen">Open location</sys:String>
     <sys:String x:Key="LocUi_QueueProgressPanelTooltip">Current phase and total task progress from 0 to 100%.</sys:String>
     <sys:String x:Key="LocQueue_Label_InputFormat">Input format</sys:String>
     <sys:String x:Key="LocQueue_Label_OutputFormat">Output format</sys:String>
@@ -166,7 +166,6 @@
     <sys:String x:Key="LocUi_NoTasksAddOrDrag">No tasks. Add files or drop them here.</sys:String>
     <sys:String x:Key="LocUi_ReadyForProcessing">Ready to process</sys:String>
     <sys:String x:Key="LocUi_ArchiveWillUnpackThenConvert">The archive will be extracted automatically, then supported disc images inside it will be converted.</sys:String>
-    <sys:String x:Key="LocUi_ArchiveAwaitingPreviewAtStartup">Archive waiting for analysis</sys:String>
     <sys:String x:Key="LocUi_ChooseOperationForItem">Select a supported operation for this file</sys:String>
     <sys:String x:Key="LocUi_UnsupportedQueueFile">This file type is not supported for this operation</sys:String>
     <sys:String x:Key="LocUi_Verified">Verified</sys:String>
@@ -312,7 +311,6 @@
     <sys:String x:Key="LocFooter_NoSupportedFiles">No supported files</sys:String>
     <sys:String x:Key="LocFooter_AnalyzingFiles">Analyzing files...</sys:String>
     <sys:String x:Key="LocFooter_AlreadyInQueue">Items are already in the queue</sys:String>
-    <sys:String x:Key="LocFooter_ArchiveWillUnpackThenConvert">The archive will be extracted, then the supported disc image will be converted.</sys:String>
     <sys:String x:Key="LocFooter_AddedOne">Added 1 item</sys:String>
     <sys:String x:Key="LocFmt_AddedMany">Added {0} items</sys:String>
     <sys:String x:Key="LocFmt_AddFilesFailed">Could not add files: {0}</sys:String>
@@ -469,10 +467,7 @@
     <sys:String x:Key="LocRedumpCatalog_Artifact_NoCustomLinks">No custom links are available for this platform in the current catalog.</sys:String>
 
     <sys:String x:Key="LocArchive_VerificationFailed">Could not verify the archive. The file may be damaged or incomplete.</sys:String>
-    <sys:String x:Key="LocArchive_PreviewUnreadable">Could not read the archive. Check the file and try again.</sys:String>
     <sys:String x:Key="LocArchive_PasswordProtected">This archive is password protected and cannot be processed automatically.</sys:String>
-    <sys:String x:Key="LocArchive_WillUnpackThenConvert">The archive will be extracted, then the disc image will be converted.</sys:String>
-    <sys:String x:Key="LocArchive_ContainsOnlyChd">The archive contains only a CHD file. Extract it manually.</sys:String>
     <sys:String x:Key="LocArchive_InvalidNamingConvention">The archive name does not match the expected naming pattern.</sys:String>
     <sys:String x:Key="LocArchive_NoConvertibleDiscImage">The archive does not contain a disc image that can be converted to CHD. Application/package archives such as Vita ZIP or PKG are not CHD disc-image inputs.</sys:String>
     <sys:String x:Key="LocArchive_MultipleConvertibleDiscImages">The archive contains more than one disc image. Extract the files manually, then choose the file to process.</sys:String>
@@ -567,16 +562,14 @@ Path:
     <sys:String x:Key="LocDeepHash_TipConflictingMatches">Redump results don't belong to the same game or system.</sys:String>
     <sys:String x:Key="LocDeepHash_TipVerifiedHeader">Redump match:</sys:String>
     <sys:String x:Key="LocRedumpV2_DetailNormalizedFormat">Source: {0}&#x0a;Temporary normalized format: {1}&#x0a;Required temp space: {2}&#x0a;Result: {3}</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepClassifySource">Classify source</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepNormalize">Prepare temporary Redump-original representation</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepHash">Calculating SHA1</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepMatch">Matching Redump</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepCleanup">Cleaning temporary files</sys:String>
-    <sys:String x:Key="LocRedumpV2_StepReturnResult">Returning verification result</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeCsoIso">Preparing temporary ISO for verification</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeChdCd">Extracting CHD temporarily to CUE/BIN</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeChdDvd">Extracting CHD temporarily to ISO</sys:String>
-    <sys:String x:Key="LocRedumpV2_NormalizeArchive">Extracting archive temporarily for verification</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepClassifySource">Analyzing source file...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepHash">Calculating the disc fingerprint...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepMatch">Matching the disc with the Redump database...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepCleanup">Cleaning temporary files...</sys:String>
+    <sys:String x:Key="LocRedumpV2_StepReturnResult">Finishing Redump verification...</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeCsoIso">Preparing ISO data for verification...</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeChd">Reading disc data from the CHD file...</sys:String>
+    <sys:String x:Key="LocRedumpV2_NormalizeArchive">Extracting archive data for verification...</sys:String>
     <sys:String x:Key="LocRedumpV2_NormalizeDolphinUnavailable">This source requires temporary normalization to ISO/GCM, but the normalization tool is not available yet.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3JbIrdOnly">PS3 JB folders are not converted into Redump ISO; this is IRD-only.</sys:String>
     <sys:String x:Key="LocRedumpV2_Ps3DecryptedNotOriginal">Decrypted PS3 image. Use an IRD file to verify its contents.</sys:String>
@@ -859,17 +852,9 @@ Path:
     <sys:String x:Key="LocOptions_DatabaseMissing">Missing</sys:String>
     <sys:String x:Key="LocOptions_DatabaseReadFailed">Status: Could not read database.</sys:String>
 
-    <sys:String x:Key="LocRuntimeTools_UnsafeRuntimeRoot">The internal runtime path is outside the safe application folder.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_UnsafeToolExtractionPath">The internal tool extraction path is outside the safe application folder.</sys:String>
-
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolMissing">Could not initialize internal processing tools.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolInvalid">Could not initialize internal processing tools.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolEmptyWrite">Could not initialize internal processing tools.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_EmbeddedToolSizeMismatch">Could not initialize internal processing tools.</sys:String>
-
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolUnsafe">The extracted chdman path is outside the safe runtime folder.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolMissing">Could not find chdman after initialization.</sys:String>
-    <sys:String x:Key="LocRuntimeTools_ExtractedToolInvalid">The extracted chdman file is invalid.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolUnsafe">The bundled chdman path is not the expected safe application path.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolMissing">Could not find the bundled chdman tool.</sys:String>
+    <sys:String x:Key="LocRuntimeTools_BundledToolInvalid">The bundled chdman tool is invalid or has been modified.</sys:String>
     <sys:String x:Key="LocRuntimeTools_UnsupportedCpu">This processor does not support the x86-64-v2 instruction set required by chdman 0.289.</sys:String>
 
     <sys:String x:Key="LocArchive_NoChdFile">No CHD file was found inside the archive.</sys:String>
@@ -1115,7 +1100,7 @@ Path:
     <sys:String x:Key="LocPerformance_ChdmanOptionsDesc">Customize performance mode, processing thread count, and compression settings. Higher settings can speed up conversion but use more CPU and memory.</sys:String>
 
     <sys:String x:Key="LocPerformance_ProcessorCount">Compression threads</sys:String>
-    <sys:String x:Key="LocPerformance_ConcurrentConversions">Concurrent conversions</sys:String>
+    <sys:String x:Key="LocPerformance_ConcurrentConversions">Number of files converted at the same time</sys:String>
     <sys:String x:Key="LocPerformance_PerformanceMode">Performance mode</sys:String>
     <sys:String x:Key="LocPerformance_ProcessPriority">Process priority</sys:String>
     <sys:String x:Key="LocPerformance_IsoCreateMode">CHD creation mode</sys:String>
@@ -1237,18 +1222,26 @@ Path:
     <sys:String x:Key="LocCommon_Apply">Apply</sys:String>
 
     <sys:String x:Key="LocOptions_WindowTitle">Advanced options</sys:String>
-    <sys:String x:Key="LocOptions_HeaderDescription">Adjust runtime, verification, path, and compression settings.</sys:String>
+    <sys:String x:Key="LocOptions_HeaderDescription">&#x2066;Manage conversion, files, Redump, performance, and add-ons.&#x2069;</sys:String>
     <sys:String x:Key="LocOptions_SectionsTitle">Sections</sys:String>
     <sys:String x:Key="LocOptions_SectionsDescription">Choose the section you want to edit.</sys:String>
     <sys:String x:Key="LocOptions_TabGeneral">General</sys:String>
-    <sys:String x:Key="LocOptions_TabPaths">Paths</sys:String>
-    <sys:String x:Key="LocOptions_TabRedump">Redump</sys:String>
-    <sys:String x:Key="LocOptions_TabProcessing">Processing</sys:String>
-    <sys:String x:Key="LocOptions_TabPerformance">Performance</sys:String>
+    <sys:String x:Key="LocOptions_TabPaths">&#x2066;Files&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabRedump">&#x2066;Redump&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabProcessing">&#x2066;Conversion&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabPerformance">&#x2066;Performance&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabAddons">&#x2066;Add-ons&#x2069;</sys:String>
+    <sys:String x:Key="LocConversion_EngineSection">&#x2066;Conversion engine&#x2069;</sys:String>
+    <sys:String x:Key="LocConversion_ChdSection">&#x2066;CHD settings&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_OrganizeSection">&#x2066;File management&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_OutputSection">&#x2066;Output and workspace&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_ResultsSection">&#x2066;Result handling&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_CleanupSection">&#x2066;Cleanup&#x2069;</sys:String>
+    <sys:String x:Key="LocPerformance_RuntimeSection">&#x2066;Resources and execution&#x2069;</sys:String>
     <sys:String x:Key="LocExternalTools_Title">Hakamiq-CsoKit</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">Available</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">Missing</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">Failed</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">Tool connected successfully</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">Tool is not available at the configured path:</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">Could not connect to the tool at:</sys:String>
     <sys:String x:Key="LocExternalTools_OpenFolder">Open Tools Folder</sys:String>
     <sys:String x:Key="LocExternalTools_Recheck">Recheck</sys:String>
     <sys:String x:Key="LocExternalTools_CopySetupInstructions">Copy Setup Instructions</sys:String>
@@ -1322,7 +1315,10 @@ Path:
     <sys:String x:Key="LocMain_OpenSourceFailedFooter">Could not open source.</sys:String>
     <sys:String x:Key="LocMain_OpenSourceFailedBody">Could not open the source in File Explorer.</sys:String>
 
-    <sys:String x:Key="LocRedump_ScanCancelledFooter">Redump verification canceled.</sys:String>
+    <sys:String x:Key="LocRedump_ScanCancelledFooter">Redump verification stopped.</sys:String>
+    <sys:String x:Key="LocRedump_CancelRequestedFooter">Stopping Redump verification...</sys:String>
+    <sys:String x:Key="LocRedump_CancelScanAction">Stop</sys:String>
+    <sys:String x:Key="LocRedump_CancelScanTooltip">Stop the current Redump scan</sys:String>
     <sys:String x:Key="LocRedump_SelectedScanFailedFooter">Could not run Redump verification for the selected item.</sys:String>
     <sys:String x:Key="LocRedump_ScanTitle">Redump verification</sys:String>
     <sys:String x:Key="LocRedump_AllScanStartedFooter">Started Redump verification for available items.</sys:String>
@@ -1496,7 +1492,7 @@ Path:
     <sys:String x:Key="LocAbout_CreditsPrivacyNotice">Only public names are shown here, included as acknowledgment of their contribution.</sys:String>
     <sys:String x:Key="LocAbout_CreditDiscordTooltip">Open Discord server</sys:String>
 
-    <sys:String x:Key="LocAbout_WindowTitle">About {0}</sys:String>
+    <sys:String x:Key="LocAbout_WindowTitle">About</sys:String>
     <sys:String x:Key="LocAbout_DeveloperColumnTitle">Developer</sys:String>
     <sys:String x:Key="LocAbout_ContributorsColumnTitle">Contributors</sys:String>
     <sys:String x:Key="LocAbout_LicenseColumnTitle">License and notes</sys:String>
@@ -1550,10 +1546,8 @@ Path:
     <sys:String x:Key="LocQueueAdd_ScannedItemsFormat">Prepared {0} of {1} items.</sys:String>
     <sys:String x:Key="LocQueueAdd_CancelAdd">Cancel adding</sys:String>
     <sys:String x:Key="LocQueueAdd_AddCancelled">Adding files was canceled.</sys:String>
-    <sys:String x:Key="LocQueueAdd_SkippedCorruptArchives">Some archives were skipped because they are damaged or unreadable.</sys:String>
     <sys:String x:Key="LocQueueAdd_SkippedUnsupportedOrDuplicate">Unsupported, damaged, or duplicate files were skipped.</sys:String>
-    <sys:String x:Key="LocQueueAdd_ArchivePreviewTimeout">Archive preview took too long and was skipped.</sys:String>
-    <sys:String x:Key="LocQueueAdd_ArchivePreviewCancelled">Archive preview was canceled.</sys:String>
+    <sys:String x:Key="LocArchive_DescriptorReadTimeout">Reading the archive descriptor took too long.</sys:String>
     <sys:String x:Key="LocQueue_OperationLogDisplay">Operation log: {0}</sys:String>
 
     <sys:String x:Key="LocIntakeReview_Title">Review files before adding</sys:String>
@@ -1606,7 +1600,7 @@ Path:
 
     <sys:String x:Key="LocQueue_OpenOperationLogButton">Show log</sys:String>
     <sys:String x:Key="LocQueue_OpenOperationLogTooltip">Open the operation log for this row.</sys:String>
-    <sys:String x:Key="LocQueue_VerificationResultButton">Show verification result</sys:String>
+    <sys:String x:Key="LocQueue_VerificationResultButton">View result</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultTooltip">Show this file's verification result in a clear format.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultDialogTitle">CHD verification result</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFileLine">File: {0}</sys:String>
@@ -1625,56 +1619,7 @@ Path:
     <sys:String x:Key="LocQueue_VerificationResultScopeUnsupported">This file type does not currently support a detailed verification report.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultPlayableCaveat">A successful check does not guarantee that the game will run on every emulator or device; compatibility depends on platform support, settings, and launch method.</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Title">Before you start</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Subtitle">Conversion may be slower than usual</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SummaryTitle">Summary</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SourceLabel">Source</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputLabel">Output</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WorkspaceLabel">Temporary workspace</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_DeviceKindLabel">Storage type</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_RecommendationTitle">Recommended option</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WarningsTitle">Reason for recommendation</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_TechnicalPathLabel">Path</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_DoNotShowAgain">Do not show this dialog again</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_ContinueRecommended">Continue with recommended setting</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OpenOptions">Open advanced options</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Cancel">Cancel</sys:String>
 
-    <sys:String x:Key="LocStorageAdvisor_Device_Unknown">Unknown</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Hdd">HDD</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_SataSsd">SATA SSD</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_NvmeSsd">NVMe SSD</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Removable">Removable storage</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Device_Network">Network path</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_Severity_Info">Info</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Recommendation">Recommendation</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Warning">Warning</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Severity_Blocking">Action required</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_SourceDeviceUnknown">Could not detect the source storage type. The app will use safe settings to keep the operation stable.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputDeviceUnknown">Could not detect the output storage type. The destination path will be handled carefully to avoid move issues.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_PendingWorkspaceDeviceUnknown">Could not detect the temporary workspace storage type. The path will be handled carefully.</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_SourceIsHdd">The source is on an HDD. Reading may be slower for large or multi-track files.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputIsHdd">The output is on an HDD. Writing CHD files may be slower than on SSD or NVMe storage.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SourceAndOutputSameHdd">The source and output are on the same HDD. Performance may be reduced because the same disk is used for reading and writing.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputIsFastStorage">Output is on SSD/NVMe, which is suitable for writing CHD files directly.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputFastStorage">Output is on SSD/NVMe, which is suitable for writing CHD files directly.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_OutputCrossVolumeIsAllowed">A different drive can be used for source and output. The app will read the source file from one drive and write the CHD file directly to the selected output folder.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_LargeOutputShouldBeWrittenDirectly">For best performance with large CHD files, write the output file directly to the final output folder, or to a temporary workspace on the same output drive.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CrossVolumeFinalMoveShouldBeAvoided">Avoid creating a CHD file on one drive and moving it to another after completion; this can add a long wait and require extra space.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_BinCueRescueRequiresSameVolumeWorkspace">BIN/CUE handling needs a workspace on the same drive as the BIN files to complete safely.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CustomPendingWorkspaceDifferentVolumeForBinCueRescue">The temporary workspace you selected is on a different drive than the BIN files, so the app will use a safe option for this operation.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_AutoSameVolumeWorkspaceRecommended">A safe automatic workspace on the same source drive is recommended for this operation.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_HardLinkMayFailAcrossVolumes">Windows hard links usually cannot be created across different drives.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_CustomWorkspaceUnsafe">The selected temporary workspace is not suitable or safe for this operation.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_WorkspaceFallsBackToAuto">The app will use a safe automatic workspace instead of the custom workspace for this operation only.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UnknownStoragePolicyUsed">The app will use a safe storage policy because some drive information is unavailable.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Summary">The app will write large CHD files directly to the output folder, avoid large moves between drives, and use a safe same-drive temporary workspace when needed.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_SafetyNote">The app will use a safe workspace for this operation and avoid copying large BIN files or moving CHD files between drives after completion.</sys:String>
-    <sys:String x:Key="LocPaths_ShowStorageAdvisorDialog">Show speed and performance tips before conversion</sys:String>
-    <sys:String x:Key="LocPaths_ShowStorageAdvisorDialogDesc">Shows a simple warning if the selected file locations may slow the process, such as using an HDD instead of an SSD or NVMe drive.</sys:String>
     <sys:String x:Key="LocAbout_DiscordTooltip">Discord</sys:String>
 
     <sys:String x:Key="LocChdLogicalReport_Title">CHD report</sys:String>
@@ -1690,20 +1635,12 @@ Path:
     <sys:String x:Key="LocChdLogicalReport_HunkSizeLabel">Hunk size</sys:String>
     <sys:String x:Key="LocChdLogicalReport_TotalHunksLabel">Total hunks</sys:String>
     <sys:String x:Key="LocChdLogicalReport_DecodedCacheLabel">Cache</sys:String>
-	<sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">Elapsed: {0}, output: {1}, speed: {2}, remaining: {3}</sys:String>
+	<sys:String x:Key="LocQueue_RuntimeProgress_ChdmanOperationDetail">Elapsed {0} · Output {1} · Speed {2} · Remaining {3}</sys:String>
 	<sys:String x:Key="LocQueue_RuntimeProgress_RateFormat">{0}/s</sys:String>
 	<sys:String x:Key="LocQueue_RuntimeProgress_RateCalculating">Measuring speed</sys:String>
 	<sys:String x:Key="LocQueue_RuntimeProgress_EtaCalculating">Calculating</sys:String>
 	<sys:String x:Key="LocMeta_Target_Folder">Folder</sys:String>
     <sys:String x:Key="LocMeta_Target_SplitIso">ISO parts</sys:String>
-
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryTitle">Conversion may be slower</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserSummaryText">The source and output are on the same HDD, so conversion may be slower with large files.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UserRecommendationText">Use an SSD/NVMe or a different output folder if available. You can continue as-is if this is acceptable.</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_ShowDetails">Show details</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_UseRecommended">Use recommended setting</sys:String>
-    <sys:String x:Key="LocStorageAdvisor_Continue">Continue</sys:String>
-
 
     <sys:String x:Key="LocPs3Intake_PipelineIsoToChd">ISO → chdman createdvd → CHD</sys:String>
     <sys:String x:Key="LocPs3Intake_PipelineFolderToChd">Folder → temporary ISO → chdman createdvd → CHD</sys:String>
@@ -1781,7 +1718,7 @@ Path:
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">Direct CHD-to-CHD recompression was blocked. The safe path is to extract the original media file first, then rebuild the CHD according to the platform policy.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">Quick file summary before preparing the matching database.</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">Checking...</sys:String>
+    <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">Checking tool...</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">Note</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">The CHD file could not be verified.&#x0A;It may be damaged, incomplete, or in an unsupported format.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">Note</sys:String>

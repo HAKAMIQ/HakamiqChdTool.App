@@ -16,9 +16,7 @@ public static class MainWindowMessages
     public const string NothingNewAdded = "LocFooter_NothingNewAdded";
     public const string NoSupportedFiles = "LocFooter_NoSupportedFiles";
     public const string AlreadyInQueue = "LocFooter_AlreadyInQueue";
-    public const string ArchiveWillUnpackThenConvertFooter = "LocFooter_ArchiveWillUnpackThenConvert";
     public const string ArchiveWillUnpackThenConvertDetail = "LocUi_ArchiveWillUnpackThenConvert";
-    public const string ArchiveAwaitingPreviewAtStartup = "LocUi_ArchiveAwaitingPreviewAtStartup";
     public const string AddedOne = "LocFooter_AddedOne";
     public const string ChdNotConvertible = "LocUi_Footer_ChdNotConvertible";
     public const string Fmt_AddedMany = "LocFmt_AddedMany";

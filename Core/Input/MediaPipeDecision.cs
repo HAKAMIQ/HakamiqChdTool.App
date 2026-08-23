@@ -19,17 +19,22 @@ public sealed record MediaInputPipelineDecision(
     string Reason,
     string? MessageKey)
 {
-    public bool IsBlocked => Action == MediaInputPipelineAction.Block;
+    public bool IsBlocked =>
+        Action == MediaInputPipelineAction.Block;
 
-    public bool IsDetectedOnly => Action == MediaInputPipelineAction.DetectedOnly;
+    public bool IsDetectedOnly =>
+        Action == MediaInputPipelineAction.DetectedOnly;
 
-    public bool IsAcceptedForQueue => Action is MediaInputPipelineAction.AcceptConvertibleDiscImage
-        or MediaInputPipelineAction.AcceptArchiveContainer
-        or MediaInputPipelineAction.AcceptChdImage;
+    public bool IsAcceptedForQueue =>
+        Action is MediaInputPipelineAction.AcceptConvertibleDiscImage
+            or MediaInputPipelineAction.AcceptArchiveContainer
+            or MediaInputPipelineAction.AcceptChdImage;
 
-    public bool ShouldEnumerateFolder => Action == MediaInputPipelineAction.AcceptFolder;
+    public bool ShouldEnumerateFolder =>
+        Action == MediaInputPipelineAction.AcceptFolder;
 
-    public bool RequiresStandaloneBinPolicy => Action == MediaInputPipelineAction.RequiresStandaloneBinPolicy;
+    public bool RequiresStandaloneBinPolicy =>
+        Action == MediaInputPipelineAction.RequiresStandaloneBinPolicy;
 }
 
 public static class MediaInputPipelineDecisionReasons
