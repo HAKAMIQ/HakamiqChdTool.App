@@ -89,9 +89,9 @@
     <sys:String x:Key="LocUi_PlaceholderDash">—</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line1">اختر وضع العملية لعرض الملفات المدعومة.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">أفلت الملفات هنا أو استخدم أزرار الإضافة.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Convert">أضف أو اسحب ملفات المصدر للتحويل إلى CHD&#x0A;يدعم ISO، CSO، GDI، CUE، وأرشيف ZIP، 7Z، RAR يحتوي على صورة قرص واحدة. ملف CHD الجاهز مخصص للتحقق أو الاستخراج.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Extract">اسحب ملفات CHD هنا لاستخراجها&#x0A;تُستخرج أقراص CD كملفات CUE + BIN، وأقراص DVD كملف ISO.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Verify">اسحب ملفات CHD هنا للتحقق من سلامتها&#x0A;يتحقق من سلامة الملف بدون استخراج محتواه.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Convert">أضف ملفات أو اسحبها هنا للتحويل إلى CHD.&#x0A;الصيغ المدعومة: ISO، CSO، GDI، CUE، ZIP، 7Z، RAR.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Extract">أضف ملفات CHD أو اسحبها هنا للاستخراج.&#x0A;تُستخرج أقراص CD إلى CUE + BIN، وأقراص DVD إلى ISO.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Verify">أضف ملفات CHD أو اسحبها هنا للتحقق من سلامتها.&#x0A;يتم التحقق من الملف دون استخراج محتواه.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">اختر مجلدًا لفحص ملفات CUE / GDI / ISO والأرشيفات المدعومة جزئيًا، ثم تحويل الصور الصالحة فقط إلى CHD.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanExtract">اختر مجلدًا لفحص ملفات CHD واستخراج الملفات المدعومة منها.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ActionHint">أفلت الملفات هنا أو استخدم أزرار الإضافة.</sys:String>
