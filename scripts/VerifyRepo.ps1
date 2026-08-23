@@ -1529,7 +1529,7 @@ function Test-ProductionUpdateTrustPolicy {
 
     $releaseView = [System.Text.RegularExpressions.Regex]::Replace(
         $content,
-        '(?ms)^[ \t]*#if DEBUG[ \t]*\r?\n.*?^[ \t]*#endif[ \t]*$',
+        '(?ms)^[ \t]*#if DEBUG[ \t]*\r?\n.*?^[ \t]*#endif[ \t]*\r?$',
         '')
 
     foreach ($forbidden in @(
