@@ -87,6 +87,62 @@ jobs:
             throw "Release tag $tag does not point to the checked-out revision."
           }
 
+      - name: Enable Microsoft Defender release protection
+        shell: powershell
+        run: |
+          $feature = Get-WindowsFeature -Name Windows-Defender
+          if ($null -eq $feature -or $feature.InstallState -ne 'Installed') {
+            throw "Microsoft Defender Antivirus is not installed on this Windows runner."
+          }
+
+          $service = Get-Service -Name WinDefend
+          if ($service.Status -ne 'Running') {
+            Start-Service -Name WinDefend
+            $service.WaitForStatus(
+              [System.ServiceProcess.ServiceControllerStatus]::Running,
+              [TimeSpan]::FromSeconds(30))
+          }
+
+          $before = Get-MpComputerStatus
+          Write-Host (
+            "[INFO] Defender before: service={0}; antivirus={1}; realTime={2}; mode={3}" -f
+            $before.AMServiceEnabled,
+            $before.AntivirusEnabled,
+            $before.RealTimeProtectionEnabled,
+            $before.AMRunningMode)
+
+          Set-MpPreference `
+            -DisableRealtimeMonitoring $false `
+            -DisableArchiveScanning $false
+
+          $deadline = [DateTimeOffset]::UtcNow.AddSeconds(60)
+          do {
+            $status = Get-MpComputerStatus
+            $preferences = Get-MpPreference
+            $ready =
+              $status.AMServiceEnabled -eq $true -and
+              $status.AntivirusEnabled -eq $true -and
+              $status.RealTimeProtectionEnabled -eq $true -and
+              $preferences.DisableRealtimeMonitoring -eq $false -and
+              $preferences.DisableArchiveScanning -eq $false
+
+            if (-not $ready) {
+              Start-Sleep -Seconds 2
+            }
+          } while (-not $ready -and [DateTimeOffset]::UtcNow -lt $deadline)
+
+          Write-Host (
+            "[INFO] Defender after: service={0}; antivirus={1}; realTime={2}; mode={3}; archiveScanning={4}" -f
+            $status.AMServiceEnabled,
+            $status.AntivirusEnabled,
+            $status.RealTimeProtectionEnabled,
+            $status.AMRunningMode,
+            (-not $preferences.DisableArchiveScanning))
+
+          if (-not $ready) {
+            throw "Microsoft Defender Antivirus did not enter active release-scanning state."
+          }
+
       - name: Setup .NET
         uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         with:
