@@ -3,7 +3,10 @@
 param(
     [string] $ReportPath = ".\TestResults\Security\reproducible-build-report.json",
 
-    [switch] $KeepOutputs
+    [switch] $KeepOutputs,
+
+    [ValidateSet("runtime-required", "self-contained")]
+    [string] $DeploymentMode = "runtime-required"
 )
 
 $ErrorActionPreference = "Stop"
@@ -62,7 +65,7 @@ function Get-FileMap {
 function Invoke-Publish {
     param([Parameter(Mandatory = $true)][string] $Output)
 
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $PublishScript -Configuration Release -Output $Output
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $PublishScript -Configuration Release -Output $Output -DeploymentMode $DeploymentMode
     if ($LASTEXITCODE -ne 0) {
         throw "Deterministic publish failed for output: $Output"
     }
@@ -123,6 +126,7 @@ try {
         completedAtUtc = [System.DateTimeOffset]::UtcNow.ToString("O")
         scope = "two clean end-user publishes on the same Windows runner and source checkout"
         independentReproduction = $false
+        deploymentMode = $DeploymentMode
         fileCount = $allPaths.Count
         match = ($differences.Count -eq 0)
         differences = $differences

@@ -12,7 +12,12 @@ param(
 
     [switch] $RequireAuthenticode,
 
-    [string] $ExpectedSignerThumbprint
+    [string] $ExpectedSignerThumbprint,
+
+    [ValidateSet("auto", "runtime-required", "self-contained")]
+    [string] $DeploymentMode = "auto",
+
+    [switch] $PreserveExistingPackages
 )
 
 $ErrorActionPreference = "Stop"
@@ -275,6 +280,25 @@ function Assert-PackageDirectoryClean {
     [void]$approved.Add($PackageName)
     [void]$approved.Add("$PackageName.sha256")
 
+    if ($PreserveExistingPackages) {
+        $packageMatch = [regex]::Match(
+            $PackageName,
+            '^(?<prefix>HakamiqChdTool-v\d+\.\d+\.\d+-win-x64-)(?<mode>runtime-required|self-contained)\.zip$')
+        if (-not $packageMatch.Success) {
+            throw "Preserving a counterpart package requires the approved versioned dual-package naming policy: $PackageName"
+        }
+
+        $counterpartMode = if ($packageMatch.Groups["mode"].Value -eq "runtime-required") {
+            "self-contained"
+        }
+        else {
+            "runtime-required"
+        }
+        $counterpartName = "$($packageMatch.Groups['prefix'].Value)$counterpartMode.zip"
+        [void]$approved.Add($counterpartName)
+        [void]$approved.Add("$counterpartName.sha256")
+    }
+
     foreach ($item in $items) {
         if ($item.PSIsContainer) {
             throw "Upload package directory must not contain subdirectories: $($item.FullName)"
@@ -304,7 +328,7 @@ if (-not (Test-Path -LiteralPath $ReleaseOutputPath -PathType Container)) {
 
 Push-Location $ProjectRoot
 try {
-    $verifyArguments = @("-Output", $ReleaseOutputPath)
+    $verifyArguments = @("-Output", $ReleaseOutputPath, "-DeploymentMode", $DeploymentMode)
     if ($RequireAuthenticode) {
         $verifyArguments += "-RequireAuthenticode"
     }
@@ -315,8 +339,14 @@ try {
     Write-Info "Verifying release output before packaging: $ReleaseOutputPath"
     Invoke-PowerShellFile -ScriptPath $VerifyReleaseScript -Arguments $verifyArguments
 
-    if (Test-Path -LiteralPath $PackageDirectoryPath -PathType Container) {
+    if (-not $PreserveExistingPackages -and (Test-Path -LiteralPath $PackageDirectoryPath -PathType Container)) {
         Remove-Item -LiteralPath $PackageDirectoryPath -Recurse -Force -ErrorAction Stop
+    }
+
+    foreach ($targetPackagePath in @($ZipPath, $ShaPath)) {
+        if (Test-Path -LiteralPath $targetPackagePath -PathType Leaf) {
+            Remove-Item -LiteralPath $targetPackagePath -Force -ErrorAction Stop
+        }
     }
 
     New-Item -ItemType Directory -Path $PackageDirectoryPath -Force | Out-Null
@@ -336,7 +366,7 @@ try {
     Expand-Archive -LiteralPath $ZipPath -DestinationPath $VerificationOutputPath -Force
 
     Write-Info "Verifying extracted release ZIP contents ..."
-    $extractedVerifyArguments = @("-Output", $VerificationOutputPath)
+    $extractedVerifyArguments = @("-Output", $VerificationOutputPath, "-DeploymentMode", $DeploymentMode)
     if ($RequireAuthenticode) {
         $extractedVerifyArguments += "-RequireAuthenticode"
     }

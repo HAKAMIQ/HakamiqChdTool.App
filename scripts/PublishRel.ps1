@@ -4,7 +4,10 @@ param(
     [ValidateSet("Release")]
     [string] $Configuration = "Release",
 
-    [string] $Output = ".\Release"
+    [string] $Output = ".\Release",
+
+    [ValidateSet("runtime-required", "self-contained")]
+    [string] $DeploymentMode = "runtime-required"
 )
 
 $ErrorActionPreference = "Stop"
@@ -32,6 +35,7 @@ else {
 
 $RuntimeIdentifier = "win-x64"
 $ExeName = "HakamiqChdTool.exe"
+$SelfContainedValue = if ($DeploymentMode -eq "self-contained") { "true" } else { "false" }
 
 function Get-NormalizedFullPath {
     param(
@@ -304,7 +308,8 @@ try {
         $MainProject,
         "-r",
         $RuntimeIdentifier,
-        "--locked-mode"
+        "--locked-mode",
+        "-p:SelfContained=$SelfContainedValue"
     )
 
     Invoke-NativeCommand "dotnet" @(
@@ -323,6 +328,7 @@ try {
         "-r",
         $RuntimeIdentifier,
         "--no-restore",
+        "-p:SelfContained=$SelfContainedValue",
         "-p:DebugType=none",
         "-p:DebugSymbols=false"
     )
@@ -339,7 +345,7 @@ try {
         "--no-restore",
         "--no-build",
         "--self-contained",
-        "false",
+        $SelfContainedValue,
         "-p:PublishSingleFile=false",
         "-p:PublishTrimmed=false",
         "-p:PublishReadyToRun=false",
@@ -410,7 +416,9 @@ try {
     Write-Host "[INFO] Running end-user release security gate..." -ForegroundColor Cyan
     Invoke-PowerShellFile $EndUserReleaseGateScript @(
         "-Output",
-        $OutputPath
+        $OutputPath,
+        "-DeploymentMode",
+        $DeploymentMode
     )
 
     Write-Host "[PASS] End-user release is ready: $OutputPath" -ForegroundColor Green

@@ -1,4 +1,4 @@
-name: Secure signed release candidate
+name: Secure release candidate
 
 on:
   workflow_dispatch:
@@ -14,6 +14,14 @@ on:
         required: true
         type: boolean
         default: false
+      authenticode_policy:
+        description: Authenticode policy for this release
+        required: true
+        type: choice
+        options:
+          - required
+          - not-used
+        default: required
 
 permissions:
   contents: write
@@ -21,12 +29,13 @@ permissions:
   attestations: write
 
 jobs:
-  signed-release:
+  secure-release:
     runs-on: windows-2022
     timeout-minutes: 90
     env:
       RELEASE_VERSION: ${{ inputs.version }}
       REQUESTED_REF: ${{ inputs.ref }}
+      AUTHENTICODE_POLICY: ${{ inputs.authenticode_policy }}
 
     steps:
       - name: Checkout requested source
@@ -84,6 +93,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Require signing secrets
+        if: inputs.authenticode_policy == 'required'
         shell: powershell
         env:
           SIGNING_PFX_BASE64: ${{ secrets.HAKAMIQ_CODESIGN_PFX_BASE64 }}
@@ -123,22 +133,40 @@ jobs:
           powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\VerifyRepo.ps1
           if ($LASTEXITCODE -ne 0) { throw "Repository verification failed." }
 
-      - name: Verify same-runner reproducibility before signing
+      - name: Verify same-runner reproducibility for both packages
         shell: powershell
-        run: >-
-          powershell.exe -NoProfile -ExecutionPolicy Bypass
-          -File .\scripts\VerifyReproducibleBuild.ps1
-          -ReportPath .\TestResults\Security\reproducible-build-report.json
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\scripts\VerifyReproducibleBuild.ps1 `
+            -DeploymentMode runtime-required `
+            -ReportPath .\TestResults\Security\reproducible-build-runtime-required.json
+          if ($LASTEXITCODE -ne 0) { throw "Runtime-required reproducibility failed." }
 
-      - name: Publish unsigned deterministic candidate
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\scripts\VerifyReproducibleBuild.ps1 `
+            -DeploymentMode self-contained `
+            -ReportPath .\TestResults\Security\reproducible-build-self-contained.json
+          if ($LASTEXITCODE -ne 0) { throw "Self-contained reproducibility failed." }
+
+      - name: Publish deterministic candidates
         shell: powershell
-        run: >-
-          powershell.exe -NoProfile -ExecutionPolicy Bypass
-          -File .\scripts\PublishRel.ps1
-          -Configuration Release
-          -Output .\Release\signed-candidate
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\scripts\RelOutGate.ps1 `
+            -Output .\Release\runtime-required-candidate `
+            -DeploymentMode runtime-required `
+            -KeepOutput
+          if ($LASTEXITCODE -ne 0) { throw "Runtime-required publish failed." }
+
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\scripts\RelOutGate.ps1 `
+            -Output .\Release\self-contained-candidate `
+            -DeploymentMode self-contained `
+            -KeepOutput
+          if ($LASTEXITCODE -ne 0) { throw "Self-contained publish failed." }
 
       - name: Materialize signing certificate
+        if: inputs.authenticode_policy == 'required'
         shell: powershell
         env:
           SIGNING_PFX_BASE64: ${{ secrets.HAKAMIQ_CODESIGN_PFX_BASE64 }}
@@ -147,81 +175,147 @@ jobs:
           [IO.File]::WriteAllBytes((Join-Path $env:RUNNER_TEMP "hakamiq-signing.pfx"), $bytes)
 
       - name: Authenticode sign and RFC 3161 timestamp
+        if: inputs.authenticode_policy == 'required'
         shell: powershell
         env:
           HAKAMIQ_SIGNING_PFX_PASSWORD: ${{ secrets.HAKAMIQ_CODESIGN_PFX_PASSWORD }}
         run: |
           $pfxPath = Join-Path $env:RUNNER_TEMP "hakamiq-signing.pfx"
           try {
-            powershell.exe -NoProfile -ExecutionPolicy Bypass `
-              -File .\scripts\SignRelease.ps1 `
-              -Output .\Release\signed-candidate `
-              -PfxPath $pfxPath
-            if ($LASTEXITCODE -ne 0) { throw "Authenticode signing failed." }
+            foreach ($candidate in @(
+              ".\Release\runtime-required-candidate",
+              ".\Release\self-contained-candidate")) {
+              powershell.exe -NoProfile -ExecutionPolicy Bypass `
+                -File .\scripts\SignRelease.ps1 `
+                -Output $candidate `
+                -PfxPath $pfxPath
+              if ($LASTEXITCODE -ne 0) { throw "Authenticode signing failed for $candidate." }
+            }
           }
           finally {
             Remove-Item -LiteralPath $pfxPath -Force -ErrorAction SilentlyContinue
           }
 
-      - name: Verify signed release policy
-        shell: powershell
-        run: >-
-          powershell.exe -NoProfile -ExecutionPolicy Bypass
-          -File .\scripts\VerifyRelease.ps1
-          -Output .\Release\signed-candidate
-          -RequireAuthenticode
-
-      - name: Microsoft Defender scan signed candidate directory
-        shell: powershell
-        run: >-
-          powershell.exe -NoProfile -ExecutionPolicy Bypass
-          -File .\scripts\ScanReleaseDefender.ps1
-          -Target .\Release\signed-candidate
-          -ReportPath .\TestResults\Security\defender-signed-directory-report.json
-
-      - name: Create deterministic signed package
+      - name: Verify release policy for both candidates
         shell: powershell
         run: |
-          $packageName = "HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-runtime-required.zip"
-          powershell.exe -NoProfile -ExecutionPolicy Bypass `
-            -File .\scripts\PackRel.ps1 `
-            -ReleaseOutput .\Release\signed-candidate `
-            -PackageDirectory .\Release\packages `
-            -PackageName $packageName `
-            -RequireAuthenticode
-          if ($LASTEXITCODE -ne 0) { throw "Signed package creation failed." }
+          $candidates = @(
+            @{ Output = ".\Release\runtime-required-candidate"; Mode = "runtime-required" },
+            @{ Output = ".\Release\self-contained-candidate"; Mode = "self-contained" })
 
-      - name: Microsoft Defender scan final ZIP
+          foreach ($candidate in $candidates) {
+            $arguments = @(
+              '-NoProfile', '-ExecutionPolicy', 'Bypass',
+              '-File', '.\scripts\VerifyRelease.ps1',
+              '-Output', $candidate.Output,
+              '-DeploymentMode', $candidate.Mode)
+            if ($env:AUTHENTICODE_POLICY -eq 'required') {
+              $arguments += '-RequireAuthenticode'
+            }
+
+            & powershell.exe @arguments
+            if ($LASTEXITCODE -ne 0) { throw "Release verification failed for $($candidate.Mode)." }
+          }
+
+      - name: Microsoft Defender scan candidate directories
         shell: powershell
-        run: >-
-          powershell.exe -NoProfile -ExecutionPolicy Bypass
-          -File .\scripts\ScanReleaseDefender.ps1
-          -Target .\Release\packages\HakamiqChdTool-v${{ env.RELEASE_VERSION }}-win-x64-runtime-required.zip
-          -ReportPath .\TestResults\Security\defender-final-zip-report.json
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\scripts\ScanReleaseDefender.ps1 `
+            -Target .\Release\runtime-required-candidate `
+            -ReportPath .\TestResults\Security\defender-runtime-required-directory.json
+          if ($LASTEXITCODE -ne 0) { throw "Runtime-required Defender scan failed." }
 
-      - name: Attest build provenance
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\scripts\ScanReleaseDefender.ps1 `
+            -Target .\Release\self-contained-candidate `
+            -ReportPath .\TestResults\Security\defender-self-contained-directory.json
+          if ($LASTEXITCODE -ne 0) { throw "Self-contained Defender scan failed." }
+
+      - name: Create deterministic packages
+        shell: powershell
+        run: |
+          $packages = @(
+            @{
+              Output = ".\Release\runtime-required-candidate"
+              Mode = "runtime-required"
+              Name = "HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-runtime-required.zip"
+              Preserve = $false
+            },
+            @{
+              Output = ".\Release\self-contained-candidate"
+              Mode = "self-contained"
+              Name = "HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-self-contained.zip"
+              Preserve = $true
+            })
+
+          foreach ($package in $packages) {
+            $arguments = @(
+              '-NoProfile', '-ExecutionPolicy', 'Bypass',
+              '-File', '.\scripts\PackRel.ps1',
+              '-ReleaseOutput', $package.Output,
+              '-PackageDirectory', '.\Release\packages',
+              '-PackageName', $package.Name,
+              '-DeploymentMode', $package.Mode)
+            if ($package.Preserve) {
+              $arguments += '-PreserveExistingPackages'
+            }
+            if ($env:AUTHENTICODE_POLICY -eq 'required') {
+              $arguments += '-RequireAuthenticode'
+            }
+
+            & powershell.exe @arguments
+            if ($LASTEXITCODE -ne 0) { throw "Package creation failed for $($package.Mode)." }
+          }
+
+      - name: Microsoft Defender scan final ZIPs
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\scripts\ScanReleaseDefender.ps1 `
+            -Target .\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-runtime-required.zip `
+            -ReportPath .\TestResults\Security\defender-runtime-required-zip.json
+          if ($LASTEXITCODE -ne 0) { throw "Runtime-required ZIP Defender scan failed." }
+
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\scripts\ScanReleaseDefender.ps1 `
+            -Target .\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-self-contained.zip `
+            -ReportPath .\TestResults\Security\defender-self-contained-zip.json
+          if ($LASTEXITCODE -ne 0) { throw "Self-contained ZIP Defender scan failed." }
+
+      - name: Attest runtime-required build provenance
         uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4
         with:
           subject-path: Release/packages/HakamiqChdTool-v${{ env.RELEASE_VERSION }}-win-x64-runtime-required.zip
+
+      - name: Attest self-contained build provenance
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4
+        with:
+          subject-path: Release/packages/HakamiqChdTool-v${{ env.RELEASE_VERSION }}-win-x64-self-contained.zip
 
       - name: Verify generated attestation
         shell: powershell
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $package = ".\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-runtime-required.zip"
-          gh attestation verify $package --repo $env:GITHUB_REPOSITORY
-          if ($LASTEXITCODE -ne 0) { throw "Generated attestation verification failed." }
+          foreach ($mode in @('runtime-required', 'self-contained')) {
+            $package = ".\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-$mode.zip"
+            gh attestation verify $package --repo $env:GITHUB_REPOSITORY
+            if ($LASTEXITCODE -ne 0) { throw "Generated attestation verification failed for $mode." }
+          }
 
-      - name: Upload signed candidate
+      - name: Upload release candidate
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: HakamiqChdTool-v${{ env.RELEASE_VERSION }}-signed-candidate
+          name: HakamiqChdTool-v${{ env.RELEASE_VERSION }}-release-candidate
           path: |
             Release/packages/*
-            TestResults/Security/reproducible-build-report.json
-            TestResults/Security/defender-signed-directory-report.json
-            TestResults/Security/defender-final-zip-report.json
+            TestResults/Security/reproducible-build-runtime-required.json
+            TestResults/Security/reproducible-build-self-contained.json
+            TestResults/Security/defender-runtime-required-directory.json
+            TestResults/Security/defender-self-contained-directory.json
+            TestResults/Security/defender-runtime-required-zip.json
+            TestResults/Security/defender-self-contained-zip.json
           if-no-files-found: error
 
       - name: Publish GitHub Release
@@ -231,10 +325,50 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $tag = "v$env:RELEASE_VERSION"
-          $package = ".\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-runtime-required.zip"
+          $runtimePackage = ".\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-runtime-required.zip"
+          $selfContainedPackage = ".\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-self-contained.zip"
+          $notesPath = Join-Path $env:RUNNER_TEMP 'release-notes.md'
+          $authenticodeNote = if ($env:AUTHENTICODE_POLICY -eq 'not-used') {
+            "Windows Authenticode signing is not used for this release.  `nWindows SmartScreen may therefore still display a reputation warning."
+          }
+          else {
+            "Windows Authenticode signing is required and verified for this release."
+          }
+          @"
+          Hakamiq CHD Tool v$env:RELEASE_VERSION
+
+          ## Download options
+
+          **Recommended — Self-contained Windows x64**
+          Includes the required .NET 10 runtime. No separate .NET installation is required.
+
+          **Smaller download — Runtime-required Windows x64**
+          Requires Microsoft .NET 10 Desktop Runtime x64.
+
+          ## Highlights
+
+          - Hardened runtime and release trust controls.
+          - Bundled tools are validated against pinned hashes.
+          - chdman is distributed visibly under Tools instead of hidden runtime extraction.
+          - Hardened production update-source policy.
+          - Improved Redump verification.
+          - Fixed the CHD Redump verification deadlock.
+          - Improved CHD DVD metadata detection.
+          - Clearer source and CHD input guidance.
+          - Release manifests, CycloneDX SBOM, deterministic packaging, Defender scans, and GitHub build provenance verification.
+
+          ## Verification
+
+          SHA-256 sidecar files are provided for release packages.
+          GitHub build provenance can be verified using GitHub artifact attestations.
+
+          $authenticodeNote
+          "@ | Set-Content -LiteralPath $notesPath -Encoding UTF8
           gh release create $tag `
-            $package `
-            "$package.sha256" `
+            $runtimePackage `
+            "$runtimePackage.sha256" `
+            $selfContainedPackage `
+            "$selfContainedPackage.sha256" `
             --verify-tag `
             --title "Hakamiq CHD Tool $tag" `
-            --generate-notes
+            --notes-file $notesPath
