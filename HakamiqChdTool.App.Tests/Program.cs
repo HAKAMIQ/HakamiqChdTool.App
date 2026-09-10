@@ -22,6 +22,15 @@ internal static partial class Program
 
     private static int Main(string[] args)
     {
+        // When this executable is copied next to a CsoKit stub descriptor it acts as a
+        // fake CsoKit instead of the test runner. The descriptor only exists inside a
+        // throw-away test workspace, so the real test output directory is unaffected.
+        string csoKitStubDescriptor = Path.Combine(AppContext.BaseDirectory, CsoKitStubDescriptorName);
+        if (File.Exists(csoKitStubDescriptor))
+        {
+            return RunCsoKitStubFixture(csoKitStubDescriptor, args);
+        }
+
         string appAssemblyPath = ReadRequiredArgument(args, "--app-assembly");
         if (!File.Exists(appAssemblyPath))
         {
@@ -103,7 +112,9 @@ internal static partial class Program
                 new("Redump commands honor the enabled state", TestRedumpCommandsHonorEnabledState),
                 new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
                 new("Bundled CsoKit 0.6.1 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
-                new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app))
+                new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app)),
+                new("CSO preparation rejects a decompressed ISO shorter than the declared size", () => TestCsoPreparationRejectsShortDecompressedIso(app, workDirectory)),
+                new("CSO preparation accepts a decompressed ISO matching the declared size", () => TestCsoPreparationAcceptsExactDecompressedIso(app, workDirectory))
             ];
 
             int passed = 0;
@@ -548,6 +559,161 @@ internal static partial class Program
             string.Empty,
             app.ParseChdInfoSha1Digest("Data SHA1: not-a-digest", "Data SHA1"),
             "Malformed CHD data SHA1 must fail closed.");
+    }
+
+    private const string CsoKitStubDescriptorName = "csokit-stub.txt";
+
+    /// <summary>
+    /// Minimal CsoKit stand-in. Line 1 of the descriptor is the uncompressed size reported by
+    /// "info"; line 2 is the number of bytes "decompress" actually writes. Reporting one size and
+    /// producing another is the condition the preparation guard has to reject.
+    /// </summary>
+    private static int RunCsoKitStubFixture(string descriptorPath, string[] args)
+    {
+        string[] descriptor = File.ReadAllLines(descriptorPath);
+        long declaredSize = long.Parse(descriptor[0], System.Globalization.CultureInfo.InvariantCulture);
+        long producedSize = long.Parse(descriptor[1], System.Globalization.CultureInfo.InvariantCulture);
+
+        string command = args.Length > 0 ? args[0] : string.Empty;
+
+        if (string.Equals(command, "--version", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("CsoKit 0.6.1+abcdef01");
+            return 0;
+        }
+
+        if (string.Equals(command, "info", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine(
+                "{\"success\":true,\"header\":{\"version\":1,\"uncompressedSize\":"
+                + declaredSize.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                + "}}");
+            return 0;
+        }
+
+        if (string.Equals(command, "verify", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("{\"success\":true}");
+            return 0;
+        }
+
+        if (string.Equals(command, "decompress", StringComparison.OrdinalIgnoreCase))
+        {
+            string outputPath = ReadRequiredArgument(args, "-o");
+            using (var stream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                stream.SetLength(producedSize);
+            }
+
+            Console.WriteLine(
+                "{\"success\":true,\"bytesWritten\":"
+                + producedSize.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                + "}");
+            return 0;
+        }
+
+        Console.Error.WriteLine("csokit stub received an unsupported command: " + command);
+        return 1;
+    }
+
+    /// <summary>
+    /// Copies the test host beside a CsoKit stub descriptor and returns the stub executable path.
+    /// The copy keeps every runtime file so the host starts exactly as it does in its own folder.
+    /// </summary>
+    private static string CreateCsoKitStub(string stubDirectory, long declaredSize, long producedSize)
+    {
+        Directory.CreateDirectory(stubDirectory);
+
+        foreach (string source in Directory.EnumerateFiles(AppContext.BaseDirectory, "*", SearchOption.TopDirectoryOnly))
+        {
+            File.Copy(source, Path.Combine(stubDirectory, Path.GetFileName(source)), overwrite: true);
+        }
+
+        string stubExecutable = Path.Combine(stubDirectory, "csokit.exe");
+        File.Copy(
+            Path.Combine(AppContext.BaseDirectory, "HakamiqChdTool.App.Tests.exe"),
+            stubExecutable,
+            overwrite: true);
+
+        // The locator requires a non-empty native library beside a non-bundled csokit.exe.
+        File.Copy(
+            Path.Combine(AppContext.BaseDirectory, "Tools", "hakamiq-cso", "win-x64", "CsoKit.Native.dll"),
+            Path.Combine(stubDirectory, "CsoKit.Native.dll"),
+            overwrite: true);
+
+        File.WriteAllLines(
+            Path.Combine(stubDirectory, CsoKitStubDescriptorName),
+            [
+                declaredSize.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                producedSize.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            ]);
+
+        return stubExecutable;
+    }
+
+    private static void TestCsoPreparationRejectsShortDecompressedIso(AppReflection app, string workDirectory)
+    {
+        const long DeclaredSize = 262_144;
+        const long ProducedSize = DeclaredSize - 2048;
+
+        string root = Path.Combine(workDirectory, "cso-short-output");
+        Directory.CreateDirectory(root);
+
+        string stubExecutable = CreateCsoKitStub(Path.Combine(root, "tool"), DeclaredSize, ProducedSize);
+
+        string inputCsoPath = Path.Combine(root, "sample.cso");
+        File.WriteAllBytes(inputCsoPath, new byte[4096]);
+
+        using IDisposable workspace = app.CreateCsoTempWorkspace(out string preparedIsoPath);
+        object preparation = app.PreprocessCsoWithTool(stubExecutable, inputCsoPath, preparedIsoPath);
+
+        AssertFalse(
+            GetBool(preparation, "IsSuccess"),
+            "CSO preparation accepted an ISO of "
+                + ProducedSize
+                + " bytes while the CSO header declared "
+                + DeclaredSize
+                + " bytes. A short ISO must never reach chdman.");
+
+        AssertFalse(
+            File.Exists(preparedIsoPath),
+            "CSO preparation must delete the temporary ISO when the produced size does not match the declared size.");
+
+        AssertTrue(
+            File.Exists(inputCsoPath),
+            "CSO preparation must never delete the source CSO.");
+    }
+
+    private static void TestCsoPreparationAcceptsExactDecompressedIso(AppReflection app, string workDirectory)
+    {
+        const long DeclaredSize = 262_144;
+
+        string root = Path.Combine(workDirectory, "cso-exact-output");
+        Directory.CreateDirectory(root);
+
+        string stubExecutable = CreateCsoKitStub(Path.Combine(root, "tool"), DeclaredSize, DeclaredSize);
+
+        string inputCsoPath = Path.Combine(root, "sample.cso");
+        File.WriteAllBytes(inputCsoPath, new byte[4096]);
+
+        using IDisposable workspace = app.CreateCsoTempWorkspace(out string preparedIsoPath);
+        object preparation = app.PreprocessCsoWithTool(stubExecutable, inputCsoPath, preparedIsoPath);
+
+        AssertTrue(
+            GetBool(preparation, "IsSuccess"),
+            "CSO preparation must still succeed when the produced ISO matches the declared size. MessageKey="
+                + GetString(preparation, "MessageKey")
+                + "; StandardError="
+                + GetString(preparation, "StandardError"));
+
+        AssertTrue(
+            File.Exists(preparedIsoPath),
+            "A successful CSO preparation must leave the temporary ISO in place.");
+
+        AssertEqual(
+            DeclaredSize,
+            new FileInfo(preparedIsoPath).Length,
+            "The prepared ISO must be exactly the declared uncompressed size.");
     }
 
     private static void TestExtractedSingleFileProof(AppReflection app, string workDirectory)
@@ -2407,10 +2573,13 @@ internal static partial class Program
             return (IDisposable)workspace;
         }
 
-        public object PreprocessCso(string inputCsoPath, string preparedIsoPath)
+        public object PreprocessCso(string inputCsoPath, string preparedIsoPath) =>
+            PreprocessCsoWithTool(BundledCsoKitPath, inputCsoPath, preparedIsoPath);
+
+        public object PreprocessCsoWithTool(string toolPath, string inputCsoPath, string preparedIsoPath)
         {
             object runner = externalToolProcessRunnerConstructor.Invoke(null);
-            object probe = csoToolProbePathConstructor.Invoke([BundledCsoKitPath]);
+            object probe = csoToolProbePathConstructor.Invoke([toolPath]);
             object preprocessor = csoPreprocessorConstructor.Invoke([probe, runner]);
             object task = preprocessCsoAsync.Invoke(
                 preprocessor,
