@@ -228,6 +228,13 @@ internal static class MultiBinDiscAssembler
                     probes[i].Kind));
         }
 
+        // P2-01: multiple BIN tracks do not contain enough evidence to
+        // reconstruct CUE timing semantics such as INDEX 00/01 or PREGAP.
+        if (trackPlans.Count > 1)
+        {
+            refusals.Add(
+                BinCueRescueRefusalReason.InsufficientSectorEvidence);
+        }
         if (refusals.Count > 0)
         {
             return new BinCueRescuePlan(

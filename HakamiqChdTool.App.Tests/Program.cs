@@ -94,6 +94,7 @@ internal static partial class Program
                 new("Legacy-encoded same-base CUE cannot be ignored for rescue inference", () => TestLegacyEncodedSameBaseCueDoesNotFallThroughToInference(app, workDirectory)),
                 new("UTF-8 non-ASCII adjacent CUE remains usable", () => TestUtf8NonAsciiAdjacentCueIsUsed(app, workDirectory)),
                 new("Standalone BIN without adjacent CUE still allows rescue inference", () => TestNoAdjacentCueStillAllowsInference(app, workDirectory)),
+                new("Multi-track BIN rescue without CUE timing evidence is refused", () => TestMultiTrackBinRescueWithoutCueTimingEvidenceIsRefused(app, workDirectory)),
                 new("CHD info parser captures combined and data SHA1", () => TestChdInfoSha1Parsing(app)),
                 new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
                 new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
@@ -861,6 +862,73 @@ internal static partial class Program
             "GenerateTempCue",
             GetEnumName(plan, "Decision"),
             "A standalone raw MODE1/2352 BIN with no adjacent descriptor must retain the existing rescue-inference path.");
+    }
+
+    private static void TestMultiTrackBinRescueWithoutCueTimingEvidenceIsRefused(
+        AppReflection app,
+        string workDirectory)
+    {
+        string root = Path.Combine(
+            workDirectory,
+            "multi-bin-cue-timing-evidence");
+        Directory.CreateDirectory(root);
+
+        string track1Path = Path.Combine(
+            root,
+            "disc (Track 1).bin");
+        string track2Path = Path.Combine(
+            root,
+            "disc (Track 2).bin");
+        string generatedCuePath = Path.Combine(
+            root,
+            "generated.cue");
+
+        WriteRawMode1Bin(track1Path);
+        WriteRawAudioCandidateBin(track2Path);
+
+        object plan = app.AssembleBinCueForBin(
+            track1Path,
+            generatedCuePath);
+
+        object? tracksValue = plan
+            .GetType()
+            .GetProperty("OrderedTracks")
+            ?.GetValue(plan);
+
+        if (tracksValue is not System.Collections.IEnumerable tracks)
+        {
+            throw new InvalidOperationException(
+                "BIN/CUE rescue plan did not expose its ordered track collection.");
+        }
+
+        int trackCount = 0;
+
+        foreach (object? _ in tracks)
+        {
+            trackCount++;
+        }
+
+        AssertEqual(
+            2,
+            trackCount,
+            "The fixture must exercise the multi-track rescue path.");
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "Multiple BIN tracks without an authoritative CUE do not contain enough evidence to reconstruct INDEX 00/01, PREGAP, POSTGAP, or equivalent track-boundary semantics.");
+    }
+
+    private static void WriteRawAudioCandidateBin(string path)
+    {
+        const int RawSectorSize = 2352;
+        const int SectorCount = 32;
+
+        // 2352-byte sectors with no CD-ROM sync pattern satisfy the
+        // existing Raw2352AudioCandidate heuristic deterministically.
+        File.WriteAllBytes(
+            path,
+            new byte[RawSectorSize * SectorCount]);
     }
 
     private static void WriteWindows1252PokemonCue(string path)
