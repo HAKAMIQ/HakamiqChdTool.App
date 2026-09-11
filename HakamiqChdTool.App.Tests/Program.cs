@@ -83,6 +83,9 @@ internal static partial class Program
                 new("CUE/BIN finalization rolls back a partial overwrite", () => TestCueBinOverwriteRollsBackPartialPromotion(app, workDirectory)),
                 new("Failed CUE/BIN cleanup deletes the validated bundle", () => TestFailedCueBinCleanupDeletesBundle(app, workDirectory)),
                 new("Failed CUE/BIN cleanup rejects unsafe references", () => TestFailedCueBinCleanupRejectsUnsafeReference(app, workDirectory)),
+                new("Adjacent CUE contradicting proven MODE1/2352 is refused", () => TestAdjacentCueContradictingMode1IsRefused(app, workDirectory)),
+                new("Adjacent CUE matching proven MODE1/2352 is used", () => TestAdjacentCueMatchingMode1IsUsed(app, workDirectory)),
+                new("Adjacent mixed-mode CUE preserves matching MODE1/2352 evidence", () => TestAdjacentMixedModeCueIsUsed(app, workDirectory)),
                 new("CHD info parser captures combined and data SHA1", () => TestChdInfoSha1Parsing(app)),
                 new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
                 new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
@@ -559,6 +562,119 @@ internal static partial class Program
             string.Empty,
             app.ParseChdInfoSha1Digest("Data SHA1: not-a-digest", "Data SHA1"),
             "Malformed CHD data SHA1 must fail closed.");
+    }
+
+    private static void TestAdjacentCueContradictingMode1IsRefused(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-mode1-contradiction");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string cuePath = Path.Combine(root, "disc.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 AUDIO\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "A CUE that declares the selected raw MODE1/2352 BIN as AUDIO must fail closed.");
+    }
+
+    private static void TestAdjacentCueMatchingMode1IsUsed(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-mode1-match");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string cuePath = Path.Combine(root, "disc.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A CUE whose MODE1/2352 declaration matches positive sector evidence must remain usable.");
+        AssertEqual(
+            Path.GetFullPath(cuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The compatible adjacent CUE path changed unexpectedly.");
+    }
+
+    private static void TestAdjacentMixedModeCueIsUsed(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-mode1-mixed");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string cuePath = Path.Combine(root, "disc.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"disc.bin\" BINARY\r\n"
+                + "  TRACK 01 MODE1/2352\r\n"
+                + "    INDEX 01 00:00:00\r\n"
+                + "  TRACK 02 AUDIO\r\n"
+                + "    INDEX 01 10:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A mixed-mode CUE must not be rejected when it contains a MODE1/2352 declaration matching the selected BIN.");
+    }
+
+    private static void WriteRawMode1Bin(string path)
+    {
+        const int RawSectorSize = 2352;
+        const int SectorCount = 32;
+        const int ModeByteOffset = 15;
+
+        byte[] image = new byte[RawSectorSize * SectorCount];
+        byte[] syncPattern =
+        [
+            0x00,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0x00
+        ];
+
+        for (int sectorIndex = 0; sectorIndex < SectorCount; sectorIndex++)
+        {
+            int offset = sectorIndex * RawSectorSize;
+            Buffer.BlockCopy(syncPattern, 0, image, offset, syncPattern.Length);
+            image[offset + ModeByteOffset] = 0x01;
+        }
+
+        File.WriteAllBytes(path, image);
     }
 
     private const string CsoKitStubDescriptorName = "csokit-stub.txt";
@@ -1932,6 +2048,7 @@ internal static partial class Program
         private readonly MethodInfo cueNormalizeConstrained;
         private readonly MethodInfo finalizeExtractedCueBinOutput;
         private readonly MethodInfo parseChdInfoSha1Digest;
+        private readonly MethodInfo assembleBinCueForBin;
         private readonly Type chdInfoResultType;
         private readonly Type extractionOutputBundleType;
         private readonly Type extractionOutputKindType;
@@ -2001,6 +2118,7 @@ internal static partial class Program
             Type workflowSourceCleanupPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSourceCleanupPipeline");
             Type workflowExecutionResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowExecutionResult");
             Type chdInfoServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdInfoService");
+            Type multiBinDiscAssemblerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.BinCueRescue.MultiBinDiscAssembler");
             chdInfoResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdInfoResult");
             extractionOutputBundleType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputBundle");
             extractionOutputKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputKind");
@@ -2046,6 +2164,10 @@ internal static partial class Program
             cueNormalizeConstrained = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(bool), typeof(string).MakeByRefType()]);
             finalizeExtractedCueBinOutput = GetRequiredMethod(safePathType, "TryFinalizeExtractedCueBinOutput", [typeof(string), typeof(string), typeof(string).MakeByRefType()]);
             parseChdInfoSha1Digest = GetRequiredMethod(chdInfoServiceType, "TryParseSha1Digest", [typeof(string), typeof(string)]);
+            assembleBinCueForBin = GetRequiredMethod(
+                multiBinDiscAssemblerType,
+                "AssembleForBin",
+                [typeof(string), typeof(string)]);
             extractionOutputBundleConstructor = GetRequiredConstructor(
                 extractionOutputBundleType,
                 [extractionOutputKindType, typeof(string), typeof(IReadOnlyList<string>), typeof(long)]);
@@ -2167,6 +2289,10 @@ internal static partial class Program
 
         public object? BuildAdvisory(string path, string? detectedPlatform) =>
             advisoryBuild.Invoke(null, [path, detectedPlatform]);
+
+        public object AssembleBinCueForBin(string binPath, string? leaderCueWriteTarget) =>
+            assembleBinCueForBin.Invoke(null, [binPath, leaderCueWriteTarget])
+            ?? throw new InvalidOperationException("BIN/CUE assembler returned null.");
 
         public bool TryNormalizeCuePrimaryBinReference(string cuePath, out string failureMessageKey)
         {

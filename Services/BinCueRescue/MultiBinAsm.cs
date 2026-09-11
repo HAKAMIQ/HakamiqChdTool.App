@@ -68,6 +68,21 @@ internal static class MultiBinDiscAssembler
 
         if (!string.IsNullOrWhiteSpace(adjacentCue))
         {
+            // Only positive raw-data evidence can override an adjacent CUE declaration.
+            // Audio-candidate and unknown layouts remain descriptor-authoritative here.
+            BinTrackKind provenKind =
+                BinSectorProbe.Probe(selectedBin.FullName).Kind;
+
+            if (CueContradictsProvenBinLayout(
+                    adjacentCue,
+                    selectedBin.FullName,
+                    provenKind))
+            {
+                return Refuse(
+                    leaderCueWriteTarget,
+                    [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
+            }
+
             return new BinCueRescuePlan(
                 BinCueRescueDecision.UseAdjacentCue,
                 adjacentCue,
@@ -441,6 +456,114 @@ internal static class MultiBinDiscAssembler
         }
 
         return null;
+    }
+
+    private static bool CueContradictsProvenBinLayout(
+        string cuePath,
+        string binPath,
+        BinTrackKind provenKind)
+    {
+        string requiredTrackMode =
+            provenKind switch
+            {
+                BinTrackKind.Raw2352Mode1 => "MODE1/2352",
+                BinTrackKind.Raw2352Mode2 => "MODE2/2352",
+                _ => string.Empty
+            };
+
+        if (string.IsNullOrEmpty(requiredTrackMode))
+        {
+            return false;
+        }
+
+        string[] cueLines;
+        string cueDirectoryPath;
+        string fullBinPath;
+
+        try
+        {
+            cueLines = File.ReadAllLines(cuePath);
+
+            string? cueDirectory =
+                Path.GetDirectoryName(cuePath);
+
+            if (string.IsNullOrWhiteSpace(cueDirectory))
+            {
+                return true;
+            }
+
+            cueDirectoryPath =
+                NormalizeFullPath(cueDirectory);
+
+            fullBinPath =
+                NormalizeFullPath(binPath);
+        }
+        catch (Exception ex) when (IsIoOrPathFailure(ex))
+        {
+            return true;
+        }
+
+        bool currentFileIsSelected = false;
+        bool sawTrackDeclaration = false;
+
+        foreach (string line in cueLines)
+        {
+            if (CueSheetFileStatementReader.IsFileStatementLine(line))
+            {
+                if (!CueSheetFileStatementReader.TryRead(
+                        line,
+                        requireFileType: true,
+                        out string referenced,
+                        out _)
+                    || !TryResolveSafeCueReference(
+                        referenced,
+                        cueDirectoryPath,
+                        out string resolved))
+                {
+                    return true;
+                }
+
+                currentFileIsSelected =
+                    PathComparer.Equals(
+                        resolved,
+                        fullBinPath);
+
+                continue;
+            }
+
+            if (!currentFileIsSelected)
+            {
+                continue;
+            }
+
+            string trimmed = line.TrimStart();
+
+            if (!trimmed.StartsWith(
+                    "TRACK",
+                    StringComparison.OrdinalIgnoreCase)
+                || (trimmed.Length > 5
+                    && !char.IsWhiteSpace(trimmed[5])))
+            {
+                continue;
+            }
+
+            sawTrackDeclaration = true;
+
+            string[] parts = trimmed.Split(
+                (char[]?)null,
+                StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length >= 3
+                && string.Equals(
+                    parts[2],
+                    requiredTrackMode,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+        }
+
+        return sawTrackDeclaration;
     }
 
     private static bool CueReferencesBin(
