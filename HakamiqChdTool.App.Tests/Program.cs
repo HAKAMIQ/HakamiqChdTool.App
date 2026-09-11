@@ -86,6 +86,10 @@ internal static partial class Program
                 new("Adjacent CUE contradicting proven MODE1/2352 is refused", () => TestAdjacentCueContradictingMode1IsRefused(app, workDirectory)),
                 new("Adjacent CUE matching proven MODE1/2352 is used", () => TestAdjacentCueMatchingMode1IsUsed(app, workDirectory)),
                 new("Adjacent mixed-mode CUE preserves matching MODE1/2352 evidence", () => TestAdjacentMixedModeCueIsUsed(app, workDirectory)),
+                new("Multiple non-same-base CUEs referencing one BIN are refused", () => TestMultipleFallbackAdjacentCuesAreRefused(app, workDirectory)),
+                new("Single non-same-base CUE referencing BIN is used", () => TestSingleFallbackAdjacentCueIsUsed(app, workDirectory)),
+                new("Same-base CUE keeps precedence over fallback CUE", () => TestSameBaseAdjacentCueKeepsPrecedence(app, workDirectory)),
+                new("Non-matching CUE does not create adjacent ambiguity", () => TestNonMatchingCueDoesNotCreateAdjacentAmbiguity(app, workDirectory)),
                 new("CHD info parser captures combined and data SHA1", () => TestChdInfoSha1Parsing(app)),
                 new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
                 new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
@@ -642,6 +646,127 @@ internal static partial class Program
             "UseAdjacentCue",
             GetEnumName(plan, "Decision"),
             "A mixed-mode CUE must not be rejected when it contains a MODE1/2352 declaration matching the selected BIN.");
+    }
+
+    private static void TestMultipleFallbackAdjacentCuesAreRefused(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-ambiguity");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            Path.Combine(root, "layout-a.cue"),
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+        File.WriteAllText(
+            Path.Combine(root, "layout-b.cue"),
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    PREGAP 00:02:00\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "Multiple non-same-base CUE descriptors for one BIN must fail closed instead of depending on filesystem enumeration order.");
+    }
+
+    private static void TestSingleFallbackAdjacentCueIsUsed(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-single-fallback");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string cuePath = Path.Combine(root, "layout-a.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A single compatible non-same-base CUE must remain usable.");
+        AssertEqual(
+            Path.GetFullPath(cuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The single compatible fallback CUE path changed unexpectedly.");
+    }
+
+    private static void TestSameBaseAdjacentCueKeepsPrecedence(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-same-base-precedence");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string sameBaseCuePath = Path.Combine(root, "disc.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            sameBaseCuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+        File.WriteAllText(
+            Path.Combine(root, "layout-a.cue"),
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    PREGAP 00:02:00\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "An existing compatible same-base CUE must retain precedence over fallback descriptors.");
+        AssertEqual(
+            Path.GetFullPath(sameBaseCuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The same-base CUE precedence rule changed unexpectedly.");
+    }
+
+    private static void TestNonMatchingCueDoesNotCreateAdjacentAmbiguity(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-ignore-nonmatching");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string otherBinPath = Path.Combine(root, "other.bin");
+        string matchingCuePath = Path.Combine(root, "layout-b.cue");
+
+        WriteRawMode1Bin(binPath);
+        WriteRawMode1Bin(otherBinPath);
+        File.WriteAllText(
+            Path.Combine(root, "layout-a.cue"),
+            "FILE \"other.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+        File.WriteAllText(
+            matchingCuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A CUE that does not reference the selected BIN must not count toward adjacent-CUE ambiguity.");
+        AssertEqual(
+            Path.GetFullPath(matchingCuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The matching fallback CUE path changed unexpectedly.");
     }
 
     private static void WriteRawMode1Bin(string path)

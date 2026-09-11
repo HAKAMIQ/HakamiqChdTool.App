@@ -53,11 +53,14 @@ internal static class MultiBinDiscAssembler
                 [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
         }
 
-        string? adjacentCue;
+        IReadOnlyList<string> adjacentCues;
+        bool sameBaseCueSelected;
 
         try
         {
-            adjacentCue = FindAdjacentCueForBin(selectedBin.FullName);
+            adjacentCues = FindAdjacentCuesForBin(
+                selectedBin.FullName,
+                out sameBaseCueSelected);
         }
         catch (Exception ex) when (IsIoOrPathFailure(ex))
         {
@@ -66,26 +69,39 @@ internal static class MultiBinDiscAssembler
                 [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
         }
 
-        if (!string.IsNullOrWhiteSpace(adjacentCue))
+        if (adjacentCues.Count > 0)
         {
             // Only positive raw-data evidence can override an adjacent CUE declaration.
             // Audio-candidate and unknown layouts remain descriptor-authoritative here.
             BinTrackKind provenKind =
                 BinSectorProbe.Probe(selectedBin.FullName).Kind;
 
-            if (CueContradictsProvenBinLayout(
-                    adjacentCue,
-                    selectedBin.FullName,
-                    provenKind))
+            List<string> compatibleAdjacentCues = adjacentCues
+                .Where(
+                    cue => !CueContradictsProvenBinLayout(
+                        cue,
+                        selectedBin.FullName,
+                        provenKind))
+                .ToList();
+
+            if (compatibleAdjacentCues.Count == 0)
             {
                 return Refuse(
                     leaderCueWriteTarget,
                     [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
             }
 
+            if (!sameBaseCueSelected
+                && compatibleAdjacentCues.Count > 1)
+            {
+                return Refuse(
+                    leaderCueWriteTarget,
+                    [BinCueRescueRefusalReason.AmbiguousOrder]);
+            }
+
             return new BinCueRescuePlan(
                 BinCueRescueDecision.UseAdjacentCue,
-                adjacentCue,
+                compatibleAdjacentCues[0],
                 null,
                 [],
                 []);
@@ -420,15 +436,18 @@ internal static class MultiBinDiscAssembler
         return null;
     }
 
-    private static string? FindAdjacentCueForBin(
-        string binPath)
+    private static IReadOnlyList<string> FindAdjacentCuesForBin(
+        string binPath,
+        out bool sameBaseCueSelected)
     {
+        sameBaseCueSelected = false;
+
         FileInfo bin = new(binPath);
         DirectoryInfo? directory = bin.Directory;
 
         if (directory is null || !directory.Exists)
         {
-            return null;
+            return [];
         }
 
         string sameBaseCue = Path.Combine(
@@ -440,8 +459,11 @@ internal static class MultiBinDiscAssembler
                 sameBaseCue,
                 bin.FullName))
         {
-            return sameBaseCue;
+            sameBaseCueSelected = true;
+            return [sameBaseCue];
         }
+
+        List<string> matchingCues = [];
 
         foreach (FileInfo cue in directory.EnumerateFiles(
                      "*.cue",
@@ -451,11 +473,11 @@ internal static class MultiBinDiscAssembler
                     cue.FullName,
                     bin.FullName))
             {
-                return cue.FullName;
+                matchingCues.Add(cue.FullName);
             }
         }
 
-        return null;
+        return matchingCues;
     }
 
     private static bool CueContradictsProvenBinLayout(
