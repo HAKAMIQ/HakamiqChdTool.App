@@ -90,6 +90,10 @@ internal static partial class Program
                 new("Single non-same-base CUE referencing BIN is used", () => TestSingleFallbackAdjacentCueIsUsed(app, workDirectory)),
                 new("Same-base CUE keeps precedence over fallback CUE", () => TestSameBaseAdjacentCueKeepsPrecedence(app, workDirectory)),
                 new("Non-matching CUE does not create adjacent ambiguity", () => TestNonMatchingCueDoesNotCreateAdjacentAmbiguity(app, workDirectory)),
+                new("Legacy-encoded fallback CUE cannot be ignored for rescue inference", () => TestLegacyEncodedFallbackCueDoesNotFallThroughToInference(app, workDirectory)),
+                new("Legacy-encoded same-base CUE cannot be ignored for rescue inference", () => TestLegacyEncodedSameBaseCueDoesNotFallThroughToInference(app, workDirectory)),
+                new("UTF-8 non-ASCII adjacent CUE remains usable", () => TestUtf8NonAsciiAdjacentCueIsUsed(app, workDirectory)),
+                new("Standalone BIN without adjacent CUE still allows rescue inference", () => TestNoAdjacentCueStillAllowsInference(app, workDirectory)),
                 new("CHD info parser captures combined and data SHA1", () => TestChdInfoSha1Parsing(app)),
                 new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
                 new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
@@ -767,6 +771,109 @@ internal static partial class Program
             Path.GetFullPath(matchingCuePath),
             Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
             "The matching fallback CUE path changed unexpectedly.");
+    }
+
+    private static void TestLegacyEncodedFallbackCueDoesNotFallThroughToInference(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-legacy-fallback");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "Pokémon.bin");
+        string cuePath = Path.Combine(root, "layout.cue");
+
+        WriteRawMode1Bin(binPath);
+        WriteWindows1252PokemonCue(cuePath);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "An adjacent CUE whose byte stream is not valid UTF-8 must not be silently ignored so rescue inference can replace its layout semantics.");
+    }
+
+    private static void TestLegacyEncodedSameBaseCueDoesNotFallThroughToInference(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-legacy-same-base");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "Pokémon.bin");
+        string cuePath = Path.Combine(root, "Pokémon.cue");
+
+        WriteRawMode1Bin(binPath);
+        WriteWindows1252PokemonCue(cuePath);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "An undecodable same-base CUE must fail closed instead of being treated as absent.");
+    }
+
+    private static void TestUtf8NonAsciiAdjacentCueIsUsed(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-utf8-nonascii");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "Pokémon.bin");
+        string cuePath = Path.Combine(root, "layout.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"Pokémon.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A valid UTF-8 CUE with a non-ASCII BIN filename must remain usable.");
+        AssertEqual(
+            Path.GetFullPath(cuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The UTF-8 adjacent CUE path changed unexpectedly.");
+    }
+
+    private static void TestNoAdjacentCueStillAllowsInference(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-no-descriptor");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string generatedCuePath = Path.Combine(root, "generated.cue");
+
+        WriteRawMode1Bin(binPath);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            generatedCuePath);
+
+        AssertEqual(
+            "GenerateTempCue",
+            GetEnumName(plan, "Decision"),
+            "A standalone raw MODE1/2352 BIN with no adjacent descriptor must retain the existing rescue-inference path.");
+    }
+
+    private static void WriteWindows1252PokemonCue(string path)
+    {
+        byte[] prefix = Encoding.ASCII.GetBytes("FILE \"Pok");
+        byte[] suffix = Encoding.ASCII.GetBytes("mon.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n");
+        byte[] bytes = new byte[prefix.Length + 1 + suffix.Length];
+
+        Buffer.BlockCopy(prefix, 0, bytes, 0, prefix.Length);
+        bytes[prefix.Length] = 0xE9;
+        Buffer.BlockCopy(suffix, 0, bytes, prefix.Length + 1, suffix.Length);
+
+        File.WriteAllBytes(path, bytes);
     }
 
     private static void WriteRawMode1Bin(string path)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using HakamiqChdTool.App.Core.Disc;
 
@@ -55,14 +56,23 @@ internal static class MultiBinDiscAssembler
 
         IReadOnlyList<string> adjacentCues;
         bool sameBaseCueSelected;
+        bool unsupportedCueEncoding;
 
         try
         {
             adjacentCues = FindAdjacentCuesForBin(
                 selectedBin.FullName,
-                out sameBaseCueSelected);
+                out sameBaseCueSelected,
+                out unsupportedCueEncoding);
         }
         catch (Exception ex) when (IsIoOrPathFailure(ex))
+        {
+            return Refuse(
+                leaderCueWriteTarget,
+                [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
+        }
+
+        if (unsupportedCueEncoding)
         {
             return Refuse(
                 leaderCueWriteTarget,
@@ -438,9 +448,11 @@ internal static class MultiBinDiscAssembler
 
     private static IReadOnlyList<string> FindAdjacentCuesForBin(
         string binPath,
-        out bool sameBaseCueSelected)
+        out bool sameBaseCueSelected,
+        out bool unsupportedCueEncoding)
     {
         sameBaseCueSelected = false;
+        unsupportedCueEncoding = false;
 
         FileInfo bin = new(binPath);
         DirectoryInfo? directory = bin.Directory;
@@ -454,13 +466,24 @@ internal static class MultiBinDiscAssembler
             directory.FullName,
             Path.GetFileNameWithoutExtension(bin.Name) + ".cue");
 
-        if (File.Exists(sameBaseCue)
-            && CueReferencesBin(
-                sameBaseCue,
-                bin.FullName))
+        if (File.Exists(sameBaseCue))
         {
-            sameBaseCueSelected = true;
-            return [sameBaseCue];
+            bool sameBaseReferencesBin = CueReferencesBin(
+                sameBaseCue,
+                bin.FullName,
+                out bool sameBaseUnsupportedEncoding);
+
+            if (sameBaseUnsupportedEncoding)
+            {
+                unsupportedCueEncoding = true;
+                return [];
+            }
+
+            if (sameBaseReferencesBin)
+            {
+                sameBaseCueSelected = true;
+                return [sameBaseCue];
+            }
         }
 
         List<string> matchingCues = [];
@@ -469,9 +492,18 @@ internal static class MultiBinDiscAssembler
                      "*.cue",
                      SearchOption.TopDirectoryOnly))
         {
-            if (CueReferencesBin(
-                    cue.FullName,
-                    bin.FullName))
+            bool referencesBin = CueReferencesBin(
+                cue.FullName,
+                bin.FullName,
+                out bool cueUnsupportedEncoding);
+
+            if (cueUnsupportedEncoding)
+            {
+                unsupportedCueEncoding = true;
+                continue;
+            }
+
+            if (referencesBin)
             {
                 matchingCues.Add(cue.FullName);
             }
@@ -502,10 +534,16 @@ internal static class MultiBinDiscAssembler
         string cueDirectoryPath;
         string fullBinPath;
 
+        if (!TryReadCueLinesStrict(
+                cuePath,
+                out cueLines,
+                out _))
+        {
+            return true;
+        }
+
         try
         {
-            cueLines = File.ReadAllLines(cuePath);
-
             string? cueDirectory =
                 Path.GetDirectoryName(cuePath);
 
@@ -588,10 +626,60 @@ internal static class MultiBinDiscAssembler
         return sawTrackDeclaration;
     }
 
+    private static bool TryReadCueLinesStrict(
+        string cuePath,
+        out string[] cueLines,
+        out bool unsupportedEncoding)
+    {
+        cueLines = [];
+        unsupportedEncoding = false;
+
+        try
+        {
+            using FileStream stream = new(
+                cuePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read);
+            using StreamReader reader = new(
+                stream,
+                new UTF8Encoding(
+                    encoderShouldEmitUTF8Identifier: false,
+                    throwOnInvalidBytes: true),
+                detectEncodingFromByteOrderMarks: true);
+
+            string text = reader.ReadToEnd();
+
+            if (text.IndexOf('\0') >= 0)
+            {
+                unsupportedEncoding = true;
+                return false;
+            }
+
+            cueLines = text
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace('\r', '\n')
+                .Split('\n');
+            return true;
+        }
+        catch (DecoderFallbackException)
+        {
+            unsupportedEncoding = true;
+            return false;
+        }
+        catch (Exception ex) when (IsIoOrPathFailure(ex))
+        {
+            return false;
+        }
+    }
+
     private static bool CueReferencesBin(
         string cuePath,
-        string binPath)
+        string binPath,
+        out bool unsupportedEncoding)
     {
+        unsupportedEncoding = false;
+
         FileInfo cueFile = new(cuePath);
 
         if (!cueFile.Exists
@@ -607,13 +695,10 @@ internal static class MultiBinDiscAssembler
             return false;
         }
 
-        string[] cueLines;
-
-        try
-        {
-            cueLines = File.ReadAllLines(cueFile.FullName);
-        }
-        catch (Exception ex) when (IsIoOrPathFailure(ex))
+        if (!TryReadCueLinesStrict(
+                cueFile.FullName,
+                out string[] cueLines,
+                out unsupportedEncoding))
         {
             return false;
         }
