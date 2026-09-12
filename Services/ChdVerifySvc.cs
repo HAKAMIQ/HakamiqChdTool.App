@@ -34,8 +34,9 @@ public sealed class ChdVerificationService
     {
         var stopwatch = Stopwatch.StartNew();
         string safeInputName = BuildSafeInputName(chdFilePath);
-        string logsDirectory = BuildLogsDirectory();
-        string logPath = Path.Combine(logsDirectory, $"verify_{DateTime.Now:yyyyMMdd_HHmmss}_{safeInputName}.log");
+        string logPath = ChdOperationLog.TryBuildPath(
+            $"verify_{DateTime.Now:yyyyMMdd_HHmmss}_{safeInputName}.log",
+            BuildLogsDirectory);
         string commandLine = string.Empty;
 
         await WriteVerificationLogAsync(
@@ -448,13 +449,10 @@ public sealed class ChdVerificationService
                 logBuilder.AppendLine();
             }
 
-            string? directory = Path.GetDirectoryName(logPath);
-            if (!string.IsNullOrWhiteSpace(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            await File.WriteAllTextAsync(logPath, logBuilder.ToString(), CancellationToken.None)
+            _ = await ChdOperationLog.TryWriteAsync(
+                    logPath,
+                    logBuilder.ToString(),
+                    "verification")
                 .ConfigureAwait(false);
         }
         catch (Exception ex)

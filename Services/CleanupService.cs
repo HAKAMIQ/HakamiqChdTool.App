@@ -370,7 +370,12 @@ public sealed class CleanupService
         {
             string currentDirectory = pendingDirectories.Pop();
 
-            foreach (string entry in GetFileSystemEntriesTopOnly(currentDirectory))
+            if (!TryGetFileSystemEntriesTopOnly(currentDirectory, out string[] entries))
+            {
+                return true;
+            }
+
+            foreach (string entry in entries)
             {
                 if (HasReparsePoint(entry))
                 {
@@ -387,16 +392,18 @@ public sealed class CleanupService
         return false;
     }
 
-    private static string[] GetFileSystemEntriesTopOnly(string directory)
+    private static bool TryGetFileSystemEntriesTopOnly(string directory, out string[] entries)
     {
         try
         {
-            return Directory.GetFileSystemEntries(directory, "*", SearchOption.TopDirectoryOnly);
+            entries = Directory.GetFileSystemEntries(directory, "*", SearchOption.TopDirectoryOnly);
+            return true;
         }
         catch (Exception ex)
         {
             Logger.Debug(ex, "Cleanup: treating unreadable directory as unsafe during enumeration. Directory={Directory}", directory);
-            return [];
+            entries = [];
+            return false;
         }
     }
 
