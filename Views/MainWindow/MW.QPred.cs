@@ -175,17 +175,6 @@ public partial class MainWindow
         return item is not null && ResolveQueueItemProbePath(item) is not null;
     }
 
-    private static bool ArchiveNamingRuleValidatorApplies(string path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return false;
-        }
-
-        QueueInputClassification classification = QueueInputClassifier.Classify(path);
-        return classification.IsChdImage || classification.IsArchiveContainer;
-    }
-
     private static bool TryGetQueueItemSourceTarget(
         TaskQueueItemViewModel? item,
         out string? targetPath)
