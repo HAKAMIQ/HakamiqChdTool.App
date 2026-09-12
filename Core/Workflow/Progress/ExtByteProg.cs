@@ -5,7 +5,7 @@ using System.IO;
 
 namespace HakamiqChdTool.App.Core.Workflow.Progress;
 
-internal sealed class ExtractionOutputByteProgressEstimator : IWorkflowRuntimeProgressEstimator
+internal sealed class ExtractionOutputByteProgressEstimator
 {
     private readonly ExtractionOutputContract _contract;
     private readonly long _expectedBytes;
