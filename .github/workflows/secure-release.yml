@@ -403,15 +403,13 @@ jobs:
 
           ## Highlights
 
-          - Hardened runtime and release trust controls.
-          - Bundled tools are validated against pinned hashes.
-          - chdman is distributed visibly under Tools instead of hidden runtime extraction.
-          - Hardened production update-source policy.
-          - Improved Redump verification.
-          - Fixed the CHD Redump verification deadlock.
-          - Improved CHD DVD metadata detection.
-          - Clearer source and CHD input guidance.
-          - Release manifests, CycloneDX SBOM, deterministic packaging, Defender scans, and GitHub build provenance verification.
+          - Stronger CUE/BIN layout fidelity and fail-closed rescue handling.
+          - Ambiguous adjacent CUE layouts are refused instead of guessed.
+          - Legacy CUE encoding failures no longer fall through to inferred layouts.
+          - Multi-track BIN rescue requires sufficient timing evidence.
+          - CSO preprocessing validates decompressed output against the declared size.
+          - Hardened CHD operation lifecycle, verification, cleanup, and diagnostics.
+          - Removed obsolete and unreachable source architecture.
 
           ## Verification
 
