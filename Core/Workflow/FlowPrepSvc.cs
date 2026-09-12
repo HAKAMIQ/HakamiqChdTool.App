@@ -52,7 +52,7 @@ internal sealed class WorkflowInputPreparationService
                     null));
         }
 
-        WorkflowPreparationResult? directPlanFailure = ValidateDirectInputPlan(snap, ctx);
+        WorkflowPreparationResult? directPlanFailure = ValidateDirectInputPlan(snap, ctx, sourceClassification);
         if (directPlanFailure is not null)
         {
             return directPlanFailure;
@@ -70,7 +70,8 @@ internal sealed class WorkflowInputPreparationService
 
     private static WorkflowPreparationResult? ValidateDirectInputPlan(
         QueueItemSnapshot snap,
-        ChdWorkflowTaskContext ctx)
+        ChdWorkflowTaskContext ctx,
+        QueueInputClassification sourceClassification)
     {
         ChdWorkflowProfilePlan plan = snap.RequestedAction switch
         {
@@ -82,7 +83,7 @@ internal sealed class WorkflowInputPreparationService
 
             TaskActionCodes.VerifyChd => ChdWorkflowProfilePlanner.PlanVerifyChd(snap.SourcePath),
 
-            TaskActionCodes.RestoreDiscImageFromChd when QueueInputClassifier.Classify(snap.SourcePath).IsChdImage
+            TaskActionCodes.RestoreDiscImageFromChd when sourceClassification.IsChdImage
                 => new ChdWorkflowProfilePlan
                 {
                     IsSupported = true,
