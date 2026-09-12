@@ -391,7 +391,7 @@ jobs:
             "Windows Authenticode signing is required and verified for this release."
           }
           @"
-          Hakamiq CHD Tool v$env:RELEASE_VERSION
+          CHD Tool v$env:RELEASE_VERSION
 
           ## Download options
 
@@ -424,5 +424,5 @@ jobs:
             $selfContainedPackage `
             "$selfContainedPackage.sha256" `
             --verify-tag `
-            --title "Hakamiq CHD Tool $tag" `
+            --title "CHD Tool $tag" `
             --notes-file $notesPath
