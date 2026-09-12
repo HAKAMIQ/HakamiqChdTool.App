@@ -2,7 +2,7 @@
 
 ## Independence requirement
 
-The reviewer must not be the project author, a contributor to the reviewed revision, or the operator who prepared the audit evidence. Automated scans and AI-assisted reviews may supplement the engagement but do not satisfy the independent-review requirement by themselves.
+The reviewer must not be the project author, a contributor to the reviewed revision, or the operator who prepared the audit evidence. Automated scans and internal code reviews may supplement the engagement but do not satisfy the independent-review requirement by themselves.
 
 ## In-scope trust boundaries
 

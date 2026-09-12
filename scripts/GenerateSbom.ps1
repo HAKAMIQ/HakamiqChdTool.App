@@ -4,6 +4,37 @@ param(
     [string]$OutputPath
 )
 
+if ($PSVersionTable.PSVersion.Major -lt 7) {
+    $pwshCommand = Get-Command pwsh.exe -ErrorAction SilentlyContinue
+    if ($null -eq $pwshCommand) {
+        throw "SBOM generation requires PowerShell 7 (pwsh)."
+    }
+
+    $forwardArguments = @(
+        '-NoProfile',
+        '-File',
+        $PSCommandPath
+    )
+
+    if ($PSBoundParameters.ContainsKey('LockFile')) {
+        $forwardArguments += @('-LockFile', $LockFile)
+    }
+
+    if ($PSBoundParameters.ContainsKey('OutputPath')) {
+        $forwardArguments += @('-OutputPath', $OutputPath)
+    }
+
+    & $pwshCommand.Source @forwardArguments
+    $pwshExitCode = $LASTEXITCODE
+
+    if ($pwshExitCode -ne 0) {
+        throw "PowerShell 7 SBOM generation failed with exit code $pwshExitCode."
+    }
+
+    return
+}
+
+
 $ErrorActionPreference = 'Stop'
 
 if ([string]::IsNullOrWhiteSpace($LockFile)) {
@@ -210,7 +241,7 @@ if (-not (Test-Path -LiteralPath $outputDirectory -PathType Container)) {
     New-Item -ItemType Directory -Path $outputDirectory | Out-Null
 }
 
-$json = $bom | ConvertTo-Json -Depth 20
+$json = $bom | ConvertTo-Json -Depth 20 -Compress
 [System.IO.File]::WriteAllText(
     $resolvedOutputPath,
     $json + [Environment]::NewLine,

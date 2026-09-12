@@ -70,12 +70,12 @@ user-visible behavior without tests.
 
 `ViewModels` and `Views` are the WPF UI layer.
 
-Do not move queue, run, cancel, or window behavior during P3-B or P3-C1.
+Do not move queue, run, cancel, or window behavior as part of architecture documentation or low-risk cleanup.
 UI and composition cleanup belongs to a later stage.
 
 ## Work rules
 
-These rules apply to architecture work after P3-B:
+These rules apply to architecture work:
 
 1. Do not add features because of PSXSPX or no$psx references.
    Those references are useful only for future CUE, BIN, ISO, CHD guidance.
@@ -96,16 +96,16 @@ These rules apply to architecture work after P3-B:
 8. Do not do micro-cleanup. A patch must add clear architecture value, tests, or
    release safety.
 
-9. P3-B is test-only. It must not change behavior, UI, or conversion logic.
+9. Documentation-only architecture work must not change behavior, UI, or conversion logic.
 
-10. P3-C does not split `Core/Workflow` until the tests are broad enough and the
+10. Do not split `Core/Workflow` until the tests are broad enough and the
     refactor target is explicit.
 
 11. Do not push or release unless the maintainer explicitly asks for it.
 
-## P3-C1 scope
+## Documentation-only architecture scope
 
-P3-C1 is documentation only.
+This scope is documentation only.
 
 Allowed:
 

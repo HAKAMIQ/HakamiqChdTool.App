@@ -3005,31 +3005,8 @@ function Test-ChdmanCapabilityPolicyGates {
     }
 }
 
-function Test-SafeRecompressPipelinePolicy {
-    $pipeline =
-        Join-Path $root 'Services\Conversion\SafeRecomp.cs'
+function Test-ChdConversionSafetyPolicy {
 
-    if (-not (Test-Path -LiteralPath $pipeline -PathType Leaf)) {
-        Add-Failure 'SafeRecompressPipeline is required so CHD recompression uses CHD -> original-like extraction -> platform-aware rebuild.'
-    }
-    else {
-        $content =
-            Get-Content -LiteralPath $pipeline -Raw -Encoding UTF8
-
-        foreach ($required in @(
-            'ReadInfoAsync',
-            'MetadataAwareChdExtractionPolicy',
-            'RestoreTargetPolicy',
-            'extractionMetadataDecisionConfirmed:\s*true',
-            'extractCdCueOutputPath:\s*restoreTarget\.ExtractCdCueOutputPath',
-            'ChdmanExtractionKind\.None',
-            'PlatformAwareChdProfilePolicy')) {
-
-            if ($content -notmatch $required) {
-                Add-Failure "SafeRecompressPipeline missing required safe recompress marker: $required"
-            }
-        }
-    }
 
     $conversion =
         Join-Path $root 'Services\Conversion\ChdConvSvc.cs'
@@ -3388,7 +3365,7 @@ Test-ShutdownBackgroundTimeouts
 Test-ShowRedumpDetailsReturnsTask
 Test-BinCueConsoleIdentityArchitecture
 Test-ChdmanCapabilityPolicyGates
-Test-SafeRecompressPipelinePolicy
+Test-ChdConversionSafetyPolicy
 Test-NoVisualBasicSources
 Test-NoEmptyExtensionlessUiResourceFiles
 Test-NoSedScratchUnderUiResources

@@ -18,6 +18,7 @@ public sealed class ChdmanCapabilityService : IChdmanCapabilityService
     private const int ProbeTimeoutMilliseconds = 4500;
 
     private static readonly TimeSpan ProbeTimeout = TimeSpan.FromMilliseconds(ProbeTimeoutMilliseconds);
+    private static readonly TimeSpan ProbeTerminationTimeout = TimeSpan.FromSeconds(5);
     private static readonly Regex VersionRegex = new(
         @"(?:chdman(?:\.exe)?|MAME)\s+(?:version\s+)?(?<version>v?\d+(?:\.\d+)+(?:[-+._A-Za-z0-9]*)?)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled,
@@ -177,6 +178,12 @@ public sealed class ChdmanCapabilityService : IChdmanCapabilityService
             {
                 await process.WaitForExitAsync(timeout.Token).ConfigureAwait(false);
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                TryKill(process);
+                await WaitForProcessExitAfterKillAsync(process).ConfigureAwait(false);
+                throw;
+            }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
                 TryKill(process);
@@ -211,9 +218,13 @@ public sealed class ChdmanCapabilityService : IChdmanCapabilityService
     {
         try
         {
-            await process.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false);
+            await process.WaitForExitAsync(CancellationToken.None)
+                .WaitAsync(ProbeTerminationTimeout, CancellationToken.None)
+                .ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
+        catch (Exception ex) when (ex is InvalidOperationException
+                                  or System.ComponentModel.Win32Exception
+                                  or TimeoutException)
         {
             Log.Debug(ex, "chdman capability probe process did not report normal exit after kill.");
         }

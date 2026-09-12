@@ -249,6 +249,29 @@ public sealed class CsoPreprocessor : ICsoPreprocessor
             return BuildResult(false, false, outputPath, messageKey, decompress, info, verify, decompress, tool, displayCommand, status, tempSpace);
         }
 
+        // A zero exit code only means the tool ran. When the CSO header states how many bytes the
+        // image expands to, the file on disk must be exactly that long; anything else is a partial
+        // or truncated ISO that would still compress and verify as a self-consistent CHD while no
+        // longer representing the source. The size on disk is the verdict - BytesWritten is only
+        // reported for diagnostics. An unknown or non-positive declared size is never guessed at.
+        long? declaredUncompressedBytes = info.HeaderUncompressedSize;
+        if (declaredUncompressedBytes is > 0
+            && preparedBytes != declaredUncompressedBytes.Value)
+        {
+            TryDeleteTemporaryOutput(outputPath, "CSO decompression size mismatch");
+
+            Log.Error(
+                "CSO preprocessing rejected a decompressed ISO whose size does not match the CSO header. Tool={ToolPath}; Input={Input}; PreparedIso={PreparedIso}; DeclaredBytes={DeclaredBytes}; PreparedBytes={PreparedBytes}; ReportedBytesWritten={ReportedBytesWritten}",
+                tool.ToolPath,
+                inputPath,
+                outputPath,
+                declaredUncompressedBytes.Value,
+                preparedBytes,
+                decompress.BytesWritten);
+
+            return BuildResult(false, false, outputPath, PreparationFailedMessageKey, decompress, info, verify, decompress, tool, displayCommand, CsoPreprocessStatus.Failed, tempSpace);
+        }
+
         Log.Information(
             "CSO preprocessing completed. Tool={ToolPath}; Version={Version}; Input={Input}; PreparedIso={PreparedIso}; PreparedBytes={PreparedBytes}",
             tool.ToolPath,

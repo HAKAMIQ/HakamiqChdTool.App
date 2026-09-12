@@ -35,11 +35,6 @@ public partial class MainWindow
             return _w.GetSelectedInputExecutionProfileFromUi();
         }
 
-        public bool IsSelectedScanMode()
-        {
-            return _w.IsSelectedScanModeFromUi();
-        }
-
         public string GetSelectedInputDialogTitle(QueueExecutionProfile profile)
         {
             return _w.GetSelectedInputDialogTitleFromUi(profile);

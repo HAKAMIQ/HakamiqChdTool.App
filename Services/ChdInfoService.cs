@@ -59,10 +59,9 @@ public sealed class ChdInfoService
             throw new NotSupportedException(InvalidChdPathMessageKey);
         }
 
-        string logsDirectory = BuildLogsDirectory();
-        string logPath = Path.Combine(
-            logsDirectory,
-            $"info_{DateTime.Now:yyyyMMdd_HHmmss}_{SanitizeFileName(Path.GetFileNameWithoutExtension(resolvedChdPath))}.log");
+        string logPath = ChdOperationLog.TryBuildPath(
+            $"info_{DateTime.Now:yyyyMMdd_HHmmss}_{SanitizeFileName(Path.GetFileNameWithoutExtension(resolvedChdPath))}.log",
+            BuildLogsDirectory);
 
         var arguments = new List<string> { "info", "-i", resolvedChdPath };
         string displayCommandLine = ChdmanCliRunner.FormatCommandLineForDisplay(chdmanPath, arguments);
@@ -201,7 +200,10 @@ public sealed class ChdInfoService
             logBuilder.AppendLine();
         }
 
-        await File.WriteAllTextAsync(logPath, logBuilder.ToString(), CancellationToken.None)
+        _ = await ChdOperationLog.TryWriteAsync(
+                logPath,
+                logBuilder.ToString(),
+                "info")
             .ConfigureAwait(false);
 
         return new ChdInfoResult

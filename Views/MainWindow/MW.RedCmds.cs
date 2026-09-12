@@ -19,7 +19,6 @@ public partial class MainWindow
     private const string RedumpScanTitleKey = "LocRedump_ScanTitle";
     private const string RedumpAllScanStartedFooterKey = "LocRedump_AllScanStartedFooter";
     private const string RedumpItemScanFailedContinueFooterFormatKey = "LocRedump_ItemScanFailedContinueFooterFormat";
-    private const string RedumpAllScanStoppedFooterFormatKey = "LocRedump_AllScanStoppedFooterFormat";
     private const string RedumpAllScanCompletedWithFailuresFooterFormatKey = "LocRedump_AllScanCompletedWithFailuresFooterFormat";
     private const string RedumpAllScanCompletedFooterFormatKey = "LocRedump_AllScanCompletedFooterFormat";
     private const string CommonCancelKey = "LocCommon_Cancel";

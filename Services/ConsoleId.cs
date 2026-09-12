@@ -27,6 +27,7 @@ public sealed class ConsoleIdBg : IDisposable
     private readonly ConcurrentDictionary<ConsoleIdCacheKey, ConsoleIdResult> cache = new();
     private readonly SemaphoreSlim gate = new(2, 2);
     private readonly CancellationTokenSource shutdown = new();
+    private int disposed;
 
     public void Enqueue(
         Guid itemId,
@@ -47,13 +48,38 @@ public sealed class ConsoleIdBg : IDisposable
             return;
         }
 
+        if (Volatile.Read(ref disposed) != 0)
+        {
+            return;
+        }
+
+        CancellationToken cancellationToken;
+        try
+        {
+            cancellationToken = shutdown.Token;
+        }
+        catch (ObjectDisposedException)
+        {
+            return;
+        }
+
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+
         _ = Task.Run(
-            () => RunAsync(itemId, path, apply, shutdown.Token),
+            () => RunAsync(itemId, path, apply, cancellationToken),
             CancellationToken.None);
     }
 
     public void Dispose()
     {
+        if (Interlocked.Exchange(ref disposed, 1) != 0)
+        {
+            return;
+        }
+
         shutdown.Cancel();
         gate.Dispose();
         shutdown.Dispose();

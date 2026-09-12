@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using HakamiqChdTool.App.Core.Disc;
 
@@ -53,11 +54,16 @@ internal static class MultiBinDiscAssembler
                 [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
         }
 
-        string? adjacentCue;
+        IReadOnlyList<string> adjacentCues;
+        bool sameBaseCueSelected;
+        bool unsupportedCueEncoding;
 
         try
         {
-            adjacentCue = FindAdjacentCueForBin(selectedBin.FullName);
+            adjacentCues = FindAdjacentCuesForBin(
+                selectedBin.FullName,
+                out sameBaseCueSelected,
+                out unsupportedCueEncoding);
         }
         catch (Exception ex) when (IsIoOrPathFailure(ex))
         {
@@ -66,11 +72,46 @@ internal static class MultiBinDiscAssembler
                 [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
         }
 
-        if (!string.IsNullOrWhiteSpace(adjacentCue))
+        if (unsupportedCueEncoding)
         {
+            return Refuse(
+                leaderCueWriteTarget,
+                [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
+        }
+
+        if (adjacentCues.Count > 0)
+        {
+            // Only positive raw-data evidence can override an adjacent CUE declaration.
+            // Audio-candidate and unknown layouts remain descriptor-authoritative here.
+            BinTrackKind provenKind =
+                BinSectorProbe.Probe(selectedBin.FullName).Kind;
+
+            List<string> compatibleAdjacentCues = adjacentCues
+                .Where(
+                    cue => !CueContradictsProvenBinLayout(
+                        cue,
+                        selectedBin.FullName,
+                        provenKind))
+                .ToList();
+
+            if (compatibleAdjacentCues.Count == 0)
+            {
+                return Refuse(
+                    leaderCueWriteTarget,
+                    [BinCueRescueRefusalReason.InsufficientSectorEvidence]);
+            }
+
+            if (!sameBaseCueSelected
+                && compatibleAdjacentCues.Count > 1)
+            {
+                return Refuse(
+                    leaderCueWriteTarget,
+                    [BinCueRescueRefusalReason.AmbiguousOrder]);
+            }
+
             return new BinCueRescuePlan(
                 BinCueRescueDecision.UseAdjacentCue,
-                adjacentCue,
+                compatibleAdjacentCues[0],
                 null,
                 [],
                 []);
@@ -187,6 +228,13 @@ internal static class MultiBinDiscAssembler
                     probes[i].Kind));
         }
 
+        // Multiple BIN tracks do not contain enough evidence to
+        // reconstruct CUE timing semantics such as INDEX 00/01 or PREGAP.
+        if (trackPlans.Count > 1)
+        {
+            refusals.Add(
+                BinCueRescueRefusalReason.InsufficientSectorEvidence);
+        }
         if (refusals.Count > 0)
         {
             return new BinCueRescuePlan(
@@ -405,48 +453,240 @@ internal static class MultiBinDiscAssembler
         return null;
     }
 
-    private static string? FindAdjacentCueForBin(
-        string binPath)
+    private static IReadOnlyList<string> FindAdjacentCuesForBin(
+        string binPath,
+        out bool sameBaseCueSelected,
+        out bool unsupportedCueEncoding)
     {
+        sameBaseCueSelected = false;
+        unsupportedCueEncoding = false;
+
         FileInfo bin = new(binPath);
         DirectoryInfo? directory = bin.Directory;
 
         if (directory is null || !directory.Exists)
         {
-            return null;
+            return [];
         }
 
         string sameBaseCue = Path.Combine(
             directory.FullName,
             Path.GetFileNameWithoutExtension(bin.Name) + ".cue");
 
-        if (File.Exists(sameBaseCue)
-            && CueReferencesBin(
-                sameBaseCue,
-                bin.FullName))
+        if (File.Exists(sameBaseCue))
         {
-            return sameBaseCue;
+            bool sameBaseReferencesBin = CueReferencesBin(
+                sameBaseCue,
+                bin.FullName,
+                out bool sameBaseUnsupportedEncoding);
+
+            if (sameBaseUnsupportedEncoding)
+            {
+                unsupportedCueEncoding = true;
+                return [];
+            }
+
+            if (sameBaseReferencesBin)
+            {
+                sameBaseCueSelected = true;
+                return [sameBaseCue];
+            }
         }
+
+        List<string> matchingCues = [];
 
         foreach (FileInfo cue in directory.EnumerateFiles(
                      "*.cue",
                      SearchOption.TopDirectoryOnly))
         {
-            if (CueReferencesBin(
-                    cue.FullName,
-                    bin.FullName))
+            bool referencesBin = CueReferencesBin(
+                cue.FullName,
+                bin.FullName,
+                out bool cueUnsupportedEncoding);
+
+            if (cueUnsupportedEncoding)
             {
-                return cue.FullName;
+                unsupportedCueEncoding = true;
+                continue;
+            }
+
+            if (referencesBin)
+            {
+                matchingCues.Add(cue.FullName);
             }
         }
 
-        return null;
+        return matchingCues;
+    }
+
+    private static bool CueContradictsProvenBinLayout(
+        string cuePath,
+        string binPath,
+        BinTrackKind provenKind)
+    {
+        string requiredTrackMode =
+            provenKind switch
+            {
+                BinTrackKind.Raw2352Mode1 => "MODE1/2352",
+                BinTrackKind.Raw2352Mode2 => "MODE2/2352",
+                _ => string.Empty
+            };
+
+        if (string.IsNullOrEmpty(requiredTrackMode))
+        {
+            return false;
+        }
+
+        string[] cueLines;
+        string cueDirectoryPath;
+        string fullBinPath;
+
+        if (!TryReadCueLinesStrict(
+                cuePath,
+                out cueLines,
+                out _))
+        {
+            return true;
+        }
+
+        try
+        {
+            string? cueDirectory =
+                Path.GetDirectoryName(cuePath);
+
+            if (string.IsNullOrWhiteSpace(cueDirectory))
+            {
+                return true;
+            }
+
+            cueDirectoryPath =
+                NormalizeFullPath(cueDirectory);
+
+            fullBinPath =
+                NormalizeFullPath(binPath);
+        }
+        catch (Exception ex) when (IsIoOrPathFailure(ex))
+        {
+            return true;
+        }
+
+        bool currentFileIsSelected = false;
+        bool sawTrackDeclaration = false;
+
+        foreach (string line in cueLines)
+        {
+            if (CueSheetFileStatementReader.IsFileStatementLine(line))
+            {
+                if (!CueSheetFileStatementReader.TryRead(
+                        line,
+                        requireFileType: true,
+                        out string referenced,
+                        out _)
+                    || !TryResolveSafeCueReference(
+                        referenced,
+                        cueDirectoryPath,
+                        out string resolved))
+                {
+                    return true;
+                }
+
+                currentFileIsSelected =
+                    PathComparer.Equals(
+                        resolved,
+                        fullBinPath);
+
+                continue;
+            }
+
+            if (!currentFileIsSelected)
+            {
+                continue;
+            }
+
+            string trimmed = line.TrimStart();
+
+            if (!trimmed.StartsWith(
+                    "TRACK",
+                    StringComparison.OrdinalIgnoreCase)
+                || (trimmed.Length > 5
+                    && !char.IsWhiteSpace(trimmed[5])))
+            {
+                continue;
+            }
+
+            sawTrackDeclaration = true;
+
+            string[] parts = trimmed.Split(
+                (char[]?)null,
+                StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length >= 3
+                && string.Equals(
+                    parts[2],
+                    requiredTrackMode,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+        }
+
+        return sawTrackDeclaration;
+    }
+
+    private static bool TryReadCueLinesStrict(
+        string cuePath,
+        out string[] cueLines,
+        out bool unsupportedEncoding)
+    {
+        cueLines = [];
+        unsupportedEncoding = false;
+
+        try
+        {
+            using FileStream stream = new(
+                cuePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read);
+            using StreamReader reader = new(
+                stream,
+                new UTF8Encoding(
+                    encoderShouldEmitUTF8Identifier: false,
+                    throwOnInvalidBytes: true),
+                detectEncodingFromByteOrderMarks: true);
+
+            string text = reader.ReadToEnd();
+
+            if (text.IndexOf('\0') >= 0)
+            {
+                unsupportedEncoding = true;
+                return false;
+            }
+
+            cueLines = text
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace('\r', '\n')
+                .Split('\n');
+            return true;
+        }
+        catch (DecoderFallbackException)
+        {
+            unsupportedEncoding = true;
+            return false;
+        }
+        catch (Exception ex) when (IsIoOrPathFailure(ex))
+        {
+            return false;
+        }
     }
 
     private static bool CueReferencesBin(
         string cuePath,
-        string binPath)
+        string binPath,
+        out bool unsupportedEncoding)
     {
+        unsupportedEncoding = false;
+
         FileInfo cueFile = new(cuePath);
 
         if (!cueFile.Exists
@@ -462,13 +702,10 @@ internal static class MultiBinDiscAssembler
             return false;
         }
 
-        string[] cueLines;
-
-        try
-        {
-            cueLines = File.ReadAllLines(cueFile.FullName);
-        }
-        catch (Exception ex) when (IsIoOrPathFailure(ex))
+        if (!TryReadCueLinesStrict(
+                cueFile.FullName,
+                out string[] cueLines,
+                out unsupportedEncoding))
         {
             return false;
         }

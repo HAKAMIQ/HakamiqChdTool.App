@@ -5,7 +5,7 @@ using System.Windows;
 
 namespace HakamiqChdTool.App.Ui.Shell;
 
-public sealed class ClipboardService : IClipboardService, IRedumpDetailsTextCopyService
+public sealed class ClipboardService : IRedumpDetailsTextCopyService
 {
     public bool TrySetText(string text)
     {

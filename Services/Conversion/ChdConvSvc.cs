@@ -156,10 +156,9 @@ public sealed class ChdConversionService
 
         command = requestedProfileSelection.Command;
 
-        string logsDirectory = _commandPreparation.BuildLogsDirectory();
-        string logPath = Path.Combine(
-            logsDirectory,
-            $"convert_{DateTime.Now:yyyyMMdd_HHmmss}_{_commandPreparation.SanitizeFileName(Path.GetFileNameWithoutExtension(resolvedInputPath))}.log");
+        string logPath = ChdOperationLog.TryBuildPath(
+            $"convert_{DateTime.Now:yyyyMMdd_HHmmss}_{_commandPreparation.SanitizeFileName(Path.GetFileNameWithoutExtension(resolvedInputPath))}.log",
+            _commandPreparation.BuildLogsDirectory);
 
         if (isoDiagnostics.HasValue)
         {

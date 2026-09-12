@@ -726,7 +726,11 @@ internal static class ChdConversionServiceSupport
         AppendProcessText(logBuilder, "STDOUT", output);
         AppendProcessText(logBuilder, "STDERR", error);
 
-        await File.WriteAllTextAsync(logPath, logBuilder.ToString(), CancellationToken.None).ConfigureAwait(false);
+        _ = await ChdOperationLog.TryWriteAsync(
+                logPath,
+                logBuilder.ToString(),
+                "conversion")
+            .ConfigureAwait(false);
     }
 
     private static void AppendProcessText(StringBuilder logBuilder, string title, string text)
