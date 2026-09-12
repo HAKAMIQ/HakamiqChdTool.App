@@ -10,14 +10,20 @@ verification.
 
 ## Download
 
-Latest release:
+[Download the latest release](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/latest)
 
-https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/latest
+**Recommended — Self-contained Windows x64**
 
-Windows x64 runtime-required package:
+- `HakamiqChdTool-vX.Y.Z-win-x64-self-contained.zip`
+- Includes the required .NET 10 runtime.
+- No separate .NET installation is required.
+
+**Smaller download — Runtime-required Windows x64**
 
 - `HakamiqChdTool-vX.Y.Z-win-x64-runtime-required.zip`
-- Requires .NET 10 Desktop Runtime x64.
+- Requires Microsoft .NET 10 Desktop Runtime x64.
+
+SHA-256 sidecar files are provided with release packages.
 
 ## Quick start
 
@@ -28,8 +34,8 @@ Windows x64 runtime-required package:
 5. Choose the output folder.
 6. Start the queue.
 
-For the first run, processing a single disc image makes the resulting output
-easier to verify before starting a larger batch.
+For the first run, process a single disc image so the result is easy to verify
+before starting a larger batch.
 
 ## Supported workflows
 
@@ -40,10 +46,10 @@ Hakamiq CHD Tool supports common disc-image workflows including:
 - GDI
 - CSO
 - CHD
-- supported archive inputs
+- ZIP, RAR, and 7Z archive inputs
 
-Support depends on the media type and selected operation. Input detection does
-not imply that every conversion or extraction path is valid.
+Support depends on the media type and selected operation. Detecting an input
+type does not imply that every conversion or extraction path is valid.
 
 The application validates the selected workflow before external processing
 begins.
@@ -79,7 +85,9 @@ Supported extraction depends on the CHD media type:
 ## Security
 
 Dependency versions are locked and bundled external-tool hashes are pinned.
-Release output includes a CycloneDX 1.7 SBOM.
+
+Release output includes a CycloneDX 1.7 SBOM, SHA-256 package hashes, and
+GitHub build provenance attestations.
 
 See `SECURITY.md` for vulnerability reporting.
 
