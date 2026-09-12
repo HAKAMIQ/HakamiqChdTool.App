@@ -53,10 +53,20 @@ public sealed class RedumpGitHubSyncManager : IDisposable
     {
         var handler = new HttpClientHandler
         {
-            AllowAutoRedirect = false
+            AllowAutoRedirect = false,
+            CheckCertificateRevocationList = true
         };
 
-        _httpClient = new HttpClient(handler, disposeHandler: true);
+        try
+        {
+            _httpClient = new HttpClient(handler, disposeHandler: true);
+        }
+        catch
+        {
+            handler.Dispose();
+            throw;
+        }
+
         if (timeout.HasValue)
         {
             _httpClient.Timeout = timeout.Value;

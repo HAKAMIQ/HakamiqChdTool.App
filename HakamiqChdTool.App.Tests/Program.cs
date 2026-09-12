@@ -22,6 +22,15 @@ internal static partial class Program
 
     private static int Main(string[] args)
     {
+        // When this executable is copied next to a CsoKit stub descriptor it acts as a
+        // fake CsoKit instead of the test runner. The descriptor only exists inside a
+        // throw-away test workspace, so the real test output directory is unaffected.
+        string csoKitStubDescriptor = Path.Combine(AppContext.BaseDirectory, CsoKitStubDescriptorName);
+        if (File.Exists(csoKitStubDescriptor))
+        {
+            return RunCsoKitStubFixture(csoKitStubDescriptor, args);
+        }
+
         string appAssemblyPath = ReadRequiredArgument(args, "--app-assembly");
         if (!File.Exists(appAssemblyPath))
         {
@@ -74,6 +83,18 @@ internal static partial class Program
                 new("CUE/BIN finalization rolls back a partial overwrite", () => TestCueBinOverwriteRollsBackPartialPromotion(app, workDirectory)),
                 new("Failed CUE/BIN cleanup deletes the validated bundle", () => TestFailedCueBinCleanupDeletesBundle(app, workDirectory)),
                 new("Failed CUE/BIN cleanup rejects unsafe references", () => TestFailedCueBinCleanupRejectsUnsafeReference(app, workDirectory)),
+                new("Adjacent CUE contradicting proven MODE1/2352 is refused", () => TestAdjacentCueContradictingMode1IsRefused(app, workDirectory)),
+                new("Adjacent CUE matching proven MODE1/2352 is used", () => TestAdjacentCueMatchingMode1IsUsed(app, workDirectory)),
+                new("Adjacent mixed-mode CUE preserves matching MODE1/2352 evidence", () => TestAdjacentMixedModeCueIsUsed(app, workDirectory)),
+                new("Multiple non-same-base CUEs referencing one BIN are refused", () => TestMultipleFallbackAdjacentCuesAreRefused(app, workDirectory)),
+                new("Single non-same-base CUE referencing BIN is used", () => TestSingleFallbackAdjacentCueIsUsed(app, workDirectory)),
+                new("Same-base CUE keeps precedence over fallback CUE", () => TestSameBaseAdjacentCueKeepsPrecedence(app, workDirectory)),
+                new("Non-matching CUE does not create adjacent ambiguity", () => TestNonMatchingCueDoesNotCreateAdjacentAmbiguity(app, workDirectory)),
+                new("Legacy-encoded fallback CUE cannot be ignored for rescue inference", () => TestLegacyEncodedFallbackCueDoesNotFallThroughToInference(app, workDirectory)),
+                new("Legacy-encoded same-base CUE cannot be ignored for rescue inference", () => TestLegacyEncodedSameBaseCueDoesNotFallThroughToInference(app, workDirectory)),
+                new("UTF-8 non-ASCII adjacent CUE remains usable", () => TestUtf8NonAsciiAdjacentCueIsUsed(app, workDirectory)),
+                new("Standalone BIN without adjacent CUE still allows rescue inference", () => TestNoAdjacentCueStillAllowsInference(app, workDirectory)),
+                new("Multi-track BIN rescue without CUE timing evidence is refused", () => TestMultiTrackBinRescueWithoutCueTimingEvidenceIsRefused(app, workDirectory)),
                 new("CHD info parser captures combined and data SHA1", () => TestChdInfoSha1Parsing(app)),
                 new("Extracted single-file proof compares the output data SHA1", () => TestExtractedSingleFileProof(app, workDirectory)),
                 new("Verified extraction source cleanup requires output proof", () => TestExtractionSourceCleanupRequiresOutputProof(app)),
@@ -103,7 +124,9 @@ internal static partial class Program
                 new("Redump commands honor the enabled state", TestRedumpCommandsHonorEnabledState),
                 new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
                 new("Bundled CsoKit 0.6.1 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
-                new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app))
+                new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app)),
+                new("CSO preparation rejects a decompressed ISO shorter than the declared size", () => TestCsoPreparationRejectsShortDecompressedIso(app, workDirectory)),
+                new("CSO preparation accepts a decompressed ISO matching the declared size", () => TestCsoPreparationAcceptsExactDecompressedIso(app, workDirectory))
             ];
 
             int passed = 0;
@@ -548,6 +571,565 @@ internal static partial class Program
             string.Empty,
             app.ParseChdInfoSha1Digest("Data SHA1: not-a-digest", "Data SHA1"),
             "Malformed CHD data SHA1 must fail closed.");
+    }
+
+    private static void TestAdjacentCueContradictingMode1IsRefused(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-mode1-contradiction");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string cuePath = Path.Combine(root, "disc.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 AUDIO\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "A CUE that declares the selected raw MODE1/2352 BIN as AUDIO must fail closed.");
+    }
+
+    private static void TestAdjacentCueMatchingMode1IsUsed(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-mode1-match");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string cuePath = Path.Combine(root, "disc.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A CUE whose MODE1/2352 declaration matches positive sector evidence must remain usable.");
+        AssertEqual(
+            Path.GetFullPath(cuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The compatible adjacent CUE path changed unexpectedly.");
+    }
+
+    private static void TestAdjacentMixedModeCueIsUsed(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-mode1-mixed");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string cuePath = Path.Combine(root, "disc.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"disc.bin\" BINARY\r\n"
+                + "  TRACK 01 MODE1/2352\r\n"
+                + "    INDEX 01 00:00:00\r\n"
+                + "  TRACK 02 AUDIO\r\n"
+                + "    INDEX 01 10:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A mixed-mode CUE must not be rejected when it contains a MODE1/2352 declaration matching the selected BIN.");
+    }
+
+    private static void TestMultipleFallbackAdjacentCuesAreRefused(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-ambiguity");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            Path.Combine(root, "layout-a.cue"),
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+        File.WriteAllText(
+            Path.Combine(root, "layout-b.cue"),
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    PREGAP 00:02:00\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "Multiple non-same-base CUE descriptors for one BIN must fail closed instead of depending on filesystem enumeration order.");
+    }
+
+    private static void TestSingleFallbackAdjacentCueIsUsed(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-single-fallback");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string cuePath = Path.Combine(root, "layout-a.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A single compatible non-same-base CUE must remain usable.");
+        AssertEqual(
+            Path.GetFullPath(cuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The single compatible fallback CUE path changed unexpectedly.");
+    }
+
+    private static void TestSameBaseAdjacentCueKeepsPrecedence(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-same-base-precedence");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string sameBaseCuePath = Path.Combine(root, "disc.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            sameBaseCuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+        File.WriteAllText(
+            Path.Combine(root, "layout-a.cue"),
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    PREGAP 00:02:00\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "An existing compatible same-base CUE must retain precedence over fallback descriptors.");
+        AssertEqual(
+            Path.GetFullPath(sameBaseCuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The same-base CUE precedence rule changed unexpectedly.");
+    }
+
+    private static void TestNonMatchingCueDoesNotCreateAdjacentAmbiguity(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-ignore-nonmatching");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string otherBinPath = Path.Combine(root, "other.bin");
+        string matchingCuePath = Path.Combine(root, "layout-b.cue");
+
+        WriteRawMode1Bin(binPath);
+        WriteRawMode1Bin(otherBinPath);
+        File.WriteAllText(
+            Path.Combine(root, "layout-a.cue"),
+            "FILE \"other.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+        File.WriteAllText(
+            matchingCuePath,
+            "FILE \"disc.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            Encoding.ASCII);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A CUE that does not reference the selected BIN must not count toward adjacent-CUE ambiguity.");
+        AssertEqual(
+            Path.GetFullPath(matchingCuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The matching fallback CUE path changed unexpectedly.");
+    }
+
+    private static void TestLegacyEncodedFallbackCueDoesNotFallThroughToInference(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-legacy-fallback");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "Pokémon.bin");
+        string cuePath = Path.Combine(root, "layout.cue");
+
+        WriteRawMode1Bin(binPath);
+        WriteWindows1252PokemonCue(cuePath);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "An adjacent CUE whose byte stream is not valid UTF-8 must not be silently ignored so rescue inference can replace its layout semantics.");
+    }
+
+    private static void TestLegacyEncodedSameBaseCueDoesNotFallThroughToInference(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-legacy-same-base");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "Pokémon.bin");
+        string cuePath = Path.Combine(root, "Pokémon.cue");
+
+        WriteRawMode1Bin(binPath);
+        WriteWindows1252PokemonCue(cuePath);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "An undecodable same-base CUE must fail closed instead of being treated as absent.");
+    }
+
+    private static void TestUtf8NonAsciiAdjacentCueIsUsed(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-utf8-nonascii");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "Pokémon.bin");
+        string cuePath = Path.Combine(root, "layout.cue");
+
+        WriteRawMode1Bin(binPath);
+        File.WriteAllText(
+            cuePath,
+            "FILE \"Pokémon.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n",
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            Path.Combine(root, "generated.cue"));
+
+        AssertEqual(
+            "UseAdjacentCue",
+            GetEnumName(plan, "Decision"),
+            "A valid UTF-8 CUE with a non-ASCII BIN filename must remain usable.");
+        AssertEqual(
+            Path.GetFullPath(cuePath),
+            Path.GetFullPath(GetString(plan, "AdjacentCuePath")),
+            "The UTF-8 adjacent CUE path changed unexpectedly.");
+    }
+
+    private static void TestNoAdjacentCueStillAllowsInference(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "adjacent-cue-no-descriptor");
+        Directory.CreateDirectory(root);
+
+        string binPath = Path.Combine(root, "disc.bin");
+        string generatedCuePath = Path.Combine(root, "generated.cue");
+
+        WriteRawMode1Bin(binPath);
+
+        object plan = app.AssembleBinCueForBin(
+            binPath,
+            generatedCuePath);
+
+        AssertEqual(
+            "GenerateTempCue",
+            GetEnumName(plan, "Decision"),
+            "A standalone raw MODE1/2352 BIN with no adjacent descriptor must retain the existing rescue-inference path.");
+    }
+
+    private static void TestMultiTrackBinRescueWithoutCueTimingEvidenceIsRefused(
+        AppReflection app,
+        string workDirectory)
+    {
+        string root = Path.Combine(
+            workDirectory,
+            "multi-bin-cue-timing-evidence");
+        Directory.CreateDirectory(root);
+
+        string track1Path = Path.Combine(
+            root,
+            "disc (Track 1).bin");
+        string track2Path = Path.Combine(
+            root,
+            "disc (Track 2).bin");
+        string generatedCuePath = Path.Combine(
+            root,
+            "generated.cue");
+
+        WriteRawMode1Bin(track1Path);
+        WriteRawAudioCandidateBin(track2Path);
+
+        object plan = app.AssembleBinCueForBin(
+            track1Path,
+            generatedCuePath);
+
+        object? tracksValue = plan
+            .GetType()
+            .GetProperty("OrderedTracks")
+            ?.GetValue(plan);
+
+        if (tracksValue is not System.Collections.IEnumerable tracks)
+        {
+            throw new InvalidOperationException(
+                "BIN/CUE rescue plan did not expose its ordered track collection.");
+        }
+
+        int trackCount = 0;
+
+        foreach (object? _ in tracks)
+        {
+            trackCount++;
+        }
+
+        AssertEqual(
+            2,
+            trackCount,
+            "The fixture must exercise the multi-track rescue path.");
+
+        AssertEqual(
+            "Refuse",
+            GetEnumName(plan, "Decision"),
+            "Multiple BIN tracks without an authoritative CUE do not contain enough evidence to reconstruct INDEX 00/01, PREGAP, POSTGAP, or equivalent track-boundary semantics.");
+    }
+
+    private static void WriteRawAudioCandidateBin(string path)
+    {
+        const int RawSectorSize = 2352;
+        const int SectorCount = 32;
+
+        // 2352-byte sectors with no CD-ROM sync pattern satisfy the
+        // existing Raw2352AudioCandidate heuristic deterministically.
+        File.WriteAllBytes(
+            path,
+            new byte[RawSectorSize * SectorCount]);
+    }
+
+    private static void WriteWindows1252PokemonCue(string path)
+    {
+        byte[] prefix = Encoding.ASCII.GetBytes("FILE \"Pok");
+        byte[] suffix = Encoding.ASCII.GetBytes("mon.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n    INDEX 01 00:00:00\r\n");
+        byte[] bytes = new byte[prefix.Length + 1 + suffix.Length];
+
+        Buffer.BlockCopy(prefix, 0, bytes, 0, prefix.Length);
+        bytes[prefix.Length] = 0xE9;
+        Buffer.BlockCopy(suffix, 0, bytes, prefix.Length + 1, suffix.Length);
+
+        File.WriteAllBytes(path, bytes);
+    }
+
+    private static void WriteRawMode1Bin(string path)
+    {
+        const int RawSectorSize = 2352;
+        const int SectorCount = 32;
+        const int ModeByteOffset = 15;
+
+        byte[] image = new byte[RawSectorSize * SectorCount];
+        byte[] syncPattern =
+        [
+            0x00,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0xFF,
+            0x00
+        ];
+
+        for (int sectorIndex = 0; sectorIndex < SectorCount; sectorIndex++)
+        {
+            int offset = sectorIndex * RawSectorSize;
+            Buffer.BlockCopy(syncPattern, 0, image, offset, syncPattern.Length);
+            image[offset + ModeByteOffset] = 0x01;
+        }
+
+        File.WriteAllBytes(path, image);
+    }
+
+    private const string CsoKitStubDescriptorName = "csokit-stub.txt";
+
+    /// <summary>
+    /// Minimal CsoKit stand-in. Line 1 of the descriptor is the uncompressed size reported by
+    /// "info"; line 2 is the number of bytes "decompress" actually writes. Reporting one size and
+    /// producing another is the condition the preparation guard has to reject.
+    /// </summary>
+    private static int RunCsoKitStubFixture(string descriptorPath, string[] args)
+    {
+        string[] descriptor = File.ReadAllLines(descriptorPath);
+        long declaredSize = long.Parse(descriptor[0], System.Globalization.CultureInfo.InvariantCulture);
+        long producedSize = long.Parse(descriptor[1], System.Globalization.CultureInfo.InvariantCulture);
+
+        string command = args.Length > 0 ? args[0] : string.Empty;
+
+        if (string.Equals(command, "--version", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("CsoKit 0.6.1+abcdef01");
+            return 0;
+        }
+
+        if (string.Equals(command, "info", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine(
+                "{\"success\":true,\"header\":{\"version\":1,\"uncompressedSize\":"
+                + declaredSize.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                + "}}");
+            return 0;
+        }
+
+        if (string.Equals(command, "verify", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("{\"success\":true}");
+            return 0;
+        }
+
+        if (string.Equals(command, "decompress", StringComparison.OrdinalIgnoreCase))
+        {
+            string outputPath = ReadRequiredArgument(args, "-o");
+            using (var stream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                stream.SetLength(producedSize);
+            }
+
+            Console.WriteLine(
+                "{\"success\":true,\"bytesWritten\":"
+                + producedSize.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                + "}");
+            return 0;
+        }
+
+        Console.Error.WriteLine("csokit stub received an unsupported command: " + command);
+        return 1;
+    }
+
+    /// <summary>
+    /// Copies the test host beside a CsoKit stub descriptor and returns the stub executable path.
+    /// The copy keeps every runtime file so the host starts exactly as it does in its own folder.
+    /// </summary>
+    private static string CreateCsoKitStub(string stubDirectory, long declaredSize, long producedSize)
+    {
+        Directory.CreateDirectory(stubDirectory);
+
+        foreach (string source in Directory.EnumerateFiles(AppContext.BaseDirectory, "*", SearchOption.TopDirectoryOnly))
+        {
+            File.Copy(source, Path.Combine(stubDirectory, Path.GetFileName(source)), overwrite: true);
+        }
+
+        string stubExecutable = Path.Combine(stubDirectory, "csokit.exe");
+        File.Copy(
+            Path.Combine(AppContext.BaseDirectory, "HakamiqChdTool.App.Tests.exe"),
+            stubExecutable,
+            overwrite: true);
+
+        // The locator requires a non-empty native library beside a non-bundled csokit.exe.
+        File.Copy(
+            Path.Combine(AppContext.BaseDirectory, "Tools", "hakamiq-cso", "win-x64", "CsoKit.Native.dll"),
+            Path.Combine(stubDirectory, "CsoKit.Native.dll"),
+            overwrite: true);
+
+        File.WriteAllLines(
+            Path.Combine(stubDirectory, CsoKitStubDescriptorName),
+            [
+                declaredSize.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                producedSize.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            ]);
+
+        return stubExecutable;
+    }
+
+    private static void TestCsoPreparationRejectsShortDecompressedIso(AppReflection app, string workDirectory)
+    {
+        const long DeclaredSize = 262_144;
+        const long ProducedSize = DeclaredSize - 2048;
+
+        string root = Path.Combine(workDirectory, "cso-short-output");
+        Directory.CreateDirectory(root);
+
+        string stubExecutable = CreateCsoKitStub(Path.Combine(root, "tool"), DeclaredSize, ProducedSize);
+
+        string inputCsoPath = Path.Combine(root, "sample.cso");
+        File.WriteAllBytes(inputCsoPath, new byte[4096]);
+
+        using IDisposable workspace = app.CreateCsoTempWorkspace(out string preparedIsoPath);
+        object preparation = app.PreprocessCsoWithTool(stubExecutable, inputCsoPath, preparedIsoPath);
+
+        AssertFalse(
+            GetBool(preparation, "IsSuccess"),
+            "CSO preparation accepted an ISO of "
+                + ProducedSize
+                + " bytes while the CSO header declared "
+                + DeclaredSize
+                + " bytes. A short ISO must never reach chdman.");
+
+        AssertFalse(
+            File.Exists(preparedIsoPath),
+            "CSO preparation must delete the temporary ISO when the produced size does not match the declared size.");
+
+        AssertTrue(
+            File.Exists(inputCsoPath),
+            "CSO preparation must never delete the source CSO.");
+    }
+
+    private static void TestCsoPreparationAcceptsExactDecompressedIso(AppReflection app, string workDirectory)
+    {
+        const long DeclaredSize = 262_144;
+
+        string root = Path.Combine(workDirectory, "cso-exact-output");
+        Directory.CreateDirectory(root);
+
+        string stubExecutable = CreateCsoKitStub(Path.Combine(root, "tool"), DeclaredSize, DeclaredSize);
+
+        string inputCsoPath = Path.Combine(root, "sample.cso");
+        File.WriteAllBytes(inputCsoPath, new byte[4096]);
+
+        using IDisposable workspace = app.CreateCsoTempWorkspace(out string preparedIsoPath);
+        object preparation = app.PreprocessCsoWithTool(stubExecutable, inputCsoPath, preparedIsoPath);
+
+        AssertTrue(
+            GetBool(preparation, "IsSuccess"),
+            "CSO preparation must still succeed when the produced ISO matches the declared size. MessageKey="
+                + GetString(preparation, "MessageKey")
+                + "; StandardError="
+                + GetString(preparation, "StandardError"));
+
+        AssertTrue(
+            File.Exists(preparedIsoPath),
+            "A successful CSO preparation must leave the temporary ISO in place.");
+
+        AssertEqual(
+            DeclaredSize,
+            new FileInfo(preparedIsoPath).Length,
+            "The prepared ISO must be exactly the declared uncompressed size.");
     }
 
     private static void TestExtractedSingleFileProof(AppReflection app, string workDirectory)
@@ -1766,6 +2348,7 @@ internal static partial class Program
         private readonly MethodInfo cueNormalizeConstrained;
         private readonly MethodInfo finalizeExtractedCueBinOutput;
         private readonly MethodInfo parseChdInfoSha1Digest;
+        private readonly MethodInfo assembleBinCueForBin;
         private readonly Type chdInfoResultType;
         private readonly Type extractionOutputBundleType;
         private readonly Type extractionOutputKindType;
@@ -1835,6 +2418,7 @@ internal static partial class Program
             Type workflowSourceCleanupPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowSourceCleanupPipeline");
             Type workflowExecutionResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.WorkflowExecutionResult");
             Type chdInfoServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdInfoService");
+            Type multiBinDiscAssemblerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.BinCueRescue.MultiBinDiscAssembler");
             chdInfoResultType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.Chd.ChdInfoResult");
             extractionOutputBundleType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputBundle");
             extractionOutputKindType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Workflow.Extraction.ExtractionOutputKind");
@@ -1880,6 +2464,10 @@ internal static partial class Program
             cueNormalizeConstrained = GetRequiredMethod(safePathType, "TryNormalizeCuePrimaryBinReference", [typeof(string), typeof(bool), typeof(string).MakeByRefType()]);
             finalizeExtractedCueBinOutput = GetRequiredMethod(safePathType, "TryFinalizeExtractedCueBinOutput", [typeof(string), typeof(string), typeof(string).MakeByRefType()]);
             parseChdInfoSha1Digest = GetRequiredMethod(chdInfoServiceType, "TryParseSha1Digest", [typeof(string), typeof(string)]);
+            assembleBinCueForBin = GetRequiredMethod(
+                multiBinDiscAssemblerType,
+                "AssembleForBin",
+                [typeof(string), typeof(string)]);
             extractionOutputBundleConstructor = GetRequiredConstructor(
                 extractionOutputBundleType,
                 [extractionOutputKindType, typeof(string), typeof(IReadOnlyList<string>), typeof(long)]);
@@ -2001,6 +2589,10 @@ internal static partial class Program
 
         public object? BuildAdvisory(string path, string? detectedPlatform) =>
             advisoryBuild.Invoke(null, [path, detectedPlatform]);
+
+        public object AssembleBinCueForBin(string binPath, string? leaderCueWriteTarget) =>
+            assembleBinCueForBin.Invoke(null, [binPath, leaderCueWriteTarget])
+            ?? throw new InvalidOperationException("BIN/CUE assembler returned null.");
 
         public bool TryNormalizeCuePrimaryBinReference(string cuePath, out string failureMessageKey)
         {
@@ -2407,10 +2999,13 @@ internal static partial class Program
             return (IDisposable)workspace;
         }
 
-        public object PreprocessCso(string inputCsoPath, string preparedIsoPath)
+        public object PreprocessCso(string inputCsoPath, string preparedIsoPath) =>
+            PreprocessCsoWithTool(BundledCsoKitPath, inputCsoPath, preparedIsoPath);
+
+        public object PreprocessCsoWithTool(string toolPath, string inputCsoPath, string preparedIsoPath)
         {
             object runner = externalToolProcessRunnerConstructor.Invoke(null);
-            object probe = csoToolProbePathConstructor.Invoke([BundledCsoKitPath]);
+            object probe = csoToolProbePathConstructor.Invoke([toolPath]);
             object preprocessor = csoPreprocessorConstructor.Invoke([probe, runner]);
             object task = preprocessCsoAsync.Invoke(
                 preprocessor,

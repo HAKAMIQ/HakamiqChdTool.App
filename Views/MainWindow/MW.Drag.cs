@@ -141,11 +141,6 @@ public partial class MainWindow
         return QueueExecutionProfile.Standard;
     }
 
-    private bool IsSelectedScanModeFromUi()
-    {
-        return false;
-    }
-
     private string GetSelectedInputDialogTitleFromUi(QueueExecutionProfile profile)
     {
         return profile switch

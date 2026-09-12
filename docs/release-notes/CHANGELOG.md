@@ -4,6 +4,29 @@ This file tracks source release notes.
 
 GitHub Releases remain the public download history.
 
+## v1.4.0 - 2026-09-12
+
+### Reliability and data safety
+
+- Hardened CUE/BIN rescue so contradictory adjacent CUE layouts fail closed.
+- Refused ambiguous adjacent CUE layouts instead of selecting one by enumeration order.
+- Prevented unsupported legacy CUE encodings from being silently ignored during rescue inference.
+- Refused multi-track BIN rescue when INDEX/PREGAP timing evidence is unavailable.
+- Added CSO decompression size validation against the declared uncompressed size.
+
+### Runtime and maintenance
+
+- Hardened CHD operation lifecycle, cleanup, verification, and diagnostic logging.
+- Removed obsolete and unreachable source components and unused abstractions.
+- Cleaned architecture documentation and release verification residue.
+
+### Validation
+
+- Application regression tests passed: 62/62.
+- Debug and Release builds passed.
+- Repository convention verification passed.
+
+
 ## v1.2.1 - 2026-08-02
 
 ### Changed

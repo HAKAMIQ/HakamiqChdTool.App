@@ -17,8 +17,6 @@ public interface IQueueRunUiPort
 
     QueueExecutionProfile GetSelectedInputExecutionProfile();
 
-    bool IsSelectedScanMode();
-
     string GetSelectedInputDialogTitle(QueueExecutionProfile profile);
 
     string GetSelectedInputDialogFilter(QueueExecutionProfile profile);
