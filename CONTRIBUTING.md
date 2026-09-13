@@ -1,87 +1,57 @@
 # Contributing
 
-Hakamiq CHD Tool is a Windows x64 WPF app built with C# and .NET 10.
+Hakamiq CHD Tool is a Windows x64 WPF application built with C# and .NET 10.
 
-Keep changes small. A one-line path change can affect conversion, extraction, queue state, release output, or cleanup.
+Keep changes focused and small. Changes to paths, queue behavior, conversion, extraction, verification, or cleanup can affect multiple workflows.
 
 ## Requirements
 
 - Windows
 - PowerShell 5.1 or later
-- .NET SDK version from `global.json`
+- .NET SDK version defined by `global.json`
 - Git
-- GitHub CLI if you work on releases or CI checks
+- GitHub CLI when working with CI or release workflows
 
 ## Build
 
-Use Debug while editing:
+Use Debug while developing:
 
 ```powershell
 dotnet restore .\HakamiqChdTool.App.csproj
 dotnet build .\HakamiqChdTool.App.csproj -c Debug --no-restore
 ```
 
-Do not publish from Debug output.
+Do not treat Debug output as an end-user release.
 
 ## Local verification
 
-Run this before trusting a change:
+Before submitting a change, run:
 
 ```powershell
 PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify-Local.ps1
 ```
 
-This checks repository conventions, package cleanliness, Debug build, Release build, and the validation test set. It also prints the manual smoke checklist.
+This performs the normal local repository, build, and validation checks.
 
-## Validation tests
-
-The app has a lightweight validation test project:
+For the validation test set directly:
 
 ```powershell
 PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Ps2AdvTests.ps1
 ```
 
-These tests cover PS2 advisory behavior, CUE/BIN safety, output path contracts, and workflow planning. If you add tests and the count does not change, clean the test `bin` and `obj` folders and rebuild.
+## Release-facing changes
 
-## Release output gate
-
-Before uploading a public ZIP, run:
+Changes that affect publishing, packaging, bundled tools, or release output should also pass:
 
 ```powershell
 PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\RelOutGate.ps1
 ```
 
-This publishes a disposable release output, verifies the end-user package, checks package cleanliness, then removes the disposable folder. Good release scripts should leave the repo clean.
-
-## Creating an end-user release folder
-
-Use the release script, not `bin` or a hand-made folder:
-
-```powershell
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\RelOutGate.ps1 -Output .\Release\vX.Y.Z -KeepOutput
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\PackRel.ps1 -ReleaseOutput .\Release\vX.Y.Z -PackageDirectory .\Release\packages -PackageName HakamiqChdTool-vX.Y.Z-win-x64-runtime-required.zip
-```
-
-Upload the ZIP and `.sha256` from `Release\packages`. Do not include source, scripts, test output, or build folders in the release asset.
-
-## Manual smoke test
-
-After a Release build, launch the app and check:
-
-- Main window opens.
-- Options window opens.
-- About window opens.
-- Light and Dark themes load.
-- Arabic/English switching works after restart.
-- A small file can be added.
-- Verify and Extract paths still show clear results.
-- No XAML parse errors or resource lookup failures appear.
-
-Use `docs/SMOKE.md` when preparing a public release.
+Do not manually assemble public releases from `bin`, `obj`, or arbitrary project folders.
 
 ## Before commit
 
-Run:
+Check the working tree and patch quality:
 
 ```powershell
 git status --short
@@ -89,45 +59,61 @@ git diff --check
 PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Verify-Local.ps1
 ```
 
-For release-facing changes, also run:
-
-```powershell
-PowerShell -NoProfile -ExecutionPolicy Bypass -File .\scripts\RelOutGate.ps1
-```
-
-Keep commits focused. Do not mix documentation rewrite, behavior change, and release packaging in one commit.
+Keep commits focused. Avoid mixing unrelated documentation, behavior, architecture, and release changes.
 
 ## Architecture rules
 
-Do not add features just because an external reference mentions them.
+Do not change queue, cancel, retry, or conversion-default behavior as part of unrelated cleanup.
 
-Do not add top-level media input kinds for internal PSX/PS2 asset files such as `SYSTEM.CNF`, TIM, STR, VAG, MCR, MCD, GME, or PPF. Specialized scanners may inspect those files inside supported disc images, but they are not user-facing source formats.
+`Core/Workflow` is currently an application workflow layer, not a pure domain core.
 
-Do not change queue behavior, cancel behavior, retry behavior, or conversion defaults without a dedicated stage and tests.
+Do not add top-level media types for internal disc assets such as:
 
-`Core/Workflow` is currently treated as an application workflow layer, not pure domain core. See `docs/architecture/ARCH_BOUND.md`.
+- `SYSTEM.CNF`
+- TIM
+- STR
+- VAG
+- MCR
+- MCD
+- GME
+- PPF
+
+Specialized scanners may inspect such files inside supported disc images, but they are not user-facing source formats.
+
+See `docs/architecture/ARCH_BOUND.md` for current architecture boundaries.
 
 ## GitHub Actions
 
-Main branch pushes run CI.
+CI runs on changes to the main development path.
+
+If CI fails, resolve the failure before preparing a release.
+
+You can inspect recent runs with:
 
 ```powershell
 gh run list --branch main --limit 5
 ```
 
-If CI fails, fix it before making a release.
-
 ## Screenshots and examples
 
-Use neutral examples:
+Use neutral example paths such as:
 
 - `D:\CHDWork\Sample.iso`
 - `D:\CHDOut\Sample.chd`
 
-Do not show private paths, desktop clutter, copyrighted media names, or real game dumps.
+Do not include private paths, personal information, copyrighted media names, or real game dumps.
 
 ## Files not allowed
 
-Do not add games, ROMs, BIOS files, ISO files, CHD files, Redump files, keys, firmware, private logs, or copyrighted screenshots.
+Do not add:
 
-If a release includes third-party tools, keep the matching license and notice files with the package.
+- Games or ROMs
+- BIOS files
+- Disc images
+- CHD files containing copyrighted content
+- Redump data files
+- Keys or firmware
+- Private logs
+- Copyrighted screenshots
+
+Third-party tools included with the project must keep their required license and notice files.
