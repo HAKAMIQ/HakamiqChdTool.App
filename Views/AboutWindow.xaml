@@ -367,7 +367,7 @@
                                                TextAlignment="Center"
                                                Foreground="{DynamicResource Brush.Accent.Text}"
                                                Style="{StaticResource Text.Caption}"
-                                               d:Text="v1.3.0" />
+                                               d:Text="vX.Y.Z" />
                                 </Border>
                             </Grid>
 
