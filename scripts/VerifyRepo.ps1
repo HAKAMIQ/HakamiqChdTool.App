@@ -2103,7 +2103,7 @@ function Test-CoreServicesDependencyReduction {
         )
 
     if ($coreServiceReferences.Count -gt 30) {
-        Add-Failure "Core -> Services dependency count is too high after v1.0.5 P4 refactor: $($coreServiceReferences.Count)."
+        Add-Failure "Core -> Services dependency count is too high after dependency-reduction refactor: $($coreServiceReferences.Count)."
     }
 
     foreach ($relativePath in @(
@@ -2134,7 +2134,7 @@ function Test-CoreServicesDependencyReduction {
             Join-Path $root $requiredPath
 
         if (-not (Test-Path -LiteralPath $candidate -PathType Leaf)) {
-            Add-Failure "Expected v1.0.5 P4 refactor file is missing: $requiredPath"
+            Add-Failure "Expected dependency-reduction refactor file is missing: $requiredPath"
         }
     }
 }
