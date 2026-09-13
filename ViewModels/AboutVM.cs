@@ -116,7 +116,7 @@ public sealed partial class AboutWindowViewModel : ObservableObject
         normalizedVersion = NormalizeVersionLabel(fallbackVersionLabel);
 
         return string.IsNullOrWhiteSpace(normalizedVersion)
-            ? "v1.0.0"
+            ? "?"
             : normalizedVersion;
     }
 
