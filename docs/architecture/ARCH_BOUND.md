@@ -1,6 +1,6 @@
 # Architecture boundaries
 
-This document records the current architecture decision for Hakamiq CHD Tool.
+This document records the current architecture decision for CHD Tool.
 It is a development guide. It does not change app behavior.
 
 ## Current decision

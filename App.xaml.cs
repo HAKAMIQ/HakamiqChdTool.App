@@ -59,7 +59,7 @@ public partial class App : WpfApplication
 
         if (!TryAcquireSingleInstanceMutex())
         {
-            Log.Information("Another Hakamiq CHD Tool instance is already running. Exiting duplicate instance.");
+            Log.Information("Another CHD Tool instance is already running. Exiting duplicate instance.");
             AppLogger.Shutdown();
             Shutdown(0);
             return;
