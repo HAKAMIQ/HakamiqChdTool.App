@@ -9,7 +9,7 @@ namespace HakamiqChdTool.App.Services;
 
 public static class AboutInfoFactory
 {
-    private const string ProductFallback = "Hakamiq CHD Tool";
+    private const string ProductFallback = "CHD Tool";
 
     public static AboutInfo Create(AppMetadata metadata)
     {

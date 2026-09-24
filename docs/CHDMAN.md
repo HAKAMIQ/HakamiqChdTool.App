@@ -1,6 +1,6 @@
 # chdman integration
 
-Hakamiq CHD Tool uses chdman for CHD work.
+CHD Tool uses chdman for CHD work.
 
 The app is not a CHD encoder. It prepares the command, checks the surrounding files, runs chdman, reads progress, and turns the result into something useful on screen.
 
@@ -13,7 +13,7 @@ chdman handles the CHD format itself:
 - extract supported CHD files
 - report tool-level errors and progress where available
 
-Hakamiq CHD Tool handles the user workflow around that.
+CHD Tool handles the user workflow around that.
 
 ## What the app checks first
 

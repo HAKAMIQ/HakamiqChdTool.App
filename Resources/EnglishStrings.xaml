@@ -42,7 +42,7 @@
     <sys:String x:Key="LocMeta_Planned_ReviewRequired">Review required</sys:String>
     <sys:String x:Key="LocMeta_Planned_NotDetermined">Not determined yet</sys:String>
 
-    <sys:String x:Key="LocUi_WindowTitle">HAKAMIQ CHD Tool</sys:String>
+    <sys:String x:Key="LocUi_WindowTitle">CHD Tool</sys:String>
     <sys:String x:Key="LocUi_WindowSubtitle">Convert and manage CHD files</sys:String>
     <sys:String x:Key="LocUi_QueueSection_Title">Task queue</sys:String>
     <sys:String x:Key="LocUi_QueueSection_Subtitle">No files added yet.</sys:String>
@@ -50,7 +50,7 @@
     <sys:String x:Key="LocUi_Header_Help">Help</sys:String>
     <sys:String x:Key="LocUi_Header_Settings">Settings</sys:String>
     <sys:String x:Key="LocUi_Header_Report">App log</sys:String>
-    <sys:String x:Key="LocUi_TrayTooltip">HAKAMIQ CHD Tool</sys:String>
+    <sys:String x:Key="LocUi_TrayTooltip">CHD Tool</sys:String>
     <sys:String x:Key="LocUi_TrayShow">Show</sys:String>
     <sys:String x:Key="LocUi_TrayExit">Exit</sys:String>
 

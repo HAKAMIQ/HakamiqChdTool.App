@@ -8,7 +8,7 @@ namespace HakamiqChdTool.App.Services.Power;
 internal sealed class WindowsConversionPowerGuard : IConversionPowerGuard
 {
     private const uint PowerRequestContextVersion = 0;
-    private const string PowerRequestReason = "Hakamiq CHD conversion is running.";
+    private const string PowerRequestReason = "CHD Tool conversion is running.";
 
     private readonly object _gate = new();
     private readonly ILogger _log;

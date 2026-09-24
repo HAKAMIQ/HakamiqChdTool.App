@@ -278,7 +278,7 @@
                                Text="{Binding WindowTitle, Mode=OneWay}"
                                TextTrimming="CharacterEllipsis"
                                Style="{StaticResource About.WindowTitleText}"
-                               d:Text="حول Hakamiq CHD Tool" />
+                               d:Text="حول CHD Tool" />
 
                     <Button Grid.Column="2"
                             Width="{DynamicResource Space.32}"
@@ -345,7 +345,7 @@
                             <TextBlock Text="{Binding ProductName, Mode=OneWay}"
                                        TextTrimming="CharacterEllipsis"
                                        Style="{StaticResource About.ProductTitleText}"
-                                       d:Text="Hakamiq CHD Tool" />
+                                       d:Text="CHD Tool" />
 
                             <Grid Margin="{DynamicResource Inset.0.6.0.0}">
                                 <Grid.ColumnDefinitions>

@@ -1,6 +1,6 @@
-Hakamiq CHD Tool - Third-party notices
+CHD Tool - Third-party notices
 
-Hakamiq CHD Tool uses tools and libraries from other projects.
+CHD Tool uses tools and libraries from other projects.
 
 Each project keeps its own license.
 
@@ -8,7 +8,7 @@ Each project keeps its own license.
 chdman / MAME
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool may include chdman.exe from the MAME project.
+CHD Tool may include chdman.exe from the MAME project.
 
 Project:
 MAME
@@ -27,24 +27,24 @@ CHDMAN_NOTICE.md
 MAME_COPYING.txt
 MAME_GPL-2.0.txt
 
-Hakamiq CHD Tool is not connected to MAMEdev.
+CHD Tool is not connected to MAMEdev.
 
 --------------------------------------------------------------------------------
 7-Zip
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool may include 7-Zip to open ZIP, RAR, and 7Z files.
+CHD Tool may include 7-Zip to open ZIP, RAR, and 7Z files.
 
 Related file:
 7ZIP.md
 
-Hakamiq CHD Tool is not connected to Igor Pavlov or the 7-Zip project.
+CHD Tool is not connected to Igor Pavlov or the 7-Zip project.
 
 --------------------------------------------------------------------------------
 CsoKit
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool includes CsoKit 0.6.1 to handle PSP CSO files.
+CHD Tool includes CsoKit 0.6.1 to handle PSP CSO files.
 
 CsoKit can read CSO file details, check a CSO file, and make a
 temporary ISO before chdman creates the CHD.
@@ -59,7 +59,7 @@ https://github.com/HAKAMIQ/CsoKit
 Microsoft Fluent UI System Icons
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool uses selected SVG path data from Microsoft Fluent UI
+CHD Tool uses selected SVG path data from Microsoft Fluent UI
 System Icons.
 
 Upstream:
@@ -77,7 +77,7 @@ No Fluent icon font files are included.
 NuGet and .NET libraries
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool may use these NuGet or .NET libraries:
+CHD Tool may use these NuGet or .NET libraries:
 
 GongSolutions.WPF.DragDrop
 Hardcodet.NotifyIcon.Wpf
@@ -99,18 +99,18 @@ Each library keeps its own license.
 Redump
 --------------------------------------------------------------------------------
 
-Hakamiq CHD Tool may use Redump DAT or XML files provided by the user.
+CHD Tool may use Redump DAT or XML files provided by the user.
 
-Hakamiq CHD Tool does not include Redump files, games, ROMs, BIOS files,
+CHD Tool does not include Redump files, games, ROMs, BIOS files,
 disc images, CHD files, keys, firmware, or private user files.
 
-Hakamiq CHD Tool is not connected to Redump.
+CHD Tool is not connected to Redump.
 
 --------------------------------------------------------------------------------
-Hakamiq CHD Tool
+CHD Tool
 --------------------------------------------------------------------------------
 
-Original Hakamiq CHD Tool source code is licensed under the MIT License.
+Original CHD Tool source code is licensed under the MIT License.
 
 See:
 LICENSE

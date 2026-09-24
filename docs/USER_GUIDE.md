@@ -1,6 +1,6 @@
 # User guide
 
-This guide covers the normal local workflow for Hakamiq CHD Tool. For format-specific details, see [Supported formats](FORMATS.md).
+This guide covers the normal local workflow for CHD Tool. For format-specific details, see [Supported formats](FORMATS.md).
 
 ## Before you start
 
@@ -12,7 +12,7 @@ The runtime-required package needs the Microsoft .NET 10 Desktop Runtime for Win
 
 ## Basic workflow
 
-1. Open Hakamiq CHD Tool.
+1. Open CHD Tool.
 2. Add a supported source file or folder.
 3. Review the detected input and any safety warning.
 4. Choose an output folder with enough free space.

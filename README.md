@@ -1,6 +1,6 @@
-# Hakamiq CHD Tool
+# CHD Tool
 
-Hakamiq CHD Tool is a Windows x64 desktop application for converting supported
+CHD Tool is a Windows x64 desktop application for converting supported
 disc images to CHD, verifying existing CHD files, and extracting supported CHD
 media without requiring manual `chdman` commands.
 
@@ -39,7 +39,7 @@ before starting a larger batch.
 
 ## Supported workflows
 
-Hakamiq CHD Tool supports common disc-image workflows including:
+CHD Tool supports common disc-image workflows including:
 
 - ISO
 - CUE/BIN
@@ -93,7 +93,7 @@ See `SECURITY.md` for vulnerability reporting.
 
 ## Legal
 
-Hakamiq CHD Tool does not include games, ROMs, BIOS files, disc images,
+CHD Tool does not include games, ROMs, BIOS files, disc images,
 Redump databases, keys, firmware, or copyrighted user content.
 
 Use the application only with files you own or are legally authorized to

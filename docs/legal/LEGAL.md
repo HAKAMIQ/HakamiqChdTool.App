@@ -1,13 +1,13 @@
 # Legal notice
 
-Hakamiq CHD Tool does not include games, ROMs, BIOS files, disc images,
+CHD Tool does not include games, ROMs, BIOS files, disc images,
 CHD files, Redump files, keys, firmware, or private user files.
 
 Use the app only with files you own or are legally allowed to process.
 
 ## Tools from other projects
 
-Hakamiq CHD Tool may include tools from other projects.
+CHD Tool may include tools from other projects.
 
 If chdman.exe is included, the release package must include the required
 MAME license and notice files.
@@ -27,7 +27,7 @@ include Redump files or game files.
 
 ## Project relationship
 
-Hakamiq CHD Tool is not connected to MAMEdev, Redump, console makers,
+CHD Tool is not connected to MAMEdev, Redump, console makers,
 emulator projects, or game publishers.
 
 ## Before release

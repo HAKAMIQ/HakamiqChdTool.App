@@ -15,6 +15,7 @@
 		<NuGetAuditLevel>low</NuGetAuditLevel>
 		<WarningsAsErrors>$(WarningsAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsAsErrors>
 		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+		<DefaultItemExcludesInProjectFolder>$(DefaultItemExcludesInProjectFolder);artifacts\**</DefaultItemExcludesInProjectFolder>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Resources\HakamiqLogo.ico</ApplicationIcon>
 		<Version>1.4.0</Version>
@@ -22,7 +23,7 @@
 		<FileVersion>1.4.0.0</FileVersion>
 		<InformationalVersion>v1.4.0</InformationalVersion>
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-		<Product>Hakamiq CHD Tool</Product>
+		<Product>CHD Tool</Product>
 		<Company>Hakamiq</Company>
 		<Description>إدارة وتحويل صور الأقراص بصيغة CHD عبر chdman</Description>
 		<PackageIcon>HakamiqLogo.png</PackageIcon>

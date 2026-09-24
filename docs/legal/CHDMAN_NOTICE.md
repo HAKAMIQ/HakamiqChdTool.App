@@ -1,10 +1,10 @@
 # chdman notice
 
-Hakamiq CHD Tool may include chdman.exe in the Tools folder so users do
+CHD Tool may include chdman.exe in the Tools folder so users do
 not need to download it separately.
 
 chdman is part of the MAME project. It is not made, owned, or maintained
-by Hakamiq CHD Tool.
+by CHD Tool.
 
 ## Included tool
 
@@ -30,13 +30,13 @@ The release package must include:
 
 ## Relationship to MAME
 
-Hakamiq CHD Tool is not affiliated with MAMEdev.
+CHD Tool is not affiliated with MAMEdev.
 
-MAMEdev does not sponsor, approve, or maintain Hakamiq CHD Tool.
+MAMEdev does not sponsor, approve, or maintain CHD Tool.
 
 ## User files
 
-Hakamiq CHD Tool does not include games, ROMs, BIOS files, disc images,
+CHD Tool does not include games, ROMs, BIOS files, disc images,
 Redump files, keys, firmware, or private user media.
 
 ## Warranty
