@@ -42,7 +42,7 @@
     <sys:String x:Key="LocMeta_Planned_ReviewRequired">يتطلب المراجعة</sys:String>
     <sys:String x:Key="LocMeta_Planned_NotDetermined">لم يتم تحديد العملية بعد</sys:String>
 
-    <sys:String x:Key="LocUi_WindowTitle">HAKAMIQ CHD Tool</sys:String>
+    <sys:String x:Key="LocUi_WindowTitle">CHD Tool</sys:String>
     <sys:String x:Key="LocUi_WindowSubtitle">تحويل وإدارة ملفات CHD</sys:String>
     <sys:String x:Key="LocUi_QueueSection_Title">قائمة المهام</sys:String>
     <sys:String x:Key="LocUi_QueueSection_Subtitle">لا توجد ملفات مضافة حالياً.</sys:String>
@@ -50,7 +50,7 @@
     <sys:String x:Key="LocUi_Header_Help">مساعدة</sys:String>
     <sys:String x:Key="LocUi_Header_Settings">الإعدادات</sys:String>
     <sys:String x:Key="LocUi_Header_Report">سجل التطبيق</sys:String>
-    <sys:String x:Key="LocUi_TrayTooltip">HAKAMIQ CHD Tool</sys:String>
+    <sys:String x:Key="LocUi_TrayTooltip">CHD Tool</sys:String>
     <sys:String x:Key="LocUi_TrayShow">إظهار</sys:String>
     <sys:String x:Key="LocUi_TrayExit">خروج</sys:String>
 
