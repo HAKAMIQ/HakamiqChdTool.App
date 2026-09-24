@@ -1,6 +1,6 @@
 # Architecture
 
-Hakamiq CHD Tool is a Windows WPF app built with C# and .NET 10.
+CHD Tool is a Windows WPF app built with C# and .NET 10.
 
 It is an orchestration layer around chdman, not a CHD encoder. The value is in the workflow: input checks, naming, queue behavior, progress, result validation, and release packaging.
 

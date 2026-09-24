@@ -1,6 +1,6 @@
 # CsoKit notice
 
-Hakamiq CHD Tool includes CsoKit so it can handle PSP CSO
+CHD Tool includes CsoKit so it can handle PSP CSO
 files.
 
 CsoKit is used before CHD conversion. It can read CSO file details,

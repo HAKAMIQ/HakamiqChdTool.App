@@ -197,7 +197,7 @@ try {
             "/fd", "SHA256",
             "/tr", $TimestampUrl,
             "/td", "SHA256",
-            "/d", "Hakamiq CHD Tool",
+            "/d", "CHD Tool",
             $target
         )
         Invoke-SignTool @("verify", "/pa", "/all", "/tw", $target)
