@@ -1,6 +1,6 @@
 # Contributing
 
-Hakamiq CHD Tool is a Windows x64 WPF application built with C# and .NET 10.
+CHD Tool is a Windows x64 WPF application built with C# and .NET 10.
 
 Keep changes focused and small. Changes to paths, queue behavior, conversion, extraction, verification, or cleanup can affect multiple workflows.
 
