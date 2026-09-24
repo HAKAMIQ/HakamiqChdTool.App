@@ -227,7 +227,7 @@ $bom = [ordered]@{
         component = [ordered]@{
             type = 'application'
             'bom-ref' = $applicationRef
-            name = 'CHD Tool'
+            name = 'Hakamiq CHD Tool'
             version = $applicationVersion
             licenses = @([ordered]@{ license = [ordered]@{ id = 'MIT' } })
         }
