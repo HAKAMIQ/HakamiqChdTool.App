@@ -1,12 +1,8 @@
 # CHD Tool
 
-CHD Tool is a Windows x64 desktop application for converting supported
-disc images to CHD, verifying existing CHD files, and extracting supported CHD
-media without requiring manual `chdman` commands.
+CHD Tool is a Windows x64 desktop application for converting supported disc images to CHD, verifying existing CHD files, and extracting supported CHD media without requiring manual `chdman` commands.
 
-Add a file or folder, choose an output location, and start the queue. The
-application handles input validation, naming, progress tracking, and output
-verification.
+Add a file or folder, choose an output location, and start the queue. The application handles input validation, naming, progress tracking, and output verification.
 
 ## Download
 
@@ -34,25 +30,27 @@ SHA-256 sidecar files are provided with release packages.
 5. Choose the output folder.
 6. Start the queue.
 
-For the first run, process a single disc image so the result is easy to verify
-before starting a larger batch.
+For the first run, process a single disc image so the result is easy to verify before starting a larger batch.
 
-## Supported workflows
+## Supported inputs
 
-CHD Tool supports common disc-image workflows including:
+CHD Tool supports common disc-image inputs including:
 
 - ISO
 - CUE/BIN
 - GDI
 - CSO
 - CHD
-- ZIP, RAR, and 7Z archive inputs
 
-Support depends on the media type and selected operation. Detecting an input
-type does not imply that every conversion or extraction path is valid.
+Archive inputs are also supported for applicable workflows:
 
-The application validates the selected workflow before external processing
-begins.
+- ZIP
+- RAR
+- 7Z
+
+Support depends on the media type and selected operation. Detecting an input type does not imply that every conversion, verification, or extraction path is valid.
+
+The application validates the selected workflow before external processing begins.
 
 ## Safety
 
@@ -65,7 +63,7 @@ Input is checked before processing for conditions such as:
 - unsupported disc layouts
 - invalid output paths
 
-Invalid or unsupported input is rejected before conversion whenever possible.
+Invalid or unsupported input is rejected before external processing whenever possible.
 
 ## CHD extraction
 
@@ -86,23 +84,19 @@ Supported extraction depends on the CHD media type:
 
 Dependency versions are locked and bundled external-tool hashes are pinned.
 
-Release output includes a CycloneDX 1.7 SBOM, SHA-256 package hashes, and
-GitHub build provenance attestations.
+Release output includes a CycloneDX 1.7 SBOM, SHA-256 package hashes, and GitHub build provenance attestations.
 
 See `SECURITY.md` for vulnerability reporting.
 
 ## Legal
 
-CHD Tool does not include games, ROMs, BIOS files, disc images,
-Redump databases, keys, firmware, or copyrighted user content.
+CHD Tool does not include games, ROMs, BIOS files, disc images, Redump databases, keys, firmware, or copyrighted user content.
 
-Use the application only with files you own or are legally authorized to
-process.
+Use the application only with files you own or are legally authorized to process.
 
 ## Documentation
 
-See `docs/` for supported formats, conversion options, logs, and
-troubleshooting.
+See `docs/` for supported formats, conversion options, logs, and troubleshooting.
 
 ## License
 
