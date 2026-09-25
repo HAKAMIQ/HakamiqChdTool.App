@@ -48,6 +48,8 @@ Archive inputs are also supported for applicable workflows:
 - RAR
 - 7Z
 
+Archive files are treated as containers for supported media. Archive support does not mean that arbitrary archive contents are convertible.
+
 Support depends on the media type and selected operation. Detecting an input type does not imply that every conversion, verification, or extraction path is valid.
 
 The application validates the selected workflow before external processing begins.
