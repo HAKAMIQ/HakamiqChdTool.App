@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App.Ui.Shell;
@@ -14,6 +15,8 @@ namespace HakamiqChdTool.App.Ui.Shell;
 internal static class WindowBackdrop
 {
     private const int WmGetMinMaxInfo = 0x0024;
+    private const int WmEnterSizeMove = 0x0231;
+    private const int WmExitSizeMove = 0x0232;
     private const int ImmersiveDarkModeAttribute = 20;
     private const int WindowCornerPreferenceAttribute = 33;
     private const int RoundCornerPreference = 2;
@@ -81,11 +84,6 @@ internal static class WindowBackdrop
         ThemeService.Instance.ThemeChanged += ThemeChanged;
         window.Closed += (_, _) => ThemeService.Instance.ThemeChanged -= ThemeChanged;
 
-        if (isMainWindow)
-        {
-            HwndSource.FromHwnd(handle)?.AddHook(MainWindowHook);
-        }
-
         if (!AttachedWindows.TryGetValue(window, out DesignedLimits? limits))
         {
             return;
@@ -93,37 +91,162 @@ internal static class WindowBackdrop
 
         limits.MinWidth = window.MinWidth;
         limits.MinHeight = window.MinHeight;
+        limits.MaxWidth = window.MaxWidth;
         limits.MaxHeight = window.MaxHeight;
+        limits.Monitor = MonitorFromWindow(handle, MonitorDefaultToNearest);
 
-        FitToWorkArea(window, handle, limits, shrinkSize: true);
-        window.DpiChanged += (_, _) => FitToWorkArea(window, handle, limits, shrinkSize: true);
-        window.LocationChanged += (_, _) => FitToWorkArea(window, handle, limits, shrinkSize: false);
+        // One hook per window: tracks the move/size loop and, for the main window, pins
+        // the maximized rectangle. It is released with the window's HwndSource.
+        HwndSource.FromHwnd(handle)?.AddHook(
+            (nint hwnd, int msg, nint wParam, nint lParam, ref bool handled) =>
+                WindowHook(window, limits, isMainWindow, hwnd, msg, lParam));
+
+        FitInitialSize(window, handle, limits);
+
+        window.DpiChanged += (_, _) => OnMonitorChanged(window, handle, limits);
+        window.LocationChanged += (_, _) =>
+        {
+            // Moving within the same monitor needs nothing, so a drag cannot jitter.
+            if (MonitorFromWindow(handle, MonitorDefaultToNearest) != limits.Monitor)
+            {
+                OnMonitorChanged(window, handle, limits);
+            }
+        };
 
         // The startup location is computed from the unclamped size, so a clamped window
         // can start partly off-screen. Pull it back once it is placed and rendered.
         void ContentRendered(object? sender, EventArgs e)
         {
             window.ContentRendered -= ContentRendered;
-            KeepOnWorkArea(window, handle);
+            ConstrainToWorkArea(window, handle, limits);
         }
 
         window.ContentRendered += ContentRendered;
     }
 
-    private static void KeepOnWorkArea(Window window, nint handle)
+    private static nint WindowHook(
+        Window window,
+        DesignedLimits limits,
+        bool isMainWindow,
+        nint hwnd,
+        int msg,
+        nint lParam)
     {
-        if (window.WindowState != WindowState.Normal ||
+        switch (msg)
+        {
+            case WmGetMinMaxInfo when isMainWindow:
+                PinMaximizedBounds(hwnd, lParam);
+                break;
+
+            case WmEnterSizeMove:
+                limits.InMoveLoop = true;
+                break;
+
+            case WmExitSizeMove:
+                limits.InMoveLoop = false;
+
+                if (limits.FitPending)
+                {
+                    limits.FitPending = false;
+                    ScheduleConstrain(window, hwnd, limits);
+                }
+
+                break;
+        }
+
+        return 0;
+    }
+
+    // The window reached another monitor (or its DPI changed). While the user is still
+    // dragging, wait for the move loop to end instead of resizing under the cursor.
+    private static void OnMonitorChanged(Window window, nint handle, DesignedLimits limits)
+    {
+        limits.Monitor = MonitorFromWindow(handle, MonitorDefaultToNearest);
+
+        if (limits.InMoveLoop)
+        {
+            limits.FitPending = true;
+            return;
+        }
+
+        ScheduleConstrain(window, handle, limits);
+    }
+
+    // Deferred so it never runs inside LocationChanged/DpiChanged; the resulting move
+    // stays on the same monitor and therefore does not schedule another pass.
+    private static void ScheduleConstrain(Window window, nint handle, DesignedLimits limits)
+    {
+        window.Dispatcher.BeginInvoke(
+            DispatcherPriority.Background,
+            new Action(() => ConstrainToWorkArea(window, handle, limits)));
+    }
+
+    private static void ConstrainToWorkArea(Window window, nint handle, DesignedLimits limits)
+    {
+        if (PresentationSource.FromVisual(window) is null ||
             !TryGetWorkArea(handle, out Rect workArea) ||
             !GetWindowRect(handle, out NativeRect deviceBounds))
         {
             return;
         }
 
-        // Window.Left/Top are NaN for centered windows, so use the actual bounds.
-        Rect bounds = ToDips(handle, deviceBounds);
+        limits.Monitor = MonitorFromWindow(handle, MonitorDefaultToNearest);
 
-        double left = Math.Max(Math.Min(bounds.Left, workArea.Right - bounds.Width), workArea.Left);
-        double top = Math.Max(Math.Min(bounds.Top, workArea.Bottom - bounds.Height), workArea.Top);
+        // Window.Left/Top are NaN for centered windows, so use the actual bounds.
+        ApplyWorkArea(window, limits, workArea, ToDips(handle, deviceBounds));
+    }
+
+    // Test seam: applies an explicit work area (in DIPs) to an attached window, exactly as
+    // a monitor change would, so work-area transitions can be exercised on one monitor.
+    internal static void ConstrainToWorkArea(Window window, Rect workArea)
+    {
+        nint handle = new WindowInteropHelper(window).Handle;
+
+        if (handle != 0 &&
+            AttachedWindows.TryGetValue(window, out DesignedLimits? limits) &&
+            GetWindowRect(handle, out NativeRect deviceBounds))
+        {
+            ApplyWorkArea(window, limits, workArea, ToDips(handle, deviceBounds));
+        }
+    }
+
+    // Recomputes the limits from the designed values, so they recover on larger monitors.
+    // A normal window is then shrunk to the work area and moved fully inside it; maximized
+    // and minimized windows are sized by the system and only get their limits updated.
+    private static void ApplyWorkArea(Window window, DesignedLimits limits, Rect workArea, Rect bounds)
+    {
+        ApplyLimits(window, limits, workArea);
+
+        if (window.WindowState != WindowState.Normal)
+        {
+            return;
+        }
+
+        double width = bounds.Width;
+        double height = bounds.Height;
+
+        if (width > workArea.Width)
+        {
+            width = workArea.Width;
+
+            if (!SizesWidthToContent(window))
+            {
+                window.Width = width;
+            }
+        }
+
+        if (height > workArea.Height)
+        {
+            height = workArea.Height;
+
+            if (!SizesHeightToContent(window))
+            {
+                window.Height = height;
+            }
+        }
+
+        double left = Math.Max(Math.Min(bounds.Left, workArea.Right - width), workArea.Left);
+        double top = Math.Max(Math.Min(bounds.Top, workArea.Bottom - height), workArea.Top);
 
         if (Math.Abs(left - bounds.Left) >= 1 || Math.Abs(top - bounds.Top) >= 1)
         {
@@ -155,41 +278,56 @@ internal static class WindowBackdrop
             ThemeService.Instance.IsDarkTheme ? 1 : 0);
     }
 
-    // Keeps the designed minimum sizes and preferred sizes from exceeding the current
-    // monitor, so footers and action buttons stay reachable at high scale factors.
-    // Limits are recomputed from the designed values, so they recover on larger monitors.
-    private static void FitToWorkArea(Window window, nint handle, DesignedLimits limits, bool shrinkSize)
+    // Before the first layout there are no real bounds yet, so only the designed sizes are
+    // clamped; ContentRendered then places the window inside the work area.
+    private static void FitInitialSize(Window window, nint handle, DesignedLimits limits)
     {
         if (!TryGetWorkArea(handle, out Rect workArea))
         {
             return;
         }
 
-        SetIfChanged(window, FrameworkElement.MinWidthProperty, Math.Min(limits.MinWidth, workArea.Width));
-        SetIfChanged(window, FrameworkElement.MinHeightProperty, Math.Min(limits.MinHeight, workArea.Height));
-        SetIfChanged(window, FrameworkElement.MaxHeightProperty, Math.Min(limits.MaxHeight, workArea.Height));
+        ApplyLimits(window, limits, workArea);
 
-        if (!shrinkSize)
-        {
-            return;
-        }
-
-        bool sizesWidthToContent =
-            window.SizeToContent is SizeToContent.Width or SizeToContent.WidthAndHeight;
-
-        bool sizesHeightToContent =
-            window.SizeToContent is SizeToContent.Height or SizeToContent.WidthAndHeight;
-
-        if (!sizesWidthToContent && window.Width > workArea.Width)
+        if (!SizesWidthToContent(window) && window.Width > workArea.Width)
         {
             window.Width = workArea.Width;
         }
 
-        if (!sizesHeightToContent && window.Height > workArea.Height)
+        if (!SizesHeightToContent(window) && window.Height > workArea.Height)
         {
             window.Height = workArea.Height;
         }
     }
+
+    // Keeps the designed minimum sizes from exceeding the monitor, so footers and action
+    // buttons stay reachable at high scale factors. Maximums are only capped where a
+    // window has a designed maximum or sizes itself to content (WPF ignores Width/Height
+    // changes on those, but honors MaxWidth/MaxHeight). A manually sized window with no
+    // designed maximum stays unbounded, so maximizing on a larger monitor is never clipped.
+    private static void ApplyLimits(Window window, DesignedLimits limits, Rect workArea)
+    {
+        SetIfChanged(window, FrameworkElement.MinWidthProperty, Math.Min(limits.MinWidth, workArea.Width));
+        SetIfChanged(window, FrameworkElement.MinHeightProperty, Math.Min(limits.MinHeight, workArea.Height));
+
+        bool sizesToContent = window.SizeToContent != SizeToContent.Manual;
+
+        if (!double.IsPositiveInfinity(limits.MaxWidth) || sizesToContent)
+        {
+            SetIfChanged(window, FrameworkElement.MaxWidthProperty, Math.Min(limits.MaxWidth, workArea.Width));
+        }
+
+        if (!double.IsPositiveInfinity(limits.MaxHeight) || sizesToContent)
+        {
+            SetIfChanged(window, FrameworkElement.MaxHeightProperty, Math.Min(limits.MaxHeight, workArea.Height));
+        }
+    }
+
+    private static bool SizesWidthToContent(Window window) =>
+        window.SizeToContent is SizeToContent.Width or SizeToContent.WidthAndHeight;
+
+    private static bool SizesHeightToContent(Window window) =>
+        window.SizeToContent is SizeToContent.Height or SizeToContent.WidthAndHeight;
 
     private static void SetIfChanged(Window window, DependencyProperty property, double value)
     {
@@ -216,21 +354,23 @@ internal static class WindowBackdrop
     // A WindowChrome window maximizes to the monitor bounds plus the hidden resize
     // frame, which clips the header and footer edges. Pin the maximized rectangle to
     // the work area of the monitor the window is on.
-    private static nint MainWindowHook(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    // Position is relative to the monitor origin, so monitors left of or above the
+    // primary (negative coordinates) are handled on both axes.
+    private static void PinMaximizedBounds(nint hwnd, nint lParam)
     {
-        if (msg == WmGetMinMaxInfo && lParam != 0 && TryGetMonitorInfo(hwnd, out MonitorInfo info))
+        if (lParam == 0 || !TryGetMonitorInfo(hwnd, out MonitorInfo info))
         {
-            MinMaxInfo minMax = Marshal.PtrToStructure<MinMaxInfo>(lParam);
-
-            minMax.MaxPosition.X = info.Work.Left - info.Monitor.Left;
-            minMax.MaxPosition.Y = info.Work.Top - info.Monitor.Top;
-            minMax.MaxSize.X = info.Work.Right - info.Work.Left;
-            minMax.MaxSize.Y = info.Work.Bottom - info.Work.Top;
-
-            Marshal.StructureToPtr(minMax, lParam, false);
+            return;
         }
 
-        return 0;
+        MinMaxInfo minMax = Marshal.PtrToStructure<MinMaxInfo>(lParam);
+
+        minMax.MaxPosition.X = info.Work.Left - info.Monitor.Left;
+        minMax.MaxPosition.Y = info.Work.Top - info.Monitor.Top;
+        minMax.MaxSize.X = info.Work.Right - info.Work.Left;
+        minMax.MaxSize.Y = info.Work.Bottom - info.Work.Top;
+
+        Marshal.StructureToPtr(minMax, lParam, false);
     }
 
     private static bool TryGetMonitorInfo(nint handle, out MonitorInfo info)
@@ -253,7 +393,15 @@ internal static class WindowBackdrop
 
         public double MinHeight { get; set; }
 
+        public double MaxWidth { get; set; } = double.PositiveInfinity;
+
         public double MaxHeight { get; set; } = double.PositiveInfinity;
+
+        public nint Monitor { get; set; }
+
+        public bool InMoveLoop { get; set; }
+
+        public bool FitPending { get; set; }
     }
 
     [StructLayout(LayoutKind.Sequential)]
