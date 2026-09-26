@@ -34,7 +34,7 @@
                  x:Shared="False"
                  FlowDirection="{DynamicResource App.FlowDirection}"
                  Language="{DynamicResource App.XmlLanguage}"
-                 Content="{DynamicResource LocGeneralSettings_ThemeDescription}">
+                 Content="{DynamicResource LocUi_Header_AppearanceToolTip}">
             <ToolTip.ContentTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Converter={StaticResource BidiTextConverter}, ConverterParameter=Mixed}"
@@ -184,8 +184,8 @@
 
         <Style x:Key="MainHeaderGhostButton"
                TargetType="{x:Type Button}">
-            <Setter Property="MinHeight" Value="32" />
-            <Setter Property="MinWidth" Value="54" />
+            <Setter Property="MinHeight" Value="{DynamicResource Space.32}" />
+            <Setter Property="MinWidth" Value="{DynamicResource Space.54}" />
             <Setter Property="Padding" Value="{DynamicResource Inset.10.5}" />
             <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
             <Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
@@ -199,7 +199,7 @@
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FluentFocusVisualStyle}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -240,7 +240,7 @@
                             </Trigger>
 
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.45" />
+                                <Setter Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
                                 <Setter Property="Cursor" Value="Arrow" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -266,6 +266,14 @@
             <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
         </Style>
 
+        <Style x:Key="MainHeaderThemeGlyphText"
+               TargetType="{x:Type TextBlock}"
+               BasedOn="{StaticResource MainHeaderLanguageButtonText}">
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Symbol}" />
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.IconLarge}" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Header.ThemeGlyph}" />
+        </Style>
+
         <Style x:Key="MainHeaderCommandCluster"
                TargetType="{x:Type Border}">
             <Setter Property="Background" Value="{DynamicResource Brush.Transparent}" />
@@ -274,6 +282,29 @@
             <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
             <Setter Property="Padding" Value="{DynamicResource Inset.None}" />
             <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="MainHeaderCaptionFocusVisual"
+               TargetType="{x:Type Control}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Control}">
+                        <Grid Width="{DynamicResource Space.36}"
+                              Height="{DynamicResource Space.36}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              SnapsToDevicePixels="True">
+                            <Border BorderBrush="{DynamicResource Brush.Focus.StrokeOuter}"
+                                    BorderThickness="{DynamicResource Inset.1.All}"
+                                    CornerRadius="{DynamicResource Radius.Control}" />
+                            <Border Margin="{DynamicResource Inset.1.All}"
+                                    BorderBrush="{DynamicResource Brush.Focus.StrokeInner}"
+                                    BorderThickness="{DynamicResource Inset.1.All}"
+                                    CornerRadius="{DynamicResource Radius.Control}" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style x:Key="MainHeaderCaptionBtnStyle"
@@ -290,7 +321,7 @@
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource MainHeaderCaptionFocusVisual}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -328,7 +359,7 @@
                             </Trigger>
 
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.45" />
+                                <Setter Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
                                 <Setter Property="Cursor" Value="Arrow" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -377,7 +408,7 @@
                             </Trigger>
 
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.45" />
+                                <Setter Property="Opacity" Value="{DynamicResource Opacity.Disabled.Control}" />
                                 <Setter Property="Cursor" Value="Arrow" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -482,8 +513,8 @@
                                 AutomationProperties.Name="{DynamicResource LocGeneralSettings_ThemeTitle}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True">
                             <TextBlock x:Name="HeaderThemeText"
-                                       Text="🌙"
-                                       Style="{StaticResource MainHeaderLanguageButtonText}" />
+                                       Text="☾"
+                                       Style="{StaticResource MainHeaderThemeGlyphText}" />
                         </Button>
 
                         <Button x:Name="HeaderAboutButton"
@@ -509,6 +540,7 @@
 
                     <Button x:Name="CaptionMinimizeButton"
                             ToolTip="{StaticResource AppTip.MainHeaderView.3}"
+                            AutomationProperties.Name="{DynamicResource LocUi_Header_Minimize}"
                             Click="ForwardMinimizeRequested"
                             Style="{StaticResource MainHeaderCaptionBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -524,6 +556,7 @@
 
                     <Button x:Name="CaptionMaximizeRestoreButton"
                             ToolTip="{StaticResource AppTip.MainHeaderView.4}"
+                            AutomationProperties.Name="{DynamicResource LocUi_Header_Maximize}"
                             Click="ForwardMaximizeRestoreRequested"
                             Style="{StaticResource MainHeaderCaptionBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -540,6 +573,7 @@
 
                     <Button x:Name="CaptionCloseButton"
                             ToolTip="{StaticResource AppTip.MainHeaderView.5}"
+                            AutomationProperties.Name="{DynamicResource LocUi_Header_Close}"
                             Click="ForwardCloseRequested"
                             Style="{StaticResource MainHeaderCaptionCloseBtnStyle}"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">

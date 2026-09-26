@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Ui.WpfAdapters;
@@ -57,7 +58,10 @@ public partial class MainHeaderView : UserControl
 
     public void SetMaximizeRestoreState(bool isMaximized)
     {
-        CaptionMaximizeRestoreButton.ToolTip = ArabicUi.Get(isMaximized ? "LocUi_Header_Restore" : "LocUi_Header_Maximize");
+        string captionKey = isMaximized ? "LocUi_Header_Restore" : "LocUi_Header_Maximize";
+
+        CaptionMaximizeRestoreButton.ToolTip = ArabicUi.Get(captionKey);
+        CaptionMaximizeRestoreButton.SetResourceReference(AutomationProperties.NameProperty, captionKey);
         CaptionMaximizeRestorePath.Data = TryFindGeometry(isMaximized ? "Icon.Restore" : "Icon.Maximize");
     }
 
@@ -68,18 +72,7 @@ public partial class MainHeaderView : UserControl
             return;
         }
 
-        bool isDarkTheme = ThemeService.Instance.IsDarkTheme;
-        HeaderThemeButton.ToolTip = isDarkTheme ? "مظهر فاتح" : "مظهر داكن";
-
-        HeaderThemeText.Text = isDarkTheme ? "☾" : "☀";
-        HeaderThemeText.FontFamily = new System.Windows.Media.FontFamily("Segoe UI Symbol");
-        HeaderThemeText.FontSize = 20;
-        HeaderThemeText.FontWeight = FontWeights.SemiBold;
-        HeaderThemeText.HorizontalAlignment = HorizontalAlignment.Center;
-        HeaderThemeText.VerticalAlignment = VerticalAlignment.Center;
-        HeaderThemeText.Foreground = isDarkTheme
-            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(148, 163, 184))
-            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(245, 197, 66));
+        HeaderThemeText.Text = ThemeService.Instance.IsDarkTheme ? "☾" : "☀";
     }
 
     public void RefreshLanguageToggleButton()

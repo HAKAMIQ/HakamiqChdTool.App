@@ -11,6 +11,7 @@
     <FontFamily x:Key="FontFamily.Mono">Cascadia Mono, Cascadia Code, Consolas, Courier New</FontFamily>
     <FontFamily x:Key="FontFamily.Monospace">Cascadia Mono, Cascadia Code, Consolas, Courier New</FontFamily>
     <FontFamily x:Key="FontFamily.Icon">Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI Symbol, Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontFamily.Symbol">Segoe UI Symbol</FontFamily>
 
     <FontWeight x:Key="FontWeight.Regular">Regular</FontWeight>
     <FontWeight x:Key="FontWeight.Medium">Medium</FontWeight>

@@ -4,10 +4,10 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:options="clr-namespace:HakamiqChdTool.App.Views.Options"
         Title="{DynamicResource LocOptions_WindowTitle}"
-        Width="700"
-        Height="600"
-        MinWidth="680"
-        MinHeight="440"
+        Width="{DynamicResource Window.Options.Width}"
+        Height="{DynamicResource Window.Options.Height}"
+        MinWidth="{DynamicResource Window.Options.MinWidth}"
+        MinHeight="{DynamicResource Window.Options.MinHeight}"
         SizeToContent="Manual"
         ResizeMode="CanResize"
         WindowStyle="None"
@@ -48,24 +48,12 @@
                 </ToolTip.ContentTemplate>
             </ToolTip>
 
-            <CornerRadius x:Key="Radius.Control">0</CornerRadius>
-            <CornerRadius x:Key="Radius.Control.Small">0</CornerRadius>
-            <CornerRadius x:Key="Radius.Control.Large">0</CornerRadius>
-            <CornerRadius x:Key="Radius.Input">0</CornerRadius>
-            <CornerRadius x:Key="Radius.Button">0</CornerRadius>
-            <CornerRadius x:Key="Radius.ComboBox">0</CornerRadius>
-            <CornerRadius x:Key="Radius.CheckBox">0</CornerRadius>
+            <!-- Settings sections paint a full-bleed header band that cannot clip to a
+                 rounded card, so cards stay square here. Controls use the global radii. -->
             <CornerRadius x:Key="Radius.Card">0</CornerRadius>
             <CornerRadius x:Key="Radius.Card.Medium">0</CornerRadius>
             <CornerRadius x:Key="Radius.Card.Large">0</CornerRadius>
             <CornerRadius x:Key="Radius.Card.Dialog">0</CornerRadius>
-            <CornerRadius x:Key="Radius.Overlay">0</CornerRadius>
-            <CornerRadius x:Key="Radius.Flyout">0</CornerRadius>
-            <CornerRadius x:Key="Radius.Menu">0</CornerRadius>
-            <CornerRadius x:Key="Radius.ToolTip">0</CornerRadius>
-            <CornerRadius x:Key="Radius.HeaderButton">0</CornerRadius>
-            <CornerRadius x:Key="Radius.HeaderCluster">0</CornerRadius>
-            <CornerRadius x:Key="Radius.HeaderLogo">0</CornerRadius>
 
             <Geometry x:Key="OptionsWindow.Icon.Extensions">M0,0 H5 V5 H0 Z M7,0 H12 V5 H7 Z M0,7 H5 V12 H0 Z M7,7 H12 V12 H7 Z</Geometry>
 
@@ -85,20 +73,6 @@
                 <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
                 <Setter Property="Padding" Value="{DynamicResource Inset.16.8}" />
-                <Setter Property="SnapsToDevicePixels" Value="True" />
-                <Setter Property="UseLayoutRounding" Value="True" />
-            </Style>
-
-            <Style x:Key="OptionsWindow.SidebarPanel"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Default}" />
-                <Setter Property="BorderThickness" Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
-                <Setter Property="Padding" Value="{DynamicResource Inset.12.All}" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="VerticalAlignment" Value="Stretch" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
@@ -137,27 +111,7 @@
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
             </Style>
 
-            <Style x:Key="OptionsWindow.SectionTitleText"
-                   TargetType="{x:Type TextBlock}"
-                   BasedOn="{StaticResource OptionsWindow.TextBlockBase}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodyStrong}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextWrapping" Value="NoWrap" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-            </Style>
-
-            <Style x:Key="OptionsWindow.BodyText"
-                   TargetType="{x:Type TextBlock}"
-                   BasedOn="{StaticResource OptionsWindow.TextBlockBase}">
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}" />
-                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.Regular}" />
-                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
-                <Setter Property="LineHeight" Value="{DynamicResource Font.LineHeight.Body}" />
-                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-            </Style>
-
-                        <Style x:Key="OptionsWindow.TabText"
+            <Style x:Key="OptionsWindow.TabText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource OptionsWindow.TextBlockBase}">
                 <Setter Property="FontSize"

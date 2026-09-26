@@ -47,52 +47,6 @@
                 </ToolTip.ContentTemplate>
             </ToolTip>
 
-            <Style x:Key="ClearTaskLogDialog.RootFrame"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness"
-                        Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius"
-                        Value="{DynamicResource Radius.Dialog}" />
-                <Setter Property="TextElement.Foreground"
-                        Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="ClipToBounds"
-                        Value="True" />
-                <Setter Property="SnapsToDevicePixels"
-                        Value="True" />
-                <Setter Property="UseLayoutRounding"
-                        Value="True" />
-            </Style>
-
-            <Style x:Key="ClearTaskLogDialog.Bar"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding"
-                        Value="{DynamicResource Inset.16.10}" />
-                <Setter Property="SnapsToDevicePixels"
-                        Value="True" />
-                <Setter Property="UseLayoutRounding"
-                        Value="True" />
-            </Style>
-
-            <Style x:Key="ClearTaskLogDialog.ContentHost"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Canvas}" />
-                <Setter Property="Padding"
-                        Value="{DynamicResource Inset.16.All}" />
-                <Setter Property="SnapsToDevicePixels"
-                        Value="True" />
-                <Setter Property="UseLayoutRounding"
-                        Value="True" />
-            </Style>
-
             <Style x:Key="ClearTaskLogDialog.MessageCard"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background"
@@ -135,21 +89,6 @@
                         Value="True" />
             </Style>
 
-            <Style x:Key="ClearTaskLogDialog.TitleText"
-                   TargetType="{x:Type TextBlock}"
-                   BasedOn="{StaticResource ClearTaskLogDialog.GeneralText}">
-                <Setter Property="FontSize"
-                        Value="{DynamicResource FontSize.HeaderTitle}" />
-                <Setter Property="FontWeight"
-                        Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground"
-                        Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextWrapping"
-                        Value="NoWrap" />
-                <Setter Property="TextTrimming"
-                        Value="CharacterEllipsis" />
-            </Style>
-
             <Style x:Key="ClearTaskLogDialog.BodyText"
                    TargetType="{x:Type TextBlock}"
                    BasedOn="{StaticResource ClearTaskLogDialog.GeneralText}">
@@ -177,7 +116,7 @@
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-    <Border Style="{StaticResource ClearTaskLogDialog.RootFrame}">
+    <Border Style="{StaticResource Win11.DialogRootFrame}">
         <Grid ClipToBounds="True"
               FlowDirection="{DynamicResource App.FlowDirection}"
               Language="{DynamicResource App.XmlLanguage}"
@@ -190,8 +129,7 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Style="{StaticResource ClearTaskLogDialog.Bar}"
-                    BorderThickness="{DynamicResource Inset.0.0.0.1}"
+                    Style="{StaticResource Win11.DialogTopBar}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
 
                 <Grid>
@@ -203,8 +141,7 @@
 
                     <TextBlock Grid.Column="0"
                                Text="{Binding Title, Mode=OneWay}"
-                               Style="{StaticResource ClearTaskLogDialog.TitleText}"
-                               VerticalAlignment="Center" />
+                               Style="{StaticResource Win11.DialogTitleText}" />
 
                     <Button x:Name="CloseButton"
                             Grid.Column="2"
@@ -233,7 +170,7 @@
             </Border>
 
             <Border Grid.Row="1"
-                    Style="{StaticResource ClearTaskLogDialog.ContentHost}">
+                    Style="{StaticResource Win11.DialogContentHost}">
 
                 <Border Style="{StaticResource ClearTaskLogDialog.MessageCard}">
                     <Grid>
@@ -263,8 +200,7 @@
             </Border>
 
             <Border Grid.Row="2"
-                    Style="{StaticResource ClearTaskLogDialog.Bar}"
-                    BorderThickness="{DynamicResource Inset.0.1.0.0}">
+                    Style="{StaticResource Win11.DialogActionBar}">
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -276,10 +212,7 @@
 
                     <Button x:Name="CancelButton"
                             Grid.Column="1"
-                            Padding="{DynamicResource Inset.12.8}"
-                            MinHeight="{DynamicResource Space.40}"
-                            MaxWidth="136"
-                            MinWidth="104"
+                            MinWidth="{DynamicResource Control.MinWidth}"
                             Content="{Binding CancelText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding CancelText, Mode=OneWay}"
                             IsCancel="True"
@@ -288,10 +221,7 @@
 
                     <Button x:Name="ConfirmButton"
                             Grid.Column="3"
-                            Padding="{DynamicResource Inset.12.8}"
-                            MinHeight="{DynamicResource Space.40}"
-                            MaxWidth="136"
-                            MinWidth="104"
+                            MinWidth="{DynamicResource Control.MinWidth}"
                             Content="{Binding ConfirmText, Mode=OneWay}"
                             AutomationProperties.Name="{Binding ConfirmText, Mode=OneWay}"
                             Style="{StaticResource DangerButtonStyle}"

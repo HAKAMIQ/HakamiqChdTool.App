@@ -29,7 +29,7 @@ public partial class ClearTaskLogConfirmationDialog : Window
         ArgumentException.ThrowIfNullOrWhiteSpace(cancelText);
 
         InitializeComponent();
-        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyRoundedDialog(this);
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
         AppLanguageService.ApplyToWindow(this);
 
         DataContext = new ConfirmationDialogModel(

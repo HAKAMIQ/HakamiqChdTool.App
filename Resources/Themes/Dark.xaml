@@ -361,6 +361,7 @@
     <Color x:Key="Color.HeaderLogoPlateBackground">#FF082338</Color>
     <Color x:Key="Color.HeaderLogoPlateBorder">#FF1E78D7</Color>
     <Color x:Key="Color.HeaderChromeDivider">#FF333333</Color>
+    <Color x:Key="Color.Header.ThemeGlyph">#FF94A3B8</Color>
     <Color x:Key="Color.TopNavHoverBackground">#FF323232</Color>
     <Color x:Key="Color.TopNavPressedBackground">#FF1A1A1A</Color>
 
@@ -569,6 +570,7 @@
     <SolidColorBrush x:Key="HeaderLogoPlateBackgroundBrush" Color="{DynamicResource Color.HeaderLogoPlateBackground}" />
     <SolidColorBrush x:Key="HeaderLogoPlateBorderBrush" Color="{DynamicResource Color.HeaderLogoPlateBorder}" />
     <SolidColorBrush x:Key="HeaderChromeDividerBrush" Color="{DynamicResource Color.HeaderChromeDivider}" />
+    <SolidColorBrush x:Key="Brush.Header.ThemeGlyph" Color="{DynamicResource Color.Header.ThemeGlyph}" />
     <SolidColorBrush x:Key="TopNavHoverBackgroundBrush" Color="{DynamicResource Color.TopNavHoverBackground}" />
     <SolidColorBrush x:Key="TopNavPressedBackgroundBrush" Color="{DynamicResource Color.TopNavPressedBackground}" />
 

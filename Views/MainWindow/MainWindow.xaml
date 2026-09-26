@@ -44,6 +44,13 @@
             <Setter Property="CornerRadius" Value="{DynamicResource Radius.Window}" />
             <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Text.Primary}" />
             <Setter Property="ClipToBounds" Value="True" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                             Value="Maximized">
+                    <Setter Property="BorderThickness" Value="{DynamicResource Inset.None}" />
+                    <Setter Property="CornerRadius" Value="{DynamicResource Radius.None}" />
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="MainWindow.ContentSurface"
@@ -110,8 +117,8 @@
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{DynamicResource Layout.ActionPanel.GridWidth}"
-                                      MinWidth="232"
-                                      MaxWidth="260" />
+                                      MinWidth="{DynamicResource Layout.ActionPanel.MinWidth}"
+                                      MaxWidth="{DynamicResource Layout.ActionPanel.MaxWidth}" />
                     <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>

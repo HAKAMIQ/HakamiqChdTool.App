@@ -54,72 +54,6 @@
                 </ToolTip.ContentTemplate>
             </ToolTip>
 
-            <Style x:Key="RenameDialog.RootFrame"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness"
-                        Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius"
-                        Value="{DynamicResource Radius.Dialog}" />
-                <Setter Property="TextElement.Foreground"
-                        Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="ClipToBounds"
-                        Value="True" />
-                <Setter Property="SnapsToDevicePixels"
-                        Value="True" />
-                <Setter Property="UseLayoutRounding"
-                        Value="True" />
-            </Style>
-
-            <Style x:Key="RenameDialog.CaptionBar"
-                   TargetType="{x:Type Border}">
-                <Setter Property="MinHeight"
-                        Value="{DynamicResource Space.40}" />
-                <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness"
-                        Value="{DynamicResource Inset.0.0.0.1}" />
-                <Setter Property="Padding"
-                        Value="{DynamicResource Inset.12.0}" />
-                <Setter Property="SnapsToDevicePixels"
-                        Value="True" />
-                <Setter Property="UseLayoutRounding"
-                        Value="True" />
-            </Style>
-
-            <Style x:Key="RenameDialog.ContentHost"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Canvas}" />
-                <Setter Property="Padding"
-                        Value="{DynamicResource Inset.12.All}" />
-                <Setter Property="SnapsToDevicePixels"
-                        Value="True" />
-                <Setter Property="UseLayoutRounding"
-                        Value="True" />
-            </Style>
-
-            <Style x:Key="RenameDialog.Footer"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Surface}" />
-                <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="BorderThickness"
-                        Value="{DynamicResource Inset.0.1.0.0}" />
-                <Setter Property="Padding"
-                        Value="{DynamicResource Inset.12.8}" />
-                <Setter Property="SnapsToDevicePixels"
-                        Value="True" />
-                <Setter Property="UseLayoutRounding"
-                        Value="True" />
-            </Style>
-
             <Style x:Key="RenameDialog.GeneralText"
                    TargetType="{x:Type TextBlock}">
                 <Setter Property="FontFamily"
@@ -138,23 +72,6 @@
                         Value="True" />
                 <Setter Property="UseLayoutRounding"
                         Value="True" />
-            </Style>
-
-            <Style x:Key="RenameDialog.CaptionText"
-                   TargetType="{x:Type TextBlock}"
-                   BasedOn="{StaticResource RenameDialog.GeneralText}">
-                <Setter Property="FontSize"
-                        Value="{DynamicResource FontSize.BodySmall}" />
-                <Setter Property="FontWeight"
-                        Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground"
-                        Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="VerticalAlignment"
-                        Value="Center" />
-                <Setter Property="TextWrapping"
-                        Value="NoWrap" />
-                <Setter Property="TextTrimming"
-                        Value="CharacterEllipsis" />
             </Style>
 
             <Style x:Key="RenameDialog.BodyText"
@@ -232,7 +149,7 @@
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-    <Border Style="{StaticResource RenameDialog.RootFrame}">
+    <Border Style="{StaticResource Win11.DialogRootFrame}">
         <Grid ClipToBounds="True"
               FlowDirection="{DynamicResource App.FlowDirection}"
               Language="{DynamicResource App.XmlLanguage}"
@@ -245,7 +162,8 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Style="{StaticResource RenameDialog.CaptionBar}">
+                    Style="{StaticResource Win11.DialogTopBar}"
+                    MouseLeftButtonDown="Header_MouseLeftButtonDown">
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -257,7 +175,7 @@
                     <TextBlock Grid.Column="0"
                                Text="{Binding Title, Mode=OneWay}"
                                d:Text="تأكيد إعادة التسمية"
-                               Style="{StaticResource RenameDialog.CaptionText}" />
+                               Style="{StaticResource Win11.DialogTitleText}" />
 
                     <Button Grid.Column="2"
                             Width="{DynamicResource Space.32}"
@@ -286,7 +204,7 @@
             </Border>
 
             <Border Grid.Row="1"
-                    Style="{StaticResource RenameDialog.ContentHost}">
+                    Style="{StaticResource Win11.DialogContentHost}">
 
                 <Grid>
                     <Grid.RowDefinitions>
@@ -322,7 +240,7 @@
             </Border>
 
             <Border Grid.Row="2"
-                    Style="{StaticResource RenameDialog.Footer}">
+                    Style="{StaticResource Win11.DialogActionBar}">
 
                 <Grid>
                     <Grid.ColumnDefinitions>

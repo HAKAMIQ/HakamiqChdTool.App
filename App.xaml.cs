@@ -48,6 +48,8 @@ public partial class App : WpfApplication
 
     protected override void OnStartup(WpfStartupEventArgs e)
     {
+        AccessibleText.Register();
+
         if (IsIntegrationTestHost)
         {
             base.OnStartup(e);

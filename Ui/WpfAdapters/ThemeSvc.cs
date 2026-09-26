@@ -11,6 +11,8 @@ public sealed class ThemeService
 {
     public const string LightThemeName = "Light";
     public const string DarkThemeName = "Dark";
+
+    // Legacy persisted value. It has no palette of its own and always resolves to Dark.
     public const string HakamiqThemeName = "Hakamiq";
 
     public static ThemeService Instance { get; } = new();
@@ -23,11 +25,6 @@ public sealed class ThemeService
 
     public bool IsDarkTheme =>
         string.Equals(_currentThemeName, DarkThemeName, StringComparison.OrdinalIgnoreCase);
-
-    public bool IsHakamiqTheme =>
-        string.Equals(_currentThemeName, HakamiqThemeName, StringComparison.OrdinalIgnoreCase);
-
-    public bool IsDarkChrome => IsDarkTheme || IsHakamiqTheme;
 
     private ThemeService()
     {
@@ -158,37 +155,6 @@ public sealed class ThemeService
         {
             merged.Add(next);
         }
-
-        RefreshRuntimeThemeAliases(app);
-    }
-
-    private static void RefreshRuntimeThemeAliases(AppHost app)
-    {
-        ArgumentNullException.ThrowIfNull(app);
-
-        SetRuntimeThemeAlias(app, "Win11.Layer.BackdropBrush", "Brush.Layer.Canvas");
-        SetRuntimeThemeAlias(app, "Win11.Layer.SurfaceBrush", "Brush.Surface");
-        SetRuntimeThemeAlias(app, "Win11.Layer.CardBrush", "Brush.Card");
-        SetRuntimeThemeAlias(app, "Win11.Stroke.SubtleBrush", "Brush.Border.Subtle");
-        SetRuntimeThemeAlias(app, "Win11.Stroke.DefaultBrush", "Brush.Border.Default");
-
-        SetRuntimeThemeAlias(app, "FluentPageBackgroundBrush", "Brush.Background");
-        SetRuntimeThemeAlias(app, "FluentAccentBrush", "Brush.Accent");
-        SetRuntimeThemeAlias(app, "FluentHeaderBgBrush", "Brush.Surface");
-        SetRuntimeThemeAlias(app, "FluentCardSurfaceBrush", "Brush.Card");
-        SetRuntimeThemeAlias(app, "FluentSecondaryButtonBgBrush", "Brush.Surface");
-        SetRuntimeThemeAlias(app, "FluentSecondaryTextBrush", "Brush.Text.Secondary");
-    }
-
-    private static void SetRuntimeThemeAlias(AppHost app, string targetKey, string sourceKey)
-    {
-        object? source = app.TryFindResource(sourceKey);
-        if (source is null)
-        {
-            return;
-        }
-
-        app.Resources[targetKey] = source;
     }
 
     private static string? NormalizeThemeName(string? themeName)

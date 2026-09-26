@@ -8,6 +8,7 @@
              UseLayoutRounding="True">
 
     <DataGrid x:Name="TasksDataGrid"
+              AutomationProperties.Name="{DynamicResource LocUi_QueueSection_Title}"
               ItemsSource="{Binding QueueItems}"
               SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
               AutoGenerateColumns="False"

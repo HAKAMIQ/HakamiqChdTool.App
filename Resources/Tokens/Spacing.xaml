@@ -229,13 +229,15 @@
     <sys:Double x:Key="Window.Main.PreferredHeight">640</sys:Double>
     <sys:Double x:Key="Window.Main.MinWidth">840</sys:Double>
     <sys:Double x:Key="Window.Main.MinHeight">560</sys:Double>
-    <sys:Double x:Key="Window.CaptionHeight">40</sys:Double>
+    <!-- Caption band = top resize border (8) + caption height (48) = main header row (56). -->
+    <sys:Double x:Key="Window.CaptionHeight">48</sys:Double>
     <Thickness x:Key="Window.ResizeBorderThickness">8</Thickness>
 
     <sys:Double x:Key="Layout.NavRail.Width">188</sys:Double>
     <GridLength x:Key="Layout.NavRail.GridWidth">188</GridLength>
-    <sys:Double x:Key="Layout.ActionPanel.Width">292</sys:Double>
-    <GridLength x:Key="Layout.ActionPanel.GridWidth">292</GridLength>
+    <GridLength x:Key="Layout.ActionPanel.GridWidth">260</GridLength>
+    <sys:Double x:Key="Layout.ActionPanel.MinWidth">232</sys:Double>
+    <sys:Double x:Key="Layout.ActionPanel.MaxWidth">260</sys:Double>
     <GridLength x:Key="Grid.OptionsSidebar.Width">208</GridLength>
     <sys:Double x:Key="Grid.Settings.ActionColumn.Width">320</sys:Double>
     <sys:Double x:Key="Options.ComboBox.DropDownMaxHeight">320</sys:Double>
@@ -254,10 +256,10 @@
     <sys:Double x:Key="Window.About.Height">600</sys:Double>
     <sys:Double x:Key="Window.About.MinWidth">600</sys:Double>
     <sys:Double x:Key="Window.About.MinHeight">560</sys:Double>
-    <sys:Double x:Key="Window.Options.Width">1000</sys:Double>
-    <sys:Double x:Key="Window.Options.Height">760</sys:Double>
-    <sys:Double x:Key="Window.Options.MinWidth">960</sys:Double>
-    <sys:Double x:Key="Window.Options.MinHeight">720</sys:Double>
+    <sys:Double x:Key="Window.Options.Width">700</sys:Double>
+    <sys:Double x:Key="Window.Options.Height">600</sys:Double>
+    <sys:Double x:Key="Window.Options.MinWidth">680</sys:Double>
+    <sys:Double x:Key="Window.Options.MinHeight">440</sys:Double>
     <sys:Double x:Key="Window.Rename.Width">560</sys:Double>
     <sys:Double x:Key="Window.Rename.MinWidth">520</sys:Double>
     <sys:Double x:Key="Window.Rename.MaxWidth">760</sys:Double>
