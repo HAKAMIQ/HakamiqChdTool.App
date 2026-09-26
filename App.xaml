@@ -30,10 +30,10 @@
 
             <FlowDirection x:Key="App.FlowDirection">RightToLeft</FlowDirection>
             <FlowDirection x:Key="App.CaptionButtonsFlowDirection">RightToLeft</FlowDirection>
-            <TextAlignment x:Key="App.DefaultTextAlignment">Right</TextAlignment>
+            <TextAlignment x:Key="App.DefaultTextAlignment">Left</TextAlignment>
             <markup:XmlLanguage x:Key="App.XmlLanguage">ar-SA</markup:XmlLanguage>
 
-            <TextAlignment x:Key="Options.SettingsTextAlignment">Right</TextAlignment>
+            <TextAlignment x:Key="Options.SettingsTextAlignment">Left</TextAlignment>
 
             <FlowDirection x:Key="TechnicalText.FlowDirection">LeftToRight</FlowDirection>
             <TextAlignment x:Key="TechnicalText.TextAlignment">Left</TextAlignment>

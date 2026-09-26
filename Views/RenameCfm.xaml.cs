@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Input;
 
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.ViewModels;
@@ -46,6 +47,23 @@ public partial class RenameConfirmationDialog : Window
         }
 
         CloseWithResult(result.Value);
+    }
+
+    private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton != MouseButton.Left || e.ButtonState != MouseButtonState.Pressed)
+        {
+            return;
+        }
+
+        try
+        {
+            DragMove();
+            e.Handled = true;
+        }
+        catch (InvalidOperationException)
+        {
+        }
     }
 
     private void CloseWithResult(bool result)

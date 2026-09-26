@@ -70,38 +70,6 @@
                 </ToolTip.ContentTemplate>
             </ToolTip>
 
-            <Style x:Key="RedumpDetails.Root"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Default}" />
-                <Setter Property="BorderThickness"
-                        Value="{DynamicResource Inset.1.All}" />
-                <Setter Property="CornerRadius"
-                        Value="{DynamicResource Radius.Dialog}" />
-                <Setter Property="ClipToBounds"
-                        Value="True" />
-                <Setter Property="SnapsToDevicePixels"
-                        Value="True" />
-                <Setter Property="UseLayoutRounding"
-                        Value="True" />
-            </Style>
-
-            <Style x:Key="RedumpDetails.Bar"
-                   TargetType="{x:Type Border}">
-                <Setter Property="Background"
-                        Value="{DynamicResource Brush.Layer.Card}" />
-                <Setter Property="BorderBrush"
-                        Value="{DynamicResource Brush.Border.Subtle}" />
-                <Setter Property="Padding"
-                        Value="{DynamicResource Inset.12.8}" />
-                <Setter Property="SnapsToDevicePixels"
-                        Value="True" />
-                <Setter Property="UseLayoutRounding"
-                        Value="True" />
-            </Style>
-
             <Style x:Key="RedumpDetails.ContentHost"
                    TargetType="{x:Type Border}">
                 <Setter Property="Background"
@@ -269,21 +237,6 @@
                         Value="True" />
                 <Setter Property="UseLayoutRounding"
                         Value="True" />
-            </Style>
-
-            <Style x:Key="RedumpDetails.WindowTitle"
-                   TargetType="{x:Type TextBlock}"
-                   BasedOn="{StaticResource RedumpDetails.Text}">
-                <Setter Property="FontSize"
-                        Value="{DynamicResource FontSize.HeaderTitle}" />
-                <Setter Property="FontWeight"
-                        Value="{DynamicResource FontWeight.SemiBold}" />
-                <Setter Property="Foreground"
-                        Value="{DynamicResource Brush.Text.Primary}" />
-                <Setter Property="TextWrapping"
-                        Value="NoWrap" />
-                <Setter Property="TextTrimming"
-                        Value="CharacterEllipsis" />
             </Style>
 
             <Style x:Key="RedumpDetails.FileTitle"
@@ -679,7 +632,7 @@
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-    <Border Style="{StaticResource RedumpDetails.Root}">
+    <Border Style="{StaticResource Win11.DialogRootFrame}">
         <Grid ClipToBounds="True"
               FlowDirection="{DynamicResource App.FlowDirection}"
               Language="{DynamicResource App.XmlLanguage}"
@@ -692,25 +645,21 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Style="{StaticResource RedumpDetails.Bar}"
-                    FlowDirection="LeftToRight"
-                    Padding="{DynamicResource Inset.8.8.16.8}"
-                    BorderThickness="{DynamicResource Inset.0.0.0.1}"
+                    Style="{StaticResource Win11.DialogTopBar}"
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
 
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.10}" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="2"
+                    <TextBlock Grid.Column="0"
                                Text="{DynamicResource LocRedumpDetails_Title}"
-                               Style="{StaticResource RedumpDetails.WindowTitle}"
-                               VerticalAlignment="Center" />
+                               Style="{StaticResource Win11.DialogTitleText}" />
 
-                    <Button Grid.Column="0"
+                    <Button Grid.Column="2"
                             Width="{DynamicResource Space.32}"
                             Height="{DynamicResource Space.32}"
                             MinWidth="{DynamicResource Space.32}"
@@ -1038,8 +987,7 @@
             </Border>
 
             <Border Grid.Row="2"
-                    Style="{StaticResource RedumpDetails.Bar}"
-                    BorderThickness="{DynamicResource Inset.0.1.0.0}">
+                    Style="{StaticResource Win11.DialogActionBar}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
