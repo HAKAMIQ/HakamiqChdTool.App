@@ -26,24 +26,6 @@
         </Setter>
     </Style>
 
-    <SolidColorBrush x:Key="FluentPageBackgroundBrush"
-                     Color="{DynamicResource Color.Background}" />
-
-    <SolidColorBrush x:Key="FluentAccentBrush"
-                     Color="{DynamicResource Color.Accent}" />
-
-    <SolidColorBrush x:Key="FluentHeaderBgBrush"
-                     Color="{DynamicResource Color.Surface}" />
-
-    <SolidColorBrush x:Key="FluentCardSurfaceBrush"
-                     Color="{DynamicResource Color.Card}" />
-
-    <SolidColorBrush x:Key="FluentSecondaryButtonBgBrush"
-                     Color="{DynamicResource Color.Surface}" />
-
-    <SolidColorBrush x:Key="FluentSecondaryTextBrush"
-                     Color="{DynamicResource Color.Text.Secondary}" />
-
     <Style x:Key="FluentPathIconBase"
            TargetType="{x:Type Path}">
         <Setter Property="Stretch" Value="Uniform" />

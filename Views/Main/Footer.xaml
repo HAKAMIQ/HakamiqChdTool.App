@@ -198,6 +198,7 @@
 
                         <ProgressBar x:Name="QueueProgressBar"
                                      Grid.Column="2"
+                                     AutomationProperties.Name="{DynamicResource LocUi_Dashboard_Progress}"
                                      Width="{DynamicResource Footer.Progress.Width}"
                                      Minimum="{DynamicResource Progress.Minimum}"
                                      Maximum="{DynamicResource Progress.Maximum}"

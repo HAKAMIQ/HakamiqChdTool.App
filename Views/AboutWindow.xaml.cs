@@ -21,7 +21,7 @@ public partial class AboutWindow : Window
         ArgumentNullException.ThrowIfNull(viewModel);
 
         InitializeComponent();
-        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyRoundedDialog(this);
+        HakamiqChdTool.App.Ui.Shell.WindowBackdrop.ApplyDialog(this);
         AppLanguageService.ApplyToWindow(this);
 
         DataContext = viewModel;

@@ -423,9 +423,6 @@ internal sealed class MainWindowStartupCoordinator
         double preferredWidth = GetRequiredDoubleResource("Window.Main.PreferredWidth");
         double preferredHeight = GetRequiredDoubleResource("Window.Main.PreferredHeight");
 
-        _owner.MaxWidth = workArea.Width;
-        _owner.MaxHeight = workArea.Height;
-
         _owner.Width = Math.Min(preferredWidth, workArea.Width);
         _owner.Height = Math.Min(preferredHeight, workArea.Height);
 

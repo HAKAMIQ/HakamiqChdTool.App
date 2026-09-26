@@ -208,10 +208,9 @@ public sealed class AppLanguageService
 
     private void ApplyApplicationLanguageResources(AppHost app)
     {
-        TextAlignment textAlignment =
-            CurrentFlowDirection == FlowDirection.RightToLeft
-                ? TextAlignment.Right
-                : TextAlignment.Left;
+        // WPF mirrors TextAlignment under FlowDirection.RightToLeft, so Left is the
+        // leading edge in both languages. Right would push Arabic text to the visual left.
+        const TextAlignment textAlignment = TextAlignment.Left;
 
         app.Resources[AppFlowDirectionResourceKey] =
             CurrentFlowDirection;
