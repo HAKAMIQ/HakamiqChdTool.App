@@ -31,7 +31,7 @@ internal sealed class WorkflowPostProcessingStage
 
         try
         {
-            return _artifacts.CopyMatchingSbiIfExists(workingInputPath, finalOutputPath, replaceExisting: !settings.SkipExistingOutput);
+            return _artifacts.CopyMatchingSbiIfExists(workingInputPath, finalOutputPath);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException)
         {

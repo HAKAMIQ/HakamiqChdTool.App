@@ -9,23 +9,6 @@ public sealed partial class OptionsViewModel
     private string _externalToolsCsoKitPath = ArabicUi.Get("LocValue_Unavailable");
     private bool _externalToolsCsoKitIsAvailable;
     private bool _externalToolsCsoKitShowSetupNote = true;
-    private string _externalToolsIgirStatusText = ArabicUi.Get("LocExternalTools_IgirStatusMissing");
-    private string _externalToolsIgirVersion = ArabicUi.Get("LocValue_Unavailable");
-    private string _externalToolsIgirPath = ArabicUi.Get("LocValue_Unavailable");
-    private bool _externalToolsIgirIsAvailable;
-
-    public string ExternalToolsIgirStatusText { get => _externalToolsIgirStatusText; private set => SetProperty(ref _externalToolsIgirStatusText, value); }
-    public string ExternalToolsIgirVersion { get => _externalToolsIgirVersion; private set => SetProperty(ref _externalToolsIgirVersion, value); }
-    public string ExternalToolsIgirPath { get => _externalToolsIgirPath; private set => SetProperty(ref _externalToolsIgirPath, value); }
-    public bool ExternalToolsIgirIsAvailable { get => _externalToolsIgirIsAvailable; private set => SetProperty(ref _externalToolsIgirIsAvailable, value); }
-
-    public void SetIgirExternalToolStatus(string status, string version, string path, bool available)
-    {
-        ExternalToolsIgirStatusText = status;
-        ExternalToolsIgirVersion = string.IsNullOrWhiteSpace(version) ? ArabicUi.Get("LocValue_Unavailable") : version;
-        ExternalToolsIgirPath = string.IsNullOrWhiteSpace(path) ? ArabicUi.Get("LocValue_Unavailable") : path;
-        ExternalToolsIgirIsAvailable = available;
-    }
 
     public string ExternalToolsCsoKitStatusText
     {

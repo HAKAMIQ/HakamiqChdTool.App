@@ -242,9 +242,7 @@ public sealed class SevenZipArchiveInspector
             || trimmed.StartsWith('/')
             || trimmed.StartsWith('\\')
             || Path.IsPathRooted(trimmed)
-            || trimmed.Contains(':')
-            // 7-Zip treats * and ? in an entry argument as wildcards and could stream more than this entry.
-            || trimmed.AsSpan().IndexOfAny('*', '?') >= 0)
+            || trimmed.Contains(':'))
         {
             return false;
         }

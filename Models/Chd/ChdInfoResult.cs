@@ -1,6 +1,4 @@
 using System;
-using HakamiqChdTool.App.Core.Chd;
-using HakamiqChdTool.App.Core.Verification;
 
 namespace HakamiqChdTool.App.Models.Chd;
 
@@ -60,9 +58,6 @@ public sealed class ChdInfoResult
 
     public bool IsGdRom =>
         string.Equals(MediaType, "GD-ROM", StringComparison.OrdinalIgnoreCase);
-
-    // Structure proven by CHD metadata tags alone; MediaType may be a size-based guess.
-    public DiscStructure MetadataStructure => ChdMetaTags.DetectStructure(Output);
 
     public string CommandLine { get; init; } = string.Empty;
 

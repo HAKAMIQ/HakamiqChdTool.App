@@ -17,9 +17,7 @@ param(
     [ValidateSet("auto", "runtime-required", "self-contained")]
     [string] $DeploymentMode = "auto",
 
-    [switch] $PreserveExistingPackages,
-
-    [string] $IgirSourceArchive = ".\Tools\igir\source\igir-5.7.2-source.tar.gz"
+    [switch] $PreserveExistingPackages
 )
 
 $ErrorActionPreference = "Stop"
@@ -54,10 +52,6 @@ $PackageDirectoryPath = Resolve-ProjectPath $PackageDirectory
 $VerificationOutputPath = Join-Path $ReleaseRoot "_package-verify"
 $ZipPath = Join-Path $PackageDirectoryPath $PackageName
 $ShaPath = "$ZipPath.sha256"
-$IgirSourceArchiveName = "igir-5.7.2-source.tar.gz"
-$IgirSourceArchiveHash = "EA5341ED3A40054BFBF2F6D26F6C76902C6D5EC949D66D38692218656245875B"
-$IgirSourcePath = Join-Path $PackageDirectoryPath $IgirSourceArchiveName
-$IncludesIgir = Test-Path -LiteralPath (Join-Path $ReleaseOutputPath "Tools\igir\win-x64\igir.exe") -PathType Leaf
 
 function Write-Info {
     param(
@@ -280,51 +274,11 @@ function Assert-Sha256FileMatchesZip {
     }
 }
 
-function Publish-IgirCorrespondingSource {
-    # GPL-3.0 section 6: igir.exe is only conveyed with its Corresponding Source next to the ZIP.
-    $sourceArchivePath = Resolve-ProjectPath $IgirSourceArchive
-    if (-not (Test-Path -LiteralPath $sourceArchivePath -PathType Leaf)) {
-        throw "igir is bundled but its Corresponding Source archive is missing: $sourceArchivePath. Run scripts\FetchIgirSource.ps1."
-    }
-
-    $actualHash = (Get-FileHash -LiteralPath $sourceArchivePath -Algorithm SHA256).Hash.ToUpperInvariant()
-    if ($actualHash -ne $IgirSourceArchiveHash) {
-        throw "igir Corresponding Source archive SHA-256 mismatch. Expected $IgirSourceArchiveHash, actual $actualHash."
-    }
-
-    Copy-Item -LiteralPath $sourceArchivePath -Destination $IgirSourcePath -Force
-    [System.IO.File]::WriteAllText("$IgirSourcePath.sha256", "$IgirSourceArchiveHash  $IgirSourceArchiveName`r`n", [System.Text.UTF8Encoding]::new($false))
-}
-
-function Assert-IgirCorrespondingSource {
-    if (-not $IncludesIgir) {
-        if (Test-Path -LiteralPath $IgirSourcePath) {
-            throw "igir source archive is present but the package does not include igir: $IgirSourcePath"
-        }
-
-        return
-    }
-
-    if (-not (Test-Path -LiteralPath $IgirSourcePath -PathType Leaf)) {
-        throw "igir is bundled but its Corresponding Source archive was not published: $IgirSourcePath"
-    }
-
-    $actualHash = (Get-FileHash -LiteralPath $IgirSourcePath -Algorithm SHA256).Hash.ToUpperInvariant()
-    $shaText = (Get-Content -LiteralPath "$IgirSourcePath.sha256" -Raw -Encoding UTF8).Trim()
-    if ($actualHash -ne $IgirSourceArchiveHash -or $shaText -ne "$IgirSourceArchiveHash  $IgirSourceArchiveName") {
-        throw "Published igir Corresponding Source does not match the pinned SHA-256: $IgirSourcePath"
-    }
-}
-
 function Assert-PackageDirectoryClean {
     $items = @(Get-ChildItem -LiteralPath $PackageDirectoryPath -Force -ErrorAction Stop)
     $approved = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     [void]$approved.Add($PackageName)
     [void]$approved.Add("$PackageName.sha256")
-    if ($IncludesIgir) {
-        [void]$approved.Add($IgirSourceArchiveName)
-        [void]$approved.Add("$IgirSourceArchiveName.sha256")
-    }
 
     if ($PreserveExistingPackages) {
         $packageMatch = [regex]::Match(
@@ -364,7 +318,6 @@ function Assert-PackageDirectoryClean {
     }
 
     Assert-Sha256FileMatchesZip
-    Assert-IgirCorrespondingSource
 }
 
 Assert-PackagePathsAreSafe
@@ -402,10 +355,6 @@ try {
     New-DeterministicReleaseZip
     Write-Sha256File
     Assert-Sha256FileMatchesZip
-    if ($IncludesIgir) {
-        Write-Info "Publishing igir Corresponding Source next to the ZIP: $IgirSourcePath"
-        Publish-IgirCorrespondingSource
-    }
 
     if (Test-Path -LiteralPath $VerificationOutputPath -PathType Container) {
         Remove-Item -LiteralPath $VerificationOutputPath -Recurse -Force -ErrorAction Stop
@@ -430,9 +379,6 @@ try {
 
     Write-Host "[PASS] Release package is ready: $ZipPath" -ForegroundColor Green
     Write-Host "[PASS] Release package SHA256: $ShaPath" -ForegroundColor Green
-    if ($IncludesIgir) {
-        Write-Host "[PASS] igir Corresponding Source: $IgirSourcePath" -ForegroundColor Green
-    }
 }
 finally {
     Pop-Location

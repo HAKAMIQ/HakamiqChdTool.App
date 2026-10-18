@@ -1,4 +1,3 @@
-using HakamiqChdTool.App.Core.Verification;
 using Microsoft.Data.Sqlite;
 using Serilog;
 using System;
@@ -21,17 +20,6 @@ public readonly record struct RedumpRomHit(
     string? Region,
     string? Version,
     string MatchSource);
-
-public readonly record struct RedumpHashQuery(
-    string Md5,
-    string Sha1,
-    string Crc32,
-    long SizeBytes);
-
-public sealed record RedumpDiscCandidate(
-    string SystemName,
-    string GameName,
-    IReadOnlyList<RedumpRomHit> Hits);
 
 public readonly record struct RedumpImportProgress(
     int RowsInserted,
@@ -157,226 +145,6 @@ public sealed class RedumpSqliteManager
                 ? value
                 : Convert.ToInt64(scalar ?? 0L, CultureInfo.InvariantCulture);
         }
-    }
-
-    // Every ROM entry of one disc, so a match can be checked for completeness.
-    public IReadOnlyList<RedumpReferenceRom> GetDiscRoms(string systemName, string gameName)
-    {
-        if (string.IsNullOrWhiteSpace(systemName) || string.IsNullOrWhiteSpace(gameName))
-        {
-            return [];
-        }
-
-        return QueryRoms(
-            "SELECT DISTINCT RomName, SizeBytes, MD5, SHA1, CRC FROM RomHashes WHERE SystemName = $sys AND GameName = $game;",
-            command =>
-            {
-                command.Parameters.AddWithValue("$sys", systemName);
-                command.Parameters.AddWithValue("$game", gameName);
-            });
-    }
-
-    // All ROM entries with this SHA-1 and size, so a fast-path hit can be required to be unique.
-    public IReadOnlyList<(string SystemName, string GameName, RedumpReferenceRom Rom)> FindRomsBySha1AndSize(
-        string sha1LowerHex,
-        long sizeBytes)
-    {
-        string sha1 = NormalizeHex(sha1LowerHex) ?? string.Empty;
-        if (sha1.Length == 0)
-        {
-            return [];
-        }
-
-        EnsureInitialized();
-
-        lock (_dbLock)
-        {
-            using SqliteConnection connection = OpenConnectionCore();
-            ApplyPragmas(connection);
-
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = """
-                SELECT DISTINCT SystemName, GameName, RomName, SizeBytes, MD5, SHA1, CRC
-                FROM RomHashes
-                WHERE SHA1 = $h AND SizeBytes = $size;
-                """;
-            command.Parameters.AddWithValue("$h", sha1);
-            command.Parameters.AddWithValue("$size", sizeBytes);
-
-            var hits = new List<(string, string, RedumpReferenceRom)>();
-            using SqliteDataReader reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                hits.Add((
-                    reader.GetString(0),
-                    reader.GetString(1),
-                    ReadReferenceRom(reader, 2)));
-            }
-
-            return hits;
-        }
-    }
-
-    private IReadOnlyList<RedumpReferenceRom> QueryRoms(string sql, Action<SqliteCommand> bind)
-    {
-        EnsureInitialized();
-
-        lock (_dbLock)
-        {
-            using SqliteConnection connection = OpenConnectionCore();
-            ApplyPragmas(connection);
-
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = sql;
-            bind(command);
-
-            var roms = new List<RedumpReferenceRom>();
-            using SqliteDataReader reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                roms.Add(ReadReferenceRom(reader, 0));
-            }
-
-            return roms;
-        }
-    }
-
-    private static RedumpReferenceRom ReadReferenceRom(SqliteDataReader reader, int first) =>
-        new(
-            reader.GetString(first),
-            reader.IsDBNull(first + 1) ? null : reader.GetInt64(first + 1),
-            reader.IsDBNull(first + 2) ? null : reader.GetString(first + 2),
-            reader.IsDBNull(first + 3) ? null : reader.GetString(first + 3),
-            reader.IsDBNull(first + 4) ? null : reader.GetString(first + 4));
-
-    // Discs (system + game) that own a ROM matching every file, ordered by system then game.
-    // TryMatchHash returns one arbitrary row when identical hashes belong to several discs,
-    // so a multi-file match is resolved here against the whole set of owning discs instead.
-    public IReadOnlyList<RedumpDiscCandidate> FindCommonDiscs(IReadOnlyList<RedumpHashQuery> files)
-    {
-        ArgumentNullException.ThrowIfNull(files);
-
-        if (files.Count == 0)
-        {
-            return [];
-        }
-
-        EnsureInitialized();
-
-        var perFile = new List<Dictionary<(string System, string Game), RedumpRomHit>>(files.Count);
-
-        lock (_dbLock)
-        {
-            using SqliteConnection connection = OpenConnectionCore();
-            ApplyPragmas(connection);
-
-            foreach (RedumpHashQuery file in files)
-            {
-                Dictionary<(string System, string Game), RedumpRomHit> owners = QueryOwners(connection, file);
-
-                if (owners.Count == 0)
-                {
-                    return [];
-                }
-
-                perFile.Add(owners);
-            }
-        }
-
-        var candidates = new List<RedumpDiscCandidate>();
-
-        foreach ((string System, string Game) disc in perFile[0].Keys)
-        {
-            if (perFile.All(owners => owners.ContainsKey(disc)))
-            {
-                candidates.Add(new RedumpDiscCandidate(
-                    disc.System,
-                    disc.Game,
-                    [.. perFile.Select(owners => owners[disc])]));
-            }
-        }
-
-        return [.. candidates
-            .OrderBy(static candidate => candidate.SystemName, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(static candidate => candidate.GameName, StringComparer.OrdinalIgnoreCase)];
-    }
-
-    // Same column precedence as TryMatchHash (SHA-1, then MD5, then CRC32); the first column
-    // with any row decides, and every disc owning that hash is returned.
-    private static Dictionary<(string System, string Game), RedumpRomHit> QueryOwners(
-        SqliteConnection connection,
-        RedumpHashQuery file)
-    {
-        string sha1 = NormalizeHex(file.Sha1) ?? string.Empty;
-        string md5 = NormalizeHex(file.Md5) ?? string.Empty;
-        string crc = NormalizeHex(file.Crc32) ?? string.Empty;
-
-        (string Column, string Hash, string Source)[] order =
-        [
-            ("SHA1", sha1, "Size+SHA1"),
-            ("MD5", md5, "Size+MD5"),
-            ("CRC", crc, "Size+CRC32")
-        ];
-
-        var owners = new Dictionary<(string, string), RedumpRomHit>(new DiscKeyComparer());
-
-        foreach ((string column, string hash, string source) in order)
-        {
-            if (hash.Length == 0 || !IsAllowedHashColumn(column))
-            {
-                continue;
-            }
-
-            using SqliteCommand command = connection.CreateCommand();
-            command.CommandText = $"""
-                SELECT SystemName, GameName, RomName, SizeBytes, CRC, Region, Version
-                FROM RomHashes
-                WHERE {column} = $h AND SizeBytes = $size
-                ORDER BY SystemName, GameName, RomName;
-                """;
-            command.Parameters.AddWithValue("$h", hash);
-            command.Parameters.AddWithValue("$size", file.SizeBytes);
-
-            using SqliteDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                string system = reader.GetString(0);
-                string game = reader.GetString(1);
-
-                owners.TryAdd(
-                    (system, game),
-                    new RedumpRomHit(
-                        system,
-                        game,
-                        reader.GetString(2),
-                        reader.IsDBNull(3) ? null : reader.GetInt64(3),
-                        reader.IsDBNull(4) ? null : reader.GetString(4),
-                        reader.IsDBNull(5) ? null : reader.GetString(5),
-                        reader.IsDBNull(6) ? null : reader.GetString(6),
-                        source));
-            }
-
-            if (owners.Count > 0)
-            {
-                break;
-            }
-        }
-
-        return owners;
-    }
-
-    private sealed class DiscKeyComparer : IEqualityComparer<(string System, string Game)>
-    {
-        public bool Equals((string System, string Game) x, (string System, string Game) y) =>
-            string.Equals(x.System, y.System, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(x.Game, y.Game, StringComparison.OrdinalIgnoreCase);
-
-        public int GetHashCode((string System, string Game) obj) =>
-            HashCode.Combine(
-                StringComparer.OrdinalIgnoreCase.GetHashCode(obj.System),
-                StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Game));
     }
 
     public bool TryMatchHash(string md5LowerHex, string sha1LowerHex, out RedumpRomHit hit) =>
@@ -556,12 +324,6 @@ public sealed class RedumpSqliteManager
                         progress?.Report(new RedumpImportProgress(totalInserted, null));
                     }
 
-                    // Nothing importable means the selection is not a usable catalog; keep the existing rows instead of committing an emptied table.
-                    if (totalInserted == 0)
-                    {
-                        throw new InvalidDataException("The selected DAT files contain no importable ROM rows.");
-                    }
-
                     transaction.Commit();
                     progress?.Report(new RedumpImportProgress(totalInserted, totalInserted));
 
@@ -645,12 +407,6 @@ public sealed class RedumpSqliteManager
                         pVersion,
                         progress,
                         cancellationToken);
-
-                    // A DAT with no importable rows must not wipe the system's existing rows.
-                    if (inserted == 0)
-                    {
-                        throw new InvalidDataException("The DAT file contains no importable ROM rows.");
-                    }
 
                     transaction.Commit();
                     progress?.Report(new RedumpImportProgress(inserted, inserted));

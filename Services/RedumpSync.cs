@@ -98,8 +98,6 @@ public sealed class RedumpGitHubSyncManager : IDisposable
     {
         ThrowIfDisposed();
 
-        using IDisposable activeLease = global::HakamiqChdTool.App.Core.Workflow.ActiveWorkflowRegistry.Enter();
-
         string sourceUrl = string.IsNullOrWhiteSpace(zipUrl)
             ? DefaultGitHubZipUrl
             : zipUrl.Trim();

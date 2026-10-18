@@ -14,38 +14,6 @@ public static class PendingWorkspacePathPolicy
     public const string LegacyOutputPendingDirectoryName = ".hakamiq-pending";
     public const string AppDataWorkspaceDirectoryName = "HakamiqCHDTool";
     public const string OperationFolderPrefix = "Operation_";
-    public const string JobMarkerFileName = ".hakamiq-job";
-    private const string JobMarkerContent = "HakamiqChdTool job workspace";
-
-    /// <summary>
-    /// Records that the app created this job directory. A directory is only auto-deleted as an orphan when it carries the
-    /// marker: with a custom workspace root, a user folder that merely starts with "Operation_" must never qualify.
-    /// </summary>
-    public static void WriteJobMarker(string jobDirectory)
-    {
-        File.WriteAllText(Path.Combine(jobDirectory, JobMarkerFileName), BuildJobMarkerContent(jobDirectory));
-    }
-
-    // The marker names its own directory, so a folder copied or renamed together with its marker no longer qualifies.
-    private static string BuildJobMarkerContent(string jobDirectory) =>
-        JobMarkerContent + "\n" + Path.GetFileName(Path.TrimEndingDirectorySeparator(Path.GetFullPath(jobDirectory)));
-
-    public static bool HasJobMarker(string jobDirectory)
-    {
-        try
-        {
-            string marker = Path.Combine(jobDirectory, JobMarkerFileName);
-            FileInfo info = new(marker);
-            return info.Exists
-                && (info.Attributes & FileAttributes.ReparsePoint) == 0
-                && info.Length is > 0 and < 256
-                && string.Equals(File.ReadAllText(marker), BuildJobMarkerContent(jobDirectory), StringComparison.OrdinalIgnoreCase);
-        }
-        catch (Exception ex) when (IsExpectedPathException(ex))
-        {
-            return false;
-        }
-    }
 
     public static string ResolvePendingWorkspaceRoot(string outputRoot, AppSettings settings)
     {

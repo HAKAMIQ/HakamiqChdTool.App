@@ -61,7 +61,6 @@ public partial class OptionsWindow : Window
         ExternalToolsPanel.RecheckRequested += _coordinator.RecheckExternalTools;
         ExternalToolsPanel.OpenToolsFolderRequested += _coordinator.OpenExternalToolsFolder;
         ExternalToolsPanel.BrowseCsoKitToolRequested += _coordinator.BrowseCsoKitTool;
-        ExternalToolsPanel.BrowseIgirToolRequested += _coordinator.BrowseIgirTool;
         Loaded += OptionsWindow_Loaded;
         Closed += OptionsWindow_Closed;
 
@@ -121,7 +120,6 @@ public partial class OptionsWindow : Window
         ExternalToolsPanel.RecheckRequested -= _coordinator.RecheckExternalTools;
         ExternalToolsPanel.OpenToolsFolderRequested -= _coordinator.OpenExternalToolsFolder;
         ExternalToolsPanel.BrowseCsoKitToolRequested -= _coordinator.BrowseCsoKitTool;
-        ExternalToolsPanel.BrowseIgirToolRequested -= _coordinator.BrowseIgirTool;
         _coordinator.Dispose();
         _coordinator = null;
     }

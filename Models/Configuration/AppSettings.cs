@@ -86,8 +86,6 @@ public sealed class AppSettings
 
     public string ExternalCsoKitPath { get; set; } = string.Empty;
 
-    public string ExternalIgirPath { get; set; } = string.Empty;
-
     public bool PortableMode { get; set; } = false;
 
     public bool HasSeenAdministratorWarning { get; set; } = false;
@@ -178,7 +176,6 @@ public sealed class AppSettings
         UseBundledChdman = other.UseBundledChdman;
         ExternalChdmanPath = other.ExternalChdmanPath;
         ExternalCsoKitPath = other.ExternalCsoKitPath;
-        ExternalIgirPath = other.ExternalIgirPath;
         PortableMode = other.PortableMode;
         HasSeenAdministratorWarning = other.HasSeenAdministratorWarning;
         DiscordSupportUrl = other.DiscordSupportUrl;
@@ -237,7 +234,6 @@ public sealed class AppSettings
             UseBundledChdman = UseBundledChdman,
             ExternalChdmanPath = ExternalChdmanPath,
             ExternalCsoKitPath = ExternalCsoKitPath,
-            ExternalIgirPath = ExternalIgirPath,
             PortableMode = PortableMode,
             HasSeenAdministratorWarning = HasSeenAdministratorWarning,
             DiscordSupportUrl = DiscordSupportUrl,

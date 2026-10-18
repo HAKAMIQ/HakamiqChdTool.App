@@ -1,11 +1,9 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Library;
 using HakamiqChdTool.App.ViewModels;
 using HakamiqChdTool.App.Views;
 using System;
-using System.Windows;
 using HakamiqChdTool.App.Ui.WpfAdapters;
 
 namespace HakamiqChdTool.App;
@@ -109,45 +107,5 @@ public partial class MainWindow
         };
 
         dialog.ShowDialog();
-    }
-
-    private LibraryAnalysisWindow? _libraryAnalysisWindow;
-
-    // Read-only and non-modal; one window (and so one analysis session) at a time.
-    internal void OpenLibraryAnalysisDialog()
-    {
-        if (_libraryAnalysisWindow is not null)
-        {
-            _libraryAnalysisWindow.Activate();
-            return;
-        }
-
-        LibraryAnalysisWindow window;
-        try
-        {
-            var service = new LibraryAnalysisService();
-            var viewModel = new LibraryAnalysisViewModel(
-                service.AnalyzeAsync,
-                new OptionsPickerService(),
-                confirm: key => MessageBox.Show(this, (string)FindResource(key),
-                    (string)FindResource("LocLib_Title"), MessageBoxButton.OKCancel, MessageBoxImage.Warning)
-                    == MessageBoxResult.OK);
-            window = new LibraryAnalysisWindow(viewModel)
-            {
-                Owner = this
-            };
-        }
-        catch (Exception ex)
-        {
-            global::Serilog.Log.Error(ex, "Library analysis window construction failed.");
-            ShowNoticeDialog(
-                MainWindowMessages.StartupRuntimeErrorTitle,
-                MainWindowMessages.StartupRuntimeErrorBody(RuntimeDiagnosticFormatter.SummarizeException(ex)));
-            return;
-        }
-
-        window.Closed += (_, _) => _libraryAnalysisWindow = null;
-        _libraryAnalysisWindow = window;
-        window.Show();
     }
 }

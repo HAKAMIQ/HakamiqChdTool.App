@@ -56,20 +56,6 @@ Upstream:
 https://github.com/HAKAMIQ/CsoKit
 
 --------------------------------------------------------------------------------
-igir
---------------------------------------------------------------------------------
-
-CHD Tool can optionally use the unmodified igir v5.7.2 executable for
-read-only DAT matching and CSV reports. The app invokes only `igir report`.
-The executable is fetched from the official upstream release and SHA-256
-verified before use. It never moves, copies, renames, or deletes library files.
-
-License: GPL-3.0-or-later. See IGIR_NOTICE.md and IGIR_GPL-3.0.txt.
-Upstream: https://github.com/emmercm/igir/tree/v5.7.2
-Corresponding Source: igir-5.7.2-source.tar.gz, published next to the release
-ZIP (SHA-256 EA5341ED3A40054BFBF2F6D26F6C76902C6D5EC949D66D38692218656245875B).
-
---------------------------------------------------------------------------------
 Microsoft Fluent UI System Icons
 --------------------------------------------------------------------------------
 

@@ -153,9 +153,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             () => _session.OpenAbout(),
             () => !_session.IsQueueInteractionLocked);
 
-        OpenLibraryAnalysisCommand = new RelayCommand(
-            () => _session.OpenLibraryAnalysis());
-
         RetryQueueItemCommand = new RelayCommand<TaskQueueItemViewModel?>(
             item => _session.RetryQueueItem(item),
             item => item is not null && !_session.IsQueueInteractionLocked);
@@ -205,8 +202,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     public IAsyncRelayCommand ScanFolderQuickExtractCommand { get; }
     public IRelayCommand OpenOptionsCommand { get; }
     public IRelayCommand OpenAboutCommand { get; }
-
-    public IRelayCommand OpenLibraryAnalysisCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> RetryQueueItemCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> RemoveQueueItemCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> CancelQueueJobCommand { get; }

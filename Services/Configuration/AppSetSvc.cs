@@ -94,9 +94,6 @@ public sealed class AppSettingsService : IDisposable
 
         AppSettings snapshot = settings.Clone();
 
-        // An explicit save carries the full current state; a pending debounced snapshot is older and must not overwrite it later.
-        CancelPendingSave();
-
         try
         {
             ThrowIfDisposed();
@@ -127,8 +124,6 @@ public sealed class AppSettingsService : IDisposable
         ArgumentNullException.ThrowIfNull(settings);
 
         AppSettings snapshot = settings.Clone();
-
-        CancelPendingSave();
 
         try
         {
@@ -270,7 +265,7 @@ public sealed class AppSettingsService : IDisposable
         }
 
         string json = JsonSerializer.Serialize(snapshot, JsonOptions);
-        WriteAtomically(configPath, json);
+        File.WriteAllText(configPath, json, Encoding.UTF8);
 
         if (snapshot.PortableMode && !string.IsNullOrWhiteSpace(_fallbackConfigPath))
         {
@@ -291,75 +286,11 @@ public sealed class AppSettingsService : IDisposable
         }
 
         string json = JsonSerializer.Serialize(snapshot, JsonOptions);
-        await WriteAtomicallyAsync(configPath, json, cancellationToken).ConfigureAwait(false);
+        await File.WriteAllTextAsync(configPath, json, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
 
         if (snapshot.PortableMode && !string.IsNullOrWhiteSpace(_fallbackConfigPath))
         {
             TryDeleteLegacyConfig(_fallbackConfigPath);
-        }
-    }
-
-    // The settings file is replaced, never truncated in place: a crash, power loss or a cancelled
-    // debounced save during the write must leave the previous complete file behind.
-    private static void WriteAtomically(string configPath, string json)
-    {
-        string stagedPath = configPath + ".tmp";
-
-        try
-        {
-            WriteStaged(stagedPath, json);
-            File.Move(stagedPath, configPath, overwrite: true);
-        }
-        catch
-        {
-            TryDeleteStaged(stagedPath);
-            throw;
-        }
-    }
-
-    private static async Task WriteAtomicallyAsync(string configPath, string json, CancellationToken cancellationToken)
-    {
-        string stagedPath = configPath + ".tmp";
-
-        try
-        {
-            await WriteStagedAsync(stagedPath, json, cancellationToken).ConfigureAwait(false);
-            File.Move(stagedPath, configPath, overwrite: true);
-        }
-        catch
-        {
-            TryDeleteStaged(stagedPath);
-            throw;
-        }
-    }
-
-    // Flushed to disk before the rename so a power loss cannot leave a renamed but empty file.
-    private static void WriteStaged(string stagedPath, string json)
-    {
-        using FileStream stream = new(stagedPath, FileMode.Create, FileAccess.Write, FileShare.None);
-        byte[] bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(json)).ToArray();
-        stream.Write(bytes, 0, bytes.Length);
-        stream.Flush(flushToDisk: true);
-    }
-
-    private static async Task WriteStagedAsync(string stagedPath, string json, CancellationToken cancellationToken)
-    {
-        await using FileStream stream = new(stagedPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
-        byte[] bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(json)).ToArray();
-        await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
-        await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
-        stream.Flush(flushToDisk: true);
-    }
-
-    private static void TryDeleteStaged(string stagedPath)
-    {
-        try
-        {
-            File.Delete(stagedPath);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            Logger.Debug(ex, "AppSettings: failed to remove staged settings file. Path={Path}", stagedPath);
         }
     }
 

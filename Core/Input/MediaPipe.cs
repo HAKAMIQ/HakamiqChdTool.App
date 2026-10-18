@@ -117,8 +117,7 @@ public sealed class MediaInputPipeline : IMediaInputPipeline
             QueueInputRole.DependentTrackFile =>
                 Block(
                     descriptor,
-                    MediaInputPipelineDecisionReasons.DependentTrackFile,
-                    QueueInputRole.DependentTrackFile),
+                    MediaInputPipelineDecisionReasons.DependentTrackFile),
 
             _ => descriptor.Kind == MediaInputKind.PKG
                 ? new MediaInputPipelineDecision(
@@ -136,12 +135,11 @@ public sealed class MediaInputPipeline : IMediaInputPipeline
 
     private static MediaInputPipelineDecision Block(
         MediaInputDescriptor descriptor,
-        string reason,
-        QueueInputRole role = QueueInputRole.Unsupported) =>
+        string reason) =>
         new(
             descriptor,
             MediaInputPipelineAction.Block,
-            role,
+            QueueInputRole.Unsupported,
             descriptor.FullPath,
             reason,
             "LocIntake_UnknownOrUnsupported");

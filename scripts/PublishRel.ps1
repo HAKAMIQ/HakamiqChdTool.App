@@ -231,12 +231,6 @@ function Invoke-ReleaseComplianceChecks {
         Assert-FileExists $required
     }
 
-    if (Test-Path -LiteralPath (Join-Path $ProjectRoot 'Tools\igir\win-x64\igir.exe') -PathType Leaf) {
-        foreach ($required in @('docs\legal\IGIR_NOTICE.md', 'docs\legal\IGIR_GPL-3.0.txt', 'scripts\FetchIgir.ps1', 'scripts\FetchIgirSource.ps1')) {
-            Assert-FileExists $required
-        }
-    }
-
     Assert-NoStaleSourceArtifacts
     Assert-NoUnsupportedMameTools
 }
@@ -366,13 +360,6 @@ try {
     New-Item -ItemType Directory -Path $legalDocsPath -Force | Out-Null
     New-Item -ItemType Directory -Path $csoKitToolsPath -Force | Out-Null
 
-    $igirSource = Join-Path $ProjectRoot 'Tools\igir\win-x64\igir.exe'
-    if (Test-Path -LiteralPath $igirSource -PathType Leaf) {
-        $igirDestination = Join-Path $OutputPath 'Tools\igir\win-x64\igir.exe'
-        New-Item -ItemType Directory -Path (Split-Path -Parent $igirDestination) -Force | Out-Null
-        Copy-Item -LiteralPath $igirSource -Destination $igirDestination -Force
-    }
-
     foreach ($tool in @(
         @{ Source = "Tools\hakamiq-cso\win-x64\csokit.exe"; Destination = "Tools\hakamiq-cso\win-x64\csokit.exe" },
         @{ Source = "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll"; Destination = "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll" },
@@ -403,9 +390,7 @@ try {
         @{ Source = "docs\legal\MAME_COPYING.txt"; Destination = "docs\legal\MAME_COPYING.txt" },
         @{ Source = "docs\legal\MAME_GPL-2.0.txt"; Destination = "docs\legal\MAME_GPL-2.0.txt" },
         @{ Source = "docs\legal\7ZIP.md"; Destination = "docs\legal\7ZIP.md" },
-        @{ Source = "docs\legal\CSOKIT_NOTICE.md"; Destination = "docs\legal\CSOKIT_NOTICE.md" },
-        @{ Source = "docs\legal\IGIR_NOTICE.md"; Destination = "docs\legal\IGIR_NOTICE.md" },
-        @{ Source = "docs\legal\IGIR_GPL-3.0.txt"; Destination = "docs\legal\IGIR_GPL-3.0.txt" }
+        @{ Source = "docs\legal\CSOKIT_NOTICE.md"; Destination = "docs\legal\CSOKIT_NOTICE.md" }
     )) {
         $sourcePath = Join-Path $ProjectRoot $doc.Source
         if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {

@@ -245,9 +245,7 @@ internal static class WorkflowPendingOutputCleaner
         }
     }
 
-    // Fails closed: a subtree that cannot be enumerated is reported as "contains a reparse point",
-    // so a destructive caller never deletes a tree it could not fully inspect.
-    internal static bool ContainsReparsePoint(string directory)
+    private static bool ContainsReparsePoint(string directory)
     {
         if (HasReparsePoint(directory))
         {
@@ -257,24 +255,16 @@ internal static class WorkflowPendingOutputCleaner
         var options = new EnumerationOptions
         {
             RecurseSubdirectories = true,
-            IgnoreInaccessible = false,
+            IgnoreInaccessible = true,
             AttributesToSkip = 0
         };
 
-        try
+        foreach (string entry in Directory.EnumerateFileSystemEntries(directory, "*", options))
         {
-            foreach (string entry in Directory.EnumerateFileSystemEntries(directory, "*", options))
+            if (HasReparsePoint(entry))
             {
-                if (HasReparsePoint(entry))
-                {
-                    return true;
-                }
+                return true;
             }
-        }
-        catch (Exception ex) when (IsExpectedCleanupException(ex) || ex is DirectoryNotFoundException)
-        {
-            Logger.Debug(ex, "Reparse scan could not enumerate a subtree; treating it as unsafe. Directory={Directory}", directory);
-            return true;
         }
 
         return false;

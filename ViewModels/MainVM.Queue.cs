@@ -78,11 +78,16 @@ public partial class MainWindowViewModel
     {
         ArgumentNullException.ThrowIfNull(rawPaths);
 
-        // Claim the intake atomically: the IsAddingFiles flag is only set after several awaits, so a
-        // check-then-set on it alone lets two intakes overlap.
-        if (Interlocked.CompareExchange(ref _intakeGate, 1, 0) != 0)
+        List<string> rawList = rawPaths
+            .Where(static path => !string.IsNullOrWhiteSpace(path))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        Dispatcher dispatcher = _session.UiDispatcher;
+
+        if (IsAddingFiles)
         {
-            await _session.UiDispatcher.InvokeAsync(() =>
+            await dispatcher.InvokeAsync(() =>
             {
                 _session.SetFooterStatus(MainWindowMessages.WaitForBackgroundOp);
                 _session.UpdateUiState();
@@ -90,43 +95,6 @@ public partial class MainWindowViewModel
 
             return Array.Empty<Guid>();
         }
-
-        try
-        {
-            return await AddPathsGatedAsync(rawPaths, inputKind, executionProfile, intakeSource, cancellationToken)
-                .ConfigureAwait(false);
-        }
-        finally
-        {
-            Volatile.Write(ref _intakeGate, 0);
-        }
-    }
-
-    private async Task SetIsAddingFilesOnUiAsync(Dispatcher dispatcher, bool value)
-    {
-        if (dispatcher.CheckAccess() || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
-        {
-            IsAddingFiles = value;
-            return;
-        }
-
-        await dispatcher.InvokeAsync(() => IsAddingFiles = value, DispatcherPriority.Normal, CancellationToken.None);
-    }
-
-    private async Task<IReadOnlyList<Guid>> AddPathsGatedAsync(
-        IEnumerable<string> rawPaths,
-        QueueIngestKind inputKind,
-        QueueExecutionProfile executionProfile,
-        QueueIntakeSource intakeSource,
-        CancellationToken cancellationToken)
-    {
-
-        List<string> rawList = rawPaths
-            .Where(static path => !string.IsNullOrWhiteSpace(path))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        Dispatcher dispatcher = _session.UiDispatcher;
 
         if (rawList.Count == 0)
         {
@@ -160,7 +128,7 @@ public partial class MainWindowViewModel
 
         using CancellationTokenSource intakeCancellationCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _intakeCancellationCts = intakeCancellationCts;
-        await SetIsAddingFilesOnUiAsync(dispatcher, true).ConfigureAwait(false);
+        IsAddingFiles = true;
         long intakeUiVersion = 0;
         bool intakeUiEnded = false;
 
@@ -394,44 +362,32 @@ public partial class MainWindowViewModel
                 () =>
                 {
                     HashSet<string> currentExistingPaths = BuildExistingPathSet(_session.QueueRows);
-                    var newRows = new List<QueueRowData>();
 
-                    // Rows built before a cancellation or failure are still added, as they were when each row was appended on its own.
-                    try
+                    foreach (PreparedQueueCandidate candidate in consensusCandidates)
                     {
-                        foreach (PreparedQueueCandidate candidate in consensusCandidates)
+                        intakeToken.ThrowIfCancellationRequested();
+
+                        string normalizedCandidatePath = NormalizePathForAdvisoryKey(candidate.Path);
+                        if (currentExistingPaths.Contains(normalizedCandidatePath) || !IsExistingQueueInputPath(candidate.Path))
                         {
-                            intakeToken.ThrowIfCancellationRequested();
-
-                            string normalizedCandidatePath = NormalizePathForAdvisoryKey(candidate.Path);
-                            if (currentExistingPaths.Contains(normalizedCandidatePath) || !IsExistingQueueInputPath(candidate.Path))
-                            {
-                                continue;
-                            }
-
-                            QueueRowData row = BuildRowFromPath(
-                                candidate.Path,
-                                candidate.Action,
-                                candidate.DetectedPlatform,
-                                candidate.DetectionReason,
-                                executionProfile,
-                                intakeSource,
-                                intakeAdvisory: TryGetPreparedAdvisory(advisoryByPath, candidate.Path),
-                                inputClassification: candidate.Classification);
-
-                            newRows.Add(row);
-                            currentExistingPaths.Add(normalizedCandidatePath);
-                            addedIds.Add(row.ItemId);
-                            addedTotal++;
+                            continue;
                         }
-                    }
-                    finally
-                    {
-                        _session.QueueRows.AppendRange(newRows);
-                        foreach (QueueRowData row in newRows)
-                        {
-                            QueueConsoleIdentityEnrichment(row);
-                        }
+
+                        QueueRowData row = BuildRowFromPath(
+                            candidate.Path,
+                            candidate.Action,
+                            candidate.DetectedPlatform,
+                            candidate.DetectionReason,
+                            executionProfile,
+                            intakeSource,
+                            intakeAdvisory: TryGetPreparedAdvisory(advisoryByPath, candidate.Path),
+                            inputClassification: candidate.Classification);
+
+                        _session.QueueRows.Append(row);
+                        currentExistingPaths.Add(normalizedCandidatePath);
+                        addedIds.Add(row.ItemId);
+                        QueueConsoleIdentityEnrichment(row);
+                        addedTotal++;
                     }
 
                     _session.RequestSelectFirstQueueRowIfNone();
@@ -526,7 +482,7 @@ public partial class MainWindowViewModel
                     _intakeCancellationCts = null;
                 }
 
-                await SetIsAddingFilesOnUiAsync(dispatcher, false).ConfigureAwait(false);
+                IsAddingFiles = false;
 
                 if (!dispatcher.HasShutdownStarted && !dispatcher.HasShutdownFinished
                     && !intakeUiEnded

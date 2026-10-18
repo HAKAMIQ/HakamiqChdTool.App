@@ -1,5 +1,4 @@
 using HakamiqChdTool.App.Core.Disc;
-using HakamiqChdTool.App.Core.Verification;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
@@ -27,10 +26,7 @@ public sealed record DeepHashAnalysisResult(
     string MatchedGameName = "",
     int MatchedFileCount = 0,
     int HashedFileCount = 0,
-    string FailureCode = "",
-    MediaSemantics MediaSemantics = MediaSemantics.Unknown,
-    RedumpVerification RedumpVerification = RedumpVerification.NotVerified,
-    StorageCompatibility StorageCompatibility = StorageCompatibility.Unknown)
+    string FailureCode = "")
 {
     public bool IsFatalInputReadFailure =>
         string.Equals(
@@ -288,17 +284,8 @@ public static class DeepHashAnalyzer
             RedumpV2ResultState.Unsupported => IntegrityValidationState.Unsupported,
             RedumpV2ResultState.Failed => IntegrityValidationState.Failed,
             RedumpV2ResultState.Error => IntegrityValidationState.Error,
-            // Readable but not comparable to a Redump original (e.g. a decrypted PS3 image).
-            RedumpV2ResultState.NotRedumpOriginalLayout => IntegrityValidationState.Unsupported,
             _ => IntegrityValidationState.Error
         };
-
-        // A result is only "verified" when the policy granted a Redump proof level.
-        if (state == IntegrityValidationState.Verified
-            && result.RedumpVerification is RedumpVerification.NotVerified or RedumpVerification.NotApplicable)
-        {
-            state = IntegrityValidationState.Failed;
-        }
 
         string statusKey = result.State == RedumpV2ResultState.VerifiedNormalized
             ? StatusVerifiedNormalizedKey
@@ -317,10 +304,7 @@ public static class DeepHashAnalyzer
             result.MatchedGameName,
             result.MatchedFileCount,
             result.HashedFileCount,
-            result.FailureCode,
-            result.MediaSemantics,
-            result.RedumpVerification,
-            result.StorageCompatibility);
+            result.FailureCode);
     }
 
     private static DeepHashAnalysisResult BuildFullMatchResult(

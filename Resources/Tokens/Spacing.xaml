@@ -260,13 +260,6 @@
     <sys:Double x:Key="Window.Options.Height">600</sys:Double>
     <sys:Double x:Key="Window.Options.MinWidth">680</sys:Double>
     <sys:Double x:Key="Window.Options.MinHeight">440</sys:Double>
-    <sys:Double x:Key="Window.Library.Width">1040</sys:Double>
-    <sys:Double x:Key="Window.Library.Height">780</sys:Double>
-    <sys:Double x:Key="Window.Library.MinWidth">900</sys:Double>
-    <sys:Double x:Key="Window.Library.MinHeight">700</sys:Double>
-    <GridLength x:Key="Library.Details.Width">300</GridLength>
-    <sys:Double x:Key="Library.Report.MaxHeight">240</sys:Double>
-    <sys:Double x:Key="Library.Body.MinHeight">560</sys:Double>
     <sys:Double x:Key="Window.Rename.Width">560</sys:Double>
     <sys:Double x:Key="Window.Rename.MinWidth">520</sys:Double>
     <sys:Double x:Key="Window.Rename.MaxWidth">760</sys:Double>

@@ -24,36 +24,16 @@ public sealed class ExternalToolProcessRunner
 
     private static readonly ILogger Log = global::Serilog.Log.ForContext<ExternalToolProcessRunner>();
 
-    public Task<ExternalToolProcessResult> RunAsync(
+    public async Task<ExternalToolProcessResult> RunAsync(
         string executablePath,
         IReadOnlyList<string> arguments,
         CancellationToken cancellationToken,
-        int outputCharacterLimit = DefaultOutputCharacterLimit) =>
-        RunCoreAsync(executablePath, arguments, cancellationToken, outputCharacterLimit, expectedFileName: null);
-
-    public Task<ExternalToolProcessResult> RunAsync(
-        string executablePath,
-        IReadOnlyList<string> arguments,
-        CancellationToken cancellationToken,
-        int outputCharacterLimit,
-        string expectedFileName) =>
-        RunCoreAsync(executablePath, arguments, cancellationToken, outputCharacterLimit, expectedFileName);
-
-    private async Task<ExternalToolProcessResult> RunCoreAsync(
-        string executablePath,
-        IReadOnlyList<string> arguments,
-        CancellationToken cancellationToken,
-        int outputCharacterLimit,
-        string? expectedFileName)
+        int outputCharacterLimit = DefaultOutputCharacterLimit)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(executablePath);
         ArgumentNullException.ThrowIfNull(arguments);
 
-        string normalizedExecutablePath;
-        bool executableIsValid = expectedFileName is null
-            ? CsoToolLocator.TryValidateCandidate(executablePath, out normalizedExecutablePath)
-            : ExternalToolPathValidator.TryValidateCandidate(executablePath, expectedFileName, out normalizedExecutablePath);
-        if (!executableIsValid)
+        if (!CsoToolLocator.TryValidateCandidate(executablePath, out string normalizedExecutablePath))
         {
             Log.Warning("External tool path failed validation before process start. Tool={ToolPath}", executablePath);
             return new ExternalToolProcessResult(1, false, string.Empty, "External tool path is invalid.");

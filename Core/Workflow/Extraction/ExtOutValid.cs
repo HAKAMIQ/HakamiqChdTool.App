@@ -14,9 +14,6 @@ internal sealed class ExtractionOutputBundleValidator
 
     private readonly CueSheetReferenceReader _cueReader = new();
 
-    /// <summary>Test seam: runs with the final path just before each bundle file is promoted.</summary>
-    internal Action<string>? BeforeBundlePromotion { get; init; }
-
     public bool TryValidateExistingFinal(
         ExtractionOutputKind kind,
         string primaryPath,
@@ -37,7 +34,7 @@ internal sealed class ExtractionOutputBundleValidator
 
         return contract.Kind switch
         {
-            ExtractionOutputKind.SingleFile => TryFinalizeSingleFile(contract, allowOverwrite, out finalBundle, out failureMessageKey),
+            ExtractionOutputKind.SingleFile => TryFinalizeSingleFile(contract, out finalBundle, out failureMessageKey),
             ExtractionOutputKind.CueBinBundle => TryFinalizeCueBinBundle(contract, allowOverwrite, out finalBundle, out failureMessageKey),
             _ => false
         };
@@ -45,7 +42,6 @@ internal sealed class ExtractionOutputBundleValidator
 
     private static bool TryFinalizeSingleFile(
         ExtractionOutputContract contract,
-        bool allowOverwrite,
         out ExtractionOutputBundle finalBundle,
         out string failureMessageKey)
     {
@@ -60,20 +56,9 @@ internal sealed class ExtractionOutputBundleValidator
                 return false;
             }
 
-            // The early "skip existing" check can be stale by now. Without overwrite, the move itself refuses to replace
-            // a file that appeared in the meantime (a sibling job or the user).
-            if (allowOverwrite)
-            {
-                WorkflowOutputPathContract.PromoteProducedFileToFinalLocation(
-                    contract.PendingPrimaryPath,
-                    contract.FinalPrimaryPath);
-            }
-            else if (!WorkflowOutputPathContract.TryPromoteProducedFileIfAbsent(
-                         contract.PendingPrimaryPath,
-                         contract.FinalPrimaryPath))
-            {
-                return false;
-            }
+            WorkflowOutputPathContract.PromoteProducedFileToFinalLocation(
+                contract.PendingPrimaryPath,
+                contract.FinalPrimaryPath);
 
             if (!TryGetExistingFileLength(contract.FinalPrimaryPath, out long finalLength)
                 || finalLength <= 0)
@@ -144,13 +129,9 @@ internal sealed class ExtractionOutputBundleValidator
                     Directory.CreateDirectory(targetDirectory);
                 }
 
-                if (!PromoteBundleFile(dependency.PendingPath, dependency.FinalPath, allowOverwrite))
-                {
-                    // Taken by a concurrent writer since the pre-check; nothing of theirs was touched.
-                    RollbackCueBundle(plan.FinalCuePath, promotedDependencies, backups, stagedCuePath, finalCuePromoted);
-                    failureMessageKey = InvalidOutputKey;
-                    return false;
-                }
+                WorkflowOutputPathContract.PromoteProducedFileToFinalLocation(
+                    dependency.PendingPath,
+                    dependency.FinalPath);
 
                 promotedDependencies.Add(new CueBundlePromotion(
                     dependency.PendingPath,
@@ -165,13 +146,9 @@ internal sealed class ExtractionOutputBundleValidator
                 RewriteCueReferences(plan.SourceLines, plan.Dependencies),
                 new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 
-            if (!PromoteBundleFile(stagedCuePath, plan.FinalCuePath, allowOverwrite))
-            {
-                RollbackCueBundle(plan.FinalCuePath, promotedDependencies, backups, stagedCuePath, finalCuePromoted);
-                failureMessageKey = InvalidOutputKey;
-                return false;
-            }
-
+            WorkflowOutputPathContract.PromoteProducedFileToFinalLocation(
+                stagedCuePath,
+                plan.FinalCuePath);
             stagedCuePath = null;
             finalCuePromoted = true;
 
@@ -212,20 +189,6 @@ internal sealed class ExtractionOutputBundleValidator
                 allowOverwrite);
             return false;
         }
-    }
-
-    // Without overwrite the move itself refuses to replace a file that appeared after the pre-check.
-    private bool PromoteBundleFile(string pendingPath, string finalPath, bool allowOverwrite)
-    {
-        BeforeBundlePromotion?.Invoke(finalPath);
-
-        if (allowOverwrite)
-        {
-            WorkflowOutputPathContract.PromoteProducedFileToFinalLocation(pendingPath, finalPath);
-            return true;
-        }
-
-        return WorkflowOutputPathContract.TryPromoteProducedFileIfAbsent(pendingPath, finalPath);
     }
 
     private bool TryBuildCueBundleTransactionTargets(
@@ -447,9 +410,8 @@ internal sealed class ExtractionOutputBundleValidator
 
             try
             {
-                // Never delete whatever sits at the original path now: if something other than this transaction put a
-                // file there, the restore fails and the backup stays on disk instead of the newcomer being destroyed.
-                File.Move(backup.BackupPath, backup.OriginalPath, overwrite: false);
+                TryDeleteFile(backup.OriginalPath);
+                File.Move(backup.BackupPath, backup.OriginalPath);
             }
             catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
             {

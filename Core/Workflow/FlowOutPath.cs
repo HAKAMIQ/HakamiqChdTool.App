@@ -152,88 +152,12 @@ internal static class WorkflowOutputPathContract
             throw new InvalidOperationException(PendingWorkspaceValidationFailedKey);
         }
 
-        PendingWorkspacePathPolicy.WriteJobMarker(jobDirectory);
         TryMarkPendingWorkspaceTreeHidden(jobDirectory, workspaceRoot);
 
         string fileName = BuildExternalToolSafePendingFileName(outputExtension);
 
         return ValidatePendingWorkspacePath(Path.Combine(jobDirectory, fileName), jobDirectory);
     }
-
-    /// <summary>
-    /// Promotes a produced file only if nothing exists at the final path. The check and the move are one operation
-    /// (a move that does not overwrite), so a file that appears concurrently is never replaced. Returns false when
-    /// the final path was already taken.
-    /// </summary>
-    public static bool TryPromoteProducedFileIfAbsent(string pendingOutputPath, string finalOutputPath)
-    {
-        if (string.IsNullOrWhiteSpace(pendingOutputPath) || string.IsNullOrWhiteSpace(finalOutputPath))
-        {
-            throw new InvalidOperationException(InvalidOutputPathKey);
-        }
-
-        string sourcePath = NormalizeFullPath(pendingOutputPath);
-        string targetPath = NormalizeFullPath(finalOutputPath);
-
-        if (PathsEqualInternal(sourcePath, targetPath))
-        {
-            return true;
-        }
-
-        if (!File.Exists(sourcePath))
-        {
-            throw new FileNotFoundException(InputFileNotFoundKey, sourcePath);
-        }
-
-        if (HasReparsePointInExistingPathFromVolumeRoot(sourcePath)
-            || HasReparsePointInExistingPathFromVolumeRoot(targetPath))
-        {
-            throw new InvalidOperationException(InvalidOutputPathKey);
-        }
-
-        string finalDirectory = Path.GetDirectoryName(targetPath)
-            ?? throw new InvalidOperationException(OutputDirectoryMissingKey);
-
-        Directory.CreateDirectory(finalDirectory);
-
-        if (HasReparsePointInExistingPathFromVolumeRoot(finalDirectory))
-        {
-            throw new InvalidOperationException(InvalidOutputPathKey);
-        }
-
-        if (File.Exists(targetPath) || Directory.Exists(targetPath))
-        {
-            return false;
-        }
-
-        try
-        {
-            File.Move(sourcePath, targetPath, overwrite: false);
-            return true;
-        }
-        catch (IOException) when (File.Exists(targetPath))
-        {
-            return false;
-        }
-        catch (IOException) when (!IsSameVolumeForPendingWorkspace(sourcePath, targetPath))
-        {
-            try
-            {
-                File.Copy(sourcePath, targetPath, overwrite: false);
-            }
-            catch (IOException) when (File.Exists(targetPath))
-            {
-                return false;
-            }
-
-            File.Delete(sourcePath);
-            return true;
-        }
-    }
-
-    /// <summary>Test seam (per thread): runs just before the promotion move, to create a competing file deterministically.</summary>
-    [ThreadStatic]
-    internal static Action<string>? BeforePromotionMoveForTests;
 
     public static void PromoteProducedFileToFinalLocation(string pendingOutputPath, string finalOutputPath)
     {
@@ -280,7 +204,6 @@ internal static class WorkflowOutputPathContract
         bool hadExistingFinal = File.Exists(targetPath);
         bool finalWasBackedUp = false;
         bool promoted = false;
-        bool targetOwned = false;
 
         try
         {
@@ -291,17 +214,14 @@ internal static class WorkflowOutputPathContract
                 finalWasBackedUp = true;
             }
 
-            BeforePromotionMoveForTests?.Invoke(targetPath);
-            MoveFileWithCrossVolumeFallback(sourcePath, targetPath, out targetOwned);
+            MoveFileWithCrossVolumeFallback(sourcePath, targetPath);
             promoted = true;
         }
         catch
         {
             if (!promoted)
             {
-                // Only a partial copy this call created is removed. A file that appeared at the target meanwhile
-                // (a sibling job, the user) is never ours to delete.
-                if (targetOwned)
+                if (finalWasBackedUp || !hadExistingFinal)
                 {
                     TryDeleteFile(targetPath);
                 }
@@ -452,36 +372,17 @@ internal static class WorkflowOutputPathContract
         }
     }
 
-    // targetOwned is true only when this call may have created a file at targetPath (so a failure can remove it).
-    private static void MoveFileWithCrossVolumeFallback(string sourcePath, string targetPath, out bool targetOwned)
+    private static void MoveFileWithCrossVolumeFallback(string sourcePath, string targetPath)
     {
-        targetOwned = false;
-
         try
         {
             File.Move(sourcePath, targetPath);
         }
-        catch (IOException) when (!File.Exists(targetPath) && !IsSameVolumeForPendingWorkspace(sourcePath, targetPath))
+        catch (IOException) when (!IsSameVolumeForPendingWorkspace(sourcePath, targetPath))
         {
-            try
-            {
-                File.Copy(sourcePath, targetPath, overwrite: false);
-            }
-            catch (IOException ex) when (!IsAlreadyExists(ex))
-            {
-                targetOwned = true;
-                throw;
-            }
-
-            targetOwned = true;
+            File.Copy(sourcePath, targetPath, overwrite: false);
             File.Delete(sourcePath);
         }
-    }
-
-    private static bool IsAlreadyExists(IOException ex)
-    {
-        int code = ex.HResult & 0xFFFF;
-        return code is 80 or 183;
     }
 
     private static string BuildRollbackBackupPath(string finalOutputPath)

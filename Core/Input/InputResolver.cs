@@ -7,10 +7,6 @@ namespace HakamiqChdTool.App.Core.Input;
 
 public sealed class InputResolver : IInputResolver
 {
-    internal static bool IsSafeExistingPath(string fullPath) =>
-        (File.Exists(fullPath) || Directory.Exists(fullPath))
-        && !HasReparsePointInExistingPathFromVolumeRoot(fullPath);
-
     public IEnumerable<string> Resolve(
         string path,
         SearchOption searchOption)
@@ -75,11 +71,9 @@ public sealed class InputResolver : IInputResolver
                 continue;
             }
 
-            // The directory chain from the volume root was verified above, so each file
-            // only needs its own reparse check instead of re-walking every ancestor.
             foreach (string file in EnumerateDirectoryFilesSafe(currentDirectory))
             {
-                if (!IsExistingPathReparsePoint(file))
+                if (!HasReparsePointInExistingPathFromVolumeRoot(file))
                 {
                     yield return file;
                 }

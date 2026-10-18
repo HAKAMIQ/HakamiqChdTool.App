@@ -86,11 +86,6 @@ These rules apply to architecture work:
 
 4. Do not add Python, `python.exe`, or a parser outside .NET.
 
-4a. igir is an optional external tool used only for read-only DAT reports through
-`igir report`. It is invoked as a pinned, hash-verified executable. No igir
-source, Node.js, or Bun runtime enters the app. The command allow-list is in
-`Services/ExternalTools/Igir/IgirArgs.cs` and is covered by tests.
-
 5. Do not add zstd or cdzs UI options until backend support and compatibility
    policy are planned. They must not become the default by accident.
 

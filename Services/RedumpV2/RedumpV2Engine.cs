@@ -1,5 +1,4 @@
 using HakamiqChdTool.App.Core.Disc;
-using HakamiqChdTool.App.Core.Verification;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System.Diagnostics;
@@ -19,7 +18,6 @@ public sealed partial class RedumpV2Engine(
 {
     private const int BufferSize = 1024 * 1024;
     private const int TotalSteps = 6;
-    private const long MaxDescriptorTextBytes = 4L * 1024L * 1024L;
 
     private const string StatusVerifiedKey = "LocDeepHash_StatusVerified";
     private const string StatusVerifiedCompleteKey = "LocDeepHash_StatusVerifiedComplete";
@@ -155,7 +153,6 @@ public sealed partial class RedumpV2Engine(
             NormalizationOutcome normalization = await NormalizeAsync(
                     classification,
                     options,
-                    redumpDatabase,
                     cleanupRoots,
                     operationId,
                     itemName,
@@ -174,14 +171,7 @@ public sealed partial class RedumpV2Engine(
                     normalization.RequiredTempSpaceBytes,
                     normalization.StatusMessageKey,
                     normalization.DetailMessageKey,
-                    normalization.DetailArgs,
-                    policy: ProvisionalPolicy(normalization, options));
-            }
-
-            if (normalization.FastPath is FastPathHit fastPath)
-            {
-                Report(progress, operationId, ProgressOperationType.RedumpScan, itemName, 4, 0, 0, 0, StepMatchKey);
-                return BuildFastPathResult(fullPath, classification.SourceFormat, fastPath);
+                    normalization.DetailArgs);
             }
 
             Report(progress, operationId, ProgressOperationType.Hashing, itemName, 3, 0, 0, 0, StepHashKey);
@@ -196,8 +186,7 @@ public sealed partial class RedumpV2Engine(
                     normalization.UsedTemporaryNormalization,
                     normalization.RequiredTempSpaceBytes,
                     StatusErrorKey,
-                    TipNoTrackFilesKey,
-                    policy: ProvisionalPolicy(normalization, options));
+                    TipNoTrackFilesKey);
             }
 
             IReadOnlyList<DeepHashFileDigest> hashed = await HashAllFilesAsync(
@@ -219,8 +208,7 @@ public sealed partial class RedumpV2Engine(
                     normalization.RequiredTempSpaceBytes,
                     Ps3DecryptedNotOriginalKey,
                     Ps3DecryptedNotOriginalKey,
-                    hashedFiles: hashed,
-                    policy: ProvisionalPolicy(normalization, options));
+                    hashedFiles: hashed);
             }
 
             Report(progress, operationId, ProgressOperationType.RedumpScan, itemName, 4, 0, 0, 0, StepMatchKey);
@@ -229,8 +217,7 @@ public sealed partial class RedumpV2Engine(
                 classification.SourceFormat,
                 normalization,
                 hashed,
-                redumpDatabase!,
-                options);
+                redumpDatabase!);
         }
         catch (OperationCanceledException)
         {
@@ -286,7 +273,6 @@ public sealed partial class RedumpV2Engine(
     private async Task<NormalizationOutcome> NormalizeAsync(
         RedumpSourceClassification classification,
         RedumpV2ScanOptions options,
-        RedumpSqliteManager? redumpDatabase,
         List<string> cleanupRoots,
         Guid operationId,
         string itemName,
@@ -295,48 +281,11 @@ public sealed partial class RedumpV2Engine(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        NormalizationOutcome outcome = await NormalizeByFormatAsync(
-                classification,
-                options,
-                redumpDatabase,
-                cleanupRoots,
-                operationId,
-                itemName,
-                progress,
-                cancellationToken)
-            .ConfigureAwait(false);
-
-        // CHD structure comes from its metadata tags; an archive keeps its inner disc's values.
-        return classification.SourceFormat is RedumpSourceFormat.Chd or RedumpSourceFormat.Archive
-            ? outcome
-            : outcome with
-            {
-                Structure = StructureFor(classification.SourceFormat),
-                Container = ContainerFor(classification.SourceFormat)
-            };
-    }
-
-    private async Task<NormalizationOutcome> NormalizeByFormatAsync(
-        RedumpSourceClassification classification,
-        RedumpV2ScanOptions options,
-        RedumpSqliteManager? redumpDatabase,
-        List<string> cleanupRoots,
-        Guid operationId,
-        string itemName,
-        IProgress<ProgressEvent>? progress,
-        CancellationToken cancellationToken)
-    {
         return classification.SourceFormat switch
         {
             RedumpSourceFormat.Iso or RedumpSourceFormat.DecryptedPs3Iso => NormalizationOutcome.Success(
                 classification.InputPath,
                 RedumpNormalizedFormat.Iso,
-                usedTemporaryNormalization: false,
-                requiredTempSpaceBytes: 0),
-
-            RedumpSourceFormat.Gcm => NormalizationOutcome.Success(
-                classification.InputPath,
-                RedumpNormalizedFormat.Gcm,
                 usedTemporaryNormalization: false,
                 requiredTempSpaceBytes: 0),
 
@@ -364,7 +313,6 @@ public sealed partial class RedumpV2Engine(
             RedumpSourceFormat.Chd => await NormalizeChdAsync(
                     classification,
                     options,
-                    redumpDatabase,
                     cleanupRoots,
                     operationId,
                     itemName,
@@ -375,7 +323,6 @@ public sealed partial class RedumpV2Engine(
             RedumpSourceFormat.Archive => await NormalizeArchiveAsync(
                     classification,
                     options,
-                    redumpDatabase,
                     cleanupRoots,
                     operationId,
                     itemName,
@@ -476,7 +423,6 @@ public sealed partial class RedumpV2Engine(
     private async Task<NormalizationOutcome> NormalizeChdAsync(
         RedumpSourceClassification classification,
         RedumpV2ScanOptions options,
-        RedumpSqliteManager? redumpDatabase,
         List<string> cleanupRoots,
         Guid operationId,
         string itemName,
@@ -522,13 +468,12 @@ public sealed partial class RedumpV2Engine(
                 usedTemporaryNormalization: false,
                 requiredTempSpaceBytes: 0,
                 StatusErrorKey,
-                string.IsNullOrWhiteSpace(info.Message) ? ChdUnknownKey : info.Message) with { Container = DiscContainer.Chd };
+                string.IsNullOrWhiteSpace(info.Message) ? ChdUnknownKey : info.Message);
         }
 
-        // Structure is taken from CHD metadata tags only; a CHD without disc metadata is
-        // not assumed to be a DVD because of its size.
-        DiscStructure structure = info.MetadataStructure;
-        if (structure == DiscStructure.Unknown)
+        bool isCd = IsCdChd(info.MediaType);
+        bool isDvd = IsDvdChd(info.MediaType, info.LogicalBytes);
+        if (!isCd && !isDvd)
         {
             return NormalizationOutcome.Failure(
                 RedumpV2ResultState.Unsupported,
@@ -536,54 +481,14 @@ public sealed partial class RedumpV2Engine(
                 usedTemporaryNormalization: false,
                 requiredTempSpaceBytes: info.LogicalBytes ?? 0,
                 StatusUnsupportedKey,
-                ChdUnknownKey) with { Container = DiscContainer.Chd };
+                ChdUnknownKey);
         }
 
-        if (TryFastPath(info, redumpDatabase, options) is FastPathHit fastPath)
-        {
-            return NormalizationOutcome.Success(
-                classification.InputPath,
-                RedumpNormalizedFormat.Original,
-                usedTemporaryNormalization: false,
-                requiredTempSpaceBytes: 0) with
-            {
-                Structure = structure,
-                Container = DiscContainer.Chd,
-                FastPath = fastPath
-            };
-        }
-
-        NormalizationOutcome outcome = await ExtractChdAsync(
-                classification,
-                options,
-                structure,
-                info,
-                cleanupRoots,
-                operationId,
-                itemName,
-                progress,
-                cancellationToken)
-            .ConfigureAwait(false);
-
-        return outcome with { Structure = structure, Container = DiscContainer.Chd };
-    }
-
-    private static async Task<NormalizationOutcome> ExtractChdAsync(
-        RedumpSourceClassification classification,
-        RedumpV2ScanOptions options,
-        DiscStructure structure,
-        ChdInfoResult info,
-        List<string> cleanupRoots,
-        Guid operationId,
-        string itemName,
-        IProgress<ProgressEvent>? progress,
-        CancellationToken cancellationToken)
-    {
         string root = CreateTempRoot(operationId, "chd");
         cleanupRoots.Add(root);
         long requiredTempSpaceBytes = info.LogicalBytes ?? classification.SourceBytes;
 
-        if (structure is DiscStructure.CdTracks or DiscStructure.GdRomTracks)
+        if (isCd)
         {
             string cuePath = Path.Combine(root, "normalized.cue");
             string binPath = Path.Combine(root, "normalized.bin");
@@ -633,7 +538,6 @@ public sealed partial class RedumpV2Engine(
     private async Task<NormalizationOutcome> NormalizeArchiveAsync(
         RedumpSourceClassification classification,
         RedumpV2ScanOptions options,
-        RedumpSqliteManager? redumpDatabase,
         List<string> cleanupRoots,
         Guid operationId,
         string itemName,
@@ -678,7 +582,6 @@ public sealed partial class RedumpV2Engine(
         NormalizationOutcome inner = await NormalizeAsync(
                 extractedClassification,
                 options,
-                redumpDatabase,
                 cleanupRoots,
                 operationId,
                 itemName,
@@ -772,9 +675,10 @@ public sealed partial class RedumpV2Engine(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            FileInfo info = new(file);
             long baseBytes = currentBytes;
 
-            (string md5, string sha1, string crc32, long hashedBytes) = await Task
+            (string md5, string sha1, string crc32) = await Task
                 .Run(
                     () => ComputeHashesSequential(
                         file,
@@ -805,22 +709,15 @@ public sealed partial class RedumpV2Engine(
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            // The size recorded for matching is the byte count that was actually hashed, and a file
-            // whose length moved while it was read is rejected instead of matched on a stale size.
-            if (TryGetFileSize(file) != hashedBytes)
-            {
-                throw new IOException("A file changed while it was being hashed.");
-            }
-
-            currentBytes = baseBytes + hashedBytes;
-            result.Add(new DeepHashFileDigest(file, hashedBytes, md5, sha1, crc32));
+            currentBytes = baseBytes + info.Length;
+            result.Add(new DeepHashFileDigest(file, info.Length, md5, sha1, crc32));
         }
 
         Report(progress, operationId, ProgressOperationType.Hashing, itemName, 3, totalBytes, totalBytes, 100, StepHashKey);
         return result;
     }
 
-    private static (string Md5Lower, string Sha1Lower, string Crc32Lower, long BytesHashed) ComputeHashesSequential(
+    private static (string Md5Lower, string Sha1Lower, string Crc32Lower) ComputeHashesSequential(
         string filePath,
         long totalBytes,
         Action<long> progress,
@@ -864,7 +761,7 @@ public sealed partial class RedumpV2Engine(
         string md5Hex = Convert.ToHexString(md5.GetHashAndReset()).ToLowerInvariant();
         string sha1Hex = Convert.ToHexString(sha1.GetHashAndReset()).ToLowerInvariant();
         string crc32Hex = (crc32 ^ uint.MaxValue).ToString("x8", System.Globalization.CultureInfo.InvariantCulture);
-        return (md5Hex, sha1Hex, crc32Hex, fileReadBytes);
+        return (md5Hex, sha1Hex, crc32Hex);
     }
 
     private static RedumpV2ScanResult MatchAndAggregate(
@@ -872,12 +769,10 @@ public sealed partial class RedumpV2Engine(
         RedumpSourceFormat sourceFormat,
         NormalizationOutcome normalization,
         IReadOnlyList<DeepHashFileDigest> hashed,
-        RedumpSqliteManager redumpDatabase,
-        RedumpV2ScanOptions options)
+        RedumpSqliteManager redumpDatabase)
     {
         var matches = new List<DeepHashMatch>();
         var misses = new List<string>();
-        DiscVerificationPolicy provisional = ProvisionalPolicy(normalization, options);
 
         foreach (DeepHashFileDigest file in hashed)
         {
@@ -893,71 +788,9 @@ public sealed partial class RedumpV2Engine(
 
         if (matches.Count == hashed.Count && matches.Count > 0)
         {
-            // Identical hashes can belong to several disc records; resolve against every owning
-            // disc instead of the one arbitrary row each file happened to return.
-            IReadOnlyList<RedumpDiscCandidate> discs = redumpDatabase.FindCommonDiscs(
-                [.. hashed.Select(static file => new RedumpHashQuery(file.Md5, file.Sha1, file.Crc32, file.SizeBytes))]);
-
-            RedumpV2ScanResult? refused = null;
-            DiscVerificationPolicy policy = provisional;
-            RedumpVerification proof = RedumpVerification.NotVerified;
-            string? provenSystem = null;
-            bool resolved = false;
-
-            foreach (RedumpDiscCandidate disc in discs)
+            if (!MatchesBelongToOneDisc(matches))
             {
-                List<DeepHashMatch> discMatches = [.. hashed.Select((file, index) => ToMatch(file, disc.Hits[index]))];
-
-                RedumpV2ScanResult? discRefusal = EnforcePolicy(
-                    originalPath,
-                    sourceFormat,
-                    normalization,
-                    hashed,
-                    discMatches,
-                    redumpDatabase,
-                    options,
-                    out DiscVerificationPolicy discPolicy,
-                    out RedumpVerification discProof);
-
-                if (discRefusal is not null)
-                {
-                    refused ??= discRefusal;
-                    continue;
-                }
-
-                if (!resolved)
-                {
-                    resolved = true;
-                    provenSystem = disc.SystemName;
-                    policy = discPolicy;
-                    proof = discProof;
-                    matches.Clear();
-                    matches.AddRange(discMatches);
-                    continue;
-                }
-
-                // Same content under two records of one system is a duplicate entry; the same
-                // content proving under different systems cannot be attributed to either.
-                if (!string.Equals(provenSystem, disc.SystemName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return BuildTerminalResult(
-                        RedumpV2ResultState.Failed,
-                        originalPath,
-                        sourceFormat,
-                        normalization.Format,
-                        normalization.UsedTemporaryNormalization,
-                        normalization.RequiredTempSpaceBytes,
-                        "LocDeepHash_StatusConflictingMatch",
-                        TipConflictingMatchesKey,
-                        hashedFiles: hashed,
-                        matches: matches,
-                        policy: provisional);
-                }
-            }
-
-            if (!resolved)
-            {
-                return refused ?? BuildTerminalResult(
+                return BuildTerminalResult(
                     RedumpV2ResultState.Failed,
                     originalPath,
                     sourceFormat,
@@ -967,8 +800,7 @@ public sealed partial class RedumpV2Engine(
                     "LocDeepHash_StatusConflictingMatch",
                     TipConflictingMatchesKey,
                     hashedFiles: hashed,
-                    matches: matches,
-                    policy: provisional);
+                    matches: matches);
             }
 
             DeepHashMatch first = matches[0];
@@ -999,9 +831,7 @@ public sealed partial class RedumpV2Engine(
                 first.SystemName,
                 first.GameName,
                 matches.Count,
-                hashed.Count,
-                policy: policy,
-                proof: proof);
+                hashed.Count);
         }
 
         if (matches.Count > 0)
@@ -1018,8 +848,7 @@ public sealed partial class RedumpV2Engine(
                 [matches.Count, hashed.Count],
                 hashed,
                 matches,
-                misses,
-                policy: provisional);
+                misses);
         }
 
         return BuildTerminalResult(
@@ -1032,8 +861,7 @@ public sealed partial class RedumpV2Engine(
             StatusModifiedKey,
             TipNoRedumpMatchKey,
             hashedFiles: hashed,
-            unmatchedFileNames: misses,
-            policy: provisional);
+            unmatchedFileNames: misses);
     }
 
     private static RedumpV2ScanResult BuildTerminalResult(
@@ -1054,20 +882,10 @@ public sealed partial class RedumpV2Engine(
         string matchedGameName = "",
         int? matchedFileCount = null,
         int? hashedFileCount = null,
-        string failureCode = "",
-        DiscVerificationPolicy? policy = null,
-        RedumpVerification proof = RedumpVerification.NotVerified)
+        string failureCode = "")
     {
         IReadOnlyList<DeepHashFileDigest> resolvedHashedFiles = hashedFiles ?? [];
         IReadOnlyList<DeepHashMatch> resolvedMatches = matches ?? [];
-        DiscVerificationPolicy resolvedPolicy = policy ?? ProvisionalPolicy(sourceFormat);
-
-        // Proof is never claimed beyond what the policy allows, and never on failure states.
-        RedumpVerification resolvedProof = state is RedumpV2ResultState.Verified or RedumpV2ResultState.VerifiedNormalized
-            ? proof
-            : resolvedPolicy.MaxProof == RedumpVerification.NotApplicable
-                ? RedumpVerification.NotApplicable
-                : RedumpVerification.NotVerified;
 
         return new RedumpV2ScanResult(
             state,
@@ -1087,13 +905,7 @@ public sealed partial class RedumpV2Engine(
             matchedGameName,
             matchedFileCount ?? resolvedMatches.Count,
             hashedFileCount ?? resolvedHashedFiles.Count,
-            failureCode,
-            resolvedPolicy.Semantics,
-            resolvedProof,
-            // Storage describes the file on disk; an archive is not the inner image's container.
-            sourceFormat == RedumpSourceFormat.Archive ? StorageCompatibility.Unknown : resolvedPolicy.Storage,
-            resolvedPolicy.FullPath,
-            resolvedPolicy.FastPathState);
+            failureCode);
     }
 
     private static IReadOnlyList<string> ResolveFilesToHash(string fullProbePath)
@@ -1167,8 +979,6 @@ public sealed partial class RedumpV2Engine(
             return [];
         }
 
-        EnsureDescriptorWithinBounds(cuePath);
-
         string baseDirectory = Path.GetFullPath(directory);
         var names = new List<string>();
 
@@ -1183,16 +993,6 @@ public sealed partial class RedumpV2Engine(
         return ResolveDescriptorFileNames(baseDirectory, names);
     }
 
-    // Same bound as the legacy deep-hash scan: a mislabeled multi-gigabyte "cue" must not be read line by line.
-    private static void EnsureDescriptorWithinBounds(string descriptorPath)
-    {
-        long length = new FileInfo(descriptorPath).Length;
-        if (length <= 0 || length > MaxDescriptorTextBytes)
-        {
-            throw new IOException("Disc descriptor size is outside the supported scan bounds.");
-        }
-    }
-
     private static IReadOnlyList<string> ResolveGdiTrackFiles(string gdiPath)
     {
         string? directory = Path.GetDirectoryName(gdiPath);
@@ -1200,8 +1000,6 @@ public sealed partial class RedumpV2Engine(
         {
             return [];
         }
-
-        EnsureDescriptorWithinBounds(gdiPath);
 
         string baseDirectory = Path.GetFullPath(directory);
         var names = new List<string>();
@@ -1350,6 +1148,30 @@ public sealed partial class RedumpV2Engine(
         hit.Region ?? string.Empty,
         hit.Version ?? string.Empty);
 
+    private static bool MatchesBelongToOneDisc(IEnumerable<DeepHashMatch> matches)
+    {
+        string? system = null;
+        string? game = null;
+
+        foreach (DeepHashMatch match in matches)
+        {
+            if (system is null)
+            {
+                system = match.SystemName;
+                game = match.GameName;
+                continue;
+            }
+
+            if (!string.Equals(system, match.SystemName, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(game, match.GameName, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static uint UpdateCrc32(uint crc, ReadOnlySpan<byte> data)
     {
         ReadOnlySpan<uint> table = Crc32Table;
@@ -1383,6 +1205,24 @@ public sealed partial class RedumpV2Engine(
         }
 
         return table;
+    }
+
+    private static bool IsCdChd(string? mediaType) =>
+        !string.IsNullOrWhiteSpace(mediaType)
+        && (mediaType.Contains("CD", StringComparison.OrdinalIgnoreCase)
+            || mediaType.Contains("GD", StringComparison.OrdinalIgnoreCase));
+
+    private static bool IsDvdChd(string? mediaType, long? logicalBytes)
+    {
+        if (!string.IsNullOrWhiteSpace(mediaType)
+            && (mediaType.Contains("DVD", StringComparison.OrdinalIgnoreCase)
+                || mediaType.Contains("UMD", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        const long likelyDvdThreshold = 900L * 1024L * 1024L;
+        return logicalBytes.GetValueOrDefault() >= likelyDvdThreshold;
     }
 
     private static string CreateTempRoot(Guid operationId, string segment)
@@ -1554,12 +1394,6 @@ public sealed partial class RedumpV2Engine(
         string DetailMessageKey,
         IReadOnlyList<object?> DetailArgs)
     {
-        public DiscStructure Structure { get; init; }
-
-        public DiscContainer Container { get; init; }
-
-        public FastPathHit? FastPath { get; init; }
-
         public static NormalizationOutcome Success(
             string candidatePath,
             RedumpNormalizedFormat format,

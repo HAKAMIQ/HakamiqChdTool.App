@@ -95,7 +95,18 @@ public sealed class CsoToolLocator
 
         try
         {
-            if (!ExternalToolPathValidator.TryValidateCandidate(candidatePath, ToolExecutableName, out string fullPath))
+            string fullPath = Path.GetFullPath(candidatePath.Trim());
+
+            if (!File.Exists(fullPath)
+                || !string.Equals(Path.GetFileName(fullPath), ToolExecutableName, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(candidatePath));
+
+            FileInfo info = new(fullPath);
+            if (info.Length <= 0)
             {
                 return false;
             }

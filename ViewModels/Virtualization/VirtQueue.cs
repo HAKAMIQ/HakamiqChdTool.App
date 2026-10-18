@@ -19,8 +19,6 @@ public sealed class VirtualizedQueueCollection : IList, INotifyCollectionChanged
     private QueueRowData[] _visibleRows = Array.Empty<QueueRowData>();
     private bool _disposed;
 
-    private const int MaxIncrementalBatchNotifications = 16;
-
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -239,29 +237,24 @@ public sealed class VirtualizedQueueCollection : IList, INotifyCollectionChanged
             return;
         }
 
-        // WPF collection views reject a multi-item Add ("Range actions are not supported"), so a batch is published
-        // as one Add per row when it is small (keeps selection and scroll position, as single appends did) and as
-        // one Reset when it is large (a per-row Add is O(n) in a sorted view, which would make the batch quadratic).
-        if (appendedVisibleRows.Count > MaxIncrementalBatchNotifications)
+        var newVisibleRows = new QueueRowData[oldVisibleRows.Length + appendedVisibleRows.Count];
+        Array.Copy(oldVisibleRows, newVisibleRows, oldVisibleRows.Length);
+        appendedVisibleRows.CopyTo(newVisibleRows, oldVisibleRows.Length);
+        Volatile.Write(ref _visibleRows, newVisibleRows);
+
+        if (appendedVisibleRows.Count == 1)
         {
-            var allRows = new QueueRowData[oldVisibleRows.Length + appendedVisibleRows.Count];
-            Array.Copy(oldVisibleRows, allRows, oldVisibleRows.Length);
-            appendedVisibleRows.CopyTo(allRows, oldVisibleRows.Length);
-            Volatile.Write(ref _visibleRows, allRows);
-            RaiseReset();
+            RaiseAdd(_viewport.Realize(appendedVisibleRows[0]), oldVisibleRows.Length);
             return;
         }
 
-        QueueRowData[] current = oldVisibleRows;
+        var addedItems = new List<TaskQueueItemViewModel>(appendedVisibleRows.Count);
         foreach (QueueRowData row in appendedVisibleRows)
         {
-            var next = new QueueRowData[current.Length + 1];
-            Array.Copy(current, next, current.Length);
-            next[^1] = row;
-            Volatile.Write(ref _visibleRows, next);
-            RaiseAdd(_viewport.Realize(row), current.Length);
-            current = next;
+            addedItems.Add(_viewport.Realize(row));
         }
+
+        RaiseAdd(addedItems, oldVisibleRows.Length);
     }
 
     private void ApplyRemove(QueueRowStoreRemoved removed)
@@ -361,6 +354,12 @@ public sealed class VirtualizedQueueCollection : IList, INotifyCollectionChanged
     private void RaiseAdd(TaskQueueItemViewModel item, int newIndex)
     {
         CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, newIndex));
+        RaiseCollectionPropertiesChanged();
+    }
+
+    private void RaiseAdd(IList items, int newStartingIndex)
+    {
+        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items, newStartingIndex));
         RaiseCollectionPropertiesChanged();
     }
 

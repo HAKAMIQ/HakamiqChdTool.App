@@ -42,9 +42,9 @@ public sealed class PostConversionArtifactService
         _m3uPlaylistGenerator = m3uPlaylistGenerator;
     }
 
-    public PostConversionArtifactResult CopyMatchingSbiIfExists(string workingInputPath, string outputChdPath, bool replaceExisting)
+    public PostConversionArtifactResult CopyMatchingSbiIfExists(string workingInputPath, string outputChdPath)
     {
-        return _sbiArtifactCopier.CopyMatchingSbiIfExists(workingInputPath, outputChdPath, replaceExisting);
+        return _sbiArtifactCopier.CopyMatchingSbiIfExists(workingInputPath, outputChdPath);
     }
 
     public PostConversionArtifactResult GenerateM3uPlaylists(IEnumerable<string> completedChdOutputs, bool overwriteExisting)

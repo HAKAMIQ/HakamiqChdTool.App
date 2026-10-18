@@ -83,7 +83,7 @@ public partial class AboutWindow : Window
 
         try
         {
-            using Process? launched = Process.Start(new ProcessStartInfo
+            Process.Start(new ProcessStartInfo
             {
                 FileName = uri.AbsoluteUri,
                 UseShellExecute = true

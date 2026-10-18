@@ -1,5 +1,3 @@
-using HakamiqChdTool.App.Core.Workflow;
-using HakamiqChdTool.App.Core.Workflow.Paths;
 using HakamiqChdTool.App.Models;
 using Serilog;
 using System;
@@ -49,17 +47,11 @@ internal sealed class OrphanedWorkItemScanner
         _additionalPendingRoots = NormalizeAdditionalPendingRoots(additionalPendingRoots);
     }
 
-    /// <summary>Workflows of the calling job that are already registered; any additional active workflow blocks the scan.</summary>
-    public int OwnActiveWorkflows { get; init; }
-
     public OrphanedWorkItemScanResult Scan(
         TimeSpan minimumAge,
         IEnumerable<string>? additionalPendingRoots)
     {
-        return new OrphanedWorkItemScanner(_settings, minimumAge, additionalPendingRoots)
-        {
-            OwnActiveWorkflows = OwnActiveWorkflows
-        }.Scan();
+        return new OrphanedWorkItemScanner(_settings, minimumAge, additionalPendingRoots).Scan();
     }
 
     public OrphanedWorkItemScanResult Scan()
@@ -73,12 +65,6 @@ internal sealed class OrphanedWorkItemScanner
         {
             Logger.Debug(ex, "Orphaned work item scan skipped because the process temp root is unavailable.");
             processTempRoot = string.Empty;
-        }
-
-        if (ActiveWorkflowRegistry.ActiveCount > OwnActiveWorkflows)
-        {
-            Logger.Debug("Orphaned work item scan skipped because another workflow is active in this process.");
-            return OrphanedWorkItemScanResult.Empty;
         }
 
         if (HasPotentiallyActiveSiblingWorkload())
@@ -175,9 +161,7 @@ internal sealed class OrphanedWorkItemScanner
         {
             foreach (string directory in EnumerateTopLevelDirectories(pendingRoot))
             {
-                if (IsReparsePoint(directory)
-                    || !AppPaths.IsKnownPendingWorkspaceJobDirectory(directory, _settings)
-                    || !PendingWorkspacePathPolicy.HasJobMarker(directory))
+                if (IsReparsePoint(directory) || !AppPaths.IsKnownPendingWorkspaceJobDirectory(directory, _settings))
                 {
                     continue;
                 }

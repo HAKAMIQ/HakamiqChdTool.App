@@ -75,7 +75,7 @@ internal sealed class QueueStateStore
         }
 
         string pathKey = NormalizeQueuePath(item.InputPath);
-        if (!_state.ActivePaths.TryAdd(pathKey, item.Id))
+        if (!_state.ActivePaths.TryAdd(pathKey, 0))
         {
             Logger.Information(
                 "Queue item rejected because an item with the same normalized input path is already active. QueueItemId={QueueItemId} Input={Input} NormalizedPath={NormalizedPath}",
@@ -90,7 +90,7 @@ internal sealed class QueueStateStore
         if (!_state.ItemTokens.TryAdd(item.Id, cts))
         {
             cts.Dispose();
-            ReleaseQueuePath(pathKey, item.Id);
+            _state.ActivePaths.TryRemove(pathKey, out _);
             throw new InvalidOperationException("Duplicate queue item id.");
         }
 
@@ -124,7 +124,7 @@ internal sealed class QueueStateStore
                 }
             }
 
-            ReleaseQueuePath(pathKey, item.Id);
+            _state.ActivePaths.TryRemove(pathKey, out _);
 
             lock (_state.ItemsLock)
             {
@@ -206,14 +206,7 @@ internal sealed class QueueStateStore
 
     public void ReleaseQueuePath(ChdQueueItem item)
     {
-        ReleaseQueuePath(NormalizeQueuePath(item.InputPath), item.Id);
-    }
-
-    // An item can be completed more than once (cancel/stop, then its cancelled worker); only the
-    // item that owns the reservation may release it, never a newer item admitted in between.
-    private void ReleaseQueuePath(string pathKey, Guid ownerId)
-    {
-        _state.ActivePaths.TryRemove(new KeyValuePair<string, Guid>(pathKey, ownerId));
+        _state.ActivePaths.TryRemove(NormalizeQueuePath(item.InputPath), out _);
     }
 
     internal static string NormalizeQueuePath(string? inputPath)

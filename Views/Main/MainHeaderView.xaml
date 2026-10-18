@@ -482,8 +482,6 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="{DynamicResource Grid.Space.2}" />
                             <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="{DynamicResource Grid.Space.2}" />
-                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <Button x:Name="HeaderSettingsButton"
@@ -495,17 +493,8 @@
                                        Style="{StaticResource MainHeaderButtonText}" />
                         </Button>
 
-                        <Button x:Name="HeaderLibraryButton"
-                                Grid.Column="2"
-                                Command="{Binding OpenLibraryAnalysisCommand}"
-                                Style="{StaticResource MainHeaderGhostButton}"
-                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                            <TextBlock Text="{DynamicResource LocUi_Header_Library}"
-                                       Style="{StaticResource MainHeaderButtonText}" />
-                        </Button>
-
                         <Button x:Name="HeaderLanguageButton"
-                                Grid.Column="4"
+                                Grid.Column="2"
                                 Click="ForwardLanguageToggleRequested"
                                 Style="{StaticResource MainHeaderLanguageButton}"
                                 ToolTip="{StaticResource AppTip.MainHeaderView.1}"
@@ -517,7 +506,7 @@
                         </Button>
 
                         <Button x:Name="HeaderThemeButton"
-                                Grid.Column="6"
+                                Grid.Column="4"
                                 Click="ThemeCycleButton_Click"
                                 Style="{StaticResource MainHeaderLanguageButton}"
                                 ToolTip="{StaticResource AppTip.MainHeaderView.2}"
@@ -529,7 +518,7 @@
                         </Button>
 
                         <Button x:Name="HeaderAboutButton"
-                                Grid.Column="8"
+                                Grid.Column="6"
                                 Command="{Binding OpenAboutCommand}"
                                 Style="{StaticResource MainHeaderGhostButton}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True">

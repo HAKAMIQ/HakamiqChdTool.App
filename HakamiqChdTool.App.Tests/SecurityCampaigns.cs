@@ -40,9 +40,8 @@ internal static partial class Program
                 "soak" => RunSoakCampaign(args, app, outputRoot),
                 "corpus" => RunCorpusCampaign(args, app, appDirectory, outputRoot),
                 "wpf-shutdown" => RunWpfShutdownCampaign(args, appDirectory, outputRoot),
-                "fastpath-proof" => RunFastPathProofCampaign(args, app, outputRoot),
                 _ => throw new ArgumentException(
-                    "Unsupported security mode. Expected fuzz, soak, corpus, wpf-shutdown, or fastpath-proof.")
+                    "Unsupported security mode. Expected fuzz, soak, corpus, or wpf-shutdown.")
             };
         }
         catch (Exception ex)
