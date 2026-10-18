@@ -198,6 +198,8 @@ internal static partial class Program
                 new("Organizer executes, journals, undoes and verifies a synthetic move", () => TestOrganizerExecuteJournalUndo(workDirectory)),
                 new("Organizer rejects a source changed after preview", () => TestOrganizerRejectsSourceChangesAfterPreview(workDirectory)),
                 new("Organizer recovery reconciles a move completed before journal completion", () => TestOrganizerRecoversIntentAfterMove(workDirectory)),
+                new("Organizer journal owns a directory it creates under a different default owner", () => TestOrganizerJournalOwnsNewDirectoryUnderDefaultOwner(workDirectory)),
+                new("Organizer journal rejects a pre-existing foreign-owned directory", () => TestOrganizerJournalRejectsForeignOwnedDirectory(workDirectory)),
                 new("Organizer undo refuses modified destination content", () => TestOrganizerUndoRefusesModifiedDestination(workDirectory)),
                 new("Organizer undo preflights conflicts across the complete disc group", () => TestOrganizerUndoGroupPreflightsConflictsAsync(workDirectory).GetAwaiter().GetResult()),
                 new("Organizer moves and undoes a verified CUE/BIN set", () => TestOrganizerMovesAndUndoesCueBinSet(workDirectory)),

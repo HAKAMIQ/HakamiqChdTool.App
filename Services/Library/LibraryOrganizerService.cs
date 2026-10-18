@@ -270,15 +270,23 @@ public sealed class LibraryOperationJournal
         string? errorCode, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(operation);
-        string directory = Path.GetDirectoryName(_path)!;
-        Directory.CreateDirectory(directory);
-        LibraryPlanValidator.EnsureSafeDirectory(directory);
-        SecureOwnerAcl(new DirectoryInfo(directory));
-        if (File.Exists(_path) && !InputResolver.IsSafeExistingPath(_path))
+        DirectoryInfo directory = new(Path.GetDirectoryName(_path)!);
+        // A directory this journal creates gets the current user as owner at creation, because an elevated
+        // token's default owner is BUILTIN\Administrators. A pre-existing directory is never re-owned.
+        if (!directory.Exists)
+        {
+            Directory.CreateDirectory(directory.Parent!.FullName);
+            directory.Create(CreateTrustedSecurity(new DirectorySecurity(),
+                InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit));
+        }
+        LibraryPlanValidator.EnsureSafeDirectory(directory.FullName);
+        SecureOwnerAcl(directory);
+        if (!File.Exists(_path)) TryCreateJournalFile();
+        if (!InputResolver.IsSafeExistingPath(_path))
         {
             throw new IOException("Organizer journal is a reparse point or is unsafe.");
         }
-        if (File.Exists(_path)) ValidateOwnerAcl(new FileInfo(_path).GetAccessControl());
+        ValidateOwnerAcl(new FileInfo(_path).GetAccessControl());
 
         LibraryJournalEvent entry = new(operation.OperationId, planId, operation.SourcePath,
             operation.DestinationPath, operation.FileSize, operation.Sha256, operation.GroupId,
@@ -326,7 +334,36 @@ public sealed class LibraryOperationJournal
         return Path.GetFullPath(path).StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static void ValidateOwnerAcl(FileSystemSecurity security)
+    private void TryCreateJournalFile()
+    {
+        try
+        {
+            using FileStream _ = new FileInfo(_path).Create(FileMode.CreateNew, FileSystemRights.Write, FileShare.Read,
+                4096, FileOptions.None, CreateTrustedSecurity(new FileSecurity(), InheritanceFlags.None));
+        }
+        catch (IOException) when (File.Exists(_path))
+        {
+            // Another writer created it first; the caller validates its owner and ACL like any existing file.
+        }
+    }
+
+    internal static T CreateTrustedSecurity<T>(T security, InheritanceFlags inheritance) where T : FileSystemSecurity
+    {
+        SecurityIdentifier currentUser = WindowsIdentity.GetCurrent().User
+            ?? throw new UnauthorizedAccessException("Current Windows user identity is unavailable.");
+        security.SetOwner(currentUser);
+        security.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
+        foreach (SecurityIdentifier identity in new[] { currentUser,
+            new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null),
+            new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null) })
+        {
+            security.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, inheritance,
+                PropagationFlags.None, AccessControlType.Allow));
+        }
+        return security;
+    }
+
+    internal static void ValidateOwnerAcl(FileSystemSecurity security)
     {
         SecurityIdentifier owner = security.GetOwner(typeof(SecurityIdentifier)) as SecurityIdentifier
             ?? throw new UnauthorizedAccessException("Organizer journal owner could not be established.");
