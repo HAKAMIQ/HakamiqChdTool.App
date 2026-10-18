@@ -785,7 +785,7 @@ public sealed class SevenZipArchiveExtractionService
             .TrimStart('/');
     }
 
-    private static bool IsSafeArchiveEntryArgument(string? value)
+    internal static bool IsSafeArchiveEntryArgument(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
@@ -798,7 +798,9 @@ public sealed class SevenZipArchiveExtractionService
             || normalized.Contains('\0')
             || normalized.StartsWith('@')
             || Path.IsPathRooted(normalized)
-            || normalized.Contains(':'))
+            || normalized.Contains(':')
+            // 7-Zip treats * and ? in an entry argument as wildcards and could select more than this entry.
+            || normalized.AsSpan().IndexOfAny('*', '?') >= 0)
         {
             return false;
         }
@@ -1203,6 +1205,13 @@ public sealed class SevenZipArchiveExtractionService
 
         if (!Directory.Exists(fullPath)
             || HasReparsePointInExistingPathFromVolumeRoot(fullPath))
+        {
+            throw new InvalidOperationException(InvalidDestinationPathMessageKey);
+        }
+
+        // 7-Zip runs with -y (overwrite) and every failure path empties this directory, so only a directory this
+        // extraction owns may be used: anything already inside belongs to someone else and must survive.
+        if (Directory.EnumerateFileSystemEntries(fullPath).Any())
         {
             throw new InvalidOperationException(InvalidDestinationPathMessageKey);
         }

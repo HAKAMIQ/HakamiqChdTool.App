@@ -66,7 +66,7 @@ internal sealed class QueueRuntimeState
     internal List<ChdQueueItem> Items { get; } = [];
     internal ConcurrentDictionary<Guid, CancellationTokenSource> ItemTokens { get; } = new();
     internal ConcurrentDictionary<Guid, Task> RunningItems { get; } = new();
-    internal ConcurrentDictionary<string, byte> ActivePaths { get; } = new(StringComparer.OrdinalIgnoreCase);
+    internal ConcurrentDictionary<string, Guid> ActivePaths { get; } = new(StringComparer.OrdinalIgnoreCase);
     internal CancellationTokenSource ShutdownCts { get; } = new();
     internal object LoopGate { get; } = new();
     internal Task? LoopTask { get; set; }

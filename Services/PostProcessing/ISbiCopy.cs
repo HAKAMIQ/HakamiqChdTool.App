@@ -4,5 +4,5 @@ namespace HakamiqChdTool.App.Services.PostProcessing;
 
 public interface ISbiArtifactCopier
 {
-    PostConversionArtifactResult CopyMatchingSbiIfExists(string workingInputPath, string outputChdPath);
+    PostConversionArtifactResult CopyMatchingSbiIfExists(string workingInputPath, string outputChdPath, bool replaceExisting);
 }

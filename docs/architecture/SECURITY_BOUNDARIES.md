@@ -35,17 +35,22 @@ unavailable probes must not be routed to conversion based on extension alone.
 Archive processing is bounded by entry-count, captured-output, expanded-byte,
 and free-space-reserve policies. These limits are checked before extraction,
 during streamed or external extraction, and again before the output is accepted.
-Disk extraction uses the pinned 7-Zip path only. SharpCompress remains a
+Disk extraction uses 7-Zip only: the bundled copy (7z.exe and 7z.dll, SHA-256
+pinned) or, when that is absent, `Program Files\7-Zip` (trusted by location, with
+no digest check; neither path may traverse a reparse point). SharpCompress remains a
 read-only integrity fallback; if 7-Zip is unavailable or fails integrity checks,
 extraction fails closed instead of switching to a weaker writer.
 
 ### Embedded and external tools
 
 `chdman`, 7-Zip, and helper tools are process boundaries. Arguments must use
-`ProcessStartInfo.ArgumentList` with `UseShellExecute = false`. The runtime copy
-of embedded `chdman` must be inside the private session directory, must not
-traverse a reparse point, and must match the embedded resource's SHA-256 digest
-immediately before its path is returned for execution.
+`ProcessStartInfo.ArgumentList` with `UseShellExecute = false`. The bundled
+`chdman` is `Tools\chdman.exe` directly under the application directory
+(`RuntimeToolService`); it must not traverse a reparse point and must match the
+pinned SHA-256 digest each time its path is returned for execution. The digest
+check and the process start are separate steps, so a process that can write to
+the application directory could still replace the file between them; the install
+directory is therefore expected to be writable only by administrators.
 
 The bundled MAME 0.289 `chdman` requires x86-64-v2. Runtime initialization checks
 the required CPUID feature bits before extracting or returning the executable.

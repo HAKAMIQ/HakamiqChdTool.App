@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HakamiqChdTool.App.Services;
@@ -45,7 +47,7 @@ public static class FilePathExclusiveGate
             return NoopRelease.Instance;
         }
 
-        string key = NormalizePathForExclusiveLock(path);
+        string key = CanonicalGateKey(NormalizePathForExclusiveLock(path));
         if (string.IsNullOrWhiteSpace(key))
         {
             return NoopRelease.Instance;
@@ -75,6 +77,75 @@ public static class FilePathExclusiveGate
             }
         }
     }
+
+    /// <summary>
+    /// Lock key only (never passed to a CLI): folds the aliases of one file onto one key, namely the
+    /// extended-length prefix and the 8.3 short names of the existing part of the path.
+    /// </summary>
+    internal static string CanonicalGateKey(string fullPath)
+    {
+        if (string.IsNullOrWhiteSpace(fullPath))
+        {
+            return fullPath;
+        }
+
+        string key = fullPath;
+        if (key.StartsWith(@"\\?\UNC\", StringComparison.OrdinalIgnoreCase))
+        {
+            key = @"\\" + key[8..];
+        }
+        else if (key.StartsWith(@"\\?\", StringComparison.Ordinal) || key.StartsWith(@"\\.\", StringComparison.Ordinal))
+        {
+            key = key[4..];
+        }
+
+        if (key.IndexOf('~') < 0)
+        {
+            return key;
+        }
+
+        try
+        {
+            // Resolve the longest existing prefix; the remainder (a file not created yet) is appended as is.
+            string existing = key;
+            string tail = string.Empty;
+            while (!string.IsNullOrEmpty(existing) && !File.Exists(existing) && !Directory.Exists(existing))
+            {
+                string? parent = Path.GetDirectoryName(existing);
+                if (string.IsNullOrEmpty(parent))
+                {
+                    return key;
+                }
+
+                tail = string.IsNullOrEmpty(tail)
+                    ? Path.GetFileName(existing)
+                    : Path.Combine(Path.GetFileName(existing), tail);
+                existing = parent;
+            }
+
+            if (string.IsNullOrEmpty(existing))
+            {
+                return key;
+            }
+
+            StringBuilder buffer = new(1024);
+            uint written = GetLongPathNameW(existing, buffer, (uint)buffer.Capacity);
+            if (written == 0 || written >= buffer.Capacity)
+            {
+                return key;
+            }
+
+            string resolved = buffer.ToString();
+            return string.IsNullOrEmpty(tail) ? resolved : Path.Combine(resolved, tail);
+        }
+        catch (Exception ex) when (ex is ArgumentException or IOException or NotSupportedException or UnauthorizedAccessException)
+        {
+            return key;
+        }
+    }
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern uint GetLongPathNameW(string shortPath, StringBuilder longPath, uint bufferLength);
 
     private static string NormalizePath(string path)
     {

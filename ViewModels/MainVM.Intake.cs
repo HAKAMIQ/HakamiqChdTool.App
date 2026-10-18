@@ -33,6 +33,7 @@ public partial class MainWindowViewModel
     private string _intakeResultSeverity = string.Empty;
     private long _intakeUiVersion;
     private CancellationTokenSource? _intakeCancellationCts;
+    private int _intakeGate;
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
         "Usage",
         "CA2213:Disposable fields should be disposed",

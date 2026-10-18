@@ -16,6 +16,7 @@ public partial class ExternalToolsSettingsView : UserControl
     public event EventHandler? OpenToolsFolderRequested;
 
     public event EventHandler? BrowseCsoKitToolRequested;
+    public event EventHandler? BrowseIgirToolRequested;
 
     private void RecheckButton_Click(object sender, RoutedEventArgs e)
     {
@@ -31,4 +32,6 @@ public partial class ExternalToolsSettingsView : UserControl
     {
         BrowseCsoKitToolRequested?.Invoke(this, EventArgs.Empty);
     }
+
+    private void BrowseIgirToolButton_Click(object sender, RoutedEventArgs e) => BrowseIgirToolRequested?.Invoke(this, EventArgs.Empty);
 }

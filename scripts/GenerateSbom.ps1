@@ -185,6 +185,38 @@ $bundledTools = @(
             [ordered]@{ name = 'hakamiq:runtime-file'; value = 'Tools/hakamiq-cso/win-x64/CsoKit.Native.dll' }
         )
         externalReferences = @([ordered]@{ type = 'vcs'; url = 'https://github.com/HAKAMIQ/CsoKit/tree/9e2a93d5502fa651f9a21d9dd97269e7c4912c48' })
+    },
+    [ordered]@{
+        type = 'application'
+        'bom-ref' = 'pkg:generic/igir@5.7.2'
+        authors = @([ordered]@{ name = 'Christian Emmer and contributors' })
+        name = 'igir'
+        version = '5.7.2'
+        licenses = @([ordered]@{ license = [ordered]@{ id = 'GPL-3.0-or-later' } })
+        hashes = @([ordered]@{ alg = 'SHA-256'; content = '716ECBD7033081FC000A51FBD0588FEE6C1F1E95DAB1EFD6443324BC73597511' })
+        purl = 'pkg:github/emmercm/igir@v5.7.2'
+        properties = @(
+            [ordered]@{ name = 'hakamiq:optional'; value = 'true' },
+            [ordered]@{ name = 'hakamiq:modified'; value = 'false' },
+            [ordered]@{ name = 'hakamiq:invocation'; value = 'igir report' },
+            [ordered]@{ name = 'hakamiq:runtime-file'; value = 'Tools/igir/win-x64/igir.exe' },
+            [ordered]@{ name = 'hakamiq:corresponding-source-file'; value = 'igir-5.7.2-source.tar.gz' }
+        )
+        externalReferences = @(
+            [ordered]@{
+                type = 'distribution'
+                url = 'https://github.com/emmercm/igir/releases/download/v5.7.2/igir-5.7.2-Windows-x64.zip'
+                hashes = @([ordered]@{ alg = 'SHA-256'; content = '7E448AE8E34377A8829E33C949B07A09613CB3A0DAD2B4325CA9BB52CF8D7584' })
+            },
+            [ordered]@{
+                type = 'source-distribution'
+                url = 'https://github.com/emmercm/igir/archive/refs/tags/v5.7.2.tar.gz'
+                hashes = @([ordered]@{ alg = 'SHA-256'; content = 'EA5341ED3A40054BFBF2F6D26F6C76902C6D5EC949D66D38692218656245875B' })
+            },
+            [ordered]@{ type = 'vcs'; url = 'https://github.com/emmercm/igir/tree/v5.7.2' },
+            [ordered]@{ type = 'license'; url = 'https://github.com/emmercm/igir/blob/v5.7.2/LICENSE' },
+            [ordered]@{ type = 'website'; url = 'https://igir.io/' }
+        )
     }
 )
 

@@ -4,6 +4,70 @@ This file tracks source release notes.
 
 GitHub Releases remain the public download history.
 
+## v1.5.0 - 2026-10-18
+
+### Library organizer
+
+- Added a Library window that indexes a game library, reads Logiqx XML and
+  ClrMamePro DATs, matches files and previews a per-platform organization.
+- Analysis and preview are read-only. Content hashing runs only when requested;
+  name/size or CRC32-only matches stay unverified candidates.
+- Added an optional organizer that moves only reviewed, verified items. Every
+  move is journaled, can be undone, and is refused when the source or the
+  destination changed after preview. CUE/BIN and GDI sets move as one unit and
+  roll back together. The organizer never deletes files.
+
+### igir (optional)
+
+- Added an optional read-only DAT report through the unmodified igir v5.7.2
+  executable. Only `igir report` is invoked, and the executable's SHA-256 is
+  verified before each run.
+- igir is not committed to the repository; `scripts/FetchIgir.ps1` and
+  `scripts/FetchIgirSource.ps1` fetch the pinned executable and its GPL-3.0
+  Corresponding Source. Release packaging, SBOM and legal notices include igir
+  when it is bundled.
+
+### Redump verification
+
+- Added a disc verification policy: a Redump match counts as verified only when
+  every track is present and size, MD5, SHA-1 and CRC32 all agree, the matched
+  system fits the disc structure, and the platform is supported for Redump proof.
+- CHD disc structure is taken from CHD metadata tags only.
+- Identical hashes owned by several disc records are resolved against every
+  owning disc; the same content proving under two systems is reported as a
+  conflict.
+- Oversized CUE/GDI descriptors are refused, a file that changes while it is
+  hashed is rejected, and importing a DAT with no ROM rows no longer empties
+  the existing database.
+
+### Reliability and data safety
+
+- Hardened output, pending-workspace, cleanup and orphan handling against
+  junctions, 8.3 short-name aliases, wildcard archive entries, concurrent files
+  and directories replaced after a scan.
+- Orphan cleanup now requires the app's ownership marker and skips while another
+  workflow is active.
+- Settings saves are atomic and recover stale staging files.
+- A queue item now releases only its own input-path reservation, so a late
+  completion of a cancelled item can no longer free the reservation of a newer
+  item for the same path.
+- Overlapping add-files requests are serialized; a second request while one is
+  running is refused with the existing "wait for background operation" status.
+- **Behavior change:** with "Skip existing output" enabled (the default), a
+  `.sbi` file already next to the output is kept instead of overwritten.
+
+### Interface
+
+- Queue intake adds rows in one batch, which keeps large intakes responsive.
+  Batches above 16 rows refresh the queue list once instead of row by row.
+- The footer queued count is shown as `{0} / {1}`.
+- Added igir settings to External Tools.
+- Adjusted theme colors to meet WCAG AA contrast in Light and Dark.
+
+### Validation
+
+- See the release gate results for this version.
+
 ## v1.4.0 - 2026-09-12
 
 ### Reliability and data safety

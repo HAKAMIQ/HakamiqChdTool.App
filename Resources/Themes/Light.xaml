@@ -198,7 +198,7 @@
     <Color x:Key="Color.Border">#FFC7D0DB</Color>
     <Color x:Key="Color.Border.Default">#FFC7D0DB</Color>
     <Color x:Key="Color.Border.Subtle">#FFD8E0E9</Color>
-    <Color x:Key="Color.Border.Strong">#FF8793A1</Color>
+    <Color x:Key="Color.Border.Strong">#FF808C9A</Color>
     <Color x:Key="Color.HoverSurface">#FFEAF0F6</Color>
     <Color x:Key="Color.PressedSurface">#FFD2DBE6</Color>
 
@@ -271,7 +271,7 @@
     <Color x:Key="Color.Foreground.OnAccent">#FFFFFFFF</Color>
     <Color x:Key="Color.Accent.SelectedBackground">#FFDCEBFA</Color>
     <Color x:Key="Color.Accent.SelectedBorder">#00000000</Color>
-    <Color x:Key="Color.Accent.SelectedForeground">#FF0F6CBD</Color>
+    <Color x:Key="Color.Accent.SelectedForeground">#FF0E68B6</Color>
     <Color x:Key="Color.Success">#FF0E700E</Color>
     <Color x:Key="Color.Warning">#FFBC4B09</Color>
     <Color x:Key="Color.Error.Foreground">#FFFFFFFF</Color>
@@ -281,7 +281,7 @@
     <Color x:Key="Color.Control.Fill.Pressed">#FFE2E8EF</Color>
     <Color x:Key="Color.Control.Fill.Disabled">#FFE8EDF2</Color>
     <Color x:Key="Color.Control.Stroke.Default">#FFC7D0DB</Color>
-    <Color x:Key="Color.Control.Stroke.Strong">#FF8793A1</Color>
+    <Color x:Key="Color.Control.Stroke.Strong">#FF808C9A</Color>
     <Color x:Key="Color.Control.Stroke.Focus">#FF0F6CBD</Color>
 
     <Color x:Key="Color.Focus.StrokeOuter">#00000000</Color>

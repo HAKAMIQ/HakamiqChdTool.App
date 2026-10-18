@@ -146,7 +146,10 @@ internal sealed class WorkflowPreflightStage
                     ctx.Settings,
                     AutomaticOrphanedCleanupMinimumAge,
                     CollectPendingWorkspaceRoots(ctx))
-                .Scan();
+            {
+                // This job is already registered; any further active workflow owns a live workspace.
+                OwnActiveWorkflows = 1
+            }.Scan();
 
             if (!scanResult.HasItems)
             {
@@ -155,7 +158,7 @@ internal sealed class WorkflowPreflightStage
 
             ctx.Sink.ReportStage(QueueItemStage.ReadingFile, "LocOrphanedCleanup_CleaningFooter");
 
-            CleanupStats cleanupStats = new OrphanedWorkItemCleanupService(ctx.Settings)
+            CleanupStats cleanupStats = new OrphanedWorkItemCleanupService(ctx.Settings) { OwnActiveWorkflows = 1 }
                 .Clean(scanResult);
 
             if (cleanupStats.DeletedBytes > 0)

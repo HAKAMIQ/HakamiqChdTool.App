@@ -46,7 +46,7 @@ internal static class WorkflowSafePathValidator
                 return false;
             }
 
-            string[] lines = File.ReadAllLines(pendingCueFullPath, Encoding.UTF8);
+            string[] lines = ReadCueLinesBounded(pendingCueFullPath);
             if (!TryCollectExtractedCueDependencies(lines, pendingDirectory, finalDirectory, out List<CueDependency> dependencies))
             {
                 return false;
@@ -247,16 +247,35 @@ internal static class WorkflowSafePathValidator
                 [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar, '/', '\\'],
                 StringSplitOptions.RemoveEmptyEntries));
 
+    // Rollback deletes only what this call promoted. The final cue is deleted only if it is in the promoted list, so a
+    // file that was already at the final path (or that appears there from elsewhere) is never removed.
     private static void CleanupPromotedExtractedTargets(IEnumerable<string> promotedTargets, string finalCuePath)
     {
+        _ = finalCuePath;
         foreach (string target in promotedTargets.OrderByDescending(static path => path.Length))
         {
-            TryDeleteFile(target);
+            TryDeletePromotedFile(target);
             TryCleanupEmptyFinalOutputDirectory(target);
         }
+    }
 
-        TryDeleteFile(finalCuePath);
-        TryCleanupEmptyFinalOutputDirectory(finalCuePath);
+    internal static void CleanupPromotedForTest(IEnumerable<string> promotedTargets, string finalCuePath) =>
+        CleanupPromotedExtractedTargets(promotedTargets, finalCuePath);
+
+    private static void TryDeletePromotedFile(string path)
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(path)
+                && File.Exists(path)
+                && !HasReparsePointBelow(Path.GetPathRoot(Path.GetFullPath(path)) ?? string.Empty, Path.GetFullPath(path)))
+            {
+                File.Delete(path);
+            }
+        }
+        catch (Exception ex) when (IsExpectedCueReadFailure(ex) || IsExpectedCuePathFailure(ex))
+        {
+        }
     }
 
     public static void NormalizeCuePrimaryBinReference(string cuePath)
@@ -366,7 +385,7 @@ internal static class WorkflowSafePathValidator
         string[] lines;
         try
         {
-            lines = File.ReadAllLines(cueFullPath, Encoding.UTF8);
+            lines = ReadCueLinesBounded(cueFullPath);
         }
         catch (Exception ex) when (IsExpectedCueReadFailure(ex))
         {
@@ -455,7 +474,7 @@ internal static class WorkflowSafePathValidator
         return -1;
     }
 
-    private static bool AllCueFileReferencesAreUsable(string cuePath) =>
+    internal static bool AllCueFileReferencesAreUsable(string cuePath) =>
         AllCueFileReferencesAreUsable(
             cuePath,
             allowConstrainedAbsoluteBinReference: false);
@@ -472,7 +491,17 @@ internal static class WorkflowSafePathValidator
 
         bool foundFileStatement = false;
 
-        foreach (string line in File.ReadLines(cuePath, Encoding.UTF8))
+        string[] cueLines;
+        try
+        {
+            cueLines = ReadCueLinesBounded(cuePath);
+        }
+        catch (Exception ex) when (IsExpectedCueReadFailure(ex))
+        {
+            return false;
+        }
+
+        foreach (string line in cueLines)
         {
             if (!CueSheetFileStatementReader.TryRead(line, out string referencedFileName, out bool hasFileStatement))
             {
@@ -496,6 +525,28 @@ internal static class WorkflowSafePathValidator
         }
 
         return foundFileStatement;
+    }
+
+    // A cue sheet is a few KiB; refuse anything above the same bounds CueSheetReader enforces so a hostile
+    // multi-gigabyte "cue" cannot be pulled into memory.
+    private const long MaxCueSheetBytes = 1024 * 1024;
+    private const int MaxCueSheetLines = 8192;
+
+    internal static string[] ReadCueLinesBounded(string cuePath)
+    {
+        long length = new FileInfo(cuePath).Length;
+        if (length > MaxCueSheetBytes)
+        {
+            throw new IOException("Cue sheet exceeds the supported size.");
+        }
+
+        string[] lines = File.ReadAllLines(cuePath, Encoding.UTF8);
+        if (lines.Length > MaxCueSheetLines)
+        {
+            throw new IOException("Cue sheet exceeds the supported line count.");
+        }
+
+        return lines;
     }
 
     private static bool IsCueReferenceUsable(
@@ -522,6 +573,7 @@ internal static class WorkflowSafePathValidator
                 string absoluteReference = Path.GetFullPath(referencedFileName);
                 return string.Equals(Path.GetExtension(absoluteReference), ".bin", StringComparison.OrdinalIgnoreCase)
                        && File.Exists(absoluteReference)
+                       && (File.GetAttributes(absoluteReference) & FileAttributes.ReparsePoint) == 0
                        && TryGetFileSize(absoluteReference) > 0;
             }
 
@@ -535,12 +587,46 @@ internal static class WorkflowSafePathValidator
                 return false;
             }
 
-            return File.Exists(resolved) && TryGetFileSize(resolved) > 0;
+            return File.Exists(resolved)
+                   && !HasReparsePointBelow(safeCueDirectory, resolved)
+                   && TryGetFileSize(resolved) > 0;
         }
         catch (Exception ex) when (IsExpectedCuePathFailure(ex))
         {
             return false;
         }
+    }
+
+    // A referenced file reached through a link inside the cue folder can resolve outside it, so every
+    // component from the cue directory down to the file must be a plain entry. Unreadable means unsafe.
+    private static bool HasReparsePointBelow(string rootWithSeparator, string resolvedPath)
+    {
+        string current = resolvedPath;
+        while (current.Length > rootWithSeparator.Length
+               && current.StartsWith(rootWithSeparator, StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                if ((File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex) when (IsExpectedCuePathFailure(ex) || ex is FileNotFoundException or DirectoryNotFoundException)
+            {
+                return true;
+            }
+
+            string? parent = Path.GetDirectoryName(current);
+            if (string.IsNullOrEmpty(parent))
+            {
+                break;
+            }
+
+            current = parent;
+        }
+
+        return false;
     }
 
     private static bool IsSameDirectoryChild(string directory, string childPath)

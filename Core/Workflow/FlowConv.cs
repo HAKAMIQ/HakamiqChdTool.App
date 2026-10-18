@@ -1308,10 +1308,38 @@ internal sealed class WorkflowConversionStage(
 
             try
             {
-                WorkflowPathUtilities
-                    .PromoteProducedFileToFinalLocation(
-                        pendingOutputPath,
-                        finalOutputPath);
+                if (settings.SkipExistingOutput)
+                {
+                    // Skip-existing must hold at the moment of promotion too: another job (for example Game.cue and
+                    // Game.iso, which both map to Game.chd) may have produced the final file while this one ran.
+                    if (!WorkflowOutputPathContract.TryPromoteProducedFileIfAbsent(
+                            pendingOutputPath,
+                            finalOutputPath))
+                    {
+                        CleanupPendingConversionOutput(
+                            pendingOutputPath,
+                            outputRoot,
+                            finalOutputPath,
+                            settings);
+
+                        sink.ReportTerminalSuccess(
+                            QueueItemTerminalOutcome.SkippedExists,
+                            FinalOutputExistsDetailKey);
+
+                        return WorkflowResultBuilder.Skipped(
+                            QueueItemTerminalOutcome.SkippedExists,
+                            FinalOutputExistsDetailKey,
+                            finalOutputPath,
+                            lastLogPath);
+                    }
+                }
+                else
+                {
+                    WorkflowPathUtilities
+                        .PromoteProducedFileToFinalLocation(
+                            pendingOutputPath,
+                            finalOutputPath);
+                }
             }
             catch (Exception ex)
                 when (IsExpectedConversionStageException(ex))
