@@ -22,11 +22,11 @@ public sealed class SbiArtifactCopier : ISbiArtifactCopier
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public PostConversionArtifactResult CopyMatchingSbiIfExists(string workingInputPath, string outputChdPath)
+    public PostConversionArtifactResult CopyMatchingSbiIfExists(string workingInputPath, string outputChdPath, bool replaceExisting)
     {
         try
         {
-            return CopyMatchingSbiIfExistsCore(workingInputPath, outputChdPath);
+            return CopyMatchingSbiIfExistsCore(workingInputPath, outputChdPath, replaceExisting);
         }
         catch (Exception ex) when (IsPathOrIoFailure(ex))
         {
@@ -43,7 +43,7 @@ public sealed class SbiArtifactCopier : ISbiArtifactCopier
         }
     }
 
-    private PostConversionArtifactResult CopyMatchingSbiIfExistsCore(string workingInputPath, string outputChdPath)
+    private PostConversionArtifactResult CopyMatchingSbiIfExistsCore(string workingInputPath, string outputChdPath, bool replaceExisting)
     {
         if (string.IsNullOrWhiteSpace(workingInputPath) || string.IsNullOrWhiteSpace(outputChdPath))
         {
@@ -133,7 +133,12 @@ public sealed class SbiArtifactCopier : ISbiArtifactCopier
             throw new IOException();
         }
 
-        CopyFileAtomically(sourceSbi, destinationSbi, safeOutputDirectory);
+        if (!CopyFileAtomically(sourceSbi, destinationSbi, safeOutputDirectory, replaceExisting))
+        {
+            // A .sbi that was already next to the output is the user's; skip-existing keeps it.
+            _logger.Information("Post-conversion SBI copy skipped; a file already exists. Destination={DestinationSbi}", destinationSbi);
+            return PostConversionArtifactResult.Empty;
+        }
 
         _logger.Information(
             "Post-conversion SBI artifact copied. Source={SourceSbi}; Destination={DestinationSbi}",
@@ -143,10 +148,11 @@ public sealed class SbiArtifactCopier : ISbiArtifactCopier
         return new PostConversionArtifactResult { SbiCopiedCount = 1 };
     }
 
-    private static void CopyFileAtomically(
+    private static bool CopyFileAtomically(
         string sourcePath,
         string destinationPath,
-        string destinationDirectory)
+        string destinationDirectory,
+        bool replaceExisting)
     {
         string fullSourcePath = Path.GetFullPath(sourcePath);
         string fullDestinationDirectory = Path.GetFullPath(destinationDirectory);
@@ -192,7 +198,21 @@ public sealed class SbiArtifactCopier : ISbiArtifactCopier
                 throw new IOException();
             }
 
-            File.Move(tempPath, fullDestinationPath, overwrite: true);
+            if (replaceExisting)
+            {
+                File.Move(tempPath, fullDestinationPath, overwrite: true);
+                return true;
+            }
+
+            try
+            {
+                File.Move(tempPath, fullDestinationPath, overwrite: false);
+                return true;
+            }
+            catch (IOException) when (File.Exists(fullDestinationPath))
+            {
+                return false;
+            }
         }
         finally
         {

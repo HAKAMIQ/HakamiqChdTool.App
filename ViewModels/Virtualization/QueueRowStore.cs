@@ -80,6 +80,43 @@ public sealed class QueueRowStore
         CollectionChanged?.Invoke(new QueueRowStoreAppended(newIndex, 1));
     }
 
+    /// <summary>Appends rows as one change: a single notification instead of one per row.</summary>
+    public void AppendRange(IReadOnlyList<QueueRowData> rows)
+    {
+        ArgumentNullException.ThrowIfNull(rows);
+
+        if (rows.Count == 0)
+        {
+            return;
+        }
+
+        int startIndex;
+
+        lock (_gate)
+        {
+            var seen = new HashSet<Guid>(rows.Count);
+            foreach (QueueRowData row in rows)
+            {
+                ArgumentNullException.ThrowIfNull(row);
+                if (_indexById.ContainsKey(row.ItemId) || !seen.Add(row.ItemId))
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+
+            startIndex = _rows.Count;
+            foreach (QueueRowData row in rows)
+            {
+                _indexById[row.ItemId] = _rows.Count;
+                _rows.Add(row);
+            }
+
+            _version++;
+        }
+
+        CollectionChanged?.Invoke(new QueueRowStoreAppended(startIndex, rows.Count));
+    }
+
     public bool TryRemove(Guid id)
     {
         int removedIndex;

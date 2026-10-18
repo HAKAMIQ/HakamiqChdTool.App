@@ -327,6 +327,44 @@
                         </Border>
                     </Grid>
                 </Border>
+
+                <Border Style="{StaticResource Win11SettingsSection}" Margin="{DynamicResource Inset.0.12.0.0}">
+                    <Grid>
+                        <Grid.Resources>
+                            <SolidColorBrush x:Key="IgirSuccessBrush" Color="{DynamicResource Fluent.Status.Success.Foreground1}" />
+                        </Grid.Resources>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Height="{DynamicResource Space.32}" Style="{StaticResource Win11SettingsSectionHeader}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight">
+                                <TextBlock Text="igir" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource FontWeight.SemiBold}" Foreground="{DynamicResource Brush.Text.Primary}" />
+                                <TextBlock Text=" 5.7.2" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource Brush.Text.Secondary}" Language="en-US" />
+                            </StackPanel>
+                        </Grid>
+                        <Border Grid.Row="1" Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.6.All}">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="{DynamicResource Grid.Space.8}" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="{DynamicResource Grid.Space.8}" /><ColumnDefinition Width="*" /><ColumnDefinition Width="{DynamicResource Grid.Space.6}" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{DynamicResource LocExternalTools_PathLabel}" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource FontWeight.SemiBold}" Foreground="{DynamicResource Brush.Text.Primary}" />
+                                    <Border Grid.Column="2" Height="{DynamicResource Space.32}" Background="{DynamicResource Brush.Layer.Surface}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="{DynamicResource Inset.1.All}" CornerRadius="{DynamicResource Radius.Control}" Padding="{DynamicResource Inset.8.4}">
+                                        <TextBlock Text="{Binding ExternalToolsIgirPath}" ToolTip="{Binding ExternalToolsIgirPath}" FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource Brush.Text.Secondary}" FlowDirection="LeftToRight" Language="en-US" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                    </Border>
+                                    <Button x:Name="BrowseIgirToolButton" Grid.Column="4" Width="{DynamicResource Space.80}" Height="{DynamicResource Space.32}" Click="BrowseIgirToolButton_Click" Style="{StaticResource SecondaryButtonStyle}" AutomationProperties.Name="{DynamicResource LocExternalTools_Browse}">
+                                        <TextBlock Text="{DynamicResource LocExternalTools_Browse}" FontSize="{DynamicResource FontSize.BodySmall}" TextWrapping="NoWrap" />
+                                    </Button>
+                                </Grid>
+                                <Grid Grid.Row="2" FlowDirection="LeftToRight">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="{DynamicResource Grid.Space.6}" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="{DynamicResource Grid.Space.6}" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <Ellipse Width="{DynamicResource Space.8}" Height="{DynamicResource Space.8}" VerticalAlignment="Center">
+                                        <Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Fill" Value="{DynamicResource Brush.Text.Secondary}" /><Style.Triggers><DataTrigger Binding="{Binding ExternalToolsIgirIsAvailable}" Value="True"><Setter Property="Fill" Value="{DynamicResource IgirSuccessBrush}" /></DataTrigger></Style.Triggers></Style></Ellipse.Style>
+                                    </Ellipse>
+                                    <TextBlock Grid.Column="2" Text="{Binding ExternalToolsIgirStatusText}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource FontWeight.SemiBold}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="4" Text="{Binding ExternalToolsIgirVersion}" FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource Brush.Text.Secondary}" Language="en-US" VerticalAlignment="Center" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
             </StackPanel>
         </ScrollViewer>
     </Border>
