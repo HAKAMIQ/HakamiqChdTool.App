@@ -1,0 +1,574 @@
+<Window x:Class="HakamiqChdTool.App.Views.LibraryAnalysisWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="{DynamicResource LocLib_Title}"
+        Width="{DynamicResource Window.Library.Width}"
+        Height="{DynamicResource Window.Library.Height}"
+        MinWidth="{DynamicResource Window.Library.MinWidth}"
+        MinHeight="{DynamicResource Window.Library.MinHeight}"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        Background="{DynamicResource Brush.Layer.Canvas}"
+        Foreground="{DynamicResource Brush.Text.Primary}"
+        ShowInTaskbar="False"
+        FlowDirection="{DynamicResource App.FlowDirection}"
+        Language="{DynamicResource App.XmlLanguage}"
+        Icon="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.ico"
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True"
+        FontFamily="{DynamicResource FontFamily.Text}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/Style/OptsStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="LibTechnicalCell"
+                   TargetType="{x:Type TextBlock}">
+                <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
+                <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
+                <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Mono}" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="LibTechnicalWrap"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource LibTechnicalCell}">
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="TextTrimming" Value="None" />
+            </Style>
+
+            <Style x:Key="LibGridRow"
+                   TargetType="{x:Type DataGridRow}"
+                   BasedOn="{StaticResource FluentDataGridRow}">
+                <Setter Property="MinHeight" Value="{DynamicResource Space.36}" />
+                <Setter Property="AutomationProperties.Name" Value="{Binding Source}" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource Brush.Accent.SelectedBackground}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style x:Key="LibGridHeader"
+                   TargetType="{x:Type DataGridColumnHeader}">
+                <Setter Property="Background" Value="{DynamicResource Brush.Layer.Surface}" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}" />
+                <Setter Property="BorderThickness" Value="{DynamicResource Inset.0.0.0.1}" />
+                <Setter Property="Padding" Value="{DynamicResource Inset.12.7}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  RecognizesAccessKey="True" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="LibTextCell"
+                   TargetType="{x:Type TextBlock}">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="Margin" Value="{DynamicResource Inset.12.0}" />
+            </Style>
+
+            <Style x:Key="LibGridTechnicalCell"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource LibTechnicalCell}">
+                <Setter Property="Margin" Value="{DynamicResource Inset.12.0}" />
+            </Style>
+
+            <Style x:Key="LibFilterItem"
+                   TargetType="{x:Type ComboBoxItem}">
+                <Setter Property="AutomationProperties.Name" Value="{Binding Label}" />
+            </Style>
+
+            <Style x:Key="LibOutcomeText"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource Text.Body}">
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Warning}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding OutcomeIsClean}" Value="True">
+                        <Setter Property="Foreground" Value="{DynamicResource Brush.Success}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style x:Key="LibFieldLabel"
+                   TargetType="{x:Type TextBlock}"
+                   BasedOn="{StaticResource Text.Caption}">
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="{DynamicResource Space.48}"
+                            CornerRadius="{DynamicResource Radius.Window}"
+                            GlassFrameThickness="{DynamicResource Inset.None}"
+                            ResizeBorderThickness="{DynamicResource Inset.6.All}"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Border Background="{DynamicResource Brush.Layer.Canvas}"
+            TextElement.Foreground="{DynamicResource Brush.Text.Primary}"
+            BorderBrush="{DynamicResource Brush.Border.Subtle}"
+            BorderThickness="{DynamicResource Inset.1.All}"
+            CornerRadius="{DynamicResource Radius.Window}"
+            ClipToBounds="True">
+
+        <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+              Language="{DynamicResource App.XmlLanguage}">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="{DynamicResource Grid.Space.48}" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="{DynamicResource Grid.Space.56}" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Background="{DynamicResource Brush.Layer.Surface}"
+                    BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                    BorderThickness="{DynamicResource Inset.0.0.0.1}"
+                    MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Grid Margin="{DynamicResource Inset.16.0.16.0}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Text="{DynamicResource LocLib_Title}"
+                               TextTrimming="CharacterEllipsis"
+                               Style="{StaticResource Text.BodyStrong}" />
+
+                    <Button Grid.Column="2"
+                            Width="{DynamicResource Space.32}"
+                            Height="{DynamicResource Space.32}"
+                            VerticalAlignment="Center"
+                            Click="CloseButton_Click"
+                            Style="{StaticResource HeaderIconButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocCommon_Close}"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Viewbox Width="{DynamicResource Space.12}"
+                                 Height="{DynamicResource Space.12}"
+                                 FlowDirection="LeftToRight"
+                                 Stretch="Uniform">
+                            <Path Data="{StaticResource Icon.Close}"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  Stretch="Uniform" />
+                        </Viewbox>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- The body keeps a minimum height and scrolls when the work area is smaller, so every
+                 control stays reachable; above it the grid fills the viewport and the results row
+                 keeps a bounded height (DataGrid virtualization stays on). -->
+            <ScrollViewer Grid.Row="1"
+                          x:Name="BodyScroll"
+                          Padding="{DynamicResource Inset.20.16.20.16}"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+            <!-- The inset is the scroller's Padding, not the grid's Margin: a Margin sits outside the
+                 Height bound to ViewportHeight and would make the content always overflow. -->
+            <Grid MinHeight="{DynamicResource Library.Body.MinHeight}"
+                  Height="{Binding ViewportHeight, ElementName=BodyScroll}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="{DynamicResource LocLib_AnalysisNotice}"
+                           TextWrapping="Wrap"
+                           Style="{StaticResource Text.Caption}" />
+
+                <!-- Inputs -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="{DynamicResource LocLib_LibraryFolder}"
+                               Style="{StaticResource LibFieldLabel}" />
+                    <TextBox Grid.Row="0" Grid.Column="2"
+                             Text="{Binding LibraryRoot, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding IsIdle}"
+                             Style="{StaticResource FluentTechnicalTextBoxStyle}"
+                             AutomationProperties.Name="{DynamicResource LocLib_LibraryFolder}" />
+                    <Button Grid.Row="0" Grid.Column="4"
+                            Content="{DynamicResource LocCommon_Browse}"
+                            Command="{Binding BrowseLibraryCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0"
+                               VerticalAlignment="Top"
+                               Text="{DynamicResource LocLib_DatFiles}"
+                               Style="{StaticResource LibFieldLabel}" />
+                    <ListBox Grid.Row="2" Grid.Column="2"
+                             Height="{DynamicResource Space.64}"
+                             ItemsSource="{Binding DatPaths}"
+                             SelectedItem="{Binding SelectedDat, Mode=TwoWay}"
+                             AutomationProperties.Name="{DynamicResource LocLib_DatFiles}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"
+                                           Style="{StaticResource LibTechnicalCell}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Grid.Row="2" Grid.Column="4">
+                        <Button Content="{DynamicResource LocLib_AddDat}"
+                                Command="{Binding AddDatCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Margin="{DynamicResource Inset.0.6.0.0}"
+                                Content="{DynamicResource LocLib_RemoveDat}"
+                                Command="{Binding RemoveDatCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0"
+                               Text="{DynamicResource LocLib_OutputFolder}"
+                               Style="{StaticResource LibFieldLabel}" />
+                    <TextBox Grid.Row="4" Grid.Column="2"
+                             Text="{Binding OutputRoot, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding IsIdle}"
+                             Style="{StaticResource FluentTechnicalTextBoxStyle}"
+                             AutomationProperties.Name="{DynamicResource LocLib_OutputFolder}" />
+                    <Button Grid.Row="4" Grid.Column="4"
+                            Content="{DynamicResource LocCommon_Browse}"
+                            Command="{Binding BrowseOutputCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+
+                    <CheckBox Grid.Row="6" Grid.Column="2"
+                              Content="{DynamicResource LocLib_VerifyContent}"
+                              IsChecked="{Binding VerifyContent, Mode=TwoWay}"
+                              IsEnabled="{Binding IsIdle}"
+                              Style="{StaticResource FluentCheckBoxStyle}" />
+                </Grid>
+
+                <!-- Run, progress, outcome -->
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.16}" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Column="0"
+                            Content="{DynamicResource LocLib_Start}"
+                            Command="{Binding StartCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}" />
+                    <Button Grid.Column="2"
+                            Content="{DynamicResource LocCommon_Cancel}"
+                            Command="{Binding CancelCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+
+                    <StackPanel Grid.Column="4">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="{DynamicResource LocLib_Execute}"
+                                    Command="{Binding ExecuteCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}" />
+                            <Button Margin="{DynamicResource Inset.8.0.0.0}"
+                                    Content="{DynamicResource LocLib_Journal}"
+                                    Command="{Binding JournalCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}" />
+                            <Button Margin="{DynamicResource Inset.8.0.0.0}"
+                                    Content="{DynamicResource LocLib_Undo}"
+                                    Command="{Binding UndoCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}" />
+                            <Button Margin="{DynamicResource Inset.8.0.0.0}"
+                                    Content="{DynamicResource LocLib_IgirReport}"
+                                    Command="{Binding IgirReportCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}" />
+                        </StackPanel>
+                        <StackPanel Margin="{DynamicResource Inset.0.8.0.0}"
+                                    Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding PhaseText}"
+                                       TextTrimming="CharacterEllipsis"
+                                       Style="{StaticResource Text.Caption}" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding ProgressText}"
+                                       Style="{StaticResource Text.Caption}" />
+                        </Grid>
+                        <ProgressBar Margin="{DynamicResource Inset.0.4.0.0}"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Value="{Binding ProgressValue, Mode=OneWay}"
+                                     IsIndeterminate="{Binding ProgressIsIndeterminate}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" Grid.ColumnSpan="5"
+                               Margin="{DynamicResource Inset.0.8.0.0}"
+                               Text="{Binding ErrorText}"
+                               Foreground="{DynamicResource Brush.Error.Foreground}"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding ErrorText, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                               Style="{StaticResource Text.Body}" />
+                    <StackPanel Grid.Row="1" Grid.ColumnSpan="5"
+                                Margin="{DynamicResource Inset.0.8.0.0}"
+                                Visibility="{Binding HasOutcome, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="{Binding OutcomeText}"
+                                   Style="{StaticResource LibOutcomeText}" />
+                        <TextBlock Text="{DynamicResource LocLib_Preview_NotApplied}"
+                                   Visibility="{Binding HasPreview, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource Text.Caption}" />
+                        <TextBlock Text="{Binding SummaryText}"
+                                   Visibility="{Binding SummaryText, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource Text.Caption}" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- Results -->
+                <Grid Grid.Row="6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                        <ColumnDefinition Width="{DynamicResource Library.Details.Width}" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <ComboBox Grid.Row="0" Grid.Column="0"
+                              ItemsSource="{Binding Filters}"
+                              SelectedItem="{Binding SelectedFilter, Mode=TwoWay}"
+                              DisplayMemberPath="Label"
+                              ItemContainerStyle="{StaticResource LibFilterItem}"
+                              Style="{StaticResource FluentComboBoxStyle}"
+                              AutomationProperties.Name="{DynamicResource LocLib_Filter_All}" />
+
+                    <DataGrid Grid.Row="2" Grid.Column="0"
+                              ItemsSource="{Binding Rows}"
+                              SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              CellStyle="{StaticResource FluentDataGridCell}"
+                              RowStyle="{StaticResource LibGridRow}"
+                              HeadersVisibility="Column"
+                              ColumnHeaderStyle="{StaticResource LibGridHeader}"
+                              Style="{StaticResource FluentMinimalDataGrid}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn
+                                                Binding="{Binding StatusText}"
+                                                ElementStyle="{StaticResource LibTextCell}"
+                                                MinWidth="{DynamicResource Space.112}"
+                                                Width="Auto" >
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource LocLib_Col_Status}" />
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn
+                                                Binding="{Binding Source}"
+                                                ElementStyle="{StaticResource LibGridTechnicalCell}"
+                                                Width="*" >
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource LocLib_Col_Source}" />
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn
+                                                Binding="{Binding Destination}"
+                                                ElementStyle="{StaticResource LibGridTechnicalCell}"
+                                                Width="*" >
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource LocLib_Col_Destination}" />
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn
+                                                Binding="{Binding Conflicts}"
+                                                ElementStyle="{StaticResource LibTextCell}"
+                                                Width="*" >
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource LocLib_Col_Conflicts}" />
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Details -->
+                    <Border Grid.Row="0" Grid.Column="2" Grid.RowSpan="3"
+                            Background="{DynamicResource Brush.Layer.Card}"
+                            BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                            BorderThickness="{DynamicResource Inset.1.All}"
+                            CornerRadius="{DynamicResource Radius.Card}"
+                            Padding="{DynamicResource Inset.12.All}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource LocLib_Detail_Title}"
+                                           Style="{StaticResource Text.BodyStrong}" />
+                                <TextBlock Margin="{DynamicResource Inset.0.6.0.0}"
+                                           Text="{DynamicResource LocLib_Detail_Select}"
+                                           TextWrapping="Wrap"
+                                           Visibility="{Binding HasNoSelection, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                           Style="{StaticResource Text.Caption}" />
+                                <StackPanel DataContext="{Binding SelectedRow}"
+                                            Visibility="{Binding DataContext.HasSelection, RelativeSource={RelativeSource AncestorType={x:Type Window}}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{Binding StatusText}"
+                                               Style="{StaticResource Text.Body}" />
+                                    <TextBlock Text="{Binding StatusHint}"
+                                               TextWrapping="Wrap"
+                                               Style="{StaticResource Text.Caption}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{DynamicResource LocLib_Detail_Game}"
+                                               Style="{StaticResource LibFieldLabel}" />
+                                    <TextBlock Text="{Binding Game}"
+                                               Style="{StaticResource LibTechnicalWrap}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{DynamicResource LocLib_Detail_Platform}"
+                                               Style="{StaticResource LibFieldLabel}" />
+                                    <TextBlock Text="{Binding Platform}"
+                                               Style="{StaticResource LibTechnicalWrap}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{DynamicResource LocLib_Detail_Region}"
+                                               Style="{StaticResource LibFieldLabel}" />
+                                    <TextBlock Text="{Binding Region}" TextWrapping="Wrap"
+                                               Style="{StaticResource Text.Body}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{DynamicResource LocLib_Detail_Evidence}"
+                                               Style="{StaticResource LibFieldLabel}" />
+                                    <TextBlock Text="{Binding Evidence}"
+                                               Style="{StaticResource LibTechnicalWrap}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{DynamicResource LocLib_Detail_Reasons}"
+                                               Style="{StaticResource LibFieldLabel}" />
+                                    <TextBlock Text="{Binding Reasons}"
+                                               Style="{StaticResource LibTechnicalWrap}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{DynamicResource LocLib_Detail_Flags}"
+                                               Style="{StaticResource LibFieldLabel}" />
+                                    <TextBlock Text="{Binding Conflicts}" TextWrapping="Wrap"
+                                               Style="{StaticResource Text.Body}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{DynamicResource LocLib_Detail_DiscSet}"
+                                               Style="{StaticResource LibFieldLabel}" />
+                                    <TextBlock Text="{Binding DiscSet}"
+                                               Style="{StaticResource LibTechnicalWrap}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{DynamicResource LocLib_Detail_Review}"
+                                               Style="{StaticResource LibFieldLabel}" />
+                                    <TextBlock Text="{Binding ReviewReason}"
+                                               Style="{StaticResource LibTechnicalWrap}" />
+
+                                    <TextBlock Margin="{DynamicResource Inset.0.8.0.0}"
+                                               Text="{Binding Bucket}"
+                                               Style="{StaticResource Text.Caption}" />
+                                </StackPanel>
+
+                                <Expander Margin="{DynamicResource Inset.0.12.0.0}"
+                                          Header="{DynamicResource LocLib_Issues_Title}"
+                                          Visibility="{Binding HasIssues, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <ItemsControl ItemsSource="{Binding Issues}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}"
+                                                           Style="{StaticResource LibTechnicalWrap}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Expander>
+
+                                <Expander Margin="{DynamicResource Inset.0.8.0.0}"
+                                          Header="{DynamicResource LocLib_Report_Title}"
+                                          Visibility="{Binding ReportText, Converter={StaticResource NullOrEmptyToVisibilityConverter}}">
+                                    <TextBox Text="{Binding ReportText, Mode=OneWay}"
+                                             IsReadOnly="True"
+                                             TextWrapping="NoWrap"
+                                             MaxHeight="{DynamicResource Library.Report.MaxHeight}"
+                                             HorizontalScrollBarVisibility="Auto"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Style="{StaticResource FluentTechnicalTextBoxStyle}" />
+                                </Expander>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </Grid>
+            </ScrollViewer>
+
+            <Border Grid.Row="2"
+                    Background="{DynamicResource Brush.Layer.Surface}"
+                    BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                    BorderThickness="{DynamicResource Inset.0.1.0.0}">
+                <Grid Margin="{DynamicResource Inset.16.0.16.0}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="1"
+                            Width="{DynamicResource Space.112}"
+                            Height="{DynamicResource Space.40}"
+                            VerticalAlignment="Center"
+                            Click="CloseButton_Click"
+                            Content="{DynamicResource LocCommon_Close}"
+                            AutomationProperties.Name="{DynamicResource LocCommon_Close}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

@@ -79,4 +79,6 @@ public interface IMainWindowSession
     void OpenOptions();
 
     void OpenAbout();
+
+    void OpenLibraryAnalysis();
 }
