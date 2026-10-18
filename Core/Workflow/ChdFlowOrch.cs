@@ -60,6 +60,8 @@ public sealed partial class ChdWorkflowOrchestrator : IChdWorkflowOrchestrator
             throw new ArgumentException("ChdTaskRequest.Options must be ChdWorkflowTaskContext.", nameof(request));
         }
 
+        using IDisposable activeLease = ActiveWorkflowRegistry.Enter();
+
         if (ctx.Mode == ChdWorkflowMode.VerifyExistingChd)
         {
             return await ProcessVerifyExistingWorkflowAsync(request, ctx, ct).ConfigureAwait(false);

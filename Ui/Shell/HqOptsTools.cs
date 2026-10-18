@@ -1,5 +1,6 @@
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.Services.Configuration;
+using HakamiqChdTool.App.Services.ExternalTools.Igir;
 using Microsoft.Win32;
 using System;
 using System.IO;
@@ -19,6 +20,7 @@ internal sealed partial class HqOptionsShell
     private const string SelectCsoKitToolTitleKey = "LocExternalTools_SelectCsoKitToolTitle";
     private const string CsoKitToolFilterKey = "LocExternalTools_CsoKitToolFilter";
     private const string InvalidCsoKitToolSelectionKey = "LocExternalTools_InvalidCsoKitToolSelection";
+    private const string IgirToolFilterKey = "LocExternalTools_IgirToolFilter";
 
     public void RecheckExternalTools(object? sender, EventArgs e) => QueueExternalToolsRefresh(showCheckingState: true);
 
@@ -125,6 +127,33 @@ internal sealed partial class HqOptionsShell
         QueueExternalToolsRefresh(showCheckingState: false);
     }
 
+    public void BrowseIgirTool(object? sender, EventArgs e)
+    {
+        OpenFileDialog dialog = new() { Title = ResolveUiText("LocExternalTools_IgirSelect"), Filter = ResolveUiText(IgirToolFilterKey),
+            CheckFileExists = true, CheckPathExists = true, Multiselect = false, FileName = "igir.exe" };
+        bool? result = dialog.ShowDialog(_owner);
+        if (result != true) return;
+        if (!ExternalToolPathValidator.TryValidateCandidate(dialog.FileName, "igir.exe", out string selectedPath))
+        {
+            ShowNoticeDialog(OperationErrorTitleKey, "LocExternalTools_IgirInvalid");
+            return;
+        }
+        string previousPath = _currentSettings.ExternalIgirPath;
+        _currentSettings.ExternalIgirPath = selectedPath;
+        _owner.ResultSettings.ExternalIgirPath = selectedPath;
+        try { using AppSettingsService settings = new(); settings.Save(_currentSettings); }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            Logger.Warning(ex, "Failed to persist igir selected path.");
+            _currentSettings.ExternalIgirPath = previousPath;
+            _owner.ResultSettings.ExternalIgirPath = previousPath;
+            _owner.ViewModel.SetIgirExternalToolStatus(ResolveUiText("LocExternalTools_IgirStatusFailed"),
+                ResolveUiText(ValueUnavailableKey), selectedPath, false);
+            return;
+        }
+        QueueExternalToolsRefresh(showCheckingState: true);
+    }
+
     private void QueueExternalToolsRefresh() => QueueExternalToolsRefresh(showCheckingState: false);
 
     private void QueueExternalToolsRefresh(bool showCheckingState)
@@ -150,15 +179,19 @@ internal sealed partial class HqOptionsShell
                 unavailableText,
                 isAvailable: false,
                 showSetupNote: false);
+            _owner.ViewModel.SetIgirExternalToolStatus(ResolveUiText("LocExternalTools_IgirStatusChecking"), unavailableText,
+                string.IsNullOrWhiteSpace(_currentSettings.ExternalIgirPath) ? unavailableText : _currentSettings.ExternalIgirPath, false);
         }
 
         _ = Task.Run(
             async () =>
             {
                 CsoToolProbeResult result;
+                IgirToolProbeResult igirResult;
                 try
                 {
                     result = await new CsoToolProbe(_currentSettings.ExternalCsoKitPath).CheckAsync(token).ConfigureAwait(false);
+                    igirResult = await new IgirToolProbe().CheckAsync(AppContext.BaseDirectory, _currentSettings.ExternalIgirPath, token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested)
                 {
@@ -181,6 +214,7 @@ internal sealed partial class HqOptionsShell
                         CsoToolProbe.ToolFailedMessageKey,
                         1,
                         ex.Message);
+                    igirResult = new IgirToolProbeResult(_currentSettings.ExternalIgirPath, string.Empty, false, false);
                 }
 
                 await _owner.Dispatcher.InvokeAsync(
@@ -192,9 +226,18 @@ internal sealed partial class HqOptionsShell
                         }
 
                         ApplyCsoKitProbeResult(result);
+                        ApplyIgirProbeResult(igirResult);
                     });
             },
             token);
+    }
+
+    private void ApplyIgirProbeResult(IgirToolProbeResult result)
+    {
+        string key = result.IsAvailable ? "LocExternalTools_IgirStatusAvailable"
+            : result.IsMissing ? "LocExternalTools_IgirStatusMissing" : "LocExternalTools_IgirStatusFailed";
+        _owner.ViewModel.SetIgirExternalToolStatus(ResolveUiText(key), result.Version,
+            result.Path.Length == 0 ? ResolveUiText(ValueUnavailableKey) : result.Path, result.IsAvailable);
     }
 
     private void ApplyCsoKitProbeResult(CsoToolProbeResult result)

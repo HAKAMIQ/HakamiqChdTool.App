@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Verification;
 using HakamiqChdTool.App.Models;
 
 namespace HakamiqChdTool.App.Services;
@@ -56,7 +57,8 @@ public enum RedumpV2ResultState
 public sealed record RedumpV2ScanOptions(
     string ChdmanPath,
     AppSettings? Settings = null,
-    bool SourcePathLeaseHeld = false);
+    bool SourcePathLeaseHeld = false,
+    IFastPathProofRegistry? FastPathProof = null);
 
 public sealed record RedumpSourceClassification(
     string InputPath,
@@ -83,4 +85,9 @@ public sealed record RedumpV2ScanResult(
     string MatchedGameName = "",
     int MatchedFileCount = 0,
     int HashedFileCount = 0,
-    string FailureCode = "");
+    string FailureCode = "",
+    MediaSemantics MediaSemantics = MediaSemantics.Unknown,
+    RedumpVerification RedumpVerification = RedumpVerification.NotVerified,
+    StorageCompatibility StorageCompatibility = StorageCompatibility.Unknown,
+    FullVerificationPath VerificationPath = FullVerificationPath.None,
+    FastPathState FastPathState = FastPathState.NotAllowed);
