@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -51,6 +52,18 @@ internal static partial class Program
 
         Assembly appAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.GetFullPath(appAssemblyPath));
         var app = new AppReflection(appAssembly);
+
+        string? uiTest = ReadOptionalArgument(args, "--ui-test");
+        if (!string.IsNullOrWhiteSpace(uiTest))
+        {
+            return RunIsolatedUiTest(uiTest, ReadRequiredArgument(args, "--work-dir"));
+        }
+
+        string? perfMode = ReadOptionalArgument(args, "--perf-mode");
+        if (!string.IsNullOrWhiteSpace(perfMode))
+        {
+            return RunPerfMeasurements(perfMode, app);
+        }
 
         string? securityMode = ReadOptionalArgument(args, "--security-mode");
         if (!string.IsNullOrWhiteSpace(securityMode))
@@ -110,7 +123,121 @@ internal static partial class Program
                 new("Workflow planner creates DVD command for CSO input", () => TestWorkflowPlannerCsoCreatesDvd(app, workDirectory)),
                 new("Media input classifier covers P0 descriptors", () => TestMediaInputClassifierP0(app, workDirectory)),
                 new("Media input pipeline makes P0 decisions", () => TestMediaInputPipelineP0Decisions(app, workDirectory)),
-                new("Fast direct intake honors P0 media evidence", () => TestFastDirectIntakeHonorsP0Evidence(app, workDirectory)),
+                new("All-console ROM envelopes stay outside the conversion queue", () => TestAllConsoleRomInputsStayInventorySafe(app, workDirectory)),
+                new("Media input cancellation and read-only probes are preserved", () => TestMediaInputCancellationAndReadOnly(app, workDirectory)),
+                new("CUE/GDI/BIN/RAW and reparse-point intake boundaries are preserved", () => TestMediaInputDependenciesAndReparsePoints(app, workDirectory)),
+                new("File symlinks are rejected by intake resolution", () => TestMediaInputSymlinkRejection(app, workDirectory)),
+                new("Directory symlinks are rejected by intake resolution", () => TestMediaInputDirectorySymlinkRejection(app, workDirectory)),
+                new("Junction ancestors are rejected before media header reads", () => TestMediaInputJunctionHeaderGuard(app, workDirectory)),
+                new("Library index covers kinds, nesting, duplicates and counts without modifying files", () => TestLibraryIndexKindsNestingAndCounts(workDirectory)),
+                new("Library index handles empty and rejected roots", () => TestLibraryIndexEmptyAndRejectedRoots(workDirectory)),
+                new("DAT parser reads Logiqx XML and bounds its input", () => TestDatParserSupportedAndBounded(workDirectory)),
+                new("DAT parser rejects malformed records and unsupported formats", () => TestDatParserRejectsMalformedAndUnsupported(workDirectory)),
+                new("DAT parser never resolves external entities", () => TestDatParserDoesNotResolveEntities(workDirectory)),
+                new("DAT matcher reports name and size evidence only without opt-in", () => TestDatMatcherNameAndSizeEvidenceOnly(workDirectory)),
+                new("DAT matcher verifies content only on request and never for containers", () => TestDatMatcherVerifiesOnlyWhenRequested(workDirectory)),
+                new("DAT matcher supports cancellation and reports errors", () => TestDatMatcherCancellationAndErrors(workDirectory)),
+                new("Organization planner groups consoles and separates unknown media", () => TestPlannerGroupsConsolesAndKeepsUnknownSeparate(workDirectory)),
+                new("Organization planner keeps disc sets together", () => TestPlannerKeepsDiscSetsTogether(workDirectory)),
+                new("Organization planner flags duplicates, collisions and invalid names", () => TestPlannerFlagsDuplicatesCollisionsAndInvalidNames(workDirectory)),
+                new("Organization planner rejects unsafe output roots", () => TestPlannerRejectsUnsafeOutputRoots(workDirectory)),
+                new("Organization planner detects destination conflicts with sources", () => TestPlannerDetectsDestinationConflictsWithSources(workDirectory)),
+                new("Organization planner bounds sheet reads and tolerates case-duplicate entries", () => TestPlannerSurvivesOversizedSheetsAndCaseDuplicateEntries(workDirectory)),
+                new("Settings saves recover stale staging and serialize concurrent writers", () => TestSettingsSaveRecoversStaleStagingAndSerializesConcurrentSaves(workDirectory)),
+                new("Organization planner fails closed on case-ambiguous sheet references", () => TestPlannerFailsClosedOnCaseAmbiguousSheetReference(workDirectory)),
+                new("Settings save replaces the file atomically", () => TestSettingsSaveReplacesFileAtomically(workDirectory)),
+                new("Explicit save supersedes a pending debounced save", () => TestExplicitSaveSupersedesPendingDebouncedSave(workDirectory)),
+                new("Theme text colors meet WCAG AA contrast in Light and Dark", TestThemeTextContrastMeetsAa),
+                new("Theme borders and hover/pressed states meet WCAG contrast", TestThemeStateAndBorderContrast),
+                new("Library analysis scales and reports monotonic progress", () => TestLibraryAnalysisScalesAndReportsMonotonicProgress(workDirectory)),
+                new("Input resolver scales with deep trees", () => TestInputResolverScalesWithDeepTrees(workDirectory)),
+                new("Cleanup service honors the process temp boundary", () => TestCleanupServiceHonorsProcessTempBoundary(workDirectory)),
+                new("Orphan scan skips while a sibling workflow is active", () => TestOrphanScanSkipsWhileSiblingWorkflowActive(workDirectory)),
+                new("Queue never exceeds the configured concurrency", () => TestQueueNeverExceedsConfiguredConcurrency(workDirectory)),
+                new("Overlapping intake requests are serialized", () => TestOverlappingIntakeRequestsAreSerialized(workDirectory)),
+                new("Pending cleaner reparse scan fails closed on unreadable subtree", () => TestPendingCleanerReparseScanFailsClosedOnUnreadableSubtree(workDirectory)),
+                new("CUE reference through a junction is rejected", () => TestCueReferenceThroughJunctionIsRejected(workDirectory)),
+                new("Oversized cue sheet is refused", () => TestOversizedCueSheetIsRefused(workDirectory)),
+                new("Archive entry arguments reject wildcards and traversal", () => TestArchiveEntryArgumentsRejectWildcardsAndTraversal(workDirectory)),
+                new("Path gate folds extended and 8.3 aliases", () => TestPathGateFoldsExtendedAndShortAliases(workDirectory)),
+                new("Queue row store batches appends atomically", () => TestQueueRowStoreAppendRangeIsOneAtomicChange(workDirectory)),
+                new("Failed cue finalization never deletes a pre-existing final cue", () => TestFailedCueFinalizationNeverDeletesPreExistingFinalCue(workDirectory)),
+                new("Promoted-target rollback refuses junctioned targets", () => TestPromotedCleanupRefusesJunctionedTargets(workDirectory)),
+                new("Auxiliary output delete is limited to the restore scratch cue", () => TestAuxiliaryOutputDeleteIsLimitedToRestoreScratchCue(workDirectory)),
+                new("Orphan clean authorizes each item against the registry", () => TestOrphanCleanAuthorizesEachItemAgainstTheRegistry(workDirectory)),
+                new("Orphan clean does not follow a replaced directory", () => TestOrphanCleanDoesNotFollowReplacedDirectory(workDirectory)),
+                new("Orphan clean skips items changed after the scan", () => TestOrphanCleanSkipsItemsChangedAfterScan(workDirectory)),
+                new("Orphan clean requires the app ownership marker", () => TestOrphanCleanRequiresAppOwnershipMarker(workDirectory)),
+                new("Pending job directory is created with the marker", () => TestPendingJobDirectoryIsCreatedWithMarker(workDirectory)),
+                new("Job marker is bound to its directory", () => TestJobMarkerIsBoundToItsDirectory(workDirectory)),
+                new("CUE/BIN finalize never replaces a concurrent file", () => TestCueBundleFinalizeNeverReplacesConcurrentFile(workDirectory)),
+                new("SBI copy keeps a pre-existing sbi unless replacing", () => TestSbiCopyPreservesExistingSbiUnlessReplacing(workDirectory)),
+                new("Promotion failure never deletes a concurrent file", () => TestPromotionFailureNeverDeletesConcurrentFile(workDirectory)),
+                new("Extraction refuses a non-empty destination", () => TestExtractionRefusesNonEmptyDestinationAndKeepsUserFiles(workDirectory)),
+                new("Descriptor read does not expand wildcard entries", () => TestDescriptorReadDoesNotExpandWildcardEntry(workDirectory)),
+                new("Redump sync holds an active lease until cancelled", () => TestRedumpSyncHoldsAnActiveLeaseUntilCancelled(workDirectory)),
+                new("Real extraction does not expand wildcard references", () => TestRealExtractionDoesNotExpandWildcardReferences(workDirectory)),
+                new("Real extraction honours cancellation", () => TestRealExtractionHonoursCancellation(workDirectory)),
+                new("Queue batch respects the operation-mode filter", () => TestQueueBatchRespectsOperationModeFilter(workDirectory)),
+                new("Queue batch keeps a sorted collection view consistent", () => TestQueueBatchKeepsSortedCollectionViewConsistent(workDirectory)),
+                new("Queue batch across repeated view sessions", () => TestQueueBatchAcrossRepeatedViewSessions(workDirectory)),
+                new("Queue batch keeps partial progress when cancelled", () => TestQueueBatchKeepsPartialProgressWhenLoopIsCancelled(workDirectory)),
+                new("Single-file finalize honours allow-overwrite", () => TestSingleFileFinalizeHonoursAllowOverwrite(workDirectory)),
+                new("Promote-if-absent never replaces an existing final file", () => TestPromoteIfAbsentNeverReplacesAndMovesWhenFree(workDirectory)),
+                new("Cue normalization refuses an oversized cue and keeps the file", () => TestCueNormalizationRefusesOversizedCueAndKeepsFile(workDirectory)),
+                new("Source cleanup never deletes the output through a short-name alias", () => TestSourceCleanupNeverDeletesOutputThroughShortNameAlias(workDirectory)),
+                new("Active workflow lease releases once", () => TestActiveWorkflowLeaseReleasesOnce(workDirectory)),
+                new("Active workflow registry holds under contention", () => TestActiveWorkflowRegistryUnderContention(workDirectory)),
+                new("Orphan clean skips when a sibling starts after the scan", () => TestOrphanCleanSkipsWhenSiblingStartsAfterScan(workDirectory)),
+                new("DAT parser reads ClrMamePro text DATs", () => TestDatParserReadsClrMameProText(workDirectory)),
+                new("DAT parser tolerates real-world XML attributes and keeps duplicate records", () => TestDatParserOptionalAttributesAndStatus(workDirectory)),
+                new("CRC32 streaming matches known vectors and leaves SHA1/MD5 intact", () => TestCrc32StreamingAndExistingHashes(workDirectory)),
+                new("DAT matcher applies CRC32 identification rules", () => TestDatMatcherCrc32Rules(workDirectory)),
+                new("Organization planner handles CUE/GDI disc sets as units", () => TestPlannerDiscSetHandling(workDirectory)),
+                new("Organization planner report explains each decision", () => TestPlannerReportExplainsDecisions(workDirectory)),
+                new("Organizer executes, journals, undoes and verifies a synthetic move", () => TestOrganizerExecuteJournalUndo(workDirectory)),
+                new("Organizer rejects a source changed after preview", () => TestOrganizerRejectsSourceChangesAfterPreview(workDirectory)),
+                new("Organizer recovery reconciles a move completed before journal completion", () => TestOrganizerRecoversIntentAfterMove(workDirectory)),
+                new("Organizer journal owns a directory it creates under a different default owner", () => TestOrganizerJournalOwnsNewDirectoryUnderDefaultOwner(workDirectory)),
+                new("Organizer journal rejects a pre-existing foreign-owned directory", () => TestOrganizerJournalRejectsForeignOwnedDirectory(workDirectory)),
+                new("Organizer undo refuses modified destination content", () => TestOrganizerUndoRefusesModifiedDestination(workDirectory)),
+                new("Organizer undo preflights conflicts across the complete disc group", () => TestOrganizerUndoGroupPreflightsConflictsAsync(workDirectory).GetAwaiter().GetResult()),
+                new("Organizer moves and undoes a verified CUE/BIN set", () => TestOrganizerMovesAndUndoesCueBinSet(workDirectory)),
+                new("Organizer moves and undoes a verified GDI track set", () => TestOrganizerMovesAndUndoesGdiSetAsync(workDirectory).GetAwaiter().GetResult()),
+                new("Organizer restores an earlier CUE/BIN member after a mid-group conflict", () => TestOrganizerRollsBackCueBinSetOnMidGroupConflict(workDirectory)),
+                new("Organizer cancellation restores an earlier CUE/BIN group member", () => TestOrganizerCancellationRestoresCueBinGroup(workDirectory)),
+                new("igir arguments permit only the pinned read-only report workflow", () => TestIgirArgumentsAreReportOnly(workDirectory)),
+                new("igir executable validation is separate from CsoKit validation", () => TestIgirCandidateValidation(app, workDirectory)),
+                new("igir locator fails closed for missing and tampered executables", () => TestIgirLocatorRejectsMissingAndTampered(app, workDirectory)),
+                new("igir tool probe distinguishes missing and invalid executables", () => TestIgirProbeDistinguishesMissingAndInvalid(workDirectory)),
+                new("igir report parser handles RFC CSV and rejects unknown status", () => TestIgirReportParserHandlesRfcCsv(workDirectory)),
+                new("Library analysis runs the full read-only pipeline end to end", () => TestLibraryAnalysisEndToEnd(workDirectory)),
+                new("Library analysis hashes only on explicit opt-in", () => TestLibraryAnalysisDefaultsToNoHashing(workDirectory)),
+                new("Library analysis keeps CRC32-only and colliding records unverified", () => TestLibraryAnalysisCrc32OnlyAndCollisions(workDirectory)),
+                new("Library analysis flags invalid and conflicting destinations", () => TestLibraryAnalysisDestinationProblems(workDirectory)),
+                new("Library analysis cancellation keeps partial results and builds no plan", () => TestLibraryAnalysisCancellation(workDirectory)),
+                new("Library analysis never marks incomplete input executable", () => TestLibraryAnalysisIncompleteInputs(workDirectory)),
+                new("Library UI builds the service request and rejects invalid input", () => TestLibraryUiBuildsRequestAndRejectsInvalidInput(workDirectory)),
+                new("Library UI runs the analysis and interprets match statuses", () => TestLibraryUiRunsAnalysisAndInterpretsStatuses(workDirectory)),
+                new("Library UI executes, shows its journal and undoes a synthetic move", () => TestLibraryUiOrganizerExecuteJournalUndo(workDirectory)),
+                new("Library UI shows real progress and partial results", () => TestLibraryUiShowsProgressAndPartialResults(workDirectory)),
+                new("Library UI cancels cleanly and allows one session at a time", () => TestLibraryUiCancellationAndSingleSession(workDirectory)),
+                new("Library window scrolls and follows the monitor work area", TestLibraryWindowFitsWorkArea),
+                new("Library UI localization resources are complete in both languages",() => TestLibraryUiLocalizationResources(workDirectory)),
+                new("Library UI re-renders every string on a language switch", () => TestLibraryUiRerendersEveryStringOnLanguageSwitch(workDirectory)),
+                new("Library UI never shows stale results", () => TestLibraryUiNeverShowsStaleResults(workDirectory)),
+                new("Library UI ignores late callbacks from earlier runs", () => TestLibraryUiIgnoresLateCallbacksFromEarlierRuns(workDirectory)),
+                new("Organization planner rejects an output equal to or inside the library", () => TestPlannerRejectsOutputEqualToOrInsideLibrary(workDirectory)),
+                new("Organization planner rejects outputs reachable through reparse points", () => TestPlannerRejectsOutputReachableThroughReparsePoints(workDirectory)),
+                new("Library index excludes reserved workspace folders",() => TestLibraryIndexExcludesReservedWorkspaces(workDirectory)),
+                new("Library index does not follow junctions",() => TestLibraryIndexJunctionIsNotFollowed(workDirectory)),
+                new("Library index does not follow file symlinks", () => TestLibraryIndexFileSymlinkIsNotFollowed(workDirectory)),
+                new("Library index does not follow directory symlinks", () => TestLibraryIndexDirectorySymlinkIsNotFollowed(workDirectory)),
+                new("Library index reports access-denied directories", () => TestLibraryIndexReportsAccessDenied(workDirectory)),
+                new("Library index supports cancellation", () => TestLibraryIndexCancellation(workDirectory)),
+                new("Library index reports files that vanish during enumeration", () => TestLibraryIndexFileDisappearsDuringEnumeration(workDirectory)),
+                new("Library index probes large files by header only", () => TestLibraryIndexLargeFileUsesBoundedProbe(workDirectory)),
+                new("Fast direct intake honors P0 media evidence",() => TestFastDirectIntakeHonorsP0Evidence(app, workDirectory)),
                 new("Queue operation capabilities honor P0 media evidence", () => TestQueueOperationCapabilitiesHonorP0Evidence(app, workDirectory)),
                 new("Visible queue snapshot scopes Redump to the current section", TestVisibleQueueSnapshotScopesRedump),
                 new("Queue operation intent isolates mode navigation from workflow paths", TestQueueOperationIntentOwnership),
@@ -121,12 +248,26 @@ internal static partial class Program
                 new("Redump redirects are validated before every request", () => TestRedumpRedirectValidation(app)),
                 new("Redump clean rebuild rolls back on parse failure", () => TestRedumpRollback(app, workDirectory)),
                 new("Redump ISO and CHD paths complete with explicit stages", () => TestRedumpIsoAndChdPaths(app, workDirectory)),
+                new("Disc verification policy matrix covers every media family", TestDiscPolicyMatrix),
+                new("Redump proof requires every track and all hashes", TestDiscPolicyProofAssessment),
+                new("Disc systems resolve only from exact Redump identifiers", TestDiscPolicySystemResolution),
+                new("CHD disc structure comes from metadata tags only", TestChdMetadataStructure),
+                new("Redump engine enforces the disc verification policy", () => TestRedumpPolicyEnforcement(app, workDirectory)),
+                new("Redump resolves identical hashes across disc records", () => TestRedumpIdenticalHashesAcrossDiscs(app, workDirectory)),
+                new("Queue completion never releases a newer item's path reservation", TestQueueCompletionDoesNotReleaseNewerPathOwner),
+                new("Library result applies its filter once", () => TestLibraryResultAppliesFilterOnce(workDirectory)),
+                new("Input resolver rejects directory junctions", () => TestInputResolverRejectsJunctions(workDirectory)),
+                new("Redump engine bounds descriptor size", () => TestRedumpEngineBoundsDescriptorSize(app, workDirectory)),
                 new("Redump commands honor the enabled state", TestRedumpCommandsHonorEnabledState),
                 new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
                 new("Bundled CsoKit 0.6.1 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
                 new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app)),
                 new("CSO preparation rejects a decompressed ISO shorter than the declared size", () => TestCsoPreparationRejectsShortDecompressedIso(app, workDirectory)),
-                new("CSO preparation accepts a decompressed ISO matching the declared size", () => TestCsoPreparationAcceptsExactDecompressedIso(app, workDirectory))
+                new("CSO preparation accepts a decompressed ISO matching the declared size", () => TestCsoPreparationAcceptsExactDecompressedIso(app, workDirectory)),
+                // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
+                new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
+                new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),
+                new("Main window lays out and virtualizes 5,000 queue rows", () => TestMainWindowLayoutAndVirtualization(workDirectory))
             ];
 
             int passed = 0;
@@ -138,6 +279,10 @@ internal static partial class Program
                     passed++;
                     Console.WriteLine("[PASS] " + test.Name);
                 }
+                catch (TestSkippedException ex)
+                {
+                    Console.WriteLine("[SKIP] " + test.Name + ": " + ex.Message);
+                }
                 catch (Exception ex)
                 {
                     Console.Error.WriteLine("[FAIL] " + test.Name);
@@ -146,7 +291,9 @@ internal static partial class Program
                 }
             }
 
-            Console.WriteLine("[PASS] PS2 advisory validation tests completed: " + passed + "/" + tests.Length);
+            int skipped = tests.Length - passed;
+            string resultLabel = skipped == 0 ? "[PASS]" : "[PARTIAL]";
+            Console.WriteLine(resultLabel + " PS2 advisory validation tests completed: " + passed + " passed, " + skipped + " skipped, " + tests.Length + " total.");
             return 0;
         }
         finally
@@ -1588,6 +1735,209 @@ internal static partial class Program
         AssertEqual("unsupported-media-input", GetString(other, "Reason"), "Unexpected block reason.");
     }
 
+    private static void TestAllConsoleRomInputsStayInventorySafe(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "media-input-all-console-roms");
+        Directory.CreateDirectory(root);
+
+        string[] extensions =
+        [
+            ".nes", ".unf", ".sfc", ".smc", ".gb", ".gbc", ".gba", ".nds",
+            ".n64", ".z64", ".v64", ".md", ".gen", ".sms", ".gg", ".pce",
+            ".3ds", ".cia", ".xci", ".wbfs", ".rvz", ".wad", ".adf", ".a26",
+            ".a78", ".lnx", ".neo"
+        ];
+
+        foreach (string extension in extensions)
+        {
+            string path = WriteMediaFile(root, "sample" + extension, [0x4D, 0x45, 0x44, 0x49]);
+            object descriptor = app.ClassifyMediaInput(path);
+            object decision = app.DecideMediaInput(path);
+
+            AssertMediaKind(descriptor, "Other");
+            AssertEqual("Block", GetEnumName(decision, "Action"), extension + " must not enter the conversion queue.");
+            AssertFalse(GetBool(decision, "IsAcceptedForQueue"), extension + " must remain inventory-safe only.");
+        }
+
+        string[] malformedHeaders =
+        [
+            WriteMediaFile(root, "truncated.cso", [0x43, 0x49, 0x53]),
+            WriteMediaFile(root, "mismatch.cso", [0, 1, 2, 3]),
+            WriteMediaFile(root, "truncated.pkg", [0x7F, 0x50, 0x4B]),
+            WriteMediaFile(root, "mismatch.pkg", [0, 1, 2, 3]),
+            WriteMediaFile(root, "unsupported.chd", BuildChdHeader(version: 6)),
+            WriteMediaFile(root, "invalid-length.chd", BuildChdHeader(version: 5, declaredHeaderLength: 120))
+        ];
+        string[] expectedStatuses =
+        [
+            "HeaderTruncated", "HeaderMismatch", "HeaderTruncated", "HeaderMismatch",
+            "UnsupportedVersion", "InvalidHeaderLength"
+        ];
+
+        for (int i = 0; i < malformedHeaders.Length; i++)
+        {
+            object descriptor = app.ClassifyMediaInput(malformedHeaders[i]);
+            AssertEqual(expectedStatuses[i], GetEnumName(descriptor, "ProbeStatus"), "Unexpected malformed-header evidence for " + Path.GetFileName(malformedHeaders[i]) + ".");
+            AssertEqual("Block", GetEnumName(app.DecideMediaInput(malformedHeaders[i]), "Action"), "Malformed evidence must fail closed before queue routing.");
+        }
+
+        string[] internalPsxFiles = ["SYSTEM.CNF", "logo.TIM", "movie.STR", "voice.VAG", "card.MCR", "card.MCD", "save.GME", "patch.PPF"];
+        foreach (string fileName in internalPsxFiles)
+        {
+            string path = WriteMediaFile(root, fileName, [1, 2, 3, 4]);
+            AssertMediaKind(app.ClassifyMediaInput(path), "Other");
+        }
+    }
+
+    private static void TestMediaInputCancellationAndReadOnly(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "media-input-cancel-readonly");
+        Directory.CreateDirectory(root);
+
+        string[] paths =
+        [
+            WriteMediaFile(root, "disc.chd", BuildChdHeader(version: 5)),
+            WriteMediaFile(root, "disc.cso", Encoding.ASCII.GetBytes("CISO")),
+            WriteMediaFile(root, "package.pkg", [0x7F, 0x50, 0x4B, 0x47, 1])
+        ];
+        byte[][] before = paths.Select(File.ReadAllBytes).ToArray();
+
+        foreach (string path in paths)
+        {
+            object descriptor = app.ClassifyMediaInput(path);
+            AssertTrue(GetBool(descriptor, "Exists"), "Read-only classification unexpectedly lost the input.");
+        }
+
+        for (int i = 0; i < paths.Length; i++)
+        {
+            AssertTrue(before[i].SequenceEqual(File.ReadAllBytes(paths[i])), "Classification modified " + Path.GetFileName(paths[i]) + ".");
+        }
+
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+        AssertThrows<OperationCanceledException>(
+            () => app.ClassifyMediaInput(paths[0], cancellation.Token),
+            "Pre-cancelled media classification must observe cancellation.");
+        AssertThrows<OperationCanceledException>(
+            () => app.DecideMediaInput(paths[0], cancellation.Token),
+            "Pre-cancelled intake decisions must observe cancellation.");
+    }
+
+    private static void TestMediaInputDependenciesAndReparsePoints(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "media-input-dependencies-links");
+        string inputDirectory = Path.Combine(root, "inputs");
+        Directory.CreateDirectory(inputDirectory);
+
+        string binPath = WriteMediaFile(inputDirectory, "track.bin", [1, 2, 3, 4]);
+        string cuePath = WriteMediaFile(inputDirectory, "disc.cue", Encoding.ASCII.GetBytes("FILE \"track.bin\" BINARY\r\n  TRACK 01 MODE1/2352\r\n"));
+        string gdiPath = WriteMediaFile(inputDirectory, "disc.gdi", Encoding.ASCII.GetBytes("1\r\n0 0 4 2352 \"track.bin\" 0\r\n"));
+        string rawPath = WriteMediaFile(inputDirectory, "track.raw", [5, 6, 7, 8]);
+
+        AssertEqual("AcceptConvertibleDiscImage", GetEnumName(app.DecideMediaInput(cuePath), "Action"), "CUE remains an explicit disc-set entry point.");
+        AssertEqual("AcceptConvertibleDiscImage", GetEnumName(app.DecideMediaInput(gdiPath), "Action"), "GDI remains an explicit disc-set entry point.");
+        object standaloneBin = app.DecideMediaInput(binPath);
+        AssertEqual("RequiresStandaloneBinPolicy", GetEnumName(standaloneBin, "Action"), "Standalone BIN must retain its rescue-policy decision.");
+        AssertTrue(GetBool(standaloneBin, "RequiresStandaloneBinPolicy"), "Standalone BIN must continue to require policy evaluation.");
+        object raw = app.DecideMediaInput(rawPath);
+        AssertEqual("Block", GetEnumName(raw, "Action"), "RAW dependent tracks must not be independently queued.");
+        AssertEqual("DependentTrackFile", GetEnumName(raw, "QueueRole"), "RAW must retain the dependent-track role.");
+
+        string[] enumerated = app.ResolveInput(inputDirectory, SearchOption.TopDirectoryOnly);
+        AssertTrue(enumerated.Contains(cuePath, StringComparer.OrdinalIgnoreCase), "Folder intake omitted the CUE set descriptor.");
+        AssertTrue(enumerated.Contains(gdiPath, StringComparer.OrdinalIgnoreCase), "Folder intake omitted the GDI set descriptor.");
+        AssertTrue(enumerated.Contains(binPath, StringComparer.OrdinalIgnoreCase), "Folder intake omitted the referenced BIN track.");
+        AssertTrue(enumerated.Contains(rawPath, StringComparer.OrdinalIgnoreCase), "Folder intake omitted the RAW dependent track for classification.");
+    }
+
+    private static void TestMediaInputSymlinkRejection(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "media-input-symlink-rejection");
+        string inputDirectory = Path.Combine(root, "inputs");
+        string externalRoot = Path.Combine(root, "external");
+        Directory.CreateDirectory(inputDirectory);
+        Directory.CreateDirectory(externalRoot);
+
+        string externalIso = WriteMediaFile(externalRoot, "outside.iso", [1, 2, 3, 4]);
+        string linkPath = Path.Combine(inputDirectory, "linked.iso");
+        TryCreateSymlinkOrSkip(() => File.CreateSymbolicLink(linkPath, externalIso), "file");
+
+        AssertEqual(0, app.ResolveInput(linkPath, SearchOption.TopDirectoryOnly).Length, "Direct file symlink must be excluded by the intake resolver.");
+        string[] enumerated = app.ResolveInput(inputDirectory, SearchOption.TopDirectoryOnly);
+        AssertFalse(enumerated.Contains(linkPath, StringComparer.OrdinalIgnoreCase), "Folder intake must omit the linked file.");
+        AssertEqual("path-unsafe", GetString(app.ClassifyMediaInput(linkPath), "DetectionReason"), "Direct file symlink must be rejected before probing.");
+    }
+
+    private static void TestMediaInputDirectorySymlinkRejection(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "media-input-dir-symlink-rejection");
+        string inputDirectory = Path.Combine(root, "inputs");
+        string externalRoot = Path.Combine(root, "external");
+        Directory.CreateDirectory(inputDirectory);
+        Directory.CreateDirectory(externalRoot);
+
+        WriteMediaFile(externalRoot, "outside.iso", [1, 2, 3, 4]);
+        string linkedDirectory = Path.Combine(inputDirectory, "linked-directory");
+        TryCreateSymlinkOrSkip(() => Directory.CreateSymbolicLink(linkedDirectory, externalRoot), "directory");
+
+        AssertEqual(0, app.ResolveInput(linkedDirectory, SearchOption.AllDirectories).Length, "Symlinked directory must not be traversed by the intake resolver.");
+        AssertEqual(0, app.ResolveInput(Path.Combine(linkedDirectory, "outside.iso"), SearchOption.TopDirectoryOnly).Length,
+            "A normalized path traversing a reparse-point ancestor must fail closed.");
+        string[] enumerated = app.ResolveInput(inputDirectory, SearchOption.TopDirectoryOnly);
+        AssertFalse(enumerated.Contains(linkedDirectory, StringComparer.OrdinalIgnoreCase), "Folder intake must omit the linked directory.");
+        AssertEqual("path-unsafe", GetString(app.ClassifyMediaInput(Path.Combine(linkedDirectory, "outside.iso")), "DetectionReason"), "Directory symlink ancestor must be rejected before probing.");
+    }
+
+    private static void TestMediaInputJunctionHeaderGuard(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "media-input-junction-guard");
+        string source = Path.Combine(root, "source");
+        string linked = Path.Combine(root, "linked");
+        Directory.CreateDirectory(source);
+
+        string[] files =
+        [
+            WriteMediaFile(source, "disc.chd", BuildChdHeader(version: 5)),
+            WriteMediaFile(source, "disc.cso", Encoding.ASCII.GetBytes("CISO")),
+            WriteMediaFile(source, "disc.pkg", [0x7F, 0x50, 0x4B, 0x47])
+        ];
+
+        var start = new ProcessStartInfo("cmd.exe")
+        {
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true,
+            Arguments = $"/c mklink /J \"{linked}\" \"{source}\""
+        };
+        using (Process process = Process.Start(start) ?? throw new InvalidOperationException("Junction fixture could not start."))
+        {
+            string output = process.StandardOutput.ReadToEnd();
+            string error = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+            AssertEqual(0, process.ExitCode, "Junction fixture failed: " + output + error);
+        }
+
+        AssertTrue((File.GetAttributes(linked) & FileAttributes.ReparsePoint) != 0, "Fixture must be a junction.");
+        foreach (string file in files)
+        {
+            string path = Path.Combine(linked, Path.GetFileName(file));
+            // An exclusive handle makes an attempted header open fail on Windows.
+            // The path-unsafe result proves rejection occurs before probing.
+            using FileStream held = new(file, FileMode.Open, FileAccess.Read, FileShare.None);
+            object descriptor = app.ClassifyMediaInput(path);
+            AssertEqual("path-unsafe", GetString(descriptor, "DetectionReason"), "Junction ancestor must be rejected before probing " + path);
+            AssertEqual("NotRequired", GetEnumName(descriptor, "ProbeStatus"), "Unsafe input must have no probe result.");
+            AssertEqual("Block", GetEnumName(app.DecideMediaInput(path), "Action"), "Pipeline must block the junction path.");
+            AssertEqual("Unsupported", GetEnumName(app.ClassifyQueueInput(path), "Role"), "Synchronous queue classification must block the junction path.");
+            AssertEqual(0, app.ResolveInput(path, SearchOption.TopDirectoryOnly).Length, "Resolver must omit the junction path.");
+        }
+
+        AssertEqual(0, app.ResolveInput(linked, SearchOption.AllDirectories).Length, "Recursive resolver must reject a junction root.");
+        AssertEqual(0, app.ResolveInput(root, SearchOption.AllDirectories).Count(path => path.StartsWith(linked + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)),
+            "Recursive traversal must not enter the junction.");
+    }
+
     private static void TestFastDirectIntakeHonorsP0Evidence(AppReflection app, string workDirectory)
     {
         string root = Path.Combine(workDirectory, "fast-direct-p0-evidence");
@@ -1788,6 +2138,12 @@ internal static partial class Program
         object failedResult = app.CleanRebuildRedumpDatabase(database, [validDatPath, invalidDatPath]);
         AssertFalse(GetBool(failedResult, "Success"), "Malformed DAT should fail the clean rebuild.");
         AssertEqual(1L, app.GetRedumpRowCount(database), "Failed rebuild must roll back and preserve the prior database.");
+
+        string emptyDatPath = Path.Combine(root, "empty.dat");
+        File.WriteAllText(emptyDatPath, "<datafile><header><name>Test System</name></header></datafile>", Encoding.UTF8);
+        object emptyResult = app.CleanRebuildRedumpDatabase(database, [emptyDatPath]);
+        AssertFalse(GetBool(emptyResult, "Success"), "A DAT without importable rows must not count as a successful rebuild.");
+        AssertEqual(1L, app.GetRedumpRowCount(database), "A zero-row rebuild must keep the prior database instead of emptying it.");
     }
 
     private static void TestShutdownTimeout(AppReflection app)
@@ -2318,6 +2674,8 @@ internal static partial class Program
 
     private sealed record TestCase(string Name, Action Run);
 
+    private sealed class TestSkippedException(string message) : Exception(message);
+
     private sealed class ScriptedHttpMessageHandler(
         Func<Uri, int, HttpResponseMessage> responder) : HttpMessageHandler
     {
@@ -2339,6 +2697,7 @@ internal static partial class Program
 
     private sealed class AppReflection
     {
+        private readonly Assembly appAssembly;
         private readonly string appDirectory;
         private readonly Type settingsType;
         private readonly MethodInfo scannerTryScan;
@@ -2371,6 +2730,9 @@ internal static partial class Program
         private readonly MethodInfo mediaInputClassifyAsync;
         private readonly object mediaInputPipeline;
         private readonly MethodInfo mediaInputPipelineDecideAsync;
+        private readonly MethodInfo queueInputClassify;
+        private readonly object inputResolver;
+        private readonly MethodInfo inputResolverResolve;
         private readonly Type queueExecutionProfileType;
         private readonly object mainWindowViewModelForFastPathTests;
         private readonly MethodInfo tryBuildFastDirectFileCandidatesAsync;
@@ -2405,6 +2767,7 @@ internal static partial class Program
 
         public AppReflection(Assembly appAssembly)
         {
+            this.appAssembly = appAssembly;
             appDirectory = Path.GetDirectoryName(appAssembly.Location)
                 ?? throw new InvalidOperationException("Unable to resolve the application assembly directory.");
 
@@ -2429,6 +2792,11 @@ internal static partial class Program
             Type profilePlannerType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ChdWorkflowProfilePlanner");
             Type mediaInputClassifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputClassifier");
             Type mediaInputPipelineType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.MediaInputPipeline");
+            Type queueInputClassifierType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.QueueInputClassifier");
+            Type inputResolverType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Core.Input.InputResolver");
+            inputResolver = Activator.CreateInstance(inputResolverType)
+                ?? throw new InvalidOperationException("Unable to create input resolver.");
+            inputResolverResolve = GetRequiredInstanceMethod(inputResolverType, "Resolve", [typeof(string), typeof(SearchOption)]);
             Type mainWindowViewModelType = GetRequiredType(appAssembly, "HakamiqChdTool.App.ViewModels.MainWindowViewModel");
             Type queueOperationCapabilityServiceType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.QueueOperationCapabilityService");
             queueExecutionProfileType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Models.QueueExecutionProfile");
@@ -2518,6 +2886,7 @@ internal static partial class Program
             planCreateFromSource = GetRequiredMethod(profilePlannerType, "PlanCreateFromSource", [typeof(string), isoCreateOverrideType, mediaContainerKindType, typeof(string)]);
             mediaInputClassifyAsync = GetRequiredInstanceMethod(mediaInputClassifierType, "ClassifyAsync", [typeof(string), typeof(CancellationToken)]);
             mediaInputPipelineDecideAsync = GetRequiredInstanceMethod(mediaInputPipelineType, "DecideAsync", [typeof(string), typeof(CancellationToken)]);
+            queueInputClassify = GetRequiredMethod(queueInputClassifierType, "Classify", [typeof(string)]);
             tryBuildFastDirectFileCandidatesAsync = GetRequiredInstanceMethod(mainWindowViewModelType, "TryBuildFastDirectFileCandidatesAsync");
             getSupportedOperationCodes = GetRequiredMethod(queueOperationCapabilityServiceType, "GetSupportedOperationCodes", [typeof(string)]);
             runtimeToolGetChdmanPath = GetRequiredInstanceMethod(runtimeToolServiceType, "GetChdmanPath", Type.EmptyTypes);
@@ -2572,6 +2941,31 @@ internal static partial class Program
                 "PreprocessAsync",
                 [typeof(string), typeof(string), typeof(CancellationToken), typeof(Func<string, Task>)]);
             createCsoTempWorkspace = GetRequiredMethod(csoTempWorkspaceType, "Create", Type.EmptyTypes);
+        }
+
+        public bool ValidateExternalToolCandidate(string path, string expectedFileName, out string normalized)
+        {
+            Type validator = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ExternalToolPathValidator");
+            MethodInfo validate = validator.GetMethod("TryValidateCandidate", BindingFlags.Static | BindingFlags.NonPublic)
+                ?? throw new MissingMethodException(validator.FullName, "TryValidateCandidate");
+            object?[] arguments = [path, expectedFileName, null];
+            bool valid = (bool)(validate.Invoke(null, arguments) ?? false);
+            normalized = (string?)arguments[2] ?? string.Empty;
+            return valid;
+        }
+
+        public bool HasVerifiedIgir(string applicationDirectory)
+        {
+            Type locatorType = GetRequiredType(appAssembly, "HakamiqChdTool.App.Services.ExternalTools.Igir.IgirToolLocator");
+            object locator = Activator.CreateInstance(locatorType)
+                ?? throw new InvalidOperationException("Unable to create igir locator.");
+            MethodInfo find = GetRequiredInstanceMethod(locatorType, "FindVerifiedAsync", [typeof(string), typeof(CancellationToken)]);
+            object taskObject = find.Invoke(locator, [applicationDirectory, CancellationToken.None])
+                ?? throw new InvalidOperationException("igir locator returned a null task.");
+            Task task = taskObject as Task
+                ?? throw new InvalidOperationException("igir locator did not return a Task.");
+            task.GetAwaiter().GetResult();
+            return task.GetType().GetProperty("Result", BindingFlags.Instance | BindingFlags.Public)?.GetValue(task) is string;
         }
 
         public ReflectedStructure ScanStructure(string path)
@@ -2805,19 +3199,40 @@ internal static partial class Program
         }
 
         public object ClassifyMediaInput(string path)
+            => ClassifyMediaInput(path, CancellationToken.None);
+
+        public object ClassifyMediaInput(string path, CancellationToken cancellationToken)
         {
-            object valueTask = mediaInputClassifyAsync.Invoke(mediaInputClassifier, [path, CancellationToken.None])
+            object valueTask = mediaInputClassifyAsync.Invoke(mediaInputClassifier, [path, cancellationToken])
                 ?? throw new InvalidOperationException("Media input classifier returned null.");
 
             return AwaitValueTaskResult(valueTask, "Classifier");
         }
 
         public object DecideMediaInput(string path)
+            => DecideMediaInput(path, CancellationToken.None);
+
+        public object ClassifyQueueInput(string path) =>
+            queueInputClassify.Invoke(null, [path])
+            ?? throw new InvalidOperationException("Queue input classifier returned null.");
+
+        public object DecideMediaInput(string path, CancellationToken cancellationToken)
         {
-            object valueTask = mediaInputPipelineDecideAsync.Invoke(mediaInputPipeline, [path, CancellationToken.None])
+            object valueTask = mediaInputPipelineDecideAsync.Invoke(mediaInputPipeline, [path, cancellationToken])
                 ?? throw new InvalidOperationException("Media input pipeline returned null.");
 
             return AwaitValueTaskResult(valueTask, "Pipeline");
+        }
+
+        public string[] ResolveInput(string path, SearchOption searchOption)
+        {
+            object? result = inputResolverResolve.Invoke(inputResolver, [path, searchOption]);
+            if (result is not IEnumerable<string> paths)
+            {
+                throw new InvalidOperationException("Input resolver did not return a path sequence.");
+            }
+
+            return paths.ToArray();
         }
 
         public bool CanUseFastDirectFileCandidates(string path, string executionProfileName)

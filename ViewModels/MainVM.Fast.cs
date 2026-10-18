@@ -126,28 +126,40 @@ public partial class MainWindowViewModel
             {
                 HashSet<string> currentExistingPaths = BuildExistingPathSet(_session.QueueRows);
                 var addedIds = new List<Guid>(preparedCandidates.Count);
+                var newRows = new List<QueueRowData>(preparedCandidates.Count);
 
-                foreach (PreparedIntakeCandidate prepared in preparedCandidates)
+                try
                 {
-                    PreparedQueueCandidate candidate = prepared.Candidate;
-                    string normalizedCandidatePath = NormalizePathForAdvisoryKey(candidate.Path);
-
-                    if (currentExistingPaths.Contains(normalizedCandidatePath) || !IsExistingQueueInputPath(candidate.Path))
+                    foreach (PreparedIntakeCandidate prepared in preparedCandidates)
                     {
-                        continue;
+                        PreparedQueueCandidate candidate = prepared.Candidate;
+                        string normalizedCandidatePath = NormalizePathForAdvisoryKey(candidate.Path);
+
+                        if (currentExistingPaths.Contains(normalizedCandidatePath) || !IsExistingQueueInputPath(candidate.Path))
+                        {
+                            continue;
+                        }
+
+                        QueueRowData row = BuildFastRowFromPath(
+                            candidate.Path,
+                            candidate.Action,
+                            candidate.Classification,
+                            executionProfile,
+                            intakeSource);
+
+                        newRows.Add(row);
+                        currentExistingPaths.Add(normalizedCandidatePath);
+                        addedIds.Add(row.ItemId);
                     }
-
-                    QueueRowData row = BuildFastRowFromPath(
-                        candidate.Path,
-                        candidate.Action,
-                        candidate.Classification,
-                        executionProfile,
-                        intakeSource);
-
-                    _session.QueueRows.Append(row);
-                    QueueConsoleIdentityEnrichment(row);
-                    currentExistingPaths.Add(normalizedCandidatePath);
-                    addedIds.Add(row.ItemId);
+                }
+                finally
+                {
+                    // One store change for the whole batch; per-row appends made large intakes quadratic.
+                    _session.QueueRows.AppendRange(newRows);
+                    foreach (QueueRowData row in newRows)
+                    {
+                        QueueConsoleIdentityEnrichment(row);
+                    }
                 }
 
                 if (addedIds.Count == 0)

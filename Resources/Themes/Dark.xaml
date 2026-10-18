@@ -202,7 +202,7 @@
     <Color x:Key="Color.HoverSurface">#FF2C3036</Color>
     <Color x:Key="Color.PressedSurface">#FF1A1A1A</Color>
 
-    <Color x:Key="Color.Accent">#FF1E78D7</Color>
+    <Color x:Key="Color.Accent">#FF1D76D4</Color>
     <Color x:Key="Color.Accent.Hover">#FF2A86E7</Color>
     <Color x:Key="Color.Accent.Pressed">#FF165EA9</Color>
     <Color x:Key="Color.Accent.Text">#FF8FCBFF</Color>
@@ -257,7 +257,7 @@
     <Color x:Key="Color.Control.Stroke.Strong">#FF707986</Color>
     <Color x:Key="Color.Control.Stroke.Focus">#FF1E78D7</Color>
 
-    <Color x:Key="Color.Brand.Accent">#FF1E78D7</Color>
+    <Color x:Key="Color.Brand.Accent">#FF1D76D4</Color>
     <Color x:Key="Color.Brand.Accent.Hover">#FF2A86E7</Color>
     <Color x:Key="Color.Brand.Accent.Pressed">#FF165EA9</Color>
     <Color x:Key="Color.Brand.Accent.Subtle">#FF10263A</Color>
@@ -301,7 +301,7 @@
     <Color x:Key="Color.TertiaryText">#FFA3A3A3</Color>
     <Color x:Key="Color.AccentForeground">#FFFFFFFF</Color>
     <Color x:Key="Color.AccentSoft">#FF10263A</Color>
-    <Color x:Key="Color.AccentBorder">#FF1E78D7</Color>
+    <Color x:Key="Color.AccentBorder">#FF1D76D4</Color>
     <Color x:Key="Color.BrandAccent">#FF1E78D7</Color>
     <Color x:Key="Color.BrandChdTitle">#FF62ABF5</Color>
 

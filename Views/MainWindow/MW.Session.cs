@@ -207,5 +207,10 @@ public partial class MainWindow
         {
             _w.OpenAboutDialog();
         }
+
+        public void OpenLibraryAnalysis()
+        {
+            _w.OpenLibraryAnalysisDialog();
+        }
     }
 }

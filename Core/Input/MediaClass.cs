@@ -104,6 +104,24 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
                 "path-invalid");
         }
 
+        // All callers, including the synchronous queue compatibility path, must
+        // reject reparse-point traversal before any format header is opened.
+        // This path check is not atomic with the later FileStream open: another
+        // process can replace a path component between validation and probing.
+        if ((File.Exists(fullPath) || Directory.Exists(fullPath))
+            && !InputResolver.IsSafeExistingPath(fullPath))
+        {
+            return new MediaInputDescriptor(
+                originalPath,
+                fullPath,
+                MediaInputKind.Unknown,
+                Exists: false,
+                IsDirectory: false,
+                SizeBytes: null,
+                Extension: null,
+                "path-unsafe");
+        }
+
         if (Directory.Exists(fullPath))
         {
             return new MediaInputDescriptor(

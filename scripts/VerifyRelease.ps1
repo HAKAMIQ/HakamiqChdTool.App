@@ -392,6 +392,17 @@ function Assert-RequiredReleaseFiles {
     )) {
         Assert-FileIsNotEmpty $required
     }
+
+    if (Test-Path -LiteralPath (Join-Path $ProjectRoot "Tools\igir\win-x64\igir.exe") -PathType Leaf) {
+        foreach ($required in @(
+            "Tools\igir\win-x64\igir.exe",
+            "docs\legal\IGIR_NOTICE.md",
+            "docs\legal\IGIR_GPL-3.0.txt"
+        )) {
+            Assert-FileExists $required
+            Assert-FileIsNotEmpty $required
+        }
+    }
 }
 
 function Assert-NoDeveloperArtifacts {
@@ -534,7 +545,8 @@ function Assert-OnlyApprovedToolFiles {
         "hakamiq-cso\win-x64\readme.md",
         "hakamiq-cso\win-x64\release_notes.md",
         "hakamiq-cso\win-x64\sha256sums.txt",
-        "hakamiq-cso\win-x64\third_party_notices.md"
+        "hakamiq-cso\win-x64\third_party_notices.md",
+        "igir\win-x64\igir.exe"
     )
 
     $matches = Get-ChildItem -LiteralPath $toolsRoot -File -Recurse -Force -ErrorAction SilentlyContinue |
@@ -562,7 +574,9 @@ function Assert-OnlyApprovedToolDirectories {
     $approved = @(
         "7zip",
         "hakamiq-cso",
-        "hakamiq-cso\win-x64"
+        "hakamiq-cso\win-x64",
+        "igir",
+        "igir\win-x64"
     )
 
     $matches = Get-ChildItem -LiteralPath $toolsRoot -Directory -Recurse -Force -ErrorAction SilentlyContinue |
@@ -810,6 +824,110 @@ function Assert-BundledToolHashes {
         if (-not $actualHash.Equals($expectedHash, [System.StringComparison]::OrdinalIgnoreCase)) {
             throw "Bundled tool SHA-256 mismatch for ${relativePath}. Expected=$expectedHash Actual=$actualHash"
         }
+    }
+
+    $sourceIgir = Join-Path $ProjectRoot "Tools\igir\win-x64\igir.exe"
+    if ((Test-Path -LiteralPath $sourceIgir -PathType Leaf) -or
+        (Test-Path -LiteralPath (Join-Path $OutputPath "Tools\igir\win-x64\igir.exe") -PathType Leaf)) {
+        $relativePath = "Tools\igir\win-x64\igir.exe"
+        $actualHash = (Get-FileHash -LiteralPath (Join-Path $OutputPath $relativePath) -Algorithm SHA256).Hash
+        $expectedHash = "716ECBD7033081FC000A51FBD0588FEE6C1F1E95DAB1EFD6443324BC73597511"
+        if (-not $actualHash.Equals($expectedHash, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Bundled tool SHA-256 mismatch for ${relativePath}. Expected=$expectedHash Actual=$actualHash"
+        }
+    }
+}
+
+function Assert-IgirReleaseCompliance {
+    $igirRelativePath = "Tools\igir\win-x64\igir.exe"
+    $igirPath = Join-Path $OutputPath $igirRelativePath
+    if (-not (Test-Path -LiteralPath $igirPath -PathType Leaf)) {
+        return
+    }
+
+    $igirVersion = "5.7.2"
+    $igirLicense = "GPL-3.0-or-later"
+    $sourceArchiveHash = "EA5341ED3A40054BFBF2F6D26F6C76902C6D5EC949D66D38692218656245875B"
+    $igirHash = (Get-FileHash -LiteralPath $igirPath -Algorithm SHA256).Hash
+
+    foreach ($required in @("docs\sbom.cdx.json", "docs\legal\IGIR_NOTICE.md", "docs\legal\IGIR_GPL-3.0.txt", "docs\legal\3P_NOTICE.txt")) {
+        Assert-FileIsNotEmpty $required
+    }
+
+    try {
+        $sbom = Get-Content -LiteralPath (Join-Path $OutputPath "docs\sbom.cdx.json") -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        throw "igir is bundled but docs\sbom.cdx.json is not valid JSON: $($_.Exception.Message)"
+    }
+
+    $igirComponents = @($sbom.components | Where-Object { [string] $_.name -eq "igir" })
+    if ($igirComponents.Count -ne 1) {
+        throw "igir is bundled but the SBOM must list exactly one igir component. Found: $($igirComponents.Count)"
+    }
+
+    $component = $igirComponents[0]
+    $missing = [System.Collections.Generic.List[string]]::new()
+
+    if ([string] $component.version -ne $igirVersion) {
+        $missing.Add("version $igirVersion")
+    }
+
+    if (@($component.licenses | Where-Object { [string] $_.license.id -eq $igirLicense }).Count -ne 1) {
+        $missing.Add("license $igirLicense")
+    }
+
+    if (@($component.hashes | Where-Object { [string] $_.alg -eq "SHA-256" -and ([string] $_.content).Equals($igirHash, [System.StringComparison]::OrdinalIgnoreCase) }).Count -ne 1) {
+        $missing.Add("SHA-256 of the bundled igir.exe ($igirHash)")
+    }
+
+    if ([string]::IsNullOrWhiteSpace([string] $component.purl) -or [string]::IsNullOrWhiteSpace([string] $component.'bom-ref')) {
+        $missing.Add("purl and bom-ref")
+    }
+
+    if (@($component.authors | Where-Object { -not [string]::IsNullOrWhiteSpace([string] $_.name) }).Count -lt 1) {
+        $missing.Add("author")
+    }
+
+    $references = @($component.externalReferences)
+    if (@($references | Where-Object { [string] $_.type -eq "distribution" -and ([string] $_.url) -like "*/v$igirVersion/*" -and @($_.hashes).Count -ge 1 }).Count -ne 1) {
+        $missing.Add("distribution reference with hash")
+    }
+
+    if (@($references | Where-Object { [string] $_.type -eq "source-distribution" -and ([string] $_.url) -like "*v$igirVersion*" -and @($_.hashes | Where-Object { ([string] $_.content).Equals($sourceArchiveHash, [System.StringComparison]::OrdinalIgnoreCase) }).Count -eq 1 }).Count -ne 1) {
+        $missing.Add("source-distribution reference with the pinned source archive hash")
+    }
+
+    if (@($references | Where-Object { [string] $_.type -eq "vcs" -and ([string] $_.url) -like "*v$igirVersion*" }).Count -ne 1) {
+        $missing.Add("vcs reference to tag v$igirVersion")
+    }
+
+    $applicationDependencies = @($sbom.dependencies | Where-Object { [string] $_.ref -eq [string] $sbom.metadata.component.'bom-ref' })
+    if ($applicationDependencies.Count -ne 1 -or @($applicationDependencies[0].dependsOn) -notcontains [string] $component.'bom-ref') {
+        $missing.Add("application dependency on the igir component")
+    }
+
+    if ($missing.Count -gt 0) {
+        throw "igir is bundled but the SBOM igir component is incomplete. Missing: $($missing -join '; ')"
+    }
+
+    $licenseText = Get-Content -LiteralPath (Join-Path $OutputPath "docs\legal\IGIR_GPL-3.0.txt") -Raw -Encoding UTF8
+    foreach ($marker in @("GNU GENERAL PUBLIC LICENSE", "Version 3, 29 June 2007", "Corresponding Source", "END OF TERMS AND CONDITIONS")) {
+        if (-not $licenseText.Contains($marker)) {
+            throw "igir is bundled but IGIR_GPL-3.0.txt is not the full GPL-3.0 text. Missing marker: $marker"
+        }
+    }
+
+    $noticeText = Get-Content -LiteralPath (Join-Path $OutputPath "docs\legal\IGIR_NOTICE.md") -Raw -Encoding UTF8
+    foreach ($marker in @($igirLicense, "Version: $igirVersion", $igirHash, "## Corresponding Source", "igir-$igirVersion-source.tar.gz", $sourceArchiveHash, "Written offer", "NO WARRANTY")) {
+        if ($noticeText.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
+            throw "igir is bundled but IGIR_NOTICE.md does not meet the GPL-3.0 distribution notice. Missing: $marker"
+        }
+    }
+
+    $thirdPartyText = Get-Content -LiteralPath (Join-Path $OutputPath "docs\legal\3P_NOTICE.txt") -Raw -Encoding UTF8
+    if ($thirdPartyText -notmatch "(?m)^igir\s*$" -or -not $thirdPartyText.Contains($sourceArchiveHash)) {
+        throw "igir is bundled but 3P_NOTICE.txt does not list igir with its Corresponding Source."
     }
 }
 
@@ -1132,6 +1250,7 @@ Assert-OnlyApprovedToolFiles
 Assert-OnlyApprovedToolDirectories
 Assert-CsoKitBundledToolContract
 Assert-BundledToolHashes
+Assert-IgirReleaseCompliance
 Assert-OnlyDeclaredRuntimeBinaries
 Assert-NoSquashFsArtifacts
 Assert-NoCrashDumpHelper

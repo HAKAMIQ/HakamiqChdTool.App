@@ -446,6 +446,31 @@ internal static class ChdConversionServiceSupport
         }
     }
 
+    internal const string AuxiliaryCueSuffix = ".legacy-restore.cue";
+
+    private static bool HasReparsePointInPath(string fullPath)
+    {
+        string? current = fullPath;
+        while (!string.IsNullOrEmpty(current))
+        {
+            try
+            {
+                if ((File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                return true;
+            }
+
+            current = Path.GetDirectoryName(current);
+        }
+
+        return false;
+    }
+
     internal static void TryDeleteAuxiliaryOutputFile(string? path, string reason)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -458,6 +483,15 @@ internal static class ChdConversionServiceSupport
             string fullPath = Path.GetFullPath(path);
             if (!File.Exists(fullPath))
             {
+                return;
+            }
+
+            // The only producer is the restore policy, which names the scratch cue "<stem>.legacy-restore.cue" inside
+            // the pending workspace. Anything else is not ours to delete, nor is a path that passes through a link.
+            if (!fullPath.EndsWith(AuxiliaryCueSuffix, StringComparison.OrdinalIgnoreCase)
+                || HasReparsePointInPath(fullPath))
+            {
+                Log.Warning("Refused to delete auxiliary chdman output that is not a restore scratch file. Path={Path}, Reason={Reason}", fullPath, reason);
                 return;
             }
 
