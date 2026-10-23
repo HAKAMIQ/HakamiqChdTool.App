@@ -4,6 +4,40 @@ This file tracks source release notes.
 
 GitHub Releases remain the public download history.
 
+## v1.5.1 - 2026-10-24
+
+Maintenance release. The only functional change is the bundled CsoKit update.
+
+### CsoKit 0.6.3
+
+- Updated the bundled CsoKit runtime from 0.6.1 to the official 0.6.3 release
+  (source commit `e1a4bca67207e5bb6c2c4b1dd043418a1ee2a31d`). The CLI and the
+  native ABI 2 contract are unchanged.
+- Pinned the new SHA-256 digests of `csokit.exe` and `CsoKit.Native.dll`; both
+  are still revalidated before every execution.
+- **Behavior change:** CSO preparation now rejects damaged CSO files that
+  CsoKit 0.6.1 accepted, such as data after the last block, a final index
+  offset that does not match the file size, undersized stored blocks, or
+  blocks that do not decode to their exact length. A rejected file fails before
+  chdman runs, leaves no temporary ISO, and the source file is not modified.
+- Updated the tool manifest, CsoKit legal notice, third-party notice and SBOM.
+
+### Release pipeline
+
+- The Secure Release workflow now publishes this changelog section as the
+  GitHub Release notes and fails when the version has no section, instead of
+  publishing fixed highlights written for v1.4.0.
+
+### Validation
+
+- Application tests: 190 passed, 0 failed, 0 skipped when run with
+  administrator rights, which the symbolic-link tests require. Added a test
+  proving a CSO with trailing data is rejected without leaving a temporary ISO.
+- The bundled CsoKit ISO/CSO/ISO round trip and a CSO to ISO to CHD to ISO
+  round trip with chdman verify preserved SHA-256.
+- Repository convention, local verification and end-user release output gates
+  passed.
+
 ## v1.5.0 - 2026-10-18
 
 ### Library organizer
