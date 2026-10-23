@@ -37,20 +37,32 @@ Last reviewed: 2026-08-02.
 
 ## CsoKit
 
-- Bundled version: 0.6.1
+- Bundled version: 0.6.3
 - Source repository: <https://github.com/HAKAMIQ/CsoKit>
+- Upstream release: <https://github.com/HAKAMIQ/CsoKit/releases/tag/v0.6.3>
 - Reviewed source commit:
-  `9e2a93d5502fa651f9a21d9dd97269e7c4912c48`
+  `e1a4bca67207e5bb6c2c4b1dd043418a1ee2a31d`
 - Reviewed source tree:
-  <https://github.com/HAKAMIQ/CsoKit/tree/9e2a93d5502fa651f9a21d9dd97269e7c4912c48>
+  <https://github.com/HAKAMIQ/CsoKit/tree/e1a4bca67207e5bb6c2c4b1dd043418a1ee2a31d>
+- Downloaded package: `csokit-0.6.3-win-x64.zip`
+- Package SHA-256:
+  `676315F8383FC1289436E7D254ED5B4B90E86F61BEE397593E276E1CB6AD3A7E`
 - `Tools/hakamiq-cso/win-x64/csokit.exe` SHA-256:
-  `FB1BF1E6BD0C51CAB54F505E7E44404F1E5CBFBFF3CB0FFC7EEC159D7D9254C0`
+  `77F0662A408BD5DA2241898E41C074B4E600DE9FA58D115C8DBBDF6FFF3EEFD9`
 - `Tools/hakamiq-cso/win-x64/CsoKit.Native.dll` SHA-256:
-  `B396B0CA41BE7F905E8EA73C285C1F5089C8DA4FB1E4C157775BF198B1F70589`
+  `E9991ADDF7FAFAEC400D124CEF7D0FC2B276CE7624261369A1EA1F8B7ECE57E0`
 - Native ABI: 2.
-- Build evidence: the CsoKit final release gate passed Debug and Release builds,
-  201/201 automated tests, published executable smoke tests, native capability
-  checks, and a native ISO/CSO/ISO SHA-256 round trip.
+- Build evidence: the official CsoKit CI and Release workflows passed on the
+  reviewed commit, which published the package above. The CsoKit final release
+  gate passed (224 + 1 tests, real and synthetic SHA-256 round trips, profile
+  matrix, published executable smoke tests, native capability checks) on
+  pre-release commit `82ea7aa4fba53053d01d1aa7fd3766dd5a6a8b08`, whose product
+  source is identical to the reviewed commit. The bundled runtime files are the
+  official release files, not the local gate build.
+- Changes from 0.6.1: stricter CSO decompression (stored-block size, final index
+  offset, exact raw-deflate/zlib block length and trailing data checks) and
+  temporary output cleanup on unexpected errors. The CLI and native ABI are
+  unchanged.
 - Integration policy: the application accepts CsoKit 0.6.1 or newer and pins
   both bundled runtime files before every execution.
 

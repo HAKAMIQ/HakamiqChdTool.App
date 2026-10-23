@@ -260,7 +260,8 @@ internal static partial class Program
                 new("Redump engine bounds descriptor size", () => TestRedumpEngineBoundsDescriptorSize(app, workDirectory)),
                 new("Redump commands honor the enabled state", TestRedumpCommandsHonorEnabledState),
                 new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
-                new("Bundled CsoKit 0.6.1 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
+                new("Bundled CsoKit 0.6.3 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
+                new("Bundled CsoKit rejects a CSO with trailing data and leaves no temporary ISO", () => TestBundledCsoKitRejectsTrailingData(app, workDirectory)),
                 new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app)),
                 new("CSO preparation rejects a decompressed ISO shorter than the declared size", () => TestCsoPreparationRejectsShortDecompressedIso(app, workDirectory)),
                 new("CSO preparation accepts a decompressed ISO matching the declared size", () => TestCsoPreparationAcceptsExactDecompressedIso(app, workDirectory)),
@@ -2190,7 +2191,7 @@ internal static partial class Program
         object preparation = app.PreprocessCso(compressedCsoPath, preparedIsoPath);
 
         AssertTrue(GetBool(preparation, "IsSuccess"), "Application CsoKit preprocessing failed: " + GetString(preparation, "StandardError"));
-        AssertTrue(GetString(preparation, "ToolVersion").StartsWith("CsoKit 0.6.1+", StringComparison.Ordinal),
+        AssertTrue(GetString(preparation, "ToolVersion").StartsWith("CsoKit 0.6.3+", StringComparison.Ordinal),
             "Application accepted an unexpected CsoKit version: " + GetString(preparation, "ToolVersion"));
         AssertEqual("CsoKit", GetString(preparation, "ToolName"), "Unexpected preprocessing tool name.");
         AssertTrue(File.Exists(preparedIsoPath), "Application preprocessing did not create the temporary ISO.");
@@ -2199,6 +2200,52 @@ internal static partial class Program
         byte[] preparedHash = SHA256.HashData(File.ReadAllBytes(preparedIsoPath));
         AssertTrue(CryptographicOperations.FixedTimeEquals(inputHash, preparedHash),
             "CsoKit application preprocessing changed the ISO payload.");
+    }
+
+    private static void TestBundledCsoKitRejectsTrailingData(AppReflection app, string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "csokit-trailing-data");
+        Directory.CreateDirectory(root);
+
+        string inputIsoPath = Path.Combine(root, "input.iso");
+        string compressedCsoPath = Path.Combine(root, "trail.cso");
+        byte[] sample = new byte[65_536];
+        for (int index = 0; index < sample.Length; index++)
+        {
+            sample[index] = (byte)((index * 31) % 251);
+        }
+
+        File.WriteAllBytes(inputIsoPath, sample);
+
+        object compression = app.RunBundledCsoKit(
+            [
+                "compress", inputIsoPath,
+                "-o", compressedCsoPath,
+                "--profile", "game-safe",
+                "--threads", "1",
+                "--block", "2048",
+                "--json"
+            ]);
+
+        AssertEqual(0, GetInt(compression, "ExitCode"), "Bundled CsoKit compression failed: " + GetString(compression, "StandardError"));
+
+        // CsoKit 0.6.3 requires the final index offset to match the file size, so bytes appended
+        // after the last block must fail preparation instead of reaching chdman.
+        using (FileStream stream = new(compressedCsoPath, FileMode.Append, FileAccess.Write))
+        {
+            stream.Write(new byte[4096]);
+        }
+
+        byte[] csoHashBefore = SHA256.HashData(File.ReadAllBytes(compressedCsoPath));
+
+        using IDisposable workspace = app.CreateCsoTempWorkspace(out string preparedIsoPath);
+        object preparation = app.PreprocessCso(compressedCsoPath, preparedIsoPath);
+
+        AssertFalse(GetBool(preparation, "IsSuccess"), "Application CsoKit preprocessing accepted a CSO with trailing data.");
+        AssertFalse(File.Exists(preparedIsoPath), "Rejected CSO preparation must not leave the temporary ISO behind.");
+        AssertTrue(
+            CryptographicOperations.FixedTimeEquals(csoHashBefore, SHA256.HashData(File.ReadAllBytes(compressedCsoPath))),
+            "Rejected CSO preparation must not modify the source CSO.");
     }
 
     private static HttpResponseMessage Redirect(HttpStatusCode statusCode, string location)
