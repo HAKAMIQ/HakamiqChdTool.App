@@ -88,6 +88,9 @@ jobs:
             throw "Release tag $tag does not point to the checked-out revision."
           }
 
+          # Fail before building when the changelog has no notes for this version.
+          $null = & .\scripts\GetReleaseNotes.ps1 -Version $env:RELEASE_VERSION
+
       - name: Enable Microsoft Defender release protection
         shell: powershell
         run: |
@@ -391,6 +394,7 @@ jobs:
           else {
             "Windows Authenticode signing is required and verified for this release."
           }
+          $changelogNotes = & .\scripts\GetReleaseNotes.ps1 -Version $env:RELEASE_VERSION
           @"
           CHD Tool v$env:RELEASE_VERSION
 
@@ -402,15 +406,9 @@ jobs:
           **Smaller download — Runtime-required Windows x64**
           Requires Microsoft .NET 10 Desktop Runtime x64.
 
-          ## Highlights
+          ## Changes
 
-          - Stronger CUE/BIN layout fidelity and fail-closed rescue handling.
-          - Ambiguous adjacent CUE layouts are refused instead of guessed.
-          - Legacy CUE encoding failures no longer fall through to inferred layouts.
-          - Multi-track BIN rescue requires sufficient timing evidence.
-          - CSO preprocessing validates decompressed output against the declared size.
-          - Hardened CHD operation lifecycle, verification, cleanup, and diagnostics.
-          - Removed obsolete and unreachable source architecture.
+          $changelogNotes
 
           ## Verification
 

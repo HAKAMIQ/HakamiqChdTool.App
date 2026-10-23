@@ -1672,6 +1672,14 @@ function Test-ReleaseTrustGates {
         Add-Failure 'Secure release workflow must not label an unsigned-capable artifact or directory as signed-candidate.'
     }
 
+    if ([regex]::Matches($workflowText, 'GetReleaseNotes\.ps1 -Version \$env:RELEASE_VERSION').Count -lt 2) {
+        Add-Failure 'Secure release workflow must validate and publish the changelog section for the release version.'
+    }
+
+    if ($workflowText -match '## Highlights') {
+        Add-Failure 'Secure release workflow must not publish fixed release highlights; use the changelog section.'
+    }
+
     $orderedSteps = @(
         'Checkout requested source',
         'Validate release inputs and tag binding',
@@ -1710,6 +1718,69 @@ function Test-ReleaseTrustGates {
         }
 
         $previousIndex = $currentIndex
+    }
+}
+
+function Test-ReleaseNotesSource {
+    $notesScript = Join-Path $root 'scripts\GetReleaseNotes.ps1'
+    if (-not (Test-Path -LiteralPath $notesScript -PathType Leaf)) {
+        Add-Failure 'GetReleaseNotes.ps1 is required to publish the changelog section as release notes.'
+        return
+    }
+
+    [xml] $project = Get-Content -LiteralPath (Join-Path $root 'HakamiqChdTool.App.csproj') -Raw -Encoding UTF8
+    $projectVersion = $project.SelectSingleNode('/Project/PropertyGroup/Version').InnerText.Trim()
+
+    try {
+        $notes = & $notesScript -Version $projectVersion
+        if ($notes -match '(?m)^## ') {
+            Add-Failure "Release notes for v$projectVersion include another changelog section."
+        }
+    }
+    catch {
+        Add-Failure "Changelog has no usable release notes for project version v${projectVersion}: $($_.Exception.Message)"
+    }
+
+    $fixtureRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('HakamiqReleaseNotes-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $fixtureRoot | Out-Null
+    try {
+        $fixture = Join-Path $fixtureRoot 'CHANGELOG.md'
+        Set-Content -LiteralPath $fixture -Encoding UTF8 -Value @(
+            '# Changelog', '', '## v9.0.1 - 2000-01-02', '', '- Current change.', '',
+            '## v9.0.0 - 2000-01-01', '', '- Previous change.', '', '## v8.0.0', '')
+
+        $current = & $notesScript -Version '9.0.1' -ChangelogPath $fixture
+        if ($current -ne '- Current change.') {
+            Add-Failure "GetReleaseNotes.ps1 must return only the requested section. Actual: $current"
+        }
+
+        $cases = @(
+            @{ Name = 'missing section'; Version = '9.9.9'; Lines = $null },
+            @{ Name = 'empty section'; Version = '8.0.0'; Lines = $null },
+            @{ Name = 'duplicated section'; Version = '9.0.1'; Lines = @('## v9.0.1', '- A.', '## v9.0.1', '- B.') })
+
+        foreach ($case in $cases) {
+            $path = $fixture
+            if ($null -ne $case.Lines) {
+                $path = Join-Path $fixtureRoot 'duplicate.md'
+                Set-Content -LiteralPath $path -Encoding UTF8 -Value $case.Lines
+            }
+
+            $rejected = $false
+            try {
+                $null = & $notesScript -Version $case.Version -ChangelogPath $path
+            }
+            catch {
+                $rejected = $true
+            }
+
+            if (-not $rejected) {
+                Add-Failure "GetReleaseNotes.ps1 must fail on a $($case.Name)."
+            }
+        }
+    }
+    finally {
+        Remove-Item -LiteralPath $fixtureRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 
@@ -3391,6 +3462,7 @@ Test-PathSafetyDuplicationBudget
 Test-BundledRuntimeToolIntegrityPolicy
 Test-ProductionUpdateTrustPolicy
 Test-ReleaseTrustGates
+Test-ReleaseNotesSource
 Test-BundledToolIntegrityManifest
 Test-RedumpDetailsViewModelPurity
 Test-ChdProgressParserImplementation
