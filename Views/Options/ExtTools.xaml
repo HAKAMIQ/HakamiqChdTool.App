@@ -38,7 +38,7 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <!-- Hakamiq-CsoKit 0.6.1 -->
+                        <!-- Hakamiq-CsoKit 0.6.3 -->
                         <Grid Grid.Row="0"
                               Height="{DynamicResource Space.32}"
                               Style="{StaticResource Win11SettingsSectionHeader}">
