@@ -83,7 +83,7 @@ External tools used by the app:
 
 - chdman for CHD create/verify/extract
 - 7-Zip support for archive paths
-- CsoKit 0.6.1 for CSO preparation. Its CLI and native ABI 2 sidecar are kept
+- CsoKit 0.6.3 for CSO preparation. Its CLI and native ABI 2 sidecar are kept
   together, pinned independently by SHA-256, and revalidated immediately before
   every execution.
 - CHD reader/helper tooling for CHD information paths
