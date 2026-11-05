@@ -30,8 +30,6 @@ public partial class App : WpfApplication
     private const string ApplicationTitleKey = "LocUi_WindowTitle";
     private const string AdministratorWarningBodyKey = "LocApp_AdministratorWarningBody";
 
-    private const string SingleInstanceMutexName = @"Local\HakamiqChdTool.App.SingleInstance";
-
     private Mutex? _singleInstanceMutex;
 
     private bool _globalExceptionHandlersRegistered;
@@ -61,7 +59,7 @@ public partial class App : WpfApplication
 
         if (!TryAcquireSingleInstanceMutex())
         {
-            Log.Information("Another CHD Tool instance is already running. Exiting duplicate instance.");
+            Log.Information("Another CHD Tool instance is already running in this Windows session. Exiting duplicate instance.");
             AppLogger.Shutdown();
             Shutdown(0);
             return;
@@ -96,27 +94,19 @@ public partial class App : WpfApplication
 
     private bool TryAcquireSingleInstanceMutex()
     {
-        try
+        if (SingleInstanceGate.TryAcquire(out Mutex? mutex, out Exception? error))
         {
-            _singleInstanceMutex = new Mutex(
-                initiallyOwned: true,
-                name: SingleInstanceMutexName,
-                createdNew: out bool createdNew);
-
-            if (!createdNew)
-            {
-                _singleInstanceMutex.Dispose();
-                _singleInstanceMutex = null;
-                return false;
-            }
-
+            _singleInstanceMutex = mutex;
             return true;
         }
-        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException or System.Security.SecurityException or ApplicationException)
+
+        if (error is not null)
         {
-            Log.Warning(ex, "Could not create the single-instance mutex. Continuing startup to avoid a false launch block.");
+            Log.Warning(error, "Could not create the single-instance mutex. Continuing startup without single-instance protection.");
             return true;
         }
+
+        return false;
     }
 
     private void ReleaseSingleInstanceMutex()
