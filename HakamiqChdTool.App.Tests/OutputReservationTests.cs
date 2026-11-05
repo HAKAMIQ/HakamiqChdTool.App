@@ -15,15 +15,16 @@ internal static partial class Program
             "The test process establishes the local single-instance gate. Error=" + acquireError);
         using (ownedMutex)
         {
-            string executable = Environment.ProcessPath
+            string exePath = Environment.ProcessPath
                 ?? throw new InvalidOperationException("The test host process path is unavailable.");
-            var startInfo = new ProcessStartInfo(executable, "--mutex-probe")
+            var startInfo = new ProcessStartInfo(exePath)
             {
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
             };
+            AddMutexProbeArguments(startInfo, exePath, "--mutex-probe");
             using Process child = Process.Start(startInfo)
                 ?? throw new InvalidOperationException("Could not start the mutex probe child process.");
             AssertTrue(child.WaitForExit(30000), "The second process exits after detecting the existing local mutex.");
@@ -36,15 +37,16 @@ internal static partial class Program
 
     private static void TestSingleInstanceGateReportsCreationError(string workDirectory)
     {
-        string executable = Environment.ProcessPath
+        string exePath = Environment.ProcessPath
             ?? throw new InvalidOperationException("The test host process path is unavailable.");
-        var startInfo = new ProcessStartInfo(executable, "--mutex-probe --mutex-probe-invalid-name")
+        var startInfo = new ProcessStartInfo(exePath)
         {
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true
         };
+        AddMutexProbeArguments(startInfo, exePath, "--mutex-probe", "--mutex-probe-invalid-name");
         using Process child = Process.Start(startInfo)
             ?? throw new InvalidOperationException("Could not start the mutex error probe child process.");
         AssertTrue(child.WaitForExit(30000), "The mutex creation error probe exits.");
@@ -52,6 +54,20 @@ internal static partial class Program
         string error = child.StandardError.ReadToEnd();
         AssertEqual(1, child.ExitCode, "The probe reports creation failure. stderr=" + error);
         AssertEqual("ERROR", output, "Creation failure is distinguishable from an existing owner.");
+    }
+
+    private static void AddMutexProbeArguments(ProcessStartInfo startInfo, string exePath, params string[] probeArguments)
+    {
+        if (string.Equals(Path.GetFileName(exePath), "dotnet", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(Path.GetFileName(exePath), "dotnet.exe", StringComparison.OrdinalIgnoreCase))
+        {
+            startInfo.ArgumentList.Add(typeof(Program).Assembly.Location);
+        }
+
+        foreach (string argument in probeArguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
     }
 
     private static void TestOutputReservationReleasesAfterFailureAndCancellation(string workDirectory)
