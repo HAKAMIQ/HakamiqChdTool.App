@@ -8,6 +8,7 @@ using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
 using HakamiqChdTool.App.ViewModels;
+using HakamiqChdTool.App.Views;
 using Serilog;
 
 namespace HakamiqChdTool.App;
@@ -121,6 +122,13 @@ public partial class MainWindow
 
         try
         {
+            if (!await ConfirmCsoRedumpTempIsoAsync(probePath).ConfigureAwait(false))
+            {
+                return;
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
             Interlocked.Increment(ref _blockingBackgroundOps);
             blockingOperationRegistered = true;
 
@@ -328,6 +336,29 @@ public partial class MainWindow
                 await InvokeOnUiIfAvailableAsync(UpdateUiState).ConfigureAwait(false);
             }
         }
+    }
+
+    private Task<bool> ConfirmCsoRedumpTempIsoAsync(string probePath)
+    {
+        if (!string.Equals(Path.GetExtension(probePath), ".cso", StringComparison.OrdinalIgnoreCase)
+            || Directory.Exists(probePath))
+        {
+            return Task.FromResult(true);
+        }
+
+        return InvokeOnUiIfAvailableAsync(() =>
+        {
+            var dialog = new RedumpNoticeDialog(
+                ArabicUi.Get("LocRedump_CsoTempIsoTitle"),
+                ArabicUi.Get("LocRedump_CsoTempIsoBody"),
+                ArabicUi.Get("LocCommon_Cancel"),
+                ArabicUi.Get("LocRedump_CsoTempIsoConfirm"))
+            {
+                Owner = this
+            };
+
+            return dialog.ShowDialog() == true;
+        }, fallback: false);
     }
 
     private Task ApplyRedumpProgressEventAsync(

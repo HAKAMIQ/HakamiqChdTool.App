@@ -1875,4 +1875,7 @@ Path:
     <sys:String x:Key="LocLib_Flag_SheetNeedsReferenceRewrite">Sheet references would need rewriting</sys:String>
     <sys:String x:Key="LocLib_Flag_IncompleteDiscSet">Disc set is incomplete</sys:String>
     <sys:String x:Key="LocLib_Flag_PartiallyVerifiedSet">Disc set is only partly verified</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempIsoTitle">Verify CSO with Redump</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempIsoBody">Verifying a CSO requires decompressing it to a temporary ISO in the application's workspace, then hashing the ISO content and matching it against Redump. Free space for the uncompressed ISO is required. The temporary file will be cleaned up after the scan, and the original CSO will remain unchanged. Continue?</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempIsoConfirm">Continue verification</sys:String>
 </ResourceDictionary>
