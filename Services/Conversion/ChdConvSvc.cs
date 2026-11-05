@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Core.Chd.Commands;
 using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Models.Chd;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -76,6 +77,11 @@ public sealed class ChdConversionService
     {
         return _commandPreparation.BuildCommand(inputPath, extractionKind, isoCreateCommandOverride);
     }
+
+    public Task<ChdConversionDecisionPreview> PreviewDecisionAsync(string chdmanPath, string inputPath, string outputPath,
+        AppSettings settings, CancellationToken cancellationToken = default) =>
+        ChdConversionDecisionPreviewBuilder.BuildAsync(chdmanPath, inputPath, outputPath, settings,
+            _commandPreparation, _capabilityService, _profilePolicy, _operationPolicyGate, cancellationToken);
 
     public async Task<ChdConversionResult> ConvertToChdAsync(
         string chdmanPath,

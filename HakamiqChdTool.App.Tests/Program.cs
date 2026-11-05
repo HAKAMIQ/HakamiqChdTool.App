@@ -93,6 +93,13 @@ internal static partial class Program
         {
             TestCase[] tests =
             [
+                new("Conversion decision preview matches planner and capability snapshot", () => ConversionDecisionPreviewTests.PreviewUsesPlannerAndCapabilitySnapshot(workDirectory)),
+                new("Conversion decision preview carries output path and verify setting", () => ConversionDecisionPreviewTests.OutputAndVerifyReflectSettings(workDirectory)),
+                new("CSO conversion preview does not prepare input", () => ConversionDecisionPreviewTests.CsoPreviewDoesNotPrepareInput(workDirectory)),
+                new("Archive conversion preview defers extraction", () => ConversionDecisionPreviewTests.ArchivePreviewIsDeferredAndDoesNotExtract(workDirectory)),
+                new("Capability probe failure remains informational", () => ConversionDecisionPreviewTests.CapabilityFailureDoesNotBlockPreview(workDirectory)),
+                new("Unsupported input returns an advisory result", () => ConversionDecisionPreviewTests.UnsupportedInputReturnsInformationalResult(workDirectory)),
+                new("Conversion preview panel is optional and collapsed", ConversionDecisionPreviewTests.PreviewPanelIsOptionalAndCollapsedByDefault),
                 new("SYSTEM.CNF is read from ISO 2048", () => TestIsoSystemCnfScan(app, workDirectory)),
                 new("SYSTEM.CNF is read from CUE referenced raw BIN", () => TestCueReferencedRawBinScan(app, workDirectory)),
                 new("PS2 detector prefers SYSTEM.CNF over path hints", () => TestDetectorUsesSystemCnf(app, workDirectory)),

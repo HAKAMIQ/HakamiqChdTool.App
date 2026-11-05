@@ -483,6 +483,19 @@
     <sys:String x:Key="LocStatus_ExtractionCompletedSuccess">Extraction completed.</sys:String>
     <sys:String x:Key="LocFooter_ErrorGeneric">Something went wrong. Check the log and try again.</sys:String>
 
+    <sys:String x:Key="LocConversionPreview_Header">Conversion decision preview</sys:String>
+    <sys:String x:Key="LocConversionPreview_Refresh">Refresh preview</sys:String>
+    <sys:String x:Key="LocConversionPreview_SelectInput">Select a queue item, then refresh the preview. This information is advisory and does not block conversion.</sys:String>
+    <sys:String x:Key="LocConversionPreview_Format">Media: {0}&#10;Evidence: {1}&#10;Command: {2}&#10;Platform: {3}&#10;Codec: {4}&#10;Hunk: {5}&#10;Output: {6}&#10;Verify after conversion: {7}&#10;Capabilities: {8}&#10;Notes: {9}</sys:String>
+    <sys:String x:Key="LocConversionPreview_AtRun">Resolved at run time</sys:String>
+    <sys:String x:Key="LocConversionPreview_Yes">Enabled</sys:String>
+    <sys:String x:Key="LocConversionPreview_No">Disabled</sys:String>
+    <sys:String x:Key="LocConversionPreview_NotAvailable">Could not determine</sys:String>
+    <sys:String x:Key="LocConversionPreview_Archive">Archive</sys:String>
+    <sys:String x:Key="LocConversionPreview_Unknown">Unknown</sys:String>
+    <sys:String x:Key="LocConversionPreview_Default">chdman default</sys:String>
+    <sys:String x:Key="LocConversionPreview_CapabilityDeferred">chdman will be checked when the job runs</sys:String>
+    <sys:String x:Key="LocConversionPreview_ArchiveDeferred">The archive member and command are resolved after preparation at run time</sys:String>
     <sys:String x:Key="LocConversion_Failed">Could not complete conversion.</sys:String>
     <sys:String x:Key="LocExtraction_Failed">Could not complete extraction.</sys:String>
     <sys:String x:Key="LocConversion_InvalidChdmanPath">The chdman path is invalid.</sys:String>
