@@ -55,7 +55,8 @@ public partial class MainWindow
                     outputPath,
                     PreviewVerifyValue(_settings.VerifyAfterConversion),
                     ArabicUi.ResolveDisplayString("LocConversionPreview_CapabilityDeferred"),
-                    ArabicUi.ResolveDisplayString("LocConversionPreview_ArchiveDeferred"));
+                    ArabicUi.ResolveDisplayString("LocConversionPreview_ArchiveDeferred"))
+                    + PreviewMediaReasonLine(atRun);
                 return;
             }
 
@@ -104,7 +105,8 @@ public partial class MainWindow
                 outputPath,
                 PreviewVerifyValue(preview.VerifyAfterConversion),
                 capability,
-                notes);
+                notes)
+                + PreviewMediaReasonLine(isCso ? atRun : PreviewMediaReason(preview));
         }
         catch (OperationCanceledException)
         {
@@ -124,8 +126,56 @@ public partial class MainWindow
                 ArabicUi.ResolveDisplayString("LocConversionPreview_NotAvailable"),
                 PreviewVerifyValue(_settings.VerifyAfterConversion),
                 ex.GetType().Name,
-                RuntimeDiagnosticFormatter.SummarizeException(ex));
+                RuntimeDiagnosticFormatter.SummarizeException(ex))
+                + PreviewMediaReasonLine(ArabicUi.ResolveDisplayString("LocConversionPreview_NotAvailable"));
         }
+    }
+
+    private static string PreviewMediaReasonLine(string reason) =>
+        "\n" + ArabicUi.Format("LocConversionPreview_MediaReasonLine", reason);
+
+    private static string PreviewMediaReason(ChdConversionDecisionPreview preview)
+    {
+        string Get(string key) => ArabicUi.ResolveDisplayString("LocConversionPreview_" + key);
+
+        if (!preview.IsSupported)
+            return Get("NotAvailable");
+
+        if (preview.DescriptorEvidence == DescriptorCreateCdEvidence.Cue)
+            return Get("ReasonCue");
+        if (preview.DescriptorEvidence == DescriptorCreateCdEvidence.Gdi)
+            return Get("ReasonGdi");
+        if (preview.IsoMediaDecision is not { } decision)
+            return Get("NotAvailable");
+
+        string kind = decision.Kind switch
+        {
+            DiscMediaClassification.CdRom => Get("ClassifiedCd"),
+            DiscMediaClassification.DvdRom => Get("ClassifiedDvd"),
+            _ => string.Empty
+        };
+
+        if (decision.Source == DiscMediaDecisionSource.SizeFallback)
+        {
+            string detail = preview.MediaEvidence == "LocDiscProbe_SystemCnfPs2Boot2"
+                ? Get("ReasonPs2")
+                : Get("ReasonSize");
+            return $"{kind} — {Get("ReasonEstimated")} — {detail}";
+        }
+
+        if (decision.Source == DiscMediaDecisionSource.Structure)
+        {
+            string key = decision.Structure switch
+            {
+                DiscMediaStructure.Ps1 => "ReasonPs1",
+                DiscMediaStructure.Psp => "ReasonPsp",
+                DiscMediaStructure.Ps3 => "ReasonPs3",
+                _ => "ReasonUnknown"
+            };
+            return $"{kind} — {Get("ReasonConfirmed")} — {Get(key)}";
+        }
+
+        return Get("ReasonUnknown");
     }
 
     private static string PreviewVerifyValue(bool enabled) =>

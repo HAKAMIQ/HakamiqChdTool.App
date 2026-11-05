@@ -19,4 +19,6 @@ public sealed record ChdConversionDecisionPreview(
     string Message,
     string CapabilityWarning)
 {
+    public DiscMediaDecision? IsoMediaDecision { get; init; }
+    public DescriptorCreateCdEvidence DescriptorEvidence { get; init; }
 }

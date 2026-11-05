@@ -130,6 +130,10 @@ internal static class ChdConversionDecisionPreviewBuilder
             DisplayCommandLine: ChdmanCliRunner.FormatCommandLineForDisplay(chdmanPath, args.Arguments),
             VerifyAfterConversion: settings.VerifyAfterConversion,
             Message: policy.FailureResult?.Message ?? string.Empty,
-            CapabilityWarning: capabilityWarning);
+            CapabilityWarning: capabilityWarning)
+        {
+            IsoMediaDecision = isoDiagnostics?.MediaDecision,
+            DescriptorEvidence = plannerDecision.DescriptorEvidence
+        };
     }
 }

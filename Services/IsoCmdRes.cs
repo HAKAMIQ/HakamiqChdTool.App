@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Models.Chd;
 using Serilog;
 using System;
 using System.IO;
@@ -12,7 +13,10 @@ public readonly record struct IsoChdmanCreateDiagnostics(
     long FileLengthBytes,
     string AutoSuggestedCommand,
     IsoCreateCommandOverride OverrideMode,
-    string Command);
+    string Command)
+{
+    public DiscMediaDecision? MediaDecision { get; init; }
+}
 
 public static class IsoChdmanCreateCommandResolver
 {
@@ -62,7 +66,8 @@ public static class IsoChdmanCreateCommandResolver
         }
 
         PlatformDetectionResult detection = DetectPlatformSafely(fullPath);
-        DiscMediaKind mediaKind = DiscMediaKindResolver.ResolveIsoMediaKind(detection, length);
+        DiscMediaDecision mediaDecision = DiscMediaKindResolver.ResolveIsoMediaDecision(detection, length);
+        DiscMediaKind mediaKind = (DiscMediaKind)mediaDecision.Kind;
         string autoSuggested = ToChdmanCreateCommand(mediaKind);
 
         if (mediaKind == DiscMediaKind.Unknown)
@@ -96,7 +101,10 @@ public static class IsoChdmanCreateCommandResolver
             length,
             autoSuggested,
             overrideMode,
-            ApplyOverride(autoSuggested, overrideMode));
+            ApplyOverride(autoSuggested, overrideMode))
+        {
+            MediaDecision = mediaDecision
+        };
     }
 
     internal static string ApplyOverride(string autoSuggestedCommand, IsoCreateCommandOverride overrideMode) =>
