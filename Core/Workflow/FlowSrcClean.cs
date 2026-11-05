@@ -177,7 +177,7 @@ internal sealed partial class WorkflowSourceCleanupPipeline
 
         if (extension is ".cue" or ".gdi" or ".toc")
         {
-            return BuildDescriptorSourceSetCandidates(sourcePath);
+            return BuildDescriptorSourceSetCandidates(sourcePath, outputPath);
         }
 
         if (extension == ".bin")
@@ -206,7 +206,7 @@ internal sealed partial class WorkflowSourceCleanupPipeline
         return SingleFileCandidate(sourcePath);
     }
 
-    private SourceCleanupCandidate[] BuildDescriptorSourceSetCandidates(string descriptorPath)
+    private SourceCleanupCandidate[] BuildDescriptorSourceSetCandidates(string descriptorPath, string outputPath)
     {
         DescriptorReferenceSet referenceSet = BuildDescriptorReferenceSet(descriptorPath, requireExistingFiles: true);
         if (!referenceSet.IsComplete || referenceSet.Paths.Length == 0)
@@ -233,6 +233,7 @@ internal sealed partial class WorkflowSourceCleanupPipeline
         {
             if (File.Exists(sidecarPath)
                 && !HasReparsePointInExistingPathFromVolumeRoot(sidecarPath)
+                && IsSidecarCopiedNextToOutput(sidecarPath, outputPath)
                 && seen.Add(sidecarPath))
             {
                 candidates.Add(new SourceCleanupCandidate(sidecarPath, IsDescriptor: false));
@@ -475,6 +476,60 @@ internal sealed partial class WorkflowSourceCleanupPipeline
         {
             yield return Path.ChangeExtension(descriptorPath, ".sbi");
         }
+    }
+
+    // A CHD does not carry the .sbi, so the source sidecar is only redundant when a separate, identical copy sits next to
+    // the output. Holding the sidecar without sharing makes opening the copy fail when both paths name the same file
+    // (output next to the source, 8.3 or UNC aliases, hard links), and the sidecar is then kept.
+    private bool IsSidecarCopiedNextToOutput(string sidecarPath, string outputPath)
+    {
+        try
+        {
+            string copyPath = Path.ChangeExtension(outputPath, Path.GetExtension(sidecarPath));
+            if (!WorkflowPathUtilities.PathsEqual(copyPath, sidecarPath)
+                && File.Exists(copyPath)
+                && !HasReparsePointInExistingPathFromVolumeRoot(copyPath))
+            {
+                using FileStream sidecar = new(sidecarPath, FileMode.Open, FileAccess.Read, FileShare.None);
+                using FileStream copy = new(copyPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                if (HaveSameContent(sidecar, copy))
+                {
+                    return true;
+                }
+            }
+        }
+        catch (Exception ex) when (IsIoOrPathFailure(ex))
+        {
+            _log.Debug(ex, "Source cleanup could not compare the sidecar with its copy. Sidecar={Sidecar}", sidecarPath);
+        }
+
+        _log.Information(
+            "Source cleanup kept the sidecar because no identical copy exists next to the output. Sidecar={Sidecar}; Output={OutputPath}",
+            sidecarPath,
+            outputPath);
+        return false;
+    }
+
+    private static bool HaveSameContent(FileStream left, FileStream right)
+    {
+        if (left.Length != right.Length)
+        {
+            return false;
+        }
+
+        byte[] leftBuffer = new byte[81920];
+        byte[] rightBuffer = new byte[81920];
+        int read;
+        while ((read = left.Read(leftBuffer, 0, leftBuffer.Length)) > 0)
+        {
+            right.ReadExactly(rightBuffer, 0, read);
+            if (!leftBuffer.AsSpan(0, read).SequenceEqual(rightBuffer.AsSpan(0, read)))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private WorkflowSourceCleanupResult DeleteCandidates(
