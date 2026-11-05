@@ -34,8 +34,10 @@ internal static partial class Program
 
         public async Task<WorkflowExecutionResult> ProcessAsync(ChdTaskRequest request, CancellationToken cancellationToken)
         {
-            int now = Interlocked.Increment(ref _active);
+            // Started must be published before Active: an observer that sees Active == limit is then guaranteed
+            // Started >= limit, so the two counters can never be read in a transient (Active=limit, Started=limit-1) state.
             Interlocked.Increment(ref _started);
+            int now = Interlocked.Increment(ref _active);
             int seen;
             while (now > (seen = Volatile.Read(ref _maxActive))
                    && Interlocked.CompareExchange(ref _maxActive, now, seen) != seen)
