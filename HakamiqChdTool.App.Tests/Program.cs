@@ -71,6 +71,12 @@ internal static partial class Program
         string? uiTest = ReadOptionalArgument(args, "--ui-test");
         if (!string.IsNullOrWhiteSpace(uiTest))
         {
+            if (uiTest == "redump-cso-consent")
+            {
+                RunRedumpCsoConsentUi(ReadRequiredArgument(args, "--work-dir"));
+                return 0;
+            }
+
             if (uiTest == "conversion-media-reason")
             {
                 ConversionMediaReasonUiTests.RunIsolated();
@@ -99,6 +105,8 @@ internal static partial class Program
         {
             TestCase[] tests =
             [
+                new("Redump CSO consent and compliance preserve conversion state", () => RunIsolatedUiChild("redump-cso-consent", workDirectory)),
+                new("Redump CSO V2 verifies real decompressed content and cleans up", () => TestRedumpCsoV2(app, workDirectory).GetAwaiter().GetResult()),
                 new("Conversion media reason UI renders in both languages", ConversionMediaReasonUiTests.RendersReasonsInArabicAndEnglish),
                 new("Disc media decision resolver branches and boundaries", DiscMediaDecisionTests.ResolverBranchesAndBoundaries),
                 new("Disc media diagnostics and preview propagation", () => DiscMediaDecisionTests.DiagnosticsAndPreviewPropagation(workDirectory)),
