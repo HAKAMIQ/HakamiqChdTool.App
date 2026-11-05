@@ -231,6 +231,8 @@ internal static partial class Program
                 new("Collision: overwrite never replaces another source's CHD from this session", () => TestOverwriteNeverReplacesAnotherSourcesOutputFromThisSession(workDirectory)),
                 new("Collision: extract overwrite never replaces another source's CUE/BIN from this session", () => TestExtractOverwriteNeverReplacesAnotherSourcesOutputFromThisSession(workDirectory)),
                 new("Output reservation releases after publish failure and cancellation", () => TestOutputReservationReleasesAfterFailureAndCancellation(workDirectory)),
+                new("Small cleanup: publication mutex creation failure blocks publication", () => TestPublicationMutexCreationFailure(workDirectory)),
+                new("Small cleanup: unset Velopack locator skips manager creation without exceptions", TestUnsetVelopackLocatorSkipsUpdateManager),
                 new("Single-instance gate blocks a second process", () => TestSingleInstanceGateBlocksSecondProcess(workDirectory)),
                 new("Single-instance gate reports creation errors separately", () => TestSingleInstanceGateReportsCreationError(workDirectory)),
                 new("Active workflow lease releases once", () => TestActiveWorkflowLeaseReleasesOnce(workDirectory)),
