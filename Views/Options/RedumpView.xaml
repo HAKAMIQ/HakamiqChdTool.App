@@ -261,6 +261,12 @@
         <ScrollViewer Style="{StaticResource Win11SettingsScrollViewer}">
             <StackPanel Style="{StaticResource Win11SettingsContentStack}">
 
+                <TextBlock x:Name="RedumpComplianceNoticeTextBlock"
+                           Text="{DynamicResource LocRedumpSettings_ComplianceNotice}"
+                           Style="{StaticResource Win11SettingsRowDescriptionText}"
+                           TextWrapping="Wrap"
+                           TextTrimming="None" />
+
                 <Grid Visibility="Collapsed"
                       Width="{DynamicResource Space.0}"
                       Height="{DynamicResource Space.0}"
