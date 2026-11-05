@@ -1,3 +1,4 @@
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -61,7 +62,21 @@ internal static class WorkflowSessionOutputRegistry
 
         string mutexName = "Global\\HakamiqChdTool.Output." + Convert.ToHexString(
             SHA256.HashData(Encoding.UTF8.GetBytes(output.ToUpperInvariant())));
-        using var mutex = new Mutex(false, mutexName);
+        Mutex publicationMutex;
+        try
+        {
+            publicationMutex = new Mutex(false, mutexName);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException
+            or WaitHandleCannotBeOpenedException or System.Security.SecurityException)
+        {
+            Log.Error(ex, "Could not create the output publication mutex. Publication blocked. Output={Output}", output);
+            // false means an existing output to conversion callers. Use their handled I/O failure path instead.
+            // The original error is retained in the log; use the existing localized failure detail for the result.
+            throw new IOException("LocConversion_Failed");
+        }
+
+        using var mutex = publicationMutex;
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using Velopack;
+using Velopack.Locators;
 using Velopack.Sources;
 
 namespace HakamiqChdTool.App.Ui.Shell;
@@ -33,6 +34,11 @@ public static class UpdateService
         try
         {
             manager = CreateUpdateManager();
+            if (manager is null)
+            {
+                return;
+            }
+
             UpdateManager updateManager = manager;
 
             UpdateInfo? info = await updateManager.CheckForUpdatesAsync().ConfigureAwait(false);
@@ -94,8 +100,13 @@ public static class UpdateService
         }
     }
 
-    private static UpdateManager CreateUpdateManager()
+    private static UpdateManager? CreateUpdateManager()
     {
+        if (!VelopackLocator.IsCurrentSet)
+        {
+            return null;
+        }
+
 #if DEBUG
         if (TryNormalizeUpdateSource(ConfiguredUpdateSource, out string? configuredSource))
         {
