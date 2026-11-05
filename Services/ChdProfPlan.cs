@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Models;
+using HakamiqChdTool.App.Models.Chd;
 using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
 using HakamiqChdTool.App.Services.PlayStation.BluRayAnalysis;
 using HakamiqChdTool.App.Services.MediaInputPolicy;
@@ -59,6 +60,7 @@ public sealed class ChdWorkflowProfilePlan
     public string ContainerLabel => ContainerKind == ChdMediaContainerKind.Archive ? "Archive" : "DirectFile";
     public bool RequiresDescriptorDependencies => MediaKind is ChdMediaFormatKind.Cue or ChdMediaFormatKind.Gdi or ChdMediaFormatKind.Toc;
     public IsoChdmanCreateDiagnostics? IsoDiagnostics { get; init; }
+    public DescriptorCreateCdEvidence DescriptorEvidence { get; init; }
     public ChdPlatformProfile? PlatformProfile { get; init; }
 
     public static ChdWorkflowProfilePlan Unsupported(
@@ -741,7 +743,13 @@ public static class ChdWorkflowProfilePlanner
             MediaKind = mediaKind,
             ProfileKind = ChdWorkflowProfileKind.CreateCd,
             Command = "createcd",
-            StatusLine = statusLine
+            StatusLine = statusLine,
+            DescriptorEvidence = mediaKind switch
+            {
+                ChdMediaFormatKind.Cue => DescriptorCreateCdEvidence.Cue,
+                ChdMediaFormatKind.Gdi => DescriptorCreateCdEvidence.Gdi,
+                _ => DescriptorCreateCdEvidence.None
+            }
         };
     }
 
