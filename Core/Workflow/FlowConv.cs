@@ -135,7 +135,8 @@ internal sealed class WorkflowConversionStage(
                     lastLogPath);
             }
 
-            if (settings.SkipExistingOutput
+            if ((settings.SkipExistingOutput
+                    || WorkflowSessionOutputRegistry.IsProducedByOtherSource(finalOutputPath, ctx.Snapshot.OriginalPath))
                 && File.Exists(finalOutputPath))
             {
                 sink.ReportTerminalSuccess(
@@ -1308,37 +1309,31 @@ internal sealed class WorkflowConversionStage(
 
             try
             {
-                if (settings.SkipExistingOutput)
+                // Reserve through the complete decision/promotion/ownership update. A competing source may
+                // not replace an output after the producer has been verified and its source deleted.
+                WorkflowSessionOutputRegistry.BeforePromotionReservationForTests?.Invoke(ctx.Snapshot.OriginalPath);
+                if (!WorkflowSessionOutputRegistry.TryPromote(
+                        pendingOutputPath,
+                        finalOutputPath,
+                        ctx.Snapshot.OriginalPath,
+                        allowOverwrite: !settings.SkipExistingOutput,
+                        cancellationToken))
                 {
-                    // Skip-existing must hold at the moment of promotion too: another job (for example Game.cue and
-                    // Game.iso, which both map to Game.chd) may have produced the final file while this one ran.
-                    if (!WorkflowOutputPathContract.TryPromoteProducedFileIfAbsent(
-                            pendingOutputPath,
-                            finalOutputPath))
-                    {
-                        CleanupPendingConversionOutput(
-                            pendingOutputPath,
-                            outputRoot,
-                            finalOutputPath,
-                            settings);
+                    CleanupPendingConversionOutput(
+                        pendingOutputPath,
+                        outputRoot,
+                        finalOutputPath,
+                        settings);
 
-                        sink.ReportTerminalSuccess(
-                            QueueItemTerminalOutcome.SkippedExists,
-                            FinalOutputExistsDetailKey);
+                    sink.ReportTerminalSuccess(
+                        QueueItemTerminalOutcome.SkippedExists,
+                        FinalOutputExistsDetailKey);
 
-                        return WorkflowResultBuilder.Skipped(
-                            QueueItemTerminalOutcome.SkippedExists,
-                            FinalOutputExistsDetailKey,
-                            finalOutputPath,
-                            lastLogPath);
-                    }
-                }
-                else
-                {
-                    WorkflowPathUtilities
-                        .PromoteProducedFileToFinalLocation(
-                            pendingOutputPath,
-                            finalOutputPath);
+                    return WorkflowResultBuilder.Skipped(
+                        QueueItemTerminalOutcome.SkippedExists,
+                        FinalOutputExistsDetailKey,
+                        finalOutputPath,
+                        lastLogPath);
                 }
             }
             catch (Exception ex)
