@@ -71,6 +71,12 @@ internal static partial class Program
         string? uiTest = ReadOptionalArgument(args, "--ui-test");
         if (!string.IsNullOrWhiteSpace(uiTest))
         {
+            if (uiTest == "conversion-media-reason")
+            {
+                ConversionMediaReasonUiTests.RunIsolated();
+                return 0;
+            }
+
             return RunIsolatedUiTest(uiTest, ReadRequiredArgument(args, "--work-dir"));
         }
 
@@ -93,6 +99,10 @@ internal static partial class Program
         {
             TestCase[] tests =
             [
+                new("Conversion media reason UI renders in both languages", ConversionMediaReasonUiTests.RendersReasonsInArabicAndEnglish),
+                new("Disc media decision resolver branches and boundaries", DiscMediaDecisionTests.ResolverBranchesAndBoundaries),
+                new("Disc media diagnostics and preview propagation", () => DiscMediaDecisionTests.DiagnosticsAndPreviewPropagation(workDirectory)),
+                new("Descriptor evidence propagation", () => DiscMediaDecisionTests.DescriptorPropagation(workDirectory)),
                 new("Conversion decision preview matches planner and capability snapshot", () => ConversionDecisionPreviewTests.PreviewUsesPlannerAndCapabilitySnapshot(workDirectory)),
                 new("Conversion decision preview carries output path and verify setting", () => ConversionDecisionPreviewTests.OutputAndVerifyReflectSettings(workDirectory)),
                 new("CSO conversion preview does not prepare input", () => ConversionDecisionPreviewTests.CsoPreviewDoesNotPrepareInput(workDirectory)),
