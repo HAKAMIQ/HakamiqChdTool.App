@@ -42,6 +42,11 @@ CHD Tool supports common disc-image inputs including:
 - CSO
 - CHD
 
+Redump verification of CSO files asks for confirmation before using a temporary,
+decompressed ISO in the app workspace. The existing verification flow cleans up
+the temporary ISO and leaves the source CSO unchanged. Redump settings also show
+the DAT and legal-copy notice.
+
 Archive inputs are also supported for applicable workflows:
 
 - ZIP

@@ -1869,4 +1869,7 @@
     <sys:String x:Key="LocLib_Flag_SheetNeedsReferenceRewrite">مراجع ملف الوصف تحتاج إلى إعادة كتابة</sys:String>
     <sys:String x:Key="LocLib_Flag_IncompleteDiscSet">مجموعة القرص غير مكتملة</sys:String>
     <sys:String x:Key="LocLib_Flag_PartiallyVerifiedSet">مجموعة القرص مؤكدة جزئياً فقط</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempIsoTitle">فحص CSO عبر Redump</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempIsoBody">يتطلب فحص CSO فكّه إلى ISO مؤقت داخل مساحة عمل التطبيق، ثم حساب بصمات محتوى ISO ومطابقتها مع Redump. يلزم توفر مساحة كافية لحجم ISO غير المضغوط. سيُنظَّف الملف المؤقت بعد الفحص، وسيبقى ملف CSO الأصلي دون تغيير. هل تريد المتابعة؟</sys:String>
+    <sys:String x:Key="LocRedump_CsoTempIsoConfirm">متابعة الفحص</sys:String>
 </ResourceDictionary>
