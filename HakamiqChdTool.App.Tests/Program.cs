@@ -32,6 +32,21 @@ internal static partial class Program
             return RunCsoKitStubFixture(csoKitStubDescriptor, args);
         }
 
+        if (Array.Exists(args, argument => string.Equals(argument, "--mutex-probe", StringComparison.Ordinal)))
+        {
+            string mutexName = Array.Exists(args, argument => string.Equals(argument, "--mutex-probe-invalid-name", StringComparison.Ordinal))
+                ? "Local\\"
+                : HakamiqChdTool.App.SingleInstanceGate.MutexName;
+            bool acquired = HakamiqChdTool.App.SingleInstanceGate.TryAcquire(mutexName, out var probeMutex, out Exception? mutexError);
+            if (probeMutex is not null)
+            {
+                probeMutex.ReleaseMutex();
+                probeMutex.Dispose();
+            }
+            Console.WriteLine(mutexError is not null ? "ERROR" : acquired ? "ACQUIRED" : "EXISTING");
+            return mutexError is null && !acquired ? 0 : 1;
+        }
+
         string appAssemblyPath = ReadRequiredArgument(args, "--app-assembly");
         if (!File.Exists(appAssemblyPath))
         {
@@ -186,6 +201,13 @@ internal static partial class Program
                 new("Promote-if-absent never replaces an existing final file", () => TestPromoteIfAbsentNeverReplacesAndMovesWhenFree(workDirectory)),
                 new("Cue normalization refuses an oversized cue and keeps the file", () => TestCueNormalizationRefusesOversizedCueAndKeepsFile(workDirectory)),
                 new("Source cleanup never deletes the output through a short-name alias", () => TestSourceCleanupNeverDeletesOutputThroughShortNameAlias(workDirectory)),
+                new("Source cleanup keeps the .sbi unless an identical copy sits next to the CHD", () => TestSourceCleanupKeepsSbiUnlessCopiedNextToOutput(workDirectory)),
+                new("Failed extract finalize never deletes a CUE/BIN set it did not create", () => TestFailedExtractFinalizeNeverDeletesForeignCueBin(workDirectory)),
+                new("Collision: overwrite never replaces another source's CHD from this session", () => TestOverwriteNeverReplacesAnotherSourcesOutputFromThisSession(workDirectory)),
+                new("Collision: extract overwrite never replaces another source's CUE/BIN from this session", () => TestExtractOverwriteNeverReplacesAnotherSourcesOutputFromThisSession(workDirectory)),
+                new("Output reservation releases after publish failure and cancellation", () => TestOutputReservationReleasesAfterFailureAndCancellation(workDirectory)),
+                new("Single-instance gate blocks a second process", () => TestSingleInstanceGateBlocksSecondProcess(workDirectory)),
+                new("Single-instance gate reports creation errors separately", () => TestSingleInstanceGateReportsCreationError(workDirectory)),
                 new("Active workflow lease releases once", () => TestActiveWorkflowLeaseReleasesOnce(workDirectory)),
                 new("Active workflow registry holds under contention", () => TestActiveWorkflowRegistryUnderContention(workDirectory)),
                 new("Orphan clean skips when a sibling starts after the scan", () => TestOrphanCleanSkipsWhenSiblingStartsAfterScan(workDirectory)),
@@ -270,6 +292,13 @@ internal static partial class Program
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),
                 new("Main window lays out and virtualizes 5,000 queue rows", () => TestMainWindowLayoutAndVirtualization(workDirectory))
             ];
+
+            // Optional: run only the tests whose name contains this text (single-test red/green checks).
+            string? only = ReadOptionalArgument(args, "--only");
+            if (!string.IsNullOrWhiteSpace(only))
+            {
+                tests = Array.FindAll(tests, test => test.Name.Contains(only, StringComparison.OrdinalIgnoreCase));
+            }
 
             int passed = 0;
             foreach (TestCase test in tests)

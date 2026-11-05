@@ -2423,17 +2423,39 @@ function Test-SingleInstanceGuard {
     $content =
         Get-Content -LiteralPath $app -Raw -Encoding UTF8
 
-    if ($content -notmatch 'Local\\HakamiqChdTool\.App\.SingleInstance') {
-        Add-Failure 'App must use the fixed single-instance mutex name Local\HakamiqChdTool.App.SingleInstance.'
+    $gate =
+        Join-Path $root 'App\SingleInstanceGate.cs'
+
+    if ($content -notmatch 'SingleInstanceGate\.TryAcquire\s*\(') {
+        Add-Failure 'App startup must use the shared single-instance gate.'
     }
 
-    if ($content -notmatch
-        'new\s+Mutex\s*\(\s*initiallyOwned:\s*true\s*,\s*name:\s*SingleInstanceMutexName\s*,\s*createdNew:\s*out\s+bool\s+createdNew') {
+    if (-not (Test-Path -LiteralPath $gate -PathType Leaf)) {
+        Add-Failure 'The single-instance gate implementation must exist.'
+        return
+    }
+
+    $gateContent = Get-Content -LiteralPath $gate -Raw -Encoding UTF8
+
+    if ($gateContent -notmatch 'Local\\HakamiqChdTool\.App\.SingleInstance') {
+        Add-Failure 'The application mutex must coordinate processes within the current Windows session.'
+    }
+
+    if ($gateContent -notmatch
+        'new\s+Mutex\s*\(\s*initiallyOwned:\s*true\s*,\s*name:\s*(?:MutexName|name)\s*,\s*createdNew:\s*out\s+bool\s+createdNew') {
         Add-Failure 'App must create a named Mutex with createdNew for single-instance guarding.'
     }
 
-    if ($content -notmatch '!createdNew') {
+    if ($gateContent -notmatch '!createdNew') {
         Add-Failure 'Duplicate app instances must be detected through createdNew.'
+    }
+
+    if ($content -notmatch 'if\s*\(error\s+is\s+not\s+null\)[\s\S]*?return\s+true\s*;') {
+        Add-Failure 'App startup must continue when single-instance mutex creation fails.'
+    }
+
+    if ($content -notmatch 'return\s+false\s*;') {
+        Add-Failure 'App startup must still stop when another instance owns the mutex.'
     }
 
     if ($content -notmatch 'Shutdown\s*\(\s*0\s*\)') {

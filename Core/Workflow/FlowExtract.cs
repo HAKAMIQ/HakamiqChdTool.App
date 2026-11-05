@@ -173,7 +173,9 @@ internal sealed class WorkflowExtractionStage(
             return WorkflowExecutionResult.Cancelled(CancelledDetailKey, finalOutputPath, lastLogPath);
         }
 
-        if (settings.SkipExistingOutput && File.Exists(finalOutputPath))
+        if ((settings.SkipExistingOutput
+                || WorkflowSessionOutputRegistry.IsProducedByOtherSource(finalOutputPath, ctx.Snapshot.OriginalPath))
+            && File.Exists(finalOutputPath))
         {
             ExtractionOutputKind existingOutputKind = ResolveExpectedFinalOutputKind(extractionDecision);
             if (!_outputBundleValidator.TryValidateExistingFinal(
@@ -466,11 +468,18 @@ internal sealed class WorkflowExtractionStage(
             WorkflowProgressContract.ExtractionFinalizingPercent,
             cancellationToken);
 
-        if (!_outputBundleValidator.TryFinalize(
+        ExtractionOutputBundle finalOutputBundle = default!;
+        string finalizeFailureMessageKey = string.Empty;
+        bool finalized = WorkflowSessionOutputRegistry.TryPublish(
+            finalOutputPath,
+            ctx.Snapshot.OriginalPath,
+            cancellationToken,
+            () => _outputBundleValidator.TryFinalize(
                 outputContract,
                 allowOverwrite: !settings.SkipExistingOutput,
-                out ExtractionOutputBundle finalOutputBundle,
-                out string finalizeFailureMessageKey))
+                out finalOutputBundle,
+                out finalizeFailureMessageKey));
+        if (!finalized)
         {
             string detail = string.IsNullOrWhiteSpace(finalizeFailureMessageKey)
                 ? "LocWorkflow_ExtractedCueBinInvalid"
@@ -479,10 +488,12 @@ internal sealed class WorkflowExtractionStage(
             sink.ReportTerminalFailure(QueueItemFailureKind.FailedExtract, detail);
             CleanupPendingExtractionOutput(pendingOutputPath, outputRoot, finalOutputPath, settings);
 
+            // Whatever sits at the final path now was not produced by this job (a rolled-back user set, or a file that
+            // blocked the finalize), so failed-output cleanup must not be pointed at it.
             return WorkflowResultBuilder.Failure(
                 QueueItemFailureKind.FailedExtract,
                 detail,
-                finalOutputPath,
+                pendingOutputPath,
                 lastLogPath);
         }
 
