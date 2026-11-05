@@ -483,6 +483,19 @@
     <sys:String x:Key="LocStatus_ExtractionCompletedSuccess">تم الاستخراج بنجاح.</sys:String>
     <sys:String x:Key="LocFooter_ErrorGeneric">حدث خطأ. يرجى مراجعة سجل الأحداث ثم المحاولة مجدداً.</sys:String>
 
+    <sys:String x:Key="LocConversionPreview_Header">معاينة قرار التحويل</sys:String>
+    <sys:String x:Key="LocConversionPreview_Refresh">تحديث المعاينة</sys:String>
+    <sys:String x:Key="LocConversionPreview_SelectInput">حدّد ملفاً من القائمة ثم حدّث المعاينة. هذه المعلومات استرشادية ولا تمنع التحويل.</sys:String>
+    <sys:String x:Key="LocConversionPreview_Format">نوع الوسيط: {0}&#10;الدليل: {1}&#10;الأمر: {2}&#10;المنصة: {3}&#10;Codec: {4}&#10;Hunk: {5}&#10;الناتج: {6}&#10;التحقق بعد التحويل: {7}&#10;القدرات: {8}&#10;ملاحظات: {9}</sys:String>
+    <sys:String x:Key="LocConversionPreview_AtRun">يُحسم عند التشغيل</sys:String>
+    <sys:String x:Key="LocConversionPreview_Yes">مفعّل</sys:String>
+    <sys:String x:Key="LocConversionPreview_No">غير مفعّل</sys:String>
+    <sys:String x:Key="LocConversionPreview_NotAvailable">تعذر تحديده</sys:String>
+    <sys:String x:Key="LocConversionPreview_Archive">أرشيف</sys:String>
+    <sys:String x:Key="LocConversionPreview_Unknown">غير معروف</sys:String>
+    <sys:String x:Key="LocConversionPreview_Default">افتراضي chdman</sys:String>
+    <sys:String x:Key="LocConversionPreview_CapabilityDeferred">سيُفحص chdman عند التشغيل</sys:String>
+    <sys:String x:Key="LocConversionPreview_ArchiveDeferred">سيُحسم ملف الأرشيف والأمر بعد التحضير عند التشغيل</sys:String>
     <sys:String x:Key="LocConversion_Failed">تعذر إكمال التحويل.</sys:String>
     <sys:String x:Key="LocExtraction_Failed">تعذر إكمال الاستخراج.</sys:String>
     <sys:String x:Key="LocConversion_InvalidChdmanPath">مسار chdman غير صالح.</sys:String>

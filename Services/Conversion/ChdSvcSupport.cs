@@ -30,6 +30,7 @@ internal static class ChdConversionServiceSupport
         ChdCompressionResolution CompressionResolution,
         string ResolvedCompression,
         int ResolvedHunkSizeBytes,
+        ChdmanCapabilitySnapshot Capabilities,
         ChdExecutionReportContext ExecutionReportContext,
         ChdConversionResult? FailureResult);
 
@@ -113,6 +114,7 @@ internal static class ChdConversionServiceSupport
                 ChdCompressionResolution.NotApplicable,
                 string.Empty,
                 0,
+                chdmanCapabilities,
                 blockedReportContext,
                 failure);
         }
@@ -166,6 +168,7 @@ internal static class ChdConversionServiceSupport
                 compressionResolution,
                 resolvedCompression,
                 resolvedHunkSizeBytes,
+                chdmanCapabilities,
                 executionReportContext,
                 null);
         }
@@ -191,6 +194,7 @@ internal static class ChdConversionServiceSupport
             compressionResolution,
             resolvedCompression,
             resolvedHunkSizeBytes,
+            chdmanCapabilities,
             executionReportContext,
             policyFailure);
     }

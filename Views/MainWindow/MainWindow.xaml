@@ -145,6 +145,7 @@
                                                   TasksPreviewMouseRightButtonDown="TasksDataGrid_PreviewMouseRightButtonDown"
                                                   TasksMouseDoubleClick="TasksDataGrid_MouseDoubleClick"
                                                   TasksSelectionChanged="TasksDataGrid_SelectionChanged"
+                                                  ConversionDecisionPreviewRequested="ConversionDecisionPreviewRequested"
                                                   QueueContextMenuOpened="QueueContextMenu_Opened" />
                 </Border>
             </Grid>
