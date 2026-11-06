@@ -41,10 +41,6 @@ public partial class QueueWorkspaceView : UserControl
 
     public event RoutedEventHandler? QueueContextMenuOpened;
 
-    public event RoutedEventHandler? ConversionDecisionPreviewRequested;
-
-    public TextBlock ConversionPreviewText => ConversionDecisionPreviewText;
-
     public string OperationModeKey
     {
         get => (string)GetValue(OperationModeKeyProperty);
@@ -61,9 +57,6 @@ public partial class QueueWorkspaceView : UserControl
 
     private void ForwardWorkspaceDrop(object sender, DragEventArgs e) =>
         WorkspaceFilesDropped?.Invoke(sender, e);
-
-    private void PreviewConversionDecision_Click(object sender, RoutedEventArgs e) =>
-        ConversionDecisionPreviewRequested?.Invoke(sender, e);
 
     private void ForwardWorkspacePreviewDragOver(object sender, DragEventArgs e) =>
         WorkspacePreviewDragOver?.Invoke(sender, e);
