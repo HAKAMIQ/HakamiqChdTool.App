@@ -22,14 +22,6 @@ Full Security Validation: PENDING
 
 Folder, ISO, PKG, CHD, CSO, CUE, BIN, GDI, Unknown, Other.
 
-## Graphify Evidence
-
-- Version: 0.9.99
-- Code files: 606
-- Nodes: 8788
-- Edges: 23637
-- Communities: 348
-
 ## Build Results
 
 - Application: PASS
