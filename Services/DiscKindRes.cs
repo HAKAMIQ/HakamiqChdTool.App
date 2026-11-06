@@ -1,5 +1,4 @@
 using HakamiqChdTool.App.Models;
-using HakamiqChdTool.App.Models.Chd;
 using System;
 
 namespace HakamiqChdTool.App.Services;
@@ -9,42 +8,52 @@ internal static class DiscMediaKindResolver
     internal const long SafeCdIsoUpperBoundBytes = 800L * 1024L * 1024L;
     internal const long SafeDvdIsoUpperBoundBytes = 9L * 1024L * 1024L * 1024L;
     private const string DiscProbePspStructureReasonKey = "LocDiscProbe_PspStructure";
+    private const string DiscProbePs2SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs2Boot2";
     private const string DiscProbePs1SystemCnfReasonKey = "LocDiscProbe_SystemCnfPs1Hint";
     private const string DiscProbePs3BluRayStructureReasonKey = "LocDiscProbe_Ps3BluRayStructure";
 
     public static DiscMediaKind ResolveIsoMediaKind(
         PlatformDetectionResult detection,
         long fileLengthBytes)
-        => (DiscMediaKind)ResolveIsoMediaDecision(detection, fileLengthBytes).Kind;
-
-    public static DiscMediaDecision ResolveIsoMediaDecision(PlatformDetectionResult detection, long fileLengthBytes)
     {
         if (fileLengthBytes <= 0)
         {
-            return default;
+            return DiscMediaKind.Unknown;
         }
 
-        string? reason = detection.Reason;
+        DiscMediaKind structureKind = ResolveFromDiscProbeReason(detection.Reason, fileLengthBytes);
+        if (structureKind != DiscMediaKind.Unknown)
+        {
+            return structureKind;
+        }
+
+        return ResolveFromIsoLength(fileLengthBytes);
+    }
+
+    private static DiscMediaKind ResolveFromDiscProbeReason(string? reason, long fileLengthBytes)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return DiscMediaKind.Unknown;
+        }
+
         if (string.Equals(reason, DiscProbePs1SystemCnfReasonKey, StringComparison.Ordinal))
         {
-            return new(DiscMediaClassification.CdRom, DiscMediaDecisionSource.Structure, DiscMediaStructure.Ps1);
+            return DiscMediaKind.CdRom;
         }
 
-        if (string.Equals(reason, DiscProbePspStructureReasonKey, StringComparison.Ordinal))
+        if (string.Equals(reason, DiscProbePspStructureReasonKey, StringComparison.Ordinal)
+            || string.Equals(reason, DiscProbePs3BluRayStructureReasonKey, StringComparison.Ordinal))
         {
-            return new(DiscMediaClassification.DvdRom, DiscMediaDecisionSource.Structure, DiscMediaStructure.Psp);
+            return DiscMediaKind.DvdRom;
         }
 
-        if (string.Equals(reason, DiscProbePs3BluRayStructureReasonKey, StringComparison.Ordinal))
+        if (string.Equals(reason, DiscProbePs2SystemCnfReasonKey, StringComparison.Ordinal))
         {
-            return new(DiscMediaClassification.DvdRom, DiscMediaDecisionSource.Structure, DiscMediaStructure.Ps3);
+            return ResolveFromIsoLength(fileLengthBytes);
         }
 
-        // PS2 SYSTEM.CNF and unrecognized reasons both fall back to size.
-        DiscMediaKind kind = ResolveFromIsoLength(fileLengthBytes);
-        return kind == DiscMediaKind.Unknown
-            ? default
-            : new((DiscMediaClassification)kind, DiscMediaDecisionSource.SizeFallback, DiscMediaStructure.None);
+        return DiscMediaKind.Unknown;
     }
 
     private static DiscMediaKind ResolveFromIsoLength(long fileLengthBytes)

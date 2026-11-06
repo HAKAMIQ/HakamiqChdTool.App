@@ -77,12 +77,6 @@ internal static partial class Program
                 return 0;
             }
 
-            if (uiTest == "conversion-media-reason")
-            {
-                ConversionMediaReasonUiTests.RunIsolated();
-                return 0;
-            }
-
             return RunIsolatedUiTest(uiTest, ReadRequiredArgument(args, "--work-dir"));
         }
 
@@ -107,17 +101,6 @@ internal static partial class Program
             [
                 new("Redump CSO consent and compliance preserve conversion state", () => RunIsolatedUiChild("redump-cso-consent", workDirectory)),
                 new("Redump CSO V2 verifies real decompressed content and cleans up", () => TestRedumpCsoV2(app, workDirectory).GetAwaiter().GetResult()),
-                new("Conversion media reason UI renders in both languages", ConversionMediaReasonUiTests.RendersReasonsInArabicAndEnglish),
-                new("Disc media decision resolver branches and boundaries", DiscMediaDecisionTests.ResolverBranchesAndBoundaries),
-                new("Disc media diagnostics and preview propagation", () => DiscMediaDecisionTests.DiagnosticsAndPreviewPropagation(workDirectory)),
-                new("Descriptor evidence propagation", () => DiscMediaDecisionTests.DescriptorPropagation(workDirectory)),
-                new("Conversion decision preview matches planner and capability snapshot", () => ConversionDecisionPreviewTests.PreviewUsesPlannerAndCapabilitySnapshot(workDirectory)),
-                new("Conversion decision preview carries output path and verify setting", () => ConversionDecisionPreviewTests.OutputAndVerifyReflectSettings(workDirectory)),
-                new("CSO conversion preview does not prepare input", () => ConversionDecisionPreviewTests.CsoPreviewDoesNotPrepareInput(workDirectory)),
-                new("Archive conversion preview defers extraction", () => ConversionDecisionPreviewTests.ArchivePreviewIsDeferredAndDoesNotExtract(workDirectory)),
-                new("Capability probe failure remains informational", () => ConversionDecisionPreviewTests.CapabilityFailureDoesNotBlockPreview(workDirectory)),
-                new("Unsupported input returns an advisory result", () => ConversionDecisionPreviewTests.UnsupportedInputReturnsInformationalResult(workDirectory)),
-                new("Conversion preview panel is optional and collapsed", ConversionDecisionPreviewTests.PreviewPanelIsOptionalAndCollapsedByDefault),
                 new("SYSTEM.CNF is read from ISO 2048", () => TestIsoSystemCnfScan(app, workDirectory)),
                 new("SYSTEM.CNF is read from CUE referenced raw BIN", () => TestCueReferencedRawBinScan(app, workDirectory)),
                 new("PS2 detector prefers SYSTEM.CNF over path hints", () => TestDetectorUsesSystemCnf(app, workDirectory)),
