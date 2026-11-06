@@ -35,37 +35,7 @@
                   ClipToBounds="True">
 
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <Expander x:Name="ConversionDecisionPreviewPanel"
-                              Grid.Row="0"
-                              IsExpanded="False"
-                              Header="{DynamicResource LocConversionPreview_Header}"
-                              Margin="{DynamicResource Inset.12.8}"
-                              Background="{DynamicResource Brush.Layer.Surface}"
-                              Foreground="{DynamicResource Brush.Text.Primary}">
-                        <Grid Margin="{DynamicResource Inset.8.All}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Button Grid.Row="0"
-                                    HorizontalAlignment="Left"
-                                    Click="PreviewConversionDecision_Click"
-                                    Content="{DynamicResource LocConversionPreview_Refresh}" />
-                            <TextBlock x:Name="ConversionDecisionPreviewText"
-                                       Grid.Row="1"
-                                       Margin="{DynamicResource Inset.0.8.0.0}"
-                                       TextWrapping="Wrap"
-                                       Text="{DynamicResource LocConversionPreview_SelectInput}" />
-                        </Grid>
-                    </Expander>
-
                     <Rectangle x:Name="DropZoneDashedFrame"
-                               Grid.Row="1"
                                Margin="{DynamicResource Inset.12.All}"
                                RadiusX="10"
                                RadiusY="10"
@@ -88,7 +58,6 @@
                     </Rectangle>
 
                     <main:QueueListView x:Name="QueueListSection"
-                                        Grid.Row="1"
                                         TaskGridDrop="ForwardWorkspaceDrop"
                                         TasksLoadingRow="ForwardTasksLoadingRow"
                                         TasksUnloadingRow="ForwardTasksUnloadingRow"
@@ -99,7 +68,6 @@
                                         QueueContextMenuOpened="ForwardQueueContextMenuOpened" />
 
                     <Border x:Name="EmptyQueueDropHint"
-                            Grid.Row="1"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Panel.ZIndex="{DynamicResource Panel.ZIndex.Overlay}"
@@ -123,7 +91,6 @@
                 </Grid>
 
                 <Border x:Name="DropHighlightOverlay"
-                        Grid.Row="1"
                         Margin="{DynamicResource Inset.12.All}"
                         Background="{DynamicResource Brush.Accent}"
                         CornerRadius="{DynamicResource Radius.Card.Large}"
