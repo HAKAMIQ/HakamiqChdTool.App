@@ -59,6 +59,14 @@ unchanged.
 - The decoded data must match the checksum stored in the file; damaged or
   truncated files are refused before chdman runs. A CUE covered by `.ecm`
   tracks is queued once.
+### Dreamcast GD-ROM extraction to GDI
+
+- **Behavior change:** a CHD whose metadata marks it as a GD-ROM now extracts
+  to GDI (one file per track) instead of CUE/BIN. CD CHDs are unchanged. The
+  new setting "Extract Dreamcast GD-ROM to CUE/BIN" keeps the old output.
+- The GDI set is published like CUE/BIN: tracks renamed to the output name,
+  the GDI written last, no overwrite without permission, rollback on failure,
+  and the extraction proof rebuilds a CHD from the GDI and compares the SHA-1.
 ### CsoKit 0.6.6
 
 - Updated the bundled CsoKit from 0.6.3 to the official 0.6.6 release (source
@@ -93,7 +101,7 @@ unchanged.
 
 ### Validation
 
-- Application tests: 223 passed, 0 failed, 4 skipped in a non-elevated run;
+- Application tests: 228 passed, 0 failed, 4 skipped in a non-elevated run;
   the skipped tests are the symbolic-link tests, which need administrator
   rights.
   New tests cover each format's refusal rules and real round trips through the

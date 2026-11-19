@@ -18,7 +18,7 @@ available in Arabic and English, with light and dark themes.
   hard-disk images, or from a ZIP, 7Z or RAR that holds one disc image.
 - **Verify** existing CHD files, with optional Redump DAT matching that you
   provide.
-- **Extract** CHD back to CUE/BIN (CD and GD-ROM), ISO (DVD) or IMG (hard disk).
+- **Extract** CHD back to CUE/BIN (CD), GDI (Dreamcast GD-ROM), ISO (DVD) or IMG (hard disk).
 - **Batch queue** with progress, cancel and retry for single files or whole
   folders.
 - **Checks before work starts**: unreadable files, unsafe CUE paths, missing
