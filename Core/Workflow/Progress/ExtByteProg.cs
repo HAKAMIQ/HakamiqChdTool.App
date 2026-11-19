@@ -59,11 +59,12 @@ internal sealed class ExtractionOutputByteProgressEstimator
     private long CaptureCurrentBytes() => _contract.Kind switch
     {
         ExtractionOutputKind.SingleFile => TryGetFileLength(_contract.PendingPrimaryPath),
-        ExtractionOutputKind.CueBinBundle => TryGetCueBinWorkspaceBytes(_contract.PendingPrimaryPath),
+        ExtractionOutputKind.CueBinBundle => TryGetCueBinWorkspaceBytes(_contract.PendingPrimaryPath, gdi: false),
+        ExtractionOutputKind.GdiBundle => TryGetCueBinWorkspaceBytes(_contract.PendingPrimaryPath, gdi: true),
         _ => 0L
     };
 
-    private static long TryGetCueBinWorkspaceBytes(string pendingCuePath)
+    private static long TryGetCueBinWorkspaceBytes(string pendingCuePath, bool gdi)
     {
         try
         {
@@ -79,8 +80,13 @@ internal sealed class ExtractionOutputByteProgressEstimator
             {
                 string extension = Path.GetExtension(path);
 
-                if (!string.Equals(extension, ".cue", StringComparison.OrdinalIgnoreCase) &&
-                    !string.Equals(extension, ".bin", StringComparison.OrdinalIgnoreCase))
+                bool counted = gdi
+                    ? extension.Equals(".gdi", StringComparison.OrdinalIgnoreCase)
+                      || extension.Equals(".bin", StringComparison.OrdinalIgnoreCase)
+                      || extension.Equals(".raw", StringComparison.OrdinalIgnoreCase)
+                    : extension.Equals(".cue", StringComparison.OrdinalIgnoreCase)
+                      || extension.Equals(".bin", StringComparison.OrdinalIgnoreCase);
+                if (!counted)
                 {
                     continue;
                 }

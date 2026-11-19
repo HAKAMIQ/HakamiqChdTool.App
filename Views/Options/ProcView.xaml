@@ -254,6 +254,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0"
@@ -367,7 +368,7 @@
                         </Border>
 
                         <Border Grid.Row="4"
-                                Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
+                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -400,6 +401,30 @@
                             </Grid>
                         </Border>
 
+                        <Border Grid.Row="5"
+                                Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
+                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <CheckBox Grid.Column="0"
+                                          IsChecked="{Binding ExtractGdRomAsCueBin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Style="{StaticResource Win11SettingsCheckBox}"
+                                          ToolTip="{DynamicResource LocConversion_ExtractGdRomAsCueBinDesc}"
+                                          AutomationProperties.Name="{DynamicResource LocConversion_ExtractGdRomAsCueBin}" />
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <TextBlock Text="{DynamicResource LocConversion_ExtractGdRomAsCueBin}"
+                                               ToolTip="{DynamicResource LocConversion_ExtractGdRomAsCueBinDesc}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
+                                </Grid>
+                            </Grid>
+                        </Border>
 
 
                     </Grid>
