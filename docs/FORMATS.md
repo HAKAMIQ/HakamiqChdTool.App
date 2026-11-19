@@ -55,6 +55,26 @@ The app refuses, before chdman runs:
 
 Subchannel data (`.sub`) is not kept in the CHD. Copy protections that depend on it (for example LibCrypt or SafeDisc) will not survive the conversion.
 
+## Alcohol 120% (MDS/MDF)
+
+Add the `.mds` file. The `.mdf` holds the sector data and stays out of the queue on its own.
+
+The app reads the `.mds` (version 1) and checks that the `.mdf` matches it exactly before chdman runs:
+
+- A CD is converted with `createcd` through a temporary CUE. Raw 2352-byte images and 2048-byte Mode 1 images are supported. Images with 96 bytes of subchannel data after each sector (2448-byte sectors) are rewritten to 2352-byte sectors in the temp workspace first, after a free-space check.
+- A DVD `.mdf` is a plain 2048-byte image and is converted with `createdvd`.
+
+The `.mdf` is hard-linked into the temp workspace when it is on the same drive and writable; otherwise it is copied there. Nothing is written to the source folder, and the source files are not modified.
+
+The app refuses, before chdman runs:
+
+- MDS version 2 and MDX files,
+- more than one session,
+- tracks with different sector sizes, or sector sizes other than 2352, 2448 or 2048,
+- an `.mdf` that is missing, outside the `.mds` folder, split into several files, or whose size does not match the descriptor,
+- gaps between tracks, or track offsets that do not match their position on the disc.
+
+Subchannel data is not kept in the CHD. Copy protections that depend on it will not survive the conversion. MDS inside archives and source cleanup after conversion are not supported yet.
 ## NRG and CDI
 
 NRG is accepted only where the current workflow can handle it safely.
