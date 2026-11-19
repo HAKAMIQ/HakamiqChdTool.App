@@ -6,7 +6,7 @@ GitHub Releases remain the public download history.
 
 ## v1.6.0 - 2026-11-19
 
-Adds three input formats and updates the bundled CsoKit. Existing CD/DVD
+Adds four input formats and updates the bundled tools. Existing CD/DVD
 conversion defaults, queue run/cancel/retry behavior and output naming are
 unchanged.
 
@@ -42,6 +42,15 @@ unchanged.
 - Subchannel data (`.sub`) is not kept, so copy protections that depend on it
   do not survive the conversion.
 
+### Alcohol 120% (MDS/MDF)
+
+- Adding an `.mds` converts the Alcohol 120% image: a CD through a temporary
+  CUE with `createcd`, a DVD with `createdvd`. Raw 2352-byte, 2048-byte Mode 1
+  and 2448-byte images with subchannel data are supported; subchannel data is
+  dropped in the temp workspace and not kept in the CHD.
+- MDS version 2/MDX, multiple sessions, mixed or unsupported sector sizes, a
+  missing, split or mismatched `.mdf`, and gaps between tracks are refused
+  before chdman runs. Nothing is written to the source folder.
 ### CsoKit 0.6.6
 
 - Updated the bundled CsoKit from 0.6.3 to the official 0.6.6 release (source
@@ -76,12 +85,13 @@ unchanged.
 
 ### Validation
 
-- Application tests: 212 passed, 0 failed, 4 skipped in a non-elevated run;
+- Application tests: 218 passed, 0 failed, 4 skipped in a non-elevated run;
   the skipped tests are the symbolic-link tests, which need administrator
   rights.
   New tests cover each format's refusal rules and real round trips through the
   bundled tools (createhd/extracthd, ZSO and maxcso-layout CSO through CsoKit
-  and createdvd/extractdvd, CloneCD through createcd/extractcd), each compared
+  and createdvd/extractdvd, CloneCD and Alcohol MDS/MDF through createcd/extractcd
+  and createdvd/extractdvd), each compared
   by SHA-256 or byte for byte.
 - Repository convention, local verification and end-user release output gates
   passed.
