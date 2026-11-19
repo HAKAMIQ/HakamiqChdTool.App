@@ -4,12 +4,12 @@ Last reviewed: 2026-11-19.
 
 ## igir
 
-- Version: 5.7.2 (optional; fetched by `scripts/FetchIgir.ps1` because the executable exceeds the 50 MB repository binary limit)
-- Upstream release: <https://github.com/emmercm/igir/releases/tag/v5.7.2>
-- ZIP SHA-256: `7E448AE8E34377A8829E33C949B07A09613CB3A0DAD2B4325CA9BB52CF8D7584`
-- `Tools/igir/win-x64/igir.exe` SHA-256: `716ECBD7033081FC000A51FBD0588FEE6C1F1E95DAB1EFD6443324BC73597511`
-- Observed executable size: 92,256,256 bytes.
-- Command verification: executable reported `v5.7.2 (Bun v1.4.2)`; help lists `report`, `--dat`, `--input`, `--report-output`, `--cache-path`, `--temp-dir`, `--input-checksum-min/max`, `--reader-threads`, and `--dat-threads`.
+- Version: 5.8.1 (optional; fetched by `scripts/FetchIgir.ps1` because the executable exceeds the 50 MB repository binary limit)
+- Upstream release: <https://github.com/emmercm/igir/releases/tag/v5.8.1>
+- ZIP SHA-256: `48025BACCB4EE564B6DDA4B3AA65C9B90AB01340C2A43773FA506DC880D013F2`
+- `Tools/igir/win-x64/igir.exe` SHA-256: `F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1`
+- Observed executable size: 121,495,552 bytes.
+- Command verification: executable reported `v5.8.1 (Bun v1.4.4)`; help lists `report`, `--dat`, `--input`, `--report-output`, `--cache-path`, `--temp-dir`, `--input-checksum-min/max`, `--reader-threads`, and `--dat-threads`.
 
 ## chdman
 

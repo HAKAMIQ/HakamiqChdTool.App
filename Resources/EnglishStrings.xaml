@@ -1751,7 +1751,7 @@ Path:
     <sys:String x:Key="LocExternalTools_IgirStatusChecking">Checking...</sys:String>
     <sys:String x:Key="LocExternalTools_IgirSelect">Select igir.exe</sys:String>
     <sys:String x:Key="LocExternalTools_IgirToolFilter">igir (igir.exe)|igir.exe|Executable files (*.exe)|*.exe</sys:String>
-    <sys:String x:Key="LocExternalTools_IgirInvalid">Select the official igir.exe v5.7.2 with the approved SHA-256 digest.</sys:String>
+    <sys:String x:Key="LocExternalTools_IgirInvalid">Select the official igir.exe v5.8.1 with the approved SHA-256 digest.</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">Note</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">The CHD file could not be verified.&#x0A;It may be damaged, incomplete, or in an unsupported format.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">Note</sys:String>
@@ -1816,7 +1816,7 @@ Path:
     <sys:String x:Key="LocLib_Err_NoOutput">Enter the proposed organization folder.</sys:String>
     <sys:String x:Key="LocLib_Err_OutputNotAbsolute">The proposed folder must be a full path.</sys:String>
     <sys:String x:Key="LocLib_Err_Unexpected">Analysis stopped unexpectedly. Check the log for details.</sys:String>
-    <sys:String x:Key="LocLib_IgirMissing">igir is unavailable or did not pass the SHA-256 and v5.7.2 checks.</sys:String>
+    <sys:String x:Key="LocLib_IgirMissing">igir is unavailable or did not pass the SHA-256 and v5.8.1 checks.</sys:String>
     <sys:String x:Key="LocLib_IgirFailed">The igir report failed. Recheck the tool and try again.</sys:String>
     <sys:String x:Key="LocLib_Status_Verified">Verified</sys:String>
     <sys:String x:Key="LocLib_Status_Candidate">Candidate (not verified)</sys:String>

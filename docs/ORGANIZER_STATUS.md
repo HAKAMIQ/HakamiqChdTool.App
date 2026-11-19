@@ -21,7 +21,7 @@ Execute/Journal/Undo actions, and report-only igir integration are present.
   fails. Recovery-required journal states remain visible for inspection.
 - Library window Execute, Journal, Undo, and optional igir report actions use
   Arabic/English resources. Execute and Undo require localized confirmation.
-- Optional igir v5.7.2 integration is report-only. `IgirArgs` allow-lists
+- Optional igir v5.8.1 integration is report-only. `IgirArgs` allow-lists
   arguments, `IgirToolLocator` verifies the pinned SHA-256, and the bounded CSV
   parser retains raw ROM file lists and rejects unknown status values.
 
@@ -36,6 +36,13 @@ Execute/Journal/Undo actions, and report-only igir integration are present.
 - The final self-contained ZIP was extracted and launched. Its WPF igir action
   launched official igir v5.7.2 against the isolated synthetic ISO and XML DAT;
   the displayed CSV contained `FOUND Synthetic PlayStation acceptance`.
+- 2026-11-19, igir v5.8.1: the official executable was run with the exact
+  `IgirArgs` report arguments against a synthetic ISO, ZIP copy, stray file
+  and XML DAT, side by side with v5.7.2. Both produced byte-identical CSV
+  columns and rows (FOUND, MISSING, DUPLICATE, UNUSED), wrote only the report
+  and cache in the run directory, created nothing in `%TEMP%`, and left the
+  library files unchanged (SHA-256 before/after). The release ZIP was not
+  launched again with v5.8.1.
 - Missing/tampered igir paths, invalid report columns/status, and process failure
   are covered by the custom test runner. The WPF run with the mixed synthetic
   media DAT/library also surfaced the native igir process exit failure; no
