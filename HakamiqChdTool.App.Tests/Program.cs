@@ -306,6 +306,7 @@ internal static partial class Program
                 new("ZSO planning expands to ISO then uses createdvd", () => TestZsoPlannerExpandsThenCreatesDvd(workDirectory)),
                 new("ZSO needs CsoKit 0.6.4+ and a ZSO detect result", TestZsoToolVersionAndDetectParsing),
                 new("ZSO round-trips through bundled CsoKit and chdman; damaged ZSO is refused", () => TestZsoRoundTripWithBundledTools(app, workDirectory)),
+                new("maxcso 16 KB-block CSO round-trips through bundled CsoKit and chdman", () => TestMaxcsoLargeBlockCsoConverts(app, workDirectory)),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),
