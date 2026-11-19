@@ -345,7 +345,7 @@ internal static class ChdConversionServiceSupport
             return ChdProfileMediaKind.DvdRom;
         }
 
-        if (extension is ".cue" or ".gdi" or ".toc" or ".nrg" or ".bin")
+        if (extension is ".cue" or ".gdi" or ".toc" or ".nrg" or ".bin" or ".ccd")
         {
             return ChdProfileMediaKind.CdRom;
         }
@@ -416,6 +416,7 @@ internal static class ChdConversionServiceSupport
             ".nrg" => ChdMediaFormatKind.Nrg,
             ".cso" => ChdMediaFormatKind.Cso,
             ".zso" => ChdMediaFormatKind.Zso,
+            ".ccd" => ChdMediaFormatKind.Ccd,
             ".bin" when string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase) => ChdMediaFormatKind.Cue,
             ".img" or ".hdd" when string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase) => ChdMediaFormatKind.HardDisk,
             ".chd" => ChdMediaFormatKind.Chd,
