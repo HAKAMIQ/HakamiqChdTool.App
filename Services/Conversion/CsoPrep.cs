@@ -60,7 +60,7 @@ public sealed record CsoPreprocessResult(
     long? EstimatedIsoBytes = null,
     long? AvailableTempBytes = null);
 
-public sealed class CsoPreprocessor : ICsoPreprocessor
+public sealed partial class CsoPreprocessor : ICsoPreprocessor
 {
     public const string ToolName = "CsoKit";
     public const string ToolExecutableName = "csokit.exe";
@@ -104,6 +104,11 @@ public sealed class CsoPreprocessor : ICsoPreprocessor
         CancellationToken cancellationToken,
         Func<string, Task>? progress = null)
     {
+        if (IsZsoPath(inputCsoPath))
+        {
+            return await PreprocessZsoAsync(inputCsoPath, temporaryIsoPath, cancellationToken).ConfigureAwait(false);
+        }
+
         string inputPath = NormalizeExistingCsoPath(inputCsoPath);
         string outputPath = NormalizeTemporaryIsoPath(temporaryIsoPath);
         EnsureTemporaryOutputReady(outputPath);
