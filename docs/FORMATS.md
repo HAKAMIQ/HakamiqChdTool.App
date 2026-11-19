@@ -53,7 +53,7 @@ The app refuses, before chdman runs:
 - a missing `.img`, or one whose size is not a multiple of 2352 bytes,
 - track numbers that are not consecutive, or indexes that do not move forward or run past the end of the image.
 
-Subchannel data (`.sub`) is not kept in the CHD. Copy protections that depend on it (for example LibCrypt or SafeDisc) will not survive the conversion.
+Subchannel data (`.sub`) is not kept in the CHD. Copy protections that depend on it (for example LibCrypt or SafeDisc) will not survive the conversion. For the same reason, "Delete source files after successful conversion and verification" keeps the whole CloneCD set when a `.sub` exists, unless an identical copy of it sits next to the CHD; otherwise it deletes the `.img` and then the `.ccd`.
 
 ## Alcohol 120% (MDS/MDF)
 
@@ -74,7 +74,7 @@ The app refuses, before chdman runs:
 - an `.mdf` that is missing, outside the `.mds` folder, split into several files, or whose size does not match the descriptor,
 - gaps between tracks, or track offsets that do not match their position on the disc.
 
-Subchannel data is not kept in the CHD. Copy protections that depend on it will not survive the conversion. MDS inside a ZIP, 7Z or RAR archive is extracted together with its `.mdf` and converted the same way. Source cleanup after conversion is not supported yet.
+Subchannel data is not kept in the CHD. Copy protections that depend on it will not survive the conversion. MDS inside a ZIP, 7Z or RAR archive is extracted together with its `.mdf` and converted the same way. Source cleanup after a verified conversion deletes the `.mdf` and then the `.mds`, except when the `.mdf` holds subchannel data; then the set is kept.
 ## ECM (.bin.ecm / .img.ecm)
 
 ECM removes the error-correction data from CD sectors to make BIN images smaller. The app rebuilds it and converts the result with `createcd`.
@@ -84,7 +84,7 @@ ECM removes the error-correction data from CD sectors to make BIN images smaller
 
 Every `.ecm` is decoded into the temp workspace and must match the checksum stored at the end of the file. A damaged or truncated `.ecm` stops before chdman runs. Nothing is written to the source folder, and the source files are not modified.
 
-Only `.bin.ecm` and `.img.ecm` are accepted. Inside a ZIP, 7Z or RAR archive, a CUE may name tracks that are stored as `.ecm`; the set is extracted and converted the same way. Source cleanup after conversion is not supported yet.
+Only `.bin.ecm` and `.img.ecm` are accepted. Inside a ZIP, 7Z or RAR archive, a CUE may name tracks that are stored as `.ecm`; the set is extracted and converted the same way. Source cleanup after a verified conversion deletes the `.ecm` and plain tracks and then the `.cue`; an `.sbi` is kept unless an identical copy sits next to the CHD.
 ## NRG and CDI
 
 NRG is accepted only where the current workflow can handle it safely.
@@ -134,7 +134,7 @@ ZSO (LZ4-compressed ISO, used by OPL for PS2 and by some PSP tools) is accepted 
 
 CsoKit's `info` and shallow `verify` are CSO-only, so the app reads the declared size with `detect`, lets `decompress` reject damaged data, and requires the temporary ISO to be exactly the declared size. A damaged or truncated ZSO stops before chdman runs. An external CsoKit older than 0.6.4 is refused for ZSO with a message.
 
-ZSO inside a ZIP, 7Z or RAR archive is extracted first and converted the same way. Source cleanup after a ZSO conversion is not supported yet.
+ZSO inside a ZIP, 7Z or RAR archive is extracted first and converted the same way. Source cleanup after a verified conversion deletes the `.zso`.
 
 ## PS2 disc images
 

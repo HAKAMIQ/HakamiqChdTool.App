@@ -1,4 +1,5 @@
 using HakamiqChdTool.App.Core.Disc;
+using HakamiqChdTool.App.Core.Input;
 using HakamiqChdTool.App.Services;
 using Serilog;
 using System;
@@ -170,9 +171,24 @@ internal sealed partial class WorkflowSourceCleanupPipeline
 
         string extension = Path.GetExtension(sourcePath).ToLowerInvariant();
 
-        if (extension is ".zip" or ".rar" or ".7z" or ".iso" or ".cso" or ".nrg")
+        if (extension is ".zip" or ".rar" or ".7z" or ".iso" or ".cso" or ".zso" or ".nrg")
         {
             return SingleFileCandidate(sourcePath);
+        }
+
+        if (extension == ".ccd")
+        {
+            return BuildCloneCdSourceSetCandidates(sourcePath, outputPath);
+        }
+
+        if (extension == ".mds")
+        {
+            return BuildAlcoholSourceSetCandidates(sourcePath);
+        }
+
+        if (extension == ".ecm")
+        {
+            return BuildEcmSourceSetCandidates(sourcePath, outputPath);
         }
 
         if (extension is ".cue" or ".gdi" or ".toc")
@@ -204,6 +220,104 @@ internal sealed partial class WorkflowSourceCleanupPipeline
         }
 
         return SingleFileCandidate(sourcePath);
+    }
+
+    // CloneCD: the .img and the .ccd. The CHD does not keep the .sub subchannel data, so a .sub is
+    // only removed when an identical copy sits next to the output; otherwise the whole set is kept.
+    private SourceCleanupCandidate[] BuildCloneCdSourceSetCandidates(string ccdPath, string outputPath)
+    {
+        string imagePath = Path.ChangeExtension(ccdPath, ".img");
+        string subPath = Path.ChangeExtension(ccdPath, ".sub");
+        if (!File.Exists(imagePath))
+        {
+            _log.Warning("Source cleanup skipped the CloneCD set because its .img is missing. Ccd={Ccd}", ccdPath);
+            return [];
+        }
+
+        List<SourceCleanupCandidate> candidates = [new(imagePath, IsDescriptor: false)];
+        if (File.Exists(subPath))
+        {
+            if (HasReparsePointInExistingPathFromVolumeRoot(subPath) || !IsSidecarCopiedNextToOutput(subPath, outputPath))
+            {
+                _log.Information(
+                    "Source cleanup kept the CloneCD set because its .sub subchannel data is not stored in the CHD. Ccd={Ccd}",
+                    ccdPath);
+                return [];
+            }
+
+            candidates.Add(new SourceCleanupCandidate(subPath, IsDescriptor: false));
+        }
+
+        candidates.Add(new SourceCleanupCandidate(ccdPath, IsDescriptor: true));
+        return [.. candidates];
+    }
+
+    // Alcohol 120%: the .mdf and the .mds, unless the .mdf carries subchannel data the CHD does not keep.
+    private SourceCleanupCandidate[] BuildAlcoholSourceSetCandidates(string mdsPath)
+    {
+        AlcoholMdsParseResult parsed = AlcoholMdsCueBuilder.Parse(mdsPath);
+        if (!parsed.IsValid || parsed.Layout is null)
+        {
+            _log.Warning("Source cleanup skipped the Alcohol set because its .mds could not be read. Mds={Mds}", mdsPath);
+            return [];
+        }
+
+        if (parsed.Layout.SectorFormat == AlcoholMdsSectorFormat.Raw2352WithSubchannel)
+        {
+            _log.Information(
+                "Source cleanup kept the Alcohol set because its subchannel data is not stored in the CHD. Mds={Mds}",
+                mdsPath);
+            return [];
+        }
+
+        return
+        [
+            new SourceCleanupCandidate(parsed.Layout.ImagePath, IsDescriptor: false),
+            new SourceCleanupCandidate(mdsPath, IsDescriptor: true)
+        ];
+    }
+
+    // ECM: a standalone .ecm, or the whole CUE set (compressed and plain tracks, an .sbi copied next to
+    // the output, then the CUE).
+    private SourceCleanupCandidate[] BuildEcmSourceSetCandidates(string ecmPath, string outputPath)
+    {
+        string? cuePath = EcmEvidence.FindReferencingCue(ecmPath);
+        if (cuePath is null)
+        {
+            return EcmEvidence.TryGetDecodedName(ecmPath, out _) ? SingleFileCandidate(ecmPath) : [];
+        }
+
+        EcmCueSet? set = EcmEvidence.TryReadCueSet(cuePath);
+        if (set is null)
+        {
+            _log.Warning("Source cleanup skipped the ECM set because its CUE could not be resolved. Cue={Cue}", cuePath);
+            return [];
+        }
+
+        List<SourceCleanupCandidate> candidates = [];
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+        foreach (EcmCueTrackFile file in set.Files)
+        {
+            string path = file.EcmPath ?? file.PlainPath!;
+            if (seen.Add(path))
+            {
+                candidates.Add(new SourceCleanupCandidate(path, IsDescriptor: false));
+            }
+        }
+
+        foreach (string sidecarPath in EnumerateDescriptorSidecarPaths(set.CuePath))
+        {
+            if (File.Exists(sidecarPath)
+                && !HasReparsePointInExistingPathFromVolumeRoot(sidecarPath)
+                && IsSidecarCopiedNextToOutput(sidecarPath, outputPath)
+                && seen.Add(sidecarPath))
+            {
+                candidates.Add(new SourceCleanupCandidate(sidecarPath, IsDescriptor: false));
+            }
+        }
+
+        candidates.Add(new SourceCleanupCandidate(set.CuePath, IsDescriptor: true));
+        return [.. candidates];
     }
 
     private SourceCleanupCandidate[] BuildDescriptorSourceSetCandidates(string descriptorPath, string outputPath)

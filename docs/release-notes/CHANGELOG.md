@@ -23,6 +23,8 @@ unchanged.
 - Dreamcast GD-ROM CHDs extract to GDI; a Settings option keeps CUE/BIN.
 - ZSO, CloneCD, Alcohol 120% and ECM images also convert from inside ZIP, 7Z
   and RAR archives.
+- Deleting the source after a verified conversion now also covers ZSO, CloneCD,
+  Alcohol 120% and ECM sets, and keeps sets whose subchannel data the CHD lacks.
 - CSO files that maxcso made for large images now convert.
 - Updated the bundled CsoKit to 0.6.6 and 7-Zip to 26.06.
 - The optional igir report now uses igir v5.8.1.
@@ -48,7 +50,7 @@ unchanged.
 - ZSO inside ZIP, 7Z and RAR archives is extracted and converted the same way.
 - CloneCD and Alcohol 120% images inside archives are extracted with their
   `.img`/`.mdf`; an archived CUE may name tracks stored as `.bin.ecm`.
-  Source cleanup after a ZSO conversion is not supported yet.
+  Source cleanup after a verified ZSO conversion deletes the `.zso`.
 
 ### CloneCD
 
@@ -126,7 +128,7 @@ unchanged.
 
 ### Validation
 
-- Application tests: 229 passed, 0 failed, 4 skipped in a non-elevated run;
+- Application tests: 230 passed, 0 failed, 4 skipped in a non-elevated run;
   the skipped tests are the symbolic-link tests, which need administrator
   rights.
   New tests cover each format's refusal rules and real round trips through the
