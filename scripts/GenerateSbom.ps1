@@ -152,14 +152,14 @@ $bundledTools = @(
     },
     [ordered]@{
         type = 'application'
-        'bom-ref' = 'pkg:generic/7-zip@26.02'
+        'bom-ref' = 'pkg:generic/7-zip@26.06'
         name = '7-Zip'
-        version = '26.02'
+        version = '26.06'
         hashes = @(
-            [ordered]@{ alg = 'SHA-256'; content = '83967F1B02B43C4EFEDA302795722C809E0E81B8307DE73558D10484D5676A7D' },
-            [ordered]@{ alg = 'SHA-256'; content = '69FD4DF057985C40E510E2FAC182881C7F85E90AA13EC703F763A8FDB2CE61F8' }
+            [ordered]@{ alg = 'SHA-256'; content = 'DC0493429FE28136FCB177A0E77C9875CBB3B0BFF5F2F8EEBA4DF302E98CEF76' },
+            [ordered]@{ alg = 'SHA-256'; content = '500DB9EB17F3C21B729BA41DD02ECFE1823DA05028C7E4BA129084CC74CC364E' }
         )
-        externalReferences = @([ordered]@{ type = 'distribution'; url = 'https://github.com/ip7z/7zip/releases/tag/26.02' })
+        externalReferences = @([ordered]@{ type = 'distribution'; url = 'https://github.com/ip7z/7zip/releases/tag/26.06' })
     },
     [ordered]@{
         type = 'application'

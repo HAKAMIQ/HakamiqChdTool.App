@@ -199,6 +199,7 @@ internal static partial class Program
                 new("Extraction refuses a non-empty destination", () => TestExtractionRefusesNonEmptyDestinationAndKeepsUserFiles(workDirectory)),
                 new("Descriptor read does not expand wildcard entries", () => TestDescriptorReadDoesNotExpandWildcardEntry(workDirectory)),
                 new("Redump sync holds an active lease until cancelled", () => TestRedumpSyncHoldsAnActiveLeaseUntilCancelled(workDirectory)),
+                new("Bundled 7-Zip matches its pinned digests and release", TestBundledSevenZipMatchesPinnedDigests),
                 new("Real extraction does not expand wildcard references", () => TestRealExtractionDoesNotExpandWildcardReferences(workDirectory)),
                 new("Real extraction honours cancellation", () => TestRealExtractionHonoursCancellation(workDirectory)),
                 new("Queue batch respects the operation-mode filter", () => TestQueueBatchRespectsOperationModeFilter(workDirectory)),
