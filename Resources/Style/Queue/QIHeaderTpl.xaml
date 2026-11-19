@@ -121,23 +121,36 @@
                              RenderTransformOrigin="0.5,0.5"
                              Visibility="{Binding ShowRuntimeActivitySpinner, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Ellipse.RenderTransform>
-                            <RotateTransform x:Name="QueueRuntimeSpinnerRotate"
-                                             Angle="0" />
+                            <RotateTransform Angle="0" />
                         </Ellipse.RenderTransform>
 
-                        <Ellipse.Triggers>
-                            <EventTrigger RoutedEvent="Loaded">
-                                <BeginStoryboard>
-                                    <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimation Storyboard.TargetName="QueueRuntimeSpinnerRotate"
-                                                         Storyboard.TargetProperty="Angle"
-                                                         From="0"
-                                                         To="360"
-                                                         Duration="0:0:1.1" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </Ellipse.Triggers>
+                        <!-- Spin only while the spinner is shown and Windows animations are on; stop when it hides
+                             (rows are recycled, so a Loaded trigger kept spinning for hidden rows). -->
+                        <Ellipse.Style>
+                            <Style TargetType="{x:Type Ellipse}">
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding ShowRuntimeActivitySpinner}" Value="True" />
+                                            <Condition Binding="{Binding Source={x:Static SystemParameters.ClientAreaAnimation}}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.EnterActions>
+                                            <BeginStoryboard x:Name="QueueRuntimeSpinnerSpin">
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                     From="0"
+                                                                     To="360"
+                                                                     Duration="0:0:1.1" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </MultiDataTrigger.EnterActions>
+                                        <MultiDataTrigger.ExitActions>
+                                            <RemoveStoryboard BeginStoryboardName="QueueRuntimeSpinnerSpin" />
+                                        </MultiDataTrigger.ExitActions>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
                     </Ellipse>
                 </Grid>
             </Border>
