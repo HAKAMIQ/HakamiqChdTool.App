@@ -90,7 +90,7 @@
     <sys:String x:Key="LocUi_DropZone_Line1">Select an operation mode to show supported files.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">Drop files here, or select Add files or Add folder.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Convert">Add files or drop them here to convert to CHD.&#x0A;Supported formats:</sys:String>
-    <sys:String x:Key="LocUi_DropZone_ConvertFormats">ISO, CSO, ZSO, CUE/BIN, GDI, TOC, NRG, CCD, MDS, ECM, IMG/HDD, ZIP, 7Z, RAR</sys:String>
+    <sys:String x:Key="LocUi_DropZone_ConvertFormats">ISO, CSO, ZSO, CUE/&#x2060;BIN, GDI, TOC, NRG, CCD, MDS, ECM, IMG/&#x2060;HDD, ZIP, 7Z, RAR</sys:String>
     <sys:String x:Key="LocUi_DropZone_Extract">Add CHD files or drop them here for extraction.&#x0A;CDs are extracted to CUE + BIN, and DVDs to ISO.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Verify">Add CHD files or drop them here to verify their integrity.&#x0A;Verifies the CHD file without extracting its contents.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">Select a folder to scan CUE, GDI, ISO, and supported archive files, then convert valid disc images to CHD.</sys:String>
