@@ -2,7 +2,7 @@
 
 One row per production C#/XAML file (excludes `obj/`, `bin/`, `artifacts/` and the test project). Depth classes are defined in `docs/AUDIT_COVERAGE.md`. **PATTERN is never counted as a review.** Maintained by hand-run script; update a row only after the file was actually read (FULL) or the cited range read (PARTIAL).
 
-Totals: FULL 180, PARTIAL 12, PATTERN 225, UNINSPECTED 98 of 515 files.
+Totals: FULL 180, PARTIAL 12, PATTERN 225, UNINSPECTED 97 of 514 files.
 
 | Path | Lines | Depth | Note |
 | --- | --- | --- | --- |
@@ -177,7 +177,6 @@ Totals: FULL 180, PARTIAL 12, PATTERN 225, UNINSPECTED 98 of 515 files.
 | `Resources/FluentIcons.xaml` | 38 | UNINSPECTED |  |
 | `Resources/Style/ComboBox.xaml` | 355 | UNINSPECTED |  |
 | `Resources/Style/Fluent/BaseStyles.xaml` | 87 | UNINSPECTED |  |
-| `Resources/Style/Fluent/ButtonStyles.xaml` | 630 | UNINSPECTED |  |
 | `Resources/Style/Fluent/CardStyles.xaml` | 253 | UNINSPECTED |  |
 | `Resources/Style/Fluent/NavStyles.xaml` | 361 | UNINSPECTED |  |
 | `Resources/Style/Fluent/QueueStyles.xaml` | 412 | UNINSPECTED |  |
