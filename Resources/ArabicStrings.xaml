@@ -624,6 +624,13 @@
     <sys:String x:Key="LocWorkflow_HardDiskNotSectorAligned">الملف فارغ أو أن حجمه ليس من مضاعفات 512 بايت، لذلك فهو ليس صورة قرص صلب خام صالحة.</sys:String>
     <sys:String x:Key="LocWorkflow_HardDiskProbeFailed">تعذّرت قراءة صورة القرص الصلب للتحقق منها. تأكد من أن الملف غير مقفل وأن القرص متصل.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateHd">تم اختيار صورة قرص صلب. سيتم تحويلها إلى CHD باستخدام createhd.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateCcd">تم التعرف على صورة CloneCD. سيُنشأ ملف CUE مؤقت ويُحوَّل القرص باستخدام createcd. لن تُحفظ بيانات القناة الفرعية (.sub) التي تعتمد عليها بعض أنظمة الحماية.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdInvalid">تعذّرت قراءة ملف التحكم ‎.ccd‎ الخاص بـ CloneCD، أو أنه يصف ترتيب مسارات لا يمكن تحويله بأمان.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdMultiSession">تحتوي صورة CloneCD هذه على أكثر من جلسة. لا تُحوَّل الأقراص متعددة الجلسات تجنبًا لفقدان إحدى الجلسات.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdScrambled">تخزّن صورة CloneCD هذه مسارات بيانات مشفّرة الترتيب (scrambled)، ولا يمكن تحويلها إلى CHD كما هي.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdImageMissing">لم يُعثر على ملف ‎.img‎ الخاص بملف ‎.ccd‎ هذا بجانبه وبنفس الاسم.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdStagingFailed">تعذّر تجهيز ملف ‎.img‎ الخاص بـ CloneCD في المجلد المؤقت. تحقق من المساحة الفارغة في قرص النظام ومن إمكانية قراءة الصورة.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdImageNotAligned">حجم ملف ‎.img‎ الخاص بـ CloneCD ليس من مضاعفات 2352 بايت، لذلك فالصورة ناقصة أو ليست صورة قرص CD خامًا.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">جارٍ فك CSO إلى ISO مؤقت قبل التحويل إلى CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolMissing">تعذر العثور على CsoKit. أعد تثبيت الحزمة أو افتح مجلد الأدوات للتحقق من وجود csokit.exe وCsoKit.Native.dll.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolFailed">تعذر تشغيل CsoKit أو التحقق من إصداره.</sys:String>

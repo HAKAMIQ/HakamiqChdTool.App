@@ -630,6 +630,13 @@ Path:
     <sys:String x:Key="LocWorkflow_HardDiskNotSectorAligned">This file is empty or its size is not a multiple of 512 bytes, so it is not a valid raw hard-disk image.</sys:String>
     <sys:String x:Key="LocWorkflow_HardDiskProbeFailed">The hard-disk image could not be read for checking. Make sure the file is not locked or on a disconnected drive.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateHd">Hard-disk image selected. It will be converted to CHD with createhd.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateCcd">CloneCD image detected. A temporary CUE is generated and the disc is converted with createcd. Subchannel data (.sub), used by some copy protections, is not kept.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdInvalid">The CloneCD control file (.ccd) could not be read or describes a track layout that cannot be converted safely.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdMultiSession">This CloneCD image has more than one session. Multi-session discs are not converted, to avoid losing a session.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdScrambled">This CloneCD image stores scrambled data tracks. It cannot be converted to CHD as-is.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdImageMissing">The .img file that belongs to this .ccd was not found next to it with the same name.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdStagingFailed">The CloneCD .img could not be prepared in the temporary folder. Check free space on the system drive and that the image is readable.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdImageNotAligned">The CloneCD .img size is not a multiple of 2352 bytes, so the image is incomplete or not a raw CD image.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">Expanding CSO to a temporary ISO before CHD conversion.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolMissing">CsoKit could not be found. Reinstall the package or open the tools folder to verify that csokit.exe and CsoKit.Native.dll are present.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolFailed">CsoKit could not be started or its version could not be verified.</sys:String>

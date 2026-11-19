@@ -99,6 +99,19 @@ public static class ChdPlatformProfiles
         HunkSize: null,
         Note: "ZSO must be expanded to temporary ISO before CHD conversion.");
 
+    // CloneCD: the .ccd control file describes a raw 2352-byte .img. A temporary CUE is
+    // generated for chdman; the .sub subchannel file is not carried over.
+    public static readonly ChdPlatformProfile CloneCd = new(
+        PlatformId: "clonecd-ccd",
+        DisplayName: "CloneCD image",
+        InputExtensions: [".ccd"],
+        CommandKind: ChdCommandKind.CreateCd,
+        PreparationKind: ChdInputPreparationKind.GenerateCueFromCcd,
+        RequiresToc: false,
+        RequiresDvdSectorAlignment: false,
+        HunkSize: null,
+        Note: "CloneCD .ccd/.img. A temporary CUE is generated; subchannel data is not kept.");
+
     public static readonly ChdPlatformProfile Ps2Dvd = new(
         PlatformId: "sony-ps2-dvd",
         DisplayName: "Sony PlayStation 2 DVD",
@@ -145,6 +158,7 @@ public static class ChdPlatformProfiles
         PspIso,
         PspCso,
         CompressedZso,
+        CloneCd,
         Ps2Dvd,
         Ps2Cd
     ];
@@ -179,6 +193,7 @@ public static class ChdPlatformProfiles
             ".gdi" => DreamcastGdi,
             ".cso" => PspCso,
             ".zso" => CompressedZso,
+            ".ccd" => CloneCd,
             ".iso" => ResolveIsoProfile(detectedPlatform),
             ".cue" => ResolveCueProfile(detectedPlatform),
             ".toc" => GenericCd,
