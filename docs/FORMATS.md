@@ -46,6 +46,18 @@ NRG is accepted only where the current workflow can handle it safely.
 
 CDI is not supported in the current workflow.
 
+## Hard disk images (IMG/HDD)
+
+Raw hard-disk images (`.img`, `.hdd`) are converted with `chdman createhd`, but only when the "Hard disk image" CHD profile is selected in Options. A raw image has no signature, so Auto mode never guesses: it stops with a message that names the profile to choose.
+
+An `.img` is kept out of the queue, and refused even with the profile selected, when it looks like part of a CD/DVD:
+
+- a `.cue`, `.ccd`, `.toc`, `.gdi` or `.mds` with the same name sits next to it,
+- a CUE, GDI or TOC in the same folder references it,
+- it starts with a CD sync header or carries an ISO9660 volume descriptor.
+
+The file size must be a non-zero multiple of 512 bytes. Compression and hunk size are left to chdman's hard-disk defaults. Extraction back to `.img` uses `extracthd`.
+
 ## CHD
 
 Existing CHD files can be verified.

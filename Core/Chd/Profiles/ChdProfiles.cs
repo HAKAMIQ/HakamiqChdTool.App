@@ -108,10 +108,24 @@ public static class ChdPlatformProfiles
         HunkSize: null,
         Note: "CD-based PS2 image. Use createcd.");
 
+    // Never resolved automatically: raw hard-disk images carry no magic, so the
+    // user must select this profile explicitly before createhd is used.
+    public static readonly ChdPlatformProfile GenericHardDisk = new(
+        PlatformId: "generic-hd",
+        DisplayName: "Hard disk image",
+        InputExtensions: [".img", ".hdd"],
+        CommandKind: ChdCommandKind.CreateHd,
+        PreparationKind: ChdInputPreparationKind.None,
+        RequiresToc: false,
+        RequiresDvdSectorAlignment: false,
+        HunkSize: null,
+        Note: "Raw hard-disk image. Use createhd; chdman defaults are preserved.");
+
     public static IReadOnlyList<ChdPlatformProfile> All { get; } =
     [
         GenericCd,
         GenericDvd,
+        GenericHardDisk,
         Ps1,
         SegaSaturn,
         DreamcastGdi,
@@ -181,6 +195,11 @@ public static class ChdPlatformProfiles
             return GenericDvd;
         }
 
+        if (string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase))
+        {
+            return GenericHardDisk;
+        }
+
         return null;
     }
 
@@ -189,7 +208,12 @@ public static class ChdPlatformProfiles
             string.Equals(candidate, extension, StringComparison.OrdinalIgnoreCase));
 
     public static string ToCommandName(ChdCommandKind commandKind) =>
-        commandKind == ChdCommandKind.CreateDvd ? "createdvd" : "createcd";
+        commandKind switch
+        {
+            ChdCommandKind.CreateDvd => "createdvd",
+            ChdCommandKind.CreateHd => "createhd",
+            _ => "createcd"
+        };
 
     private static ChdPlatformProfile ResolveIsoProfile(string? detectedPlatform)
     {

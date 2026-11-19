@@ -217,6 +217,7 @@ public static class ChdmanCliRunner
         || string.Equals(command, "verify", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "createdvd", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "extractcd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "extractdvd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "extracthd", StringComparison.OrdinalIgnoreCase)
@@ -225,6 +226,7 @@ public static class ChdmanCliRunner
     private static bool IsCreateOrExtractCommand(string command) =>
         string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "createdvd", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "extractcd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "extractdvd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "extracthd", StringComparison.OrdinalIgnoreCase)

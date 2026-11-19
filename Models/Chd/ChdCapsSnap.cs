@@ -69,5 +69,6 @@ public sealed record ChdmanCapabilitySnapshot(
 
     private static bool IsCreateCommand(string command) =>
         string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "createdvd", StringComparison.OrdinalIgnoreCase);
+        || string.Equals(command, "createdvd", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase);
 }

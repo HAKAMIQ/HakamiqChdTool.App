@@ -416,6 +416,7 @@ internal static class ChdConversionServiceSupport
             ".nrg" => ChdMediaFormatKind.Nrg,
             ".cso" => ChdMediaFormatKind.Cso,
             ".bin" when string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase) => ChdMediaFormatKind.Cue,
+            ".img" or ".hdd" when string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase) => ChdMediaFormatKind.HardDisk,
             ".chd" => ChdMediaFormatKind.Chd,
             _ => ChdMediaFormatKind.Unknown
         };

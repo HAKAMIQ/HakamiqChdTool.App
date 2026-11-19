@@ -197,7 +197,7 @@ public sealed class DatMatcher
         }
 
         // Only plain image and ROM files are size-comparable; text sheets vary by line ending.
-        bool sizeComparable = entry.Kind is MediaInputKind.BIN or MediaInputKind.ISO or MediaInputKind.Other
+        bool sizeComparable = entry.Kind is MediaInputKind.BIN or MediaInputKind.ISO or MediaInputKind.Other or MediaInputKind.HardDiskImage
             && entry.SizeBytes is not null;
         List<string> reasons = [];
 
