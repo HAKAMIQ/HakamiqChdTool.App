@@ -127,7 +127,8 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
 
     public bool IsCreateCommand(string command) =>
         string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "createdvd", StringComparison.OrdinalIgnoreCase);
+        || string.Equals(command, "createdvd", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase);
 
     public bool IsExtractCommand(string command) =>
         string.Equals(command, "extractcd", StringComparison.OrdinalIgnoreCase)
@@ -181,6 +182,13 @@ public sealed class ChdCommandPreparationService : IChdCommandPreparationService
     {
         policyNote = string.Empty;
         bool isCd = string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase);
+
+        if (string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase))
+        {
+            // CD/DVD hunk presets do not apply to hard disks; keep chdman's default.
+            policyNote = "createhd hunk size left to chdman default.";
+            return 0;
+        }
 
         if (!isCd)
         {

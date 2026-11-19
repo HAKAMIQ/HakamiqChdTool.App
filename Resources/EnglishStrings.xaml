@@ -625,6 +625,11 @@ Path:
     <sys:String x:Key="LocWorkflow_IsoReadFailed">Could not read the ISO file.</sys:String>
     <sys:String x:Key="LocWorkflow_NonChdRecommendedCompression">CHD is not the recommended compression format for this system. Use a system-specific format, such as RVZ for GameCube/Wii or CSO/PBP for PSP. Conversion is blocked to avoid incompatible output.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPreparationDisabled">CSO files must be expanded to ISO before CHD conversion. This preparation stage is not enabled in this version.</sys:String>
+    <sys:String x:Key="LocWorkflow_HardDiskProfileRequired">This .img/.hdd file has no disc signature. If it is a hard-disk image, choose the "Hard disk image" CHD profile in Options, then convert it again.</sys:String>
+    <sys:String x:Key="LocWorkflow_HardDiskDiscEvidence">This image looks like part of a CD/DVD set (a matching CUE/CCD/GDI/TOC/MDS, or a disc header). It was not converted as a hard disk. Add the disc descriptor instead.</sys:String>
+    <sys:String x:Key="LocWorkflow_HardDiskNotSectorAligned">This file is empty or its size is not a multiple of 512 bytes, so it is not a valid raw hard-disk image.</sys:String>
+    <sys:String x:Key="LocWorkflow_HardDiskProbeFailed">The hard-disk image could not be read for checking. Make sure the file is not locked or on a disconnected drive.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateHd">Hard-disk image selected. It will be converted to CHD with createhd.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">Expanding CSO to a temporary ISO before CHD conversion.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolMissing">CsoKit could not be found. Reinstall the package or open the tools folder to verify that csokit.exe and CsoKit.Native.dll are present.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolFailed">CsoKit could not be started or its version could not be verified.</sys:String>
@@ -676,6 +681,8 @@ Path:
     <sys:String x:Key="LocChdProfile_SaturnDescription">Saturn CUE/BIN CD images. Uses createcd.</sys:String>
     <sys:String x:Key="LocChdProfile_DreamcastLabel">Sega Dreamcast</sys:String>
     <sys:String x:Key="LocChdProfile_DreamcastDescription">Dreamcast/GD-ROM GDI images. Uses createcd.</sys:String>
+    <sys:String x:Key="LocChdProfile_HardDiskLabel">Hard disk image</sys:String>
+    <sys:String x:Key="LocChdProfile_HardDiskDescription">Raw hard-disk .img/.hdd images. Uses createhd. Images that belong to a CD/DVD set are refused.</sys:String>
 
     <sys:String x:Key="LocWorkflow_RawMediaImageName">RAW image</sys:String>
     <sys:String x:Key="LocWorkflow_RawMetadataConflictTitle">CHD information conflict</sys:String>
@@ -725,6 +732,7 @@ Path:
 
     <sys:String x:Key="LocDiskPreflight_OperationCreateCd">Convert CD to CHD</sys:String>
     <sys:String x:Key="LocDiskPreflight_OperationCreateDvd">Convert DVD to CHD</sys:String>
+    <sys:String x:Key="LocDiskPreflight_OperationCreateHd">Convert hard disk to CHD</sys:String>
     <sys:String x:Key="LocDiskPreflight_OperationExtractCd">Extract CD from CHD</sys:String>
     <sys:String x:Key="LocDiskPreflight_OperationExtractDvd">Extract DVD from CHD</sys:String>
     <sys:String x:Key="LocDiskPreflight_OperationExtractHd">Extract hard disk image from CHD</sys:String>

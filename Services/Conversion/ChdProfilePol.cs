@@ -1,6 +1,7 @@
 using HakamiqChdTool.App.Core.Chd.Commands;
 using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Models;
+using Serilog;
 
 namespace HakamiqChdTool.App.Services;
 
@@ -9,8 +10,60 @@ internal readonly record struct ChdRequestedCreateProfileSelection(
     ChdPlatformProfile? Profile,
     ChdConversionResult? FailureResult);
 
+internal readonly record struct ChdResolvedSourceCommand(
+    string Command,
+    IsoChdmanCreateDiagnostics? IsoDiagnostics,
+    ChdConversionResult? FailureResult);
+
 internal static class ChdPlatformProfileExecutionPolicy
 {
+    public static ChdResolvedSourceCommand ResolveSourceCommand(
+        IChdCommandPreparationService commandPreparation,
+        string inputExtension,
+        ChdmanExtractionKind extractionKind,
+        string resolvedInputPath,
+        IsoCreateCommandOverride isoCreateCommandOverride,
+        string? platformProfileId,
+        string inputPath,
+        string outputPath)
+    {
+        if (extractionKind != ChdmanExtractionKind.None
+            || ChdPlatformProfiles.FindById(platformProfileId) is not { CommandKind: ChdCommandKind.CreateHd })
+        {
+            (string command, IsoChdmanCreateDiagnostics? isoDiagnostics) =
+                commandPreparation.ResolveTwoWayCommandWithOptionalIsoDiagnostics(
+                    inputExtension,
+                    extractionKind,
+                    resolvedInputPath,
+                    isoCreateCommandOverride);
+
+            return new ChdResolvedSourceCommand(command, isoDiagnostics, null);
+        }
+
+        // Hard-disk images are only converted on explicit user selection; the
+        // extension-based resolver deliberately rejects .img/.hdd.
+        ChdWorkflowProfilePlan hardDiskPlan = ChdWorkflowProfilePlanner.PlanCreateFromSource(
+            resolvedInputPath,
+            isoCreateCommandOverride,
+            ChdMediaContainerKind.DirectFile,
+            platformProfileId);
+
+        if (hardDiskPlan.IsSupported)
+        {
+            return new ChdResolvedSourceCommand(hardDiskPlan.Command, null, null);
+        }
+
+        Log.Warning(
+            "Hard-disk image rejected before chdman. Input={InputPath}; MessageKey={MessageKey}",
+            resolvedInputPath,
+            hardDiskPlan.FailureMessage);
+
+        return new ChdResolvedSourceCommand(
+            string.Empty,
+            null,
+            ChdConversionServiceSupport.BuildPreExecutionFailureResult(inputPath, outputPath, hardDiskPlan.FailureMessage));
+    }
+
     public static ChdRequestedCreateProfileSelection ApplyRequestedCreateProfile(
         string command,
         string inputExtension,
