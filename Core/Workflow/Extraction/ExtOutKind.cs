@@ -3,5 +3,6 @@ namespace HakamiqChdTool.App.Core.Workflow.Extraction;
 internal enum ExtractionOutputKind
 {
     SingleFile = 0,
-    CueBinBundle = 1
+    CueBinBundle = 1,
+    GdiBundle = 2
 }

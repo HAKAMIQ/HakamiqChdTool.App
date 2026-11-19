@@ -54,6 +54,7 @@ public sealed partial class OptionsViewModel
         DeleteFailedOutput = settings.DeleteFailedOutput;
         DeleteSourceAfterVerifiedConversion = settings.DeleteSourceAfterVerifiedConversion;
         DeleteSourceAfterVerifiedExtraction = settings.DeleteSourceAfterVerifiedExtraction;
+        ExtractGdRomAsCueBin = settings.ExtractGdRomAsCueBin;
         RedumpDatabaseDownloadUrl = settings.RedumpDatabaseDownloadUrl?.Trim() ?? string.Empty;
         EnableRedumpAutoSync = settings.EnableRedumpAutoSync;
         _redumpLastSyncedUtc = NormalizeStoredTimestamp(settings.RedumpLastSyncedUtc);
@@ -117,6 +118,7 @@ public sealed partial class OptionsViewModel
         result.DeleteFailedOutput = DeleteFailedOutput;
         result.DeleteSourceAfterVerifiedConversion = DeleteSourceAfterVerifiedConversion;
         result.DeleteSourceAfterVerifiedExtraction = DeleteSourceAfterVerifiedExtraction;
+        result.ExtractGdRomAsCueBin = ExtractGdRomAsCueBin;
         result.EnableDeepIntegrityCheck = EnableDeepIntegrityCheck;
         result.ApplyStandardNamingBasedOnHash = ApplyStandardNamingBasedOnHash;
         result.RedumpDatabaseDownloadUrl = RedumpDatabaseDownloadUrl.Trim();

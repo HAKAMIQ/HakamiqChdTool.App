@@ -88,7 +88,11 @@ internal static class ChdConversionExecutionSetup
             ? (!string.IsNullOrWhiteSpace(resolvedExtractCdCueOutputPath) ? resolvedExtractCdCueOutputPath : resolvedOutputPath)
             : string.Empty;
 
-        string extractCdBinOutputPathForArgument = extractionKind == ChdmanExtractionKind.ExtractCd
+        // A .gdi output makes chdman write one file per track next to the GDI, so there is no -ob path.
+        bool gdiOutput = extractionKind == ChdmanExtractionKind.ExtractCd
+            && string.Equals(Path.GetExtension(extractCdCueOutputPathForArgument), ".gdi", StringComparison.OrdinalIgnoreCase);
+
+        string extractCdBinOutputPathForArgument = extractionKind == ChdmanExtractionKind.ExtractCd && !gdiOutput
             ? (!string.IsNullOrWhiteSpace(resolvedExtractCdBinOutputPath)
                 ? resolvedExtractCdBinOutputPath
                 : commandPreparation.BuildExtractCdBinOutputPath(extractCdCueOutputPathForArgument))
@@ -97,7 +101,7 @@ internal static class ChdConversionExecutionSetup
         if (extractionKind == ChdmanExtractionKind.ExtractCd)
         {
             string? cueDirectory = Path.GetDirectoryName(extractCdCueOutputPathForArgument);
-            string? binDirectory = Path.GetDirectoryName(extractCdBinOutputPathForArgument);
+            string? binDirectory = gdiOutput ? cueDirectory : Path.GetDirectoryName(extractCdBinOutputPathForArgument);
 
             if (string.IsNullOrWhiteSpace(cueDirectory) || string.IsNullOrWhiteSpace(binDirectory))
             {
@@ -151,7 +155,7 @@ internal static class ChdConversionExecutionSetup
                 extractionKind == ChdmanExtractionKind.ExtractCd ? extractCdCueOutputPathForArgument : resolvedOutputPath
             };
 
-        if (extractionKind == ChdmanExtractionKind.ExtractCd)
+        if (extractionKind == ChdmanExtractionKind.ExtractCd && !string.IsNullOrWhiteSpace(extractCdBinOutputPathForArgument))
         {
             arguments.Add("-ob");
             arguments.Add(extractCdBinOutputPathForArgument);
@@ -178,7 +182,7 @@ internal static class ChdConversionExecutionSetup
         }
 
         string monitoredOutputPath = extractionKind == ChdmanExtractionKind.ExtractCd
-            ? extractCdBinOutputPathForArgument
+            ? (string.IsNullOrWhiteSpace(extractCdBinOutputPathForArgument) ? extractCdCueOutputPathForArgument : extractCdBinOutputPathForArgument)
             : resolvedOutputPath;
 
         return new ArgumentContext(

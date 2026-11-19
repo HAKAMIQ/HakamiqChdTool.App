@@ -38,7 +38,7 @@ internal sealed class ExtractionOutputBundleValidator
         return contract.Kind switch
         {
             ExtractionOutputKind.SingleFile => TryFinalizeSingleFile(contract, allowOverwrite, out finalBundle, out failureMessageKey),
-            ExtractionOutputKind.CueBinBundle => TryFinalizeCueBinBundle(contract, allowOverwrite, out finalBundle, out failureMessageKey),
+            ExtractionOutputKind.CueBinBundle or ExtractionOutputKind.GdiBundle => TryFinalizeDescriptorBundle(contract, allowOverwrite, out finalBundle, out failureMessageKey),
             _ => false
         };
     }
@@ -95,7 +95,9 @@ internal sealed class ExtractionOutputBundleValidator
         }
     }
 
-    private bool TryFinalizeCueBinBundle(
+    // CUE/BIN and GDI bundles share one transaction: track files first, the descriptor last, no overwrite
+    // without permission, backups and rollback on any failure.
+    private bool TryFinalizeDescriptorBundle(
         ExtractionOutputContract contract,
         bool allowOverwrite,
         out ExtractionOutputBundle finalBundle,
@@ -104,6 +106,7 @@ internal sealed class ExtractionOutputBundleValidator
         finalBundle = ExtractionOutputBundle.Create(contract.Kind, contract.FinalPrimaryPath, []);
         failureMessageKey = InvalidOutputKey;
 
+        bool gdi = contract.Kind == ExtractionOutputKind.GdiBundle;
         var promotedDependencies = new List<CueBundlePromotion>();
         var backups = new List<CueBundleBackup>();
         string? stagedCuePath = null;
@@ -111,13 +114,18 @@ internal sealed class ExtractionOutputBundleValidator
 
         try
         {
-            if (!TryBuildCueBundlePlan(contract, out CueBundlePlan plan, out failureMessageKey))
+            CueBundlePlan plan;
+            bool planned = gdi
+                ? TryBuildGdiBundlePlan(contract, out plan, out failureMessageKey)
+                : TryBuildCueBundlePlan(contract, out plan, out failureMessageKey);
+            if (!planned)
             {
                 return false;
             }
 
             if (!TryBuildCueBundleTransactionTargets(
                     plan,
+                    gdi,
                     allowOverwrite,
                     out string[] transactionTargets,
                     out failureMessageKey))
@@ -158,11 +166,13 @@ internal sealed class ExtractionOutputBundleValidator
             }
 
             Directory.CreateDirectory(plan.FinalDirectory);
-            stagedCuePath = BuildUniqueSiblingPath(plan.FinalCuePath, ".cue.tmp");
+            stagedCuePath = BuildUniqueSiblingPath(plan.FinalCuePath, gdi ? ".gdi.tmp" : ".cue.tmp");
 
             File.WriteAllLines(
                 stagedCuePath,
-                RewriteCueReferences(plan.SourceLines, plan.Dependencies),
+                gdi
+                    ? RewriteGdiReferences(plan.SourceLines, plan.Dependencies)
+                    : RewriteCueReferences(plan.SourceLines, plan.Dependencies),
                 new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 
             if (!PromoteBundleFile(stagedCuePath, plan.FinalCuePath, allowOverwrite))
@@ -176,7 +186,7 @@ internal sealed class ExtractionOutputBundleValidator
             finalCuePromoted = true;
 
             if (!TryValidateBundle(
-                    ExtractionOutputKind.CueBinBundle,
+                    contract.Kind,
                     plan.FinalCuePath,
                     out finalBundle,
                     out failureMessageKey))
@@ -206,7 +216,8 @@ internal sealed class ExtractionOutputBundleValidator
             failureMessageKey = InvalidOutputKey;
             Log.Warning(
                 ex,
-                "Extraction output contract failed while finalizing CUE/BIN bundle. Pending={Pending}; Final={Final}; AllowOverwrite={AllowOverwrite}",
+                "Extraction output contract failed while finalizing descriptor bundle. Kind={Kind}; Pending={Pending}; Final={Final}; AllowOverwrite={AllowOverwrite}",
+                contract.Kind,
                 contract.PendingPrimaryPath,
                 contract.FinalPrimaryPath,
                 allowOverwrite);
@@ -230,6 +241,7 @@ internal sealed class ExtractionOutputBundleValidator
 
     private bool TryBuildCueBundleTransactionTargets(
         CueBundlePlan plan,
+        bool gdi,
         bool allowOverwrite,
         out string[] transactionTargets,
         out string failureMessageKey)
@@ -257,10 +269,7 @@ internal sealed class ExtractionOutputBundleValidator
             return true;
         }
 
-        if (!_cueReader.TryRead(
-                plan.FinalCuePath,
-                out CueSheetReadResult existingCue,
-                out failureMessageKey))
+        if (!TryReadExistingDescriptorReferences(gdi, plan.FinalCuePath, out List<string> existingReferences, out failureMessageKey))
         {
             failureMessageKey = string.IsNullOrWhiteSpace(failureMessageKey)
                 ? InvalidOutputKey
@@ -269,9 +278,9 @@ internal sealed class ExtractionOutputBundleValidator
             return false;
         }
 
-        foreach (CueSheetFileReference reference in existingCue.References)
+        foreach (string existingReference in existingReferences)
         {
-            if (!IsSafeCueRelativeReference(reference.Reference))
+            if (!IsSafeCueRelativeReference(existingReference))
             {
                 transactionTargets = [];
                 failureMessageKey = InvalidOutputKey;
@@ -282,7 +291,7 @@ internal sealed class ExtractionOutputBundleValidator
             try
             {
                 referencedPath = Path.GetFullPath(
-                    Path.Combine(plan.FinalDirectory, reference.Reference));
+                    Path.Combine(plan.FinalDirectory, existingReference));
             }
             catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
             {
@@ -853,7 +862,9 @@ internal sealed class ExtractionOutputBundleValidator
             return true;
         }
 
-        return TryValidateCueBinBundle(primaryPath, out bundle, out failureMessageKey);
+        return kind == ExtractionOutputKind.GdiBundle
+            ? TryValidateGdiBundle(primaryPath, out bundle, out failureMessageKey)
+            : TryValidateCueBinBundle(primaryPath, out bundle, out failureMessageKey);
     }
 
     private bool TryValidateCueBinBundle(
@@ -920,6 +931,184 @@ internal sealed class ExtractionOutputBundleValidator
         return true;
     }
 
+    private bool TryReadExistingDescriptorReferences(
+        bool gdi,
+        string descriptorPath,
+        out List<string> references,
+        out string failureMessageKey)
+    {
+        references = [];
+        failureMessageKey = InvalidOutputKey;
+        if (gdi)
+        {
+            if (!GdiSheet.TryRead(descriptorPath, out _, out List<GdiTrackLine> tracks))
+            {
+                return false;
+            }
+
+            references = [.. tracks.Select(static track => track.FileName)];
+            failureMessageKey = string.Empty;
+            return true;
+        }
+
+        if (!_cueReader.TryRead(descriptorPath, out CueSheetReadResult existingCue, out failureMessageKey))
+        {
+            return false;
+        }
+
+        references = [.. existingCue.References.Select(static reference => reference.Reference)];
+        failureMessageKey = string.Empty;
+        return true;
+    }
+
+    // chdman writes "<stem>.gdi" with "<stem>NN.bin/.raw" track files; the final set uses the
+    // final stem with the same two-digit track numbers and extensions.
+    private static bool TryBuildGdiBundlePlan(
+        ExtractionOutputContract contract,
+        out CueBundlePlan plan,
+        out string failureMessageKey)
+    {
+        plan = default;
+        failureMessageKey = InvalidOutputKey;
+
+        string pendingGdiPath;
+        string finalGdiPath;
+        string? pendingDirectory;
+        string? finalDirectory;
+        try
+        {
+            pendingGdiPath = Path.GetFullPath(contract.PendingPrimaryPath);
+            finalGdiPath = Path.GetFullPath(contract.FinalPrimaryPath);
+            pendingDirectory = Path.GetDirectoryName(pendingGdiPath);
+            finalDirectory = Path.GetDirectoryName(finalGdiPath);
+        }
+        catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
+        {
+            return false;
+        }
+
+        string finalStem = Path.GetFileNameWithoutExtension(finalGdiPath);
+        if (string.IsNullOrWhiteSpace(pendingDirectory)
+            || string.IsNullOrWhiteSpace(finalDirectory)
+            || string.IsNullOrWhiteSpace(finalStem)
+            || !string.Equals(Path.GetExtension(pendingGdiPath), ".gdi", StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(Path.GetExtension(finalGdiPath), ".gdi", StringComparison.OrdinalIgnoreCase)
+            || !GdiSheet.TryRead(pendingGdiPath, out string[] lines, out List<GdiTrackLine> tracks))
+        {
+            return false;
+        }
+
+        var dependencies = new List<CueBundleDependency>(tracks.Count);
+        var usedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (GdiTrackLine track in tracks)
+        {
+            string extension = Path.GetExtension(track.FileName).ToLowerInvariant();
+            if (extension is not (".bin" or ".raw") || !IsSafeCueRelativeReference(track.FileName))
+            {
+                return false;
+            }
+
+            try
+            {
+                string pendingPath = Path.GetFullPath(Path.Combine(pendingDirectory, track.FileName));
+                string finalName = finalStem + track.TrackNumber.ToString("D2", System.Globalization.CultureInfo.InvariantCulture) + extension;
+                string finalPath = Path.GetFullPath(Path.Combine(finalDirectory, finalName));
+                if (!IsSameDirectoryChild(pendingDirectory, pendingPath)
+                    || !IsSameDirectoryChild(finalDirectory, finalPath)
+                    || !IsSafeCueRelativeReference(finalName)
+                    || !usedNames.Add(finalName)
+                    || !TryGetExistingFileLength(pendingPath, out long length)
+                    || length <= 0)
+                {
+                    return false;
+                }
+
+                dependencies.Add(new CueBundleDependency(
+                    pendingPath,
+                    finalPath,
+                    finalName,
+                    track.LineIndex,
+                    track.TrackNumber,
+                    track.TrackType == 0 ? "AUDIO" : "DATA",
+                    track.StartLba >= 45000));
+            }
+            catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
+            {
+                return false;
+            }
+        }
+
+        plan = new CueBundlePlan(
+            pendingGdiPath,
+            finalGdiPath,
+            finalDirectory,
+            lines,
+            dependencies,
+            dependencies);
+        failureMessageKey = string.Empty;
+        return true;
+    }
+
+    private static string[] RewriteGdiReferences(
+        IReadOnlyList<string> sourceLines,
+        IReadOnlyList<CueBundleDependency> dependencies)
+    {
+        string[] lines = [.. sourceLines];
+        GdiSheet.TryParse(sourceLines, out List<GdiTrackLine> tracks);
+        Dictionary<int, GdiTrackLine> byLine = tracks.ToDictionary(static track => track.LineIndex);
+        foreach (CueBundleDependency dependency in dependencies)
+        {
+            lines[dependency.LineIndex] = byLine[dependency.LineIndex].Format(dependency.RelativeReference);
+        }
+
+        return lines;
+    }
+
+    private static bool TryValidateGdiBundle(
+        string gdiPath,
+        out ExtractionOutputBundle bundle,
+        out string failureMessageKey)
+    {
+        bundle = ExtractionOutputBundle.Create(ExtractionOutputKind.GdiBundle, gdiPath, []);
+        failureMessageKey = InvalidOutputKey;
+
+        try
+        {
+            string gdiFullPath = Path.GetFullPath(gdiPath);
+            string? directory = Path.GetDirectoryName(gdiFullPath);
+            if (string.IsNullOrWhiteSpace(directory)
+                || !TryGetExistingFileLength(gdiFullPath, out long gdiLength)
+                || gdiLength <= 0
+                || !GdiSheet.TryRead(gdiFullPath, out _, out List<GdiTrackLine> tracks))
+            {
+                return false;
+            }
+
+            var files = new List<(string Path, long Length)> { (gdiFullPath, gdiLength) };
+            foreach (GdiTrackLine track in tracks)
+            {
+                string trackPath = Path.GetFullPath(Path.Combine(directory, track.FileName));
+                if (!IsSafeCueRelativeReference(track.FileName)
+                    || !IsSameDirectoryChild(directory, trackPath)
+                    || !TryGetExistingFileLength(trackPath, out long length)
+                    || length <= 0
+                    || length % track.SectorSize != 0)
+                {
+                    return false;
+                }
+
+                files.Add((trackPath, length));
+            }
+
+            bundle = ExtractionOutputBundle.Create(ExtractionOutputKind.GdiBundle, gdiFullPath, files);
+            failureMessageKey = string.Empty;
+            return true;
+        }
+        catch (Exception ex) when (IsExpectedOutputContractFailure(ex))
+        {
+            return false;
+        }
+    }
     private static string[] RewriteCueReferences(
         IReadOnlyList<string> sourceLines,
         IReadOnlyList<CueBundleDependency> dependencies)

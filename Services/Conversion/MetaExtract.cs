@@ -25,7 +25,9 @@ public sealed record MetadataAwareChdExtractionRequest(
     string ChdPath,
     string OriginalPath,
     PlatformDetectionResult PlatformDetection,
-    long? LogicalBytes);
+    long? LogicalBytes,
+    bool ExtractGdRomAsCueBin = false,
+    bool GdRomMetadata = false);
 
 public sealed record MetadataAwareChdExtractionDecision(
     bool IsSupported,
@@ -60,6 +62,7 @@ public sealed class MetadataAwareChdExtractionPolicy : IMetadataAwareChdExtracti
     public const string UnknownMetadataReasonCode = "ChdExtractionReason_UnknownMetadataBlocked";
     public const string LegacyCdMetadataReasonCode = "ChdExtractionReason_LegacyCdMetadataToIsoRestore";
     public const string RawMetadataReasonCode = "ChdExtractionReason_RawMetadataExtractRaw";
+    public const string GdRomMetadataReasonCode = "ChdExtractionReason_GdRomMetadataExtractGdi";
 
     private const long LikelyDvdLogicalBytesThreshold = 800L * 1024L * 1024L;
 
@@ -79,7 +82,8 @@ public sealed class MetadataAwareChdExtractionPolicy : IMetadataAwareChdExtracti
                 DvdMetadataReasonCode,
                 metadataKind),
 
-            ChdExtractionMetadataKind.CdRom when IsLegacyWrongProfileContext(request) => BuildSupported(
+            // GD-ROM track metadata (CHGD) rules out a mislabeled PS2/PSP DVD.
+            ChdExtractionMetadataKind.CdRom when !request.GdRomMetadata && IsLegacyWrongProfileContext(request) => BuildSupported(
                 ChdmanExtractionKind.ExtractCd,
                 ".iso",
                 WrongProfileLegacyWarningKey,
@@ -89,6 +93,15 @@ public sealed class MetadataAwareChdExtractionPolicy : IMetadataAwareChdExtracti
                 warningMessageKey: WrongProfileLegacyWarningKey,
                 successMessageKey: LegacyCdRestoreSuccessKey,
                 restoreTargetMode: ChdRestoreTargetMode.LegacyCdProfileToIso),
+
+            // A GD-ROM (CHGD metadata) is restored to GDI, the format Dreamcast tools expect, unless the user chose CUE/BIN.
+            ChdExtractionMetadataKind.CdRom when (request.GdRomMetadata || IsGdRom(request.MediaType)) && !request.ExtractGdRomAsCueBin => BuildSupported(
+                ChdmanExtractionKind.ExtractCd,
+                ".gdi",
+                "LocWorkflow_StatusExtractGdi",
+                "GD-ROM CHD metadata extractcd to GDI",
+                GdRomMetadataReasonCode,
+                metadataKind),
 
             ChdExtractionMetadataKind.CdRom => BuildSupported(
                 ChdmanExtractionKind.ExtractCd,
@@ -169,6 +182,9 @@ public sealed class MetadataAwareChdExtractionPolicy : IMetadataAwareChdExtracti
             reasonCode,
             metadataKind,
             ChdRestoreTargetMode.Standard);
+
+    private static bool IsGdRom(string? mediaType) =>
+        string.Equals(mediaType?.Trim(), "GD-ROM", StringComparison.OrdinalIgnoreCase);
 
     private static ChdExtractionMetadataKind ResolveMetadataKind(string? mediaType)
     {

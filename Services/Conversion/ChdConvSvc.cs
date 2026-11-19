@@ -108,6 +108,7 @@ public sealed class ChdConversionService
 
         string resolvedInputPath = _commandPreparation.NormalizePathForCli(inputPath);
         string resolvedOutputPath = _commandPreparation.NormalizePathForCli(outputPath);
+        verifyExtractCdCueBinContract &= !ChdConversionServiceSupport.IsGdiExtractionOutput(extractionKind, resolvedOutputPath);
         string resolvedExtractCdCueOutputPath = ChdConversionServiceSupport.NormalizeOptionalExtractCdOutputPath(extractCdCueOutputPath, _commandPreparation);
         string resolvedExtractCdBinOutputPath = ChdConversionServiceSupport.NormalizeOptionalExtractCdOutputPath(extractCdBinOutputPath, _commandPreparation);
 

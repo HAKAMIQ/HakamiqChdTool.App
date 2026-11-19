@@ -245,7 +245,7 @@
     <sys:String x:Key="LocStatus_VerifyCompletedSuccess">The CHD file was verified successfully.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedCueBin">The CHD file was extracted to CUE + BIN successfully.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedIso">Extracted to ISO. The source was verified; no separate output verification was run.</sys:String>
-    <sys:String x:Key="LocStatus_ExtractCompletedGdi">Extracted to GDI/BIN. The source was verified; no separate output verification was run.</sys:String>
+    <sys:String x:Key="LocStatus_ExtractCompletedGdi">The CHD file was extracted to GDI successfully.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedCue">Extracted to CUE/BIN. The source was verified; no separate output verification was run.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedImg">The CHD file was extracted to IMG successfully.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedRaw">The CHD file was extracted to RAW successfully.</sys:String>
@@ -524,6 +524,9 @@
     <sys:String x:Key="LocWorkflow_StatusCreateBinRescue">BIN file detected. A safe CUE file will be prepared before CHD conversion.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusVerifyChd">Verification plan is active (without changing the original file).</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractCd">CHD was detected as a CD. It will be extracted to CUE and BIN.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusExtractGdi">CHD was detected as a Dreamcast GD-ROM. It will be extracted to GDI with one file per track.</sys:String>
+    <sys:String x:Key="LocConversion_ExtractGdRomAsCueBin">Extract Dreamcast GD-ROM to CUE/BIN</sys:String>
+    <sys:String x:Key="LocConversion_ExtractGdRomAsCueBinDesc">GD-ROM CHDs are extracted to GDI, the format Dreamcast tools and GDEMU use. Turn this on to get CUE/BIN instead.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractDvd">CHD was detected as a DVD. It will be extracted to ISO.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractHd">CHD was detected as a hard disk image. It will be extracted to IMG.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractRaw">CHD was detected as a RAW image. It will be extracted to RAW.</sys:String>
