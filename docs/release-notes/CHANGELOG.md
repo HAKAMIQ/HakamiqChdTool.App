@@ -28,8 +28,8 @@ unchanged.
   `csokit detect`, damaged data is rejected by `decompress`, and the temporary
   ISO must match the declared size exactly. CsoKit 0.6.4 or newer is required;
   an older external CsoKit is refused with a message.
-- ZSO inside archives and source cleanup after a ZSO conversion are not
-  supported yet.
+- ZSO inside ZIP, 7Z and RAR archives is extracted and converted the same way.
+  Source cleanup after a ZSO conversion is not supported yet.
 
 ### CloneCD
 
