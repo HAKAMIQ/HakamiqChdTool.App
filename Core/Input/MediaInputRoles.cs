@@ -8,9 +8,31 @@ public static class MediaInputRoles
     {
         ArgumentNullException.ThrowIfNull(descriptor);
 
-        return ResolveRole(
+        QueueInputRole role = ResolveRole(
             descriptor.Kind,
             descriptor.Extension);
+
+        if (!descriptor.Exists || string.IsNullOrWhiteSpace(descriptor.FullPath))
+        {
+            return role;
+        }
+
+        // ECM-compressed tracks: the set is queued once, through its first .ecm.
+        if (role == QueueInputRole.ConvertibleDiscImage
+            && string.Equals(NormalizeExtension(descriptor.Extension), EcmEvidence.EcmExtension, StringComparison.Ordinal))
+        {
+            return EcmEvidence.IsQueueEntry(descriptor.FullPath)
+                ? QueueInputRole.ConvertibleDiscImage
+                : QueueInputRole.DependentTrackFile;
+        }
+
+        if (descriptor.Kind == MediaInputKind.CUE
+            && EcmEvidence.IsCueCoveredByEcm(descriptor.FullPath))
+        {
+            return QueueInputRole.DependentTrackFile;
+        }
+
+        return role;
     }
 
     public static QueueInputRole ResolveExtensionRole(string? extension)
@@ -59,7 +81,7 @@ public static class MediaInputRoles
 
         return normalized switch
         {
-            ".toc" or ".nrg" or ".ccd" or ".mds" =>
+            ".toc" or ".nrg" or ".ccd" or ".mds" or ".ecm" =>
                 QueueInputRole.ConvertibleDiscImage,
 
             ".zip" or ".rar" or ".7z" =>

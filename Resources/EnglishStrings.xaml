@@ -645,6 +645,13 @@ Path:
     <sys:String x:Key="LocWorkflow_MdsImageMissing">The .mdf file that belongs to this .mds was not found in the same folder.</sys:String>
     <sys:String x:Key="LocWorkflow_MdsImageSizeMismatch">The .mdf size does not match what the .mds describes, so the image is incomplete or split into several files.</sys:String>
     <sys:String x:Key="LocWorkflow_MdsStagingFailed">The .mdf could not be prepared in the temporary folder. Check free space on the system drive and that the image is readable.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateEcm">ECM image detected. It is decoded to a temporary folder, checked against the checksum stored in it, and the disc is converted with createcd.</sys:String>
+    <sys:String x:Key="LocWorkflow_EcmInvalid">This ECM file is damaged or is not a valid ECM image.</sys:String>
+    <sys:String x:Key="LocWorkflow_EcmChecksumMismatch">The decoded ECM data does not match the checksum stored in the file, so the file is damaged. Nothing was converted.</sys:String>
+    <sys:String x:Key="LocWorkflow_EcmStagingFailed">The ECM image could not be decoded into the temporary folder. Check free space on the system drive and that the files are readable.</sys:String>
+    <sys:String x:Key="LocWorkflow_EcmUnsupportedName">Only .bin.ecm and .img.ecm files are supported.</sys:String>
+    <sys:String x:Key="LocWorkflow_EcmCueIncomplete">The CUE file that uses this ECM image refers to a track that was not found, either as a file or as .ecm.</sys:String>
+    <sys:String x:Key="LocWorkflow_EcmNeedsCue">This ECM image has no CUE file and does not start with a data track, so its track layout is unknown. Put the matching .cue next to it.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">Expanding CSO to a temporary ISO before CHD conversion.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolMissing">CsoKit could not be found. Reinstall the package or open the tools folder to verify that csokit.exe and CsoKit.Native.dll are present.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolFailed">CsoKit could not be started or its version could not be verified.</sys:String>
