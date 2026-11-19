@@ -28,6 +28,12 @@ File paths, archive entries, CUE references, and file names are untrusted. They
 must be normalized and checked for containment and reparse-point traversal before
 read, extraction, move, overwrite, or deletion.
 
+A path check is not atomic with a later open. Header probes therefore validate the
+opened handle (not a reparse point, final path equal to the validated path), and
+conversions hold their source files open for reading with read sharing only until
+chdman finishes (`SourceFileLease`), so they cannot be swapped, renamed or deleted
+mid-job. See `docs/SECURITY_TODO_TOCTOU.md`.
+
 CHD and CSO inputs that require header evidence are fail-closed. Wrong magic,
 truncated headers, unsupported CHD versions, invalid CHD header lengths, and
 unavailable probes must not be routed to conversion based on extension alone.

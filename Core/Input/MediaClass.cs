@@ -65,6 +65,18 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
 
     public static readonly MediaInputClassifier Shared = new();
 
+    private readonly Action<string>? afterPathValidationForTests;
+
+    public MediaInputClassifier()
+    {
+    }
+
+    // Instance-only deterministic seam for the TOCTOU regression tests. Shared and normal callers have no callback.
+    internal MediaInputClassifier(Action<string> afterPathValidationForTests)
+    {
+        this.afterPathValidationForTests = afterPathValidationForTests;
+    }
+
     public MediaInputDescriptor Classify(string? path)
     {
         return ClassifyAsync(
@@ -132,6 +144,9 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
                 Extension: null,
                 "path-unsafe");
         }
+
+        // Missing paths also pass this gate; the seam sits before the existence checks and every header open.
+        afterPathValidationForTests?.Invoke(fullPath);
 
         if (Directory.Exists(fullPath))
         {
@@ -455,6 +470,13 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             FileShare.ReadWrite | FileShare.Delete,
             bufferSize: byteCount,
             options: FileOptions.Asynchronous | FileOptions.SequentialScan);
+
+        // The path was validated before this open; validate the opened object too, so a path component
+        // swapped for a junction or symbolic link in between is refused instead of probed.
+        if (!HandleIdentity.IsHandleAtPath(stream.SafeFileHandle, path))
+        {
+            throw new IOException("The opened file is not the validated path.");
+        }
 
         int totalRead = 0;
 
