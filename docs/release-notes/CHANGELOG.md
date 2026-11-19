@@ -6,7 +6,7 @@ GitHub Releases remain the public download history.
 
 ## v1.6.0 - 2026-11-19
 
-Adds four input formats and updates the bundled tools. Existing CD/DVD
+Adds five input formats and updates the bundled tools. Existing CD/DVD
 conversion defaults, queue run/cancel/retry behavior and output naming are
 unchanged.
 
@@ -51,6 +51,14 @@ unchanged.
 - MDS version 2/MDX, multiple sessions, mixed or unsupported sector sizes, a
   missing, split or mismatched `.mdf`, and gaps between tracks are refused
   before chdman runs. Nothing is written to the source folder.
+### ECM
+
+- `.bin.ecm` and `.img.ecm` images are decoded in the temp workspace and
+  converted with `createcd`, through their CUE when one is next to them (mixed
+  `.ecm` and plain tracks are supported) or as a single data track otherwise.
+- The decoded data must match the checksum stored in the file; damaged or
+  truncated files are refused before chdman runs. A CUE covered by `.ecm`
+  tracks is queued once.
 ### CsoKit 0.6.6
 
 - Updated the bundled CsoKit from 0.6.3 to the official 0.6.6 release (source
@@ -85,12 +93,12 @@ unchanged.
 
 ### Validation
 
-- Application tests: 218 passed, 0 failed, 4 skipped in a non-elevated run;
+- Application tests: 222 passed, 0 failed, 4 skipped in a non-elevated run;
   the skipped tests are the symbolic-link tests, which need administrator
   rights.
   New tests cover each format's refusal rules and real round trips through the
   bundled tools (createhd/extracthd, ZSO and maxcso-layout CSO through CsoKit
-  and createdvd/extractdvd, CloneCD and Alcohol MDS/MDF through createcd/extractcd
+  and createdvd/extractdvd, CloneCD, Alcohol MDS/MDF and ECM through createcd/extractcd
   and createdvd/extractdvd), each compared
   by SHA-256 or byte for byte.
 - Repository convention, local verification and end-user release output gates
