@@ -53,6 +53,14 @@ unchanged.
 - Pinned the new SHA-256 digests and updated the tool manifest, CsoKit legal
   notice, third-party notice and SBOM.
 
+### 7-Zip 26.06
+
+- Updated the bundled 7-Zip (`7z.exe`, `7z.dll`) from 26.02 to the official
+  26.06 x64 release. The installer digest matched the GitHub release digest;
+  the license text is unchanged.
+- Pinned the new SHA-256 digests in the runtime check, the repository and
+  release gates, the tool manifest and the SBOM.
+
 ### Validation
 
 - Application tests: 212 passed, 0 failed, 4 skipped in a non-elevated run;
