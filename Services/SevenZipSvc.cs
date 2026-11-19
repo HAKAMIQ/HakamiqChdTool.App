@@ -11,8 +11,8 @@ public sealed class SevenZipToolService
 {
     private const string FoundMessageKey = "LocArchive_SevenZipToolFound";
     private const string MissingMessageKey = "LocArchive_SevenZipToolMissing";
-    private const string BundledSevenZipExeSha256 = "83967F1B02B43C4EFEDA302795722C809E0E81B8307DE73558D10484D5676A7D";
-    private const string BundledSevenZipDllSha256 = "69FD4DF057985C40E510E2FAC182881C7F85E90AA13EC703F763A8FDB2CE61F8";
+    private const string BundledSevenZipExeSha256 = "DC0493429FE28136FCB177A0E77C9875CBB3B0BFF5F2F8EEBA4DF302E98CEF76";
+    private const string BundledSevenZipDllSha256 = "500DB9EB17F3C21B729BA41DD02ECFE1823DA05028C7E4BA129084CC74CC364E";
 
     private static readonly ILogger Logger = global::Serilog.Log.ForContext<SevenZipToolService>();
     private static readonly Lazy<SevenZipToolService> LazyInstance = new(() => new SevenZipToolService());
