@@ -59,7 +59,7 @@ public static class MediaInputRoles
 
         return normalized switch
         {
-            ".toc" or ".nrg" =>
+            ".toc" or ".nrg" or ".ccd" =>
                 QueueInputRole.ConvertibleDiscImage,
 
             ".zip" or ".rar" or ".7z" =>
