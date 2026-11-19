@@ -20,7 +20,8 @@ internal static partial class Program
         ("Accent.Text", "Layer.Canvas"), ("Accent.Text", "Layer.Card"),
         ("Accent.Foreground", "Accent"),
         ("Accent.SelectedForeground", "Accent.SelectedBackground"),
-        ("SuccessBadgeForeground", "SuccessBadge"), ("WarningBadgeForeground", "WarningBadge"), ("ErrorBadgeForeground", "ErrorBadge")
+        ("SuccessBadgeForeground", "SuccessBadge"), ("WarningBadgeForeground", "WarningBadge"), ("ErrorBadgeForeground", "ErrorBadge"),
+        ("ButtonDangerForeground", "ButtonDanger")
     ];
 
     private static void TestThemeTextContrastMeetsAa()
@@ -48,6 +49,7 @@ internal static partial class Program
     private static readonly (string Foreground, string Background, double Minimum)[] ThemeStatePairs =
     [
         ("Border.Strong", "Layer.Canvas", 3.0), ("Border.Strong", "Layer.Surface", 3.0), ("Border.Strong", "Layer.Card", 3.0),
+        ("ButtonDangerForeground", "ButtonDangerHover", 4.5), ("ButtonDangerForeground", "ButtonDangerPressed", 4.5),
         ("Text.Primary", "HoverSurface", 4.5), ("Text.Secondary", "HoverSurface", 4.5), ("Accent.Text", "HoverSurface", 4.5),
         ("Text.Primary", "PressedSurface", 4.5), ("Text.Secondary", "PressedSurface", 4.5)
     ];
