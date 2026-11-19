@@ -68,7 +68,8 @@ internal sealed class ExtractionOutputProofVerifier(
                 .ConfigureAwait(false);
         }
 
-        if (outputBundle.Kind == ExtractionOutputKind.CueBinBundle
+        // A CUE/BIN or GDI bundle is proven by rebuilding a CHD from it and comparing the SHA-1.
+        if (outputBundle.Kind is ExtractionOutputKind.CueBinBundle or ExtractionOutputKind.GdiBundle
             && extractionDecision.ExtractionKind == ChdmanExtractionKind.ExtractCd)
         {
             return await VerifyCueBinRoundTripAsync(

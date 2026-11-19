@@ -68,6 +68,9 @@ public sealed class AppSettings
 
     public bool DeleteSourceAfterVerifiedExtraction { get; set; } = false;
 
+    /// <summary>GD-ROM (Dreamcast) CHDs extract to GDI unless this is set; then they extract to CUE/BIN like CDs.</summary>
+    public bool ExtractGdRomAsCueBin { get; set; } = false;
+
     public bool EnableDeepIntegrityCheck { get; set; } = false;
 
     public bool ApplyStandardNamingBasedOnHash { get; set; } = false;
@@ -169,6 +172,7 @@ public sealed class AppSettings
         DeleteFailedOutput = other.DeleteFailedOutput;
         DeleteSourceAfterVerifiedConversion = other.DeleteSourceAfterVerifiedConversion;
         DeleteSourceAfterVerifiedExtraction = other.DeleteSourceAfterVerifiedExtraction;
+        ExtractGdRomAsCueBin = other.ExtractGdRomAsCueBin;
         EnableDeepIntegrityCheck = other.EnableDeepIntegrityCheck;
         ApplyStandardNamingBasedOnHash = other.ApplyStandardNamingBasedOnHash;
         RedumpDatabaseDownloadUrl = other.RedumpDatabaseDownloadUrl;
@@ -228,6 +232,7 @@ public sealed class AppSettings
             DeleteFailedOutput = DeleteFailedOutput,
             DeleteSourceAfterVerifiedConversion = DeleteSourceAfterVerifiedConversion,
             DeleteSourceAfterVerifiedExtraction = DeleteSourceAfterVerifiedExtraction,
+            ExtractGdRomAsCueBin = ExtractGdRomAsCueBin,
             EnableDeepIntegrityCheck = EnableDeepIntegrityCheck,
             ApplyStandardNamingBasedOnHash = ApplyStandardNamingBasedOnHash,
             RedumpDatabaseDownloadUrl = RedumpDatabaseDownloadUrl,
