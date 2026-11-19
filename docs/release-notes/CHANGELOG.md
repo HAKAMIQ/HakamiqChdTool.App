@@ -101,7 +101,7 @@ unchanged.
 
 ### Validation
 
-- Application tests: 223 passed, 0 failed, 4 skipped in a non-elevated run;
+- Application tests: 228 passed, 0 failed, 4 skipped in a non-elevated run;
   the skipped tests are the symbolic-link tests, which need administrator
   rights.
   New tests cover each format's refusal rules and real round trips through the
