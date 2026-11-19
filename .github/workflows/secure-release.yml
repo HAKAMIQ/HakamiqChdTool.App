@@ -389,33 +389,21 @@ jobs:
           $selfContainedPackage = ".\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-self-contained.zip"
           $notesPath = Join-Path $env:RUNNER_TEMP 'release-notes.md'
           $authenticodeNote = if ($env:AUTHENTICODE_POLICY -eq 'not-used') {
-            "Windows Authenticode signing is not used for this release.  `nWindows SmartScreen may therefore still display a reputation warning."
+            "Not code-signed, so Windows SmartScreen may show a warning."
           }
           else {
-            "Windows Authenticode signing is required and verified for this release."
+            "Signed with Windows Authenticode."
           }
           $changelogNotes = & .\scripts\GetReleaseNotes.ps1 -Version $env:RELEASE_VERSION
           @"
-          CHD Tool v$env:RELEASE_VERSION
-
-          ## Download options
-
-          **Recommended — Self-contained Windows x64**
-          Includes the required .NET 10 runtime. No separate .NET installation is required.
-
-          **Smaller download — Runtime-required Windows x64**
-          Requires Microsoft .NET 10 Desktop Runtime x64.
-
-          ## Changes
-
           $changelogNotes
 
-          ## Verification
+          ## Downloads
 
-          SHA-256 sidecar files are provided for release packages.
-          GitHub build provenance can be verified using GitHub artifact attestations.
+          - Self-contained: recommended, includes .NET 10.
+          - Runtime-required: smaller, needs .NET 10 Desktop Runtime x64.
 
-          $authenticodeNote
+          Each ZIP has a .sha256 file and a GitHub build attestation. $authenticodeNote
           "@ | Set-Content -LiteralPath $notesPath -Encoding UTF8
           gh release create $tag `
             $runtimePackage `
