@@ -34,7 +34,8 @@ public enum ChdMediaFormatKind
     Cso = 11,
     HardDisk = 12,
     Zso = 13,
-    Ccd = 14
+    Ccd = 14,
+    Mds = 15
 }
 
 public enum ChdWorkflowProfileKind
@@ -114,6 +115,8 @@ public static class ChdWorkflowProfilePlanner
     private const string StatusPrepareCsoToIsoKey = "LocWorkflow_PreparingCsoToIso";
     private const string StatusPrepareZsoToIsoKey = "LocWorkflow_PreparingZsoToIso";
     private const string StatusCreateCcdKey = "LocWorkflow_StatusCreateCcd";
+    private const string StatusCreateMdsKey = "LocWorkflow_StatusCreateMds";
+    private const string StatusCreateMdsDvdKey = "LocWorkflow_StatusCreateMdsDvd";
     private const string StatusVerifyChdKey = "LocWorkflow_StatusVerifyChd";
     private const string StatusExtractCdKey = "LocWorkflow_StatusExtractCd";
     private const string StatusExtractDvdKey = "LocWorkflow_StatusExtractDvd";
@@ -165,6 +168,7 @@ public static class ChdWorkflowProfilePlanner
             ".cso" => PlanCsoCreateDvd(inputPath, containerKind),
             ".zso" => PlanZsoCreateDvd(inputPath, containerKind),
             ".ccd" => PlanCcdCreateCd(inputPath, containerKind),
+            ".mds" => PlanMdsCreate(inputPath, containerKind),
             ".chd" => ChdWorkflowProfilePlan.Unsupported(ChdAlreadyChdMessageKey, containerKind),
             ".zip" or ".rar" or ".7z" => ChdWorkflowProfilePlan.Unsupported(ArchiveRequiresExtractionMessageKey, ChdMediaContainerKind.Archive),
             ".bin" => PlanStandaloneBinCreate(inputPath, containerKind),
@@ -212,6 +216,12 @@ public static class ChdWorkflowProfilePlanner
         ChdPlatformProfile profile,
         ChdMediaContainerKind containerKind)
     {
+        // The descriptor decides CD or DVD, so a selected profile cannot change an .mds plan.
+        if (string.Equals(extension, ".mds", StringComparison.Ordinal))
+        {
+            return PlanMdsCreate(inputPath, containerKind);
+        }
+
         if (!ChdPlatformProfiles.SupportsExtension(profile, extension))
         {
             return ChdWorkflowProfilePlan.Unsupported(UnsupportedMessageKey, containerKind);
@@ -298,6 +308,16 @@ public static class ChdWorkflowProfilePlanner
             return StatusCreateCcdKey;
         }
 
+        if (profile.PreparationKind == ChdInputPreparationKind.GenerateCueFromMds)
+        {
+            return StatusCreateMdsKey;
+        }
+
+        if (profile.PreparationKind == ChdInputPreparationKind.StageIsoFromMds)
+        {
+            return StatusCreateMdsDvdKey;
+        }
+
         if (profile.PreparationKind == ChdInputPreparationKind.ExpandZsoToIso
             || string.Equals(extension, ".zso", StringComparison.OrdinalIgnoreCase))
         {
@@ -341,6 +361,29 @@ public static class ChdWorkflowProfilePlanner
         };
     }
 
+    private static ChdWorkflowProfilePlan PlanMdsCreate(
+        string inputPath,
+        ChdMediaContainerKind containerKind)
+    {
+        AlcoholMdsParseResult layout = AlcoholMdsCueBuilder.Parse(inputPath);
+        if (!layout.IsValid || layout.Layout is null)
+        {
+            return ChdWorkflowProfilePlan.Unsupported(layout.MessageKey, containerKind);
+        }
+
+        bool dvd = layout.Layout.Medium == AlcoholMdsMedium.Dvd;
+        return new ChdWorkflowProfilePlan
+        {
+            IsSupported = true,
+            ContainerKind = containerKind,
+            MediaKind = ChdMediaFormatKind.Mds,
+            ProfileKind = dvd ? ChdWorkflowProfileKind.CreateDvd : ChdWorkflowProfileKind.CreateCd,
+            Command = dvd ? "createdvd" : "createcd",
+            OutputExtension = ".chd",
+            StatusLine = dvd ? StatusCreateMdsDvdKey : StatusCreateMdsKey,
+            PlatformProfile = dvd ? ChdPlatformProfiles.AlcoholDvd : ChdPlatformProfiles.AlcoholCd
+        };
+    }
     private static ChdWorkflowProfilePlan PlanCcdCreateCd(
         string inputPath,
         ChdMediaContainerKind containerKind)

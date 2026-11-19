@@ -637,6 +637,14 @@ Path:
     <sys:String x:Key="LocWorkflow_CcdImageMissing">The .img file that belongs to this .ccd was not found next to it with the same name.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdStagingFailed">The CloneCD .img could not be prepared in the temporary folder. Check free space on the system drive and that the image is readable.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdImageNotAligned">The CloneCD .img size is not a multiple of 2352 bytes, so the image is incomplete or not a raw CD image.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateMds">Alcohol 120% image (.mds) detected. A temporary CUE is generated and the disc is converted with createcd. Subchannel data in the .mdf, if any, is not kept.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateMdsDvd">Alcohol 120% DVD image (.mds) detected. The .mdf is converted with createdvd.</sys:String>
+    <sys:String x:Key="LocWorkflow_MdsInvalid">The Alcohol 120% descriptor (.mds) could not be read or describes a track layout that cannot be converted safely.</sys:String>
+    <sys:String x:Key="LocWorkflow_MdsUnsupportedVersion">This .mds version is not supported. Only MDS version 1 files are supported, not MDS 2 or MDX.</sys:String>
+    <sys:String x:Key="LocWorkflow_MdsMultiSession">This Alcohol 120% image has more than one session. Multi-session discs are not converted, to avoid losing a session.</sys:String>
+    <sys:String x:Key="LocWorkflow_MdsImageMissing">The .mdf file that belongs to this .mds was not found in the same folder.</sys:String>
+    <sys:String x:Key="LocWorkflow_MdsImageSizeMismatch">The .mdf size does not match what the .mds describes, so the image is incomplete or split into several files.</sys:String>
+    <sys:String x:Key="LocWorkflow_MdsStagingFailed">The .mdf could not be prepared in the temporary folder. Check free space on the system drive and that the image is readable.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">Expanding CSO to a temporary ISO before CHD conversion.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolMissing">CsoKit could not be found. Reinstall the package or open the tools folder to verify that csokit.exe and CsoKit.Native.dll are present.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolFailed">CsoKit could not be started or its version could not be verified.</sys:String>

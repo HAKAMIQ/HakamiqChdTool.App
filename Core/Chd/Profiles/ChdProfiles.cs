@@ -112,6 +112,30 @@ public static class ChdPlatformProfiles
         HunkSize: null,
         Note: "CloneCD .ccd/.img. A temporary CUE is generated; subchannel data is not kept.");
 
+    // Alcohol 120%: the .mds descriptor describes the .mdf. A CD gets a temporary CUE for
+    // createcd; a DVD .mdf is a plain 2048-byte image for createdvd. Subchannel data is not kept.
+    public static readonly ChdPlatformProfile AlcoholCd = new(
+        PlatformId: "alcohol-mds-cd",
+        DisplayName: "Alcohol 120% CD image",
+        InputExtensions: [".mds"],
+        CommandKind: ChdCommandKind.CreateCd,
+        PreparationKind: ChdInputPreparationKind.GenerateCueFromMds,
+        RequiresToc: false,
+        RequiresDvdSectorAlignment: false,
+        HunkSize: null,
+        Note: "Alcohol 120% .mds/.mdf CD. A temporary CUE is generated; subchannel data is not kept.");
+
+    public static readonly ChdPlatformProfile AlcoholDvd = new(
+        PlatformId: "alcohol-mds-dvd",
+        DisplayName: "Alcohol 120% DVD image",
+        InputExtensions: [".mds"],
+        CommandKind: ChdCommandKind.CreateDvd,
+        PreparationKind: ChdInputPreparationKind.StageIsoFromMds,
+        RequiresToc: false,
+        RequiresDvdSectorAlignment: false,
+        HunkSize: null,
+        Note: "Alcohol 120% .mds/.mdf DVD. The .mdf is staged as a temporary ISO.");
+
     public static readonly ChdPlatformProfile Ps2Dvd = new(
         PlatformId: "sony-ps2-dvd",
         DisplayName: "Sony PlayStation 2 DVD",
@@ -159,6 +183,8 @@ public static class ChdPlatformProfiles
         PspCso,
         CompressedZso,
         CloneCd,
+        AlcoholCd,
+        AlcoholDvd,
         Ps2Dvd,
         Ps2Cd
     ];
@@ -194,6 +220,7 @@ public static class ChdPlatformProfiles
             ".cso" => PspCso,
             ".zso" => CompressedZso,
             ".ccd" => CloneCd,
+            ".mds" => AlcoholCd,
             ".iso" => ResolveIsoProfile(detectedPlatform),
             ".cue" => ResolveCueProfile(detectedPlatform),
             ".toc" => GenericCd,
@@ -213,6 +240,13 @@ public static class ChdPlatformProfiles
             && string.Equals(ToCommandName(profile.CommandKind), command, StringComparison.OrdinalIgnoreCase))
         {
             return profile;
+        }
+
+        // An Alcohol .mds is a CD or a DVD; the planner reads the descriptor and picks the command.
+        if (string.Equals(Path.GetExtension(inputPath), ".mds", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(command, "createdvd", StringComparison.OrdinalIgnoreCase))
+        {
+            return AlcoholDvd;
         }
 
         if (string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase))

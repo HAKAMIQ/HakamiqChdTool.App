@@ -33,6 +33,11 @@ internal sealed class ChdCsoInputPreparationCoordinator
             return await PrepareCloneCdCueAsync(inputPath, outputPath, resolvedInputPath, compressionResolution, resolvedHunkSizeBytes, executionReportContext, cancellationToken).ConfigureAwait(false);
         }
 
+        if (preparationKind is ChdInputPreparationKind.GenerateCueFromMds or ChdInputPreparationKind.StageIsoFromMds)
+        {
+            return await PrepareAlcoholMdsAsync(inputPath, outputPath, resolvedInputPath, preparationKind, compressionResolution, resolvedHunkSizeBytes, executionReportContext, cancellationToken).ConfigureAwait(false);
+        }
+
         if (preparationKind is not (ChdInputPreparationKind.ExpandCsoToIso or ChdInputPreparationKind.ExpandZsoToIso))
         {
             return ChdCsoInputPreparationOutcome.NotRequired;
@@ -105,6 +110,97 @@ internal sealed class ChdCsoInputPreparationCoordinator
         }
     }
 
+    private static async Task<ChdCsoInputPreparationOutcome> PrepareAlcoholMdsAsync(
+        string inputPath,
+        string outputPath,
+        string resolvedInputPath,
+        ChdInputPreparationKind preparationKind,
+        ChdCompressionResolution compressionResolution,
+        int resolvedHunkSizeBytes,
+        ChdConversionServiceSupport.ChdExecutionReportContext executionReportContext,
+        CancellationToken cancellationToken)
+    {
+        ChdCsoInputPreparationOutcome Fail(string messageKey) => new(
+            null,
+            ChdConversionServiceSupport.BuildPreExecutionFailureResult(
+                inputPath,
+                outputPath,
+                messageKey,
+                compressionResolution,
+                resolvedHunkSizeBytes,
+                executionReportContext));
+
+        AlcoholMdsParseResult parsed = AlcoholMdsCueBuilder.Parse(resolvedInputPath);
+        if (!parsed.IsValid || parsed.Layout is null)
+        {
+            return Fail(parsed.MessageKey);
+        }
+
+        AlcoholMdsLayout layout = parsed.Layout;
+        bool dvd = layout.Medium == AlcoholMdsMedium.Dvd;
+        if (dvd != (preparationKind == ChdInputPreparationKind.StageIsoFromMds))
+        {
+            // The descriptor changed between planning and conversion.
+            return Fail(AlcoholMdsCueBuilder.InvalidMessageKey);
+        }
+
+        CsoTempWorkspace? workspace = CsoTempWorkspace.Create();
+        try
+        {
+            ConversionPathValidator.ThrowIfUnsafeForChdman(layout.ImagePath, nameof(inputPath));
+            const string StagedImageName = "tmp.img";
+            string stagedImagePath = dvd
+                ? workspace.PreparedIsoPath
+                : Path.Combine(workspace.DirectoryPath, StagedImageName);
+
+            if (!await AlcoholMdfStager.TryStageAsync(layout, stagedImagePath, cancellationToken).ConfigureAwait(false))
+            {
+                return Fail(AlcoholMdsCueBuilder.StagingFailedMessageKey);
+            }
+
+            string preparedInputPath = stagedImagePath;
+            if (!dvd)
+            {
+                preparedInputPath = Path.Combine(workspace.DirectoryPath, "tmp.cue");
+                File.WriteAllText(preparedInputPath, AlcoholMdsCueBuilder.BuildCue(layout, StagedImageName), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            }
+
+            bool stripped = layout.SectorFormat == AlcoholMdsSectorFormat.Raw2352WithSubchannel;
+            var report = new ChdConversionServiceSupport.ChdInputPreparationReport(
+                OriginalInputPath: inputPath,
+                PreparedInputPath: preparedInputPath,
+                PreparationTool: "Alcohol 120% MDS reader",
+                PreparationToolVersion: string.Empty,
+                PreparationCommand: dvd
+                    ? "stage .mdf as tmp.iso"
+                    : stripped
+                        ? "generate tmp.cue from .mds; copy .mdf without subchannel data"
+                        : "generate tmp.cue from .mds",
+                PreparationExitCode: 0,
+                PreparedOutputBytes: new FileInfo(stagedImagePath).Length,
+                TemporaryIsoDeleted: false,
+                SourcePreserved: true);
+
+            // Ownership transfers to the returned lease, which the conversion caller disposes.
+#pragma warning disable CA2000
+            var lease = new ChdCsoPreparedInputLease(workspace, report, preparedInputPath);
+#pragma warning restore CA2000
+            workspace = null;
+            return new ChdCsoInputPreparationOutcome(lease, null);
+        }
+        catch (Exception ex) when (ex is IOException
+                                  or UnauthorizedAccessException
+                                  or ArgumentException
+                                  or InvalidOperationException
+                                  or NotSupportedException)
+        {
+            return Fail(AlcoholMdsCueBuilder.InvalidMessageKey);
+        }
+        finally
+        {
+            workspace?.Dispose();
+        }
+    }
     private static async Task<ChdCsoInputPreparationOutcome> PrepareCloneCdCueAsync(
         string inputPath,
         string outputPath,
