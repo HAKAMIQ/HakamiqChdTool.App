@@ -179,6 +179,13 @@ public sealed class PlatformAwareChdProfilePolicy : IPlatformAwareChdProfilePoli
             inputPath,
             BuildCanonicalPlatformHint(request));
 
+        // An Alcohol .mds can hold a CD or a DVD; the planner read the descriptor and chose the command.
+        if (profile == ChdPlatformProfiles.AlcoholCd
+            && string.Equals(request.CurrentCommand, "createdvd", StringComparison.OrdinalIgnoreCase))
+        {
+            profile = ChdPlatformProfiles.AlcoholDvd;
+        }
+
         return profile is not null;
     }
 
