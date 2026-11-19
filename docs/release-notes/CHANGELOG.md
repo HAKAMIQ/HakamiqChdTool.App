@@ -140,7 +140,7 @@ unchanged.
 
 - Application tests: 236 passed, 0 failed, 6 skipped in a non-elevated run;
   the skipped tests are the symbolic-link tests, which need administrator
-  rights.
+  rights. Run elevated: 242 passed, 0 skipped.
   New tests cover each format's refusal rules and real round trips through the
   bundled tools (createhd/extracthd, ZSO and maxcso-layout CSO through CsoKit
   and createdvd/extractdvd, CloneCD, Alcohol MDS/MDF and ECM through createcd/extractcd
