@@ -245,7 +245,7 @@
     <sys:String x:Key="LocStatus_VerifyCompletedSuccess">تم التحقق من ملف CHD بنجاح.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedCueBin">تم الاستخراج إلى CUE+BIN بنجاح.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedIso">تم الاستخراج إلى ISO. تم التحقق من المصدر، ولم يجرِ تحقق مستقل للناتج.</sys:String>
-    <sys:String x:Key="LocStatus_ExtractCompletedGdi">تم الاستخراج إلى GDI/BIN. تم التحقق من المصدر، ولم يجرِ تحقق مستقل للناتج.</sys:String>
+    <sys:String x:Key="LocStatus_ExtractCompletedGdi">تم استخراج ملف CHD إلى GDI بنجاح.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedCue">تم الاستخراج إلى CUE/BIN. تم التحقق من المصدر، ولم يجرِ تحقق مستقل للناتج.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedImg">تم الاستخراج إلى IMG بنجاح.</sys:String>
     <sys:String x:Key="LocStatus_ExtractCompletedRaw">تم الاستخراج إلى RAW بنجاح.</sys:String>
@@ -524,6 +524,9 @@
     <sys:String x:Key="LocWorkflow_StatusCreateBinRescue">تم التعرف على ملف BIN. جارٍ إعداد ملف CUE آمن قبل التحويل إلى CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusVerifyChd">خطة التحقق مفعلة (دون تعديل الملف الأصلي).</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractCd">تم التعرف على CHD كقرص CD. سيتم الاستخراج إلى CUE/BIN.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusExtractGdi">تم التعرف على ملف CHD كقرص Dreamcast من نوع GD-ROM. سيُستخرج إلى GDI مع ملف لكل مسار.</sys:String>
+    <sys:String x:Key="LocConversion_ExtractGdRomAsCueBin">استخراج أقراص Dreamcast ‏(GD-ROM) إلى CUE/BIN</sys:String>
+    <sys:String x:Key="LocConversion_ExtractGdRomAsCueBinDesc">تُستخرج ملفات CHD الخاصة بأقراص GD-ROM إلى GDI، وهي الصيغة التي تستخدمها أدوات Dreamcast وجهاز GDEMU. فعّل هذا الخيار للحصول على CUE/BIN بدلًا منها.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractDvd">تم التعرف على CHD كقرص DVD. سيتم الاستخراج إلى ISO.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractHd">تم التعرف على CHD كصورة قرص ثابت. سيتم الاستخراج إلى IMG.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractRaw">تم التعرف على CHD كصورة RAW. سيتم الاستخراج إلى ملف RAW.</sys:String>
