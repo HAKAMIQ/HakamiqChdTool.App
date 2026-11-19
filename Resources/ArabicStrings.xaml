@@ -633,6 +633,12 @@
     <sys:String x:Key="LocWorkflow_CsoToIsoThenChdNotice">سيتم فك CSO إلى ISO مؤقت ثم تحويله إلى CHD. لن يتم تعديل ملف CSO الأصلي.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoTempSpaceInsufficient">مساحة القرص المؤقت غير كافية لفك CSO إلى ISO مؤقت.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoUnsupported">ملف CSO غير مدعوم حاليًا. يدعم مسار العمل في التطبيق ملفات CSO v1 فقط في هذا الإصدار.</sys:String>
+    <sys:String x:Key="LocWorkflow_PreparingZsoToIso">جارٍ فك ZSO إلى ISO مؤقت قبل تحويل CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoToolTooOld">يحتاج فك ZSO إلى CsoKit 0.6.4 أو أحدث. حدّث CsoKit أو أزل المسار الخارجي من الخيارات لاستخدام النسخة المرفقة.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoPreparationFailed">تعذّر فك ZSO إلى ISO مؤقت، وقد يكون الملف تالفًا أو ناقصًا. لم يبدأ تحويل CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoPreparationCancelled">أُلغي فك ZSO قبل بدء تحويل CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoPrepared">تم تجهيز ISO مؤقت من ZSO، وسيبدأ تحويل CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoTempSpaceInsufficient">مساحة القرص المؤقت غير كافية لفك ZSO إلى ISO مؤقت.</sys:String>
     <sys:String x:Key="LocChdPolicy_DvdSectorAlignmentInvalid">حجم صورة DVD غير متوافق مع قطاعات 2048 بايت. لا يمكن تحويل هذا الملف عبر createdvd بأمان.</sys:String>
     <sys:String x:Key="LocFormatSafety_CsoTitle">تجهيز CSO</sys:String>
     <sys:String x:Key="LocFormatSafety_ChdTitle">توافق CHD</sys:String>
