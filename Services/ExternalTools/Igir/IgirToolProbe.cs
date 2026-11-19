@@ -27,7 +27,7 @@ public sealed class IgirToolProbe(IgirToolLocator locator, ExternalToolProcessRu
             return new IgirToolProbeResult(shownPath, string.Empty, false, !exists);
         }
 
-        // igir 5.7.2 prints its version in the report help banner; it does not support --version.
+        // igir 5.8.1 prints its version in the report help banner; it does not support --version.
         ExternalToolProcessResult result = await runner.RunAsync(path, ["report", "--help"], token, 4096, "igir.exe").ConfigureAwait(false);
         string version = ParseVersion(result.StandardOutput + Environment.NewLine + result.StandardError);
         bool valid = !result.WasCancelled && result.ExitCode == 0

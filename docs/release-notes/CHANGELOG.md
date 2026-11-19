@@ -61,6 +61,19 @@ unchanged.
 - Pinned the new SHA-256 digests in the runtime check, the repository and
   release gates, the tool manifest and the SBOM.
 
+### igir 5.8.1
+
+- The optional igir report now requires the official v5.8.1 Windows x64
+  executable (was v5.7.2). `scripts/FetchIgir.ps1` and
+  `scripts/FetchIgirSource.ps1` fetch and verify v5.8.1 and its GPL-3.0
+  Corresponding Source (`igir-5.8.1-source.tar.gz`). An existing v5.7.2
+  executable is no longer accepted; run the fetch script again.
+- The app still runs only `igir report` with the same arguments. Run side by
+  side on a synthetic library, v5.8.1 produced the same CSV columns and rows
+  as v5.7.2 and wrote nothing outside the run directory.
+- Pinned the new digests in the locator, fetch scripts, release gates, legal
+  notices, tool manifest and SBOM; updated the Options and Library messages.
+
 ### Validation
 
 - Application tests: 212 passed, 0 failed, 4 skipped in a non-elevated run;

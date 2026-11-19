@@ -9,8 +9,8 @@ namespace HakamiqChdTool.App.Services.ExternalTools.Igir;
 
 public sealed class IgirToolLocator
 {
-    public const string Version = "5.7.2";
-    public const string ExecutableSha256 = "716ECBD7033081FC000A51FBD0588FEE6C1F1E95DAB1EFD6443324BC73597511";
+    public const string Version = "5.8.1";
+    public const string ExecutableSha256 = "F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1";
     private const string RelativePath = "Tools/igir/win-x64/igir.exe";
 
     public async Task<string?> FindVerifiedAsync(string applicationDirectory, CancellationToken cancellationToken = default) =>

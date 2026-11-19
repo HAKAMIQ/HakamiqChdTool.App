@@ -24,7 +24,7 @@ internal static partial class Program
         AssertFalse(args.Any(argument => argument is "move" or "copy" or "link" or "extract" or "zip" or "clean" or "playlist" or "fixdat" or "dir2dat"
             or "--overwrite" or "--overwrite-invalid" or "--move-delete-dirs" or "--clean-backup" or "--patch"),
             "No igir write command or flag may be constructed.");
-        AssertEqual("5.7.2", IgirToolLocator.Version, "The executable version is pinned.");
+        AssertEqual("5.8.1", IgirToolLocator.Version, "The executable version is pinned.");
     }
 
     private static void TestIgirCandidateValidation(AppReflection app, string workDirectory)
@@ -71,8 +71,8 @@ internal static partial class Program
         if (File.Exists(officialTool))
         {
             IgirToolProbeResult verified = probe.CheckAsync(repositoryRoot, officialTool, CancellationToken.None).GetAwaiter().GetResult();
-            AssertTrue(verified.IsAvailable && verified.Version == "5.7.2",
-                "The pinned official executable is connected only when its report help banner confirms v5.7.2.");
+            AssertTrue(verified.IsAvailable && verified.Version == "5.8.1",
+                "The pinned official executable is connected only when its report help banner confirms v5.8.1.");
         }
     }
 

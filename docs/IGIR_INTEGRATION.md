@@ -275,22 +275,26 @@ Each stage is one patch with its own tests. Do not merge stages.
   `3P_NOTICE.txt` and About credits mention igir.
 - No igir source file exists anywhere in this repository.
 
-## Verified implementation checkpoint (2026-10-17)
+## Verified implementation checkpoint (2026-10-17, updated to v5.8.1 on 2026-11-19)
 
-- Official v5.7.2 Windows x64 release was downloaded and inspected. ZIP SHA-256:
-  `7E448AE8E34377A8829E33C949B07A09613CB3A0DAD2B4325CA9BB52CF8D7584`.
-- `igir.exe` SHA-256: `716ECBD7033081FC000A51FBD0588FEE6C1F1E95DAB1EFD6443324BC73597511`;
-  size: 92,256,256 bytes. The binary is not committed; `scripts/FetchIgir.ps1`
+- Official v5.8.1 Windows x64 release was downloaded and inspected. ZIP SHA-256:
+  `48025BACCB4EE564B6DDA4B3AA65C9B90AB01340C2A43773FA506DC880D013F2`.
+- `igir.exe` SHA-256: `F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1`;
+  size: 121,495,552 bytes. The binary is not committed; `scripts/FetchIgir.ps1`
   verifies both digests and refuses to overwrite an existing executable.
-- The official executable reported `v5.7.2 (Bun v1.4.2)`. Its help output
+- The official executable reported `v5.8.1 (Bun v1.4.4)`. Its help output
   confirmed `report`, repeatable `--dat`, `--input`, `--report-output`,
   `--cache-path`, `--temp-dir`, checksum bounds, and reader/dat thread options.
   The app passes arguments through `ArgumentList` using only `report`, writes
   work/cache files outside the selected library, and verifies the executable
   SHA-256 before each invocation.
+- v5.8.1 was run with the exact `IgirArgs` report arguments side by side with
+  v5.7.2 on a synthetic library and XML DAT; the CSV columns and rows were
+  identical, nothing was written outside the run directory, and the library
+  was unchanged.
 - A bounded RFC-style CSV parser preserves `ROM Files` as emitted and rejects
   unknown statuses. The Library window includes an optional report command.
 - End-to-end igir execution from the WPF app and release ZIP packaging remain
-  unverified; the 92 MB executable must be fetched separately before runtime
+  unverified; the 121 MB executable must be fetched separately before runtime
   use. DAT match evidence is shown in the report and is not wired as an
   automatic move authorization.

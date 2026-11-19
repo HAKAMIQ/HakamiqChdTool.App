@@ -8,27 +8,27 @@ game files against user-provided DAT files and write a CSV report.
 - Tool: `igir.exe`
 - Project: igir — <https://igir.io/>
 - Author: Christian Emmer and contributors
-- Version: 5.7.2
+- Version: 5.8.1
 - License: GPL-3.0-or-later (full text: `IGIR_GPL-3.0.txt`)
-- Source: <https://github.com/emmercm/igir/tree/v5.7.2>
+- Source: <https://github.com/emmercm/igir/tree/v5.8.1>
 - Path: `Tools\igir\win-x64`
-- ZIP SHA-256: `7E448AE8E34377A8829E33C949B07A09613CB3A0DAD2B4325CA9BB52CF8D7584`
-- Executable SHA-256: `716ECBD7033081FC000A51FBD0588FEE6C1F1E95DAB1EFD6443324BC73597511`
+- ZIP SHA-256: `48025BACCB4EE564B6DDA4B3AA65C9B90AB01340C2A43773FA506DC880D013F2`
+- Executable SHA-256: `F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1`
 - Modified: no. The executable is byte-identical to the upstream release asset.
 
 ## Corresponding Source (GPL-3.0 section 6)
 
 The complete Corresponding Source for the included `igir.exe` is the upstream
-v5.7.2 source tree, including `package.json` and `package-lock.json`, which pin
+v5.8.1 source tree, including `package.json` and `package-lock.json`, which pin
 the third-party packages bundled into the executable.
 
-- File: `igir-5.7.2-source.tar.gz`, published next to the CHD Tool release ZIP
+- File: `igir-5.8.1-source.tar.gz`, published next to the CHD Tool release ZIP
   on the same release page, at no extra charge.
 - Source archive SHA-256:
-  `EA5341ED3A40054BFBF2F6D26F6C76902C6D5EC949D66D38692218656245875B`
-- Upstream copy: <https://github.com/emmercm/igir/archive/refs/tags/v5.7.2.tar.gz>
+  `18742ACA59AAD2D562B25645EC6DAE728A9BF234AE597E2BD162ABCC992BEF46`
+- Upstream copy: <https://github.com/emmercm/igir/archive/refs/tags/v5.8.1.tar.gz>
 - Written offer: for at least three years after the last CHD Tool release that
-  includes igir v5.7.2, anyone who received that release may request this same
+  includes igir v5.8.1, anyone who received that release may request this same
   source archive, at no charge beyond the cost of physically performing the
   transfer, by opening an issue at
   <https://github.com/HAKAMIQ/HakamiqChdTool.App/issues>.

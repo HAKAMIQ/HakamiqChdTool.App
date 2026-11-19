@@ -5,9 +5,9 @@ param()
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $Destination = Join-Path $ProjectRoot 'Tools\igir\win-x64\igir.exe'
-$ZipUrl = 'https://github.com/emmercm/igir/releases/download/v5.7.2/igir-5.7.2-Windows-x64.zip'
-$ExpectedZipHash = '7E448AE8E34377A8829E33C949B07A09613CB3A0DAD2B4325CA9BB52CF8D7584'
-$ExpectedExeHash = '716ECBD7033081FC000A51FBD0588FEE6C1F1E95DAB1EFD6443324BC73597511'
+$ZipUrl = 'https://github.com/emmercm/igir/releases/download/v5.8.1/igir-5.8.1-Windows-x64.zip'
+$ExpectedZipHash = '48025BACCB4EE564B6DDA4B3AA65C9B90AB01340C2A43773FA506DC880D013F2'
+$ExpectedExeHash = 'F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1'
 
 if (Test-Path -LiteralPath $Destination) { throw "Refusing to overwrite existing tool: $Destination" }
 $Scratch = Join-Path ([System.IO.Path]::GetTempPath()) ('hakamiq-igir-' + [guid]::NewGuid().ToString('N'))
@@ -39,7 +39,7 @@ try {
     New-Item -ItemType Directory -Path $DestinationDirectory -Force | Out-Null
     if (Test-Path -LiteralPath $Destination) { throw "Refusing to overwrite existing tool: $Destination" }
     [System.IO.File]::Move((Join-Path $Scratch 'igir.exe'), $Destination)
-    Write-Host "Verified igir v5.7.2 installed at $Destination"
+    Write-Host "Verified igir v5.8.1 installed at $Destination"
 } finally {
     Remove-Item -LiteralPath $Scratch -Recurse -Force
 }
