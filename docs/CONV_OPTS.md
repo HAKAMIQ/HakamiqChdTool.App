@@ -32,7 +32,7 @@ Extract copies data out of a CHD when the CHD type is supported.
 
 Common outputs:
 
-- `extractcd` -> CUE/BIN
+- `extractcd` -> CUE/BIN, or GDI for a GD-ROM (Dreamcast) CHD
 - `extractdvd` -> ISO
 - `extracthd` -> IMG
 - `extractraw` -> RAW
@@ -55,7 +55,7 @@ Cancelled is not failed. Unsupported is not the same as a broken file. The disti
 
 Output names should be predictable.
 
-For extraction, the final output follows the CHD name and the expected extension. CUE/BIN bundles are treated as one disc output, not as random loose files.
+For extraction, the final output follows the CHD name and the expected extension. CUE/BIN and GDI bundles are treated as one disc output, not as random loose files: the tracks are renamed to the final name, the descriptor is written last, existing files are not replaced without permission, and a failed step is rolled back.
 
 If Redump data is available on your machine, the app may suggest a better name. The app does not include Redump files.
 

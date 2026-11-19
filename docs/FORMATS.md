@@ -109,7 +109,8 @@ Existing CHD files can be verified.
 
 Extraction depends on the CHD type:
 
-- CD or GD-ROM CHD normally extracts to CUE/BIN.
+- CD CHD extracts to CUE/BIN.
+- GD-ROM (Dreamcast) CHD extracts to GDI with one file per track, the format GDEMU and Dreamcast tools use. Settings > Conversion > CHD settings > "Extract Dreamcast GD-ROM to CUE/BIN" switches it back to CUE/BIN. A GD-ROM is recognised from its CHD track metadata, not from its size or name.
 - DVD CHD normally extracts to ISO.
 - Hard disk CHD normally extracts to IMG.
 
