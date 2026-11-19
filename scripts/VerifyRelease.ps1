@@ -831,7 +831,7 @@ function Assert-BundledToolHashes {
         (Test-Path -LiteralPath (Join-Path $OutputPath "Tools\igir\win-x64\igir.exe") -PathType Leaf)) {
         $relativePath = "Tools\igir\win-x64\igir.exe"
         $actualHash = (Get-FileHash -LiteralPath (Join-Path $OutputPath $relativePath) -Algorithm SHA256).Hash
-        $expectedHash = "716ECBD7033081FC000A51FBD0588FEE6C1F1E95DAB1EFD6443324BC73597511"
+        $expectedHash = "F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1"
         if (-not $actualHash.Equals($expectedHash, [System.StringComparison]::OrdinalIgnoreCase)) {
             throw "Bundled tool SHA-256 mismatch for ${relativePath}. Expected=$expectedHash Actual=$actualHash"
         }
@@ -845,9 +845,9 @@ function Assert-IgirReleaseCompliance {
         return
     }
 
-    $igirVersion = "5.7.2"
+    $igirVersion = "5.8.1"
     $igirLicense = "GPL-3.0-or-later"
-    $sourceArchiveHash = "EA5341ED3A40054BFBF2F6D26F6C76902C6D5EC949D66D38692218656245875B"
+    $sourceArchiveHash = "18742ACA59AAD2D562B25645EC6DAE728A9BF234AE597E2BD162ABCC992BEF46"
     $igirHash = (Get-FileHash -LiteralPath $igirPath -Algorithm SHA256).Hash
 
     foreach ($required in @("docs\sbom.cdx.json", "docs\legal\IGIR_NOTICE.md", "docs\legal\IGIR_GPL-3.0.txt", "docs\legal\3P_NOTICE.txt")) {

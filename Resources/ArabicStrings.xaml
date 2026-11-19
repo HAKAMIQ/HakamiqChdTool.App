@@ -1745,7 +1745,7 @@
     <sys:String x:Key="LocExternalTools_IgirStatusChecking">جارٍ الفحص...</sys:String>
     <sys:String x:Key="LocExternalTools_IgirSelect">اختيار igir.exe</sys:String>
     <sys:String x:Key="LocExternalTools_IgirToolFilter">igir (igir.exe)|igir.exe|ملفات تنفيذية (*.exe)|*.exe</sys:String>
-    <sys:String x:Key="LocExternalTools_IgirInvalid">اختر igir.exe الرسمي إصدار 5.7.2 المطابق لبصمة SHA-256 المعتمدة.</sys:String>
+    <sys:String x:Key="LocExternalTools_IgirInvalid">اختر igir.exe الرسمي إصدار 5.8.1 المطابق لبصمة SHA-256 المعتمدة.</sys:String>
     <sys:String x:Key="LocExternalTools_SetupNoteTitle">ملاحظة</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">تعذر التحقق من سلامة ملف CHD.&#x0A;قد يكون الملف تالفاً، غير مكتمل، أو بصيغة غير مدعومة.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">تنبيه</sys:String>
@@ -1810,7 +1810,7 @@
     <sys:String x:Key="LocLib_Err_NoOutput">أدخل مجلد التنظيم المقترح.</sys:String>
     <sys:String x:Key="LocLib_Err_OutputNotAbsolute">يجب أن يكون المجلد المقترح مساراً كاملاً.</sys:String>
     <sys:String x:Key="LocLib_Err_Unexpected">توقف التحليل بشكل غير متوقع. راجع السجل لمعرفة التفاصيل.</sys:String>
-    <sys:String x:Key="LocLib_IgirMissing">أداة igir غير متوفرة أو لم تجتز فحص SHA-256 والإصدار 5.7.2.</sys:String>
+    <sys:String x:Key="LocLib_IgirMissing">أداة igir غير متوفرة أو لم تجتز فحص SHA-256 والإصدار 5.8.1.</sys:String>
     <sys:String x:Key="LocLib_IgirFailed">فشل تشغيل تقرير igir. أعد فحص الأداة ثم حاول مرة أخرى.</sys:String>
     <sys:String x:Key="LocLib_Status_Verified">مطابق</sys:String>
     <sys:String x:Key="LocLib_Status_Candidate">مرشح</sys:String>

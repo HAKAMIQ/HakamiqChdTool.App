@@ -3261,10 +3261,10 @@ function Test-SecurityHardeningRegressionGates {
 
             $igirComponent = @($sbom.components | Where-Object { [string] $_.name -eq 'igir' })
             if ($igirComponent.Count -ne 1 -or
-                [string] $igirComponent[0].version -ne '5.7.2' -or
+                [string] $igirComponent[0].version -ne '5.8.1' -or
                 @($igirComponent[0].licenses | Where-Object { [string] $_.license.id -eq 'GPL-3.0-or-later' }).Count -ne 1 -or
                 @($igirComponent[0].externalReferences | Where-Object { [string] $_.type -eq 'source-distribution' }).Count -ne 1) {
-                Add-Failure 'SBOM must list igir 5.7.2 with its GPL-3.0-or-later license and source distribution.'
+                Add-Failure 'SBOM must list igir 5.8.1 with its GPL-3.0-or-later license and source distribution.'
             }
 
             $verifyReleaseText = Get-Content -LiteralPath (Join-Path $root 'scripts\VerifyRelease.ps1') -Raw -Encoding UTF8
