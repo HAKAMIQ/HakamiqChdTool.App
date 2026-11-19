@@ -268,7 +268,14 @@ public sealed class SevenZipArchiveExtractionService
                 };
             }
 
+            // A CUE whose tracks are .ecm files is converted through its first .ecm entry.
             if (validateSingleConvertibleLeader
+                && string.Equals(Path.GetExtension(extractedPath), ".cue", StringComparison.OrdinalIgnoreCase)
+                && HakamiqChdTool.App.Core.Input.EcmEvidence.TryReadCueSet(extractedPath) is { } ecmSet)
+            {
+                extractedPath = EnsurePathInsideExtractionRoot(ecmSet.LeaderEcmPath, extractionRoot);
+            }
+            else if (validateSingleConvertibleLeader
                 && !ArchiveCandidateDiscovery.TryValidateExtractedDescriptorDependencies(
                     extractedPath,
                     extractedFiles,
@@ -575,7 +582,8 @@ public sealed class SevenZipArchiveExtractionService
             dependencyResult = ArchiveCandidateDiscovery.AnalyzeDescriptorDependencies(
                 candidateEntryPath,
                 descriptor.Text,
-                entryPaths);
+                entryPaths,
+                allowEcmTracks: true);
 
             if (!dependencyResult.IsValid)
             {
@@ -688,13 +696,19 @@ public sealed class SevenZipArchiveExtractionService
 
         if (!validateSingleConvertibleLeader || extension is not (".cue" or ".gdi" or ".toc"))
         {
+            // CloneCD and Alcohol control files need their same-name data file next to them.
+            string? companionKey = validateSingleConvertibleLeader ? BuildCompanionKey(candidateEntryPath, extension) : null;
             return
             [
                 .. entryPaths
                     .Where(path => string.Equals(
-                        ArchiveCandidateDiscovery.NormalizeLookupKey(path),
-                        candidateKey,
-                        StringComparison.OrdinalIgnoreCase))
+                            ArchiveCandidateDiscovery.NormalizeLookupKey(path),
+                            candidateKey,
+                            StringComparison.OrdinalIgnoreCase)
+                        || (companionKey is not null && string.Equals(
+                            ArchiveCandidateDiscovery.NormalizeLookupKey(path),
+                            companionKey,
+                            StringComparison.OrdinalIgnoreCase)))
                     .DefaultIfEmpty(candidateEntryPath)
                     .Where(IsSafeArchiveEntryArgument)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -739,6 +753,20 @@ public sealed class SevenZipArchiveExtractionService
                 .Where(IsSafeArchiveEntryArgument)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
         ];
+    }
+
+    private static string? BuildCompanionKey(string candidateEntryPath, string extension)
+    {
+        string? companionExtension = extension switch
+        {
+            ".ccd" => ".img",
+            ".mds" => ".mdf",
+            _ => null
+        };
+
+        return companionExtension is null
+            ? null
+            : ArchiveCandidateDiscovery.NormalizeLookupKey(Path.ChangeExtension(candidateEntryPath, companionExtension));
     }
 
     private static string[] BuildSelectiveExtractArguments(

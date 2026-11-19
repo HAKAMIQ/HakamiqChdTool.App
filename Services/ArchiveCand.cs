@@ -22,7 +22,7 @@ public static partial class ArchiveCandidateDiscovery
     private const long MaxDescriptorTextBytes = 4L * 1024L * 1024L;
     private const int RegexTimeoutMilliseconds = 250;
 
-    public static readonly string[] ConvertibleLeaderPriority = [".gdi", ".cue", ".toc", ".nrg", ".iso", ".cso", ".zso"];
+    public static readonly string[] ConvertibleLeaderPriority = [".gdi", ".cue", ".toc", ".nrg", ".iso", ".cso", ".zso", ".ccd", ".mds", ".ecm"];
     private static readonly string[] DescriptorLeaderPriority = [".gdi", ".cue", ".toc"];
 
     public static bool IsConvertibleLeaderExtension(string extension)
@@ -249,10 +249,13 @@ public static partial class ArchiveCandidateDiscovery
         return result.IsValid;
     }
 
+    // allowEcmTracks: a CUE track "name.bin" may be present only as "name.bin.ecm" (archive extraction only;
+    // the ECM set is decoded later). The .ecm entry then becomes the required key.
     internal static ArchiveDescriptorDependencyValidationResult AnalyzeDescriptorDependencies(
         string leaderPathOrKey,
         string descriptorText,
-        IEnumerable<string> availablePathsOrKeys)
+        IEnumerable<string> availablePathsOrKeys,
+        bool allowEcmTracks = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(leaderPathOrKey);
         ArgumentNullException.ThrowIfNull(availablePathsOrKeys);
@@ -314,17 +317,28 @@ public static partial class ArchiveCandidateDiscovery
             .Where(key => !string.IsNullOrWhiteSpace(key))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
+        HashSet<string> resolvedKeys = new(StringComparer.OrdinalIgnoreCase);
         foreach (string requiredKey in requiredKeys)
         {
-            if (!availableKeys.Contains(requiredKey))
+            if (availableKeys.Contains(requiredKey))
             {
-                return ArchiveDescriptorDependencyValidationResult.Failure(
-                    DescriptorMissingDependenciesMessageResourceKey,
-                    requiredKeys);
+                resolvedKeys.Add(requiredKey);
+                continue;
             }
+
+            string ecmKey = requiredKey + ".ecm";
+            if (allowEcmTracks && extension == ".cue" && availableKeys.Contains(ecmKey))
+            {
+                resolvedKeys.Add(ecmKey);
+                continue;
+            }
+
+            return ArchiveDescriptorDependencyValidationResult.Failure(
+                DescriptorMissingDependenciesMessageResourceKey,
+                requiredKeys);
         }
 
-        return ArchiveDescriptorDependencyValidationResult.Success(requiredKeys);
+        return ArchiveDescriptorDependencyValidationResult.Success(resolvedKeys);
     }
 
     public static HashSet<string> ParseCueReferencedLeaves(string cueText)
