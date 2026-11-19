@@ -163,28 +163,28 @@ $bundledTools = @(
     },
     [ordered]@{
         type = 'application'
-        'bom-ref' = 'pkg:generic/csokit@0.6.5'
+        'bom-ref' = 'pkg:generic/csokit@0.6.6'
         name = 'CsoKit CLI'
-        version = '0.6.5'
-        hashes = @([ordered]@{ alg = 'SHA-256'; content = '0A822E643F4B414F6F9CA53EE09B1DB49D3EA3AB68BC5A0145D394C86DA0E97E' })
+        version = '0.6.6'
+        hashes = @([ordered]@{ alg = 'SHA-256'; content = 'AE8404614FC44B4917F0662FB7FABEC603351086F4BB2FF89FD4B53E589A0F36' })
         properties = @(
-            [ordered]@{ name = 'hakamiq:source-commit'; value = '872cd68455acbbf37414b07cc9e76bf5130b9af6' },
+            [ordered]@{ name = 'hakamiq:source-commit'; value = '2f4da904e1420bbb9da2e508415841108414ab0c' },
             [ordered]@{ name = 'hakamiq:runtime-file'; value = 'Tools/hakamiq-cso/win-x64/csokit.exe' }
         )
-        externalReferences = @([ordered]@{ type = 'vcs'; url = 'https://github.com/HAKAMIQ/CsoKit/tree/872cd68455acbbf37414b07cc9e76bf5130b9af6' })
+        externalReferences = @([ordered]@{ type = 'vcs'; url = 'https://github.com/HAKAMIQ/CsoKit/tree/2f4da904e1420bbb9da2e508415841108414ab0c' })
     },
     [ordered]@{
         type = 'library'
-        'bom-ref' = 'pkg:generic/csokit-native@0.6.5'
+        'bom-ref' = 'pkg:generic/csokit-native@0.6.6'
         name = 'CsoKit Native'
-        version = '0.6.5'
-        hashes = @([ordered]@{ alg = 'SHA-256'; content = 'BEFDAB67749B019F02C104F9297A47692C596CB3E6244D934C04AEA896631C55' })
+        version = '0.6.6'
+        hashes = @([ordered]@{ alg = 'SHA-256'; content = 'F37AED7918AA1CFFE68BEDF04128292EFF6607F0E4E0386801C700707F2F388E' })
         properties = @(
-            [ordered]@{ name = 'hakamiq:source-commit'; value = '872cd68455acbbf37414b07cc9e76bf5130b9af6' },
+            [ordered]@{ name = 'hakamiq:source-commit'; value = '2f4da904e1420bbb9da2e508415841108414ab0c' },
             [ordered]@{ name = 'hakamiq:native-abi'; value = '2' },
             [ordered]@{ name = 'hakamiq:runtime-file'; value = 'Tools/hakamiq-cso/win-x64/CsoKit.Native.dll' }
         )
-        externalReferences = @([ordered]@{ type = 'vcs'; url = 'https://github.com/HAKAMIQ/CsoKit/tree/872cd68455acbbf37414b07cc9e76bf5130b9af6' })
+        externalReferences = @([ordered]@{ type = 'vcs'; url = 'https://github.com/HAKAMIQ/CsoKit/tree/2f4da904e1420bbb9da2e508415841108414ab0c' })
     },
     [ordered]@{
         type = 'application'
@@ -224,8 +224,8 @@ foreach ($tool in $bundledTools) {
     $components.Add($tool)
     $rootDependencies.Add([string]$tool.'bom-ref')
     [string[]]$toolDependencies = @()
-    if ([string]$tool.'bom-ref' -eq 'pkg:generic/csokit@0.6.5') {
-        $toolDependencies = @('pkg:generic/csokit-native@0.6.5')
+    if ([string]$tool.'bom-ref' -eq 'pkg:generic/csokit@0.6.6') {
+        $toolDependencies = @('pkg:generic/csokit-native@0.6.6')
     }
 
     $dependencyGraph.Add([ordered]@{
