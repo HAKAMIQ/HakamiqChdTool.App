@@ -37,33 +37,36 @@ Last reviewed: 2026-08-02.
 
 ## CsoKit
 
-- Bundled version: 0.6.4
+- Bundled version: 0.6.5
 - Source repository: <https://github.com/HAKAMIQ/CsoKit>
-- Upstream release: <https://github.com/HAKAMIQ/CsoKit/releases/tag/v0.6.4>
+- Upstream release: <https://github.com/HAKAMIQ/CsoKit/releases/tag/v0.6.5>
   (immutable release)
 - Reviewed source commit:
-  `30e2b1bd06c5fe1e734e91e26713c432193b7d56`
+  `872cd68455acbbf37414b07cc9e76bf5130b9af6`
 - Reviewed source tree:
-  <https://github.com/HAKAMIQ/CsoKit/tree/30e2b1bd06c5fe1e734e91e26713c432193b7d56>
-- Downloaded package: `csokit-0.6.4-win-x64.zip`
+  <https://github.com/HAKAMIQ/CsoKit/tree/872cd68455acbbf37414b07cc9e76bf5130b9af6>
+- Downloaded package: `csokit-0.6.5-win-x64.zip`
 - Package SHA-256:
-  `A345E7953A8B186F0ABD05833D5E6F3BAFE6D844A5B40B4D19AC917B3825D0FD`
+  `AE09EBBACBC278412A8BF4FFFC43FC1363D383F58E13C6E78E1A3C18256F54C4`
 - `Tools/hakamiq-cso/win-x64/csokit.exe` SHA-256:
-  `7585B6A5193A53B139DB66E21247AACC26DF92619F4DA55F91F574C8C75E1C0D`
+  `0A822E643F4B414F6F9CA53EE09B1DB49D3EA3AB68BC5A0145D394C86DA0E97E`
 - `Tools/hakamiq-cso/win-x64/CsoKit.Native.dll` SHA-256:
-  `0D2245E87F5FC3CFB1EF4CDF66582C9E9C640596E8D598CE81DB8A98CD727250`
+  `BEFDAB67749B019F02C104F9297A47692C596CB3E6244D934C04AEA896631C55`
 - Native ABI: 2.
-- Build evidence: the official CsoKit CI ("Build, test, native, and package"),
-  CodeQL and Release workflows passed on the reviewed commit, which published
-  the package above. The package digest matched the GitHub Releases API
-  `digest` field, and both runtime digests matched the packaged
-  `SHA256SUMS.txt`. `csokit --version` reported
-  `0.6.4+30e2b1bd06c5fe1e734e91e26713c432193b7d56`; `native-info` reported
-  native 0.6.4 ABI 2.
-- Changes from 0.6.3: `decompress` accepts ZSO input; large-block and >2 GB
-  ZSO files are no longer rejected by `verify --deep` and `repair`; a damaged
-  header returns an error instead of crashing `detect`, `decompress` or
-  `verify`. The CLI arguments used by the app and the native ABI are unchanged.
+- Build evidence: the official CsoKit "Build, test, native, and package",
+  CodeQL ("Analyze C#") and "Publish GitHub release" jobs passed on the
+  reviewed commit, which published the package above. The package digest
+  matched the GitHub Releases API `digest` field, `gh attestation verify`
+  accepted the release build-provenance attestation, and both runtime digests
+  matched the packaged `SHA256SUMS.txt`. `csokit --version` reported
+  `0.6.5+872cd68455acbbf37414b07cc9e76bf5130b9af6`; `native-info` reported
+  native 0.6.5 ABI 2.
+- Changes from 0.6.4: numbers are formatted culture-invariantly (ratios no
+  longer print as `??` on Arabic Windows); `compress`, `--measure` and
+  `repair` warn when `CsoKit.Native.dll` is missing. `decompress`, `detect`
+  and `verify` arguments used by the app and the native ABI are unchanged.
+- 0.6.4 added ZSO `decompress`, large-block and >2 GB ZSO fixes, and
+  damaged-header errors instead of crashes.
 - Integration policy: the application accepts CsoKit 0.6.1 or newer for CSO
   and requires 0.6.4 or newer for ZSO. Both bundled runtime files are pinned
   before every execution.
