@@ -40,7 +40,7 @@ pages below go into more detail.
 | [Security assurance](security/SECURITY_ASSURANCE.md) | Implemented controls and remaining work. |
 | [Independent audit scope](security/INDEPENDENT_AUDIT_SCOPE.md) | Scope and exit criteria for an external review. |
 | [CHD/CSO corpus guide](security/CORPUS_GUIDE.md) | Testing with user-owned media kept outside the repository. |
-| [Deferred TOCTOU note](SECURITY_TODO_TOCTOU.md) | Known low-severity race in input validation. |
+| [TOCTOU note](SECURITY_TODO_TOCTOU.md) | Fixed low-severity race between input validation and file use. |
 | [Symlink test verification](SYMLINK_VERIFICATION.md) | Running the tests that need symbolic-link rights. |
 | [Intake validation (P0)](P0-Unified-Intake-Validation.md) | Validation record for the unified input path. |
 | [Audit coverage](AUDIT_COVERAGE.md) and [file ledger](AUDIT_FILES.md) | What the code audit read and which tests cover it. |
