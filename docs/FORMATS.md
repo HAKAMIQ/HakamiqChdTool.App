@@ -133,7 +133,7 @@ ZSO (LZ4-compressed ISO, used by OPL for PS2 and by some PSP tools) is accepted 
 
 CsoKit's `info` and shallow `verify` are CSO-only, so the app reads the declared size with `detect`, lets `decompress` reject damaged data, and requires the temporary ISO to be exactly the declared size. A damaged or truncated ZSO stops before chdman runs. An external CsoKit older than 0.6.4 is refused for ZSO with a message.
 
-ZSO inside archives and source cleanup after conversion are not supported yet.
+ZSO inside a ZIP, 7Z or RAR archive is extracted first and converted the same way. Source cleanup after a ZSO conversion is not supported yet.
 
 ## PS2 disc images
 

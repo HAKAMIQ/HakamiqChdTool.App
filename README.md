@@ -60,7 +60,7 @@ Try one disc first so you can check the result before a large batch.
 | Alcohol 120% (`.mds`) | Yes | CD or DVD; add the `.mds`. Subchannel data is not kept. |
 | ECM (`.bin.ecm`, `.img.ecm`) | Yes | Decoded and checked first; keep the `.cue` next to it. |
 | CSO | Yes | Expanded to a temporary ISO first; the source is not changed. |
-| ZSO | Yes | Needs the `ZISO` signature; not supported inside archives yet. |
+| ZSO | Yes | Needs the `ZISO` signature; also inside ZIP, 7Z and RAR. |
 | Hard-disk image (`.img`, `.hdd`) | Yes | Only with the *Hard disk image* profile selected in Settings. |
 | ZIP, 7Z, RAR | Yes | Must contain one supported disc image. |
 | CHD | Verify / Extract | Not converted again. |
