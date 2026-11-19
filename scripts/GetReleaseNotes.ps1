@@ -7,9 +7,11 @@ param(
     [string] $ChangelogPath = ""
 )
 
-# Returns the body of the "## v<Version>" section of the changelog.
-# Fails when the section is missing, duplicated, or empty, so a release can
-# never be published with notes that belong to another version.
+# Returns the short "### Release notes" list of the "## v<Version>" section of
+# the changelog; the detailed subsections after it are not published.
+# Fails when the version section or its release notes are missing, duplicated,
+# or empty, so a release can never be published with notes that belong to
+# another version.
 
 $ErrorActionPreference = "Stop"
 
@@ -39,9 +41,29 @@ if ($headingIndexes.Count -gt 1) {
     throw "Changelog has more than one section for v${Version}: $ChangelogPath"
 }
 
-$body = New-Object System.Collections.Generic.List[string]
+$sectionEnd = $lines.Count
 for ($index = $headingIndexes[0] + 1; $index -lt $lines.Count; $index++) {
     if ($lines[$index] -match '^## ') {
+        $sectionEnd = $index
+        break
+    }
+}
+
+$notesIndexes = @(for ($index = $headingIndexes[0] + 1; $index -lt $sectionEnd; $index++) {
+    if ($lines[$index] -match '^### Release notes\s*$') { $index }
+})
+
+if ($notesIndexes.Count -eq 0) {
+    throw "Changelog section for v$Version has no '### Release notes' subsection: $ChangelogPath"
+}
+
+if ($notesIndexes.Count -gt 1) {
+    throw "Changelog section for v$Version has more than one '### Release notes' subsection: $ChangelogPath"
+}
+
+$body = New-Object System.Collections.Generic.List[string]
+for ($index = $notesIndexes[0] + 1; $index -lt $sectionEnd; $index++) {
+    if ($lines[$index] -match '^#{1,3} ') {
         break
     }
 
@@ -50,7 +72,7 @@ for ($index = $headingIndexes[0] + 1; $index -lt $lines.Count; $index++) {
 
 $text = ($body -join "`n").Trim()
 if ([string]::IsNullOrWhiteSpace($text)) {
-    throw "Changelog section for v$Version is empty: $ChangelogPath"
+    throw "Release notes for v$Version are empty: $ChangelogPath"
 }
 
 return $text

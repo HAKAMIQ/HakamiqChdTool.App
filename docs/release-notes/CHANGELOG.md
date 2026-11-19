@@ -4,11 +4,25 @@ This file tracks source release notes.
 
 GitHub Releases remain the public download history.
 
+Each version starts with a short `### Release notes` list written for users.
+Only that list is published as the GitHub Release text; the subsections after
+it are the detailed record.
+
 ## v1.6.0 - 2026-11-19
 
 Adds five input formats and updates the bundled tools. Existing CD/DVD
 conversion defaults, queue run/cancel/retry behavior and output naming are
 unchanged.
+
+### Release notes
+
+- New inputs: hard-disk images (`.img`, `.hdd`), ZSO, CloneCD (`.ccd`),
+  Alcohol 120% (`.mds`) and ECM.
+- Hard-disk images convert only when the "Hard disk image" profile is selected
+  in Options.
+- CSO files that maxcso made for large images now convert.
+- Updated the bundled CsoKit to 0.6.6 and 7-Zip to 26.06.
+- The optional igir report now uses igir v5.8.1.
 
 ### Hard-disk images
 
@@ -98,6 +112,12 @@ unchanged.
   as v5.7.2 and wrote nothing outside the run directory.
 - Pinned the new digests in the locator, fetch scripts, release gates, legal
   notices, tool manifest and SBOM; updated the Options and Library messages.
+
+### Release pipeline
+
+- The Secure Release workflow publishes only the version's `### Release notes`
+  list plus a short download line, and fails when that list is missing or
+  empty. The fixed "Download options" and "Verification" sections are gone.
 
 ### Validation
 
