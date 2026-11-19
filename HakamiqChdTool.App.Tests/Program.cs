@@ -292,7 +292,7 @@ internal static partial class Program
                 new("Redump engine bounds descriptor size", () => TestRedumpEngineBoundsDescriptorSize(app, workDirectory)),
                 new("Redump commands honor the enabled state", TestRedumpCommandsHonorEnabledState),
                 new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
-                new("Bundled CsoKit 0.6.3 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
+                new("Bundled CsoKit 0.6.4 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
                 new("Bundled CsoKit rejects a CSO with trailing data and leaves no temporary ISO", () => TestBundledCsoKitRejectsTrailingData(app, workDirectory)),
                 new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app)),
                 new("CSO preparation rejects a decompressed ISO shorter than the declared size", () => TestCsoPreparationRejectsShortDecompressedIso(app, workDirectory)),
@@ -2235,7 +2235,7 @@ internal static partial class Program
         object preparation = app.PreprocessCso(compressedCsoPath, preparedIsoPath);
 
         AssertTrue(GetBool(preparation, "IsSuccess"), "Application CsoKit preprocessing failed: " + GetString(preparation, "StandardError"));
-        AssertTrue(GetString(preparation, "ToolVersion").StartsWith("CsoKit 0.6.3+", StringComparison.Ordinal),
+        AssertTrue(GetString(preparation, "ToolVersion").StartsWith("CsoKit 0.6.4+", StringComparison.Ordinal),
             "Application accepted an unexpected CsoKit version: " + GetString(preparation, "ToolVersion"));
         AssertEqual("CsoKit", GetString(preparation, "ToolName"), "Unexpected preprocessing tool name.");
         AssertTrue(File.Exists(preparedIsoPath), "Application preprocessing did not create the temporary ISO.");
@@ -2273,7 +2273,7 @@ internal static partial class Program
 
         AssertEqual(0, GetInt(compression, "ExitCode"), "Bundled CsoKit compression failed: " + GetString(compression, "StandardError"));
 
-        // CsoKit 0.6.3 requires the final index offset to match the file size, so bytes appended
+        // CsoKit 0.6.3+ requires the final index offset to match the file size, so bytes appended
         // after the last block must fail preparation instead of reaching chdman.
         using (FileStream stream = new(compressedCsoPath, FileMode.Append, FileAccess.Write))
         {
