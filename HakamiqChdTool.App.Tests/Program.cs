@@ -172,6 +172,7 @@ internal static partial class Program
                 new("Explicit save supersedes a pending debounced save", () => TestExplicitSaveSupersedesPendingDebouncedSave(workDirectory)),
                 new("Theme text colors meet WCAG AA contrast in Light and Dark", TestThemeTextContrastMeetsAa),
                 new("Theme borders and hover/pressed states meet WCAG contrast", TestThemeStateAndBorderContrast),
+                new("Danger buttons take their colours from the active theme", TestDangerButtonUsesThemeBrushes),
                 new("Library analysis scales and reports monotonic progress", () => TestLibraryAnalysisScalesAndReportsMonotonicProgress(workDirectory)),
                 new("Input resolver scales with deep trees", () => TestInputResolverScalesWithDeepTrees(workDirectory)),
                 new("Cleanup service honors the process temp boundary", () => TestCleanupServiceHonorsProcessTempBoundary(workDirectory)),

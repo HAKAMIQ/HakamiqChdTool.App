@@ -6,10 +6,6 @@
 		<ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Fluent/BaseStyles.xaml" />
 	</ResourceDictionary.MergedDictionaries>
 
-	<SolidColorBrush x:Key="FluentButton.Danger.RestBrush" Color="#FFC50F1F" />
-	<SolidColorBrush x:Key="FluentButton.Danger.HoverBrush" Color="#FFB10E1C" />
-	<SolidColorBrush x:Key="FluentButton.Danger.PressedBrush" Color="#FF960B18" />
-	<SolidColorBrush x:Key="FluentButton.Danger.ForegroundBrush" Color="#FFFFFFFF" />
 
 	<Style x:Key="FluentButtonBaseStyle"
            TargetType="{x:Type Button}">
@@ -291,8 +287,8 @@
 	<Style x:Key="DangerButtonStyle"
            TargetType="{x:Type Button}"
            BasedOn="{StaticResource FluentButtonBaseStyle}">
-		<Setter Property="Background" Value="{StaticResource FluentButton.Danger.RestBrush}" />
-		<Setter Property="Foreground" Value="{StaticResource FluentButton.Danger.ForegroundBrush}" />
+		<Setter Property="Background" Value="{DynamicResource ButtonDangerBrush}" />
+		<Setter Property="Foreground" Value="{DynamicResource ButtonDangerForegroundBrush}" />
 		<Setter Property="BorderBrush" Value="{DynamicResource Brush.Transparent}" />
 		<Setter Property="Template">
 			<Setter.Value>
@@ -315,11 +311,11 @@
 
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsMouseOver" Value="True">
-							<Setter TargetName="Chrome" Property="Background" Value="{StaticResource FluentButton.Danger.HoverBrush}" />
+							<Setter TargetName="Chrome" Property="Background" Value="{DynamicResource ButtonDangerHoverBrush}" />
 						</Trigger>
 
 						<Trigger Property="IsPressed" Value="True">
-							<Setter TargetName="Chrome" Property="Background" Value="{StaticResource FluentButton.Danger.PressedBrush}" />
+							<Setter TargetName="Chrome" Property="Background" Value="{DynamicResource ButtonDangerPressedBrush}" />
 						</Trigger>
 
 						<Trigger Property="IsKeyboardFocused" Value="True">
