@@ -1,115 +1,75 @@
+# CsoKit 0.6.6
+
+## What's new
+
+- Decompress CSO2 and DAX to ISO, not only CSO and ZSO.
+- CSO, CSO2, and DAX files made by maxcso for images of 2 GB and more (for example PS2 games) are no longer reported as damaged ("Re-dump required") by `verify --deep`, `decompress`, and `repair`.
+
+## How to update
+
+Extract the new ZIP over the old folder. Keep `csokit.exe` and `CsoKit.Native.dll` together.
+
+# CsoKit 0.6.5
+
+## What's new
+
+- Numbers print the same on every Windows region. On Arabic Windows, ratios no longer show as `??`.
+- `compress`, `--measure`, and `repair` warn when `CsoKit.Native.dll` is missing instead of silently making larger files.
+
+## How to update
+
+Extract the new ZIP over the old folder. Keep `csokit.exe` and `CsoKit.Native.dll` together.
+
+# CsoKit 0.6.4
+
+## What's new
+
+- Decompress ZSO to ISO: `csokit decompress game.zso -o game.iso`.
+- ZSO files made by ziso.py larger than 2 GB, and by maxcso with large blocks, are no longer rejected as corrupt by `verify --deep` and `repair`.
+- A file with a damaged header gets an error message instead of crashing `detect`, `decompress`, or `verify`.
+
+## How to update
+
+Extract the new ZIP over the old folder. Keep `csokit.exe` and `CsoKit.Native.dll` together.
+
 # CsoKit 0.6.3
 
-CsoKit 0.6.3 is a decompression-hardening and release-gate reliability update for Windows x64.
+## What's new
 
-## Main changes
+- Decompression rejects damaged CSO files instead of writing a wrong ISO: data after the last block, a wrong final index offset, undersized stored blocks, or blocks that do not decode to their exact size.
+- A failed compression or decompression no longer leaves temporary files behind.
+- `verify` reports impossible header values as `InvalidHeaderValues`.
 
-- Decompression rejects stored blocks smaller than the block payload and CSO files whose final index offset does not match the file size.
-- Decompression inflates blocks as exact raw deflate first, with zlib as an exact-length fallback that rejects truncated input, extra decoded data, and trailing data beyond index-alignment padding.
-- Decompression feeds each compressed block to the inflater in bulk and only steps byte by byte through the permitted alignment padding, keeping throughput at the pre-validation level.
-- Compression and decompression remove temporary output on unexpected errors, and verification reports overflowing header values as `InvalidHeaderValues`.
-- Release gate scripts disable MSBuild node reuse so stale build nodes cannot fail gate builds with access-denied errors.
+## How to update
 
-## Supported workflows
-
-- Detect ISO, CSO, ZSO, DAX, and supported CSO2 input.
-- Inspect CSO1 and supported CSO2 input.
-- Analyze PSP ISO structure.
-- Verify compressed containers, including deep block verification and SHA-256.
-- Compress ISO into CSO1.
-- Decompress CSO into ISO.
-- Rebuild readable input into verified CSO1 output.
-- Produce structured JSON output for scripts.
-
-## Recommended usage
-
-Recommended compression profile:
-
-    .\csokit.exe compress ".\game.iso" --profile game-safe
-
-Verify important output before deleting the original image:
-
-    .\csokit.exe verify ".\game.cso" --deep --sha256
-
-## Installation
-
-1. Download csokit-0.6.3-win-x64.zip.
-2. Extract the complete archive into one folder.
-3. Keep csokit.exe beside CsoKit.Native.dll.
-4. Run:
-
-    .\csokit.exe native-info
-    .\csokit.exe --help
-
-## Verification
-
-- Final release gate: pending; results will be recorded after it runs for 0.6.3.
-
-## Important notes
-
-- Existing output files are not overwritten unless --force is supplied.
-- Repair cannot recreate unreadable or missing source data.
-- Structural verification does not guarantee emulator or physical-device compatibility.
-- Output base names must contain 2 to 10 Unicode characters; the extension is not counted.
+Extract the new ZIP over the old folder. Keep `csokit.exe` and `CsoKit.Native.dll` together.
 
 # CsoKit 0.6.2
 
-CsoKit 0.6.2 is a maintenance and release-pipeline update for Windows x64.
+## What's new
 
-## Main changes
+- No changes to commands or output. Release packaging and verification were tightened.
 
-- Strengthen release gates by validating central managed and native version wiring.
-- Build, stage, and verify the native runtime used by release tests and published outputs.
-- Remove a redundant native backend build from the GitHub release workflow while keeping the clean packaging build.
-- Clarify supported inspection formats and CSO2 verification wording.
-- Preserve existing CLI behavior, native staging, packaging, verification, and release artifacts.
+## How to update
 
-## Supported workflows
+Extract the new ZIP over the old folder. Keep `csokit.exe` and `CsoKit.Native.dll` together.
 
-- Detect ISO, CSO, ZSO, DAX, and supported CSO2 input.
-- Inspect CSO1 and supported CSO2 input.
-- Analyze PSP ISO structure.
-- Verify compressed containers, including deep block verification and SHA-256.
-- Compress ISO into CSO1.
-- Decompress CSO into ISO.
-- Rebuild readable input into verified CSO1 output.
-- Produce structured JSON output for scripts.
+# CsoKit 0.6.1
 
-## Recommended usage
+## What's new
 
-Recommended compression profile:
+- Ctrl+C cancels verify, compress, decompress, and repair cleanly. An incomplete output never replaces the destination file.
+- Output base names must have 2 to 10 characters; the extension is not counted.
+- The native library is loaded only from the program folder.
+- Clearer errors for invalid arguments, including in `--json` output.
 
-    .\csokit.exe compress ".\game.iso" --profile game-safe
+## How to update
 
-Verify important output before deleting the original image:
+Extract the new ZIP over the old folder. Keep `csokit.exe` and `CsoKit.Native.dll` together.
 
-    .\csokit.exe verify ".\game.cso" --deep --sha256
+# CsoKit 0.6.0
 
-## Installation
+## What's new
 
-1. Download csokit-0.6.2-win-x64.zip.
-2. Extract the complete archive into one folder.
-3. Keep csokit.exe beside CsoKit.Native.dll.
-4. Run:
-
-    .\csokit.exe native-info
-    .\csokit.exe --help
-
-## Verification
-
-- Debug build: PASS — 0 warnings, 0 errors.
-- Release build: PASS — 0 warnings, 0 errors.
-- Automated tests: 201/201 PASS.
-- NuGet Audit: PASS.
-- Native integration: PASS.
-- Published executable smoke: PASS.
-- Release package verification: PASS.
-- SHA-256 manifest: 6/6 entries verified.
-- Real ISO corpus gate: skipped for this release validation run.
-
-## Important notes
-
-- Existing output files are not overwritten unless --force is supplied.
-- Repair cannot recreate unreadable or missing source data.
-- Structural verification does not guarantee emulator or physical-device compatibility.
-- Output base names must contain 2 to 10 Unicode characters; the extension is not counted.
+- Deep verification of raw ISO files, and detailed CSO verification results.
+- Repair tells apart a plain rebuild, a repaired file, and a file that must be re-dumped.

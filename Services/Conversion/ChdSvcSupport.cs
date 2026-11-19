@@ -340,7 +340,7 @@ internal static class ChdConversionServiceSupport
         }
 
         string extension = Path.GetExtension(inputPath).ToLowerInvariant();
-        if (extension == ".cso")
+        if (extension is ".cso" or ".zso")
         {
             return ChdProfileMediaKind.DvdRom;
         }
@@ -415,6 +415,7 @@ internal static class ChdConversionServiceSupport
             ".toc" => ChdMediaFormatKind.Toc,
             ".nrg" => ChdMediaFormatKind.Nrg,
             ".cso" => ChdMediaFormatKind.Cso,
+            ".zso" => ChdMediaFormatKind.Zso,
             ".bin" when string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase) => ChdMediaFormatKind.Cue,
             ".img" or ".hdd" when string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase) => ChdMediaFormatKind.HardDisk,
             ".chd" => ChdMediaFormatKind.Chd,

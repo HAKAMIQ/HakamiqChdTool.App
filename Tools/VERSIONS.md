@@ -37,34 +37,42 @@ Last reviewed: 2026-08-02.
 
 ## CsoKit
 
-- Bundled version: 0.6.3
+- Bundled version: 0.6.6
 - Source repository: <https://github.com/HAKAMIQ/CsoKit>
-- Upstream release: <https://github.com/HAKAMIQ/CsoKit/releases/tag/v0.6.3>
+- Upstream release: <https://github.com/HAKAMIQ/CsoKit/releases/tag/v0.6.6>
+  (immutable release)
 - Reviewed source commit:
-  `e1a4bca67207e5bb6c2c4b1dd043418a1ee2a31d`
+  `2f4da904e1420bbb9da2e508415841108414ab0c`
 - Reviewed source tree:
-  <https://github.com/HAKAMIQ/CsoKit/tree/e1a4bca67207e5bb6c2c4b1dd043418a1ee2a31d>
-- Downloaded package: `csokit-0.6.3-win-x64.zip`
+  <https://github.com/HAKAMIQ/CsoKit/tree/2f4da904e1420bbb9da2e508415841108414ab0c>
+- Downloaded package: `csokit-0.6.6-win-x64.zip`
 - Package SHA-256:
-  `676315F8383FC1289436E7D254ED5B4B90E86F61BEE397593E276E1CB6AD3A7E`
+  `A5A20C173F8DBEA7CBD73E719D2975F7BF6FF6589CCA90E14E3EBB252D32E9BC`
 - `Tools/hakamiq-cso/win-x64/csokit.exe` SHA-256:
-  `77F0662A408BD5DA2241898E41C074B4E600DE9FA58D115C8DBBDF6FFF3EEFD9`
+  `AE8404614FC44B4917F0662FB7FABEC603351086F4BB2FF89FD4B53E589A0F36`
 - `Tools/hakamiq-cso/win-x64/CsoKit.Native.dll` SHA-256:
-  `E9991ADDF7FAFAEC400D124CEF7D0FC2B276CE7624261369A1EA1F8B7ECE57E0`
+  `F37AED7918AA1CFFE68BEDF04128292EFF6607F0E4E0386801C700707F2F388E`
 - Native ABI: 2.
-- Build evidence: the official CsoKit CI and Release workflows passed on the
-  reviewed commit, which published the package above. The CsoKit final release
-  gate passed (224 + 1 tests, real and synthetic SHA-256 round trips, profile
-  matrix, published executable smoke tests, native capability checks) on
-  pre-release commit `82ea7aa4fba53053d01d1aa7fd3766dd5a6a8b08`, whose product
-  source is identical to the reviewed commit. The bundled runtime files are the
-  official release files, not the local gate build.
-- Changes from 0.6.1: stricter CSO decompression (stored-block size, final index
-  offset, exact raw-deflate/zlib block length and trailing data checks) and
-  temporary output cleanup on unexpected errors. The CLI and native ABI are
-  unchanged.
-- Integration policy: the application accepts CsoKit 0.6.1 or newer and pins
-  both bundled runtime files before every execution.
+- Build evidence: the official CsoKit "Build, test, native, and package",
+  CodeQL ("Analyze C#") and "Publish GitHub release" jobs passed on the
+  reviewed commit, which published the package above. The package digest
+  matched the GitHub Releases API `digest` field, `gh attestation verify`
+  accepted the release build-provenance attestation, and both runtime digests
+  matched the packaged `SHA256SUMS.txt`. `csokit --version` reported
+  `0.6.6+2f4da904e1420bbb9da2e508415841108414ab0c`; `native-info` reported
+  native 0.6.6 ABI 2. `detect --json` still reports `format`, `magic` and
+  `uncompressedSize` for ZSO, and `decompress` still rejects a truncated ZSO
+  without leaving an output file.
+- Changes from 0.6.5: CSO1, CSO2, ZSO and DAX files written by maxcso with
+  16 KB blocks for images of 2 GB and more (for example PS2 games) are no
+  longer reported as damaged by `verify --deep`, `decompress` and `repair`
+  (a full-size compressed final block is accepted); `decompress` also reads
+  CSO2 and DAX. Arguments used by the app and the native ABI are unchanged.
+- 0.6.5 made number output culture-invariant and warns when
+  `CsoKit.Native.dll` is missing. 0.6.4 added ZSO `decompress`.
+- Integration policy: the application accepts CsoKit 0.6.1 or newer for CSO
+  and requires 0.6.4 or newer for ZSO. Both bundled runtime files are pinned
+  before every execution.
 
 ## Verification policy
 

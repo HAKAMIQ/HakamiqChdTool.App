@@ -82,6 +82,14 @@ CSO input is prepared first, then converted through the normal CHD path.
 
 If CSO preparation fails, the job stops there. The app should not pretend a CHD was created.
 
+## ZSO
+
+ZSO (LZ4-compressed ISO, used by OPL for PS2 and by some PSP tools) is accepted only when the file starts with the `ZISO` signature. It is expanded to a temporary ISO with CsoKit 0.6.4 or newer, then converted with `createdvd`. The original ZSO is not modified.
+
+CsoKit's `info` and shallow `verify` are CSO-only, so the app reads the declared size with `detect`, lets `decompress` reject damaged data, and requires the temporary ISO to be exactly the declared size. A damaged or truncated ZSO stops before chdman runs. An external CsoKit older than 0.6.4 is refused for ZSO with a message.
+
+ZSO inside archives and source cleanup after conversion are not supported yet.
+
 ## PS2 disc images
 
 PS2 guidance is based on disc evidence where possible, including `SYSTEM.CNF` inside supported ISO or CUE/BIN layouts.
