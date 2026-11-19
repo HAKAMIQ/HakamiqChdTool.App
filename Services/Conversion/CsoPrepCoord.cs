@@ -18,7 +18,59 @@ internal sealed class ChdCsoInputPreparationCoordinator
         _csoPreprocessor = csoPreprocessor ?? throw new ArgumentNullException(nameof(csoPreprocessor));
     }
 
+    // Every conversion leases its source files first (see SourceFileLease); the lease travels with the
+    // outcome and is released when the conversion finishes or preparation fails.
     public async Task<ChdCsoInputPreparationOutcome> PrepareIfRequiredAsync(
+        ChdPlatformProfile? createProfile,
+        string inputPath,
+        string outputPath,
+        string resolvedInputPath,
+        ChdCompressionResolution compressionResolution,
+        int resolvedHunkSizeBytes,
+        ChdConversionServiceSupport.ChdExecutionReportContext executionReportContext,
+        CancellationToken cancellationToken)
+    {
+        if (!SourceFileLease.TryAcquire(SourceDependencySet.Resolve(resolvedInputPath), out SourceFileLease? sourceLease, out _))
+        {
+            return new ChdCsoInputPreparationOutcome(
+                null,
+                ChdConversionServiceSupport.BuildPreExecutionFailureResult(
+                    inputPath,
+                    outputPath,
+                    SourceFileLease.SourceUnstableMessageKey,
+                    compressionResolution,
+                    resolvedHunkSizeBytes,
+                    executionReportContext));
+        }
+
+        try
+        {
+            ChdCsoInputPreparationOutcome outcome = await PrepareCoreAsync(
+                    createProfile,
+                    inputPath,
+                    outputPath,
+                    resolvedInputPath,
+                    compressionResolution,
+                    resolvedHunkSizeBytes,
+                    executionReportContext,
+                    cancellationToken)
+                .ConfigureAwait(false);
+            if (outcome.FailureResult is not null)
+            {
+                sourceLease!.Dispose();
+                return outcome;
+            }
+
+            return outcome with { SourceLease = sourceLease };
+        }
+        catch
+        {
+            sourceLease!.Dispose();
+            throw;
+        }
+    }
+
+    private async Task<ChdCsoInputPreparationOutcome> PrepareCoreAsync(
         ChdPlatformProfile? createProfile,
         string inputPath,
         string outputPath,
@@ -365,6 +417,9 @@ internal sealed record ChdCsoInputPreparationOutcome(
     ChdConversionResult? FailureResult)
 {
     public static ChdCsoInputPreparationOutcome NotRequired { get; } = new(null, null);
+
+    /// <summary>The source files held open for the conversion; disposed with the conversion.</summary>
+    public SourceFileLease? SourceLease { get; init; }
 }
 
 internal sealed class ChdCsoPreparedInputLease : IDisposable
