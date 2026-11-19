@@ -89,7 +89,7 @@
     <sys:String x:Key="LocUi_PlaceholderDash">—</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line1">Select an operation mode to show supported files.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">Drop files here, or select Add files or Add folder.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Convert">Add files or drop them here to convert to CHD.&#x0A;Supported formats: ISO, CSO, GDI, CUE, ZIP, 7Z, RAR.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Convert">Add files or drop them here to convert to CHD.&#x0A;Supported formats: ISO, CSO, ZSO, CUE/BIN, GDI, TOC, NRG, CloneCD (CCD), Alcohol (MDS), ECM, hard-disk IMG/HDD, ZIP, 7Z, RAR.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Extract">Add CHD files or drop them here for extraction.&#x0A;CDs are extracted to CUE + BIN, and DVDs to ISO.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Verify">Add CHD files or drop them here to verify their integrity.&#x0A;Verifies the CHD file without extracting its contents.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">Select a folder to scan CUE, GDI, ISO, and supported archive files, then convert valid disc images to CHD.</sys:String>
@@ -136,7 +136,7 @@
     <sys:String x:Key="LocDialog_QuickExtractTitle">Extract</sys:String>
     <sys:String x:Key="LocDialog_QuickConvertTitle">Convert</sys:String>
     <sys:String x:Key="LocFilter_QuickChdFiles">CHD files|*.chd|All files|*.*</sys:String>
-    <sys:String x:Key="LocFilter_QuickConvertFiles">Supported files|*.iso;*.cso;*.cue;*.gdi;*.toc;*.nrg;*.bin;*.zip;*.rar;*.7z|All files|*.*</sys:String>
+    <sys:String x:Key="LocFilter_QuickConvertFiles">Supported files|*.iso;*.cso;*.zso;*.cue;*.bin;*.gdi;*.toc;*.nrg;*.ccd;*.mds;*.ecm;*.img;*.hdd;*.zip;*.rar;*.7z|All files|*.*</sys:String>
     <sys:String x:Key="LocDialog_QuickExtractFolderDescription">Select a folder to add and extract CHD files.</sys:String>
     <sys:String x:Key="LocDialog_QuickConvertFolderDescription">Select a folder to add files and prepare them for conversion.</sys:String>
     <sys:String x:Key="LocFmt_StartupRuntimeError">Could not initialize the app’s internal tools. Restart the app, or check the logs folder if the problem continues.</sys:String>
@@ -1389,8 +1389,8 @@ Path:
     <sys:String x:Key="LocInputDialog_Title_AddFilesForConvert">Add files to convert</sys:String>
 
     <sys:String x:Key="LocInputDialog_Filter_Chd">CHD files|*.chd|All files|*.*</sys:String>
-    <sys:String x:Key="LocInputDialog_Filter_Convert">Supported disc images and archives (*.iso;*.cso;*.cue;*.gdi;*.toc;*.nrg;*.bin;*.zip;*.rar;*.7z)|*.iso;*.cso;*.cue;*.gdi;*.toc;*.nrg;*.bin;*.zip;*.rar;*.7z|All files|*.*</sys:String>
-    <sys:String x:Key="LocInputDialog_Filter_Supported">Supported files|*.iso;*.cso;*.cue;*.gdi;*.toc;*.nrg;*.bin;*.chd;*.zip;*.rar;*.7z|All files|*.*</sys:String>
+    <sys:String x:Key="LocInputDialog_Filter_Convert">Supported disc images and archives|*.iso;*.cso;*.zso;*.cue;*.bin;*.gdi;*.toc;*.nrg;*.ccd;*.mds;*.ecm;*.img;*.hdd;*.zip;*.rar;*.7z|All files|*.*</sys:String>
+    <sys:String x:Key="LocInputDialog_Filter_Supported">Supported files|*.iso;*.cso;*.zso;*.cue;*.bin;*.gdi;*.toc;*.nrg;*.ccd;*.mds;*.ecm;*.img;*.hdd;*.chd;*.zip;*.rar;*.7z|All files|*.*</sys:String>
 
     <sys:String x:Key="LocFolderDialog_Scope_Selected">selected folder</sys:String>
     <sys:String x:Key="LocFolderDialog_Scope_WithSubfolders">folder and subfolders</sys:String>
