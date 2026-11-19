@@ -44,7 +44,7 @@ CHD Tool is not connected to Igor Pavlov or the 7-Zip project.
 CsoKit
 --------------------------------------------------------------------------------
 
-CHD Tool includes CsoKit 0.6.5 to handle PSP CSO and ZSO files.
+CHD Tool includes CsoKit 0.6.6 to handle PSP CSO and ZSO files.
 
 CsoKit can read CSO file details, check a CSO file, and make a
 temporary ISO before chdman creates the CHD.

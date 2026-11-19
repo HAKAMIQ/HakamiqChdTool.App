@@ -35,11 +35,11 @@ Step-by-step guide in English and Arabic: **[CsoKit Wiki](https://github.com/HAK
 | Analyze PSP structure | ✓ | | | | |
 | Verify header and index (`verify`) | | ✓ | ✓ | | |
 | Verify every block (`verify --deep`) | | ✓ | ✓ | ✓ | ✓ |
-| Decompress to ISO | | ✓ | | ✓ | |
+| Decompress to ISO | | ✓ | ✓ | ✓ | ✓ |
 | Repair or rebuild to CSO1 | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Compress to CSO1 | ✓ | | | | |
 
-ZSO input is read in the layouts written by maxcso and ziso.py, including index-aligned images larger than 2 GB.
+CSO, ZSO, and DAX input is read in the layouts written by maxcso and ziso.py, including images larger than 2 GB with large blocks or index alignment.
 
 ## Commands
 
@@ -67,10 +67,11 @@ Estimate the compressed size without creating a file:
 
     .\csokit.exe compress ".\game.iso" --measure
 
-Decompress CSO or ZSO to ISO:
+Decompress CSO, ZSO, or DAX to ISO:
 
     .\csokit.exe decompress ".\game.cso" -o ".\game.iso"
     .\csokit.exe decompress ".\game.zso" -o ".\game.iso"
+    .\csokit.exe decompress ".\game.dax" -o ".\game.iso"
 
 Repair or normalize into CSO1:
 

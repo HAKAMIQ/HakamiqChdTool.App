@@ -1,3 +1,14 @@
+# CsoKit 0.6.6
+
+## What's new
+
+- Decompress CSO2 and DAX to ISO, not only CSO and ZSO.
+- CSO, CSO2, and DAX files made by maxcso for images of 2 GB and more (for example PS2 games) are no longer reported as damaged ("Re-dump required") by `verify --deep`, `decompress`, and `repair`.
+
+## How to update
+
+Extract the new ZIP over the old folder. Keep `csokit.exe` and `CsoKit.Native.dll` together.
+
 # CsoKit 0.6.5
 
 ## What's new
