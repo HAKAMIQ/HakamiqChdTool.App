@@ -318,6 +318,10 @@ internal static partial class Program
                 new("Alcohol MDF staging drops subchannel data and never overwrites", () => TestMdsSubchannelStagingKeepsOnlyMainData(workDirectory)),
                 new("Alcohol MDS intake and planning pick createcd or createdvd", () => TestMdsIntakeAndPlanning(workDirectory)),
                 new("Alcohol MDS images round-trip through bundled chdman", () => TestMdsRoundTripsWithBundledChdman(app, workDirectory)),
+                new("ECM decoder matches the reference encoder", () => TestEcmDecoderMatchesReferenceEncoder(workDirectory)),
+                new("ECM decoder refuses damaged and truncated files", () => TestEcmDecoderRejectsDamage(workDirectory)),
+                new("ECM intake queues each set once and planning picks createcd", () => TestEcmIntakeAndPlanning(workDirectory)),
+                new("ECM images round-trip through bundled chdman", () => TestEcmRoundTripsWithBundledChdman(app, workDirectory)),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),

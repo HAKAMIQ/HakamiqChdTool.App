@@ -135,6 +135,18 @@ public static class ChdPlatformProfiles
         RequiresDvdSectorAlignment: false,
         HunkSize: null,
         Note: "Alcohol 120% .mds/.mdf DVD. The .mdf is staged as a temporary ISO.");
+    // ECM: CD sectors with their EDC/ECC removed. The image is decoded into the temp workspace
+    // and converted through its CUE (or a single data track when there is no CUE).
+    public static readonly ChdPlatformProfile EcmCd = new(
+        PlatformId: "ecm-cd",
+        DisplayName: "ECM CD image",
+        InputExtensions: [".ecm"],
+        CommandKind: ChdCommandKind.CreateCd,
+        PreparationKind: ChdInputPreparationKind.DecodeEcm,
+        RequiresToc: false,
+        RequiresDvdSectorAlignment: false,
+        HunkSize: null,
+        Note: "ECM .bin.ecm/.img.ecm. Decoded and checked against the stored EDC before conversion.");
 
     public static readonly ChdPlatformProfile Ps2Dvd = new(
         PlatformId: "sony-ps2-dvd",
@@ -185,6 +197,7 @@ public static class ChdPlatformProfiles
         CloneCd,
         AlcoholCd,
         AlcoholDvd,
+        EcmCd,
         Ps2Dvd,
         Ps2Cd
     ];
@@ -221,6 +234,7 @@ public static class ChdPlatformProfiles
             ".zso" => CompressedZso,
             ".ccd" => CloneCd,
             ".mds" => AlcoholCd,
+            ".ecm" => EcmCd,
             ".iso" => ResolveIsoProfile(detectedPlatform),
             ".cue" => ResolveCueProfile(detectedPlatform),
             ".toc" => GenericCd,
