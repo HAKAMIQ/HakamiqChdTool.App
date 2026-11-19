@@ -4,6 +4,67 @@ This file tracks source release notes.
 
 GitHub Releases remain the public download history.
 
+## v1.6.0 - 2026-11-19
+
+Adds three input formats and updates the bundled CsoKit. Existing CD/DVD
+conversion defaults, queue run/cancel/retry behavior and output naming are
+unchanged.
+
+### Hard-disk images
+
+- Raw hard-disk images (`.img`, `.hdd`) convert with `chdman createhd` when
+  the new "Hard disk image" CHD profile is selected in Options. Auto mode never
+  converts them and names the profile to choose.
+- An `.img` that belongs to a CD/DVD (a same-name CUE/CCD/TOC/GDI/MDS, a
+  sibling descriptor that references it, a CD sync header or an ISO9660
+  descriptor) stays out of the queue and is refused even with the profile
+  selected. The size must be a non-zero multiple of 512 bytes.
+- Compression and hunk size are left to chdman's hard-disk defaults.
+
+### ZSO
+
+- `.zso` files with the `ZISO` signature are expanded to a temporary ISO with
+  CsoKit and converted with `createdvd`. The declared size is read with
+  `csokit detect`, damaged data is rejected by `decompress`, and the temporary
+  ISO must match the declared size exactly. CsoKit 0.6.4 or newer is required;
+  an older external CsoKit is refused with a message.
+- ZSO inside archives and source cleanup after a ZSO conversion are not
+  supported yet.
+
+### CloneCD
+
+- Adding a `.ccd` converts the CloneCD set through a temporary CUE with
+  `createcd`. The `.img` is hard-linked into the temp workspace when possible,
+  otherwise copied after a free-space check; nothing is written to the source
+  folder.
+- Multiple sessions, scrambled data tracks, a missing or misaligned `.img`, and
+  track layouts that cannot be mapped exactly are refused before chdman runs.
+- Subchannel data (`.sub`) is not kept, so copy protections that depend on it
+  do not survive the conversion.
+
+### CsoKit 0.6.6
+
+- Updated the bundled CsoKit from 0.6.3 to the official 0.6.6 release (source
+  commit `2f4da904e1420bbb9da2e508415841108414ab0c`). Native ABI 2 and the CLI
+  arguments the app uses are unchanged.
+- **Behavior change:** CSO files written by maxcso for large images (16 KB
+  blocks with a full-size compressed final block), which CsoKit 0.6.3 to 0.6.5
+  rejected, now convert.
+- Pinned the new SHA-256 digests and updated the tool manifest, CsoKit legal
+  notice, third-party notice and SBOM.
+
+### Validation
+
+- Application tests: 212 passed, 0 failed, 4 skipped in a non-elevated run;
+  the skipped tests are the symbolic-link tests, which need administrator
+  rights.
+  New tests cover each format's refusal rules and real round trips through the
+  bundled tools (createhd/extracthd, ZSO and maxcso-layout CSO through CsoKit
+  and createdvd/extractdvd, CloneCD through createcd/extractcd), each compared
+  by SHA-256 or byte for byte.
+- Repository convention, local verification and end-user release output gates
+  passed.
+
 ## v1.5.1 - 2026-10-24
 
 Maintenance release. The only functional change is the bundled CsoKit update.
