@@ -297,6 +297,11 @@ internal static partial class Program
                 new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app)),
                 new("CSO preparation rejects a decompressed ISO shorter than the declared size", () => TestCsoPreparationRejectsShortDecompressedIso(app, workDirectory)),
                 new("CSO preparation accepts a decompressed ISO matching the declared size", () => TestCsoPreparationAcceptsExactDecompressedIso(app, workDirectory)),
+                new("Hard-disk evidence rejects CD/DVD images and tracks", () => TestHardDiskEvidenceRejectsDiscImages(workDirectory)),
+                new("Hard-disk intake accepts only images without disc evidence", () => TestHardDiskIntakeOnlyAcceptsImagesWithoutDiscEvidence(workDirectory)),
+                new("Hard-disk planning requires the explicit profile", () => TestHardDiskPlannerRequiresExplicitProfile(workDirectory)),
+                new("Hard-disk command policy keeps chdman defaults", TestHardDiskCommandPolicyKeepsChdmanDefaults),
+                new("Hard-disk image round-trips through bundled chdman createhd and extracthd", () => TestHardDiskRoundTripWithBundledChdman(app, workDirectory)),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),

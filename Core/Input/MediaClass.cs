@@ -49,7 +49,9 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             [".cso"] = MediaInputKind.CSO,
             [".cue"] = MediaInputKind.CUE,
             [".bin"] = MediaInputKind.BIN,
-            [".gdi"] = MediaInputKind.GDI
+            [".gdi"] = MediaInputKind.GDI,
+            [".img"] = MediaInputKind.HardDiskImage,
+            [".hdd"] = MediaInputKind.HardDiskImage
         };
 
     public static readonly MediaInputClassifier Shared = new();
@@ -152,6 +154,25 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
 
         MediaInputKind kind = ClassifyExtension(extension);
         long? sizeBytes = TryGetSizeBytes(fullPath);
+
+        if (kind == MediaInputKind.HardDiskImage)
+        {
+            // Raw hard-disk images have no magic. Any CD/DVD evidence keeps the
+            // file in the pre-existing "Other" bucket so CUE/CCD track files are
+            // never offered for createhd.
+            HardDiskImageEvidence evidence = HardDiskImageEvidenceProbe.Evaluate(fullPath);
+            bool accepted = evidence == HardDiskImageEvidence.Accepted;
+
+            return new MediaInputDescriptor(
+                originalPath,
+                fullPath,
+                accepted ? MediaInputKind.HardDiskImage : MediaInputKind.Other,
+                Exists: true,
+                IsDirectory: false,
+                sizeBytes,
+                extension,
+                accepted ? "hdd-evidence-accepted" : "hdd-evidence-" + evidence.ToString().ToLowerInvariant());
+        }
 
         if (kind == MediaInputKind.Other)
         {

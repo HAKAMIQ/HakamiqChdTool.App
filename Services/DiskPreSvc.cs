@@ -55,6 +55,7 @@ public static class DiskSpacePreflightService
 
     public const string OperationCreateCdKey = "LocDiskPreflight_OperationCreateCd";
     public const string OperationCreateDvdKey = "LocDiskPreflight_OperationCreateDvd";
+    public const string OperationCreateHdKey = "LocDiskPreflight_OperationCreateHd";
     public const string OperationExtractCdKey = "LocDiskPreflight_OperationExtractCd";
     public const string OperationExtractDvdKey = "LocDiskPreflight_OperationExtractDvd";
     public const string OperationExtractHdKey = "LocDiskPreflight_OperationExtractHd";
@@ -535,6 +536,7 @@ public static class DiskSpacePreflightService
         {
             "createcd" => OperationCreateCdKey,
             "createdvd" => OperationCreateDvdKey,
+            "createhd" => OperationCreateHdKey,
             _ => OperationCreateUnknownKey
         };
     }

@@ -115,7 +115,8 @@ public sealed partial class OptionsViewModel : ObservableValidator
         new(ChdPlatformProfiles.Ps2Dvd.PlatformId, ArabicUi.Get("LocChdProfile_Ps2DvdLabel"), ArabicUi.Get("LocChdProfile_Ps2DvdDescription")),
         new(ChdPlatformProfiles.PspIso.PlatformId, ArabicUi.Get("LocChdProfile_PspLabel"), ArabicUi.Get("LocChdProfile_PspDescription")),
         new(ChdPlatformProfiles.SegaSaturn.PlatformId, ArabicUi.Get("LocChdProfile_SaturnLabel"), ArabicUi.Get("LocChdProfile_SaturnDescription")),
-        new(ChdPlatformProfiles.DreamcastGdi.PlatformId, ArabicUi.Get("LocChdProfile_DreamcastLabel"), ArabicUi.Get("LocChdProfile_DreamcastDescription"))
+        new(ChdPlatformProfiles.DreamcastGdi.PlatformId, ArabicUi.Get("LocChdProfile_DreamcastLabel"), ArabicUi.Get("LocChdProfile_DreamcastDescription")),
+        new(ChdPlatformProfiles.GenericHardDisk.PlatformId, ArabicUi.Get("LocChdProfile_HardDiskLabel"), ArabicUi.Get("LocChdProfile_HardDiskDescription"))
     };
 
     public OptionsViewModel()
@@ -217,7 +218,8 @@ public sealed partial class OptionsViewModel : ObservableValidator
                 new ChoiceOption(ChdPlatformProfiles.Ps2Dvd.PlatformId, ArabicUi.Get("LocChdProfile_Ps2DvdLabel"), ArabicUi.Get("LocChdProfile_Ps2DvdDescription")),
                 new ChoiceOption(ChdPlatformProfiles.PspIso.PlatformId, ArabicUi.Get("LocChdProfile_PspLabel"), ArabicUi.Get("LocChdProfile_PspDescription")),
                 new ChoiceOption(ChdPlatformProfiles.SegaSaturn.PlatformId, ArabicUi.Get("LocChdProfile_SaturnLabel"), ArabicUi.Get("LocChdProfile_SaturnDescription")),
-                new ChoiceOption(ChdPlatformProfiles.DreamcastGdi.PlatformId, ArabicUi.Get("LocChdProfile_DreamcastLabel"), ArabicUi.Get("LocChdProfile_DreamcastDescription"))
+                new ChoiceOption(ChdPlatformProfiles.DreamcastGdi.PlatformId, ArabicUi.Get("LocChdProfile_DreamcastLabel"), ArabicUi.Get("LocChdProfile_DreamcastDescription")),
+                new ChoiceOption(ChdPlatformProfiles.GenericHardDisk.PlatformId, ArabicUi.Get("LocChdProfile_HardDiskLabel"), ArabicUi.Get("LocChdProfile_HardDiskDescription"))
             });
 
         SelectedProcessorOption = ProcessorOptions.FirstOrDefault(x => x.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) == processorKey) ?? ProcessorOptions.FirstOrDefault();

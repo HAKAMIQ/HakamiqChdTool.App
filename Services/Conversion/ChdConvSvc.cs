@@ -133,12 +133,23 @@ public sealed class ChdConversionService
                 ChdConversionMessages.DirectChdRecompressBlockedMessageKey);
         }
 
-        (string command, IsoChdmanCreateDiagnostics? isoDiagnostics) =
-            _commandPreparation.ResolveTwoWayCommandWithOptionalIsoDiagnostics(
-                inputExtension,
-                extractionKind,
-                resolvedInputPath,
-                isoCreateCommandOverride);
+        ChdResolvedSourceCommand sourceCommand = ChdPlatformProfileExecutionPolicy.ResolveSourceCommand(
+            _commandPreparation,
+            inputExtension,
+            extractionKind,
+            resolvedInputPath,
+            isoCreateCommandOverride,
+            platformProfileId,
+            inputPath,
+            outputPath);
+
+        if (sourceCommand.FailureResult is not null)
+        {
+            return sourceCommand.FailureResult;
+        }
+
+        string command = sourceCommand.Command;
+        IsoChdmanCreateDiagnostics? isoDiagnostics = sourceCommand.IsoDiagnostics;
 
         ChdRequestedCreateProfileSelection requestedProfileSelection =
             ChdPlatformProfileExecutionPolicy.ApplyRequestedCreateProfile(

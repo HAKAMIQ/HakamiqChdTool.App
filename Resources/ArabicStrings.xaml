@@ -619,6 +619,11 @@
     <sys:String x:Key="LocWorkflow_IsoReadFailed">تعذر قراءة ملف ISO.</sys:String>
     <sys:String x:Key="LocWorkflow_NonChdRecommendedCompression">هذا النظام لا يستخدم CHD كصيغة ضغط موصى بها. استخدم الصيغة المناسبة (مثل RVZ لـ GameCube/Wii أو CSO/PBP لـ PSP) لتجنب إنشاء ملف غير متوافق.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPreparationDisabled">ملفات CSO تحتاج فكًا إلى ISO قبل CHD. هذه المرحلة غير مفعلة في هذا الإصدار.</sys:String>
+    <sys:String x:Key="LocWorkflow_HardDiskProfileRequired">لا يحتوي ملف ‎.img/.hdd‎ هذا على توقيع قرص. إذا كان صورة قرص صلب، فاختر ملف تعريف CHD «صورة قرص صلب» من الخيارات ثم أعد التحويل.</sys:String>
+    <sys:String x:Key="LocWorkflow_HardDiskDiscEvidence">تبدو هذه الصورة جزءًا من قرص CD/DVD (يوجد ملف CUE/CCD/GDI/TOC/MDS مطابق أو ترويسة قرص)، لذلك لم تُحوَّل كقرص صلب. أضف ملف وصف القرص بدلًا منها.</sys:String>
+    <sys:String x:Key="LocWorkflow_HardDiskNotSectorAligned">الملف فارغ أو أن حجمه ليس من مضاعفات 512 بايت، لذلك فهو ليس صورة قرص صلب خام صالحة.</sys:String>
+    <sys:String x:Key="LocWorkflow_HardDiskProbeFailed">تعذّرت قراءة صورة القرص الصلب للتحقق منها. تأكد من أن الملف غير مقفل وأن القرص متصل.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateHd">تم اختيار صورة قرص صلب. سيتم تحويلها إلى CHD باستخدام createhd.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">جارٍ فك CSO إلى ISO مؤقت قبل التحويل إلى CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolMissing">تعذر العثور على CsoKit. أعد تثبيت الحزمة أو افتح مجلد الأدوات للتحقق من وجود csokit.exe وCsoKit.Native.dll.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolFailed">تعذر تشغيل CsoKit أو التحقق من إصداره.</sys:String>
@@ -670,6 +675,8 @@
     <sys:String x:Key="LocChdProfile_SaturnDescription">صور CUE/BIN لأقراص Saturn. يستخدم createcd.</sys:String>
     <sys:String x:Key="LocChdProfile_DreamcastLabel">Sega Dreamcast</sys:String>
     <sys:String x:Key="LocChdProfile_DreamcastDescription">صور GDI لأقراص Dreamcast/GD-ROM. يستخدم createcd.</sys:String>
+    <sys:String x:Key="LocChdProfile_HardDiskLabel">صورة قرص صلب</sys:String>
+    <sys:String x:Key="LocChdProfile_HardDiskDescription">صور أقراص صلبة خام ‎.img/.hdd‎. يستخدم createhd. الصور التابعة لقرص CD/DVD تُرفض.</sys:String>
 
     <sys:String x:Key="LocWorkflow_RawMediaImageName">صورة RAW</sys:String>
     <sys:String x:Key="LocWorkflow_RawMetadataConflictTitle">تعارض في بيانات CHD</sys:String>
@@ -719,6 +726,7 @@
 
     <sys:String x:Key="LocDiskPreflight_OperationCreateCd">تحويل قرص CD إلى CHD</sys:String>
     <sys:String x:Key="LocDiskPreflight_OperationCreateDvd">تحويل قرص DVD إلى CHD</sys:String>
+    <sys:String x:Key="LocDiskPreflight_OperationCreateHd">تحويل قرص صلب إلى CHD</sys:String>
     <sys:String x:Key="LocDiskPreflight_OperationExtractCd">استخراج قرص CD من CHD</sys:String>
     <sys:String x:Key="LocDiskPreflight_OperationExtractDvd">استخراج قرص DVD من CHD</sys:String>
     <sys:String x:Key="LocDiskPreflight_OperationExtractHd">استخراج صورة قرص ثابت من CHD</sys:String>

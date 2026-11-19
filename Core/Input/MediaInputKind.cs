@@ -11,5 +11,6 @@ public enum MediaInputKind
     BIN,
     GDI,
     Unknown,
-    Other
+    Other,
+    HardDiskImage
 }
