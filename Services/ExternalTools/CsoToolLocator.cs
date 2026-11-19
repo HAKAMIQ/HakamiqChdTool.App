@@ -15,8 +15,8 @@ public sealed class CsoToolLocator
 {
     public const string ToolExecutableName = "csokit.exe";
     public const string NativeLibraryName = "CsoKit.Native.dll";
-    private const string BundledToolSha256 = "7585B6A5193A53B139DB66E21247AACC26DF92619F4DA55F91F574C8C75E1C0D";
-    private const string BundledNativeDllSha256 = "0D2245E87F5FC3CFB1EF4CDF66582C9E9C640596E8D598CE81DB8A98CD727250";
+    private const string BundledToolSha256 = "0A822E643F4B414F6F9CA53EE09B1DB49D3EA3AB68BC5A0145D394C86DA0E97E";
+    private const string BundledNativeDllSha256 = "BEFDAB67749B019F02C104F9297A47692C596CB3E6244D934C04AEA896631C55";
 
     private static readonly byte[] ExpectedBundledToolSha256 = Convert.FromHexString(BundledToolSha256);
     private static readonly byte[] ExpectedBundledNativeDllSha256 = Convert.FromHexString(BundledNativeDllSha256);
