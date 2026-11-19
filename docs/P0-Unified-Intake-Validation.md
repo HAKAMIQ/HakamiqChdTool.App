@@ -74,3 +74,12 @@ Full security sign-off remains pending until symbolic-link
 tests are executed successfully and remaining risks are reviewed.
 
 No source changes are required by this report.
+
+## Update 2026-11-19
+
+- The path-validation-to-open TOCTOU limitation is fixed: the intake probe
+  validates the opened handle, and conversions hold their source files open for
+  reading until chdman finishes. See `docs/SECURITY_TODO_TOCTOU.md`.
+- Elevated run (administrator, symbolic links available): 242 passed, 0 skipped,
+  242 total, including the symbolic-link intake tests and the TOCTOU regression
+  tests for a parent junction, a file symlink and a symlink at a missing path.

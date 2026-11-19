@@ -649,6 +649,7 @@
     <sys:String x:Key="LocWorkflow_EcmUnsupportedName">تُدعم ملفات ‎.bin.ecm‎ و‎.img.ecm‎ فقط.</sys:String>
     <sys:String x:Key="LocWorkflow_EcmCueIncomplete">ملف CUE الذي يستخدم صورة ECM هذه يشير إلى مسار غير موجود، لا كملف عادي ولا كملف ‎.ecm‎.</sys:String>
     <sys:String x:Key="LocWorkflow_EcmNeedsCue">صورة ECM هذه بلا ملف CUE ولا تبدأ بمسار بيانات، لذلك ترتيب مساراتها غير معروف. ضع ملف ‎.cue‎ المطابق بجانبها.</sys:String>
+    <sys:String x:Key="LocConversion_SourceNotStable">تعذّر تثبيت ملف المصدر قبل التحويل: إما أن برنامجًا آخر يستخدمه أو يكتب فيه الآن، أو أن المسار تغيّر بعد فحصه. أغلق البرنامج الذي يستخدمه ثم أعد المحاولة.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">جارٍ فك CSO إلى ISO مؤقت قبل التحويل إلى CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolMissing">تعذر العثور على CsoKit. أعد تثبيت الحزمة أو افتح مجلد الأدوات للتحقق من وجود csokit.exe وCsoKit.Native.dll.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolFailed">تعذر تشغيل CsoKit أو التحقق من إصداره.</sys:String>

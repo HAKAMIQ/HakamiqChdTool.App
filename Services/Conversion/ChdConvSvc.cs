@@ -269,6 +269,7 @@ public sealed class ChdConversionService
                 inputPreparationReport?.SourcePreserved ?? true);
         }
 
+        using (csoPreparationOutcome.SourceLease)
         using (csoPreparationOutcome.Lease)
         {
             ChdConversionResult? sectorAlignmentFailure = ChdPlatformProfileExecutionPolicy.ValidateDvdSectorAlignment(

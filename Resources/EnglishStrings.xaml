@@ -655,6 +655,7 @@ Path:
     <sys:String x:Key="LocWorkflow_EcmUnsupportedName">Only .bin.ecm and .img.ecm files are supported.</sys:String>
     <sys:String x:Key="LocWorkflow_EcmCueIncomplete">The CUE file that uses this ECM image refers to a track that was not found, either as a file or as .ecm.</sys:String>
     <sys:String x:Key="LocWorkflow_EcmNeedsCue">This ECM image has no CUE file and does not start with a data track, so its track layout is unknown. Put the matching .cue next to it.</sys:String>
+    <sys:String x:Key="LocConversion_SourceNotStable">The source file could not be held for conversion: another program is using or writing it, or its path changed after it was checked. Close the program that uses it and try again.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingCsoToIso">Expanding CSO to a temporary ISO before CHD conversion.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolMissing">CsoKit could not be found. Reinstall the package or open the tools folder to verify that csokit.exe and CsoKit.Native.dll are present.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoToolFailed">CsoKit could not be started or its version could not be verified.</sys:String>

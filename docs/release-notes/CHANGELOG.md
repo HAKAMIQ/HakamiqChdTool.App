@@ -25,6 +25,8 @@ unchanged.
   and RAR archives.
 - Deleting the source after a verified conversion now also covers ZSO, CloneCD,
   Alcohol 120% and ECM sets, and keeps sets whose subchannel data the CHD lacks.
+- Security: a source file can no longer be swapped between its checks and the
+  conversion; files another program is writing are refused.
 - CSO files that maxcso made for large images now convert.
 - Updated the bundled CsoKit to 0.6.6 and 7-Zip to 26.06.
 - The optional igir report now uses igir v5.8.1.
@@ -88,6 +90,14 @@ unchanged.
 - The GDI set is published like CUE/BIN: tracks renamed to the output name,
   the GDI written last, no overwrite without permission, rollback on failure,
   and the extraction proof rebuilds a CHD from the GDI and compares the SHA-1.
+### Security
+
+- Fixed a low-severity race between path validation and file use. The intake
+  probe validates the opened file handle, and each conversion holds its source
+  and track files open for reading (no writes, renames or deletes by others)
+  until chdman finishes. A source that is open for writing elsewhere, or whose
+  path changed after it was checked, is refused before anything runs.
+
 ### CsoKit 0.6.6
 
 - Updated the bundled CsoKit from 0.6.3 to the official 0.6.6 release (source
@@ -128,9 +138,9 @@ unchanged.
 
 ### Validation
 
-- Application tests: 230 passed, 0 failed, 4 skipped in a non-elevated run;
+- Application tests: 236 passed, 0 failed, 6 skipped in a non-elevated run;
   the skipped tests are the symbolic-link tests, which need administrator
-  rights.
+  rights. Run elevated: 242 passed, 0 skipped.
   New tests cover each format's refusal rules and real round trips through the
   bundled tools (createhd/extracthd, ZSO and maxcso-layout CSO through CsoKit
   and createdvd/extractdvd, CloneCD, Alcohol MDS/MDF and ECM through createcd/extractcd
