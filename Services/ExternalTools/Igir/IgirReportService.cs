@@ -20,7 +20,7 @@ public sealed class IgirReportService(IgirToolLocator locator, ExternalToolProce
     {
         using AppSettingsService settingsService = new();
         string executable = await locator.FindVerifiedAsync(applicationDirectory, settingsService.Load().ExternalIgirPath, cancellationToken).ConfigureAwait(false)
-            ?? throw new FileNotFoundException("Verified igir v5.7.2 executable is not installed.");
+            ?? throw new FileNotFoundException("Verified igir v5.8.1 executable is not installed.");
         IReadOnlyList<string> arguments = IgirArgs.BuildReport(request);
         Directory.CreateDirectory(request.WorkRoot);
         string cacheRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HakamiqChdTool", "Igir");

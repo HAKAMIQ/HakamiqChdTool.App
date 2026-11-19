@@ -20,8 +20,8 @@ If CsoKit is included, the release package must keep `csokit.exe` and
 
 If igir is included, the release package must include `IGIR_NOTICE.md` and the
 full `IGIR_GPL-3.0.txt` license text next to the other legal notices, the
-SBOM must list igir 5.7.2 with its license, hashes and source, and
-`igir-5.7.2-source.tar.gz` (the GPL-3.0 Corresponding Source) must be published
+SBOM must list igir 5.8.1 with its license, hashes and source, and
+`igir-5.8.1-source.tar.gz` (the GPL-3.0 Corresponding Source) must be published
 next to the release ZIP. `VerifyRelease.ps1` and `PackRel.ps1` enforce this.
 
 ## Redump

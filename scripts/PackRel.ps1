@@ -19,7 +19,7 @@ param(
 
     [switch] $PreserveExistingPackages,
 
-    [string] $IgirSourceArchive = ".\Tools\igir\source\igir-5.7.2-source.tar.gz"
+    [string] $IgirSourceArchive = ".\Tools\igir\source\igir-5.8.1-source.tar.gz"
 )
 
 $ErrorActionPreference = "Stop"
@@ -54,8 +54,8 @@ $PackageDirectoryPath = Resolve-ProjectPath $PackageDirectory
 $VerificationOutputPath = Join-Path $ReleaseRoot "_package-verify"
 $ZipPath = Join-Path $PackageDirectoryPath $PackageName
 $ShaPath = "$ZipPath.sha256"
-$IgirSourceArchiveName = "igir-5.7.2-source.tar.gz"
-$IgirSourceArchiveHash = "EA5341ED3A40054BFBF2F6D26F6C76902C6D5EC949D66D38692218656245875B"
+$IgirSourceArchiveName = "igir-5.8.1-source.tar.gz"
+$IgirSourceArchiveHash = "18742ACA59AAD2D562B25645EC6DAE728A9BF234AE597E2BD162ABCC992BEF46"
 $IgirSourcePath = Join-Path $PackageDirectoryPath $IgirSourceArchiveName
 $IncludesIgir = Test-Path -LiteralPath (Join-Path $ReleaseOutputPath "Tools\igir\win-x64\igir.exe") -PathType Leaf
 
