@@ -21,7 +21,8 @@ unchanged.
 - Hard-disk images convert only when the "Hard disk image" profile is selected
   in Options.
 - Dreamcast GD-ROM CHDs extract to GDI; a Settings option keeps CUE/BIN.
-- ZSO also converts from inside ZIP, 7Z and RAR archives.
+- ZSO, CloneCD, Alcohol 120% and ECM images also convert from inside ZIP, 7Z
+  and RAR archives.
 - CSO files that maxcso made for large images now convert.
 - Updated the bundled CsoKit to 0.6.6 and 7-Zip to 26.06.
 - The optional igir report now uses igir v5.8.1.
@@ -45,6 +46,8 @@ unchanged.
   ISO must match the declared size exactly. CsoKit 0.6.4 or newer is required;
   an older external CsoKit is refused with a message.
 - ZSO inside ZIP, 7Z and RAR archives is extracted and converted the same way.
+- CloneCD and Alcohol 120% images inside archives are extracted with their
+  `.img`/`.mdf`; an archived CUE may name tracks stored as `.bin.ecm`.
   Source cleanup after a ZSO conversion is not supported yet.
 
 ### CloneCD
@@ -123,7 +126,7 @@ unchanged.
 
 ### Validation
 
-- Application tests: 228 passed, 0 failed, 4 skipped in a non-elevated run;
+- Application tests: 229 passed, 0 failed, 4 skipped in a non-elevated run;
   the skipped tests are the symbolic-link tests, which need administrator
   rights.
   New tests cover each format's refusal rules and real round trips through the
