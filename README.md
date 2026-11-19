@@ -56,9 +56,9 @@ Try one disc first so you can check the result before a large batch.
 | ISO | Yes | Converted as a DVD-type CHD; PS2 and PSP discs are recognized. |
 | CUE/BIN | Yes | Add the `.cue`; every referenced `.bin` must be in the same folder. |
 | GDI, TOC | Yes | Keep the descriptor and all track files together. |
-| CloneCD (`.ccd`) | Yes | Converted through a temporary CUE; `.sub` subchannel data is not kept. |
-| Alcohol 120% (`.mds`) | Yes | CD or DVD; add the `.mds`. Subchannel data is not kept. |
-| ECM (`.bin.ecm`, `.img.ecm`) | Yes | Decoded and checked first; keep the `.cue` next to it. |
+| CloneCD (`.ccd`) | Yes | Converted through a temporary CUE; `.sub` subchannel data is not kept. Also inside archives. |
+| Alcohol 120% (`.mds`) | Yes | CD or DVD; add the `.mds`. Subchannel data is not kept. Also inside archives. |
+| ECM (`.bin.ecm`, `.img.ecm`) | Yes | Decoded and checked first; keep the `.cue` next to it. Also inside archives. |
 | CSO | Yes | Expanded to a temporary ISO first; the source is not changed. |
 | ZSO | Yes | Needs the `ZISO` signature; also inside ZIP, 7Z and RAR. |
 | Hard-disk image (`.img`, `.hdd`) | Yes | Only with the *Hard disk image* profile selected in Settings. |

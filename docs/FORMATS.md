@@ -74,7 +74,7 @@ The app refuses, before chdman runs:
 - an `.mdf` that is missing, outside the `.mds` folder, split into several files, or whose size does not match the descriptor,
 - gaps between tracks, or track offsets that do not match their position on the disc.
 
-Subchannel data is not kept in the CHD. Copy protections that depend on it will not survive the conversion. MDS inside archives and source cleanup after conversion are not supported yet.
+Subchannel data is not kept in the CHD. Copy protections that depend on it will not survive the conversion. MDS inside a ZIP, 7Z or RAR archive is extracted together with its `.mdf` and converted the same way. Source cleanup after conversion is not supported yet.
 ## ECM (.bin.ecm / .img.ecm)
 
 ECM removes the error-correction data from CD sectors to make BIN images smaller. The app rebuilds it and converts the result with `createcd`.
@@ -84,7 +84,7 @@ ECM removes the error-correction data from CD sectors to make BIN images smaller
 
 Every `.ecm` is decoded into the temp workspace and must match the checksum stored at the end of the file. A damaged or truncated `.ecm` stops before chdman runs. Nothing is written to the source folder, and the source files are not modified.
 
-Only `.bin.ecm` and `.img.ecm` are accepted. ECM inside archives and source cleanup after conversion are not supported yet.
+Only `.bin.ecm` and `.img.ecm` are accepted. Inside a ZIP, 7Z or RAR archive, a CUE may name tracks that are stored as `.ecm`; the set is extracted and converted the same way. Source cleanup after conversion is not supported yet.
 ## NRG and CDI
 
 NRG is accepted only where the current workflow can handle it safely.

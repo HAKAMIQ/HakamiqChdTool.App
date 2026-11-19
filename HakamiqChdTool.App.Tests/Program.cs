@@ -323,6 +323,7 @@ internal static partial class Program
                 new("ECM intake queues each set once and planning picks createcd", () => TestEcmIntakeAndPlanning(workDirectory)),
                 new("ECM images round-trip through bundled chdman", () => TestEcmRoundTripsWithBundledChdman(app, workDirectory)),
                 new("ZSO inside an archive is extracted, planned and converted", () => TestZsoInsideArchiveConverts(app, workDirectory)),
+                new("CloneCD, Alcohol and ECM sets inside archives are extracted and converted", () => TestCcdMdsEcmInsideArchivesConvert(app, workDirectory)),
                 new("GDI descriptors are parsed strictly", TestGdiSheetParsesStrictly),
                 new("GD-ROM extraction picks GDI unless CUE/BIN is chosen", TestGdRomExtractionPicksGdi),
                 new("GDI sets are finalized with renamed tracks and never overwrite", () => TestGdiFinalizeRenamesTracksAndNeverOverwrites(workDirectory)),
