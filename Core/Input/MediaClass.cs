@@ -32,6 +32,14 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
         (byte)'O'
     ];
 
+    private static readonly byte[] ZsoMagic =
+    [
+        (byte)'Z',
+        (byte)'I',
+        (byte)'S',
+        (byte)'O'
+    ];
+
     private static readonly byte[] PkgMagic =
     [
         0x7F,
@@ -47,6 +55,7 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             [".pkg"] = MediaInputKind.PKG,
             [".chd"] = MediaInputKind.CHD,
             [".cso"] = MediaInputKind.CSO,
+            [".zso"] = MediaInputKind.ZSO,
             [".cue"] = MediaInputKind.CUE,
             [".bin"] = MediaInputKind.BIN,
             [".gdi"] = MediaInputKind.GDI,
@@ -209,6 +218,20 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
                         "magic-cso",
                         "extension-cso",
                         "extension-cso-probe-failed",
+                        cancellationToken)
+                    .ConfigureAwait(false),
+
+            MediaInputKind.ZSO =>
+                await ClassifyWithMagicAsync(
+                        originalPath,
+                        fullPath,
+                        kind,
+                        sizeBytes,
+                        extension,
+                        ZsoMagic,
+                        "magic-zso",
+                        "extension-zso",
+                        "extension-zso-probe-failed",
                         cancellationToken)
                     .ConfigureAwait(false),
 

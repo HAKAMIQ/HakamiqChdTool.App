@@ -58,7 +58,7 @@ public sealed class MediaInputPipeline : IMediaInputPipeline
                 MediaInputPipelineDecisionReasons.HeaderEvidenceRejected);
         }
 
-        if (descriptor.Kind == MediaInputKind.CSO
+        if (descriptor.Kind is MediaInputKind.CSO or MediaInputKind.ZSO
             && descriptor.ProbeStatus != MediaInputProbeStatus.MagicConfirmed)
         {
             return Block(

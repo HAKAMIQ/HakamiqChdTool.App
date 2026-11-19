@@ -182,7 +182,7 @@ public sealed class DatMatcher
         CancellationToken cancellationToken)
     {
         string stem = Path.GetFileNameWithoutExtension(entry.FileName);
-        bool container = entry.Kind is MediaInputKind.CHD or MediaInputKind.CSO or MediaInputKind.PKG
+        bool container = entry.Kind is MediaInputKind.CHD or MediaInputKind.CSO or MediaInputKind.ZSO or MediaInputKind.PKG
             || (entry.Extension is not null && ContainerExtensions.Contains(entry.Extension));
 
         // A container is named after its game; a raw file is only named like one of the game's own ROM records.

@@ -25,10 +25,15 @@ internal sealed class ChdCsoInputPreparationCoordinator
         ChdConversionServiceSupport.ChdExecutionReportContext executionReportContext,
         CancellationToken cancellationToken)
     {
-        if (createProfile?.PreparationKind != ChdInputPreparationKind.ExpandCsoToIso)
+        ChdInputPreparationKind preparationKind = createProfile?.PreparationKind ?? ChdInputPreparationKind.None;
+        if (preparationKind is not (ChdInputPreparationKind.ExpandCsoToIso or ChdInputPreparationKind.ExpandZsoToIso))
         {
             return ChdCsoInputPreparationOutcome.NotRequired;
         }
+
+        string preparationCommand = preparationKind == ChdInputPreparationKind.ExpandZsoToIso
+            ? "csokit detect input.zso --json; csokit decompress input.zso -o tmp.iso --force --json"
+            : "csokit info input.cso --json; csokit verify input.cso --json; csokit decompress input.cso -o tmp.iso --force --json";
 
         CsoTempWorkspace? tempWorkspace = null;
 
@@ -47,7 +52,7 @@ internal sealed class ChdCsoInputPreparationCoordinator
                     PreparedInputPath: preparationResult.PreparedIsoPath,
                     PreparationTool: preparationResult.ToolName,
                     PreparationToolVersion: preparationResult.ToolVersion,
-                    PreparationCommand: "csokit info input.cso --json; csokit verify input.cso --json; csokit decompress input.cso -o tmp.iso --force --json",
+                    PreparationCommand: preparationCommand,
                     PreparationExitCode: preparationResult.ExitCode,
                     PreparedOutputBytes: preparationResult.PreparedIsoBytes,
                     TemporaryIsoDeleted: false,
