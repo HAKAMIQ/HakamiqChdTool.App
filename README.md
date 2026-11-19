@@ -14,7 +14,7 @@ available in Arabic and English, with light and dark themes.
 ## Features
 
 - **Convert to CHD** from ISO, CUE/BIN, GDI, TOC, CloneCD, Alcohol 120% (MDS/MDF),
-  CSO, ZSO and raw
+  ECM, CSO, ZSO and raw
   hard-disk images, or from a ZIP, 7Z or RAR that holds one disc image.
 - **Verify** existing CHD files, with optional Redump DAT matching that you
   provide.
@@ -58,6 +58,7 @@ Try one disc first so you can check the result before a large batch.
 | GDI, TOC | Yes | Keep the descriptor and all track files together. |
 | CloneCD (`.ccd`) | Yes | Converted through a temporary CUE; `.sub` subchannel data is not kept. |
 | Alcohol 120% (`.mds`) | Yes | CD or DVD; add the `.mds`. Subchannel data is not kept. |
+| ECM (`.bin.ecm`, `.img.ecm`) | Yes | Decoded and checked first; keep the `.cue` next to it. |
 | CSO | Yes | Expanded to a temporary ISO first; the source is not changed. |
 | ZSO | Yes | Needs the `ZISO` signature; not supported inside archives yet. |
 | Hard-disk image (`.img`, `.hdd`) | Yes | Only with the *Hard disk image* profile selected in Settings. |

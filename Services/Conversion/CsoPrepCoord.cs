@@ -2,6 +2,7 @@ using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Models;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +32,11 @@ internal sealed class ChdCsoInputPreparationCoordinator
         if (preparationKind == ChdInputPreparationKind.GenerateCueFromCcd)
         {
             return await PrepareCloneCdCueAsync(inputPath, outputPath, resolvedInputPath, compressionResolution, resolvedHunkSizeBytes, executionReportContext, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (preparationKind == ChdInputPreparationKind.DecodeEcm)
+        {
+            return await PrepareEcmAsync(inputPath, outputPath, resolvedInputPath, compressionResolution, resolvedHunkSizeBytes, executionReportContext, cancellationToken).ConfigureAwait(false);
         }
 
         if (preparationKind is ChdInputPreparationKind.GenerateCueFromMds or ChdInputPreparationKind.StageIsoFromMds)
@@ -107,6 +113,72 @@ internal sealed class ChdCsoInputPreparationCoordinator
         finally
         {
             tempWorkspace?.Dispose();
+        }
+    }
+
+    private static async Task<ChdCsoInputPreparationOutcome> PrepareEcmAsync(
+        string inputPath,
+        string outputPath,
+        string resolvedInputPath,
+        ChdCompressionResolution compressionResolution,
+        int resolvedHunkSizeBytes,
+        ChdConversionServiceSupport.ChdExecutionReportContext executionReportContext,
+        CancellationToken cancellationToken)
+    {
+        ChdCsoInputPreparationOutcome Fail(string messageKey) => new(
+            null,
+            ChdConversionServiceSupport.BuildPreExecutionFailureResult(
+                inputPath,
+                outputPath,
+                messageKey,
+                compressionResolution,
+                resolvedHunkSizeBytes,
+                executionReportContext));
+
+        CsoTempWorkspace? workspace = CsoTempWorkspace.Create();
+        try
+        {
+            ConversionPathValidator.ThrowIfUnsafeForChdman(resolvedInputPath, nameof(inputPath));
+            (string? preparedCue, string? failure) = await EcmSetPreparer
+                .PrepareAsync(resolvedInputPath, workspace.DirectoryPath, cancellationToken)
+                .ConfigureAwait(false);
+            if (preparedCue is null)
+            {
+                return Fail(failure ?? EcmDecoder.StagingFailedMessageKey);
+            }
+
+            long preparedBytes = Directory.EnumerateFiles(workspace.DirectoryPath)
+                .Where(path => !string.Equals(path, preparedCue, StringComparison.OrdinalIgnoreCase))
+                .Sum(path => new FileInfo(path).Length);
+            var report = new ChdConversionServiceSupport.ChdInputPreparationReport(
+                OriginalInputPath: inputPath,
+                PreparedInputPath: preparedCue,
+                PreparationTool: "ECM decoder",
+                PreparationToolVersion: string.Empty,
+                PreparationCommand: "decode .ecm tracks, verify stored EDC, stage CUE",
+                PreparationExitCode: 0,
+                PreparedOutputBytes: preparedBytes,
+                TemporaryIsoDeleted: false,
+                SourcePreserved: true);
+
+            // Ownership transfers to the returned lease, which the conversion caller disposes.
+#pragma warning disable CA2000
+            var lease = new ChdCsoPreparedInputLease(workspace, report, preparedCue);
+#pragma warning restore CA2000
+            workspace = null;
+            return new ChdCsoInputPreparationOutcome(lease, null);
+        }
+        catch (Exception ex) when (ex is IOException
+                                  or UnauthorizedAccessException
+                                  or ArgumentException
+                                  or InvalidOperationException
+                                  or NotSupportedException)
+        {
+            return Fail(EcmDecoder.StagingFailedMessageKey);
+        }
+        finally
+        {
+            workspace?.Dispose();
         }
     }
 

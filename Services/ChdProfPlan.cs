@@ -35,7 +35,8 @@ public enum ChdMediaFormatKind
     HardDisk = 12,
     Zso = 13,
     Ccd = 14,
-    Mds = 15
+    Mds = 15,
+    Ecm = 16
 }
 
 public enum ChdWorkflowProfileKind
@@ -117,6 +118,7 @@ public static class ChdWorkflowProfilePlanner
     private const string StatusCreateCcdKey = "LocWorkflow_StatusCreateCcd";
     private const string StatusCreateMdsKey = "LocWorkflow_StatusCreateMds";
     private const string StatusCreateMdsDvdKey = "LocWorkflow_StatusCreateMdsDvd";
+    private const string StatusCreateEcmKey = "LocWorkflow_StatusCreateEcm";
     private const string StatusVerifyChdKey = "LocWorkflow_StatusVerifyChd";
     private const string StatusExtractCdKey = "LocWorkflow_StatusExtractCd";
     private const string StatusExtractDvdKey = "LocWorkflow_StatusExtractDvd";
@@ -169,6 +171,7 @@ public static class ChdWorkflowProfilePlanner
             ".zso" => PlanZsoCreateDvd(inputPath, containerKind),
             ".ccd" => PlanCcdCreateCd(inputPath, containerKind),
             ".mds" => PlanMdsCreate(inputPath, containerKind),
+            ".ecm" => PlanEcmCreate(inputPath, containerKind),
             ".chd" => ChdWorkflowProfilePlan.Unsupported(ChdAlreadyChdMessageKey, containerKind),
             ".zip" or ".rar" or ".7z" => ChdWorkflowProfilePlan.Unsupported(ArchiveRequiresExtractionMessageKey, ChdMediaContainerKind.Archive),
             ".bin" => PlanStandaloneBinCreate(inputPath, containerKind),
@@ -220,6 +223,11 @@ public static class ChdWorkflowProfilePlanner
         if (string.Equals(extension, ".mds", StringComparison.Ordinal))
         {
             return PlanMdsCreate(inputPath, containerKind);
+        }
+
+        if (string.Equals(extension, ".ecm", StringComparison.Ordinal))
+        {
+            return PlanEcmCreate(inputPath, containerKind);
         }
 
         if (!ChdPlatformProfiles.SupportsExtension(profile, extension))
@@ -318,6 +326,11 @@ public static class ChdWorkflowProfilePlanner
             return StatusCreateMdsDvdKey;
         }
 
+        if (profile.PreparationKind == ChdInputPreparationKind.DecodeEcm)
+        {
+            return StatusCreateEcmKey;
+        }
+
         if (profile.PreparationKind == ChdInputPreparationKind.ExpandZsoToIso
             || string.Equals(extension, ".zso", StringComparison.OrdinalIgnoreCase))
         {
@@ -361,6 +374,28 @@ public static class ChdWorkflowProfilePlanner
         };
     }
 
+    private static ChdWorkflowProfilePlan PlanEcmCreate(
+        string inputPath,
+        ChdMediaContainerKind containerKind)
+    {
+        EcmSetCheck check = EcmSetPreparer.Check(inputPath);
+        if (!check.IsValid)
+        {
+            return ChdWorkflowProfilePlan.Unsupported(check.MessageKey, containerKind);
+        }
+
+        return new ChdWorkflowProfilePlan
+        {
+            IsSupported = true,
+            ContainerKind = containerKind,
+            MediaKind = ChdMediaFormatKind.Ecm,
+            ProfileKind = ChdWorkflowProfileKind.CreateCd,
+            Command = "createcd",
+            OutputExtension = ".chd",
+            StatusLine = StatusCreateEcmKey,
+            PlatformProfile = ChdPlatformProfiles.EcmCd
+        };
+    }
     private static ChdWorkflowProfilePlan PlanMdsCreate(
         string inputPath,
         ChdMediaContainerKind containerKind)

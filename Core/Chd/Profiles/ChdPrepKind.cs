@@ -7,5 +7,6 @@ public enum ChdInputPreparationKind
     ExpandZsoToIso,
     GenerateCueFromCcd,
     GenerateCueFromMds,
-    StageIsoFromMds
+    StageIsoFromMds,
+    DecodeEcm
 }
