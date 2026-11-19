@@ -40,6 +40,21 @@ Standalone BIN or RAW files are not blindly treated as complete discs.
 
 If you have a CUE, use it. Without a descriptor, the app needs enough evidence to choose a safe workflow.
 
+## CloneCD (CCD/IMG/SUB)
+
+Add the `.ccd` file. The `.img` with the same name holds the raw 2352-byte sectors; the `.img` and `.sub` stay out of the queue on their own.
+
+The app reads the track layout from the `.ccd`, writes a temporary CUE in its temp workspace, and converts it with `createcd`. The `.img` is hard-linked into the workspace when it is on the same drive and writable; otherwise it is copied there after a free-space check. Nothing is written to the source folder, and the source files are not modified.
+
+The app refuses, before chdman runs:
+
+- more than one session,
+- scrambled data tracks,
+- a missing `.img`, or one whose size is not a multiple of 2352 bytes,
+- track numbers that are not consecutive, or indexes that do not move forward or run past the end of the image.
+
+Subchannel data (`.sub`) is not kept in the CHD. Copy protections that depend on it (for example LibCrypt or SafeDisc) will not survive the conversion.
+
 ## NRG and CDI
 
 NRG is accepted only where the current workflow can handle it safely.

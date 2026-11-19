@@ -1,6 +1,8 @@
 using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Models;
 using System;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,6 +28,11 @@ internal sealed class ChdCsoInputPreparationCoordinator
         CancellationToken cancellationToken)
     {
         ChdInputPreparationKind preparationKind = createProfile?.PreparationKind ?? ChdInputPreparationKind.None;
+        if (preparationKind == ChdInputPreparationKind.GenerateCueFromCcd)
+        {
+            return await PrepareCloneCdCueAsync(inputPath, outputPath, resolvedInputPath, compressionResolution, resolvedHunkSizeBytes, executionReportContext, cancellationToken).ConfigureAwait(false);
+        }
+
         if (preparationKind is not (ChdInputPreparationKind.ExpandCsoToIso or ChdInputPreparationKind.ExpandZsoToIso))
         {
             return ChdCsoInputPreparationOutcome.NotRequired;
@@ -97,6 +104,92 @@ internal sealed class ChdCsoInputPreparationCoordinator
             tempWorkspace?.Dispose();
         }
     }
+
+    private static async Task<ChdCsoInputPreparationOutcome> PrepareCloneCdCueAsync(
+        string inputPath,
+        string outputPath,
+        string resolvedInputPath,
+        ChdCompressionResolution compressionResolution,
+        int resolvedHunkSizeBytes,
+        ChdConversionServiceSupport.ChdExecutionReportContext executionReportContext,
+        CancellationToken cancellationToken)
+    {
+        CloneCdParseResult layout = CloneCdCueBuilder.Parse(resolvedInputPath);
+        if (!layout.IsValid || layout.Layout is null)
+        {
+            return new ChdCsoInputPreparationOutcome(
+                null,
+                ChdConversionServiceSupport.BuildPreExecutionFailureResult(
+                    inputPath,
+                    outputPath,
+                    layout.MessageKey,
+                    compressionResolution,
+                    resolvedHunkSizeBytes,
+                    executionReportContext));
+        }
+
+        CsoTempWorkspace? workspace = CsoTempWorkspace.Create();
+        try
+        {
+            ConversionPathValidator.ThrowIfUnsafeForChdman(layout.Layout.ImagePath, nameof(inputPath));
+            const string StagedImageName = "tmp.img";
+            string stagedImagePath = Path.Combine(workspace.DirectoryPath, StagedImageName);
+
+            if (!await CloneCdImageStager.TryStageAsync(layout.Layout.ImagePath, stagedImagePath, cancellationToken).ConfigureAwait(false))
+            {
+                return new ChdCsoInputPreparationOutcome(
+                    null,
+                    ChdConversionServiceSupport.BuildPreExecutionFailureResult(
+                        inputPath,
+                        outputPath,
+                        CloneCdCueBuilder.StagingFailedMessageKey,
+                        compressionResolution,
+                        resolvedHunkSizeBytes,
+                        executionReportContext));
+            }
+
+            string cuePath = Path.Combine(workspace.DirectoryPath, "tmp.cue");
+            File.WriteAllText(cuePath, CloneCdCueBuilder.BuildCue(layout.Layout, StagedImageName), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+            var report = new ChdConversionServiceSupport.ChdInputPreparationReport(
+                OriginalInputPath: inputPath,
+                PreparedInputPath: cuePath,
+                PreparationTool: "CloneCD CUE generator",
+                PreparationToolVersion: string.Empty,
+                PreparationCommand: "generate tmp.cue from .ccd (subchannel .sub not used)",
+                PreparationExitCode: 0,
+                PreparedOutputBytes: new FileInfo(layout.Layout.ImagePath).Length,
+                TemporaryIsoDeleted: false,
+                SourcePreserved: true);
+
+            // Ownership transfers to the returned lease, which the conversion caller disposes.
+#pragma warning disable CA2000
+            var lease = new ChdCsoPreparedInputLease(workspace, report, cuePath);
+#pragma warning restore CA2000
+            workspace = null;
+            return new ChdCsoInputPreparationOutcome(lease, null);
+        }
+        catch (Exception ex) when (ex is IOException
+                                  or UnauthorizedAccessException
+                                  or ArgumentException
+                                  or InvalidOperationException
+                                  or NotSupportedException)
+        {
+            return new ChdCsoInputPreparationOutcome(
+                null,
+                ChdConversionServiceSupport.BuildPreExecutionFailureResult(
+                    inputPath,
+                    outputPath,
+                    CloneCdCueBuilder.InvalidControlFileMessageKey,
+                    compressionResolution,
+                    resolvedHunkSizeBytes,
+                    executionReportContext));
+        }
+        finally
+        {
+            workspace?.Dispose();
+        }
+    }
 }
 
 internal sealed record ChdCsoInputPreparationOutcome(
@@ -112,13 +205,18 @@ internal sealed class ChdCsoPreparedInputLease : IDisposable
 
     public ChdCsoPreparedInputLease(
         CsoTempWorkspace workspace,
-        ChdConversionServiceSupport.ChdInputPreparationReport report)
+        ChdConversionServiceSupport.ChdInputPreparationReport report,
+        string? preparedInputPath = null)
     {
         Workspace = workspace ?? throw new ArgumentNullException(nameof(workspace));
         Report = report;
+        PreparedIsoPath = string.IsNullOrWhiteSpace(preparedInputPath)
+            ? workspace.PreparedIsoPath
+            : preparedInputPath;
     }
 
-    public string PreparedIsoPath => Workspace.PreparedIsoPath;
+    /// <summary>The prepared chdman input inside the workspace (tmp.iso, or tmp.cue for CloneCD).</summary>
+    public string PreparedIsoPath { get; }
 
     private CsoTempWorkspace Workspace { get; }
 
