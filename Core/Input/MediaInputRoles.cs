@@ -38,6 +38,7 @@ public static class MediaInputRoles
                 or MediaInputKind.GDI
                 or MediaInputKind.ISO
                 or MediaInputKind.CSO
+                or MediaInputKind.ZSO
                 or MediaInputKind.HardDiskImage =>
                 QueueInputRole.ConvertibleDiscImage,
 

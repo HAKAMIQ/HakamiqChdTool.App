@@ -292,7 +292,7 @@ internal static partial class Program
                 new("Redump engine bounds descriptor size", () => TestRedumpEngineBoundsDescriptorSize(app, workDirectory)),
                 new("Redump commands honor the enabled state", TestRedumpCommandsHonorEnabledState),
                 new("Shutdown timeout observes and reports late work", () => TestShutdownTimeout(app)),
-                new("Bundled CsoKit 0.6.3 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
+                new("Bundled CsoKit 0.6.6 completes the application preprocessing round trip", () => TestBundledCsoKitRoundTrip(app, workDirectory)),
                 new("Bundled CsoKit rejects a CSO with trailing data and leaves no temporary ISO", () => TestBundledCsoKitRejectsTrailingData(app, workDirectory)),
                 new("Bundled chdman tampering is rejected", () => TestBundledChdmanTamperingIsRejected(app)),
                 new("CSO preparation rejects a decompressed ISO shorter than the declared size", () => TestCsoPreparationRejectsShortDecompressedIso(app, workDirectory)),
@@ -302,6 +302,11 @@ internal static partial class Program
                 new("Hard-disk planning requires the explicit profile", () => TestHardDiskPlannerRequiresExplicitProfile(workDirectory)),
                 new("Hard-disk command policy keeps chdman defaults", TestHardDiskCommandPolicyKeepsChdmanDefaults),
                 new("Hard-disk image round-trips through bundled chdman createhd and extracthd", () => TestHardDiskRoundTripWithBundledChdman(app, workDirectory)),
+                new("ZSO intake requires the ZISO signature", () => TestZsoIntakeRequiresZisoMagic(workDirectory)),
+                new("ZSO planning expands to ISO then uses createdvd", () => TestZsoPlannerExpandsThenCreatesDvd(workDirectory)),
+                new("ZSO needs CsoKit 0.6.4+ and a ZSO detect result", TestZsoToolVersionAndDetectParsing),
+                new("ZSO round-trips through bundled CsoKit and chdman; damaged ZSO is refused", () => TestZsoRoundTripWithBundledTools(app, workDirectory)),
+                new("maxcso 16 KB-block CSO round-trips through bundled CsoKit and chdman", () => TestMaxcsoLargeBlockCsoConverts(app, workDirectory)),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),
@@ -2235,7 +2240,7 @@ internal static partial class Program
         object preparation = app.PreprocessCso(compressedCsoPath, preparedIsoPath);
 
         AssertTrue(GetBool(preparation, "IsSuccess"), "Application CsoKit preprocessing failed: " + GetString(preparation, "StandardError"));
-        AssertTrue(GetString(preparation, "ToolVersion").StartsWith("CsoKit 0.6.3+", StringComparison.Ordinal),
+        AssertTrue(GetString(preparation, "ToolVersion").StartsWith("CsoKit 0.6.6+", StringComparison.Ordinal),
             "Application accepted an unexpected CsoKit version: " + GetString(preparation, "ToolVersion"));
         AssertEqual("CsoKit", GetString(preparation, "ToolName"), "Unexpected preprocessing tool name.");
         AssertTrue(File.Exists(preparedIsoPath), "Application preprocessing did not create the temporary ISO.");
@@ -2273,7 +2278,7 @@ internal static partial class Program
 
         AssertEqual(0, GetInt(compression, "ExitCode"), "Bundled CsoKit compression failed: " + GetString(compression, "StandardError"));
 
-        // CsoKit 0.6.3 requires the final index offset to match the file size, so bytes appended
+        // CsoKit 0.6.3+ requires the final index offset to match the file size, so bytes appended
         // after the last block must fail preparation instead of reaching chdman.
         using (FileStream stream = new(compressedCsoPath, FileMode.Append, FileAccess.Write))
         {
