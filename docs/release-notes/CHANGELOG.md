@@ -30,6 +30,7 @@ unchanged.
 - CSO files that maxcso made for large images now convert.
 - Updated the bundled CsoKit to 0.6.6 and 7-Zip to 26.06.
 - The optional igir report now uses igir v5.8.1.
+- The Add files dialogs and the empty-queue hint list every supported format.
 
 ### Hard-disk images
 
@@ -130,6 +131,19 @@ unchanged.
 - Pinned the new digests in the locator, fetch scripts, release gates, legal
   notices, tool manifest and SBOM; updated the Options and Library messages.
 
+### Interface
+
+- The Add files dialogs list `.zso`, `.ccd`, `.mds`, `.ecm`, `.img` and `.hdd`
+  in both languages, and the empty-queue hint names every supported format on
+  its own left-to-right line so the Arabic layout keeps the order. A test
+  checks that every extension the queue accepts is in the filters.
+- Danger buttons (Clear log, Orphan clean) take their colours from the active
+  theme; the colours themselves are unchanged.
+- The queue row activity spinner runs only while it is shown and stays still
+  when Windows animations are off.
+- Removed 13 unused button styles (one whole dictionary); no button looks
+  different.
+
 ### Release pipeline
 
 - The Secure Release workflow publishes only the version's `### Release notes`
@@ -138,9 +152,10 @@ unchanged.
 
 ### Validation
 
-- Application tests: 236 passed, 0 failed, 6 skipped in a non-elevated run;
+- Application tests: 240 passed, 0 failed, 6 skipped in a non-elevated run;
   the skipped tests are the symbolic-link tests, which need administrator
-  rights. Run elevated: 242 passed, 0 skipped.
+  rights. An elevated run before the four interface tests were added passed
+  242 of 242.
   New tests cover each format's refusal rules and real round trips through the
   bundled tools (createhd/extracthd, ZSO and maxcso-layout CSO through CsoKit
   and createdvd/extractdvd, CloneCD, Alcohol MDS/MDF and ECM through createcd/extractcd
