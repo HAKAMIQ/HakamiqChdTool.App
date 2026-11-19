@@ -20,6 +20,8 @@ unchanged.
   Alcohol 120% (`.mds`) and ECM.
 - Hard-disk images convert only when the "Hard disk image" profile is selected
   in Options.
+- Dreamcast GD-ROM CHDs extract to GDI; a Settings option keeps CUE/BIN.
+- ZSO also converts from inside ZIP, 7Z and RAR archives.
 - CSO files that maxcso made for large images now convert.
 - Updated the bundled CsoKit to 0.6.6 and 7-Zip to 26.06.
 - The optional igir report now uses igir v5.8.1.
