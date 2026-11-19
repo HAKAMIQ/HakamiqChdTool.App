@@ -313,6 +313,11 @@ internal static partial class Program
                 new("CloneCD intake and planning use createcd", () => TestCcdIntakeAndPlanning(workDirectory)),
                 new("CloneCD staging copies read-only images and never overwrites", () => TestCcdStagingNeverTouchesTheSource(workDirectory)),
                 new("CloneCD image round-trips through bundled chdman", () => TestCcdRoundTripWithBundledChdman(app, workDirectory)),
+                new("Alcohol MDS maps to an exact CUE", () => TestMdsParserBuildsExactCue(workDirectory)),
+                new("Alcohol MDS parser fails closed on unsupported layouts", () => TestMdsParserFailsClosed(workDirectory)),
+                new("Alcohol MDF staging drops subchannel data and never overwrites", () => TestMdsSubchannelStagingKeepsOnlyMainData(workDirectory)),
+                new("Alcohol MDS intake and planning pick createcd or createdvd", () => TestMdsIntakeAndPlanning(workDirectory)),
+                new("Alcohol MDS images round-trip through bundled chdman", () => TestMdsRoundTripsWithBundledChdman(app, workDirectory)),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),
