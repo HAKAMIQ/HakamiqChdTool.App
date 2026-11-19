@@ -639,6 +639,12 @@ Path:
     <sys:String x:Key="LocWorkflow_CsoToIsoThenChdNotice">The CSO will be expanded to a temporary ISO and then converted to CHD. The original CSO file will not be modified.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoTempSpaceInsufficient">Temporary storage does not have enough free space to expand the CSO to a temporary ISO.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoUnsupported">The CSO file is not currently supported. This application workflow supports CSO v1 files only in this release.</sys:String>
+    <sys:String x:Key="LocWorkflow_PreparingZsoToIso">Expanding ZSO to a temporary ISO before CHD conversion.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoToolTooOld">Expanding ZSO needs CsoKit 0.6.4 or newer. Update CsoKit, or clear the external CsoKit path in Options to use the bundled copy.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoPreparationFailed">Failed to expand ZSO to a temporary ISO; the file may be damaged or incomplete. CHD conversion was not started.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoPreparationCancelled">ZSO expansion was cancelled before CHD conversion started.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoPrepared">Temporary ISO prepared from ZSO. CHD conversion will start.</sys:String>
+    <sys:String x:Key="LocWorkflow_ZsoTempSpaceInsufficient">Temporary storage does not have enough free space to expand the ZSO to a temporary ISO.</sys:String>
     <sys:String x:Key="LocChdPolicy_DvdSectorAlignmentInvalid">DVD image size must be divisible by 2048 bytes before createdvd conversion.</sys:String>
     <sys:String x:Key="LocFormatSafety_CsoTitle">CSO preparation</sys:String>
     <sys:String x:Key="LocFormatSafety_ChdTitle">CHD compatibility</sys:String>
