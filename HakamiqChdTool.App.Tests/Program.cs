@@ -334,6 +334,7 @@ internal static partial class Program
                 new("Source lease blocks writes, renames and deletes and allows readers", () => TestSourceLeaseBlocksSwapsAndAllowsReaders(workDirectory)),
                 new("Source lease covers a descriptor's own track files only", () => TestSourceDependencySetListsTrackFiles(workDirectory)),
                 new("Conversion refuses a source another program is writing", () => TestConversionRefusesSourceInUseForWriting(app, workDirectory)),
+                new("Add-files dialogs and drop-zone text cover every supported input", TestFileFiltersCoverEverySupportedInput),
                 new("GDI descriptors are parsed strictly", TestGdiSheetParsesStrictly),
                 new("GD-ROM extraction picks GDI unless CUE/BIN is chosen", TestGdRomExtractionPicksGdi),
                 new("GDI sets are finalized with renamed tracks and never overwrite", () => TestGdiFinalizeRenamesTracksAndNeverOverwrites(workDirectory)),

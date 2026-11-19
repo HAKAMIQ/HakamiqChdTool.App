@@ -89,7 +89,8 @@
     <sys:String x:Key="LocUi_PlaceholderDash">—</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line1">اختر وضع العملية لعرض الملفات المدعومة.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Line2">أفلت الملفات هنا أو استخدم أزرار الإضافة.</sys:String>
-    <sys:String x:Key="LocUi_DropZone_Convert">أضف ملفات أو اسحبها هنا للتحويل إلى CHD.&#x0A;الصيغ المدعومة: ISO، CSO، GDI، CUE، ZIP، 7Z، RAR.</sys:String>
+    <sys:String x:Key="LocUi_DropZone_Convert">أضف ملفات أو اسحبها هنا للتحويل إلى CHD.&#x0A;الصيغ المدعومة:</sys:String>
+    <sys:String x:Key="LocUi_DropZone_ConvertFormats">ISO, CSO, ZSO, CUE/&#x2060;BIN, GDI, TOC, NRG, CCD, MDS, ECM, IMG/&#x2060;HDD, ZIP, 7Z, RAR</sys:String>
     <sys:String x:Key="LocUi_DropZone_Extract">أضف ملفات CHD أو اسحبها هنا للاستخراج.&#x0A;تُستخرج أقراص CD إلى CUE + BIN، وأقراص DVD إلى ISO.</sys:String>
     <sys:String x:Key="LocUi_DropZone_Verify">أضف ملفات CHD أو اسحبها هنا للتحقق من سلامتها.&#x0A;يتم التحقق من الملف دون استخراج محتواه.</sys:String>
     <sys:String x:Key="LocUi_DropZone_ScanConvert">اختر مجلدًا لفحص ملفات CUE / GDI / ISO والأرشيفات المدعومة جزئيًا، ثم تحويل الصور الصالحة فقط إلى CHD.</sys:String>
@@ -136,7 +137,7 @@
     <sys:String x:Key="LocDialog_QuickExtractTitle">استخراج سريع</sys:String>
     <sys:String x:Key="LocDialog_QuickConvertTitle">تحويل سريع</sys:String>
     <sys:String x:Key="LocFilter_QuickChdFiles">ملفات CHD|*.chd|كل الملفات|*.*</sys:String>
-    <sys:String x:Key="LocFilter_QuickConvertFiles">الملفات المدعومة|*.iso;*.cso;*.cue;*.gdi;*.toc;*.nrg;*.bin;*.zip;*.rar;*.7z|كل الملفات|*.*</sys:String>
+    <sys:String x:Key="LocFilter_QuickConvertFiles">الملفات المدعومة|*.iso;*.cso;*.zso;*.cue;*.bin;*.gdi;*.toc;*.nrg;*.ccd;*.mds;*.ecm;*.img;*.hdd;*.zip;*.rar;*.7z|كل الملفات|*.*</sys:String>
     <sys:String x:Key="LocDialog_QuickExtractFolderDescription">اختر مجلدًا لإضافة ملفات CHD واستخراجها بسرعة.</sys:String>
     <sys:String x:Key="LocDialog_QuickConvertFolderDescription">اختر مجلدًا لإضافة الملفات وتجهيزها للتحويل.</sys:String>
     <sys:String x:Key="LocFmt_StartupRuntimeError">تعذر تهيئة الأدوات الداخلية للتطبيق. أعد تشغيل التطبيق، أو راجع مجلد السجلات إذا استمرت المشكلة.</sys:String>
@@ -1383,8 +1384,8 @@
     <sys:String x:Key="LocInputDialog_Title_AddFilesForConvert">إضافة ملفات للتحويل</sys:String>
 
     <sys:String x:Key="LocInputDialog_Filter_Chd">ملفات CHD|*.chd|كل الملفات|*.*</sys:String>
-    <sys:String x:Key="LocInputDialog_Filter_Convert">صور الأقراص والأرشيفات المدعومة (*.iso;*.cso;*.cue;*.gdi;*.toc;*.nrg;*.bin;*.zip;*.rar;*.7z)|*.iso;*.cso;*.cue;*.gdi;*.toc;*.nrg;*.bin;*.zip;*.rar;*.7z|كل الملفات|*.*</sys:String>
-    <sys:String x:Key="LocInputDialog_Filter_Supported">الملفات المدعومة|*.iso;*.cso;*.cue;*.gdi;*.toc;*.nrg;*.bin;*.chd;*.zip;*.rar;*.7z|كل الملفات|*.*</sys:String>
+    <sys:String x:Key="LocInputDialog_Filter_Convert">صور الأقراص والأرشيفات المدعومة|*.iso;*.cso;*.zso;*.cue;*.bin;*.gdi;*.toc;*.nrg;*.ccd;*.mds;*.ecm;*.img;*.hdd;*.zip;*.rar;*.7z|كل الملفات|*.*</sys:String>
+    <sys:String x:Key="LocInputDialog_Filter_Supported">الملفات المدعومة|*.iso;*.cso;*.zso;*.cue;*.bin;*.gdi;*.toc;*.nrg;*.ccd;*.mds;*.ecm;*.img;*.hdd;*.chd;*.zip;*.rar;*.7z|كل الملفات|*.*</sys:String>
 
     <sys:String x:Key="LocFolderDialog_Scope_Selected">المجلد المحدد</sys:String>
     <sys:String x:Key="LocFolderDialog_Scope_WithSubfolders">المجلد ومجلداته الفرعية</sys:String>
