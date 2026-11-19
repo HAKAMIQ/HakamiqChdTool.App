@@ -1676,8 +1676,10 @@ function Test-ReleaseTrustGates {
         Add-Failure 'Secure release workflow must validate and publish the changelog section for the release version.'
     }
 
-    if ($workflowText -match '## Highlights') {
-        Add-Failure 'Secure release workflow must not publish fixed release highlights; use the changelog section.'
+    foreach ($fixedSection in @('## Highlights', '## Download options', '## Verification', '## Changes')) {
+        if ($workflowText -match [regex]::Escape($fixedSection)) {
+            Add-Failure "Secure release workflow must keep release notes short; remove the fixed '$fixedSection' section."
+        }
     }
 
     $orderedSteps = @(
@@ -1733,8 +1735,8 @@ function Test-ReleaseNotesSource {
 
     try {
         $notes = & $notesScript -Version $projectVersion
-        if ($notes -match '(?m)^## ') {
-            Add-Failure "Release notes for v$projectVersion include another changelog section."
+        if ($notes -match '(?m)^#{1,3} ') {
+            Add-Failure "Release notes for v$projectVersion include another changelog section or subsection."
         }
     }
     catch {
@@ -1746,18 +1748,24 @@ function Test-ReleaseNotesSource {
     try {
         $fixture = Join-Path $fixtureRoot 'CHANGELOG.md'
         Set-Content -LiteralPath $fixture -Encoding UTF8 -Value @(
-            '# Changelog', '', '## v9.0.1 - 2000-01-02', '', '- Current change.', '',
-            '## v9.0.0 - 2000-01-01', '', '- Previous change.', '', '## v8.0.0', '')
+            '# Changelog', '', '## v9.0.1 - 2000-01-02', '', 'Intro.', '',
+            '### Release notes', '', '- Current change.', '',
+            '### Details', '', '- Detailed record.', '',
+            '## v9.0.0 - 2000-01-01', '', '### Release notes', '', '- Previous change.', '',
+            '## v8.5.0', '', '- Change without release notes.', '',
+            '## v8.0.0', '', '### Release notes', '', '### Details', '', '- Detail only.', '')
 
         $current = & $notesScript -Version '9.0.1' -ChangelogPath $fixture
         if ($current -ne '- Current change.') {
-            Add-Failure "GetReleaseNotes.ps1 must return only the requested section. Actual: $current"
+            Add-Failure "GetReleaseNotes.ps1 must return only the release notes of the requested section. Actual: $current"
         }
 
         $cases = @(
             @{ Name = 'missing section'; Version = '9.9.9'; Lines = $null },
-            @{ Name = 'empty section'; Version = '8.0.0'; Lines = $null },
-            @{ Name = 'duplicated section'; Version = '9.0.1'; Lines = @('## v9.0.1', '- A.', '## v9.0.1', '- B.') })
+            @{ Name = 'section without release notes'; Version = '8.5.0'; Lines = $null },
+            @{ Name = 'empty release notes'; Version = '8.0.0'; Lines = $null },
+            @{ Name = 'duplicated section'; Version = '9.0.1'; Lines = @('## v9.0.1', '### Release notes', '- A.', '## v9.0.1', '### Release notes', '- B.') },
+            @{ Name = 'duplicated release notes'; Version = '9.0.1'; Lines = @('## v9.0.1', '### Release notes', '- A.', '### Release notes', '- B.') })
 
         foreach ($case in $cases) {
             $path = $fixture
