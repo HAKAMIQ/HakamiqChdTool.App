@@ -12,5 +12,6 @@ public enum MediaInputKind
     GDI,
     Unknown,
     Other,
-    HardDiskImage
+    HardDiskImage,
+    ZSO
 }

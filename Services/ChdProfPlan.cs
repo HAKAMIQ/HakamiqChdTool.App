@@ -32,7 +32,8 @@ public enum ChdMediaFormatKind
     Toc = 9,
     Nrg = 10,
     Cso = 11,
-    HardDisk = 12
+    HardDisk = 12,
+    Zso = 13
 }
 
 public enum ChdWorkflowProfileKind
@@ -110,6 +111,7 @@ public static class ChdWorkflowProfilePlanner
     private const string StatusCreateTocKey = "LocWorkflow_StatusCreateToc";
     private const string StatusCreateNrgKey = "LocWorkflow_StatusCreateNrg";
     private const string StatusPrepareCsoToIsoKey = "LocWorkflow_PreparingCsoToIso";
+    private const string StatusPrepareZsoToIsoKey = "LocWorkflow_PreparingZsoToIso";
     private const string StatusVerifyChdKey = "LocWorkflow_StatusVerifyChd";
     private const string StatusExtractCdKey = "LocWorkflow_StatusExtractCd";
     private const string StatusExtractDvdKey = "LocWorkflow_StatusExtractDvd";
@@ -159,6 +161,7 @@ public static class ChdWorkflowProfilePlanner
             ".nrg" => PlanSingleFileCreateCd(inputPath, ChdMediaFormatKind.Nrg, StatusCreateNrgKey, containerKind),
             ".iso" => PlanIsoCreate(inputPath, isoCreateCommandOverride, containerKind),
             ".cso" => PlanCsoCreateDvd(inputPath, containerKind),
+            ".zso" => PlanZsoCreateDvd(inputPath, containerKind),
             ".chd" => ChdWorkflowProfilePlan.Unsupported(ChdAlreadyChdMessageKey, containerKind),
             ".zip" or ".rar" or ".7z" => ChdWorkflowProfilePlan.Unsupported(ArchiveRequiresExtractionMessageKey, ChdMediaContainerKind.Archive),
             ".bin" => PlanStandaloneBinCreate(inputPath, containerKind),
@@ -242,6 +245,7 @@ public static class ChdWorkflowProfilePlanner
                 ".gdi" => ChdMediaFormatKind.Gdi,
                 ".cue" => ChdMediaFormatKind.Cue,
                 ".cso" => ChdMediaFormatKind.Cso,
+                ".zso" => ChdMediaFormatKind.Zso,
                 _ => ChdMediaFormatKind.Unknown
             },
             ProfileKind = createDvd ? ChdWorkflowProfileKind.CreateDvd : ChdWorkflowProfileKind.CreateCd,
@@ -285,6 +289,12 @@ public static class ChdWorkflowProfilePlanner
 
     private static string ResolveProfileStatusLine(ChdPlatformProfile profile, string extension)
     {
+        if (profile.PreparationKind == ChdInputPreparationKind.ExpandZsoToIso
+            || string.Equals(extension, ".zso", StringComparison.OrdinalIgnoreCase))
+        {
+            return StatusPrepareZsoToIsoKey;
+        }
+
         if (profile.PreparationKind == ChdInputPreparationKind.ExpandCsoToIso
             || string.Equals(extension, ".cso", StringComparison.OrdinalIgnoreCase))
         {
@@ -319,6 +329,24 @@ public static class ChdWorkflowProfilePlanner
             Command = "createdvd",
             StatusLine = StatusPrepareCsoToIsoKey,
             PlatformProfile = ChdPlatformProfiles.PspCso
+        };
+    }
+
+    private static ChdWorkflowProfilePlan PlanZsoCreateDvd(
+        string inputPath,
+        ChdMediaContainerKind containerKind)
+    {
+        ValidateInputReadableOrThrow(inputPath);
+
+        return new ChdWorkflowProfilePlan
+        {
+            IsSupported = true,
+            ContainerKind = containerKind,
+            MediaKind = ChdMediaFormatKind.Zso,
+            ProfileKind = ChdWorkflowProfileKind.CreateDvd,
+            Command = "createdvd",
+            StatusLine = StatusPrepareZsoToIsoKey,
+            PlatformProfile = ChdPlatformProfiles.CompressedZso
         };
     }
 

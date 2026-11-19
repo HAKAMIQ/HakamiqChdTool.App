@@ -86,6 +86,19 @@ public static class ChdPlatformProfiles
         HunkSize: null,
         Note: "CSO must be expanded to temporary ISO before CHD conversion.");
 
+    // ZSO (LZ4 compressed ISO) is used for PS2 (OPL) and PSP images. CsoKit 0.6.4+
+    // expands it to a temporary ISO; the result is handled like a generic DVD ISO.
+    public static readonly ChdPlatformProfile CompressedZso = new(
+        PlatformId: "compressed-zso",
+        DisplayName: "ZSO compressed ISO",
+        InputExtensions: [".zso"],
+        CommandKind: ChdCommandKind.CreateDvd,
+        PreparationKind: ChdInputPreparationKind.ExpandZsoToIso,
+        RequiresToc: false,
+        RequiresDvdSectorAlignment: true,
+        HunkSize: null,
+        Note: "ZSO must be expanded to temporary ISO before CHD conversion.");
+
     public static readonly ChdPlatformProfile Ps2Dvd = new(
         PlatformId: "sony-ps2-dvd",
         DisplayName: "Sony PlayStation 2 DVD",
@@ -131,6 +144,7 @@ public static class ChdPlatformProfiles
         DreamcastGdi,
         PspIso,
         PspCso,
+        CompressedZso,
         Ps2Dvd,
         Ps2Cd
     ];
@@ -164,6 +178,7 @@ public static class ChdPlatformProfiles
         {
             ".gdi" => DreamcastGdi,
             ".cso" => PspCso,
+            ".zso" => CompressedZso,
             ".iso" => ResolveIsoProfile(detectedPlatform),
             ".cue" => ResolveCueProfile(detectedPlatform),
             ".toc" => GenericCd,

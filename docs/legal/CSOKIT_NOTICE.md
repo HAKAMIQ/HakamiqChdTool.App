@@ -13,9 +13,9 @@ After that, chdman creates the CHD.
 - Tool: csokit.exe
 - Native library: CsoKit.Native.dll (ABI 2)
 - Project: CsoKit
-- Version: 0.6.3
+- Version: 0.6.6
 - Source: https://github.com/HAKAMIQ/CsoKit
-- Reviewed commit: e1a4bca67207e5bb6c2c4b1dd043418a1ee2a31d
+- Reviewed commit: 2f4da904e1420bbb9da2e508415841108414ab0c
 - Path: Tools\hakamiq-cso\win-x64
 
 ## What it is used for
