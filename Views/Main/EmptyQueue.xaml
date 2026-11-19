@@ -17,6 +17,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="{DynamicResource Grid.Space.14}" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
@@ -132,5 +133,49 @@
                 </Style>
             </TextBlock.Style>
         </TextBlock>
-    </Grid>
+        <!-- Format names are technical values: a separate left-to-right block keeps their order on
+             every wrapped line (WPF bidi reorders a Latin list that wraps inside Arabic text). -->
+        <TextBlock x:Name="QueueEmptyConvertFormats"
+                   Grid.Row="3"
+                   MaxWidth="420"
+                   Margin="{DynamicResource Inset.16.0}"
+                   HorizontalAlignment="Center"
+                   FlowDirection="LeftToRight"
+                   FontFamily="{DynamicResource FontFamily.Text}"
+                   FontSize="{DynamicResource FontSize.Body}"
+                   Foreground="{DynamicResource Brush.Text.Secondary}"
+                   Text="{DynamicResource LocUi_DropZone_ConvertFormats}"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap"
+                   TextTrimming="None">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                     Value="Extract">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                     Value="Verify">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                     Value="ScanConvert">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed" />
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding OperationModeKey, ElementName=QueueEmptyStateRoot}"
+                                     Value="ScanExtract">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>    </Grid>
 </UserControl>

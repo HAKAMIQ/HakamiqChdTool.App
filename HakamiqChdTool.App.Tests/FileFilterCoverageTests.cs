@@ -32,10 +32,10 @@ internal static partial class Program
 
             AssertTrue(ParseFirstFilterPatterns(strings["LocInputDialog_Filter_Supported"]).Contains("*.chd"), language + ": the general filter also lists CHD.");
 
-            string dropZone = strings["LocUi_DropZone_Convert"];
+            string formats = strings["LocUi_DropZone_ConvertFormats"];
             foreach (string name in new[] { "ZSO", "CCD", "MDS", "ECM", "IMG" })
             {
-                AssertTrue(dropZone.Contains(name, StringComparison.Ordinal), $"{language}: the drop-zone text names {name}.");
+                AssertTrue(formats.Contains(name, StringComparison.Ordinal), $"{language}: the drop-zone format list names {name}.");
             }
         }
 
@@ -43,8 +43,15 @@ internal static partial class Program
             string.Join(";", ParseFirstFilterPatterns(LoadStrings("EnglishStrings.xaml")["LocInputDialog_Filter_Supported"]).Order(StringComparer.Ordinal)),
             string.Join(";", ParseFirstFilterPatterns(LoadStrings("ArabicStrings.xaml")["LocInputDialog_Filter_Supported"]).Order(StringComparer.Ordinal)),
             "Arabic and English filters offer the same file types.");
-    }
+        AssertEqual(LoadStrings("EnglishStrings.xaml")["LocUi_DropZone_ConvertFormats"], LoadStrings("ArabicStrings.xaml")["LocUi_DropZone_ConvertFormats"],
+            "The format list is the same technical text in both languages.");
 
+        // The list wraps inside Arabic text; only a left-to-right block keeps its order on every line.
+        System.Xml.Linq.XElement block = System.Xml.Linq.XDocument.Load(FindRepoFile(System.IO.Path.Combine("Views", "Main", "EmptyQueue.xaml")))
+            .Descendants().Single(element => element.Name.LocalName == "TextBlock"
+                && ((string?)element.Attribute("Text") ?? string.Empty).Contains("LocUi_DropZone_ConvertFormats", StringComparison.Ordinal));
+        AssertEqual("LeftToRight", (string?)block.Attribute("FlowDirection"), "The drop-zone format list is laid out left to right.");
+    }
     private static HashSet<string> ParseFirstFilterPatterns(string filter)
     {
         string[] parts = filter.Split('|');
