@@ -1,5 +1,6 @@
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Core.Chd.Profiles;
+using HakamiqChdTool.App.Core.Input;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Models.PlayStation.BluRayAnalysis;
 using HakamiqChdTool.App.Services.PlayStation.BluRayAnalysis;
@@ -30,7 +31,8 @@ public enum ChdMediaFormatKind
     RawChd = 8,
     Toc = 9,
     Nrg = 10,
-    Cso = 11
+    Cso = 11,
+    HardDisk = 12
 }
 
 public enum ChdWorkflowProfileKind
@@ -42,7 +44,8 @@ public enum ChdWorkflowProfileKind
     ExtractCd = 4,
     ExtractDvd = 5,
     ExtractHd = 6,
-    ExtractRaw = 7
+    ExtractRaw = 7,
+    CreateHd = 8
 }
 
 public sealed class ChdWorkflowProfilePlan
@@ -96,6 +99,11 @@ public static class ChdWorkflowProfilePlanner
     public const string IsoReadFailedMessageKey = "LocWorkflow_IsoReadFailed";
     public const string NonChdRecommendedCompressionMessageKey = "LocWorkflow_NonChdRecommendedCompression";
     public const string CsoPreparationDisabledMessageKey = "LocWorkflow_CsoPreparationDisabled";
+    public const string HardDiskProfileRequiredMessageKey = "LocWorkflow_HardDiskProfileRequired";
+    public const string HardDiskDiscEvidenceMessageKey = "LocWorkflow_HardDiskDiscEvidence";
+    public const string HardDiskNotSectorAlignedMessageKey = "LocWorkflow_HardDiskNotSectorAligned";
+    public const string HardDiskProbeFailedMessageKey = "LocWorkflow_HardDiskProbeFailed";
+    private const string StatusCreateHdKey = "LocWorkflow_StatusCreateHd";
 
     private const string StatusCreateCueKey = "LocWorkflow_StatusCreateCue";
     private const string StatusCreateGdiKey = "LocWorkflow_StatusCreateGdi";
@@ -155,6 +163,7 @@ public static class ChdWorkflowProfilePlanner
             ".zip" or ".rar" or ".7z" => ChdWorkflowProfilePlan.Unsupported(ArchiveRequiresExtractionMessageKey, ChdMediaContainerKind.Archive),
             ".bin" => PlanStandaloneBinCreate(inputPath, containerKind),
             ".cdi" => ChdWorkflowProfilePlan.Unsupported(UnsupportedMessageKey, containerKind),
+            ".img" or ".hdd" => ChdWorkflowProfilePlan.Unsupported(HardDiskProfileRequiredMessageKey, containerKind),
             ".raw" => ChdWorkflowProfilePlan.Unsupported(RawStandaloneBlockedMessageKey, containerKind),
             _ => ChdWorkflowProfilePlan.Unsupported(UnsupportedMessageKey, containerKind)
         };
@@ -202,6 +211,11 @@ public static class ChdWorkflowProfilePlanner
             return ChdWorkflowProfilePlan.Unsupported(UnsupportedMessageKey, containerKind);
         }
 
+        if (profile.CommandKind == ChdCommandKind.CreateHd)
+        {
+            return PlanHardDiskCreate(inputPath, profile, containerKind);
+        }
+
         if (profile.RequiresToc)
         {
             if (!TryValidateExistingDescriptorDependencies(inputPath, out string failureMessage))
@@ -236,6 +250,38 @@ public static class ChdWorkflowProfilePlanner
             PlatformProfile = profile
         };
     }
+
+    private static ChdWorkflowProfilePlan PlanHardDiskCreate(
+        string inputPath,
+        ChdPlatformProfile profile,
+        ChdMediaContainerKind containerKind)
+    {
+        HardDiskImageEvidence evidence = HardDiskImageEvidenceProbe.Evaluate(Path.GetFullPath(inputPath));
+        if (evidence != HardDiskImageEvidence.Accepted)
+        {
+            return ChdWorkflowProfilePlan.Unsupported(MapHardDiskEvidenceMessageKey(evidence), containerKind);
+        }
+
+        return new ChdWorkflowProfilePlan
+        {
+            IsSupported = true,
+            ContainerKind = containerKind,
+            MediaKind = ChdMediaFormatKind.HardDisk,
+            ProfileKind = ChdWorkflowProfileKind.CreateHd,
+            Command = "createhd",
+            OutputExtension = ".chd",
+            StatusLine = StatusCreateHdKey,
+            PlatformProfile = profile
+        };
+    }
+
+    internal static string MapHardDiskEvidenceMessageKey(HardDiskImageEvidence evidence) => evidence switch
+    {
+        HardDiskImageEvidence.NotHardDiskExtension => UnsupportedMessageKey,
+        HardDiskImageEvidence.Empty or HardDiskImageEvidence.NotSectorAligned => HardDiskNotSectorAlignedMessageKey,
+        HardDiskImageEvidence.ProbeUnavailable => HardDiskProbeFailedMessageKey,
+        _ => HardDiskDiscEvidenceMessageKey
+    };
 
     private static string ResolveProfileStatusLine(ChdPlatformProfile profile, string extension)
     {
