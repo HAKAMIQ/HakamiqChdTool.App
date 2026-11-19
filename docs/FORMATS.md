@@ -75,6 +75,16 @@ The app refuses, before chdman runs:
 - gaps between tracks, or track offsets that do not match their position on the disc.
 
 Subchannel data is not kept in the CHD. Copy protections that depend on it will not survive the conversion. MDS inside archives and source cleanup after conversion are not supported yet.
+## ECM (.bin.ecm / .img.ecm)
+
+ECM removes the error-correction data from CD sectors to make BIN images smaller. The app rebuilds it and converts the result with `createcd`.
+
+- With a CUE: keep the `.cue` next to the `.bin.ecm` files and add the `.ecm` or the folder. The CUE may mix `.ecm` tracks and plain tracks. The set is queued once; the `.cue` itself does not appear as a separate item.
+- Without a CUE: a single data track is used, but only when the decoded image starts with a Mode 1 or Mode 2 data sector. Otherwise the app asks for the matching `.cue`.
+
+Every `.ecm` is decoded into the temp workspace and must match the checksum stored at the end of the file. A damaged or truncated `.ecm` stops before chdman runs. Nothing is written to the source folder, and the source files are not modified.
+
+Only `.bin.ecm` and `.img.ecm` are accepted. ECM inside archives and source cleanup after conversion are not supported yet.
 ## NRG and CDI
 
 NRG is accepted only where the current workflow can handle it safely.
