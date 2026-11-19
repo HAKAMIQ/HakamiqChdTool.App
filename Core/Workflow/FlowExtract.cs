@@ -1,3 +1,4 @@
+using HakamiqChdTool.App.Core.Verification;
 using HakamiqChdTool.App.Core.Queue;
 using HakamiqChdTool.App.Core.Workflow.Extraction;
 using HakamiqChdTool.App.Core.Workflow.Progress;
@@ -25,6 +26,7 @@ internal sealed class WorkflowExtractionStage(
     private const string VerifyingSourceChdStageKey = "LocStatus_ExtractionDoneVerifyingSourceChd";
     private const string VerifyingExtractedArtifactsStageKey = "LocStatus_ExtractionDoneVerifyingArtifacts";
     private const string ExtractCompletedCueBinKey = "LocStatus_ExtractCompletedCueBin";
+    private const string ExtractCompletedGdiKey = "LocStatus_ExtractCompletedGdi";
     private const string ExtractCompletedIsoKey = "LocStatus_ExtractCompletedIso";
     private const string ExtractCompletedImgKey = "LocStatus_ExtractCompletedImg";
     private const string ExtractCompletedRawKey = "LocStatus_ExtractCompletedRaw";
@@ -105,7 +107,9 @@ internal sealed class WorkflowExtractionStage(
                 chdPath,
                 ctx.Snapshot.OriginalPath,
                 extractionContextDetection,
-                infoResult.LogicalBytes));
+                infoResult.LogicalBytes,
+                settings.ExtractGdRomAsCueBin,
+                infoResult.MetadataStructure == DiscStructure.GdRomTracks));
 
         if (!extractionDecision.IsSupported
             || extractionDecision.ExtractionKind == ChdmanExtractionKind.None
@@ -625,7 +629,9 @@ internal sealed class WorkflowExtractionStage(
             finalOutputBundle.TotalBytes);
 
         string extractedDetail = string.IsNullOrWhiteSpace(restoreTarget.SuccessMessageKey)
-            ? BuildExtractionSuccessDetail(restoreTarget.SuccessKind)
+            ? finalOutputBundle.Kind == ExtractionOutputKind.GdiBundle
+                ? ExtractCompletedGdiKey
+                : BuildExtractionSuccessDetail(restoreTarget.SuccessKind)
             : restoreTarget.SuccessMessageKey;
 
         sink.ReportTerminalSuccess(QueueItemTerminalOutcome.Extracted, extractedDetail);
@@ -742,9 +748,14 @@ internal sealed class WorkflowExtractionStage(
             return ExtractionOutputKind.SingleFile;
         }
 
-        return extractionDecision.ExtractionKind == ChdmanExtractionKind.ExtractCd
-            ? ExtractionOutputKind.CueBinBundle
-            : ExtractionOutputKind.SingleFile;
+        if (extractionDecision.ExtractionKind != ChdmanExtractionKind.ExtractCd)
+        {
+            return ExtractionOutputKind.SingleFile;
+        }
+
+        return string.Equals(extractionDecision.OutputExtension, ".gdi", StringComparison.OrdinalIgnoreCase)
+            ? ExtractionOutputKind.GdiBundle
+            : ExtractionOutputKind.CueBinBundle;
     }
 
     private static string BuildExtractionSuccessDetail(ChdmanExtractionKind kind) => kind switch

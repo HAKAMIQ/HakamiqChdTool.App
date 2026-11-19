@@ -323,6 +323,10 @@ internal static partial class Program
                 new("ECM intake queues each set once and planning picks createcd", () => TestEcmIntakeAndPlanning(workDirectory)),
                 new("ECM images round-trip through bundled chdman", () => TestEcmRoundTripsWithBundledChdman(app, workDirectory)),
                 new("ZSO inside an archive is extracted, planned and converted", () => TestZsoInsideArchiveConverts(app, workDirectory)),
+                new("GDI descriptors are parsed strictly", TestGdiSheetParsesStrictly),
+                new("GD-ROM extraction picks GDI unless CUE/BIN is chosen", TestGdRomExtractionPicksGdi),
+                new("GDI sets are finalized with renamed tracks and never overwrite", () => TestGdiFinalizeRenamesTracksAndNeverOverwrites(workDirectory)),
+                new("GD-ROM CHD extracts to GDI through bundled chdman and passes the round-trip proof", () => TestGdRomChdExtractsToGdiAndProves(app, workDirectory)),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),

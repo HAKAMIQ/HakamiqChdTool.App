@@ -107,6 +107,13 @@ internal sealed class WorkflowCleanupStage(
                 return;
             }
 
+            // A GDI set is several track files; the finalizer already rolls back what it promoted, so a
+            // remaining .gdi is not this job's partial output and is left alone.
+            if (string.Equals(Path.GetExtension(failedOutputCandidate), ".gdi", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
             CleanupStats failedCleanup = string.Equals(
                     Path.GetExtension(failedOutputCandidate),
                     ".cue",

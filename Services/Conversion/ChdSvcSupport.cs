@@ -318,6 +318,11 @@ internal static class ChdConversionServiceSupport
             chdmanCapabilities.Version ?? string.Empty);
     }
 
+    // A GDI output is a set of track files described by the .gdi; the CUE/BIN checks and the splitbin retry do not apply.
+    internal static bool IsGdiExtractionOutput(ChdmanExtractionKind extractionKind, string outputPath) =>
+        extractionKind == ChdmanExtractionKind.ExtractCd
+        && string.Equals(Path.GetExtension(outputPath), ".gdi", StringComparison.OrdinalIgnoreCase);
+
     internal static ChdProfileMediaKind ResolveProfileMediaKind(
         string inputPath,
         string command,
