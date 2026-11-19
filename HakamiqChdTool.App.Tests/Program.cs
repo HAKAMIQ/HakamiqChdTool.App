@@ -174,6 +174,7 @@ internal static partial class Program
                 new("Theme borders and hover/pressed states meet WCAG contrast", TestThemeStateAndBorderContrast),
                 new("Danger buttons take their colours from the active theme", TestDangerButtonUsesThemeBrushes),
                 new("Queue spinner runs only while shown and with animations on", TestQueueSpinnerRunsOnlyWhileShown),
+                new("Button styles have one source and every keyed style is in use", TestButtonStylesAreSingleSourceAndInUse),
                 new("Library analysis scales and reports monotonic progress", () => TestLibraryAnalysisScalesAndReportsMonotonicProgress(workDirectory)),
                 new("Input resolver scales with deep trees", () => TestInputResolverScalesWithDeepTrees(workDirectory)),
                 new("Cleanup service honors the process temp boundary", () => TestCleanupServiceHonorsProcessTempBoundary(workDirectory)),

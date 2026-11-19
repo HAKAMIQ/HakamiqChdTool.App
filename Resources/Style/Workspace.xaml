@@ -3,7 +3,6 @@
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Fluent/BaseStyles.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Fluent/ButtonStyles.xaml" />
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/Fluent/CardStyles.xaml" />
 
         <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/ScrollBar.xaml" />
