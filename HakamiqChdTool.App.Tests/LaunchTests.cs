@@ -146,6 +146,30 @@ internal static partial class Program
         }
     }
 
+    // --quick marks an Explorer launch; it needs a mode and paths, does not mix with --start/--exit-when-done,
+    // and is never sent to a running instance (that window adds the files to its queue as before).
+    private static void TestLaunchQuickFlag()
+    {
+        AssertTrue(LaunchArgs.TryParse(["--quick", "--mode", "convert", "--add", @"C:\Games\a.iso"], out LaunchRequest quick, out _), "A quick launch parses.");
+        AssertTrue(quick.Quick && quick.Mode == LaunchMode.Convert && quick.Paths.Count == 1 && !quick.Start, "The quick flag, mode and path are read.");
+        AssertTrue(LaunchArgs.TryParse(["--mode", "convert", "--add", @"C:\Games\a.iso"], out LaunchRequest plain, out _) && !plain.Quick, "Without --quick it is a plain launch.");
+        AssertFalse(LaunchArgs.TryParse(["--quick", "--add", @"C:\a.iso"], out _, out _), "--quick needs a mode.");
+        AssertFalse(LaunchArgs.TryParse(["--quick", "--mode", "verify"], out _, out _), "--quick needs paths.");
+        AssertFalse(LaunchArgs.TryParse(["--quick", "--mode", "verify", "--start", "--add", @"C:\a.chd"], out _, out _), "--quick does not mix with --start.");
+        AssertFalse(LaunchArgs.TryParse(["--quick", "--mode", "verify", "--start", "--exit-when-done", "--add", @"C:\a.chd"], out _, out _), "--quick does not mix with --exit-when-done.");
+
+        foreach (byte[] message in InstanceChannel.Encode(quick))
+        {
+            AssertFalse(Encoding.UTF8.GetString(message).Contains("quick", StringComparison.OrdinalIgnoreCase), "The quick flag is not written to the pipe.");
+            AssertTrue(InstanceChannel.TryDecode(message, out LaunchRequest forwarded), "The forwarded request decodes.");
+            AssertFalse(forwarded.Quick, "A running instance never receives a quick request.");
+            AssertEqual(LaunchMode.Convert, forwarded.Mode, "The mode is still forwarded.");
+        }
+
+        AssertEqual("\"C:\\A\\app.exe\" --quick --mode extract --add \"%1\"", ExplorerMenuRegistration.BuildCommand(@"C:\A\app.exe", "extract"), "The Explorer command asks for a quick launch.");
+        AssertTrue(LaunchArgs.TryParse(["--quick", "--mode", "extract", "--add", @"C:\a.chd"], out _, out _), "The Explorer command line is accepted by the parser.");
+    }
+
     // Registration writes the expected verbs under a private key, repeats safely, and removal deletes only its own keys.
     private static void TestExplorerMenuRegistersAndRemovesOnlyItsOwnKeys()
     {
@@ -173,17 +197,17 @@ internal static partial class Program
                 AssertTrue(verb is not null, $"{extension} has a Convert entry.");
                 AssertEqual("تحويل إلى CHD", verb!.GetValue("MUIVerb") as string, $"{extension} shows the latest text.");
                 using RegistryKey? command = verb.OpenSubKey("command");
-                AssertEqual($"\"{exe}\" --mode convert --add \"%1\"", command?.GetValue(string.Empty) as string, $"{extension} starts the app in convert mode with the quoted file.");
+                AssertEqual($"\"{exe}\" --quick --mode convert --add \"%1\"", command?.GetValue(string.Empty) as string, $"{extension} starts a quick convert of the quoted file.");
             }
 
             using (RegistryKey? extract = Registry.CurrentUser.OpenSubKey($@"{classes}\SystemFileAssociations\.chd\shell\HakamiqChdTool.Extract\command"))
             {
-                AssertEqual($"\"{exe}\" --mode extract --add \"%1\"", extract?.GetValue(string.Empty) as string, "CHD files get Extract.");
+                AssertEqual($"\"{exe}\" --quick --mode extract --add \"%1\"", extract?.GetValue(string.Empty) as string, "CHD files get Extract.");
             }
 
             using (RegistryKey? verify = Registry.CurrentUser.OpenSubKey($@"{classes}\Directory\shell\HakamiqChdTool.Menu\shell\3.Verify\command"))
             {
-                AssertEqual($"\"{exe}\" --mode verify --add \"%1\"", verify?.GetValue(string.Empty) as string, "Folders get a submenu with Verify.");
+                AssertEqual($"\"{exe}\" --quick --mode verify --add \"%1\"", verify?.GetValue(string.Empty) as string, "Folders get a submenu with Verify.");
             }
 
             AssertFalse(ExplorerMenuRegistration.ConvertExtensions.Contains(".bin"), "Plain BIN files get no entry; they need their CUE.");

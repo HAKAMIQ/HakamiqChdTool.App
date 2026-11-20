@@ -16,9 +16,11 @@ internal enum LaunchMode
 /// <summary>
 /// Files and folders handed to the app by Explorer or a command line, with the mode to use.
 /// <paramref name="Start"/> starts processing once they are added; <paramref name="ExitWhenDone"/> closes
-/// the app after that run, with an exit code (see <see cref="LaunchArgs.ExitCodeFor"/>).
+/// the app after that run, with an exit code (see <see cref="LaunchArgs.ExitCodeFor"/>). <paramref name="Quick"/> comes
+/// from the Explorer menu: the first instance may show the small quick window instead of the main window. It is never
+/// forwarded to a running instance, which adds the files to its queue as before.
 /// </summary>
-internal sealed record LaunchRequest(LaunchMode Mode, IReadOnlyList<string> Paths, bool Start = false, bool ExitWhenDone = false)
+internal sealed record LaunchRequest(LaunchMode Mode, IReadOnlyList<string> Paths, bool Start = false, bool ExitWhenDone = false, bool Quick = false)
 {
     public static LaunchRequest Empty { get; } = new(LaunchMode.None, []);
 
@@ -26,7 +28,7 @@ internal sealed record LaunchRequest(LaunchMode Mode, IReadOnlyList<string> Path
 }
 
 /// <summary>
-/// Parses <c>[--mode convert|extract|verify] [--start] [--exit-when-done] [--add &lt;path&gt;...]</c>. Paths are made absolute against the
+/// Parses <c>[--quick] [--mode convert|extract|verify] [--start] [--exit-when-done] [--add &lt;path&gt;...]</c>. Paths are made absolute against the
 /// current directory of the launching process, because a running instance that receives them has its own.
 /// Paths are still untrusted: queue intake validates them like any added file.
 /// </summary>
@@ -75,6 +77,7 @@ internal static class LaunchArgs
         LaunchMode mode = LaunchMode.None;
         bool start = false;
         bool exitWhenDone = false;
+        bool quick = false;
         var paths = new List<string>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         bool readingPaths = false;
@@ -112,6 +115,13 @@ internal static class LaunchArgs
             if (string.Equals(arg, "--exit-when-done", StringComparison.OrdinalIgnoreCase))
             {
                 exitWhenDone = true;
+                readingPaths = false;
+                continue;
+            }
+
+            if (string.Equals(arg, "--quick", StringComparison.OrdinalIgnoreCase))
+            {
+                quick = true;
                 readingPaths = false;
                 continue;
             }
@@ -158,7 +168,19 @@ internal static class LaunchArgs
             return false;
         }
 
-        request = new LaunchRequest(mode, paths, start, exitWhenDone);
+        if (quick && (mode == LaunchMode.None || paths.Count == 0))
+        {
+            error = "--quick needs --mode and files or folders after --add.";
+            return false;
+        }
+
+        if (quick && (start || exitWhenDone))
+        {
+            error = "--quick cannot be combined with --start or --exit-when-done.";
+            return false;
+        }
+
+        request = new LaunchRequest(mode, paths, start, exitWhenDone, quick);
         return true;
     }
 

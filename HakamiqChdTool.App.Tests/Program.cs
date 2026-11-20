@@ -346,6 +346,7 @@ internal static partial class Program
                 new("Launch requests reach the running instance and bad messages are ignored", TestInstanceChannelRoundTrip),
                 new("Launch messages decode strictly and large requests split", TestInstanceChannelDecodingIsStrict),
                 new("Launch --start and --exit-when-done rules and exit codes", TestLaunchStartAndExitFlags),
+                new("Launch --quick rules, never forwarded, used by the Explorer menu", TestLaunchQuickFlag),
                 new("Explorer menu registers and removes only its own keys", TestExplorerMenuRegistersAndRemovesOnlyItsOwnKeys),
                 new("Explorer menu setting loads, saves and has text in both languages", TestExplorerMenuSettingInOptions),
                 new("Run summary shows outcome, counts, saved space and time in both languages", TestRunSummaryCardContent),
