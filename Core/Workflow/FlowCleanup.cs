@@ -24,7 +24,6 @@ internal sealed class WorkflowCleanupStage(
         AppSettings settings,
         string? failedOutputCandidate,
         string? tempDirectoryToCleanup,
-        bool alwaysCleanupTempDirectory,
         WorkflowExecutionResult? result,
         bool cancelled,
         bool sourceDeletionWasVerified)
@@ -49,7 +48,6 @@ internal sealed class WorkflowCleanupStage(
             sink,
             settings,
             tempDirectoryToCleanup,
-            alwaysCleanupTempDirectory,
             isTerminal);
 
         TryRunSourceCleanupPipeline(
@@ -326,30 +324,23 @@ internal sealed class WorkflowCleanupStage(
         IQueueItemStateSink sink,
         AppSettings settings,
         string? tempDirectoryToCleanup,
-        bool alwaysCleanupTempDirectory,
         bool isTerminal)
     {
-        if ((!settings.DeleteTemporaryExtraction && !alwaysCleanupTempDirectory)
+        if (!settings.DeleteTemporaryExtraction
             || !isTerminal
             || string.IsNullOrWhiteSpace(tempDirectoryToCleanup))
         {
             return;
         }
 
-        bool isProcessTempPath = AppPaths.IsPathUnderProcessTempRoot(tempDirectoryToCleanup);
-        bool isPendingWorkspacePath = alwaysCleanupTempDirectory
-            && AppPaths.IsKnownPendingWorkspaceJobDirectory(tempDirectoryToCleanup, settings);
-
-        if (!isProcessTempPath && !isPendingWorkspacePath)
+        if (!AppPaths.IsPathUnderProcessTempRoot(tempDirectoryToCleanup))
         {
             return;
         }
 
         try
         {
-            CleanupStats tempCleanup = isPendingWorkspacePath
-                ? _cleanup.DeletePendingWorkspaceDirectoryTree(tempDirectoryToCleanup, settings)
-                : _cleanup.DeleteDirectoryTree(tempDirectoryToCleanup);
+            CleanupStats tempCleanup = _cleanup.DeleteDirectoryTree(tempDirectoryToCleanup);
             sink.AddCleanupDeletedBytes(tempCleanup.DeletedBytes);
 
             _log.Debug(

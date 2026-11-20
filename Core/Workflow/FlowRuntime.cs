@@ -34,7 +34,6 @@ public sealed partial class ChdWorkflowOrchestrator
         AppSettings settings,
         string? failedOutputCandidate,
         string? tempDirectoryToCleanup,
-        bool alwaysCleanupTempDirectory,
         WorkflowExecutionResult? result,
         bool cancelled,
         bool sourceDeletionWasVerified,
@@ -48,7 +47,6 @@ public sealed partial class ChdWorkflowOrchestrator
                 settings,
                 failedOutputCandidate,
                 tempDirectoryToCleanup,
-                alwaysCleanupTempDirectory,
                 result,
                 cancelled,
                 sourceDeletionWasVerified);

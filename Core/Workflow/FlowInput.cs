@@ -7,5 +7,4 @@ internal sealed record WorkflowPreparedInput(
     string? TempDirectoryToCleanup,
     double LastProgressPercent,
     string? LastOutputPath,
-    string? LastLogPath,
-    bool AlwaysCleanupTempDirectory = false);
+    string? LastLogPath);
