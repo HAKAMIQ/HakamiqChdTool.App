@@ -55,6 +55,34 @@ public partial class QueueWorkspaceView : UserControl
 
     public Border EmptyDropHint => EmptyQueueDropHint;
 
+    public event RoutedEventHandler? RunSummaryDetailsRequested;
+
+    public bool IsRunSummaryVisible => RunSummaryBar.Visibility == Visibility.Visible;
+
+    public void ShowRunSummary(HakamiqChdTool.App.Services.RunSummaryCard card)
+    {
+        ArgumentNullException.ThrowIfNull(card);
+        (string icon, string brush) = card.Outcome switch
+        {
+            HakamiqChdTool.App.Services.RunSummaryOutcome.WithProblems => ("Icon.Error", "Brush.Error"),
+            HakamiqChdTool.App.Services.RunSummaryOutcome.Stopped => ("Icon.Warning", "Brush.Warning"),
+            _ => ("Icon.Success", "Brush.Success")
+        };
+
+        RunSummaryIcon.Data = (System.Windows.Media.Geometry)FindResource(icon);
+        RunSummaryIcon.SetResourceReference(Shape.FillProperty, brush);
+        RunSummaryTitleText.Text = card.Title;
+        RunSummaryMessageText.Text = card.Message;
+        RunSummaryBar.Visibility = Visibility.Visible;
+    }
+
+    public void HideRunSummary() => RunSummaryBar.Visibility = Visibility.Collapsed;
+
+    private void RunSummaryDetailsButton_Click(object sender, RoutedEventArgs e) =>
+        RunSummaryDetailsRequested?.Invoke(this, e);
+
+    private void RunSummaryCloseButton_Click(object sender, RoutedEventArgs e) => HideRunSummary();
+
     private void ForwardWorkspaceDrop(object sender, DragEventArgs e) =>
         WorkspaceFilesDropped?.Invoke(sender, e);
 

@@ -22,14 +22,95 @@
         <Grid Background="{DynamicResource Brush.Layer.Surface}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <main:QueueToolbarView Grid.Row="0" />
 
+            <Border x:Name="RunSummaryBar"
+                    Grid.Row="1"
+                    Visibility="Collapsed"
+                    Margin="{DynamicResource Inset.12.8}"
+                    Padding="{DynamicResource Inset.12.8}"
+                    Background="{DynamicResource Brush.Layer.Card}"
+                    BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                    BorderThickness="1"
+                    CornerRadius="{DynamicResource Radius.Control.Large}"
+                    AutomationProperties.AutomationId="RunSummaryBar"
+                    AutomationProperties.LiveSetting="Polite"
+                    AutomationProperties.Name="{Binding Text, ElementName=RunSummaryTitleText}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox Grid.Column="0"
+                             Width="{DynamicResource Space.18}"
+                             Height="{DynamicResource Space.18}"
+                             VerticalAlignment="Center"
+                             FlowDirection="LeftToRight"
+                             Stretch="Uniform">
+                        <Path x:Name="RunSummaryIcon"
+                              Data="{StaticResource Icon.Success}"
+                              Fill="{DynamicResource Brush.Success}"
+                              Stretch="Uniform" />
+                    </Viewbox>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="RunSummaryTitleText"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock x:Name="RunSummaryMessageText"
+                                   Foreground="{DynamicResource Brush.Text.Secondary}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <Button x:Name="RunSummaryDetailsButton"
+                            Grid.Column="4"
+                            MinWidth="72"
+                            MinHeight="32"
+                            VerticalAlignment="Center"
+                            Click="RunSummaryDetailsButton_Click"
+                            Style="{StaticResource QueueWorkspaceFooterSecondaryCommand}"
+                            AutomationProperties.AutomationId="RunSummaryDetailsButton"
+                            AutomationProperties.Name="{DynamicResource LocRunSummary_Details}">
+                        <TextBlock Style="{StaticResource QueueWorkspaceCommandText}"
+                                   Text="{DynamicResource LocRunSummary_Details}"
+                                   TextAlignment="Center" />
+                    </Button>
+
+                    <Button x:Name="RunSummaryCloseButton"
+                            Grid.Column="6"
+                            Width="32"
+                            Height="32"
+                            VerticalAlignment="Center"
+                            Click="RunSummaryCloseButton_Click"
+                            Style="{StaticResource TransparentButtonStyle}"
+                            ToolTip="{DynamicResource LocRunSummary_Close}"
+                            AutomationProperties.AutomationId="RunSummaryCloseButton"
+                            AutomationProperties.Name="{DynamicResource LocRunSummary_Close}">
+                        <Viewbox Width="{DynamicResource Space.12}"
+                                 Height="{DynamicResource Space.12}"
+                                 FlowDirection="LeftToRight">
+                            <Path Data="{StaticResource Icon.Close}"
+                                  Fill="{DynamicResource Brush.Text.Secondary}"
+                                  Stretch="Uniform" />
+                        </Viewbox>
+                    </Button>
+                </Grid>
+            </Border>
+
             <Grid x:Name="QueueHostSurface"
-                  Grid.Row="1"
+                  Grid.Row="2"
                   MinHeight="{DynamicResource Layout.Queue.MinHeight}"
                   Background="{DynamicResource Brush.Layer.Canvas}"
                   ClipToBounds="True">
@@ -99,7 +180,7 @@
                         Panel.ZIndex="{DynamicResource Panel.ZIndex.Overlay}" />
             </Grid>
 
-            <Border Grid.Row="2"
+            <Border Grid.Row="3"
                     Padding="{DynamicResource Inset.12.8}"
                     Background="{DynamicResource Brush.Layer.Surface}"
                     BorderBrush="{DynamicResource Brush.Border.Subtle}"
