@@ -255,6 +255,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0"
@@ -402,6 +403,40 @@
                         </Border>
 
                         <Border Grid.Row="5"
+                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
+                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="0"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+
+                                    <TextBlock Text="{DynamicResource LocPerformance_TargetEmulator}"
+                                               ToolTip="{Binding TargetEmulatorDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
+                                </Grid>
+
+                                <ComboBox x:Name="TargetEmulatorComboBox"
+                                          Width="340"
+                                          Grid.Column="1"
+                                          HorizontalAlignment="Right"
+                                          MaxWidth="{DynamicResource Options.ChdComboMaxWidth}"
+                                          Margin="{DynamicResource Inset.0.0.12.0}"
+                                          ItemsSource="{Binding TargetEmulatorOptions}"
+                                          SelectedItem="{Binding SelectedTargetEmulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                          IsTextSearchEnabled="True"
+                                          TextSearch.TextPath="Label"
+                                          Style="{StaticResource Win11SettingsComboBox}"
+                                          ToolTip="{Binding TargetEmulatorDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
+                                          AutomationProperties.Name="{DynamicResource LocPerformance_TargetEmulator}" Height="{DynamicResource Space.36}"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="6"
                                 Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>

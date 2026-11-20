@@ -114,6 +114,7 @@ public sealed partial class OptionsViewModel
             && StringEquals(compressionCodecs, snapshot.CompressionCodecs)
             && hunkSizeBytes == snapshot.HunkSizeBytes
             && isoCreateOverride == snapshot.IsoCreateCommandOverride
+            && StringEquals(HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Normalize(SelectedTargetEmulator?.Key), HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Normalize(snapshot.TargetEmulator))
             && StringEquals(SelectedChdPlatformProfile?.Key ?? "auto", string.IsNullOrWhiteSpace(snapshot.ChdPlatformProfileId) ? "auto" : snapshot.ChdPlatformProfileId);
     }
 

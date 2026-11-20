@@ -118,6 +118,9 @@ public sealed class AppSettings
 
     public int HunkSizeBytes { get; set; } = 0;
 
+    /// <summary>auto, dvd2048 (PCSX2 and PPSSPP) or nozstd (RetroArch and older emulators); see TargetEmulatorPolicy.</summary>
+    public string TargetEmulator { get; set; } = "auto";
+
     public IsoCreateCommandOverride IsoCreateCommandOverride { get; set; } = IsoCreateCommandOverride.Auto;
 
     public string ChdPlatformProfileId { get; set; } = "auto";
@@ -138,6 +141,7 @@ public sealed class AppSettings
         settings.HunkSizeBytes = 0;
         settings.IsoCreateCommandOverride = IsoCreateCommandOverride.Auto;
         settings.ChdPlatformProfileId = "auto";
+        settings.TargetEmulator = "auto";
     }
 
     public static int NormalizeMaxConcurrentConversions(int value)
@@ -199,6 +203,7 @@ public sealed class AppSettings
         ChdmanPriorityMode = other.ChdmanPriorityMode;
         CompressionCodecs = other.CompressionCodecs;
         HunkSizeBytes = other.HunkSizeBytes;
+        TargetEmulator = other.TargetEmulator;
         IsoCreateCommandOverride = other.IsoCreateCommandOverride;
         ChdPlatformProfileId = other.ChdPlatformProfileId;
         ExtensionData = other.ExtensionData is null
@@ -260,6 +265,7 @@ public sealed class AppSettings
             ChdmanPriorityMode = ChdmanPriorityMode,
             CompressionCodecs = CompressionCodecs,
             HunkSizeBytes = HunkSizeBytes,
+            TargetEmulator = TargetEmulator,
             IsoCreateCommandOverride = IsoCreateCommandOverride,
             ChdPlatformProfileId = ChdPlatformProfileId,
             ExtensionData = ExtensionData is null

@@ -585,6 +585,13 @@
     <sys:String x:Key="LocRecompress_Saved">حُفظت نسخة أصغر بعد التحقق منها.</sys:String>
     <sys:String x:Key="LocRecompress_Replaced">استُبدل بنسخة أصغر بعد التحقق منها.</sys:String>
     <sys:String x:Key="LocRecompress_Cancelled">تم الإيقاف. لم يتغير الملف الأصلي.</sys:String>
+    <sys:String x:Key="LocPerformance_TargetEmulator">المحاكي المستهدف</sys:String>
+    <sys:String x:Key="LocAdv_TargetEmulatorAutoLabel">تلقائي (موصى به)</sys:String>
+    <sys:String x:Key="LocAdv_TargetEmulatorAutoDescription">يستخدم الإعدادات أعلاه. صور PSP بصيغة ISO تحصل أصلًا على كتل 2048 بايت لمحاكي PPSSPP.</sys:String>
+    <sys:String x:Key="LocAdv_TargetEmulatorDvd2048Label">PCSX2 وPPSSPP</sys:String>
+    <sys:String x:Key="LocAdv_TargetEmulatorDvd2048Description">تُنشأ ملفات CHD للأقراص DVD ‏(PS2 وPSP) بكتل 2048 بايت، وهو ما يحتاجه PPSSPP ويُنصح به لـ PCSX2. يحل هذا محل حجم الكتلة أعلاه، ولا يؤثر على أقراص CD.</sys:String>
+    <sys:String x:Key="LocAdv_TargetEmulatorNoZstdLabel">RetroArch والمحاكيات القديمة</sys:String>
+    <sys:String x:Key="LocAdv_TargetEmulatorNoZstdDescription">يستبعد zstd من الضغط: يصبح «سريع» و«متوازن» ضغطًا أقصى. بعض المحاكيات ونوى RetroArch القديمة، مثل Beetle PSX، لا تقرأ ملفات CHD المضغوطة بـ zstd.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractDvd">تم التعرف على CHD كقرص DVD. سيتم الاستخراج إلى ISO.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractHd">تم التعرف على CHD كصورة قرص ثابت. سيتم الاستخراج إلى IMG.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractRaw">تم التعرف على CHD كصورة RAW. سيتم الاستخراج إلى ملف RAW.</sys:String>

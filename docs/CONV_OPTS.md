@@ -20,6 +20,20 @@ Before anything runs, the app checks the source — path length, readability, ou
 
 Most avoidable failures should be caught here, not halfway through a long conversion.
 
+### Target emulator
+
+**Settings > Conversion > Target emulator** adjusts new CHDs for where you
+play them:
+
+- **Automatic** (default): the settings above, unchanged. PSP ISOs already get
+  2048-byte hunks for PPSSPP.
+- **PCSX2 and PPSSPP**: DVD CHDs (PS2, PSP) are made with `-hs 2048`, which
+  PPSSPP needs and is advised for PCSX2. It replaces the hunk size setting;
+  CD and hard-disk CHDs are not affected.
+- **RetroArch and older emulators**: no zstd. Fast and Balanced become
+  Maximum, and zstd is removed from an explicit codec list. Some emulators and
+  older RetroArch cores, such as Beetle PSX, cannot read zstd CHDs.
+
 ## Verify
 
 Verify checks an existing CHD.
