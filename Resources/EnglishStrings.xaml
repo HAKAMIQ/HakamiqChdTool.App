@@ -158,9 +158,6 @@
     <sys:String x:Key="Loc_Button_Cancel">Cancel</sys:String>
     <sys:String x:Key="LocDialog_SummaryCancelledTitle">Session canceled</sys:String>
     <sys:String x:Key="LocDialog_SummaryCompletedTitle">Session summary</sys:String>
-    <sys:String x:Key="LocTray_SessionCancelledTitle">Session canceled</sys:String>
-    <sys:String x:Key="LocTray_SessionCompletedTitle">Session completed</sys:String>
-    <sys:String x:Key="LocFmt_TraySessionBalloon">Completed: {0} — Needs review: {1}</sys:String>
     <sys:String x:Key="LocDialog_CloseWhileProcessingBody">A task is running. Do you want to stop processing and close the app?</sys:String>
     <sys:String x:Key="LocDialog_CloseWhileProcessingTitle">Stop processing and close?</sys:String>
 

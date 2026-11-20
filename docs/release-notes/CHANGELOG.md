@@ -22,6 +22,8 @@ it are the detailed record.
 - After a run, a bar above the queue shows how many items finished, failed or
   were skipped, the space saved and the time taken, with a Details button for
   the full report.
+- The tray notification after a run, shown when the window is not in front,
+  now has the same result line, including the space saved and the time taken.
 - "When done" next to the queue buttons: sleep or shut down the computer
   after the run, with a 60-second countdown you can cancel. It applies to one
   run, is never saved, and does nothing after a stopped run.

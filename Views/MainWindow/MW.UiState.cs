@@ -330,7 +330,8 @@ public partial class MainWindow
         _lastRunSummaryText = summaryText;
         _lastRunSummaryCancelled = wasCancelled;
         TimeSpan elapsed = _runStartedUtc is DateTime started ? DateTime.UtcNow - started : TimeSpan.Zero;
-        QueueWorkspace.ShowRunSummary(RunSummaryCardBuilder.Build(metrics, wasCancelled, elapsed, ArabicUi.Get));
+        RunSummaryCard runSummaryCard = RunSummaryCardBuilder.Build(metrics, wasCancelled, elapsed, ArabicUi.Get);
+        QueueWorkspace.ShowRunSummary(runSummaryCard);
 
         HakamiqChdTool.App.Services.Power.AfterRunAction afterRun = QueueWorkspace.SelectedAfterRunAction;
         if (HakamiqChdTool.App.Services.Power.AfterRunPower.ShouldRun(afterRun, wasCancelled, processedSelectionOnly))
@@ -350,9 +351,8 @@ public partial class MainWindow
             : MainWindowMessages.SessionCompletedFooter);
 
         TryNotifyTrayForBatchCompletion(
-            wasCancelled,
             processedSelectionOnly,
-            metrics);
+            runSummaryCard);
 
         if (showCompletionDialog)
         {
