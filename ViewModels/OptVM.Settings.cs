@@ -179,8 +179,19 @@ public sealed partial class OptionsViewModel
         NotifySaveStateChanged();
     }
 
+    /// <summary>
+    /// Shows when the Redump database file was last written, without changing the stored sync time, so opening
+    /// Options does not count as a change.
+    /// </summary>
+    public void ShowDatabaseFileTime(string? value)
+    {
+        _databaseFileTimeUtc = NormalizeStoredTimestamp(value);
+        OnPropertyChanged(nameof(DatabaseLastSyncedDisplay));
+    }
+
     public void SetDatabaseLastSyncedUtc(string? value)
     {
+        _databaseFileTimeUtc = null;
         _redumpLastSyncedUtc = NormalizeStoredTimestamp(value);
         OnPropertyChanged(nameof(DatabaseLastSyncedDisplay));
     }

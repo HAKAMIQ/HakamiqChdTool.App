@@ -101,7 +101,7 @@ internal sealed partial class HqOptionsShell : IDisposable
                 string databasePath = HakamiqChdTool.App.Services.RedumpSqliteManager.Default.DatabasePath;
                 if (System.IO.File.Exists(databasePath))
                 {
-                    _owner.ViewModel.SetDatabaseLastSyncedUtc(System.IO.File.GetLastWriteTimeUtc(databasePath).ToString(
+                    _owner.ViewModel.ShowDatabaseFileTime(System.IO.File.GetLastWriteTimeUtc(databasePath).ToString(
                         "O",
                         System.Globalization.CultureInfo.InvariantCulture));
                 }

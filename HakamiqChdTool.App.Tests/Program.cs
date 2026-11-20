@@ -393,6 +393,8 @@ internal static partial class Program
                 new("A chosen igir that is not the pinned build keeps the bundled igir", TestChosenIgirDoesNotDisableBundledIgir),
                 new("Restore defaults resets only the options in the window", TestRestoreDefaultsKeepsSettingsOutsideTheWindow),
                 new("Only one Options window opens at a time", TestOnlyOneOptionsWindowOpens),
+                new("Opening Options with a Redump database is not a change", TestOpeningOptionsWithDatabaseIsNotAChange),
+                new("Hidden Redump fields do not block saving", TestHiddenRedumpFieldsDoNotBlockSaving),
                 new("Options window shows the CPU name, igir version and Windows hints readably", TestOptionsWindowLayoutFixes),
                 new("Tray balloon after a run shows the run summary with the space saved", TestTrayBalloonUsesRunSummary),
                 new("Recompress picks codecs by media type and never targets the source folder or an existing file", TestRecompressPlanning),

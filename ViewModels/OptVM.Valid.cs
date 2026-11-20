@@ -20,7 +20,6 @@ public sealed partial class OptionsViewModel
         ValidateProperty(RedumpDatXmlPathValidationProxy, nameof(RedumpDatXmlPathValidationProxy));
         ValidateProperty(RedumpLocalLibraryRootValidationProxy, nameof(RedumpLocalLibraryRootValidationProxy));
         ValidateProperty(ExternalChdmanPathValidationProxy, nameof(ExternalChdmanPathValidationProxy));
-        ValidateProperty(RedumpDatabaseDownloadUrlValidationProxy, nameof(RedumpDatabaseDownloadUrlValidationProxy));
         ValidateProperty(SelectedProcessorValueValidationProxy, nameof(SelectedProcessorValueValidationProxy));
         ValidateProperty(SelectedConcurrentConversionValueValidationProxy, nameof(SelectedConcurrentConversionValueValidationProxy));
     }
@@ -47,7 +46,6 @@ public sealed partial class OptionsViewModel
             nameof(RedumpDatXmlPathValidationProxy),
             nameof(RedumpLocalLibraryRootValidationProxy),
             nameof(ExternalChdmanPathValidationProxy),
-            nameof(RedumpDatabaseDownloadUrlValidationProxy),
             nameof(SelectedProcessorValueValidationProxy),
             nameof(SelectedConcurrentConversionValueValidationProxy)
         ];
@@ -124,7 +122,7 @@ public sealed partial class OptionsViewModel
             return Error("LocAdv_ErrorRedumpDatValidationFailed");
         }
 
-        if (string.IsNullOrWhiteSpace(vm.RedumpDatXmlPath))
+        if (!vm.EnableDeepIntegrityCheck || string.IsNullOrWhiteSpace(vm.RedumpDatXmlPath))
         {
             return ValidationResult.Success;
         }
@@ -148,7 +146,7 @@ public sealed partial class OptionsViewModel
             return Error("LocAdv_ErrorRedumpLocalFolderValidationFailed");
         }
 
-        if (string.IsNullOrWhiteSpace(vm.RedumpLocalLibraryRoot))
+        if (!vm.EnableDeepIntegrityCheck || string.IsNullOrWhiteSpace(vm.RedumpLocalLibraryRoot))
         {
             return ValidationResult.Success;
         }
@@ -156,28 +154,6 @@ public sealed partial class OptionsViewModel
         return TryGetSafeOptionsDirectory(vm.RedumpLocalLibraryRoot, out _)
             ? ValidationResult.Success
             : Error("LocAdv_ErrorRedumpLocalFolderInvalid", nameof(RedumpLocalLibraryRoot));
-    }
-
-    public static ValidationResult? ValidateRedumpDatabaseDownloadUrl(string _, ValidationContext context)
-    {
-        if (context.ObjectInstance is not OptionsViewModel vm)
-        {
-            return Error("LocAdv_ErrorRedumpDownloadUrlValidationFailed");
-        }
-
-        if (string.IsNullOrWhiteSpace(vm.RedumpDatabaseDownloadUrl))
-        {
-            return ValidationResult.Success;
-        }
-
-        bool ok = Uri.TryCreate(vm.RedumpDatabaseDownloadUrl.Trim(), UriKind.Absolute, out Uri? uri)
-            && string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
-            && !string.IsNullOrWhiteSpace(uri.Host)
-            && string.IsNullOrEmpty(uri.UserInfo);
-
-        return ok
-            ? ValidationResult.Success
-            : Error("LocAdv_ErrorRedumpDownloadUrlInvalid", nameof(RedumpDatabaseDownloadUrl));
     }
 
     public static ValidationResult? ValidateExternalChdmanPath(string _, ValidationContext context)

@@ -49,6 +49,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _enableRedumpAutoSync;
     private AppSettings? _appliedSnapshot;
     private string? _redumpLastSyncedUtc;
+    private string? _databaseFileTimeUtc;
     private string _databaseStatusText = ArabicUi.Get("LocAdv_DatabaseStatusUnavailable");
     private ProcessorOption? _selectedProcessorOption;
     private ProcessorOption? _selectedConcurrentConversionOption;
@@ -533,6 +534,9 @@ public sealed partial class OptionsViewModel : ObservableValidator
             bool normalized = value;
             if (SetProperty(ref _enableDeepIntegrityCheck, normalized))
             {
+                // The DAT file and local folder rows show only while this is on, so they are checked only then.
+                ValidateProperty(RedumpDatXmlPathValidationProxy, nameof(RedumpDatXmlPathValidationProxy));
+                ValidateProperty(RedumpLocalLibraryRootValidationProxy, nameof(RedumpLocalLibraryRootValidationProxy));
                 OnPropertyChanged(nameof(CanSave));
             }
         }
@@ -557,7 +561,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         {
             if (SetProperty(ref _redumpDatabaseDownloadUrl, value))
             {
-                ValidateProperty(RedumpDatabaseDownloadUrlValidationProxy, nameof(RedumpDatabaseDownloadUrlValidationProxy));
                 OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
                 OnPropertyChanged(nameof(CanSave));
             }
@@ -601,17 +604,18 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(_redumpLastSyncedUtc))
+            string? shown = _databaseFileTimeUtc ?? _redumpLastSyncedUtc;
+            if (string.IsNullOrWhiteSpace(shown))
             {
                 return ArabicUi.Get("LocAdv_DatabaseLastSyncedEmpty");
             }
 
-            if (DateTimeOffset.TryParse(_redumpLastSyncedUtc, out DateTimeOffset parsed))
+            if (DateTimeOffset.TryParse(shown, out DateTimeOffset parsed))
             {
                 return ArabicUi.Format("LocAdv_DatabaseLastSyncedValue", parsed.ToLocalTime().ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture));
             }
 
-            return ArabicUi.Format("LocAdv_DatabaseLastSyncedValue", _redumpLastSyncedUtc);
+            return ArabicUi.Format("LocAdv_DatabaseLastSyncedValue", shown);
         }
     }
 
@@ -832,9 +836,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
     [CustomValidation(typeof(OptionsViewModel), nameof(ValidateRedumpLocalLibraryRoot))]
     public string RedumpLocalLibraryRootValidationProxy => RedumpLocalLibraryRoot;
-
-    [CustomValidation(typeof(OptionsViewModel), nameof(ValidateRedumpDatabaseDownloadUrl))]
-    public string RedumpDatabaseDownloadUrlValidationProxy => RedumpDatabaseDownloadUrl;
 
     [CustomValidation(typeof(OptionsViewModel), nameof(ValidateExternalChdmanPath))]
     public string ExternalChdmanPathValidationProxy => ExternalChdmanPath;

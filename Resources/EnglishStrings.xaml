@@ -1170,8 +1170,6 @@ Path:
     <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderValidationFailed">Could not validate the local Redump folder.</sys:String>
     <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderInvalid">Choose a valid local Redump folder.</sys:String>
 
-    <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlValidationFailed">Could not validate the Redump URL.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlInvalid">Enter a URL that starts with HTTP or HTTPS.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorExternalChdmanValidationFailed">Could not validate chdman.</sys:String>
     <sys:String x:Key="LocAdv_ErrorExternalChdmanRequired">Select chdman, or use the bundled copy.</sys:String>

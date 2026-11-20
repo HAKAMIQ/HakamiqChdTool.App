@@ -137,4 +137,80 @@ internal static partial class Program
         AssertTrue(modals.Contains("_openOptionsDialog = dialog;", StringComparison.Ordinal)
             && modals.Contains("_openOptionsDialog = null;", StringComparison.Ordinal), "The open window is tracked while it is shown and released when it closes.");
     }
+
+    // Opening Options with a Redump database shows the database time but is not a change: Apply stays off and the
+    // stored sync time is kept.
+    private static void TestOpeningOptionsWithDatabaseIsNotAChange()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var source = new AppSettings { RedumpLastSyncedUtc = "2026-11-01T10:00:00Z" };
+                var options = new HakamiqChdTool.App.ViewModels.OptionsViewModel();
+                options.Load(source);
+                options.ShowDatabaseFileTime("2026-11-15T08:30:00Z");
+
+                AssertFalse(options.HasPendingChanges, "Showing the database time does not enable Apply.");
+                AssertEqual("2026-11-01T10:00:00Z", options.BuildResultSettings(source).RedumpLastSyncedUtc, "The stored sync time is kept.");
+
+                options.SetDatabaseLastSyncedUtc("2026-11-20T09:00:00Z");
+                AssertTrue(options.HasPendingChanges, "A real import is a change.");
+            }
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null)
+        {
+            throw failure;
+        }
+    }
+
+    // The Redump DAT file and local folder rows show only while Redump is on; a stale value there must not block OK.
+    // The download URL has no control at all and never blocks.
+    private static void TestHiddenRedumpFieldsDoNotBlockSaving()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                string missing = Path.Combine(Path.GetTempPath(), "hq-missing-" + Guid.NewGuid().ToString("N"));
+                var source = new AppSettings
+                {
+                    EnableDeepIntegrityCheck = false,
+                    RedumpDatXmlPath = Path.Combine(missing, "gone.dat"),
+                    RedumpLocalLibraryRoot = "relative\\folder",
+                    RedumpDatabaseDownloadUrl = "http://example.invalid/db.zip"
+                };
+                var options = new HakamiqChdTool.App.ViewModels.OptionsViewModel();
+                options.Load(source);
+                AssertTrue(options.CanConfirm, "Hidden Redump fields do not block OK.");
+                AssertTrue(options.GetFirstErrorMessage() is null, "No error is reported for hidden fields.");
+
+                options.EnableDeepIntegrityCheck = true;
+                AssertFalse(options.CanConfirm, "Once the rows show, a bad DAT path or folder is reported.");
+
+                options.EnableDeepIntegrityCheck = false;
+                AssertTrue(options.CanConfirm, "Turning Redump off again clears those errors.");
+            }
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null)
+        {
+            throw failure;
+        }
+    }
 }
