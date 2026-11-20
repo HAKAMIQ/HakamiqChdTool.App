@@ -74,6 +74,9 @@ public sealed class AppSettings
     /// <summary>Adds CHD Tool to the Explorer right-click menu for this Windows account.</summary>
     public bool ExplorerMenuEnabled { get; set; } = false;
 
+    /// <summary>The Explorer menu opens the small quick window instead of the main window (when the app is not already open).</summary>
+    public bool ExplorerOpensQuickWindow { get; set; } = true;
+
     /// <summary>Converts new disc images and archives that appear in WatchFolderPath while the app is open.</summary>
     public bool WatchFolderEnabled { get; set; } = false;
 
@@ -186,6 +189,7 @@ public sealed class AppSettings
         DeleteSourceAfterVerifiedExtraction = other.DeleteSourceAfterVerifiedExtraction;
         ExtractGdRomAsCueBin = other.ExtractGdRomAsCueBin;
         ExplorerMenuEnabled = other.ExplorerMenuEnabled;
+        ExplorerOpensQuickWindow = other.ExplorerOpensQuickWindow;
         WatchFolderEnabled = other.WatchFolderEnabled;
         WatchFolderPath = other.WatchFolderPath;
         EnableDeepIntegrityCheck = other.EnableDeepIntegrityCheck;
@@ -250,6 +254,7 @@ public sealed class AppSettings
             DeleteSourceAfterVerifiedExtraction = DeleteSourceAfterVerifiedExtraction,
             ExtractGdRomAsCueBin = ExtractGdRomAsCueBin,
             ExplorerMenuEnabled = ExplorerMenuEnabled,
+            ExplorerOpensQuickWindow = ExplorerOpensQuickWindow,
             WatchFolderEnabled = WatchFolderEnabled,
             WatchFolderPath = WatchFolderPath,
             EnableDeepIntegrityCheck = EnableDeepIntegrityCheck,
