@@ -244,6 +244,25 @@ public partial class MainWindow
         QueueWorkspace.HideRunSummary();
     }
 
+    private void RunAfterRunAction(HakamiqChdTool.App.Services.Power.AfterRunAction action)
+    {
+        if (_shutdownStarted || _shutdownCompleted)
+        {
+            return;
+        }
+
+        var dialog = new HakamiqChdTool.App.Views.AfterRunCountdownDialog(action, HakamiqChdTool.App.Services.Power.AfterRunPower.Countdown);
+        if (IsVisible)
+        {
+            dialog.Owner = this;
+        }
+
+        if (dialog.ShowDialog() == true && !HakamiqChdTool.App.Services.Power.AfterRunPower.TryExecute(action))
+        {
+            SetFooterStatus(ArabicUi.Get("LocAfterRun_Failed"));
+        }
+    }
+
     private void QueueWorkspace_RunSummaryDetailsRequested(object sender, RoutedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(_lastRunSummaryText))
@@ -312,6 +331,13 @@ public partial class MainWindow
         _lastRunSummaryCancelled = wasCancelled;
         TimeSpan elapsed = _runStartedUtc is DateTime started ? DateTime.UtcNow - started : TimeSpan.Zero;
         QueueWorkspace.ShowRunSummary(RunSummaryCardBuilder.Build(metrics, wasCancelled, elapsed, ArabicUi.Get));
+
+        HakamiqChdTool.App.Services.Power.AfterRunAction afterRun = QueueWorkspace.SelectedAfterRunAction;
+        if (HakamiqChdTool.App.Services.Power.AfterRunPower.ShouldRun(afterRun, wasCancelled, processedSelectionOnly))
+        {
+            QueueWorkspace.ResetAfterRunAction();
+            _ = Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => RunAfterRunAction(afterRun)));
+        }
 
         SetFooterStatus(wasCancelled
             ? MainWindowMessages.SessionCancelledFooter

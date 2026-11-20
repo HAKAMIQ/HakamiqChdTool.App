@@ -78,6 +78,15 @@ public partial class QueueWorkspaceView : UserControl
 
     public void HideRunSummary() => RunSummaryBar.Visibility = Visibility.Collapsed;
 
+    /// <summary>What to do after this run; picked per run and never saved.</summary>
+    public HakamiqChdTool.App.Services.Power.AfterRunAction SelectedAfterRunAction =>
+        (AfterRunComboBox.SelectedItem as ComboBoxItem)?.Tag is string tag
+        && Enum.TryParse(tag, out HakamiqChdTool.App.Services.Power.AfterRunAction action)
+            ? action
+            : HakamiqChdTool.App.Services.Power.AfterRunAction.None;
+
+    public void ResetAfterRunAction() => AfterRunComboBox.SelectedIndex = 0;
+
     private void RunSummaryDetailsButton_Click(object sender, RoutedEventArgs e) =>
         RunSummaryDetailsRequested?.Invoke(this, e);
 
