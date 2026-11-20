@@ -22,6 +22,8 @@ it are the detailed record.
 - After a run, a bar above the queue shows how many items finished, failed or
   were skipped, the space saved and the time taken, with a Details button for
   the full report.
+- The tray notification after a run, shown when the window is not in front,
+  now has the same result line, including the space saved and the time taken.
 - Advanced options read more clearly: Arabic text has no diacritics, labels
   drop repeated "(recommended)" marks and English duplicates, the CPU name and
   igir version show in the right order, and the Explorer menu and watch folder

@@ -355,6 +355,7 @@ internal static partial class Program
                 new("A disc platform profile lets other disc types use Auto", TestPlatformProfileFallsBackToAutoForOtherInputs),
                 new("A chosen igir that is not the pinned build keeps the bundled igir", TestChosenIgirDoesNotDisableBundledIgir),
                 new("Options window shows the CPU name, igir version and Windows hints readably", TestOptionsWindowLayoutFixes),
+                new("Tray balloon after a run shows the run summary with the space saved", TestTrayBalloonUsesRunSummary),
                 new("Recompress picks codecs by media type and never targets the source folder or an existing file", TestRecompressPlanning),
                 new("Recompress with real chdman keeps the data, saves space and leaves no temporary files", TestRecompressWithRealChdman),
                 new("Recompress window list, start rules, results, summary and retry", TestRecompressViewModel),

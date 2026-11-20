@@ -158,9 +158,6 @@
     <sys:String x:Key="Loc_Button_Cancel">إلغاء</sys:String>
     <sys:String x:Key="LocDialog_SummaryCancelledTitle">تم إلغاء الجلسة</sys:String>
     <sys:String x:Key="LocDialog_SummaryCompletedTitle">ملخص التشغيل</sys:String>
-    <sys:String x:Key="LocTray_SessionCancelledTitle">تم إلغاء الجلسة</sys:String>
-    <sys:String x:Key="LocTray_SessionCompletedTitle">انتهت الجلسة</sys:String>
-    <sys:String x:Key="LocFmt_TraySessionBalloon">مكتمل: {0} — يحتاج مراجعة: {1}</sys:String>
     <sys:String x:Key="LocDialog_CloseWhileProcessingBody">توجد مهمة قيد التشغيل حاليا. هل تريد إيقاف المعالجة والخروج؟</sys:String>
     <sys:String x:Key="LocDialog_CloseWhileProcessingTitle">تأكيد الخروج</sys:String>
 
