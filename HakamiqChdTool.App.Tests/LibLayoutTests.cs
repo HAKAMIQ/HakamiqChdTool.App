@@ -277,6 +277,13 @@ internal static partial class Program
                     findings.Add($"{context}: {element.GetType().Name} '{LayoutName(element)}' ({DescribeControl(element)}) wanted {wantedWidth:F0}x{wantedHeight:F0} but got {element.ActualWidth:F0}x{element.ActualHeight:F0}.");
                 }
 
+// A text box shows its text through a scroll viewer; content taller than it means the text is cut off.
+                if (element is TextBox { Text.Length: > 0 } box && box.Template?.FindName("PART_ContentHost", box) is ScrollViewer host
+                    && host.ViewportHeight > 0 && host.ExtentHeight > host.ViewportHeight + 0.5)
+                {
+                    findings.Add($"{context}: TextBox '{LayoutName(element)}' text is {host.ExtentHeight:F0} tall in a {host.ViewportHeight:F0} box (clipped).");
+                }
+
                 if (element.ActualHeight < 20)
                 {
                     findings.Add($"{context}: {element.GetType().Name} '{LayoutName(element)}' is only {element.ActualHeight:F0} tall.");

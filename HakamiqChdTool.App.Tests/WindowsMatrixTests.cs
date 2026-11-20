@@ -47,6 +47,10 @@ internal static partial class Program
                     ("RedumpNotice", () => new RedumpNoticeDialog("Notice", "A fairly long notice message that has to wrap inside the dialog without being clipped at any size.")),
                     ("Rename", () => new RenameConfirmationDialog(new RenameConfirmationViewModel("Some Game (Europe) (En,Fr,De,Es,It).chd"))),
                     ("Options", () => new OptionsWindow(AppSettings.CreateSafeDefaults())),
+                    ("Options-Processing", () => CreateOptionsMatrixWindow(OptionsWindow.ProcessingTabKey)),
+                    ("Options-Paths", () => CreateOptionsMatrixWindow(OptionsWindow.PathsTabKey)),
+                    ("Options-Redump", () => CreateOptionsMatrixWindow(OptionsWindow.RedumpTabKey)),
+                    ("Options-Performance", () => CreateOptionsMatrixWindow(OptionsWindow.PerformanceTabKey)),
                     ("VerificationResult", () => new VerificationResultDialog(new QueueVerifyView(
                         "Verification result", "The file was verified.", "File", "Some Game (Europe) (En,Fr,De,Es,It).chd",
                         "Status", "Verified", "Details", "All hunks match. SHA-1 matches the CHD header.",
@@ -77,7 +81,7 @@ internal static partial class Program
                             try
                             {
                                 window = create();
-                                if (window is OptionsWindow optionsWindow)
+                                if (name == "Options" && window is OptionsWindow optionsWindow)
                                 {
                                     optionsWindow.SelectTab(OptionsWindow.ExternalToolsTabKey);
                                 }
@@ -137,6 +141,26 @@ internal static partial class Program
         }
 
         AssertEqual(0, findings.Distinct().Count(), "The dialogs have no clipped, unreachable or unnamed controls.");
+    }
+
+    // Options with every optional row visible (custom folders, external chdman, watch folder, Redump sections), so the
+    // matrix measures the path boxes and the rows that only appear when an option is on.
+    private static Window CreateOptionsMatrixWindow(string tabKey)
+    {
+        var settings = AppSettings.CreateSafeDefaults();
+        settings.UseBundledChdman = false;
+        settings.ExternalChdmanPath = @"C:\Tools\MAME\chdman.exe";
+        settings.UseCustomOutputRoot = true;
+        settings.CustomOutputRoot = @"D:\Converted Games\CHD";
+        settings.UseCustomPendingWorkspace = true;
+        settings.PendingWorkspaceCustomRoot = @"D:\Work";
+        settings.ExplorerMenuEnabled = true;
+        settings.WatchFolderEnabled = true;
+        settings.WatchFolderPath = @"D:\Incoming";
+        settings.EnableDeepIntegrityCheck = true;
+        var window = new OptionsWindow(settings);
+        window.SelectTab(tabKey);
+        return window;
     }
 
     private static void CollectAccessibilityFindings(Window window, string context, List<string> findings)

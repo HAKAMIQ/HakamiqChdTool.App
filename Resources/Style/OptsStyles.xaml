@@ -821,6 +821,9 @@
     <Style x:Key="Win11SettingsTechnicalTextBox"
            TargetType="{x:Type TextBox}"
            BasedOn="{StaticResource FluentTechnicalTextBoxStyle}">
+        <!-- Path boxes are 32 tall like the buttons beside them; the template already spends 14 of that, so the text gets no
+             vertical padding or a 16-pixel line is cut off. -->
+        <Setter Property="Padding" Value="{DynamicResource Inset.12.0}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="FlowDirection" Value="{DynamicResource TechnicalText.FlowDirection}" />
         <Setter Property="TextAlignment" Value="{DynamicResource TechnicalText.TextAlignment}" />
