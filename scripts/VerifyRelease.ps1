@@ -706,9 +706,12 @@ function Assert-NoForbiddenExternalArtifacts {
         Where-Object {
             $fileName = $_.Name
             $isBlocked = $false
-            # The pinned ZArchive tool for Xbox 360 ZAR output is allowed (hash checked in Assert-BundledToolHashes); any other ZArchive file is not.
-            if ($_.FullName.Equals((Join-Path $OutputPath "Tools\zarchive\win-x64\zarchive.exe"), [System.StringComparison]::OrdinalIgnoreCase)) {
-                return $false
+            # The pinned ZArchive tool for Xbox 360 ZAR output (hash checked in Assert-BundledToolHashes) and its notice are
+            # allowed; any other ZArchive file is not.
+            foreach ($allowed in @("Tools\zarchive\win-x64\zarchive.exe", "docs\legal\ZARCHIVE_NOTICE.md")) {
+                if ($_.FullName.Equals((Join-Path $OutputPath $allowed), [System.StringComparison]::OrdinalIgnoreCase)) {
+                    return $false
+                }
             }
 
             foreach ($pattern in $blockedNames) {
