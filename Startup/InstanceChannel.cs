@@ -109,7 +109,7 @@ internal sealed class InstanceChannel : IDisposable
             int pathBytes = Encoding.UTF8.GetByteCount(path) * 2 + 8;
             if (batch.Count > 0 && (batchBytes + pathBytes + envelopeBytes > MaxMessageBytes || batch.Count >= LaunchArgs.MaxPaths))
             {
-                yield return Serialize(request.Mode, batch);
+                yield return Serialize(request.Mode, batch, start: false);
                 batch = [];
                 batchBytes = 0;
             }
@@ -118,9 +118,11 @@ internal sealed class InstanceChannel : IDisposable
             batchBytes += pathBytes;
         }
 
+        // Only the last part asks to start, so processing begins after every path has arrived.
+        // ExitWhenDone is never forwarded: a running window the user is working in is not closed by a later launch.
         if (batch.Count > 0 || request.Paths.Count == 0)
         {
-            yield return Serialize(request.Mode, batch);
+            yield return Serialize(request.Mode, batch, request.Start);
         }
     }
 
@@ -170,7 +172,8 @@ internal sealed class InstanceChannel : IDisposable
                 paths.Add(fullPath);
             }
 
-            request = new LaunchRequest(mode, paths);
+            bool start = root.TryGetProperty("start", out JsonElement startElement) && startElement.ValueKind == JsonValueKind.True;
+            request = new LaunchRequest(mode, paths, start);
             return true;
         }
         catch (JsonException)
@@ -179,13 +182,14 @@ internal sealed class InstanceChannel : IDisposable
         }
     }
 
-    private static byte[] Serialize(LaunchMode mode, IReadOnlyList<string> paths)
+    private static byte[] Serialize(LaunchMode mode, IReadOnlyList<string> paths, bool start)
     {
         return JsonSerializer.SerializeToUtf8Bytes(new Dictionary<string, object>
         {
             ["v"] = FormatVersion,
             ["mode"] = LaunchArgs.ModeName(mode),
-            ["paths"] = paths
+            ["paths"] = paths,
+            ["start"] = start
         });
     }
 

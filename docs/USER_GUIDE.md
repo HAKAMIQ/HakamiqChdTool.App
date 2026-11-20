@@ -49,6 +49,29 @@ then `chdman verify`, and compares the SHA-1 values with the original. A new
 file is kept only if it matches and saves at least 1%; otherwise it is deleted
 and the original stays as it was. Without Replace, nothing is overwritten.
 
+## Command line
+
+```
+HakamiqChdTool.exe [--mode convert|extract|verify] [--start] [--exit-when-done] --add <file or folder>...
+```
+
+- `--mode` picks the operation; without it the mode selected in the window is used.
+- `--add` lists files and folders; relative paths are resolved against the
+  current folder.
+- `--start` starts processing once the items are in the queue.
+- `--exit-when-done` (with `--start`) closes the app after the run. The exit
+  code is 0 when every item finished or was skipped, 1 when an item failed,
+  2 when the run was stopped, and 3 when there was nothing to process.
+
+If CHD Tool is already open, the items are added to that window, and
+`--exit-when-done` is ignored so your open window is not closed. Output
+folders and conversion options come from Settings. A batch file example:
+
+```
+start /wait "" "C:\Tools\HakamiqChdTool\HakamiqChdTool.exe" --mode convert --start --exit-when-done --add "D:\Disc images"
+echo Exit code %ERRORLEVEL%
+```
+
 ## Multi-file disc images
 
 Keep descriptor files and their tracks together. For example, add the CUE file for a CUE/BIN image and keep every referenced BIN beside it. Do not rename or move only part of a disc set.

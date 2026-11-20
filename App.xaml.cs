@@ -59,10 +59,15 @@ public partial class App : WpfApplication
         AppPaths.SetPortableMode(AppPaths.DetectPortableModePreference());
         AppLogger.Initialize();
 
-        LaunchRequest launch = ParseLaunchRequest(e.Args);
+        LaunchRequest launch = ParseLaunchRequest(e.Args, out string? launchError);
 
         if (!TryAcquireSingleInstanceMutex())
         {
+            if (launchError is not null)
+            {
+                ShowLaunchUsageWithoutWindow(launchError);
+            }
+
             Log.Information("Another CHD Tool instance is already running in this Windows session. Handing over the launch request and exiting.");
             _ = InstanceChannel.TrySend(
                 InstanceChannel.DefaultPipeName,
@@ -94,9 +99,15 @@ public partial class App : WpfApplication
         mainWindow.Show();
 
         StartLaunchChannel(mainWindow);
+        mainWindow.ExitWhenDone = launch.ExitWhenDone;
         if (launch.HasPaths)
         {
             mainWindow.HandleLaunchRequest(launch);
+        }
+
+        if (launchError is not null)
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => mainWindow.ShowLaunchUsage(launchError)));
         }
 
         if (Settings.ExplorerMenuEnabled)
@@ -112,15 +123,33 @@ public partial class App : WpfApplication
 #endif
     }
 
-    private static LaunchRequest ParseLaunchRequest(string[] args)
+    private static LaunchRequest ParseLaunchRequest(string[] args, out string? launchError)
     {
+        launchError = null;
         if (LaunchArgs.TryParse(args, out LaunchRequest request, out string? error))
         {
             return request;
         }
 
         Log.Warning("Ignoring launch arguments: {Error}", error);
+        launchError = error ?? string.Empty;
         return LaunchRequest.Empty;
+    }
+
+    // A second launch with bad arguments has no window of its own; it shows the usage and still activates
+    // the running window.
+    private static void ShowLaunchUsageWithoutWindow(string error)
+    {
+        try
+        {
+            AppSettings settings = new AppSettingsService().Load();
+            LanguageService.Instance.Initialize(settings.UiLanguage);
+            ShowLaunchUsageMessage(owner: null, error);
+        }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "Could not show launch usage.");
+        }
     }
 
     private void StartLaunchChannel(MainWindow mainWindow)
@@ -135,6 +164,20 @@ public partial class App : WpfApplication
         {
             Log.Warning(ex, "Launch channel could not start.");
         }
+    }
+
+    // A Windows message box, not a WPF dialog: it honors the left-to-right embedding of each usage line inside
+    // Arabic text, which WPF text layout does not.
+    internal static void ShowLaunchUsageMessage(Window? owner, string error)
+    {
+        string text = ResolveUiText("LocLaunch_UsageBody") + Environment.NewLine + Environment.NewLine + LaunchArgs.FormatUsageForDialog(error);
+        string title = ResolveUiText("LocLaunch_UsageTitle");
+        MessageBoxOptions options = LanguageService.Instance.CurrentLanguageName.StartsWith("ar", StringComparison.OrdinalIgnoreCase)
+            ? MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign
+            : MessageBoxOptions.None;
+        _ = owner is null
+            ? MessageBox.Show(text, title, MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, options)
+            : MessageBox.Show(owner, text, title, MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, options);
     }
 
     private bool TryAcquireSingleInstanceMutex()

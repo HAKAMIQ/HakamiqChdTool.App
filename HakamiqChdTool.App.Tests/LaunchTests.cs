@@ -107,6 +107,45 @@ internal static partial class Program
         AssertTrue(decoded.SequenceEqual(big.Paths), "The parts carry every path in order.");
     }
 
+    // --start and --exit-when-done parse with their rules; exit codes map run results; only the last message part
+    // starts processing, and exit-when-done is never forwarded to a running window.
+    private static void TestLaunchStartAndExitFlags()
+    {
+        AssertTrue(LaunchArgs.TryParse(["--mode", "verify", "--start", "--exit-when-done", "--add", @"C:\Games"], out LaunchRequest request, out _), "Flags parse before --add.");
+        AssertTrue(request.Start && request.ExitWhenDone && request.Mode == LaunchMode.Verify && request.Paths.Count == 1, "Flags and paths are read.");
+        AssertTrue(LaunchArgs.TryParse(["--add", @"C:\a.iso", "--start"], out LaunchRequest after, out _) && after.Start && after.Paths.Count == 1, "A flag after the paths ends the path list.");
+        AssertFalse(LaunchArgs.TryParse(["--exit-when-done", "--add", @"C:\a.iso"], out _, out _), "--exit-when-done needs --start.");
+        AssertFalse(LaunchArgs.TryParse(["--start"], out _, out _), "--start needs paths.");
+        AssertFalse(LaunchArgs.TryParse(["--add", @"C:\a.iso"], out LaunchRequest plain, out _) && (plain.Start || plain.ExitWhenDone), "Without flags nothing starts.");
+
+        AssertEqual(LaunchArgs.ExitOk, LaunchArgs.ExitCodeFor(wasCancelled: false, failed: 0), "A clean run exits 0.");
+        AssertEqual(LaunchArgs.ExitFailures, LaunchArgs.ExitCodeFor(false, 2), "Failures exit 1.");
+        AssertEqual(LaunchArgs.ExitStopped, LaunchArgs.ExitCodeFor(true, 2), "A stopped run exits 2.");
+        AssertEqual(3, LaunchArgs.ExitNothingToDo, "Nothing to process exits 3.");
+
+        string longName = new('a', 30_000);
+        var big = new LaunchRequest(LaunchMode.Convert, [.. Enumerable.Range(0, 100).Select(i => $@"C:\{i}{longName}.iso")], Start: true, ExitWhenDone: true);
+        List<LaunchRequest> parts = [];
+        foreach (byte[] message in InstanceChannel.Encode(big))
+        {
+            AssertTrue(InstanceChannel.TryDecode(message, out LaunchRequest part), "Each part decodes.");
+            parts.Add(part);
+        }
+
+        AssertTrue(parts.Count > 1, "The request is split.");
+        AssertTrue(parts[^1].Start && parts.Take(parts.Count - 1).All(part => !part.Start), "Only the last part starts processing.");
+        AssertTrue(parts.All(part => !part.ExitWhenDone), "Exit-when-done is never forwarded to a running window.");
+
+        string usage = LaunchArgs.FormatUsageForDialog("Unknown option: --bogus");
+        string[] lines = usage.Split(Environment.NewLine);
+        AssertTrue(lines.Where(line => line.Length > 0).All(line => line[0] == '\u202A' && line[^1] == '\u202C'), "Every usage line is a left-to-right embedding for Arabic message boxes.");
+        AssertTrue(lines.All(line => line.Length < 70), "Usage lines are short enough not to wrap.");
+        foreach (string option in new[] { "--mode", "--start", "--exit-when-done", "--add", "Unknown option: --bogus", "3 nothing to process" })
+        {
+            AssertTrue(usage.Contains(option, StringComparison.Ordinal), $"The usage shows {option}.");
+        }
+    }
+
     // Registration writes the expected verbs under a private key, repeats safely, and removal deletes only its own keys.
     private static void TestExplorerMenuRegistersAndRemovesOnlyItsOwnKeys()
     {

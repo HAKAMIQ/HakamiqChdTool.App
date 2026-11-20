@@ -13,8 +13,12 @@ internal enum LaunchMode
     Verify = 3
 }
 
-/// <summary>Files and folders handed to the app by Explorer or a command line, with the mode to use.</summary>
-internal sealed record LaunchRequest(LaunchMode Mode, IReadOnlyList<string> Paths)
+/// <summary>
+/// Files and folders handed to the app by Explorer or a command line, with the mode to use.
+/// <paramref name="Start"/> starts processing once they are added; <paramref name="ExitWhenDone"/> closes
+/// the app after that run, with an exit code (see <see cref="LaunchArgs.ExitCodeFor"/>).
+/// </summary>
+internal sealed record LaunchRequest(LaunchMode Mode, IReadOnlyList<string> Paths, bool Start = false, bool ExitWhenDone = false)
 {
     public static LaunchRequest Empty { get; } = new(LaunchMode.None, []);
 
@@ -22,7 +26,7 @@ internal sealed record LaunchRequest(LaunchMode Mode, IReadOnlyList<string> Path
 }
 
 /// <summary>
-/// Parses <c>[--mode convert|extract|verify] [--add &lt;path&gt;...]</c>. Paths are made absolute against the
+/// Parses <c>[--mode convert|extract|verify] [--start] [--exit-when-done] [--add &lt;path&gt;...]</c>. Paths are made absolute against the
 /// current directory of the launching process, because a running instance that receives them has its own.
 /// Paths are still untrusted: queue intake validates them like any added file.
 /// </summary>
@@ -31,6 +35,37 @@ internal static class LaunchArgs
     public const int MaxPaths = 1024;
     public const int MaxPathLength = 32_767;
 
+    public const int ExitOk = 0;
+    public const int ExitFailures = 1;
+    public const int ExitStopped = 2;
+    public const int ExitNothingToDo = 3;
+
+    public const string Usage =
+        "HakamiqChdTool.exe [--mode convert|extract|verify] [--start] [--exit-when-done] --add <file or folder>...";
+
+    /// <summary>The usage as short lines, each in a left-to-right embedding, so it reads correctly inside Arabic
+    /// text. The lines are short enough not to wrap; a wrapped embedding would be reordered.</summary>
+    public static string FormatUsageForDialog(string error)
+    {
+        string[] lines =
+        [
+            error,
+            string.Empty,
+            "HakamiqChdTool.exe",
+            "  --mode convert|extract|verify",
+            "  --start",
+            "  --exit-when-done",
+            "  --add <file or folder>...",
+            string.Empty,
+            "exit: 0 done, 1 failures, 2 stopped, 3 nothing to process"
+        ];
+        return string.Join(Environment.NewLine, lines.Select(line => line.Length == 0 ? line : "\u202A" + line + "\u202C"));
+    }
+
+    /// <summary>0: every item finished or was skipped; 1: at least one failed; 2: the run was stopped.</summary>
+    public static int ExitCodeFor(bool wasCancelled, int failed) =>
+        wasCancelled ? ExitStopped : failed > 0 ? ExitFailures : ExitOk;
+
     public static bool TryParse(IReadOnlyList<string> args, out LaunchRequest request, out string? error)
     {
         ArgumentNullException.ThrowIfNull(args);
@@ -38,6 +73,8 @@ internal static class LaunchArgs
         error = null;
 
         LaunchMode mode = LaunchMode.None;
+        bool start = false;
+        bool exitWhenDone = false;
         var paths = new List<string>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         bool readingPaths = false;
@@ -62,6 +99,20 @@ internal static class LaunchArgs
             if (string.Equals(arg, "--add", StringComparison.OrdinalIgnoreCase))
             {
                 readingPaths = true;
+                continue;
+            }
+
+            if (string.Equals(arg, "--start", StringComparison.OrdinalIgnoreCase))
+            {
+                start = true;
+                readingPaths = false;
+                continue;
+            }
+
+            if (string.Equals(arg, "--exit-when-done", StringComparison.OrdinalIgnoreCase))
+            {
+                exitWhenDone = true;
+                readingPaths = false;
                 continue;
             }
 
@@ -95,7 +146,19 @@ internal static class LaunchArgs
             }
         }
 
-        request = new LaunchRequest(mode, paths);
+        if (exitWhenDone && !start)
+        {
+            error = "--exit-when-done needs --start.";
+            return false;
+        }
+
+        if (start && paths.Count == 0)
+        {
+            error = "--start needs files or folders after --add.";
+            return false;
+        }
+
+        request = new LaunchRequest(mode, paths, start, exitWhenDone);
         return true;
     }
 

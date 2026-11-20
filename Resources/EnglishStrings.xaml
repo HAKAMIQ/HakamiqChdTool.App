@@ -538,6 +538,8 @@
     <sys:String x:Key="LocLaunch_WaitingFooter">Files from Explorer will be added when the current work finishes.</sys:String>
     <sys:String x:Key="LocLaunch_AddFailedFooter">Could not add the files sent from Explorer. See the log.</sys:String>
     <sys:String x:Key="LocLaunch_ExplorerMenuFailedFooter">Could not update the Explorer menu. See the log.</sys:String>
+    <sys:String x:Key="LocLaunch_UsageTitle">Command line</sys:String>
+    <sys:String x:Key="LocLaunch_UsageBody">The command line was not understood, so nothing was added. The accepted options and exit codes are below.</sys:String>
     <sys:String x:Key="LocRunSummary_TitleDone">Finished</sys:String>
     <sys:String x:Key="LocRunSummary_TitleWithProblems">Finished with problems</sys:String>
     <sys:String x:Key="LocRunSummary_TitleStopped">Stopped</sys:String>
