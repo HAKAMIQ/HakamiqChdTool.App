@@ -82,6 +82,16 @@ Specialized scanners may inspect such files inside supported disc images, but th
 
 See `docs/architecture/ARCH_BOUND.md` for current architecture boundaries.
 
+Every `AppSettings` property is listed in `SettingsContract`
+(`HakamiqChdTool.App.Tests/SettingsContractTests.cs`) as one of:
+
+- **Effect**: names the test that proves what the setting changes.
+- **Stored**: display, bookkeeping or compatibility only, with the reason.
+- **Gap**: it changes behavior but has no test yet, with what is missing.
+
+A new setting fails the test suite until it is added there, so an option
+that does nothing cannot ship unnoticed. The test run prints the open gaps.
+
 ## GitHub Actions
 
 CI runs on changes to the main development path.
