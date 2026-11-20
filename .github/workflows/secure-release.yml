@@ -408,8 +408,8 @@ jobs:
           $changelogNotes
           "@ | Set-Content -LiteralPath $notesPath -Encoding UTF8
           gh release create $tag `
-            $runtimePackage `
-            $selfContainedPackage `
+            "$selfContainedPackage#CHD Tool $tag for Windows - download this one (includes .NET 10)" `
+            "$runtimePackage#CHD Tool $tag for Windows - smaller, needs .NET 10 Desktop Runtime" `
             --verify-tag `
             --title "CHD Tool $tag" `
             --notes-file $notesPath
