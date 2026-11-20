@@ -312,6 +312,8 @@ internal static partial class Program
                 new("ZSO needs CsoKit 0.6.4+ and a ZSO detect result", TestZsoToolVersionAndDetectParsing),
                 new("ZSO round-trips through bundled CsoKit and chdman; damaged ZSO is refused", () => TestZsoRoundTripWithBundledTools(app, workDirectory)),
                 new("maxcso 16 KB-block CSO round-trips through bundled CsoKit and chdman", () => TestMaxcsoLargeBlockCsoConverts(app, workDirectory)),
+                new("A GD-ROM CUE is read into GDI track positions", TestGdRomCueBecomesGdiLines),
+                new("A GD-ROM CUE converts with every track in place", () => TestGdRomCueConvertsWithTracksInPlace(app, workDirectory)),
                 new("CloneCD control file maps to an exact CUE", () => TestCcdParserBuildsExactCue(workDirectory)),
                 new("CloneCD parser fails closed on unsupported layouts", () => TestCcdParserFailsClosed(workDirectory)),
                 new("CloneCD intake and planning use createcd", () => TestCcdIntakeAndPlanning(workDirectory)),
