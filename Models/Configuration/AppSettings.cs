@@ -60,7 +60,8 @@ public sealed class AppSettings
 
     public bool EnableDiskSpaceGuard { get; set; } = true;
 
-    public bool DeleteTemporaryExtraction { get; set; } = false;
+    // On by default so files unpacked from archives do not pile up in %TEMP%; a saved value is kept.
+    public bool DeleteTemporaryExtraction { get; set; } = true;
 
     public bool DeleteFailedOutput { get; set; } = false;
 
