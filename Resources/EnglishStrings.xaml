@@ -1063,13 +1063,13 @@ Path:
     <sys:String x:Key="LocAdv_HunkPresetDefaultDescription">Does not customize hunk size and lets MAME use the suitable setting.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetSmallLabel">Advanced – small</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetSmallDescription">Smaller hunk size may improve random reads, but may reduce compression ratio.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetSmallDescription">Smaller hunk size may improve random reads, but may reduce compression ratio. Not applied to PS2 DVD and PSP images, which keep the size they need.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetBalancedLabel">Advanced – balanced</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetBalancedDescription">Medium hunk size for manual testing when needed.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetBalancedDescription">Medium hunk size for manual testing when needed. Not applied to PS2 DVD and PSP images, which keep the size they need.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetLargeLabel">Advanced – large</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetLargeDescription">Larger hunk size may improve compression, but may slow small reads.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetLargeDescription">Larger hunk size may improve compression, but may slow small reads. Not applied to PS2 DVD and PSP images, which keep the size they need.</sys:String>
 
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoLabel">Auto by media type</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoDescription">The app automatically selects the CD path for CUE/GDI, and checks ISO files to determine CD or DVD using available evidence.</sys:String>

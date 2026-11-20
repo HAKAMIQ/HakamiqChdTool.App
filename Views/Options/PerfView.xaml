@@ -142,6 +142,7 @@
                                 </Grid>
 
                                 <ComboBox x:Name="ProcessorCountComboBox"
+                                          NumberSubstitution.Substitution="European"
                                           Grid.Column="2"
                                           ItemsSource="{Binding ProcessorOptions}"
                                           SelectedItem="{Binding SelectedProcessorOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -173,6 +174,7 @@
                                 </Grid>
 
                                 <ComboBox x:Name="ConcurrentConversionCountComboBox"
+                                          NumberSubstitution.Substitution="European"
                                           Grid.Column="2"
                                           ItemsSource="{Binding ConcurrentConversionOptions}"
                                           SelectedItem="{Binding SelectedConcurrentConversionOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

@@ -48,6 +48,7 @@ public partial class MainWindow
             bool previousExplorerMenu = _settings.ExplorerMenuEnabled;
             _settings.CopyFrom(settings);
             _queue.UpdateMaxConcurrentItems(_settings.MaxConcurrentConversions);
+            HakamiqChdTool.App.Services.HelperToolPriority.Mode = _settings.ChdmanPriorityMode;
             _settings.UiLanguage = requestedLanguage;
 
             if (languageChanged)

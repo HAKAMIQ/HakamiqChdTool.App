@@ -31,11 +31,27 @@ public partial class MainWindow
             return;
         }
 
-        _watchFolder = WatchFolderService.TryStart(folder, OnWatchFolderFilesReady);
+        _watchFolder = WatchFolderService.TryStart(folder, OnWatchFolderFilesReady, onLost: OnWatchFolderLost);
         if (_watchFolder is null)
         {
             SetFooterStatus(ArabicUi.Get(WatchFolderUnavailableFooterKey));
         }
+    }
+
+    // The folder was deleted or events were lost: stop watching and say so. Saving the options again
+    // with the folder back in place starts watching again.
+    private void OnWatchFolderLost()
+    {
+        _ = Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (_shutdownStarted || _shutdownCompleted)
+            {
+                return;
+            }
+
+            StopWatchFolder();
+            SetFooterStatus(ArabicUi.Get(WatchFolderUnavailableFooterKey));
+        }));
     }
 
     private void StopWatchFolder()

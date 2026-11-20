@@ -1057,13 +1057,13 @@
     <sys:String x:Key="LocAdv_HunkPresetDefaultDescription">تحديد تلقائي لحجم الكتلة (Hunk) بواسطة MAME بناء على نوع الوسيط.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetSmallLabel">متقدم — صغير</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetSmallDescription">حجم كتلة أصغر؛ يحسن سرعة الوصول العشوائي للبيانات، لكنه قد يقلل من كفاءة الضغط.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetSmallDescription">حجم كتلة أصغر؛ يحسن سرعة الوصول العشوائي للبيانات، لكنه قد يقلل من كفاءة الضغط. لا يطبق على ملفات PS2 DVD وPSP لأنها تحتاج حجما ثابتا.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetBalancedLabel">متقدم — متوازن</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetBalancedDescription">حجم كتلة قياسي يوازن بين كفاءة الضغط وسرعة القراءة.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetBalancedDescription">حجم كتلة قياسي يوازن بين كفاءة الضغط وسرعة القراءة. لا يطبق على ملفات PS2 DVD وPSP لأنها تحتاج حجما ثابتا.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetLargeLabel">متقدم — كبير</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetLargeDescription">حجم كتلة أكبر؛ يحسن نسبة الضغط، لكنه قد يؤدي إلى بطء في القراءات الصغيرة.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetLargeDescription">حجم كتلة أكبر؛ يحسن نسبة الضغط، لكنه قد يؤدي إلى بطء في القراءات الصغيرة. لا يطبق على ملفات PS2 DVD وPSP لأنها تحتاج حجما ثابتا.</sys:String>
 
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoLabel">تلقائي حسب نوع القرص</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoDescription">يقوم التطبيق باكتشاف نوع الملف والقرص وتحديد الوضع المناسب تلقائيا.</sys:String>

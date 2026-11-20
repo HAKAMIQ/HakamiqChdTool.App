@@ -84,6 +84,7 @@ public partial class App : WpfApplication
         Settings = SettingsService.Load();
 
         AppPaths.SetPortableMode(Settings.PortableMode);
+        HelperToolPriority.Mode = Settings.ChdmanPriorityMode;
         ThemeService.Instance.Initialize(Settings.Theme);
         LanguageService.Instance.Initialize(Settings.UiLanguage);
 

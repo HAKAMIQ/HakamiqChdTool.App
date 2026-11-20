@@ -353,6 +353,7 @@ internal static partial class Program
                 new("Options offer only choices that work", TestOptionsOfferOnlyWorkingChoices),
                 new("Helper tools follow the priority setting", TestHelperToolsFollowThePrioritySetting),
                 new("Watch folder reports a deleted folder once", TestWatchFolderReportsALostFolderOnce),
+                new("Options follow-ups are wired into the app", TestOptionsFollowUpWiring),
                 new("Auto threads are shared when several files convert at once", TestAutoThreadsAreSharedAcrossConcurrentConversions),
                 new("A disc platform profile lets other disc types use Auto", TestPlatformProfileFallsBackToAutoForOtherInputs),
                 new("A chosen igir that is not the pinned build keeps the bundled igir", TestChosenIgirDoesNotDisableBundledIgir),

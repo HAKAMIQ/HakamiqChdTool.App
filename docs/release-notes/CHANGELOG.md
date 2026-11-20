@@ -44,6 +44,14 @@ it are the detailed record.
   conversion" is on, the Redump option says it reads each source before
   converting, and "Delete incomplete output" says it applies to failed
   CUE/BIN extractions.
+- The Quiet priority setting now also covers 7-Zip, csokit and igir, not only
+  chdman.
+- If the watch folder is deleted while the app is open, watching stops and
+  the status bar says so.
+- Importing a Redump DAT names it after the chosen file; a hidden system name
+  left in old settings no longer re-labels it.
+- Number lists in Advanced options use Latin digits, and the hunk-size presets
+  say they are not applied to PS2 DVD and PSP images.
 - "When done" next to the queue buttons: sleep or shut down the computer
   after the run, with a 60-second countdown you can cancel. It applies to one
   run, is never saved, and does nothing after a stopped run.

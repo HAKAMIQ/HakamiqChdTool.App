@@ -49,9 +49,9 @@ internal sealed partial class HqOptionsShell
 
             _owner.ViewModel.RedumpDatXmlPath = dialog.FileName;
 
-            string systemName = string.IsNullOrWhiteSpace(_owner.ViewModel.RedumpSystemName)
-                ? Path.GetFileNameWithoutExtension(dialog.FileName)
-                : _owner.ViewModel.RedumpSystemName.Trim();
+            // The system name box is hidden, so a value left in an old settings file must not silently
+            // re-label every import; the DAT file name is what the user picked and can see.
+            string systemName = Path.GetFileNameWithoutExtension(dialog.FileName);
 
             _owner.RedumpPanelView.ImportRedumpDatabaseButtonView.IsEnabled = false;
             _owner.RedumpPanelView.RedumpImportProgressBarView.Visibility = Visibility.Visible;

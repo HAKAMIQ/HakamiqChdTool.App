@@ -81,6 +81,41 @@ internal static partial class Program
             "Browsing to an igir.exe that is not the pinned build is refused with a message, not saved.");
     }
 
+    // The app hands the priority setting to the helper tools, tells the user when the watch folder stops,
+    // no longer lets a hidden Redump system name re-label imports, shows Latin digits in number lists and
+    // says where a hunk preset does not apply.
+    private static void TestOptionsFollowUpWiring()
+    {
+        string app = File.ReadAllText(FindRepoFile("App.xaml.cs"));
+        string modals = File.ReadAllText(FindRepoFile(Path.Combine("Views", "MainWindow", "MW.Modals.cs")));
+        AssertTrue(app.Contains("HelperToolPriority.Mode = Settings.ChdmanPriorityMode;", StringComparison.Ordinal)
+            && modals.Contains("HelperToolPriority.Mode = _settings.ChdmanPriorityMode;", StringComparison.Ordinal),
+            "The priority setting reaches the helper tools at startup and after Options is saved.");
+
+        string watch = File.ReadAllText(FindRepoFile(Path.Combine("Views", "MainWindow", "MW.Watch.cs")));
+        AssertTrue(watch.Contains("onLost: OnWatchFolderLost", StringComparison.Ordinal)
+            && watch.Contains("SetFooterStatus(ArabicUi.Get(WatchFolderUnavailableFooterKey));", StringComparison.Ordinal),
+            "A lost watch folder stops watching and shows the footer message.");
+
+        string redump = File.ReadAllText(FindRepoFile(Path.Combine("Ui", "Shell", "HqOptsRed.cs")));
+        AssertFalse(redump.Contains("_owner.ViewModel.RedumpSystemName.Trim()", StringComparison.Ordinal),
+            "A DAT import is named after the chosen file, not a hidden setting.");
+
+        string perf = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PerfView.xaml")));
+        foreach (string box in new[] { "ProcessorCountComboBox", "ConcurrentConversionCountComboBox" })
+        {
+            AssertTrue(Regex.IsMatch(perf, "x:Name=\"" + box + "\"\\s+NumberSubstitution.Substitution=\"European\""), $"{box} shows Latin digits.");
+        }
+
+        Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");
+        Dictionary<string, string> arabic = LoadStrings("ArabicStrings.xaml");
+        foreach (string key in new[] { "LocAdv_HunkPresetSmallDescription", "LocAdv_HunkPresetBalancedDescription", "LocAdv_HunkPresetLargeDescription" })
+        {
+            AssertTrue(english[key].Contains("PS2 DVD and PSP", StringComparison.Ordinal) && arabic[key].Contains("PS2 DVD", StringComparison.Ordinal),
+                $"{key} says the preset is not applied to PS2 DVD and PSP images.");
+        }
+    }
+
     // The CPU name, igir version and Windows integration hints render readably in Arabic.
     private static void TestOptionsWindowLayoutFixes()
     {
