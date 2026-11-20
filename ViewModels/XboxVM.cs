@@ -256,7 +256,7 @@ internal sealed partial class XboxViewModel : ObservableObject
                 item.SourceBytes = result.SourceBytes;
                 item.OutputBytes = result.OutputBytes;
                 item.StatusText = result.Outcome == XboxConvertOutcome.Done
-                    ? _text(result.MessageKey) + " · " + Ltr(RunSummaryCardBuilder.FormatBytes(result.SourceBytes)) + " → " + Ltr(RunSummaryCardBuilder.FormatBytes(result.OutputBytes))
+                    ? _text(result.MessageKey) + " · " + Ltr(RunSummaryCardBuilder.FormatBytes(result.SourceBytes) + " → " + RunSummaryCardBuilder.FormatBytes(result.OutputBytes))
                     : _text(result.MessageKey);
             }
         }
@@ -286,7 +286,10 @@ internal sealed partial class XboxViewModel : ObservableObject
             .Replace("{3}", Ltr(RunSummaryCardBuilder.FormatBytes(saved)), StringComparison.Ordinal);
     }
 
-    private static string Ltr(string value) => "‎" + value + "‎";
+    // WPF orders a number next to a unit or a Latin word correctly in Arabic text only when every word carries its own
+    // left-to-right mark; one mark around the whole value is not enough.
+    internal static string Ltr(string value) =>
+        string.Join(" ", value.Split(' ').Select(word => "‎" + word + "‎"));
 
     private bool CanEdit() => !IsRunning && !IsAdding;
 

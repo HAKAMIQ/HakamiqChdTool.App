@@ -225,6 +225,8 @@
                               DisplayMemberPath="Label"
                               IsEnabled="{Binding CanEditOptions}"
                               Style="{StaticResource Win11SettingsComboBox}"
+                              Width="Auto"
+                              HorizontalAlignment="Stretch"
                               AutomationProperties.Name="{DynamicResource LocXbox_Format360}" />
 
                     <TextBlock Grid.Row="2"

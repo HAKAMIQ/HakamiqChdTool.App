@@ -134,6 +134,13 @@ internal static partial class Program
         AssertTrue(sidebar.Contains("AutomationProperties.Name=\"{DynamicResource LocXbox_Open}\"", StringComparison.Ordinal), "The sidebar Xbox button has an accessible name.");
         AssertTrue(sidebar.IndexOf("x:Name=\"ToolsSection\"", StringComparison.Ordinal) < sidebar.IndexOf("x:Name=\"XboxSection\"", StringComparison.Ordinal), "The Xbox section sits under Tools.");
         AssertTrue(window.Contains("Text=\"{Binding Name}\"", StringComparison.Ordinal) && window.Contains("FlowDirection=\"LeftToRight\"", StringComparison.Ordinal), "Game names read left to right in Arabic.");
+
+        // WPF keeps a number next to a unit or a Latin word in order inside Arabic only with a mark around every word.
+        AssertEqual("\u200E7.29\u200E \u200EGB\u200E \u200E→\u200E \u200E3.17\u200E \u200EGB\u200E", XboxViewModel.Ltr("7.29 GB → 3.17 GB"), "Each word of a size gets its own left-to-right mark.");
+        foreach ((string key, string text) in arabic.Where(pair => (pair.Key.StartsWith("LocXbox_", StringComparison.Ordinal) || pair.Key == "LocIntake_XboxDisc") && pair.Value.Contains("360", StringComparison.Ordinal)))
+        {
+            AssertTrue(text.Contains("\u200EXbox\u200E \u200E360\u200E", StringComparison.Ordinal), $"{key} keeps Xbox 360 in order in Arabic.");
+        }
     }
 
     // An Xbox window with games listed, for the window layout matrix.
