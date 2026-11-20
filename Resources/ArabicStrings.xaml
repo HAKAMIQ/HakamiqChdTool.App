@@ -126,7 +126,7 @@
 
     <sys:String x:Key="LocDialog_ErrorTitle">حدث خطأ</sys:String>
     <sys:String x:Key="LocBody_AddFilesError">تعذر إضافة الملفات إلى قائمة المعالجة.</sys:String>
-    <sys:String x:Key="LocDialog_ClearQueueBody">سيتم إزالة العناصر الحالية من قائمة المعالجة فقط. لن يتم حذف ملفات المصدر أو ملفات CHD الناتجة.</sys:String>
+    <sys:String x:Key="LocDialog_ClearQueueBody">ستزال العناصر من قائمة المعالجة فقط. لن تحذف ملفات المصدر ولا ملفات CHD الناتجة.</sys:String>
     <sys:String x:Key="LocDialog_ClearQueueTitle">مسح قائمة المعالجة</sys:String>
     <sys:String x:Key="LocDialog_OpenLogsFolderFailedTitle">تعذر فتح مجلد السجلات</sys:String>
     <sys:String x:Key="LocDialog_OpenAppDataFolderFailedTitle">تعذر فتح مجلد بيانات التطبيق</sys:String>
@@ -144,7 +144,7 @@
     <sys:String x:Key="LocDialog_CannotStartAppTitle">تعذر بدء التطبيق</sys:String>
     <sys:String x:Key="LocDialog_ProcessingErrorTitle">حدث خطأ أثناء المعالجة</sys:String>
     <sys:String x:Key="LocDialog_VerifyChdErrorTitle">حدث خطأ أثناء التحقق من CHD</sys:String>
-    <sys:String x:Key="LocDialog_IntegrityNoDiskBody">لا يوجد ملف متاح على القرص لتشغيل فحص الهاش (Hash).</sys:String>
+    <sys:String x:Key="LocDialog_IntegrityNoDiskBody">لا يوجد ملف متاح على القرص لتشغيل فحص الهاش.</sys:String>
     <sys:String x:Key="LocDialog_IntegrityNoDiskTitle">فحص السلامة / Redump</sys:String>
     <sys:String x:Key="LocDialog_OpenFolderNoPathBody">لا يوجد مسار صالح للملف أو مجلد الإخراج لفتحه في مستكشف الملفات.</sys:String>
     <sys:String x:Key="LocDialog_OpenFolderTitle">فتح موقع الملف</sys:String>
@@ -152,7 +152,7 @@
     <sys:String x:Key="LocFmt_RenameFailedLog">تعذر إعادة تسمية «{0}».</sys:String>
     <sys:String x:Key="LocDialog_RenameFailedTitle">تعذرت إعادة التسمية</sys:String>
     <sys:String x:Key="LocDialog_RenameConfirmTitle">تأكيد إعادة التسمية</sys:String>
-    <sys:String x:Key="LocDialog_RenameConfirmHeading">سيتم استخدام الاسم الجديد:</sys:String>
+    <sys:String x:Key="LocDialog_RenameConfirmHeading">الاسم الجديد:</sys:String>
     <sys:String x:Key="LocDialog_RenameConfirmQuestion">هل تريد إعادة التسمية الآن؟</sys:String>
     <sys:String x:Key="Loc_Button_Ok">موافق</sys:String>
     <sys:String x:Key="Loc_Button_Cancel">إلغاء</sys:String>
@@ -163,7 +163,7 @@
 
     <sys:String x:Key="LocUi_NoTasksAddOrDrag">لا توجد مهام — أضف ملفات أو اسحبها إلى هنا</sys:String>
     <sys:String x:Key="LocUi_ReadyForProcessing">جاهز للمعالجة</sys:String>
-    <sys:String x:Key="LocUi_ArchiveWillUnpackThenConvert">سيتم استخراج الأرشيف تلقائيا، ثم تحويل صور القرص الموجودة داخله.</sys:String>
+    <sys:String x:Key="LocUi_ArchiveWillUnpackThenConvert">سيستخرج الأرشيف تلقائيا، ثم تحول صور الأقراص التي فيه.</sys:String>
     <sys:String x:Key="LocUi_ChooseOperationForItem">اختر العملية المدعومة لهذا الملف</sys:String>
     <sys:String x:Key="LocUi_UnsupportedQueueFile">هذا الملف غير مدعوم في العملية الحالية</sys:String>
     <sys:String x:Key="LocUi_Verified">تم التحقق</sys:String>
@@ -195,7 +195,7 @@
     <sys:String x:Key="LocUi_Mode_ScanExtract">وضع التوافق القديم: فحص ثم استخراج</sys:String>
     <sys:String x:Key="LocUi_Mode_Convert_Tooltip">يقبل ملفات ISO/CUE/GDI مباشرة. كما يدعم الأرشيفات (ZIP/RAR/7Z) في حال احتوت على صورة قرص واحدة قابلة للتحويل.</sys:String>
     <sys:String x:Key="LocUi_Mode_Extract_Tooltip">يستخرج ملف CHD حسب نوعه: أقراص CD إلى (CUE+BIN)، أقراص DVD إلى ISO، والأقراص الصلبة إلى IMG. يتم استخراج ملفات RAW فقط في الحالات الآمنة.</sys:String>
-    <sys:String x:Key="LocUi_Mode_Verify_Tooltip">يقبل ملفات CHD ويتحقق من سلامتها (Integrity) ومطابقتها للمعايير.</sys:String>
+    <sys:String x:Key="LocUi_Mode_Verify_Tooltip">يقبل ملفات CHD ويتحقق من سلامتها ومطابقتها للمعايير.</sys:String>
     <sys:String x:Key="LocUi_Mode_ScanConvert_Tooltip">وضع توافق قديم؛ استخدم خيار تضمين المجلدات الفرعية مع عملية التحويل الأساسية.</sys:String>
     <sys:String x:Key="LocUi_Mode_ScanExtract_Tooltip">وضع توافق قديم؛ استخدم خيار تضمين المجلدات الفرعية مع عملية الاستخراج الأساسية.</sys:String>
     <sys:String x:Key="LocUi_Footer_ChdNotConvertible">لا يمكن تحويل ملف CHD إلى CHD. اختر التحقق أو الاستخراج.</sys:String>
@@ -219,15 +219,15 @@
     <sys:String x:Key="LocStatus_ConversionFinishedVerifying">اكتمل التحويل؛ جار التحقق من سلامة صورة القرص...</sys:String>
     <sys:String x:Key="LocStatus_ConversionFinishedVerifyingNewChd">اكتمل التحويل؛ جار التحقق من سلامة ملف CHD الناتج...</sys:String>
     <sys:String x:Key="LocStatus_ReadingChdMediaType">جار قراءة نوع وسيط CHD...</sys:String>
-    <sys:String x:Key="LocStatus_ReadingChdMetadata">جار قراءة البيانات الوصفية (Metadata)...</sys:String>
+    <sys:String x:Key="LocStatus_ReadingChdMetadata">جار قراءة البيانات الوصفية...</sys:String>
     <sys:String x:Key="LocStatus_ExtractionDoneVerifying">اكتمل الاستخراج؛ جار التحقق من سلامة الملف الناتج...</sys:String>
     <sys:String x:Key="LocStatus_ExtractionDoneVerifyingSourceChd">اكتمل الاستخراج؛ جار التحقق من ملف CHD المصدر...</sys:String>
     <sys:String x:Key="LocStatus_VerifyingChdContainer">جار التحقق من سلامة CHD...</sys:String>
     <sys:String x:Key="LocStatus_ArchivePasswordProtected">الأرشيف محمي بكلمة مرور. توقفت العملية.</sys:String>
     <sys:String x:Key="LocStatus_ExtractingChdCueBin">نوع الوسيط CD؛ جار الاستخراج إلى (CUE + BIN).</sys:String>
-    <sys:String x:Key="LocStatus_ExtractingChdIso">نوع الوسيط DVD؛ جار الاستخراج إلى (ISO).</sys:String>
-    <sys:String x:Key="LocStatus_ExtractingChdRaw">نوع الوسيط RAW؛ جار الاستخراج إلى (RAW).</sys:String>
-    <sys:String x:Key="LocStatus_ExtractingChdImg">نوع الوسيط Hard Disk؛ جار الاستخراج إلى (IMG).</sys:String>
+    <sys:String x:Key="LocStatus_ExtractingChdIso">نوع الوسيط DVD؛ جار الاستخراج إلى ISO.</sys:String>
+    <sys:String x:Key="LocStatus_ExtractingChdRaw">نوع الوسيط RAW؛ جار الاستخراج إلى RAW.</sys:String>
+    <sys:String x:Key="LocStatus_ExtractingChdImg">نوع الوسيط Hard Disk؛ جار الاستخراج إلى IMG.</sys:String>
     <sys:String x:Key="LocStatus_UnknownChdMediaType">تعذر تحديد نوع CHD؛ لا يمكن إكمال الاستخراج بأمان.</sys:String>
     <sys:String x:Key="LocStatus_UnsupportedForSelectedOperation">هذا النوع غير مدعوم للعملية المحددة.</sys:String>
     <sys:String x:Key="LocStatus_MediaTypeExtractingArabic">جار الاستخراج حسب نوع الوسيط المكتشف...</sys:String>
@@ -433,15 +433,15 @@
     <sys:String x:Key="LocUi_Redump_CopyName">نسخ</sys:String>
     <sys:String x:Key="LocUi_Redump_ApplySuggestedName">تطبيق الاسم المقترح</sys:String>
 
-    <sys:String x:Key="LocIntake_ArchiveExtractRequired">تم اكتشاف أرشيف. سيتم استخراجه أولا، ثم تحليل الملفات الناتجة.</sys:String>
-    <sys:String x:Key="LocIntake_DiscImageCandidate">تم اكتشاف صورة قرص قابلة للتحويل. سيتم تجهيز ملفات BIN/CUE عند بدء التحويل.</sys:String>
-    <sys:String x:Key="LocIntake_ChdInputDetected">تم اكتشاف ملف CHD. سيتم اعتماد العملية المختارة من قائمة المعالجة كمرجع.</sys:String>
+    <sys:String x:Key="LocIntake_ArchiveExtractRequired">تم اكتشاف أرشيف. سيستخرج أولا ثم تحلل ملفاته.</sys:String>
+    <sys:String x:Key="LocIntake_DiscImageCandidate">تم اكتشاف صورة قرص قابلة للتحويل. ستجهز ملفات BIN/CUE عند بدء التحويل.</sys:String>
+    <sys:String x:Key="LocIntake_ChdInputDetected">تم اكتشاف ملف CHD. ستطبق عليه العملية المختارة في القائمة.</sys:String>
     <sys:String x:Key="LocIntake_UnknownOrUnsupported">نوع الملف غير معروف أو غير مدعوم.</sys:String>
 
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Label">تلقائي (حسب القواعد المحلية)</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Description">الفحص مقابل كافة قواعد DAT المحلية دون تحديد منصة معينة.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_Unknown_Label">غير معروف</sys:String>
-    <sys:String x:Key="LocRedumpCatalog_Platform_Unknown_Description">استخدم هذا الخيار عند عدم معرفة المنصة؛ سيتم الفحص مقابل كافة قواعد DAT المحلية المتاحة.</sys:String>
+    <sys:String x:Key="LocRedumpCatalog_Platform_Unknown_Description">استخدم هذا الخيار عند عدم معرفة المنصة؛ سيفحص الملف مقابل كل قواعد DAT المحلية.</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_System_Description">استخدم موارد Redump الخاصة بهذه المنصة.</sys:String>
 
     <sys:String x:Key="LocRedumpCatalog_Artifact_Datfile_Label">Datfile — قاعدة بيانات المطابقة</sys:String>
@@ -468,7 +468,7 @@
     <sys:String x:Key="LocArchive_PasswordProtected">الأرشيف محمي بكلمة مرور؛ لا يمكن معالجته تلقائيا.</sys:String>
     <sys:String x:Key="LocArchive_InvalidNamingConvention">اسم الأرشيف لا يطابق نمط التسمية المتوقع.</sys:String>
     <sys:String x:Key="LocArchive_NoConvertibleDiscImage">لا يحتوي الأرشيف على صورة قرص قابلة للتحويل. ملفات التطبيقات (مثل Vita ZIP أو PKG) غير مدعومة.</sys:String>
-    <sys:String x:Key="LocArchive_MultipleConvertibleDiscImages">يحتوي الأرشيف على أكثر من صورة قرص. يرجى الاستخراج يدويا لاختيار الملف المطلوب.</sys:String>
+    <sys:String x:Key="LocArchive_MultipleConvertibleDiscImages">يحتوي الأرشيف على أكثر من صورة قرص. استخرجه يدويا واختر الملف المطلوب.</sys:String>
     <sys:String x:Key="LocArchive_DescriptorMissingDependencies">ملف الوصف يشير إلى ملفات مفقودة داخل الأرشيف.</sys:String>
     <sys:String x:Key="LocArchive_DescriptorUnsafeReference">تم رفض الأرشيف لاحتوائه على مسارات غير آمنة.</sys:String>
     <sys:String x:Key="LocArchive_DescriptorHasNoTrackReferences">ملف الوصف لا يحتوي على مراجع مسارات صالحة.</sys:String>
@@ -479,7 +479,7 @@
     <sys:String x:Key="LocStatus_UserCancelled">تم الإلغاء.</sys:String>
     <sys:String x:Key="LocStatus_ConversionCompletedSuccess">تم التحويل بنجاح.</sys:String>
     <sys:String x:Key="LocStatus_ExtractionCompletedSuccess">تم الاستخراج بنجاح.</sys:String>
-    <sys:String x:Key="LocFooter_ErrorGeneric">حدث خطأ. يرجى مراجعة سجل الأحداث ثم المحاولة مجددا.</sys:String>
+    <sys:String x:Key="LocFooter_ErrorGeneric">حدث خطأ. راجع سجل الأحداث ثم حاول مجددا.</sys:String>
 
     <sys:String x:Key="LocConversion_Failed">تعذر إكمال التحويل.</sys:String>
     <sys:String x:Key="LocExtraction_Failed">تعذر إكمال الاستخراج.</sys:String>
@@ -515,13 +515,13 @@
     <sys:String x:Key="LocChdVerify_InputFileNotFound">تعذر العثور على ملف CHD.</sys:String>
     <sys:String x:Key="LocChdVerify_UnsupportedFileType">نوع الملف غير مدعوم للتحقق.</sys:String>
 
-    <sys:String x:Key="LocWorkflow_StatusCreateCue">تم التعرف على قرص CD. سيتم تحويل BIN/CUE إلى CHD.</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusCreateGdi">تم التعرف على قرص GDI. سيتم تحويل ملف GDI والمسارات المرتبطة به إلى CHD.</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusCreateToc">تم التعرف على ملف TOC. سيتم تحويله والمسارات المرتبطة به إلى CHD.</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusCreateNrg">تم التعرف على صورة قرص NRG. سيتم تحويلها إلى CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateCue">تم التعرف على قرص CD. سيحول BIN/CUE إلى CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateGdi">تم التعرف على قرص GDI. سيحول ملف GDI ومساراته إلى CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateToc">تم التعرف على ملف TOC. سيحول مع مساراته إلى CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateNrg">تم التعرف على صورة قرص NRG. ستحول إلى CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateBinRescue">تم التعرف على ملف BIN. جار إعداد ملف CUE آمن قبل التحويل إلى CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusVerifyChd">خطة التحقق مفعلة (دون تعديل الملف الأصلي).</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusExtractCd">تم التعرف على CHD كقرص CD. سيتم الاستخراج إلى CUE/BIN.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusExtractCd">تم التعرف على CHD كقرص CD. سيستخرج إلى CUE/BIN.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractGdi">تم التعرف على ملف CHD كقرص Dreamcast من نوع GD-ROM. سيستخرج إلى GDI مع ملف لكل مسار.</sys:String>
     <sys:String x:Key="LocConversion_ExtractGdRomAsCueBin">استخراج أقراص Dreamcast ‏(GD-ROM) إلى CUE/BIN</sys:String>
     <sys:String x:Key="LocConversion_ExtractGdRomAsCueBinDesc">تستخرج ملفات CHD الخاصة بأقراص GD-ROM إلى GDI، وهي الصيغة التي تستخدمها أدوات Dreamcast وجهاز GDEMU. فعل هذا الخيار للحصول على CUE/BIN بدلا منها.</sys:String>
@@ -609,11 +609,11 @@
     <sys:String x:Key="LocAfterRun_Now">الآن</sys:String>
     <sys:String x:Key="LocAfterRun_Cancel">إلغاء</sys:String>
     <sys:String x:Key="LocAfterRun_Failed">لم يقبل ويندوز طلب السكون أو الإيقاف. راجع السجل.</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusExtractDvd">تم التعرف على CHD كقرص DVD. سيتم الاستخراج إلى ISO.</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusExtractHd">تم التعرف على CHD كصورة قرص ثابت. سيتم الاستخراج إلى IMG.</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusExtractRaw">تم التعرف على CHD كصورة RAW. سيتم الاستخراج إلى ملف RAW.</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusCreateIsoCd">تم التعرف على ISO كقرص CD. سيتم تحويله إلى CHD.</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusCreateIsoDvd">تم التعرف على صورة DVD/ISO. سيتم تحويلها إلى CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusExtractDvd">تم التعرف على CHD كقرص DVD. سيستخرج إلى ISO.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusExtractHd">تم التعرف على CHD كصورة قرص ثابت. سيستخرج إلى IMG.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusExtractRaw">تم التعرف على CHD كصورة RAW. سيستخرج إلى ملف RAW.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateIsoCd">تم التعرف على ISO كقرص CD. سيحول إلى CHD.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateIsoDvd">تم التعرف على صورة DVD/ISO. ستحول إلى CHD.</sys:String>
 
     <sys:String x:Key="LocConversionCompressionTruth_CdMaxSameAsDefault">قد لا تلاحظ فرقا في الحجم؛ لأن خوارزمية ضغط CD-LZMA هي الوضع الافتراضي في MAME.</sys:String>
 
@@ -634,8 +634,8 @@
     <sys:String x:Key="LocDeepHash_TipNoPath">لم يتم تحديد مسار للفحص.</sys:String>
     <sys:String x:Key="LocDeepHash_TipInvalidPath">المسار المحدد غير صالح.</sys:String>
     <sys:String x:Key="LocDeepHash_TipFileNotFound">الملف غير موجود على القرص.</sys:String>
-    <sys:String x:Key="LocDeepHash_TipChdNeedsExtraction">لا يمكن إجراء المطابقة المباشرة لملفات CHD مع قاعدة بيانات Redump. يرجى استخراج الملف إلى ISO أو CUE ثم أعد المحاولة.&#x0a;&#x0a;المسار:&#x0a;{0}</sys:String>
-    <sys:String x:Key="LocDeepHash_TipArchiveNeedsExtraction">لا يمكن مطابقة الأرشيف مباشرة مع قاعدة بيانات Redump. يرجى استخراج ملفات ISO أو CUE/GDI أولا ثم إعادة الفحص.&#x0a;&#x0a;المسار:&#x0a;{0}</sys:String>
+    <sys:String x:Key="LocDeepHash_TipChdNeedsExtraction">لا يمكن إجراء المطابقة المباشرة لملفات CHD مع قاعدة بيانات Redump. استخرج الملف إلى ISO أو CUE ثم أعد المحاولة.&#x0a;&#x0a;المسار:&#x0a;{0}</sys:String>
+    <sys:String x:Key="LocDeepHash_TipArchiveNeedsExtraction">لا يمكن مطابقة الأرشيف مباشرة مع قاعدة بيانات Redump. استخرج ملفات ISO أو CUE/GDI أولا ثم أعد الفحص.&#x0a;&#x0a;المسار:&#x0a;{0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipCsoNeedsIso">لا يمكن مطابقة ملفات CSO مباشرة مع Redump لأن Redump يعتمد على هاش صورة ISO الأصلية. فك ملف CSO إلى ISO ثم أعد الفحص.&#x0a;&#x0a;المسار:&#x0a;{0}</sys:String>
     <sys:String x:Key="LocDeepHash_TipUnsupportedExtension">نوع الملف غير مدعوم في فحص Redump.&#x0a;{1}</sys:String>
     <sys:String x:Key="LocDeepHash_TipNoTrackFiles">تعذر العثور على ملفات مسارات صالحة للفحص.</sys:String>
@@ -693,10 +693,10 @@
     <sys:String x:Key="LocWorkflow_RawExtractionBlocked">تم منع استخراج RAW لتجنب إنشاء ملف تالف أو غير صحيح.</sys:String>
     <sys:String x:Key="LocWorkflow_InvalidInputPath">مسار الملف غير صالح.</sys:String>
     <sys:String x:Key="LocWorkflow_InputFileNotFound">تعذر العثور على الملف.</sys:String>
-    <sys:String x:Key="LocWorkflow_ChdAlreadyChd">هذا الملف بصيغة CHD. يرجى اختيار التحقق أو الاستخراج.</sys:String>
+    <sys:String x:Key="LocWorkflow_ChdAlreadyChd">هذا الملف بصيغة CHD. اختر التحقق أو الاستخراج.</sys:String>
     <sys:String x:Key="LocWorkflow_ArchiveRequiresExtraction">يجب استخراج الأرشيف أولا قبل المتابعة.</sys:String>
     <sys:String x:Key="LocWorkflow_RawStandaloneBlocked">يحتاج ملف RAW إلى ملف CUE أو GDI مقترن للمعالجة.</sys:String>
-    <sys:String x:Key="LocWorkflow_BinStandaloneBlocked">لا يمكن تحويل ملف BIN بمفرده. يرجى استخدام ملف CUE المقترن، أو إضافة مجموعة BIN/CUE كاملة لضمان سلامة التحويل.</sys:String>
+    <sys:String x:Key="LocWorkflow_BinStandaloneBlocked">لا يمكن تحويل ملف BIN بمفرده. استخدم ملف CUE المرافق له، أو أضف مجموعة BIN/CUE كاملة.</sys:String>
     <sys:String x:Key="LocWorkflow_VerifyChdOnly">التحقق متاح فقط لملفات CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_DescriptorReadFailed">تعذر قراءة ملف الوصف.</sys:String>
     <sys:String x:Key="LocWorkflow_UnknownIsoAsCdBlocked">تعذر التعامل مع ملف ISO كقرص CD.</sys:String>
@@ -708,11 +708,11 @@
     <sys:String x:Key="LocWorkflow_HardDiskDiscEvidence">تبدو هذه الصورة جزءا من قرص CD/DVD (يوجد ملف CUE/CCD/GDI/TOC/MDS مطابق أو ترويسة قرص)، لذلك لم تحول كقرص صلب. أضف ملف وصف القرص بدلا منها.</sys:String>
     <sys:String x:Key="LocWorkflow_HardDiskNotSectorAligned">الملف فارغ أو أن حجمه ليس من مضاعفات 512 بايت، لذلك فهو ليس صورة قرص صلب خام صالحة.</sys:String>
     <sys:String x:Key="LocWorkflow_HardDiskProbeFailed">تعذرت قراءة صورة القرص الصلب للتحقق منها. تأكد من أن الملف غير مقفل وأن القرص متصل.</sys:String>
-    <sys:String x:Key="LocWorkflow_StatusCreateHd">تم اختيار صورة قرص صلب. سيتم تحويلها إلى CHD باستخدام createhd.</sys:String>
+    <sys:String x:Key="LocWorkflow_StatusCreateHd">تم اختيار صورة قرص صلب. ستحول إلى CHD باستخدام createhd.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateCcd">تم التعرف على صورة CloneCD. سينشأ ملف CUE مؤقت ويحول القرص باستخدام createcd. لن تحفظ بيانات القناة الفرعية (.sub) التي تعتمد عليها بعض أنظمة الحماية.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdInvalid">تعذرت قراءة ملف التحكم ‎.ccd‎ الخاص بـ CloneCD، أو أنه يصف ترتيب مسارات لا يمكن تحويله بأمان.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdMultiSession">تحتوي صورة CloneCD هذه على أكثر من جلسة. لا تحول الأقراص متعددة الجلسات تجنبا لفقدان إحدى الجلسات.</sys:String>
-    <sys:String x:Key="LocWorkflow_CcdScrambled">تخزن صورة CloneCD هذه مسارات بيانات مشفرة الترتيب (scrambled)، ولا يمكن تحويلها إلى CHD كما هي.</sys:String>
+    <sys:String x:Key="LocWorkflow_CcdScrambled">تخزن صورة CloneCD هذه مسارات بيانات مشفرة الترتيب، ولا يمكن تحويلها إلى CHD كما هي.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdImageMissing">لم يعثر على ملف ‎.img‎ الخاص بملف ‎.ccd‎ هذا بجانبه وبنفس الاسم.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdStagingFailed">تعذر تجهيز ملف ‎.img‎ الخاص بـ CloneCD في المجلد المؤقت. تحقق من المساحة الفارغة في قرص النظام ومن إمكانية قراءة الصورة.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdImageNotAligned">حجم ملف ‎.img‎ الخاص بـ CloneCD ليس من مضاعفات 2352 بايت، لذلك فالصورة ناقصة أو ليست صورة قرص CD خاما.</sys:String>
@@ -738,7 +738,7 @@
     <sys:String x:Key="LocWorkflow_CsoPreparationFailed">تعذر فك CSO إلى ISO مؤقت. لم يبدأ تحويل CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPreparationCancelled">تم إلغاء فك CSO قبل بدء تحويل CHD.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoPrepared">تم تجهيز ISO مؤقت من CSO، وسيبدأ تحويل CHD.</sys:String>
-    <sys:String x:Key="LocWorkflow_CsoToIsoThenChdNotice">سيتم فك CSO إلى ISO مؤقت ثم تحويله إلى CHD. لن يتم تعديل ملف CSO الأصلي.</sys:String>
+    <sys:String x:Key="LocWorkflow_CsoToIsoThenChdNotice">سيفك CSO إلى ISO مؤقت ثم يحول إلى CHD. ملف CSO الأصلي لا يتغير.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoTempSpaceInsufficient">مساحة القرص المؤقت غير كافية لفك CSO إلى ISO مؤقت.</sys:String>
     <sys:String x:Key="LocWorkflow_CsoUnsupported">ملف CSO غير مدعوم حاليا. يدعم مسار العمل في التطبيق ملفات CSO v1 فقط في هذا الإصدار.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparingZsoToIso">جار فك ZSO إلى ISO مؤقت قبل تحويل CHD.</sys:String>
@@ -768,7 +768,7 @@
     <sys:String x:Key="LocVerify_NotInDatabase">لم يتم العثور على هذا الملف في قاعدة التحقق المستوردة.</sys:String>
     <sys:String x:Key="LocVerify_Match">تطابق الملف مع قاعدة التحقق المستوردة.</sys:String>
     <sys:String x:Key="LocVerify_Mismatch">لا تتطابق بصمات الملف مع قاعدة التحقق المستوردة.</sys:String>
-    <sys:String x:Key="LocVerify_NoDatabaseImported">لم يتم استيراد قاعدة تحقق. سيتم عرض البصمات فقط دون مطابقة.</sys:String>
+    <sys:String x:Key="LocVerify_NoDatabaseImported">لا توجد قاعدة تحقق مستوردة. ستعرض البصمات فقط بدون مطابقة.</sys:String>
     <sys:String x:Key="LocVerify_Md5Sha1LegacyWarning">MD5 وSHA-1 مفيدان للمطابقة مع القواعد القديمة، لكن لا يفضل الاعتماد عليهما وحدهما كدليل أمان.</sys:String>
     <sys:String x:Key="LocVerify_MultiTrackRequiresTrackHashes">الأقراص متعددة المسارات تحتاج تحققا لكل مسار. ملف CUE وحده ليس بيانات اللعبة.</sys:String>
     <sys:String x:Key="LocVerify_ChdHashNotOriginalDumpHash">بصمة ملف CHD لا تطابق عادة بصمة dump الأصلي لأن CHD حاوية مضغوطة.</sys:String>
@@ -798,8 +798,8 @@
     <sys:String x:Key="LocWorkflow_RawMetadataPlayStationConflictReason">تشير بيانات CHD إلى RAW، ولكن هيكل الملف يبدو كقرص PlayStation.</sys:String>
     <sys:String x:Key="LocWorkflow_RawMetadataSafetyHintReason">تشير بيانات CHD إلى RAW، مع وجود مؤشرات تمنع الاستخراج التلقائي.</sys:String>
     <sys:String x:Key="LocDeepHash_TipResolveFailed">تعذر قراءة ملفات الصورة المرتبطة.</sys:String>
-    <sys:String x:Key="LocDeepHash_TipHashFailed">تعذر حساب قيمة الهاش (Hash).</sys:String>
-    <sys:String x:Key="LocDeepHash_TipInputReadCrcOrIoFailure">تعذر قراءة ملف المصدر بشكل آمن. حدث خطأ CRC أو I/O أثناء القراءة، مما يعني أن ملف ISO أو موقعه على القرص غير قابل للقراءة الموثوقة. تم إيقاف المعالجة لحماية الناتج. يرجى إعادة استخراج الملف أو استخدام نسخة سليمة من المصدر.</sys:String>
+    <sys:String x:Key="LocDeepHash_TipHashFailed">تعذر حساب قيمة الهاش.</sys:String>
+    <sys:String x:Key="LocDeepHash_TipInputReadCrcOrIoFailure">تعذر قراءة ملف المصدر بشكل آمن. حدث خطأ CRC أو I/O أثناء القراءة، مما يعني أن ملف ISO أو موقعه على القرص غير قابل للقراءة الموثوقة. تم إيقاف المعالجة لحماية الناتج. أعد استخراج الملف أو استخدم نسخة سليمة من المصدر.</sys:String>
     <sys:String x:Key="LocWorkflow_PreparationFailed">تعذر تجهيز الملف.</sys:String>
     <sys:String x:Key="LocWorkflow_UnsupportedStage">هذا النوع من المراحل غير مدعوم.</sys:String>
     <sys:String x:Key="LocWorkflow_VerifyExistingStageName">التحقق</sys:String>
@@ -816,7 +816,7 @@
     <sys:String x:Key="LocWorkflow_StageFailureFormat">تعذر تنفيذ المرحلة «{0}» للملف «{1}»: {2}</sys:String>
 
     <sys:String x:Key="LocDiscProbe_InsufficientMetadata">لم يتم العثور على بيانات وصفية كافية داخل صورة القرص.</sys:String>
-    <sys:String x:Key="LocDiscProbe_CueDescriptorSerial">تم العثور على معرف (Serial) في ملف CUE.</sys:String>
+    <sys:String x:Key="LocDiscProbe_CueDescriptorSerial">تم العثور على معرف في ملف CUE.</sys:String>
     <sys:String x:Key="LocDiscProbe_CueTrackNameSerial">تم العثور على معرف في مسار الملف المذكور داخل CUE.</sys:String>
     <sys:String x:Key="LocDiscProbe_GdiDescriptorSerial">تم العثور على معرف في ملف GDI.</sys:String>
     <sys:String x:Key="LocDiscProbe_PspSfoSerial">تم العثور على معرف في ملف PSP PARAM.SFO.</sys:String>
@@ -854,7 +854,7 @@
 
     <sys:String x:Key="LocFileHash_InvalidPath">مسار الملف غير صالح.</sys:String>
     <sys:String x:Key="LocFileHash_FileNotFound">تعذر العثور على الملف.</sys:String>
-    <sys:String x:Key="LocFileHash_UnsupportedAlgorithm">خوارزمية الهاش (Hash) غير مدعومة.</sys:String>
+    <sys:String x:Key="LocFileHash_UnsupportedAlgorithm">خوارزمية الهاش غير مدعومة.</sys:String>
 
     <sys:String x:Key="LocFileIntegrity_SummaryNoPath">لم يتم تحديد مسار.</sys:String>
     <sys:String x:Key="LocFileIntegrity_SummaryPathIsDirectory">المسار المحدد ليس ملفا.</sys:String>
@@ -873,7 +873,7 @@
 
     <sys:String x:Key="LocFileIntegrity_DetailNoPath">لم يتم تحديد ملف للفحص.</sys:String>
     <sys:String x:Key="LocFileIntegrity_DetailPathIsDirectory">المسار المحدد مجلد وليس ملفا.</sys:String>
-    <sys:String x:Key="LocFileIntegrity_DetailFileNotFound">تعذر العثور على الملف. يرجى التحقق من المسار والمحاولة مجددا.</sys:String>
+    <sys:String x:Key="LocFileIntegrity_DetailFileNotFound">تعذر العثور على الملف. تحقق من المسار وحاول مجددا.</sys:String>
     <sys:String x:Key="LocFileIntegrity_DetailEmptyFile">الملف فارغ. قد تكون عملية النسخ أو التحميل غير مكتملة.</sys:String>
     <sys:String x:Key="LocFileIntegrity_DetailReadFailed">تعذرت قراءة بيانات الملف.</sys:String>
     <sys:String x:Key="LocFileIntegrity_DetailReadStartFailed">تعذرت قراءة بداية الملف.</sys:String>
@@ -881,7 +881,7 @@
     <sys:String x:Key="LocFileIntegrity_DetailUnexpectedChdSignature">بداية الملف لا تطابق توقيع CHD المتوقع.</sys:String>
 
     <sys:String x:Key="LocFileIntegrity_DetailBasicReadOk">الحجم: {0} بايت. تمت قراءة بداية ونهاية الملف دون أخطاء ظاهرة.</sys:String>
-    <sys:String x:Key="LocFileIntegrity_DetailBasicReadOkWithHashAdvice">الحجم: {0} بايت. تمت قراءة بداية ونهاية الملف دون أخطاء ظاهرة. للتحقق الكامل، يرجى مقارنة قيمة MD5/SHA1 مع المصدر الموثوق.</sys:String>
+    <sys:String x:Key="LocFileIntegrity_DetailBasicReadOkWithHashAdvice">الحجم: {0} بايت. تمت قراءة بداية ونهاية الملف دون أخطاء ظاهرة. للتحقق الكامل، قارن قيمة MD5/SHA1 مع مصدر موثوق.</sys:String>
 
     <sys:String x:Key="LocFileIntegrity_DetailCueInvalidPath">تعذر تحديد مجلد ملف CUE.</sys:String>
     <sys:String x:Key="LocFileIntegrity_DetailCueParseFailed">تعذرت قراءة ملف CUE.</sys:String>
@@ -946,7 +946,7 @@
     <sys:String x:Key="LocRedumpImport_Failed">تعذر استيراد ملف DAT.</sys:String>
     <sys:String x:Key="LocRuntime_StageRuntime">وقت التشغيل</sys:String>
 
-    <sys:String x:Key="LocOptions_RedumpDatabaseInitialStatus">الحالة: سيتم فحص قاعدة البيانات عند فتح النافذة.</sys:String>
+    <sys:String x:Key="LocOptions_RedumpDatabaseInitialStatus">الحالة: تفحص قاعدة البيانات عند فتح النافذة.</sys:String>
     <sys:String x:Key="LocOptions_InvalidFieldFallback">يحتوي حقل واحد على الأقل على قيمة غير صالحة.</sys:String>
     <sys:String x:Key="LocOptions_InvalidDataTitle">بيانات غير صالحة</sys:String>
     <sys:String x:Key="LocOptions_SelectRedumpDatTitle">اختر ملف Redump DAT لاستيراده إلى قاعدة بيانات SQLite</sys:String>
@@ -961,8 +961,8 @@
     <sys:String x:Key="LocOptions_OperationErrorTitle">خطأ أثناء تنفيذ العملية</sys:String>
     <sys:String x:Key="LocOptions_MissingDataTitle">بيانات ناقصة</sys:String>
 
-    <sys:String x:Key="LocOptions_RedumpDownloadUrlRequired">يرجى إدخال رابط تحميل صالح أولا، أو استخدم خيار الاستيراد المحلي لملف DAT/XML.</sys:String>
-    <sys:String x:Key="LocOptions_RedumpDownloadInvalidUrl">يرجى إدخال رابط تحميل صالح لقاعدة البيانات.</sys:String>
+    <sys:String x:Key="LocOptions_RedumpDownloadUrlRequired">أدخل رابط تحميل صالحا أولا، أو استورد ملف DAT/XML من جهازك.</sys:String>
+    <sys:String x:Key="LocOptions_RedumpDownloadInvalidUrl">أدخل رابط تحميل صالحا لقاعدة البيانات.</sys:String>
     <sys:String x:Key="LocOptions_RedumpDownloadRunning">جار التحميل...</sys:String>
     <sys:String x:Key="LocOptions_RedumpSyncFailedTitle">فشلت المزامنة</sys:String>
     <sys:String x:Key="LocOptions_RedumpDownloadFailed">تعذر تحميل قاعدة البيانات.</sys:String>
@@ -1054,7 +1054,7 @@
     <sys:String x:Key="LocAdv_ProcessPriorityNormalDescription">توازن طبيعي بين سرعة المعالجة واستجابة النظام.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetDefaultLabel">افتراضي MAME</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetDefaultDescription">تحديد تلقائي لحجم الكتلة (Hunk) بواسطة MAME بناء على نوع الوسيط.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetDefaultDescription">تحديد تلقائي لحجم الكتلة بواسطة MAME بناء على نوع الوسيط.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetSmallLabel">متقدم — صغير</sys:String>
     <sys:String x:Key="LocAdv_HunkPresetSmallDescription">حجم كتلة أصغر؛ يحسن سرعة الوصول العشوائي للبيانات، لكنه قد يقلل من كفاءة الضغط. لا يطبق على ملفات PS2 DVD وPSP لأنها تحتاج حجما ثابتا.</sys:String>
@@ -1076,7 +1076,7 @@
 
     <sys:String x:Key="LocAdv_ProcessorSelectionAutoLimited">تلقائي (محدود): سيستخدم البرنامج {0} من إجمالي {1} مسار معالجة متاح. إعداد متوازن يترك موارد كافية لنظام التشغيل والتطبيقات الأخرى.</sys:String>
     <sys:String x:Key="LocAdv_ProcessorSelectionAutoDefault">تلقائي: سيستخدم البرنامج الإعداد الافتراضي الأمثل لعملية التحويل.</sys:String>
-    <sys:String x:Key="LocAdv_ProcessorSelectionManual">يدوي: سيستخدم البرنامج {0} مسار معالجة. يرجى اختيار القيمة المناسبة وفقا لقدرات جهازك.</sys:String>
+    <sys:String x:Key="LocAdv_ProcessorSelectionManual">يدوي: سيستخدم البرنامج {0} مسار معالجة. اختر القيمة المناسبة لجهازك.</sys:String>
 
     <sys:String x:Key="LocAdv_ProcessorSelectionManualLow">منخفض: يستخدم {0} من {1} مسار معالجة. مناسب للاستخدام العادي للجهاز أثناء التحويل، لكن العملية ستستغرق وقتا أطول.</sys:String>
     <sys:String x:Key="LocAdv_ProcessorSelectionManualBalanced">متوازن: يستخدم {0} من {1} مسار معالجة. الخيار الأمثل لمعظم الأجهزة.</sys:String>
@@ -1100,39 +1100,39 @@
     <sys:String x:Key="LocAdv_ConcurrentConversionsMaximum">أقصى تحميل: تنفيذ 4 عمليات معا. مخصص للأجهزة فائقة الأداء؛ قد يؤدي لارتفاع الحرارة وتقليل استجابة النظام.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorConcurrentConversionsValidationFailed">تعذر التحقق من عدد عمليات التحويل المتزامنة.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorConcurrentConversionsRequired">يرجى اختيار عدد صحيح لعمليات التحويل المتزامنة.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorConcurrentConversionsRequired">اختر عدد الملفات التي تتحول في نفس الوقت.</sys:String>
     <sys:String x:Key="LocAdv_DatabaseLastSyncedPrefix">آخر مزامنة:</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorPendingWorkspaceValidationFailed">تعذر التحقق من المجلد المؤقت المحدد.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorPendingWorkspaceRequired">يرجى تحديد المجلد المؤقت، أو تعطيل هذا الخيار.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorPendingWorkspaceMustBeFullPath">يرجى استخدام مسار كامل (Full Path) للمجلد المؤقت.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorPendingWorkspaceRequired">حدد المجلد المؤقت، أو أوقف هذا الخيار.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorPendingWorkspaceMustBeFullPath">استخدم مسارا كاملا للمجلد المؤقت.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorCustomOutputValidationFailed">تعذر التحقق من مجلد الإخراج المحدد.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorCustomOutputRequired">يرجى تحديد مجلد إخراج صالح، أو تعطيل هذا الخيار.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorCustomOutputRequired">حدد مجلد إخراج صالحا، أو أوقف هذا الخيار.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorRedumpDatValidationFailed">تعذر التحقق من ملف Redump المحدد.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorRedumpDatExtension">يرجى اختيار ملف بصيغة DAT أو XML.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorRedumpDatExtension">اختر ملفا بصيغة DAT أو XML.</sys:String>
     <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderValidationFailed">تعذر التحقق من مجلد Redump المحلي.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderInvalid">يرجى اختيار مجلد Redump محلي صالح.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderInvalid">اختر مجلد Redump محليا صالحا.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlValidationFailed">تعذر التحقق من رابط التنزيل.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlInvalid">يرجى إدخال رابط صحيح يبدأ بـ http أو https.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlInvalid">أدخل رابطا صحيحا يبدأ بـ http أو https.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorExternalChdmanValidationFailed">تعذر التحقق من أداة chdman.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorExternalChdmanRequired">يرجى تحديد ملف chdman.exe، أو تفعيل خيار استخدام النسخة المدمجة.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorExternalChdmanRequired">حدد ملف chdman.exe، أو اختر النسخة المدمجة.</sys:String>
     <sys:String x:Key="LocAdv_ErrorExternalChdmanInvalid">ملف chdman.exe المحدد غير صالح.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorProcessorValidationFailed">تعذر التحقق من إعدادات الأداء.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorProcessorRequired">يرجى اختيار وضع أداء صالح للمتابعة.</sys:String>
+    <sys:String x:Key="LocAdv_ErrorProcessorRequired">اختر وضع أداء صالحا للمتابعة.</sys:String>
 
     <sys:String x:Key="LocQueue_ActionShortArchiveToChd">تحويل الأرشيف إلى CHD</sys:String>
 
-    <sys:String x:Key="LocIntakeAdvisory_ArchiveExtractRequired">سيتم فحص الأرشيف واستخراج الملفات الضرورية فقط.</sys:String>
+    <sys:String x:Key="LocIntakeAdvisory_ArchiveExtractRequired">سيفحص الأرشيف وتستخرج الملفات اللازمة فقط.</sys:String>
     <sys:String x:Key="LocIntakeAdvisory_DiscImageCandidate">تم التعرف على صورة قرص قابلة للتحويل.</sys:String>
     <sys:String x:Key="LocIntakeAdvisory_ChdInputDetected">تم التعرف على ملف CHD.</sys:String>
     <sys:String x:Key="LocIntakeAdvisory_Blocked">تعذر قبول الملف (مرفوض).</sys:String>
     <sys:String x:Key="LocIntakeAdvisory_Warning">تم قبول الملف مع وجود تنبيهات.</sys:String>
-    <sys:String x:Key="LocIntakeAdvisory_Extract">سيتم استخراج الملف قبل المعالجة.</sys:String>
+    <sys:String x:Key="LocIntakeAdvisory_Extract">سيستخرج الملف قبل المعالجة.</sys:String>
     <sys:String x:Key="LocIntakeAdvisory_Convert">الملف جاهز للتحويل.</sys:String>
 
     <sys:String x:Key="LocPs2Advisory_DiscIdentitySummary">تم التعرف على قرص PS2:</sys:String>
@@ -1198,13 +1198,13 @@
     <sys:String x:Key="LocPaths_OrganizeByRegion">التنظيم حسب المنطقة</sys:String>
     <sys:String x:Key="LocPaths_OrganizeByRegionDesc">ترتيب الملفات الناتجة في مجلدات فرعية حسب المنطقة (عند توفر البيانات).</sys:String>
 
-    <sys:String x:Key="LocPaths_PortableMode">الوضع المحمول (Portable)</sys:String>
+    <sys:String x:Key="LocPaths_PortableMode">الوضع المحمول</sys:String>
     <sys:String x:Key="LocPaths_PortableModeDesc">حفظ الإعدادات وسجلات التشغيل في مجلد '.portable' بجوار ملف البرنامج، بدلا من حفظها في النظام.</sys:String>
 
     <sys:String x:Key="LocPaths_FolderInputSection">المجلدات المدخلة</sys:String>
 
     <sys:String x:Key="LocPaths_IncludeSubfolders">تضمين المجلدات الفرعية</sys:String>
-    <sys:String x:Key="LocPaths_IncludeSubfoldersDesc">سيتم تلقائيا البحث عن الملفات المدعومة داخل المجلد المختار وكافة مجلداته الفرعية.</sys:String>
+    <sys:String x:Key="LocPaths_IncludeSubfoldersDesc">يبحث البرنامج عن الملفات المدعومة في المجلد المختار وكل مجلداته الفرعية.</sys:String>
 
     <sys:String x:Key="LocCommon_Browse">استعراض</sys:String>
 
@@ -1226,15 +1226,15 @@
     <sys:String x:Key="LocPerformance_HunkSize">حجم الكتلة</sys:String>
 
     <sys:String x:Key="LocConversionSafety_DeepHashChecking">جاري فحص سلامة وقابلية قراءة ملف المصدر...</sys:String>
-    <sys:String x:Key="LocConversionSafety_InputReadCrcOrIoFailure">تعذر قراءة ملف المصدر بأمان (خطأ CRC). الملف أو القرص غير قابل للقراءة الموثوقة، مما قد يفسد الناتج. تم إيقاف التحويل للحماية. يرجى إعادة استخراج الملف أو استخدام نسخة سليمة.</sys:String>
+    <sys:String x:Key="LocConversionSafety_InputReadCrcOrIoFailure">تعذر قراءة ملف المصدر بأمان (خطأ CRC). الملف أو القرص غير قابل للقراءة الموثوقة، مما قد يفسد الناتج. تم إيقاف التحويل للحماية. أعد استخراج الملف أو استخدم نسخة سليمة.</sys:String>
     <sys:String x:Key="LocStatus_SourceUnreadableBlocked">تم إيقاف التحويل: ملف المصدر تالف أو غير قابل للقراءة.</sys:String>
     <sys:String x:Key="LocConversionSafety_SourceAndOutputSameVolume">تنبيه: المصدر ومجلد الإخراج على القرص نفسه. هذا قد يؤدي إلى بطء شديد في الأداء (خاصة مع الأقراص الخارجية). للأداء الأمثل: استخدم قرص SSD لمجلد العمل المؤقت أو انقل ملفات المصدر إلى SSD.</sys:String>
-    <sys:String x:Key="LocConversionSafety_ChdmanInputReadWarning">تم إيقاف التحويل بسبب وجود أخطاء في ملف المصدر. يرجى إعادة استخراج ملف ISO أو التأكد من سلامة المصدر قبل المحاولة مجددا.</sys:String>
+    <sys:String x:Key="LocConversionSafety_ChdmanInputReadWarning">تم إيقاف التحويل بسبب وجود أخطاء في ملف المصدر. أعد استخراج ملف ISO أو تأكد من سلامة المصدر ثم حاول مجددا.</sys:String>
     <sys:String x:Key="LocConversionSafety_PreviousVerifyNotSourceProof">ملاحظة: نجاح عمليات سابقة لا يضمن سلامة المصدر الحالي، خاصة إذا بدأ يظهر أخطاء CRC جديدة.</sys:String>
     <sys:String x:Key="LocStorageTemperature_Warning">تحذير: حرارة القرص مرتفعة. ينصح بإيقاف التحويل مؤقتا أو تحسين تهوية القرص.</sys:String>
     <sys:String x:Key="LocStorageTemperature_Critical">تنبيه هام: حرارة القرص مرتفعة جدا. ينصح بإلغاء التحويل فورا وترك القرص يبرد.</sys:String>
     <sys:String x:Key="LocStorageTemperature_Abort">خطر: وصلت حرارة القرص إلى مستوى حرج. تم إلغاء التحويل تلقائيا لحماية الجهاز.</sys:String>
-    <sys:String x:Key="LocStorageTemperature_Unavailable">بيانات الحرارة غير متاحة: واجهة التخزين لا تدعم قراءة الحرارة. يرجى مراقبة حرارة القرص يدويا أثناء العمليات الطويلة.</sys:String>
+    <sys:String x:Key="LocStorageTemperature_Unavailable">بيانات الحرارة غير متاحة: واجهة التخزين لا تدعم قراءة الحرارة. راقب حرارة القرص بنفسك أثناء العمليات الطويلة.</sys:String>
     <sys:String x:Key="LocStorageTemperature_AccessDenied">تعذر الوصول لبيانات الحرارة: يرفض النظام الوصول. (تلميح: تشغيل البرنامج بصلاحيات المسؤول قد يحل هذه المشكلة).</sys:String>
     <sys:String x:Key="LocConversionReport_PoorCompressionPs3">ملاحظة: نسبة الضغط منخفضة. هذا طبيعي لألعاب PS3 لأن بياناتها مضغوطة مسبقا؛ لا يعني هذا وجود فشل في عملية التحويل.</sys:String>
 
@@ -1451,7 +1451,7 @@
     <sys:String x:Key="LocRedump_NoApplicableNameFooter">لا يوجد اسم مقترح من Redump قابل للتطبيق على هذا العنصر.</sys:String>
     <sys:String x:Key="LocRedump_SourceFolderFailedFooter">تعذر تحديد مجلد ملف المصدر.</sys:String>
     <sys:String x:Key="LocRedump_SourceFolderFailedBody">تعذر تحديد مجلد ملف المصدر.</sys:String>
-    <sys:String x:Key="LocRedump_ConfirmRenameQuestion">سيتم تغيير اسم ملف المصدر فقط. لن يتم تعديل بيانات القرص، ولن يتم استبدال أي ملف موجود.</sys:String>
+    <sys:String x:Key="LocRedump_ConfirmRenameQuestion">يتغير اسم ملف المصدر فقط. بيانات القرص لا تتغير، ولا يستبدل أي ملف موجود.</sys:String>
     <sys:String x:Key="LocRedump_ApplyNameSuccessFooter">تم تطبيق الاسم المقترح بنجاح على الملف المحدد.</sys:String>
 
     <sys:String x:Key="LocDragDrop_AddCancelledFooter">تم إلغاء إضافة الملفات.</sys:String>
@@ -1561,8 +1561,8 @@
 
     <sys:String x:Key="LocLanguageRestart_Title">تغيير اللغة</sys:String>
     <sys:String x:Key="LocLanguageRestart_Body">يتطلب تغيير اللغة إعادة تشغيل التطبيق. هل تريد إعادة التشغيل الآن؟</sys:String>
-    <sys:String x:Key="LocLanguageRestart_BlockedBody">تم حفظ اللغة الجديدة. يرجى إعادة تشغيل التطبيق بعد انتهاء المعالجة لتطبيقها بالكامل.</sys:String>
-    <sys:String x:Key="LocLanguageRestart_FailedBody">تم حفظ اللغة الجديدة، لكن تعذرت إعادة التشغيل تلقائيا. يرجى إغلاق التطبيق وفتحه من جديد.</sys:String>
+    <sys:String x:Key="LocLanguageRestart_BlockedBody">تم حفظ اللغة الجديدة. أعد تشغيل التطبيق بعد انتهاء المعالجة لتطبيقها كاملة.</sys:String>
+    <sys:String x:Key="LocLanguageRestart_FailedBody">تم حفظ اللغة الجديدة، لكن تعذرت إعادة التشغيل تلقائيا. أغلق التطبيق وافتحه من جديد.</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_ReportOnly">معلومة فقط</sys:String>
 
     <sys:String x:Key="LocUi_Header_Minimize">تصغير</sys:String>
@@ -1578,10 +1578,10 @@
     <sys:String x:Key="LocRedumpDetails_UnnamedFile">ملف بدون اسم</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_DefaultNotesNone">لا توجد ملاحظات إضافية.</sys:String>
-    <sys:String x:Key="LocRedumpDetails_DefaultNotesNoDatabase">يرجى تحميل قاعدة Redump المحلية من الإعدادات المتقدمة، أو استيرادها يدويا، ثم إعادة الفحص.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_DefaultNotesNoDatabase">استورد قاعدة Redump من الإعدادات المتقدمة، ثم أعد الفحص.</sys:String>
 
     <sys:String x:Key="LocRedumpDetails_StatusNoteMatched">تطابق العنصر مع قاعدة Redump المحلية. يمكنك مراجعة الاسم القياسي وقيم الهاش.</sys:String>
-    <sys:String x:Key="LocRedumpDetails_StatusNotePartial">تم العثور على مطابقة جزئية فقط. يرجى مراجعة الملفات المرتبطة أو ملف CUE/GDI.</sys:String>
+    <sys:String x:Key="LocRedumpDetails_StatusNotePartial">تم العثور على مطابقة جزئية فقط. راجع الملفات المرتبطة أو ملف CUE/GDI.</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusNoteNoDatabase">لا يمكن إعطاء نتيجة نهائية قبل تحميل قاعدة Redump المحلية أو استيرادها.</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusNoteConflicted">تظهر النتائج أن الملفات قد تكون مختلطة أو مرتبطة بأكثر من لعبة أو قرص.</sys:String>
     <sys:String x:Key="LocRedumpDetails_StatusNoteModifiedOrCorrupt">لم يتم العثور على مطابقة محلية. قد يكون الملف معدلا أو من إصدار مختلف.</sys:String>
@@ -1632,8 +1632,8 @@
     <sys:String x:Key="LocOrphanedCleanup_TempRootLabel">المجلد المؤقت</sys:String>
     <sys:String x:Key="LocOrphanedCleanup_TempRootUnavailable">غير متوفر</sys:String>
 
-    <sys:String x:Key="LocOrphanedCleanup_SafetyTitle">ما الذي سيتم حذفه؟</sys:String>
-    <sys:String x:Key="LocOrphanedCleanup_SafetyTempOnly">سيتم حذف الملفات المؤقتة التي أنشأها البرنامج فقط.</sys:String>
+    <sys:String x:Key="LocOrphanedCleanup_SafetyTitle">ما الذي سيحذف؟</sys:String>
+    <sys:String x:Key="LocOrphanedCleanup_SafetyTempOnly">تحذف الملفات المؤقتة التي أنشأها البرنامج فقط.</sys:String>
     <sys:String x:Key="LocOrphanedCleanup_SafetyNoSourceOutput">لن يتم حذف ملفات الألعاب الأصلية أو ملفات CHD الناتجة.</sys:String>
     <sys:String x:Key="LocOrphanedCleanup_SafetyManualConfirm">لن يبدأ التنظيف إلا بعد تأكيدك.</sys:String>
     <sys:String x:Key="LocOrphanedCleanup_FooterHint">يمكنك تأجيل التنظيف الآن وتشغيل البرنامج بشكل طبيعي.</sys:String>
@@ -1653,7 +1653,7 @@
     <sys:String x:Key="LocQueueActivity_AddingMessage">جار إضافة {0} عنصر وتجهيزه لقائمة المعالجة.</sys:String>
     <sys:String x:Key="LocQueueActivity_AddedTitle">اكتملت إضافة الملفات</sys:String>
     <sys:String x:Key="LocQueueActivity_AddedMessage">تمت إضافة {0} ملف إلى قائمة المعالجة.</sys:String>
-    <sys:String x:Key="LocQueueActivity_AddedArchiveMessage">تمت إضافة {0} ملف إلى قائمة المعالجة، وسيتم استخراج الأرشيفات تلقائيا قبل التحويل.</sys:String>
+    <sys:String x:Key="LocQueueActivity_AddedArchiveMessage">تمت إضافة {0} ملف إلى قائمة المعالجة، وستستخرج الأرشيفات تلقائيا قبل التحويل.</sys:String>
     <sys:String x:Key="LocQueueActivity_AddSkippedTitle">لم تضف أي ملفات صالحة</sys:String>
     <sys:String x:Key="LocQueueActivity_AddFailedTitle">تعذرت إضافة الملفات</sys:String>
     <sys:String x:Key="LocQueueAdd_Title">إضافة الملفات</sys:String>
@@ -1678,7 +1678,7 @@
     <sys:String x:Key="LocIntakeReview_DuplicateLabel">مكرر</sys:String>
     <sys:String x:Key="LocIntakeReview_MissingLabel">غير موجود</sys:String>
     <sys:String x:Key="LocIntakeReview_SafetyNote">لن تتم إضافة الملفات غير المدعومة أو المكررة. أي تنبيهات إضافية تتعلق بملفاتك ستظهر هنا.</sys:String>
-    <sys:String x:Key="LocIntakeReview_FooterHint">يرجى مراجعة ملخص العناصر قبل الإضافة.</sys:String>
+    <sys:String x:Key="LocIntakeReview_FooterHint">راجع ملخص العناصر قبل الإضافة.</sys:String>
     <sys:String x:Key="LocIntakeReview_CancelButton">إلغاء</sys:String>
     <sys:String x:Key="LocIntakeReview_AddButton">إضافة العناصر المقبولة</sys:String>
     <sys:String x:Key="LocIntakeReview_CancelledFooter">تم إلغاء إضافة الملفات بعد المراجعة.</sys:String>
@@ -1694,7 +1694,7 @@
     <sys:String x:Key="LocInputSafety_UnsafeArchiveEntryPath">يحتوي الأرشيف على مسار داخلي غير صالح للتحويل.</sys:String>
     <sys:String x:Key="LocInputSafety_UnsafeDescriptorReference">يحتوي ملف CUE/GDI على مسار غير صالح للتحويل.</sys:String>
     <sys:String x:Key="LocInputSafety_IsoContentNotScanned">تعذر قراءة تفاصيل ملف ISO قبل الإضافة.</sys:String>
-    <sys:String x:Key="LocInputSafety_ChdInternalContentNotScanned">سيتم التحقق من محتوى ملف CHD أثناء عملية الفحص.</sys:String>
+    <sys:String x:Key="LocInputSafety_ChdInternalContentNotScanned">يتحقق البرنامج من محتوى ملف CHD أثناء الفحص.</sys:String>
     <sys:String x:Key="LocInputSafety_FolderScanLimitReached">تم إيقاف فرز المجلد للوصول إلى الحد الأقصى. قد توجد ملفات إضافية لم تفحص.</sys:String>
     <sys:String x:Key="LocInputSafety_BlockedFooterFormat">لم تضف {0} عنصر لأن مسارها غير مناسب للتحويل.</sys:String>
     <sys:String x:Key="LocInputSafety_WarningFooterFormat">توجد {0} ملاحظة قبل الإضافة.</sys:String>
@@ -1791,25 +1791,25 @@
     <sys:String x:Key="LocPs3Intake_WarningIsoEbootMissing">لم يتم العثور على EBOOT.BIN داخل ملف ISO.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningIsoDiscSfbMissing">لم يتم العثور على PS3_DISC.SFB داخل ملف ISO.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningRawPs3MarkersDetected">تم رصد مؤشرات قرص PS3 عبر فحص Blu-ray/PS3 الخام.</sys:String>
-    <sys:String x:Key="LocPs3Intake_WarningRawBluRayWithoutPs3">تم رصد بنية Blu-ray/UDF، لكن لم يتم العثور على مؤشرات لعبة PS3.</sys:String>
+    <sys:String x:Key="LocPs3Intake_WarningRawBluRayWithoutPs3">تم رصد بنية Blu-ray/UDF، لكن لا توجد مؤشرات لعبة PS3.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningIsoMountedRawPs3">تعذر تركيب نظام ملفات ISO، لكن تم رصد مؤشرات PS3/Blu-ray الخام.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningDkeyDecryptionOutOfScope">يوجد ملف .dkey مطابق، لكن فك التشفير خارج نطاق خطوة الفحص الحالية.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningPs3MarkersIncomplete">مؤشرات PS3 المطلوبة غير مكتملة. قد تكون الصورة مشفرة أو غير مكتملة أو ليست لقرص PS3.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningFolderInvalidPath">مسار المجلد المحدد غير صالح.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningFolderMissing">المجلد المحدد غير موجود.</sys:String>
-    <sys:String x:Key="LocPs3Intake_WarningFolderReparsePoint">المجلد المحدد عبارة عن نقطة إعادة توجيه (Reparse Point) ولا يمكن تحليله بأمان.</sys:String>
-    <sys:String x:Key="LocPs3Intake_WarningPs3GameReparsePoint">مجلد PS3_GAME عبارة عن نقطة إعادة توجيه (Reparse Point) ولم يتم تتبعه.</sys:String>
+    <sys:String x:Key="LocPs3Intake_WarningFolderReparsePoint">المجلد المحدد عبارة عن نقطة إعادة توجيه ولا يمكن تحليله بأمان.</sys:String>
+    <sys:String x:Key="LocPs3Intake_WarningPs3GameReparsePoint">مجلد PS3_GAME عبارة عن نقطة إعادة توجيه ولم يتم تتبعه.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningFolderNoSafePs3Game">المجلد لا يحتوي على PS3_GAME آمن.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningFolderParamMissing">لم يتم العثور على PARAM.SFO داخل PS3_GAME.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningFolderEbootMissing">لم يتم العثور على EBOOT.BIN داخل PS3_GAME/USRDIR.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningFolderDiscSfbMissing">لم يتم العثور على PS3_DISC.SFB. قد يكون المحتوى مستخرجا، مما يضعف من إمكانية التحقق من هوية القرص.</sys:String>
     <sys:String x:Key="LocPs3Intake_WarningSelectedFolderIsPs3Game">المجلد المحدد هو PS3_GAME نفسه. تم استخدام المجلد الأب لفحص بيانات القرص.</sys:String>
 
-    <sys:String x:Key="LocIntake_BinWithoutCueUnknownPlatform">ملف BIN غير مرفق بملف CUE، ولا توجد بصمة بيانات كافية لتحديد منصة القرص. يرجى إضافة ملف CUE الصحيح أو استخدام ملف يحتوي على بصمة قرص قابلة للتحقق.</sys:String>
+    <sys:String x:Key="LocIntake_BinWithoutCueUnknownPlatform">ملف BIN غير مرفق بملف CUE، ولا توجد بصمة بيانات كافية لتحديد منصة القرص. أضف ملف CUE الصحيح أو استخدم ملفا فيه بصمة قرص يمكن التحقق منها.</sys:String>
     <sys:String x:Key="LocIntake_BinWithoutCueConsoleIdentified">تم التعرف على منصة القرص لملف BIN (بدون CUE) من خلال بصمة القرص.</sys:String>
-    <sys:String x:Key="LocIntake_BinWithoutCueTemporaryCue">سيتم إنشاء ملف CUE مؤقت وآمن أثناء التحويل فقط. يفضل دائما استخدام ملف CUE الأصلي إن أمكن.</sys:String>
-    <sys:String x:Key="LocIntake_BinWithoutCueUnsafeSectorLayout">ملف BIN بدون CUE لا يمتلك بنية قطاعات (Sector Layout) آمنة لإنشاء ملف CUE مؤقت. يرجى إضافة ملف CUE الأصلي أو مجموعة BIN/CUE كاملة.</sys:String>
-    <sys:String x:Key="LocIntake_BinRedirectedToCue">تم العثور على ملف CUE مطابق، وسيتم استخدامه بدلا من ملف BIN مباشرة.</sys:String>
+    <sys:String x:Key="LocIntake_BinWithoutCueTemporaryCue">ينشأ ملف CUE مؤقت وآمن أثناء التحويل فقط. الأفضل استخدام ملف CUE الأصلي إن وجد.</sys:String>
+    <sys:String x:Key="LocIntake_BinWithoutCueUnsafeSectorLayout">ملف BIN بدون CUE لا يمتلك بنية قطاعات آمنة لإنشاء ملف CUE مؤقت. أضف ملف CUE الأصلي أو مجموعة BIN/CUE كاملة.</sys:String>
+    <sys:String x:Key="LocIntake_BinRedirectedToCue">تم العثور على ملف CUE مطابق، وسيستخدم بدلا من ملف BIN.</sys:String>
     <sys:String x:Key="LocConsoleDiscIdentity_Unknown">تعذر تحديد منصة القرص من بيانات ملف BIN.</sys:String>
     <sys:String x:Key="LocConsoleDiscIdentity_PlayStationSerial">تم تحديد منصة PlayStation من الرقم التسلسلي الداخلي للقرص.</sys:String>
     <sys:String x:Key="LocConsoleDiscIdentity_PlayStationSystemCnf">تم تحديد منصة PlayStation من ملف SYSTEM.CNF.</sys:String>
@@ -1819,20 +1819,20 @@
     <sys:String x:Key="LocConsoleDiscIdentity_NeoGeoCdHeader">تم تحديد Neo Geo CD من ترويسة القرص.</sys:String>
     <sys:String x:Key="LocConsoleDiscIdentity_ThreeDoHeader">تم تحديد 3DO من ترويسة القرص.</sys:String>
     <sys:String x:Key="LocConsoleDiscIdentity_PcEngineCdHeader">تم تحديد PC Engine CD / TurboGrafx-CD من ترويسة القرص.</sys:String>
-    <sys:String x:Key="LocConsoleDiscIdentity_PathHint">تم تحديد المنصة بالاستناد إلى مسار الملف كمؤشر استدلالي.</sys:String>
+    <sys:String x:Key="LocConsoleDiscIdentity_PathHint">حددت المنصة من مسار الملف فقط، وقد لا تكون دقيقة.</sys:String>
 
-    <sys:String x:Key="LocChdExtraction_WrongProfileLegacyChdWarning">تحذير: يبدو أن ملف CHD قديم (Legacy) أو تم إنشاؤه بملف تعريف خاطئ (Wrong-profile). ينصح باستخراجه إلى صيغة ISO، ثم إعادة بنائه لاحقا باستخدام ملف تعريف createdvd الصحيح.</sys:String>
+    <sys:String x:Key="LocChdExtraction_WrongProfileLegacyChdWarning">تحذير: يبدو أن ملف CHD قديم أو تم إنشاؤه بملف تعريف خاطئ. ينصح باستخراجه إلى صيغة ISO، ثم إعادة بنائه لاحقا باستخدام ملف تعريف createdvd الصحيح.</sys:String>
     <sys:String x:Key="LocChdExtraction_LegacyCdRestoreToIso">تم استخراج ملف CHD (الذي يحمل ملف تعريف CD قديم) إلى صيغة ISO. ينصح بإعادة بنائه لاحقا باستخدام ملف تعريف createdvd الصحيح.</sys:String>
 
     <sys:String x:Key="LocChdPolicy_CapabilityProbeFailed">تعذر فحص قدرات أداة chdman المحددة. تم إيقاف العملية قبل التنفيذ لتجنب إنشاء ملف CHD غير آمن.</sys:String>
     <sys:String x:Key="LocChdPolicy_CreateDvdUnsupported">نسخة chdman المحددة لا تدعم أمر createdvd. لا يمكن تحويل ملفات ISO الخاصة بـ DVD/PSP/PS2 إلى CHD بأمان دون هذا الدعم.</sys:String>
     <sys:String x:Key="LocChdPolicy_ExtractDvdUnsupported">نسخة chdman المحددة لا تدعم أمر extractdvd. تم إيقاف عملية استخراج قرص DVD من ملف CHD قبل التنفيذ.</sys:String>
-    <sys:String x:Key="LocChdPolicy_PspIsoCreateCdBlocked">تم منع تحويل ملف PSP ISO عبر أمر createcd. هذا المسار غير صحيح لصور ألعاب PSP، ولا يوجد مسار بديل (Fallback) آمن لاستخدام createcd.</sys:String>
+    <sys:String x:Key="LocChdPolicy_PspIsoCreateCdBlocked">تم منع تحويل ملف PSP ISO عبر أمر createcd. هذا المسار غير صحيح لصور ألعاب PSP، ولا يوجد مسار بديل آمن لاستخدام createcd.</sys:String>
     <sys:String x:Key="LocChdPolicy_Ps2DvdIsoCreateCdBlocked">تم منع تحويل ملف PS2 DVD ISO عبر أمر createcd. يجب استخدام أمر createdvd فقط عند ضغط ملفات DVD إلى CHD.</sys:String>
     <sys:String x:Key="LocChdPolicy_RequestedCompressionUnsupported">إعداد الضغط المطلوب غير مدعوم في نسخة chdman المحددة.</sys:String>
-    <sys:String x:Key="LocChdPolicy_RequestedHunkSizeUnsupported">إعداد حجم الكتلة (Hunk Size) المطلوب غير مدعوم في نسخة chdman المحددة.</sys:String>
-    <sys:String x:Key="LocChdPolicy_ExtractionMetadataRequired">لا يمكن استخراج ملف CHD قبل تحديد نوع الوسيط من البيانات الوصفية (Metadata) الخاصة بـ chdman. تم إيقاف العملية لتجنب استخدام أمر extractcd أو extractdvd بشكل خاطئ.</sys:String>
-    <sys:String x:Key="LocChdPolicy_UnknownIsoMediaKindRequired">لا يمكن اختيار أمر chdman لملف ISO مجهول النوع بالاعتماد على الامتداد فقط. تم إيقاف العملية حتى يتم تحديد نوع الوسيط كـ CD أو DVD.</sys:String>
+    <sys:String x:Key="LocChdPolicy_RequestedHunkSizeUnsupported">إعداد حجم الكتلة المطلوب غير مدعوم في نسخة chdman المحددة.</sys:String>
+    <sys:String x:Key="LocChdPolicy_ExtractionMetadataRequired">لا يمكن استخراج ملف CHD قبل تحديد نوع الوسيط من البيانات الوصفية الخاصة بـ chdman. تم إيقاف العملية لتجنب استخدام أمر extractcd أو extractdvd بشكل خاطئ.</sys:String>
+    <sys:String x:Key="LocChdPolicy_UnknownIsoMediaKindRequired">لا يمكن اختيار أمر chdman لملف ISO مجهول النوع بالاعتماد على الامتداد فقط. تم إيقاف العملية حتى يعرف هل الوسيط CD أو DVD.</sys:String>
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">تم منع إعادة ضغط ملف CHD إلى CHD مباشرة. المسار الآمن هو استخراج ملف الوسائط الأصلي أولا، ثم إعادة بناء ملف CHD وفقا لسياسة المنصة.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">ملخص سريع للملفات قبل تجهيز قاعدة المطابقة.</sys:String>
@@ -1899,7 +1899,7 @@
     <sys:String x:Key="LocLib_Cancelling">جار الإلغاء...</sys:String>
     <sys:String x:Key="LocLib_Outcome_Completed">اكتمل التحليل. هذه معاينة فقط ولم يتم تغيير أي شيء.</sys:String>
     <sys:String x:Key="LocLib_Outcome_CompletedWithIssues">انتهى التحليل مع وجود مشكلات. قد تكون النتائج غير كاملة؛ راجع المشكلات أدناه.</sys:String>
-    <sys:String x:Key="LocLib_Outcome_Cancelled">تم إلغاء التحليل. تظهر نتائج جزئية فقط ولم يتم إنشاء معاينة للتنظيم.</sys:String>
+    <sys:String x:Key="LocLib_Outcome_Cancelled">تم إلغاء التحليل. تظهر نتائج جزئية فقط ولم تنشأ معاينة للتنظيم.</sys:String>
     <sys:String x:Key="LocLib_Outcome_Failed">فشل التحليل. أي نتائج معروضة هي نتائج جزئية.</sys:String>
     <sys:String x:Key="LocLib_Err_NoLibrary">اختر مجلد مكتبة الألعاب.</sys:String>
     <sys:String x:Key="LocLib_Err_LibraryMissing">مجلد المكتبة غير موجود.</sys:String>

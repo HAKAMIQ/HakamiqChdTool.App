@@ -52,6 +52,11 @@ it are the detailed record.
   left in old settings no longer re-labels it.
 - Number lists in Advanced options use Latin digits, and the hunk-size presets
   say they are not applied to PS2 DVD and PSP images.
+- Arabic messages across the app use plain wording: direct instructions
+  instead of "يرجى", simple verbs instead of "سيتم + verbal noun", and no
+  English word repeated in brackets.
+- Opening Advanced options no longer replaces the saved Redump download
+  address.
 - "When done" next to the queue buttons: sleep or shut down the computer
   after the run, with a 60-second countdown you can cancel. It applies to one
   run, is never saved, and does nothing after a stopped run.

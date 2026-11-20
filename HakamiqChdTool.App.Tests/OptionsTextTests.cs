@@ -169,6 +169,22 @@ internal static partial class Program
         }
     }
 
+    // All Arabic text stays plain: no "يرجى" (a direct imperative is used), no "سيتم + verbal noun" in sentences,
+    // and no English word repeated in brackets after its Arabic word.
+    private static void TestArabicTextStaysPlain()
+    {
+        Dictionary<string, string> arabic = LoadStrings("ArabicStrings.xaml");
+        string[] pleaseForms = [.. arabic.Where(pair => pair.Value.Contains("يرجى", StringComparison.Ordinal)).Select(pair => pair.Key)];
+        AssertEqual(0, pleaseForms.Length, "No Arabic string uses يرجى: " + string.Join(", ", pleaseForms));
+
+        string[] futurePassive = [.. arabic.Where(pair => Regex.IsMatch(pair.Value, "سيتم \\S+ ") && pair.Value.Length > 20).Select(pair => pair.Key)];
+        AssertEqual(0, futurePassive.Length, "No Arabic sentence uses سيتم with a verbal noun: " + string.Join(", ", futurePassive));
+
+        var duplicate = new Regex(@"[؀-ۿ]\s\((Hash|Integrity|Metadata|scrambled|Serial|Hunk|Hunk Size|Portable|Reparse Point|Fallback|Legacy|Wrong-profile|Performance Mode|Threads|Priority|Preset|Full Path|Sector Layout)\)");
+        string[] repeated = [.. arabic.Where(pair => duplicate.IsMatch(pair.Value)).Select(pair => pair.Key)];
+        AssertEqual(0, repeated.Length, "No English duplicate in brackets: " + string.Join(", ", repeated));
+    }
+
     // The CPU name, igir version and Windows integration hints render readably in Arabic.
     private static void TestOptionsWindowLayoutFixes()
     {
