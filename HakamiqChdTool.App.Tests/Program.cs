@@ -356,6 +356,8 @@ internal static partial class Program
                 new("Target emulator adjusts hunk size and codecs and Automatic changes nothing", TestTargetEmulatorPolicy),
                 new("Target emulator option loads, saves and has text in both languages", TestTargetEmulatorOption),
                 new("After-run sleep or shutdown only for finished runs, with a safe command", TestAfterRunPolicy),
+                new("Watch folder reports each finished file once", TestWatchStabilityTracker),
+                new("Watch folder with real files ignores open, CHD and subfolder files", TestWatchFolderWithRealFiles),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),
