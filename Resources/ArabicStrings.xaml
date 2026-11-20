@@ -537,6 +537,16 @@
     <sys:String x:Key="LocLaunch_ExplorerMenuFailedFooter">تعذر تحديث قائمة المستكشف. راجع السجل.</sys:String>
     <sys:String x:Key="LocLaunch_UsageTitle">سطر الأوامر</sys:String>
     <sys:String x:Key="LocLaunch_UsageBody">لم يفهم سطر الأوامر، لذلك لم يضف شيء. الخيارات المقبولة ورموز الخروج أدناه.</sys:String>
+    <sys:String x:Key="LocQuick_TitleConvert">تحويل إلى CHD</sys:String>
+    <sys:String x:Key="LocQuick_TitleExtract">استخراج CHD</sys:String>
+    <sys:String x:Key="LocQuick_TitleVerify">تحقق من CHD</sys:String>
+    <sys:String x:Key="LocQuick_DeleteWarningConvert">حسب إعداداتك، ينحذف الملف الأصلي بعد تحويله والتحقق من ملف CHD. اضغط «ابدأ» للمتابعة.</sys:String>
+    <sys:String x:Key="LocQuick_DeleteWarningExtract">حسب إعداداتك، ينحذف ملف CHD بعد استخراجه والتحقق من الناتج. اضغط «ابدأ» للمتابعة.</sys:String>
+    <sys:String x:Key="LocQuick_WaitingForStart">الملفات جاهزة. اضغط «ابدأ».</sys:String>
+    <sys:String x:Key="LocQuick_OpenInApp">فتح في البرنامج</sys:String>
+    <sys:String x:Key="LocQuick_OpenInAppDesc">يفتح البرنامج كاملا ويضيف الملفات التي لم تكتمل.</sys:String>
+    <sys:String x:Key="LocQuick_Start">ابدأ</sys:String>
+    <sys:String x:Key="LocQuick_Stop">إيقاف</sys:String>
     <sys:String x:Key="LocWatch_Enable">مراقبة مجلد وتحويل الملفات الجديدة إلى CHD</sys:String>
     <sys:String x:Key="LocWatch_EnableDesc">يحول البرنامج صور الأقراص والأرشيفات الجديدة في المجلد أدناه إلى CHD بعد اكتمال نسخها، ما دام البرنامج مفتوحا. لا يتعامل مع المجلدات الفرعية أو ملفات CHD أو الملفات الموجودة مسبقا، ويحفظ الناتج حسب إعدادات الإخراج.</sys:String>
     <sys:String x:Key="LocWatch_Folder">المجلد المراقب</sys:String>

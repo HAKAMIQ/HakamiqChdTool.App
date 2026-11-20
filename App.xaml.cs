@@ -34,6 +34,9 @@ public partial class App : WpfApplication
 
     private InstanceChannel? _launchChannel;
 
+    // Where a later launch goes: the main window, or the quick window while it is open.
+    private Action<LaunchRequest>? _launchHandler;
+
     private bool _globalExceptionHandlersRegistered;
 
     internal bool IsIntegrationTestHost { get; set; }
@@ -95,29 +98,34 @@ public partial class App : WpfApplication
         MainWindowBootstrap bootstrap = CreateMainWindowBootstrap();
         QueueManager = CreateQueueManager(bootstrap);
 
-        MainWindow mainWindow = new(bootstrap, QueueManager);
-        MainWindow = mainWindow;
-        mainWindow.Show();
-
-        StartLaunchChannel(mainWindow);
-        mainWindow.ExitWhenDone = launch.ExitWhenDone;
-        if (launch.HasPaths)
+        if (QuickLaunch.OpensQuickWindow(launch, Settings))
         {
-            mainWindow.HandleLaunchRequest(launch);
+            ShowQuickWindow(bootstrap, launch);
+        }
+        else
+        {
+            MainWindow mainWindow = ShowMainWindow(bootstrap);
+            mainWindow.ExitWhenDone = launch.ExitWhenDone;
+            if (launch.HasPaths)
+            {
+                mainWindow.HandleLaunchRequest(launch);
+            }
+
+            if (launchError is not null)
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => mainWindow.ShowLaunchUsage(launchError)));
+            }
+
+            QueueAdministratorWarningIfNeeded();
         }
 
-        if (launchError is not null)
-        {
-            Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => mainWindow.ShowLaunchUsage(launchError)));
-        }
+        StartLaunchChannel();
 
         if (Settings.ExplorerMenuEnabled)
         {
             // Keeps the entries pointing at this copy of the app and in the current language.
             _ = HakamiqChdTool.App.MainWindow.SyncExplorerMenu(enabled: true);
         }
-
-        QueueAdministratorWarningIfNeeded();
 
 #if DEBUG
         Log.Debug("Startup diagnostics (Debug build).");
@@ -153,13 +161,115 @@ public partial class App : WpfApplication
         }
     }
 
-    private void StartLaunchChannel(MainWindow mainWindow)
+    private MainWindow ShowMainWindow(MainWindowBootstrap bootstrap)
+    {
+        MainWindow mainWindow = new(bootstrap, QueueManager);
+        MainWindow = mainWindow;
+        _launchHandler = request => mainWindow.HandleLaunchRequest(request);
+        mainWindow.Show();
+        return mainWindow;
+    }
+
+    // An Explorer menu launch: the quick window runs the files with the saved settings. Later Explorer launches join
+    // it; "Open in app" hands the files that did not finish to the main window in this same process.
+    private void ShowQuickWindow(MainWindowBootstrap bootstrap, LaunchRequest launch)
+    {
+        bool mayDeleteSource = QuickLaunch.MayDeleteSource(launch.Mode, Settings);
+        QueueExecutionProfile profile = QuickProfileFor(launch.Mode);
+        var window = new QuickRunWindow();
+        var host = new HakamiqChdTool.App.QueueRun.QuickRunHost(
+            QueueManager,
+            () => Settings,
+            bootstrap.PostConversionArtifacts,
+            Dispatcher,
+            () => window,
+            autoStart: !mayDeleteSource);
+        var viewModel = new HakamiqChdTool.App.ViewModels.QuickRunViewModel(host, profile, mayDeleteSource, ArabicUi.Get);
+        bool handedToMainWindow = false;
+
+        host.ErrorRaised += (title, body) =>
+        {
+            var dialog = new RedumpNoticeDialog(ResolveUiText(title), ResolveUiText(body)) { Owner = window };
+            _ = dialog.ShowDialog();
+        };
+
+        viewModel.OpenInAppRequested += async paths =>
+        {
+            if (handedToMainWindow || host.IsBusy)
+            {
+                return;
+            }
+
+            handedToMainWindow = true;
+            await host.DisposeAsync().ConfigureAwait(true);
+            QueueManager = CreateQueueManager(bootstrap);
+            MainWindow mainWindow = ShowMainWindow(bootstrap);
+            if (paths.Count > 0)
+            {
+                mainWindow.HandleLaunchRequest(new LaunchRequest(launch.Mode, paths));
+            }
+
+            window.CloseNow();
+        };
+
+        // The queue is shut down before the window closes, so the app exits with nothing running.
+        window.BeforeCloseWhenIdle = () => handedToMainWindow ? Task.CompletedTask : host.DisposeAsync().AsTask();
+
+        window.Attach(viewModel);
+        MainWindow = window;
+        _launchHandler = request =>
+        {
+            if (handedToMainWindow)
+            {
+                return;
+            }
+
+            if (!request.HasPaths)
+            {
+                window.Activate();
+                return;
+            }
+
+            LaunchMode mode = request.Mode == LaunchMode.None ? launch.Mode : request.Mode;
+            _ = host.AddAsync(QuickProfileFor(mode), request.Paths);
+        };
+
+        window.Show();
+        _ = StartQuickRunAsync(bootstrap, host, profile, launch.Paths);
+    }
+
+    private static async Task StartQuickRunAsync(
+        MainWindowBootstrap bootstrap,
+        HakamiqChdTool.App.QueueRun.QuickRunHost host,
+        QueueExecutionProfile profile,
+        IReadOnlyList<string> paths)
+    {
+        try
+        {
+            // The main window does this while it loads; the bundled tools must be ready before a run.
+            await Task.Run(bootstrap.RuntimeTools.EnsureInitialized).ConfigureAwait(true);
+            await host.AddAsync(profile, paths).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Quick window run failed to start.");
+        }
+    }
+
+    private static QueueExecutionProfile QuickProfileFor(LaunchMode mode) => mode switch
+    {
+        LaunchMode.Extract => QueueExecutionProfile.QuickExtract,
+        LaunchMode.Verify => QueueExecutionProfile.QuickVerify,
+        _ => QueueExecutionProfile.QuickConvert
+    };
+
+    private void StartLaunchChannel()
     {
         try
         {
             _launchChannel = InstanceChannel.Start(
                 InstanceChannel.DefaultPipeName,
-                request => Dispatcher.BeginInvoke(new Action(() => mainWindow.HandleLaunchRequest(request))));
+                request => Dispatcher.BeginInvoke(new Action(() => _launchHandler?.Invoke(request))));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
         {

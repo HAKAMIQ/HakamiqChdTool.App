@@ -352,6 +352,8 @@ internal static partial class Program
                 new("Quick window waits for Start only when the source may be deleted", TestQuickWindowWaitsWhenTheSourceMayBeDeleted),
                 new("Explorer menu registers and removes only its own keys", TestExplorerMenuRegistersAndRemovesOnlyItsOwnKeys),
                 new("Explorer menu setting loads, saves and has text in both languages", TestExplorerMenuSettingInOptions),
+                new("Quick window text, bindings and startup route", TestQuickWindowTextAndBindings),
+                new("Quick window waits for Start, runs, and shows the result", () => TestQuickWindowViewModelFlow(workDirectory)),
                 new("Run summary shows outcome, counts, saved space and time in both languages", TestRunSummaryCardContent),
                 new("Options text has no tashkeel and no repeated or duplicate words", TestOptionsTextIsPlainAndNotRepeated),
                 new("Options offer only choices that work", TestOptionsOfferOnlyWorkingChoices),

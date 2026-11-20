@@ -53,7 +53,8 @@ internal static partial class Program
                         "Note", "This does not prove the image equals the original disc.", "Next step", "No action needed.",
                         new ChdProbeReportView("CHD report", [new ChdLogicalProbeReportMetric("Logical size", "700 MiB"), new ChdLogicalProbeReportMetric("Compression", "cdlz, cdzl, cdfl")])))),
                     ("RedumpDetails", () => new RedumpDetailsDialog(new RedumpDetailsDialogViewModel(
-                        new TaskQueueItemViewModel(NamedQueueRow("Some Game (Europe) (En,Fr,De,Es,It).chd")), true, new NoCopy(), new NoTimer())))
+                        new TaskQueueItemViewModel(NamedQueueRow("Some Game (Europe) (En,Fr,De,Es,It).chd")), true, new NoCopy(), new NoTimer()))),
+                    ("QuickRun", () => CreateQuickRunMatrixWindow(workDirectory))
                 };
 
                 (double Scale, double W, double H)[] displays =

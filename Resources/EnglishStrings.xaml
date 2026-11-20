@@ -537,6 +537,16 @@
     <sys:String x:Key="LocLaunch_ExplorerMenuFailedFooter">Could not update the Explorer menu. See the log.</sys:String>
     <sys:String x:Key="LocLaunch_UsageTitle">Command line</sys:String>
     <sys:String x:Key="LocLaunch_UsageBody">The command line was not understood, so nothing was added. The accepted options and exit codes are below.</sys:String>
+    <sys:String x:Key="LocQuick_TitleConvert">Convert to CHD</sys:String>
+    <sys:String x:Key="LocQuick_TitleExtract">Extract CHD</sys:String>
+    <sys:String x:Key="LocQuick_TitleVerify">Verify CHD</sys:String>
+    <sys:String x:Key="LocQuick_DeleteWarningConvert">Your settings delete the source file after it is converted and the CHD is verified. Select Start to continue.</sys:String>
+    <sys:String x:Key="LocQuick_DeleteWarningExtract">Your settings delete the CHD file after it is extracted and the output is verified. Select Start to continue.</sys:String>
+    <sys:String x:Key="LocQuick_WaitingForStart">The files are ready. Select Start.</sys:String>
+    <sys:String x:Key="LocQuick_OpenInApp">Open in app</sys:String>
+    <sys:String x:Key="LocQuick_OpenInAppDesc">Opens the full app and adds the files that did not finish.</sys:String>
+    <sys:String x:Key="LocQuick_Start">Start</sys:String>
+    <sys:String x:Key="LocQuick_Stop">Stop</sys:String>
     <sys:String x:Key="LocWatch_Enable">Watch a folder and convert new files to CHD</sys:String>
     <sys:String x:Key="LocWatch_EnableDesc">While CHD Tool is open, new disc images and archives copied into the folder below are converted once they are fully written. Subfolders, CHD files and files that were already there are not touched. Output goes where your output settings say.</sys:String>
     <sys:String x:Key="LocWatch_Folder">Folder to watch</sys:String>
