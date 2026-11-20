@@ -18,6 +18,10 @@ it are the detailed record.
 - After a run, a bar above the queue shows how many items finished, failed or
   were skipped, the space saved and the time taken, with a Details button for
   the full report.
+- Recompress CHD files (Tools in the sidebar): makes existing CHDs smaller with
+  stronger compression. Each new file is verified and matched against the
+  original, and kept only if it saves at least 1%. New files go to another
+  folder, or replace the originals when you choose that.
 
 ### Details
 

@@ -215,6 +215,7 @@ public static class ChdmanCliRunner
     private static bool IsSupportedCommand(string command) =>
         string.Equals(command, "info", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "verify", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "copy", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "createcd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "createdvd", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "createhd", StringComparison.OrdinalIgnoreCase)

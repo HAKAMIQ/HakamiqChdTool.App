@@ -81,4 +81,6 @@ public interface IMainWindowSession
     void OpenAbout();
 
     void OpenLibraryAnalysis();
+
+    void OpenRecompress();
 }

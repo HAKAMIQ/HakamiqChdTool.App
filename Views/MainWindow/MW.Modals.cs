@@ -152,4 +152,42 @@ public partial class MainWindow
         _libraryAnalysisWindow = window;
         window.Show();
     }
+    private RecompressWindow? _recompressWindow;
+
+    // Non-modal; one window at a time. Runs on its own, outside the queue.
+    internal void OpenRecompressWindow()
+    {
+        if (_recompressWindow is not null)
+        {
+            _recompressWindow.Activate();
+            return;
+        }
+
+        RecompressWindow window;
+        try
+        {
+            string chdman = _chdmanPathResolver.ResolvePath(_settings);
+            window = new RecompressWindow { Owner = this };
+            var viewModel = new RecompressViewModel(
+                (path, options, progress, token) =>
+                    new HakamiqChdTool.App.Services.Recompress.ChdRecompressService(chdman, new ChdInfoService(), new ChdVerificationService())
+                        .RecompressAsync(path, options, progress, token),
+                window,
+                ArabicUi.Get,
+                _settings.CompressionCodecs);
+            window.Attach(viewModel);
+        }
+        catch (Exception ex)
+        {
+            global::Serilog.Log.Error(ex, "Recompress window construction failed.");
+            ShowNoticeDialog(
+                MainWindowMessages.StartupRuntimeErrorTitle,
+                MainWindowMessages.StartupRuntimeErrorBody(RuntimeDiagnosticFormatter.SummarizeException(ex)));
+            return;
+        }
+
+        window.Closed += (_, _) => _recompressWindow = null;
+        _recompressWindow = window;
+        window.Show();
+    }
 }
