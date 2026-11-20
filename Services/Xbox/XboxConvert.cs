@@ -21,6 +21,19 @@ internal enum Xbox360Format
     Zar
 }
 
+/// <summary>Reads and writes the saved Xbox 360 format (AppSettings.Xbox360Format).</summary>
+internal static class XboxFormats
+{
+    public const string God = "god";
+    public const string Zar = "zar";
+
+    /// <summary>"zar" selects ZAR; anything else, including an unknown or empty value, is Games on Demand.</summary>
+    public static Xbox360Format Parse(string? value) =>
+        string.Equals(value?.Trim(), Zar, StringComparison.OrdinalIgnoreCase) ? Xbox360Format.Zar : Xbox360Format.God;
+
+    public static string ToSetting(Xbox360Format format) => format == Xbox360Format.Zar ? Zar : God;
+}
+
 internal enum XboxConvertOutcome
 {
     Done,

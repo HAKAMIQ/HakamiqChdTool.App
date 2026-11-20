@@ -78,6 +78,7 @@ internal static partial class Program
         ["ChdmanPriorityMode"] = new(SettingKind.Effect, "Runs chdman and the helper tools below normal in Quiet mode.", nameof(TestHelperToolsFollowThePrioritySetting)),
         ["CompressionCodecs"] = new(SettingKind.Effect, "The chdman -c codecs.", nameof(TestTargetEmulatorPolicy)),
         ["HunkSizeBytes"] = new(SettingKind.Effect, "The chdman -hs hunk size.", nameof(TestTargetEmulatorPolicy)),
+        ["Xbox360Format"] = new(SettingKind.Effect, "Xbox 360 games become Games on Demand or ZAR in the Xbox window.", nameof(TestXbox360FormatSetting)),
         ["TargetEmulator"] = new(SettingKind.Effect, "Overrides codecs and hunk size for an emulator.", nameof(TestTargetEmulatorPolicy)),
         ["IsoCreateCommandOverride"] = new(SettingKind.Effect, "Force DVD uses createdvd; Auto follows the media evidence.", nameof(TestIsoOverrideForceDvdUsesCreateDvd), nameof(TestOptionsOfferOnlyWorkingChoices)),
         ["ChdPlatformProfileId"] = new(SettingKind.Effect, "The selected CHD profile, falling back to Auto for other disc types.", nameof(TestPlatformProfileFallsBackToAutoForOtherInputs), nameof(TestHardDiskPlannerRequiresExplicitProfile)),

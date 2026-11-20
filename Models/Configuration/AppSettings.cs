@@ -129,6 +129,9 @@ public sealed class AppSettings
     /// <summary>auto, dvd2048 (PCSX2 and PPSSPP) or nozstd (RetroArch and older emulators); see TargetEmulatorPolicy.</summary>
     public string TargetEmulator { get; set; } = "auto";
 
+    /// <summary>god (Games on Demand, Xenia and an Xbox 360) or zar (Xenia Canary); see XboxFormats.</summary>
+    public string Xbox360Format { get; set; } = "god";
+
     public IsoCreateCommandOverride IsoCreateCommandOverride { get; set; } = IsoCreateCommandOverride.Auto;
 
     public string ChdPlatformProfileId { get; set; } = "auto";
@@ -215,6 +218,7 @@ public sealed class AppSettings
         CompressionCodecs = other.CompressionCodecs;
         HunkSizeBytes = other.HunkSizeBytes;
         TargetEmulator = other.TargetEmulator;
+        Xbox360Format = other.Xbox360Format;
         IsoCreateCommandOverride = other.IsoCreateCommandOverride;
         ChdPlatformProfileId = other.ChdPlatformProfileId;
         ExtensionData = other.ExtensionData is null
@@ -280,6 +284,7 @@ public sealed class AppSettings
             CompressionCodecs = CompressionCodecs,
             HunkSizeBytes = HunkSizeBytes,
             TargetEmulator = TargetEmulator,
+            Xbox360Format = Xbox360Format,
             IsoCreateCommandOverride = IsoCreateCommandOverride,
             ChdPlatformProfileId = ChdPlatformProfileId,
             ExtensionData = ExtensionData is null

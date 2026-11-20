@@ -127,4 +127,22 @@ internal static partial class Program
         Directory.CreateDirectory(Path.Combine(work, "ABCDEF01"));
         AssertFalse(XboxConvertService.TryReadGod(work, out _, out _), "More than one title folder is refused.");
     }
+
+    // The saved Xbox 360 format: Games on Demand by default, ZAR when chosen; it survives Clone and CopyFrom, and an
+    // unknown value falls back to Games on Demand.
+    private static void TestXbox360FormatSetting()
+    {
+        AssertEqual("god", new HakamiqChdTool.App.Models.AppSettings().Xbox360Format, "Games on Demand is the default.");
+        AssertEqual("zar", new HakamiqChdTool.App.Models.AppSettings { Xbox360Format = "zar" }.Clone().Xbox360Format, "Clone keeps the format.");
+        var copy = new HakamiqChdTool.App.Models.AppSettings();
+        copy.CopyFrom(new HakamiqChdTool.App.Models.AppSettings { Xbox360Format = "zar" });
+        AssertEqual("zar", copy.Xbox360Format, "CopyFrom keeps the format.");
+
+        AssertEqual(Xbox360Format.Zar, XboxFormats.Parse("ZAR"), "zar selects ZAR.");
+        AssertEqual(Xbox360Format.God, XboxFormats.Parse("god"), "god selects Games on Demand.");
+        AssertEqual(Xbox360Format.God, XboxFormats.Parse("iso"), "An unknown value falls back to Games on Demand.");
+        AssertEqual(Xbox360Format.God, XboxFormats.Parse(null), "A missing value falls back to Games on Demand.");
+        AssertEqual("zar", XboxFormats.ToSetting(Xbox360Format.Zar), "ZAR is saved as zar.");
+        AssertEqual("god", XboxFormats.ToSetting(Xbox360Format.God), "Games on Demand is saved as god.");
+    }
 }
