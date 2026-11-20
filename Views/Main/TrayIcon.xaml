@@ -40,7 +40,7 @@
             <Setter Property="Language" Value="{DynamicResource App.XmlLanguage}" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="UseLayoutRounding" Value="True" />
-            <!-- The default template draws a light icon column (#F1F1F1); in Arabic it sits under the
+            <!-- The default template draws a light icon column; in Arabic it sits under the
                  text, so the menu uses a plain template with the theme background only. -->
             <Setter Property="Template">
                 <Setter.Value>
