@@ -67,7 +67,8 @@ internal static partial class Program
         }
 
         string paths = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PathsView.xaml")));
-        AssertEqual(2, Regex.Matches(paths, @"IsEnabled=""\{Binding VerifyAfterConversion\}""\s+Title=""\{DynamicResource LocPaths_DeleteSourceAfterVerified\w+\}""").Count,
+        AssertEqual(2, new[] { "LocPaths_DeleteSourceAfterVerifiedConversion", "LocPaths_DeleteSourceAfterVerifiedExtraction" }
+            .Count(key => Regex.IsMatch(paths, @"IsEnabled=""\{Binding VerifyAfterConversion\}""\s+Title=""\{DynamicResource " + key + @"\}""")),
             "Both delete-source boxes are enabled only while Verify after conversion is on.");
 
         Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");

@@ -79,27 +79,16 @@ public partial class OptionsWindow : Window
     public event EventHandler<OptionsAppliedEventArgs>? SettingsApplied;
 
     internal RadioButton PathsTabButtonView => PathsTabButton;
-
     internal RadioButton RedumpTabButtonView => RedumpTabButton;
-
     internal RadioButton ProcessingTabButtonView => ProcessingTabButton;
-
     internal RadioButton ExternalToolsTabButtonView => ExternalToolsTabButton;
-
     internal RadioButton PerformanceTabButtonView => PerformanceTabButton;
-
     internal RadioButton WindowsTabButtonView => WindowsTabButton;
-
     internal PathsSettingsView PathsPanelView => PathsPanel;
-
     internal RedumpSettingsView RedumpPanelView => RedumpPanel;
-
     internal ProcessingSettingsView ProcessingPanelView => ProcessingPanel;
-
     internal ExternalToolsSettingsView ExternalToolsPanelView => ExternalToolsPanel;
-
     internal PerformanceSettingsView PerformancePanelView => PerformancePanel;
-
     internal WindowsSettingsView WindowsPanelView => WindowsPanel;
 
     internal void NotifySettingsApplied(AppSettings settings)
