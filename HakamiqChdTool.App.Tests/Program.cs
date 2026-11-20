@@ -403,6 +403,7 @@ internal static partial class Program
                 new("Incomplete output from a failed job is always removed", TestFailedOutputCleanupIsAlwaysOn),
                 new("Target emulator overrides are shown on the options they change", TestTargetEmulatorOverridesAreShown),
                 new("Options tabs use the shared rows", TestOptionsTabsUseSharedRows),
+                new("Option lists read and write the saved settings unchanged", TestOptionListsMapToSavedSettings),
                 new("Options search filters every tab", TestOptionsSearchFiltersEveryTab),
                 new("The watch folder needs an existing folder", TestWatchFolderNeedsAnExistingFolder),
                 new("Options window shows the CPU name, igir version and Windows hints readably", TestOptionsWindowLayoutFixes),

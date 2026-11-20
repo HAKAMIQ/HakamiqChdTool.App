@@ -317,8 +317,23 @@ internal static partial class Program
         }
 
         string paths = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PathsView.xaml")));
-        AssertTrue(paths.Contains("IsChecked=\"{Binding OverwriteExistingM3uPlaylists, Mode=TwoWay", StringComparison.Ordinal)
-            && paths.Contains("IsEnabled=\"{Binding EnableAutoM3uGeneration}\"", StringComparison.Ordinal), "Replacing M3U playlists has its own box, available while playlists are made.");
+        foreach (string list in new[] { "SelectedOutputOrganize", "SelectedDeleteSource", "SelectedM3u" })
+        {
+            AssertTrue(paths.Contains("SelectedItem=\"{Binding " + list + ", Mode=TwoWay", StringComparison.Ordinal), $"General uses one list for {list}.");
+        }
+
+        string perf = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PerfView.xaml")));
+        AssertTrue(perf.Contains("SelectedItem=\"{Binding SelectedSpeed, Mode=TwoWay", StringComparison.Ordinal)
+            && !perf.Contains("SelectedPerformanceMode", StringComparison.Ordinal), "Performance mode and thread count are one list.");
+
+        string conversion = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "ProcView.xaml")));
+        AssertTrue(conversion.Contains("IsCollapsible=\"True\"", StringComparison.Ordinal)
+            && conversion.IndexOf("IsCollapsible", StringComparison.Ordinal) < conversion.IndexOf("HunkPresetComboBox", StringComparison.Ordinal),
+            "The hunk size and other technical choices sit in the folded Advanced section.");
+
+        string redump = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "RedumpView.xaml")));
+        AssertFalse(redump.Contains("ScanRedumpLocalLibraryCommand", StringComparison.Ordinal) || redump.Contains("ApplyStandardNamingBasedOnHash", StringComparison.Ordinal),
+            "Redump has one Prepare button and no suggested-name option.");
 
         string shell = File.ReadAllText(FindRepoFile(Path.Combine("Ui", "Shell", "HqOptsTools.cs")));
         AssertTrue(shell.Contains("_owner.ViewModel.ExternalCsoKitPath = string.Empty;", StringComparison.Ordinal)

@@ -22,7 +22,76 @@
         <ScrollViewer Style="{StaticResource Win11SettingsScrollViewer}">
             <StackPanel Style="{StaticResource Win11SettingsContentStack}">
 
-                <opt:OptSection Header="{DynamicResource LocConversion_EngineSection}">
+                <opt:OptSection Header="{DynamicResource LocConversion_ChdSection}">
+                    <!-- First, because it can override the compression and the hunk size. -->
+                    <opt:OptRow Title="{DynamicResource LocPerformance_TargetEmulator}"
+                                Description="{Binding TargetEmulatorDescription}">
+                        <ComboBox x:Name="TargetEmulatorComboBox"
+                                  ItemsSource="{Binding TargetEmulatorOptions}"
+                                  SelectedItem="{Binding SelectedTargetEmulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPerformance_TargetEmulator}" />
+                    </opt:OptRow>
+
+                    <opt:OptRow Title="{DynamicResource LocPerformance_CompressionPreset}"
+                                Description="{Binding CompressionPresetDescription}">
+                        <ComboBox x:Name="CompressionPresetComboBox"
+                                  ItemsSource="{Binding CompressionPresetOptions}"
+                                  SelectedItem="{Binding SelectedCompressionPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPerformance_CompressionPreset}" />
+                    </opt:OptRow>
+
+                    <opt:OptRow Title="{DynamicResource LocOpt_DreamcastTitle}"
+                                Description="{Binding SelectedDreamcastExtract.Description}">
+                        <ComboBox x:Name="DreamcastExtractComboBox"
+                                  ItemsSource="{Binding DreamcastExtractOptions}"
+                                  SelectedItem="{Binding SelectedDreamcastExtract, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocOpt_DreamcastTitle}" />
+                    </opt:OptRow>
+                </opt:OptSection>
+
+                <!-- Technical choices most people never change; folded unless one of them is not on its default. -->
+                <opt:OptSection x:Name="ConversionAdvancedSection"
+                                Header="{DynamicResource LocOpt_AdvancedSection}"
+                                IsCollapsible="True"
+                                IsExpanded="{Binding IsConversionAdvancedExpanded, Mode=TwoWay}">
+                    <opt:OptRow x:Name="HunkPresetRow"
+                                IsEnabled="{Binding CanChooseHunkSize}"
+                                Title="{DynamicResource LocPerformance_HunkSize}"
+                                Description="{Binding HunkPresetDescription}">
+                        <ComboBox x:Name="HunkPresetComboBox"
+                                  ItemsSource="{Binding HunkPresetOptions}"
+                                  SelectedItem="{Binding SelectedHunkPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPerformance_HunkSize}" />
+                    </opt:OptRow>
+
+                    <opt:OptRow Title="{DynamicResource LocPerformance_IsoCreateMode}"
+                                Description="{Binding IsoCreateOverrideDescription}">
+                        <ComboBox x:Name="IsoCreateCommandOverrideComboBox"
+                                  ItemsSource="{Binding IsoCreateOverrideOptions}"
+                                  SelectedItem="{Binding SelectedIsoCreateOverride, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPerformance_IsoCreateMode}" />
+                    </opt:OptRow>
+
+                    <opt:OptRow Title="{DynamicResource LocPerformance_ChdPlatformProfile}"
+                                Description="{Binding ChdPlatformProfileDescription}">
+                        <ComboBox x:Name="ChdPlatformProfileComboBox"
+                                  ItemsSource="{Binding ChdPlatformProfileOptions}"
+                                  SelectedItem="{Binding SelectedChdPlatformProfile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPerformance_ChdPlatformProfile}" />
+                    </opt:OptRow>
+
                     <opt:OptRow Placement="Leading"
                                 Title="{DynamicResource LocPaths_UseBundledChdman}"
                                 Description="{DynamicResource LocPaths_UseBundledChdmanDesc}">
@@ -66,85 +135,9 @@
                                         Style="{StaticResource OptPathButton}"
                                         AutomationProperties.Name="{DynamicResource LocPaths_ExternalChdmanPath}"
                                         Content="{DynamicResource LocCommon_Browse}" />
-                                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Style="{StaticResource OptFieldError}" Text="{Binding ExternalChdmanPathError}" />
+                                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource OptFieldError}" Text="{Binding ExternalChdmanPathError}" />
                             </Grid>
                         </opt:OptRow.Extra>
-                    </opt:OptRow>
-                </opt:OptSection>
-
-                <opt:OptSection Header="{DynamicResource LocConversion_ChdSection}">
-                    <!-- First, because it can override the hunk size and the compression below. -->
-                    <opt:OptRow Title="{DynamicResource LocPerformance_TargetEmulator}"
-                                Description="{Binding TargetEmulatorDescription}">
-                        <ComboBox x:Name="TargetEmulatorComboBox"
-                                  ItemsSource="{Binding TargetEmulatorOptions}"
-                                  SelectedItem="{Binding SelectedTargetEmulator, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="Label"
-                                  Style="{StaticResource Win11SettingsComboBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPerformance_TargetEmulator}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Title="{DynamicResource LocPerformance_CompressionPreset}"
-                                Description="{Binding CompressionPresetDescription}">
-                        <ComboBox x:Name="CompressionPresetComboBox"
-                                  ItemsSource="{Binding CompressionPresetOptions}"
-                                  SelectedItem="{Binding SelectedCompressionPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="Label"
-                                  Style="{StaticResource Win11SettingsComboBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPerformance_CompressionPreset}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow x:Name="HunkPresetRow"
-                                IsEnabled="{Binding CanChooseHunkSize}"
-                                Title="{DynamicResource LocPerformance_HunkSize}"
-                                Description="{Binding HunkPresetDescription}">
-                        <ComboBox x:Name="HunkPresetComboBox"
-                                  ItemsSource="{Binding HunkPresetOptions}"
-                                  SelectedItem="{Binding SelectedHunkPreset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="Label"
-                                  Style="{StaticResource Win11SettingsComboBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPerformance_HunkSize}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Title="{DynamicResource LocPerformance_IsoCreateMode}"
-                                Description="{Binding IsoCreateOverrideDescription}">
-                        <ComboBox x:Name="IsoCreateCommandOverrideComboBox"
-                                  ItemsSource="{Binding IsoCreateOverrideOptions}"
-                                  SelectedItem="{Binding SelectedIsoCreateOverride, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="Label"
-                                  Style="{StaticResource Win11SettingsComboBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPerformance_IsoCreateMode}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Title="{DynamicResource LocPerformance_ChdPlatformProfile}"
-                                Description="{Binding ChdPlatformProfileDescription}">
-                        <ComboBox x:Name="ChdPlatformProfileComboBox"
-                                  ItemsSource="{Binding ChdPlatformProfileOptions}"
-                                  SelectedItem="{Binding SelectedChdPlatformProfile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="Label"
-                                  Style="{StaticResource Win11SettingsComboBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPerformance_ChdPlatformProfile}" />
-                    </opt:OptRow>
-                </opt:OptSection>
-
-                <opt:OptSection Header="{DynamicResource LocConversion_ExtractSection}">
-                    <opt:OptRow Placement="Leading"
-                                Title="{DynamicResource LocConversion_ExtractGdRomAsCueBin}"
-                                Description="{DynamicResource LocConversion_ExtractGdRomAsCueBinDesc}">
-                        <CheckBox x:Name="ExtractGdRomAsCueBinCheckBox"
-                                  IsChecked="{Binding ExtractGdRomAsCueBin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocConversion_ExtractGdRomAsCueBin}" />
                     </opt:OptRow>
                 </opt:OptSection>
 

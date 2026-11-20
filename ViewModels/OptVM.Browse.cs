@@ -15,7 +15,6 @@ public sealed partial class OptionsViewModel
     private IRelayCommand? _browseOutputFolderCommand;
     private IRelayCommand? _browseExternalChdmanCommand;
     private IRelayCommand? _browseRedumpLocalLibraryCommand;
-    private AsyncRelayCommand? _scanRedumpLocalLibraryCommand;
     private AsyncRelayCommand? _importRedumpLocalLibraryCommand;
     private IRelayCommand? _browsePendingWorkspaceCommand;
     private readonly RedumpLocalLibraryScanner _redumpLocalLibraryScanner = new();
@@ -34,11 +33,6 @@ public sealed partial class OptionsViewModel
 
     public IRelayCommand BrowseRedumpLocalLibraryCommand =>
         _browseRedumpLocalLibraryCommand ??= new RelayCommand(BrowseRedumpLocalLibrary);
-
-    public IAsyncRelayCommand ScanRedumpLocalLibraryCommand =>
-        _scanRedumpLocalLibraryCommand ??= new AsyncRelayCommand(
-            ScanAndIndexRedumpLocalLibraryAsync,
-            CanScanRedumpLocalLibrary);
 
     public IAsyncRelayCommand ImportRedumpLocalLibraryCommand =>
         _importRedumpLocalLibraryCommand ??= new AsyncRelayCommand(
@@ -143,58 +137,8 @@ public sealed partial class OptionsViewModel
             && TryGetSafeOptionsDirectory(root, out _);
     }
 
-    private async Task ScanRedumpLocalLibraryAsync()
-    {
-        string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
-
-        if (!TryGetSafeOptionsDirectory(root, out string safeRoot))
-        {
-            RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
-            return;
-        }
-
-        IsRedumpLocalLibraryScanRunning = true;
-        RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanRunning");
-
-        try
-        {
-            RedumpLocalLibraryScanResult result = await _redumpLocalLibraryScanner
-                .ScanAsync(safeRoot, CancellationToken.None)
-                .ConfigureAwait(true);
-
-            if (!result.HasImportableDatFiles)
-            {
-                RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
-                return;
-            }
-
-            string newest = result.NewestModifiedLocal.HasValue
-                ? result.NewestModifiedLocal.Value.ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture)
-                : "—";
-
-            RedumpLocalLibraryScanSummary = ArabicUi.Format(
-                "LocRedumpSettings_LocalFolderScanReadyFormat",
-                FormatInvariantNumber(result.DatXmlFileCount),
-                FormatInvariantNumber(result.CueFileCount),
-                FormatInvariantNumber(result.GdiFileCount),
-                FormatInvariantNumber(result.SubchannelFileCount),
-                FormatInvariantNumber(result.DiscKeyFileCount),
-                FormatInvariantNumber(result.TopLevelFolderCount),
-                newest);
-        }
-        catch (Exception ex)
-        {
-            RedumpLocalLibraryScanSummary = RuntimeDiagnosticFormatter.SummarizeException(ex);
-        }
-        finally
-        {
-            IsRedumpLocalLibraryScanRunning = false;
-        }
-    }
-
     partial void NotifyRedumpLocalLibraryScanCommandState()
     {
-        _scanRedumpLocalLibraryCommand?.NotifyCanExecuteChanged();
         _importRedumpLocalLibraryCommand?.NotifyCanExecuteChanged();
     }
 

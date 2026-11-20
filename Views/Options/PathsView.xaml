@@ -18,12 +18,21 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
+    <!-- General: the options most people change. -->
     <Border Style="{StaticResource Win11SettingsPageRoot}">
         <ScrollViewer Style="{StaticResource Win11SettingsScrollViewer}">
             <StackPanel Style="{StaticResource Win11SettingsContentStack}">
 
-                <!-- Where results go and how they are named. -->
-                <opt:OptSection Header="{DynamicResource LocFiles_OutputSection}">
+                <opt:OptSection Header="{DynamicResource LocOpt_AddAndSaveSection}">
+                    <opt:OptRow Placement="Leading"
+                                Title="{DynamicResource LocPaths_IncludeSubfolders}"
+                                Description="{DynamicResource LocPaths_IncludeSubfoldersDesc}">
+                        <CheckBox x:Name="IncludeSubfoldersCheckBox"
+                                  IsChecked="{Binding IncludeSubfolders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Style="{StaticResource Win11SettingsCheckBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPaths_IncludeSubfolders}" />
+                    </opt:OptRow>
+
                     <opt:OptRow Placement="Leading"
                                 Title="{DynamicResource LocPaths_CustomOutput}"
                                 Description="{DynamicResource LocPaths_CustomOutputDesc}">
@@ -56,27 +65,20 @@
                                         Style="{StaticResource OptPathButton}"
                                         AutomationProperties.Name="{DynamicResource LocPaths_OutputFolder}"
                                         Content="{DynamicResource LocCommon_Browse}" />
-                                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Style="{StaticResource OptFieldError}" Text="{Binding CustomOutputRootError}" />
+                                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource OptFieldError}" Text="{Binding CustomOutputRootError}" />
                             </Grid>
                         </opt:OptRow.Extra>
                     </opt:OptRow>
 
-                    <opt:OptRow Placement="Leading"
-                                Title="{DynamicResource LocPaths_OrganizeByPlatform}"
-                                Description="{DynamicResource LocPaths_OrganizeByPlatformDesc}">
-                        <CheckBox x:Name="OrganizeByPlatformCheckBox"
-                                  IsChecked="{Binding OrganizeByPlatform, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPaths_OrganizeByPlatform}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Placement="Leading"
-                                Title="{DynamicResource LocPaths_OrganizeByRegion}"
-                                Description="{DynamicResource LocPaths_OrganizeByRegionDesc}">
-                        <CheckBox x:Name="OrganizeByRegionCheckBox"
-                                  IsChecked="{Binding OrganizeByRegion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPaths_OrganizeByRegion}" />
+                    <!-- One list for the two folder options (platform, region). -->
+                    <opt:OptRow Title="{DynamicResource LocOpt_OrganizeTitle}"
+                                Description="{Binding SelectedOutputOrganize.Description}">
+                        <ComboBox x:Name="OutputOrganizeComboBox"
+                                  ItemsSource="{Binding OutputOrganizeOptions}"
+                                  SelectedItem="{Binding SelectedOutputOrganize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocOpt_OrganizeTitle}" />
                     </opt:OptRow>
 
                     <opt:OptRow Placement="Leading"
@@ -89,54 +91,7 @@
                     </opt:OptRow>
                 </opt:OptSection>
 
-                <!-- What happens while files are added and processed. -->
-                <opt:OptSection Header="{DynamicResource LocFiles_WorkSection}">
-                    <opt:OptRow Placement="Leading"
-                                Title="{DynamicResource LocPaths_IncludeSubfolders}"
-                                Description="{DynamicResource LocPaths_IncludeSubfoldersDesc}">
-                        <CheckBox x:Name="IncludeSubfoldersCheckBox"
-                                  IsChecked="{Binding IncludeSubfolders, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPaths_IncludeSubfolders}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Placement="Leading"
-                                Title="{DynamicResource LocPaths_CustomTempFolder}"
-                                Description="{DynamicResource LocPaths_CustomTempFolderDesc}">
-                        <CheckBox x:Name="UseCustomPendingWorkspaceCheckBox"
-                                  IsChecked="{Binding UseCustomPendingWorkspace, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPaths_CustomTempFolder}" />
-                        <opt:OptRow.Extra>
-                            <Grid Visibility="{Binding UseCustomPendingWorkspace, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBox x:Name="PendingWorkspaceCustomRootTextBox"
-                                         Height="{DynamicResource Space.32}"
-                                         Text="{Binding PendingWorkspaceCustomRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
-                                         FlowDirection="LeftToRight"
-                                         Language="en-US"
-                                         TextAlignment="Left"
-                                         Style="{StaticResource Win11SettingsTechnicalTextBox}"
-                                         ToolTip="{Binding PendingWorkspaceCustomRoot}"
-                                         AutomationProperties.Name="{DynamicResource LocPaths_TempFolder}" />
-                                <Button x:Name="BrowsePendingWorkspaceButton"
-                                        Grid.Column="1"
-                                        Command="{Binding BrowsePendingWorkspaceCommand}"
-                                        Style="{StaticResource OptPathButton}"
-                                        AutomationProperties.Name="{DynamicResource LocPaths_TempFolder}"
-                                        Content="{DynamicResource LocCommon_Browse}" />
-                                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Style="{StaticResource OptFieldError}" Text="{Binding PendingWorkspaceError}" />
-                            </Grid>
-                        </opt:OptRow.Extra>
-                    </opt:OptRow>
-
+                <opt:OptSection Header="{DynamicResource LocOpt_AfterConversionSection}">
                     <opt:OptRow Placement="Leading"
                                 Title="{DynamicResource LocProcessing_VerifyAfterConversion}"
                                 Description="{DynamicResource LocProcessing_VerifyAfterConversionDesc}">
@@ -146,6 +101,28 @@
                                   AutomationProperties.Name="{DynamicResource LocProcessing_VerifyAfterConversion}" />
                     </opt:OptRow>
 
+                    <!-- Sources are deleted only after a verified result, so this needs the check above. -->
+                    <opt:OptRow IsEnabled="{Binding VerifyAfterConversion}"
+                                Title="{DynamicResource LocOpt_DeleteSourceTitle}"
+                                Description="{Binding DeleteSourceDescription}">
+                        <ComboBox x:Name="DeleteSourceComboBox"
+                                  ItemsSource="{Binding DeleteSourceOptions}"
+                                  SelectedItem="{Binding SelectedDeleteSource, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocOpt_DeleteSourceTitle}" />
+                    </opt:OptRow>
+
+                    <opt:OptRow Title="{DynamicResource LocOpt_M3uTitle}"
+                                Description="{Binding M3uDescription}">
+                        <ComboBox x:Name="M3uComboBox"
+                                  ItemsSource="{Binding M3uOptions}"
+                                  SelectedItem="{Binding SelectedM3u, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocOpt_M3uTitle}" />
+                    </opt:OptRow>
+
                     <opt:OptRow Placement="Leading"
                                 Title="{DynamicResource LocProcessing_CopyMatchingSbi}"
                                 Description="{DynamicResource LocProcessing_CopyMatchingSbiDesc}">
@@ -153,67 +130,6 @@
                                   IsChecked="{Binding CopyMatchingSbi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                   Style="{StaticResource Win11SettingsCheckBox}"
                                   AutomationProperties.Name="{DynamicResource LocProcessing_CopyMatchingSbi}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Placement="Leading"
-                                Title="{DynamicResource LocProcessing_AutoM3uGeneration}"
-                                Description="{DynamicResource LocProcessing_AutoM3uGenerationDesc}">
-                        <CheckBox x:Name="EnableAutoM3uGenerationCheckBox"
-                                  IsChecked="{Binding EnableAutoM3uGeneration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocProcessing_AutoM3uGeneration}" />
-                    </opt:OptRow>
-
-                    <!-- Only means something while playlists are made. -->
-                    <opt:OptRow Placement="Leading"
-                                IsEnabled="{Binding EnableAutoM3uGeneration}"
-                                Title="{DynamicResource LocProcessing_OverwriteM3u}"
-                                Description="{DynamicResource LocProcessing_OverwriteM3uDesc}">
-                        <CheckBox x:Name="OverwriteExistingM3uCheckBox"
-                                  IsChecked="{Binding OverwriteExistingM3uPlaylists, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocProcessing_OverwriteM3u}" />
-                    </opt:OptRow>
-                </opt:OptSection>
-
-                <opt:OptSection Header="{DynamicResource LocFiles_CleanupSection}">
-                    <!-- Sources are deleted only after a verified result, so these need Verify after conversion. -->
-                    <opt:OptRow Placement="Leading"
-                                IsEnabled="{Binding VerifyAfterConversion}"
-                                Title="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversion}"
-                                Description="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversionDesc}">
-                        <CheckBox x:Name="DeleteSourceAfterVerifiedConversionCheckBox"
-                                  IsChecked="{Binding DeleteSourceAfterVerifiedConversion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversion}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Placement="Leading"
-                                IsEnabled="{Binding VerifyAfterConversion}"
-                                Title="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtraction}"
-                                Description="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtractionDesc}">
-                        <CheckBox x:Name="DeleteSourceAfterVerifiedExtractionCheckBox"
-                                  IsChecked="{Binding DeleteSourceAfterVerifiedExtraction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtraction}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Placement="Leading"
-                                Title="{DynamicResource LocProcessing_DeleteTemporaryExtraction}"
-                                Description="{DynamicResource LocProcessing_DeleteTemporaryExtractionDesc}">
-                        <CheckBox x:Name="DeleteTemporaryExtractionCheckBox"
-                                  IsChecked="{Binding DeleteTemporaryExtraction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocProcessing_DeleteTemporaryExtraction}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Placement="Leading"
-                                Title="{DynamicResource LocProcessing_DeleteFailedOutput}"
-                                Description="{DynamicResource LocProcessing_DeleteFailedOutputDesc}">
-                        <CheckBox x:Name="DeleteFailedOutputCheckBox"
-                                  IsChecked="{Binding DeleteFailedOutput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocProcessing_DeleteFailedOutput}" />
                     </opt:OptRow>
                 </opt:OptSection>
 

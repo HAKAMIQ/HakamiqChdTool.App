@@ -55,6 +55,10 @@ internal sealed partial class HqOptionsShell
                 // Rows made from data (the bundled tools list) are not in the logical tree; the heading decides.
                 bool generated = section.ItemsSource is not null;
                 section.IsFilteredOut = needle.Length > 0 && sectionMatches == 0 && !(generated && headerMatches);
+                if (needle.Length > 0 && section.IsCollapsible && !section.IsFilteredOut)
+                {
+                    section.IsExpanded = true;
+                }
                 tabMatches += section.IsFilteredOut ? 0 : Math.Max(sectionMatches, generated ? 1 : 0);
             }
 

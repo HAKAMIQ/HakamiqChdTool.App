@@ -92,24 +92,32 @@ If the queue is busy, new files wait and start when it is free.
 
 ## Options window
 
-Options has six tabs: Conversion, Files, Performance, Windows, Redump and Tools.
-Each option shows what it does under its name. The search box at the top
+Options has six tabs: General, Conversion, Performance, Windows, Redump and
+Tools. Each option shows what it does under its name. The search box at the top
 shows only the options that contain the text, in every tab, and opens a tab
 that has a match. A problem with a folder (missing, not a full path) is shown
 in red under its box, and OK stays off until it is fixed.
 
-- **Conversion**: the chdman copy, the target emulator and the CHD settings.
-  When the target emulator fixes the hunk size or leaves out zstd, the option
-  it overrides says so.
-- **Files**: where results go, what happens while processing (subfolders,
-  work folder, verification, SBI and M3U files) and cleanup.
+- **General**: subfolders, where results are saved and how they are sorted
+  into folders, skipping existing output, verification, deleting the original
+  after a verified result, M3U playlists and SBI files.
+- **Conversion**: the target emulator, the compression and the Dreamcast
+  extraction format. **Advanced** (folded; it opens by itself when one of its
+  values is not the default, or when a search matches it) holds the hunk size,
+  the ISO creation mode, the CHD platform profile and the chdman copy. When the
+  target emulator fixes the hunk size or leaves out zstd, the option it
+  overrides says so.
+- **Performance**: conversion speed (Safe, Balanced, Fast, or a fixed number of
+  threads), files at once, process priority, the work folder and cleanup of
+  files unpacked from archives.
 - **Tools**: every bundled tool with its version and whether its files still
   match the digest the app checks before running it, and CsoKit and igir with
   **Use bundled** to drop a copy you chose.
 
 **Restore defaults** resets the options in the window only; the language,
 theme, chosen tools and Redump data are kept. A chosen CsoKit or igir is saved
-with Apply or OK like the other options.
+with Apply or OK like the other options. Incomplete output from a failed job is
+always removed.
 
 ## Command line
 

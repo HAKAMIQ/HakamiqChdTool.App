@@ -684,7 +684,52 @@
                                    Text="{TemplateBinding Header}"
                                    Style="{StaticResource Win11SettingsSectionTitleText}"
                                    Margin="{DynamicResource Inset.0.0.0.8}" />
-                        <Border Background="{DynamicResource Brush.Card}"
+                        <!-- A folding section: the heading is a button with an arrow. -->
+                        <ToggleButton x:Name="HeaderToggle"
+                                      Visibility="Collapsed"
+                                      Margin="{DynamicResource Inset.0.0.0.8}"
+                                      HorizontalAlignment="Left"
+                                      Cursor="Hand"
+                                      Focusable="True"
+                                      IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                      AutomationProperties.Name="{TemplateBinding Header}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                    <Border Background="{DynamicResource Brush.Transparent}" Padding="{DynamicResource Inset.0.2.0.0}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path x:Name="Arrow"
+                                                  Width="{DynamicResource Space.10}"
+                                                  Height="{DynamicResource Space.10}"
+                                                  Margin="{DynamicResource Inset.0.0.6.0}"
+                                                  VerticalAlignment="Center"
+                                                  Data="{StaticResource Icon.ChevronDown}"
+                                                  Fill="{DynamicResource Brush.Text.Secondary}"
+                                                  Stretch="Uniform"
+                                                  RenderTransformOrigin="0.5,0.5">
+                                                <Path.RenderTransform>
+                                                    <RotateTransform Angle="-90" />
+                                                </Path.RenderTransform>
+                                            </Path>
+                                            <ContentPresenter VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="Arrow" Property="RenderTransform">
+                                                <Setter.Value>
+                                                    <RotateTransform Angle="0" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                            <TextBlock Text="{TemplateBinding Header}"
+                                       Style="{StaticResource Win11SettingsSectionTitleText}"
+                                       Margin="{DynamicResource Inset.None}" />
+                        </ToggleButton>
+                        <Border x:Name="Card"
+                                Background="{DynamicResource Brush.Card}"
                                 BorderBrush="{DynamicResource Brush.Border.Default}"
                                 BorderThickness="{DynamicResource Inset.1.All}"
                                 CornerRadius="{DynamicResource Radius.Card.Large}"
@@ -698,6 +743,17 @@
                         <Trigger Property="Header" Value="">
                             <Setter TargetName="HeaderText" Property="Visibility" Value="Collapsed" />
                         </Trigger>
+                        <Trigger Property="IsCollapsible" Value="True">
+                            <Setter TargetName="HeaderText" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="HeaderToggle" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsCollapsible" Value="True" />
+                                <Condition Property="IsExpanded" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Card" Property="Visibility" Value="Collapsed" />
+                        </MultiTrigger>
                         <Trigger Property="IsFilteredOut" Value="True">
                             <Setter TargetName="Root" Property="Visibility" Value="Collapsed" />
                         </Trigger>

@@ -23,7 +23,7 @@
             <StackPanel x:Name="PerformancePanel"
                         Style="{StaticResource Win11SettingsContentStack}">
 
-                <opt:OptSection Header="{DynamicResource LocPerformance_RuntimeSection}">
+                <opt:OptSection Header="{DynamicResource LocOpt_SpeedSection}">
 
                     <!-- The processor this runs on, so the counts below make sense. -->
                     <opt:OptRow Title="{DynamicResource LocAdv_ProcessorTitle}">
@@ -41,29 +41,16 @@
                         </TextBlock>
                     </opt:OptRow>
 
-                    <opt:OptRow Title="{DynamicResource LocPerformance_PerformanceMode}"
-                                Description="{Binding PerformanceModeDescription}">
-                        <ComboBox x:Name="PerformanceModeComboBox"
-                                  ItemsSource="{Binding PerformanceModeOptions}"
-                                  SelectedItem="{Binding SelectedPerformanceMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="Label"
-                                  Style="{StaticResource Win11SettingsComboBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPerformance_PerformanceMode}" />
-                    </opt:OptRow>
-
-                    <opt:OptRow Title="{DynamicResource LocPerformance_ProcessorCount}"
-                                Description="{Binding ProcessorSelectionDescription}">
-                        <ComboBox x:Name="ProcessorCountComboBox"
+                    <!-- One list for the performance mode and the thread count: a fixed count replaces the mode. -->
+                    <opt:OptRow Title="{DynamicResource LocOpt_SpeedTitle}"
+                                Description="{Binding SpeedDescription}">
+                        <ComboBox x:Name="SpeedComboBox"
                                   NumberSubstitution.Substitution="European"
-                                  ItemsSource="{Binding ProcessorOptions}"
-                                  SelectedItem="{Binding SelectedProcessorOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  ItemTemplate="{StaticResource ProcessorOptionLabelTemplate}"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="Label"
+                                  ItemsSource="{Binding SpeedOptions}"
+                                  SelectedItem="{Binding SelectedSpeed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
                                   Style="{StaticResource Win11SettingsComboBox}"
-                                  AutomationProperties.Name="{DynamicResource LocPerformance_ProcessorCount}" />
+                                  AutomationProperties.Name="{DynamicResource LocOpt_SpeedTitle}" />
                     </opt:OptRow>
 
                     <opt:OptRow Title="{DynamicResource LocPerformance_ConcurrentConversions}"
@@ -73,8 +60,6 @@
                                   ItemsSource="{Binding ConcurrentConversionOptions}"
                                   SelectedItem="{Binding SelectedConcurrentConversionOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                   ItemTemplate="{StaticResource ProcessorOptionLabelTemplate}"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="Label"
                                   Style="{StaticResource Win11SettingsComboBox}"
                                   AutomationProperties.Name="{DynamicResource LocPerformance_ConcurrentConversions}" />
                     </opt:OptRow>
@@ -85,10 +70,57 @@
                                   ItemsSource="{Binding PriorityModeOptions}"
                                   SelectedItem="{Binding SelectedPriorityMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                   ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
-                                  IsTextSearchEnabled="True"
-                                  TextSearch.TextPath="Label"
                                   Style="{StaticResource Win11SettingsComboBox}"
                                   AutomationProperties.Name="{DynamicResource LocPerformance_ProcessPriority}" />
+                    </opt:OptRow>
+                </opt:OptSection>
+
+                <!-- Where work files go while converting, and what is cleaned up after. -->
+                <opt:OptSection Header="{DynamicResource LocOpt_TempFilesSection}">
+                    <opt:OptRow Placement="Leading"
+                                Title="{DynamicResource LocPaths_CustomTempFolder}"
+                                Description="{DynamicResource LocPaths_CustomTempFolderDesc}">
+                        <CheckBox x:Name="UseCustomPendingWorkspaceCheckBox"
+                                  IsChecked="{Binding UseCustomPendingWorkspace, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Style="{StaticResource Win11SettingsCheckBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPaths_CustomTempFolder}" />
+                        <opt:OptRow.Extra>
+                            <Grid Visibility="{Binding UseCustomPendingWorkspace, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="PendingWorkspaceCustomRootTextBox"
+                                         Height="{DynamicResource Space.32}"
+                                         Text="{Binding PendingWorkspaceCustomRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                                         FlowDirection="LeftToRight"
+                                         Language="en-US"
+                                         TextAlignment="Left"
+                                         Style="{StaticResource Win11SettingsTechnicalTextBox}"
+                                         ToolTip="{Binding PendingWorkspaceCustomRoot}"
+                                         AutomationProperties.Name="{DynamicResource LocPaths_TempFolder}" />
+                                <Button x:Name="BrowsePendingWorkspaceButton"
+                                        Grid.Column="1"
+                                        Command="{Binding BrowsePendingWorkspaceCommand}"
+                                        Style="{StaticResource OptPathButton}"
+                                        AutomationProperties.Name="{DynamicResource LocPaths_TempFolder}"
+                                        Content="{DynamicResource LocCommon_Browse}" />
+                                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource OptFieldError}" Text="{Binding PendingWorkspaceError}" />
+                            </Grid>
+                        </opt:OptRow.Extra>
+                    </opt:OptRow>
+
+                    <opt:OptRow Placement="Leading"
+                                Title="{DynamicResource LocProcessing_DeleteTemporaryExtraction}"
+                                Description="{DynamicResource LocProcessing_DeleteTemporaryExtractionDesc}">
+                        <CheckBox x:Name="DeleteTemporaryExtractionCheckBox"
+                                  IsChecked="{Binding DeleteTemporaryExtraction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Style="{StaticResource Win11SettingsCheckBox}"
+                                  AutomationProperties.Name="{DynamicResource LocProcessing_DeleteTemporaryExtraction}" />
                     </opt:OptRow>
                 </opt:OptSection>
 

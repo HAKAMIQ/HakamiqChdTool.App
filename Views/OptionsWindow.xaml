@@ -396,10 +396,9 @@
                         </Grid.ColumnDefinitions>
 
                         <RadioButton x:Name="ProcessingTabButton"
-                                     Grid.Column="0"
+                                     Grid.Column="1"
                                      GroupName="OptionsTabs"
-                                     IsChecked="True"
-                                     Tag="{StaticResource Icon.Settings}"
+                                     Tag="{StaticResource Icon.Operation.Convert}"
                                      Style="{StaticResource OptionsWindow.TopTab}"
                                      Checked="OnTabButtonChecked">
                             <TextBlock Text="{DynamicResource LocOptions_TabProcessing}"
@@ -409,9 +408,10 @@
                         </RadioButton>
 
                         <RadioButton x:Name="PathsTabButton"
-                                     Grid.Column="1"
+                                     Grid.Column="0"
                                      GroupName="OptionsTabs"
-                                     Tag="{StaticResource Icon.Folder}"
+                                     IsChecked="True"
+                                     Tag="{StaticResource Icon.Settings}"
                                      Style="{StaticResource OptionsWindow.TopTab}"
                                      Checked="OnTabButtonChecked">
                             <TextBlock Text="{DynamicResource LocOptions_TabPaths}"
@@ -481,8 +481,7 @@
 
                         <options:PathsSettingsView x:Name="PathsPanel"
                                                    HorizontalAlignment="Stretch"
-                                                   VerticalAlignment="Stretch"
-                                                   Visibility="Collapsed" />
+                                                   VerticalAlignment="Stretch" />
 
                         <options:RedumpSettingsView x:Name="RedumpPanel"
                                                     HorizontalAlignment="Stretch"
@@ -491,7 +490,8 @@
 
                         <options:ProcessingSettingsView x:Name="ProcessingPanel"
                                                         HorizontalAlignment="Stretch"
-                                                        VerticalAlignment="Stretch" />
+                                                        VerticalAlignment="Stretch"
+                                                        Visibility="Collapsed" />
 
                         <options:ExternalToolsSettingsView x:Name="ExternalToolsPanel"
                                                           HorizontalAlignment="Stretch"

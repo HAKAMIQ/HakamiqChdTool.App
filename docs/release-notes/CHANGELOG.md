@@ -62,8 +62,15 @@ it are the detailed record.
   description on screen, a larger window, a Windows tab for the Explorer menu
   and watch folder, a Tools tab that lists every bundled tool with its version
   and digest check, and a search box that filters every tab.
+- Fewer, clearer options: General comes first; pairs of options are one list
+  each (output folders, deleting the original, M3U playlists, and the
+  performance mode with the thread count); technical CHD choices and the
+  chdman copy sit in a folded Advanced section; Redump has one Prepare button.
 - The hunk size and compression options say when the target emulator
-  overrides them, and Replace existing M3U playlists has its own box.
+  overrides them, and replacing existing M3U playlists can be chosen.
+- Incomplete output from a failed job is always removed; the option is gone.
+- The option that wrote the suggested Redump name to the log is gone; the
+  suggested name still shows with the check result.
 - Folder errors show under the folder box, and a watch folder that is on needs
   an existing folder.
 - Restore defaults resets only the options in the window; it no longer
@@ -73,8 +80,7 @@ it are the detailed record.
   Scan DAT folder shows its result; a chosen CsoKit or igir waits for Apply
   and Cancel drops it.
 - Option texts say what the options do: Redump checks read each source in
-  full first, the suggested name is written to the log, and archives are
-  always unpacked in the Windows Temp folder.
+  full first, and archives are always unpacked in the Windows Temp folder.
 - Files unpacked from archives are now deleted from the Temp folder when the
   task ends by default. A choice already saved in your settings is kept.
 - Arabic messages across the app use plain wording: direct instructions

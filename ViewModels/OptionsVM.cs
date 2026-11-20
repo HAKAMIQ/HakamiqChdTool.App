@@ -46,7 +46,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private string _externalCsoKitPath = string.Empty;
     private string _externalIgirPath = string.Empty;
     private bool _enableDeepIntegrityCheck;
-    private bool _applyStandardNamingBasedOnHash;
     private bool _isDatabaseAvailable;
     private bool _enableRedumpAutoSync;
     private AppSettings? _appliedSnapshot;
@@ -138,6 +137,8 @@ public sealed partial class OptionsViewModel : ObservableValidator
         _selectedHunkPreset = HunkPresetOptions.FirstOrDefault();
         _selectedIsoCreateOverride = IsoCreateOverrideOptions.FirstOrDefault();
         _selectedChdPlatformProfile = ChdPlatformProfileOptions.FirstOrDefault();
+        BuildCompositeChoices();
+        PropertyChanged += (_, e) => NotifyComposites(e.PropertyName);
 
         ErrorsChanged += (_, e) =>
         {
@@ -237,6 +238,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         SelectedTargetEmulator = SelChoice(TargetEmulatorOptions, targetKey);
         SelectedIsoCreateOverride = SelChoice(IsoCreateOverrideOptions, isoKey);
         SelectedChdPlatformProfile = SelChoice(ChdPlatformProfileOptions, profileKey);
+        BuildCompositeChoices();
 
         OnPropertyChanged(nameof(ProcessorName));
         OnPropertyChanged(nameof(ProcessorCounts));
@@ -579,16 +581,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
                 ValidateProperty(RedumpLocalLibraryRootValidationProxy, nameof(RedumpLocalLibraryRootValidationProxy));
                 OnPropertyChanged(nameof(CanSave));
             }
-        }
-    }
-
-    public bool ApplyStandardNamingBasedOnHash
-    {
-        get => _applyStandardNamingBasedOnHash;
-        set
-        {
-            bool normalized = value;
-            SetProperty(ref _applyStandardNamingBasedOnHash, normalized);
         }
     }
 

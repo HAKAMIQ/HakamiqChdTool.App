@@ -93,7 +93,6 @@ public sealed partial class OptionsViewModel
             && StringEquals(ExternalCsoKitPath, snapshot.ExternalCsoKitPath?.Trim() ?? string.Empty)
             && StringEquals(ExternalIgirPath, snapshot.ExternalIgirPath?.Trim() ?? string.Empty)
             && EnableDeepIntegrityCheck == snapshot.EnableDeepIntegrityCheck
-            && ApplyStandardNamingBasedOnHash == snapshot.ApplyStandardNamingBasedOnHash
             && StringEquals(RedumpDatabaseDownloadUrl.Trim(), snapshot.RedumpDatabaseDownloadUrl)
             && EnableRedumpAutoSync == snapshot.EnableRedumpAutoSync
             && StringEquals(_redumpLastSyncedUtc ?? string.Empty, snapshot.RedumpLastSyncedUtc)

@@ -74,7 +74,7 @@ public partial class OptionsWindow : Window
 
     public AppSettings ResultSettings { get; internal set; }
 
-    public string ActiveTabKey => _coordinator?.ActiveTabKey ?? ProcessingTabKey;
+    public string ActiveTabKey => _coordinator?.ActiveTabKey ?? PathsTabKey;
 
     public event EventHandler<OptionsAppliedEventArgs>? SettingsApplied;
 

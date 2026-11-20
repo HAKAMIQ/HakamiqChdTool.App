@@ -17,7 +17,7 @@ internal static partial class Program
         {
             "LocAdv_TargetEmulatorAutoLabel", "LocAdv_CompressionPresetDefaultLabel", "LocAdv_HunkPresetDefaultLabel",
             "LocAdv_IsoCreateOverrideAutoLabel", "LocAdv_ProcessorAutoRecommendedLabel",
-            "LocPerformance_PerformanceMode", "LocPerformance_ProcessorCount", "LocPerformance_ProcessPriority",
+            "LocOpt_SpeedTitle", "LocPerformance_ProcessPriority",
             "LocPerformance_CompressionPreset", "LocPerformance_HunkSize"
         })
         {
@@ -25,7 +25,7 @@ internal static partial class Program
         }
 
         AssertEqual("Redump", arabic["LocOptions_TabRedump"], "The Redump tab uses the name shown inside it.");
-        foreach (string key in new[] { "LocAdv_ProcessorLabel", "LocAdv_ProcessorCounts" })
+        foreach (string key in new[] { "LocAdv_ProcessorTitle", "LocAdv_ProcessorCounts" })
         {
             AssertTrue(english.ContainsKey(key) && arabic.ContainsKey(key), $"{key} exists in both languages.");
         }
@@ -67,15 +67,12 @@ internal static partial class Program
         }
 
         string paths = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PathsView.xaml")));
-        AssertEqual(2, new[] { "LocPaths_DeleteSourceAfterVerifiedConversion", "LocPaths_DeleteSourceAfterVerifiedExtraction" }
-            .Count(key => Regex.IsMatch(paths, @"IsEnabled=""\{Binding VerifyAfterConversion\}""\s+Title=""\{DynamicResource " + key + @"\}""")),
-            "Both delete-source boxes are enabled only while Verify after conversion is on.");
+        AssertTrue(Regex.IsMatch(paths, @"IsEnabled=""\{Binding VerifyAfterConversion\}""\s+Title=""\{DynamicResource LocOpt_DeleteSourceTitle\}"""),
+            "The delete-source choice is available only while Verify after conversion is on.");
 
         Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");
         AssertTrue(english["LocRedumpSettings_ShowInMainDesc"].Contains("reads the whole source", StringComparison.Ordinal),
             "The Redump option says it reads each source before converting.");
-        AssertTrue(english["LocProcessing_DeleteFailedOutputDesc"].Contains("CUE/BIN", StringComparison.Ordinal),
-            "The failed-output option says what it really deletes.");
 
         string tools = File.ReadAllText(FindRepoFile(Path.Combine("Ui", "Shell", "HqOptsTools.cs")));
         AssertTrue(tools.Contains("|| !await IsPinnedIgirAsync(selectedPath))", StringComparison.Ordinal),
@@ -103,7 +100,7 @@ internal static partial class Program
             "A DAT import is named after the chosen file, not a hidden setting.");
 
         string perf = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PerfView.xaml")));
-        foreach (string box in new[] { "ProcessorCountComboBox", "ConcurrentConversionCountComboBox" })
+        foreach (string box in new[] { "SpeedComboBox", "ConcurrentConversionCountComboBox" })
         {
             AssertTrue(Regex.IsMatch(perf, "x:Name=\"" + box + "\"\\s+NumberSubstitution.Substitution=\"European\""), $"{box} shows Latin digits.");
         }

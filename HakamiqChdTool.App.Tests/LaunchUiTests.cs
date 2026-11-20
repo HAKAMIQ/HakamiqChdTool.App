@@ -49,7 +49,7 @@ internal static partial class Program
         Dictionary<string, string> arabic = LoadStrings("ArabicStrings.xaml");
         foreach (string key in new[]
         {
-            "LocOptions_WindowsSection", "LocOptions_ExplorerMenu", "LocOptions_ExplorerMenuDesc",
+            "LocOptions_ExplorerSection", "LocOptions_ExplorerMenu", "LocOptions_ExplorerMenuDesc",
             "LocShell_ConvertToChd", "LocShell_ExtractChd", "LocShell_VerifyChd", "LocShell_FolderMenu",
             "LocLaunch_WaitingFooter", "LocLaunch_AddFailedFooter", "LocLaunch_ExplorerMenuFailedFooter"
         })

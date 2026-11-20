@@ -57,7 +57,7 @@ internal static partial class Program
         ["WatchFolderEnabled"] = new(SettingKind.Effect, "Starts or stops watching the folder.", nameof(TestWatchFolderSettingInOptions), nameof(TestWatchFolderReportsALostFolderOnce)),
         ["WatchFolderPath"] = new(SettingKind.Effect, "The folder that is watched.", nameof(TestWatchFolderSettingInOptions), nameof(TestWatchFolderReportsALostFolderOnce)),
         ["EnableDeepIntegrityCheck"] = new(SettingKind.Gap, "Adds the full read of each source before converting; no test runs a conversion with it on."),
-        ["ApplyStandardNamingBasedOnHash"] = new(SettingKind.Gap, "Only computes and logs a suggested name after a match; no test."),
+        ["ApplyStandardNamingBasedOnHash"] = new(SettingKind.Stored, "Kept for old settings files; the option and its log line are gone, so it has no effect."),
         ["RedumpDatabaseDownloadUrl"] = new(SettingKind.Effect, "Used by startup auto-sync and kept when Options is saved.", nameof(TestOptionsKeepTheSavedRedumpUrl), nameof(TestHiddenRedumpDownloadUiIsRemoved)),
         ["RedumpLastSyncedUtc"] = new(SettingKind.Stored, "Bookkeeping written by the Redump sync."),
         ["RedumpAutoSyncBackoffUntilUtc"] = new(SettingKind.Stored, "Bookkeeping written by the Redump sync."),

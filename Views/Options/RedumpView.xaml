@@ -33,16 +33,6 @@
                                   Style="{StaticResource Win11SettingsCheckBox}"
                                   AutomationProperties.Name="{DynamicResource LocRedumpSettings_ShowInMainTitle}" />
                     </opt:OptRow>
-
-                    <opt:OptRow Placement="Leading"
-                                Visibility="{Binding EnableDeepIntegrityCheck, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                Title="{DynamicResource LocRedumpSettings_SuggestNameTitle}"
-                                Description="{DynamicResource LocRedumpSettings_SuggestNameDesc}">
-                        <CheckBox x:Name="ApplyStandardNamingBasedOnHashCheckBox"
-                                  IsChecked="{Binding ApplyStandardNamingBasedOnHash, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Win11SettingsCheckBox}"
-                                  AutomationProperties.Name="{DynamicResource LocRedumpSettings_SuggestNameTitle}" />
-                    </opt:OptRow>
                 </opt:OptSection>
 
                 <!-- The database: its state, the DAT folder it is built from, and a single DAT import. -->
@@ -114,29 +104,20 @@
 
                                 <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource OptFieldError}" Text="{Binding RedumpLocalFolderError}" />
 
-                                <!-- Scan only counts what is there; Prepare also imports it into the database. -->
-                                <StackPanel Grid.Row="2"
-                                            Grid.ColumnSpan="2"
-                                            Orientation="Horizontal"
-                                            Margin="{DynamicResource Inset.0.8.0.0}">
-                                    <Button Command="{Binding ImportRedumpLocalLibraryCommand}"
-                                            Style="{StaticResource PrimaryButtonStyle}"
-                                            MinWidth="{DynamicResource Space.128}"
-                                            Height="{DynamicResource Space.32}"
-                                            ToolTip="{DynamicResource LocRedumpSettings_PrepareLocalLibraryTooltip}"
-                                            AutomationProperties.Name="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
-                                            Content="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}" />
-                                    <Button Command="{Binding ScanRedumpLocalLibraryCommand}"
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            MinWidth="{DynamicResource Space.128}"
-                                            Height="{DynamicResource Space.32}"
-                                            Margin="{DynamicResource Inset.8.0.0.0}"
-                                            ToolTip="{DynamicResource LocRedumpSettings_ScanLocalFolderTooltip}"
-                                            AutomationProperties.Name="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}"
-                                            Content="{DynamicResource LocRedumpSettings_ScanLocalFolderButton}" />
-                                </StackPanel>
+                                <!-- Prepare scans the folder, then imports it; its result shows below. -->
+                                <Button Grid.Row="2"
+                                        Grid.ColumnSpan="2"
+                                        HorizontalAlignment="Left"
+                                        Margin="{DynamicResource Inset.0.8.0.0}"
+                                        Command="{Binding ImportRedumpLocalLibraryCommand}"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        MinWidth="{DynamicResource Space.128}"
+                                        Height="{DynamicResource Space.32}"
+                                        ToolTip="{DynamicResource LocRedumpSettings_PrepareLocalLibraryTooltip}"
+                                        AutomationProperties.Name="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}"
+                                        Content="{DynamicResource LocRedumpSettings_PrepareLocalLibraryButton}" />
 
-                                <!-- Result of Scan or Prepare. -->
+                                <!-- Result of Prepare. -->
                                 <TextBlock x:Name="RedumpLocalScanSummaryTextBlock"
                                            Grid.Row="3"
                                            Grid.ColumnSpan="2"

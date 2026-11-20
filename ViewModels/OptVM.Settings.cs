@@ -91,8 +91,8 @@ public sealed partial class OptionsViewModel
         SelectedIsoCreateOverride = ResolveIsoCreateOverride(settings.IsoCreateCommandOverride);
         SelectedChdPlatformProfile = ResolveChdPlatformProfile(settings.ChdPlatformProfileId);
         EnableDeepIntegrityCheck = settings.EnableDeepIntegrityCheck;
-        ApplyStandardNamingBasedOnHash = settings.ApplyStandardNamingBasedOnHash;
 
+        ExpandAdvancedWhenChanged();
         ValidateAllProperties();
         ValidateForSave();
     }
@@ -137,7 +137,6 @@ public sealed partial class OptionsViewModel
         result.ExternalCsoKitPath = ExternalCsoKitPath;
         result.ExternalIgirPath = ExternalIgirPath;
         result.EnableDeepIntegrityCheck = EnableDeepIntegrityCheck;
-        result.ApplyStandardNamingBasedOnHash = ApplyStandardNamingBasedOnHash;
         result.RedumpDatabaseDownloadUrl = RedumpDatabaseDownloadUrl.Trim();
         result.EnableRedumpAutoSync = EnableRedumpAutoSync;
         result.RedumpLastSyncedUtc = _redumpLastSyncedUtc ?? string.Empty;

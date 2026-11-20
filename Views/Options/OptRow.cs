@@ -95,6 +95,25 @@ public sealed class OptSection : ItemsControl
     public static readonly DependencyProperty IsFilteredOutProperty = DependencyProperty.Register(
         nameof(IsFilteredOut), typeof(bool), typeof(OptSection), new PropertyMetadata(false));
 
+    /// <summary>A section whose heading folds it away (the Advanced part of a tab); folded by default.</summary>
+    public static readonly DependencyProperty IsCollapsibleProperty = DependencyProperty.Register(
+        nameof(IsCollapsible), typeof(bool), typeof(OptSection), new PropertyMetadata(false));
+
+    public static readonly DependencyProperty IsExpandedProperty = DependencyProperty.Register(
+        nameof(IsExpanded), typeof(bool), typeof(OptSection), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
+    public bool IsCollapsible
+    {
+        get => (bool)GetValue(IsCollapsibleProperty);
+        set => SetValue(IsCollapsibleProperty, value);
+    }
+
+    public bool IsExpanded
+    {
+        get => (bool)GetValue(IsExpandedProperty);
+        set => SetValue(IsExpandedProperty, value);
+    }
+
     public bool IsFilteredOut
     {
         get => (bool)GetValue(IsFilteredOutProperty);

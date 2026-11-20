@@ -54,21 +54,21 @@ internal sealed partial class HqOptionsShell
             return WindowsTabKey;
         }
 
-        return ProcessingTabKey;
+        return PathsTabKey;
     }
 
     private static string NormalizeTabKey(string? tabKey)
     {
         if (string.IsNullOrWhiteSpace(tabKey))
         {
-            return ProcessingTabKey;
+            return PathsTabKey;
         }
 
         string value = tabKey.Trim();
 
         if (value.Equals(GeneralTabKey, StringComparison.OrdinalIgnoreCase))
         {
-            return ProcessingTabKey;
+            return PathsTabKey;
         }
 
         if (value.Equals(PathsTabKey, StringComparison.OrdinalIgnoreCase))
@@ -101,7 +101,7 @@ internal sealed partial class HqOptionsShell
             return WindowsTabKey;
         }
 
-        return ProcessingTabKey;
+        return PathsTabKey;
     }
 
     public void OnTabButtonChecked(object sender, RoutedEventArgs e)

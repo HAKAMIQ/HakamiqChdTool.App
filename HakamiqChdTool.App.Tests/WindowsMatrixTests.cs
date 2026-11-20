@@ -174,9 +174,9 @@ internal static partial class Program
 
         var rows = Rows(window).ToList();
         int matches = window.FilterOptions("M3U");
-        if (matches < 2 || window.ActiveTabKey != OptionsWindow.PathsTabKey)
+        if (matches < 1 || window.ActiveTabKey != OptionsWindow.PathsTabKey)
         {
-            findings.Add($"{context}: search 'M3U' found {matches} rows and opened {window.ActiveTabKey}, expected the two M3U rows in the Files tab.");
+            findings.Add($"{context}: search 'M3U' found {matches} rows and opened {window.ActiveTabKey}, expected the M3U row in the General tab.");
         }
 
         if (!rows.Any(r => r.IsFilteredOut) || rows.Count(r => !r.IsFilteredOut) != matches)
@@ -187,6 +187,14 @@ internal static partial class Program
         if (window.FilterOptions("zzzz-no-such-option") != 0 || !window.ViewModel.SearchHasNoResults)
         {
             findings.Add($"{context}: a search with no match did not report it.");
+        }
+
+        // A match inside the folded Advanced section opens it.
+        window.ViewModel.IsConversionAdvancedExpanded = false;
+        window.SelectTab(OptionsWindow.PathsTabKey);
+        if (window.FilterOptions("chdman.exe") < 1 || window.ActiveTabKey != OptionsWindow.ProcessingTabKey || !window.ViewModel.IsConversionAdvancedExpanded)
+        {
+            findings.Add($"{context}: a search matching the Advanced section did not open it (tab {window.ActiveTabKey}).");
         }
 
         window.FilterOptions(string.Empty);
