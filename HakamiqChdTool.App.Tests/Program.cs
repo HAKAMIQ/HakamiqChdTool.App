@@ -356,6 +356,7 @@ internal static partial class Program
                 new("Options follow-ups are wired into the app", TestOptionsFollowUpWiring),
                 new("The hidden Redump download button is removed", TestHiddenRedumpDownloadUiIsRemoved),
                 new("Organize by region builds the region folder", TestOrganizeByRegionBuildsTheRegionFolder),
+                new("Skip existing output leaves the existing CHD and the source alone", TestSkipExistingOutputLeavesTheExistingChd),
                 new("M3U lists discs in order and keeps an existing playlist", TestM3uListsDiscsInOrderAndKeepsExistingFiles),
                 new("Auto threads are shared when several files convert at once", TestAutoThreadsAreSharedAcrossConcurrentConversions),
                 new("A disc platform profile lets other disc types use Auto", TestPlatformProfileFallsBackToAutoForOtherInputs),
