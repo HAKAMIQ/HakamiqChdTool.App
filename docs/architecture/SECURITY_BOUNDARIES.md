@@ -61,6 +61,21 @@ directory is therefore expected to be writable only by administrators.
 The bundled MAME 0.289 `chdman` requires x86-64-v2. Runtime initialization checks
 the required CPUID feature bits before extracting or returning the executable.
 
+### Launch requests and the Explorer menu
+
+Command-line arguments and requests from a second launch are untrusted.
+`Startup/LaunchArgs.cs` accepts only `--mode convert|extract|verify` and
+`--add <path>...`; paths must be absolute after resolving and free of control
+characters and wildcards. A second launch hands its request to the running
+instance over a named pipe (`Startup/InstanceChannel.cs`) opened with
+`PipeOptions.CurrentUserOnly` and named with the user SID and session; messages
+are size-bounded, versioned and validated, and a bad message is dropped. The
+paths then go through normal queue intake, like dropped files.
+
+The optional Explorer menu (`Services/Shell/ExplorerMenu.cs`) writes only under
+`HKCU\Software\Classes` for the current account, never needs administrator
+rights, and writes or deletes only keys whose name starts with `HakamiqChdTool`.
+
 ### Network data
 
 Update metadata and Redump catalogs are untrusted remote data. Downloads require

@@ -342,6 +342,10 @@ internal static partial class Program
                 new("GDI sets are finalized with renamed tracks and never overwrite", () => TestGdiFinalizeRenamesTracksAndNeverOverwrites(workDirectory)),
                 new("GD-ROM CHD extracts to GDI through bundled chdman and passes the round-trip proof", () => TestGdRomChdExtractsToGdiAndProves(app, workDirectory)),
                 new("GD-ROM CUE/BIN setting loads, saves and marks unsaved changes in Options", TestGdRomCueBinSettingRoundTripsThroughOptions),
+                new("Launch arguments parse mode and paths and refuse bad input", TestLaunchArgsParse),
+                new("Launch requests reach the running instance and bad messages are ignored", TestInstanceChannelRoundTrip),
+                new("Launch messages decode strictly and large requests split", TestInstanceChannelDecodingIsStrict),
+                new("Explorer menu registers and removes only its own keys", TestExplorerMenuRegistersAndRemovesOnlyItsOwnKeys),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),
