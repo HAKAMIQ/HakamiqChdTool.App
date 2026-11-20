@@ -1676,6 +1676,14 @@ function Test-ReleaseTrustGates {
         Add-Failure 'Secure release workflow must validate and publish the changelog section for the release version.'
     }
 
+    $releaseCreate = [regex]::Match($workflowText, '(?s)gh release create .*?--notes-file')
+    if (-not $releaseCreate.Success) {
+        Add-Failure 'Secure release workflow must publish the release with gh release create.'
+    }
+    elseif ($releaseCreate.Value -match '\.sha256') {
+        Add-Failure 'Secure release workflow must not upload .sha256 files to the release; GitHub shows each asset SHA-256.'
+    }
+
     foreach ($fixedSection in @('## Highlights', '## Download options', '## Verification', '## Changes')) {
         if ($workflowText -match [regex]::Escape($fixedSection)) {
             Add-Failure "Secure release workflow must keep release notes short; remove the fixed '$fixedSection' section."
