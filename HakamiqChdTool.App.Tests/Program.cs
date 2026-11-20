@@ -181,6 +181,7 @@ internal static partial class Program
                 new("Orphan scan skips while a sibling workflow is active", () => TestOrphanScanSkipsWhileSiblingWorkflowActive(workDirectory)),
                 new("Queue never exceeds the configured concurrency", () => TestQueueNeverExceedsConfiguredConcurrency(workDirectory)),
                 new("Overlapping intake requests are serialized", () => TestOverlappingIntakeRequestsAreSerialized(workDirectory)),
+                new("Quick window host runs, waits for Start, runs late files and cancels", () => TestQuickRunHostRunsWaitsAndCancels(workDirectory)),
                 new("Pending cleaner reparse scan fails closed on unreadable subtree", () => TestPendingCleanerReparseScanFailsClosedOnUnreadableSubtree(workDirectory)),
                 new("CUE reference through a junction is rejected", () => TestCueReferenceThroughJunctionIsRejected(workDirectory)),
                 new("Oversized cue sheet is refused", () => TestOversizedCueSheetIsRefused(workDirectory)),
