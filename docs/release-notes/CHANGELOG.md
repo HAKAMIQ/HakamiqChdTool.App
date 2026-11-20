@@ -58,6 +58,23 @@ it are the detailed record.
   left in old settings no longer re-labels it.
 - Number lists in Advanced options use Latin digits, and the hunk-size presets
   say they are not applied to PS2 DVD and PSP images.
+- Advanced options are rebuilt: one row style in every tab with the
+  description on screen, a larger window, a Windows tab for the Explorer menu
+  and watch folder, a Tools tab that lists every bundled tool with its version
+  and digest check, and a search box that filters every tab.
+- The hunk size and compression options say when the target emulator
+  overrides them, and Replace existing M3U playlists has its own box.
+- Folder errors show under the folder box, and a watch folder that is on needs
+  an existing folder.
+- Restore defaults resets only the options in the window; it no longer
+  switches the language and theme or clears chosen tools and Redump data.
+- Only one Options window opens at a time; opening Options with a Redump
+  database no longer turns on Apply; hidden Redump fields no longer block OK;
+  Scan DAT folder shows its result; a chosen CsoKit or igir waits for Apply
+  and Cancel drops it.
+- Option texts say what the options do: Redump checks read each source in
+  full first, the suggested name is written to the log, and archives are
+  always unpacked in the Windows Temp folder.
 - Arabic messages across the app use plain wording: direct instructions
   instead of "يرجى", simple verbs instead of "سيتم + verbal noun", and no
   English word repeated in brackets.

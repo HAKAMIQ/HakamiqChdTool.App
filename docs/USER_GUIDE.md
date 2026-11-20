@@ -23,7 +23,7 @@ Start with one file before processing a large batch. It is easier to confirm the
 
 ## Explorer right-click menu
 
-Turn on **Settings > Performance > Add CHD Tool to the Explorer right-click menu**
+Turn on **Settings > Windows > Add CHD Tool to the Explorer right-click menu**
 to get:
 
 - **Convert to CHD** on ISO, CSO, ZSO, CUE, GDI, TOC, NRG, CCD, MDS, ECM, ZIP,
@@ -82,13 +82,34 @@ temporary files.
 
 ## Watch folder
 
-Turn on **Settings > Performance > Watch a folder and convert new files to
-CHD** and pick a folder. While CHD Tool is open, each new disc image or
+Turn on **Settings > Windows > Watch a folder and convert new files to CHD**
+and pick an existing folder (Options will not save without one). While CHD Tool is open, each new disc image or
 archive copied into that folder is converted once it is fully written (its
 size has stayed the same for a few seconds and no program is still writing
 it). Files that were already there, subfolders, CHD files, hidden files and
 partial downloads are left alone. Output goes where your output settings say.
 If the queue is busy, new files wait and start when it is free.
+
+## Options window
+
+Options has six tabs: Conversion, Files, Performance, Windows, Redump and Tools.
+Each option shows what it does under its name. The search box at the top
+shows only the options that contain the text, in every tab, and opens a tab
+that has a match. A problem with a folder (missing, not a full path) is shown
+in red under its box, and OK stays off until it is fixed.
+
+- **Conversion**: the chdman copy, the target emulator and the CHD settings.
+  When the target emulator fixes the hunk size or leaves out zstd, the option
+  it overrides says so.
+- **Files**: where results go, what happens while processing (subfolders,
+  work folder, verification, SBI and M3U files) and cleanup.
+- **Tools**: every bundled tool with its version and whether its files still
+  match the digest the app checks before running it, and CsoKit and igir with
+  **Use bundled** to drop a copy you chose.
+
+**Restore defaults** resets the options in the window only; the language,
+theme, chosen tools and Redump data are kept. A chosen CsoKit or igir is saved
+with Apply or OK like the other options.
 
 ## Command line
 
