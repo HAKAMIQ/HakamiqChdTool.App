@@ -31,9 +31,20 @@ to get:
 - **Extract CHD** and **Verify CHD** on CHD files.
 - A **CHD Tool** submenu with all three on folders.
 
-The entries open CHD Tool, or the window that is already open, switch to that
-mode and add the selected items to the queue. While the queue is running, the
-items are added when it finishes. On Windows 11 the entries are under
+When CHD Tool is closed, an entry opens a small window instead of the full
+app. It lists the selected items and starts right away with your saved
+settings, then shows the result: how many finished, the space saved and the
+time taken, with **Details** for the full report. Items you choose in Explorer
+while it runs are added and start after the current ones. If your settings
+delete the source after a verified run, the window says so and waits for
+**Start**. **Stop** stops the run, and closing the window while it runs stops
+it first. **Open in app** opens the full app with the items that did not
+finish. To get the full app instead, turn off **Open a small window when you
+choose from Explorer** under the menu option.
+
+When CHD Tool is already open, the entries switch it to that mode and add the
+selected items to its queue. While the queue is running, the items are added
+when it finishes. On Windows 11 the entries are under
 **Show more options**. The menu is added for your Windows account only and
 needs no administrator rights. Turn the option off before you delete or move
 the app folder; if you move it, start the app once from the new place to update

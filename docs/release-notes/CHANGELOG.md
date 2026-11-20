@@ -15,6 +15,12 @@ it are the detailed record.
 - Optional Explorer right-click menu: Convert to CHD on disc images and
   archives, Extract and Verify on CHD files, and a CHD Tool submenu on folders.
 - Opening files while CHD Tool is already open adds them to the open window.
+- Choosing an Explorer menu entry while CHD Tool is closed opens a small
+  window instead of the full app. It processes the selected files right away
+  with your saved settings and shows the result with the space saved. It waits
+  for Start when your settings delete the source, Open in app hands the files
+  that did not finish to the full app, and an option under the Explorer menu
+  option turns it off.
 - Watch folder (optional): new disc images and archives copied into a chosen
   folder are converted once fully written, while the app is open.
 - Command line: `--start` processes the added items and `--exit-when-done`
@@ -75,6 +81,9 @@ it are the detailed record.
   over a current-user-only named pipe.
 - The Explorer menu is written under `HKCU\Software\Classes` only and is off
   by default.
+- Explorer menu entries now start `HakamiqChdTool.exe --quick --mode <mode>
+  --add "%1"`; entries made by an earlier version are rewritten the next time
+  the app starts. `--quick` is never sent to a window that is already open.
 
 ## v1.6.0 - 2026-11-19
 
