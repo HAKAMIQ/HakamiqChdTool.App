@@ -75,6 +75,10 @@ public partial class MainWindow
             }
 
             ApplyExplorerMenuSetting(previousExplorerMenu, languageChanged);
+            if (_launchIntakeReady)
+            {
+                ApplyWatchFolderSetting();
+            }
             appliedDuringDialog = true;
         }
 

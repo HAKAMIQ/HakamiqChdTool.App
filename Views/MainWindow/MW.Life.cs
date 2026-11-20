@@ -41,6 +41,8 @@ public partial class MainWindow
             ThemeService.Instance.ThemeChanged -= ThemeService_ThemeChanged;
         }).ConfigureAwait(false);
 
+        await RunUiShutdownStepAsync("Stop the watch folder.", StopWatchFolder).ConfigureAwait(false);
+
         await RunUiShutdownStepAsync("Cancel window lifetime operations.", () =>
         {
             _windowLifetimeCts.Cancel();

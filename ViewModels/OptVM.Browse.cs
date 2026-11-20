@@ -49,6 +49,20 @@ public sealed partial class OptionsViewModel
             PrepareRedumpLocalLibraryDatabaseAsync,
             CanScanRedumpLocalLibrary);
 
+    private IRelayCommand? _browseWatchFolderCommand;
+
+    public IRelayCommand BrowseWatchFolderCommand =>
+        _browseWatchFolderCommand ??= new RelayCommand(() =>
+        {
+            string? selected = OptionsPickerService.PickFolder(
+                "LocWatch_PickFolder",
+                TryGetSafeOptionsDirectory(WatchFolderPath?.Trim() ?? string.Empty, out string safeCurrent) ? safeCurrent : null);
+            if (!string.IsNullOrWhiteSpace(selected))
+            {
+                WatchFolderPath = selected;
+            }
+        });
+
     public IRelayCommand BrowsePendingWorkspaceCommand =>
         _browsePendingWorkspaceCommand ??= new RelayCommand(BrowsePendingWorkspace);
 

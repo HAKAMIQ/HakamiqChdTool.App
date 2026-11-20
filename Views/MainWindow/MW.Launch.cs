@@ -33,7 +33,7 @@ public partial class MainWindow
     /// <summary>Set for a launch with --exit-when-done: the app closes after the next full run.</summary>
     internal bool ExitWhenDone { get; set; }
 
-    internal void HandleLaunchRequest(LaunchRequest request)
+    internal void HandleLaunchRequest(LaunchRequest request, bool activate = true)
     {
         ArgumentNullException.ThrowIfNull(request);
         if (_shutdownStarted || _shutdownCompleted)
@@ -41,7 +41,10 @@ public partial class MainWindow
             return;
         }
 
-        ShowTrayWindow();
+        if (activate)
+        {
+            ShowTrayWindow();
+        }
         if (!request.HasPaths)
         {
             return;
@@ -59,6 +62,7 @@ public partial class MainWindow
     private void MarkLaunchIntakeReady()
     {
         _launchIntakeReady = true;
+        ApplyWatchFolderSetting();
         ScheduleLaunchDrain();
     }
 
