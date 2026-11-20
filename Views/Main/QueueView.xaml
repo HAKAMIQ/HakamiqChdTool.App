@@ -193,6 +193,20 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
+                    <ComboBox x:Name="AfterRunComboBox"
+                              Grid.Column="0"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Center"
+                              MinWidth="150"
+                              MinHeight="32"
+                              SelectedIndex="0"
+                              ToolTip="{DynamicResource LocAfterRun_Tip}"
+                              AutomationProperties.AutomationId="AfterRunComboBox"
+                              AutomationProperties.Name="{DynamicResource LocAfterRun_Label}">
+                        <ComboBoxItem Tag="None" Content="{DynamicResource LocAfterRun_None}" />
+                        <ComboBoxItem Tag="Sleep" Content="{DynamicResource LocAfterRun_Sleep}" />
+                        <ComboBoxItem Tag="Shutdown" Content="{DynamicResource LocAfterRun_Shutdown}" />
+                    </ComboBox>
 
                     <Border Grid.Column="2"
                             HorizontalAlignment="Center"
