@@ -540,6 +540,12 @@
     <sys:String x:Key="LocLaunch_ExplorerMenuFailedFooter">تعذّر تحديث قائمة المستكشف. راجع السجل.</sys:String>
     <sys:String x:Key="LocLaunch_UsageTitle">سطر الأوامر</sys:String>
     <sys:String x:Key="LocLaunch_UsageBody">لم يُفهم سطر الأوامر، لذلك لم يُضف شيء. الخيارات المقبولة ورموز الخروج أدناه.</sys:String>
+    <sys:String x:Key="LocWatch_Enable">مراقبة مجلد وتحويل الملفات الجديدة إلى CHD</sys:String>
+    <sys:String x:Key="LocWatch_EnableDesc">ما دام CHD Tool مفتوحًا، تُحوَّل صور الأقراص والأرشيفات الجديدة التي تُنسخ إلى المجلد أدناه بعد اكتمال كتابتها. لا تُمس المجلدات الفرعية ولا ملفات CHD ولا الملفات الموجودة من قبل. يُحفظ الناتج حسب إعدادات الإخراج.</sys:String>
+    <sys:String x:Key="LocWatch_Folder">المجلد المراقَب</sys:String>
+    <sys:String x:Key="LocWatch_PickFolder">اختر المجلد المراد مراقبته</sys:String>
+    <sys:String x:Key="LocWatch_UnavailableFooter">تعذّرت مراقبة المجلد. تحقق منه في الإعدادات.</sys:String>
+    <sys:String x:Key="LocWatch_AddedFooter">أُضيفت ملفات جديدة من المجلد المراقَب.</sys:String>
     <sys:String x:Key="LocRunSummary_TitleDone">اكتملت المعالجة</sys:String>
     <sys:String x:Key="LocRunSummary_TitleWithProblems">اكتملت المعالجة مع مشكلات</sys:String>
     <sys:String x:Key="LocRunSummary_TitleStopped">توقفت المعالجة</sys:String>

@@ -56,6 +56,8 @@ public sealed partial class OptionsViewModel
         DeleteSourceAfterVerifiedExtraction = settings.DeleteSourceAfterVerifiedExtraction;
         ExtractGdRomAsCueBin = settings.ExtractGdRomAsCueBin;
         ExplorerMenuEnabled = settings.ExplorerMenuEnabled;
+        WatchFolderEnabled = settings.WatchFolderEnabled;
+        WatchFolderPath = settings.WatchFolderPath ?? string.Empty;
         RedumpDatabaseDownloadUrl = settings.RedumpDatabaseDownloadUrl?.Trim() ?? string.Empty;
         EnableRedumpAutoSync = settings.EnableRedumpAutoSync;
         _redumpLastSyncedUtc = NormalizeStoredTimestamp(settings.RedumpLastSyncedUtc);
@@ -123,6 +125,8 @@ public sealed partial class OptionsViewModel
         result.DeleteSourceAfterVerifiedExtraction = DeleteSourceAfterVerifiedExtraction;
         result.ExtractGdRomAsCueBin = ExtractGdRomAsCueBin;
         result.ExplorerMenuEnabled = ExplorerMenuEnabled;
+        result.WatchFolderEnabled = WatchFolderEnabled;
+        result.WatchFolderPath = WatchFolderPath.Trim();
         result.EnableDeepIntegrityCheck = EnableDeepIntegrityCheck;
         result.ApplyStandardNamingBasedOnHash = ApplyStandardNamingBasedOnHash;
         result.RedumpDatabaseDownloadUrl = RedumpDatabaseDownloadUrl.Trim();

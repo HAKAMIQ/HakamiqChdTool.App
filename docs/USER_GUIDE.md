@@ -49,6 +49,16 @@ then `chdman verify`, and compares the SHA-1 values with the original. A new
 file is kept only if it matches and saves at least 1%; otherwise it is deleted
 and the original stays as it was. Without Replace, nothing is overwritten.
 
+## Watch folder
+
+Turn on **Settings > Performance > Watch a folder and convert new files to
+CHD** and pick a folder. While CHD Tool is open, each new disc image or
+archive copied into that folder is converted once it is fully written (its
+size has stayed the same for a few seconds and no program is still writing
+it). Files that were already there, subfolders, CHD files, hidden files and
+partial downloads are left alone. Output goes where your output settings say.
+If the queue is busy, new files wait and start when it is free.
+
 ## Command line
 
 ```

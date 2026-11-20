@@ -224,6 +224,8 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0"
@@ -235,7 +237,7 @@
                         </Grid>
 
                         <Border Grid.Row="1"
-                                Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
+                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
                             <Grid Style="{StaticResource Win11SettingsRowGrid}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -257,6 +259,58 @@
                                                Style="{StaticResource Win11SettingsRowTitleText}"
                                                TextAlignment="Left" />
                                 </Grid>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="2"
+                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
+                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <CheckBox x:Name="WatchFolderCheckBox"
+                                          Grid.Column="0"
+                                          IsChecked="{Binding WatchFolderEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Style="{StaticResource Win11SettingsCheckBox}"
+                                          ToolTip="{DynamicResource LocWatch_EnableDesc}"
+                                          AutomationProperties.Name="{DynamicResource LocWatch_Enable}" />
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <TextBlock Text="{DynamicResource LocWatch_Enable}"
+                                               ToolTip="{DynamicResource LocWatch_EnableDesc}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="3"
+                                Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox x:Name="WatchFolderTextBox"
+                                         Grid.Column="0"
+                                         Text="{Binding WatchFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         IsEnabled="{Binding WatchFolderEnabled}"
+                                         FlowDirection="LeftToRight"
+                                         VerticalContentAlignment="Center"
+                                         MinHeight="{DynamicResource Space.32}"
+                                         AutomationProperties.Name="{DynamicResource LocWatch_Folder}" />
+
+                                <Button Grid.Column="2"
+                                        Command="{Binding BrowseWatchFolderCommand}"
+                                        IsEnabled="{Binding WatchFolderEnabled}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        AutomationProperties.Name="{DynamicResource LocCommon_Browse}"
+                                        Content="{DynamicResource LocCommon_Browse}" />
                             </Grid>
                         </Border>
                     </Grid>

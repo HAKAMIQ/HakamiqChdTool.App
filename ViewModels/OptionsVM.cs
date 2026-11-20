@@ -41,6 +41,8 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _deleteSourceAfterVerifiedExtraction;
     private bool _extractGdRomAsCueBin;
     private bool _explorerMenuEnabled;
+    private bool _watchFolderEnabled;
+    private string _watchFolderPath = string.Empty;
     private bool _enableDeepIntegrityCheck;
     private bool _applyStandardNamingBasedOnHash;
     private bool _isDatabaseAvailable;
@@ -521,6 +523,18 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         get => _explorerMenuEnabled;
         set => SetProperty(ref _explorerMenuEnabled, value);
+    }
+
+    public bool WatchFolderEnabled
+    {
+        get => _watchFolderEnabled;
+        set => SetProperty(ref _watchFolderEnabled, value);
+    }
+
+    public string WatchFolderPath
+    {
+        get => _watchFolderPath;
+        set => SetProperty(ref _watchFolderPath, value ?? string.Empty);
     }
 
     public bool EnableDeepIntegrityCheck
