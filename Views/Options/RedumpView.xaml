@@ -268,27 +268,6 @@
                            TextWrapping="Wrap"
                            TextTrimming="None" />
 
-                <Grid Visibility="Collapsed"
-                      Width="{DynamicResource Space.0}"
-                      Height="{DynamicResource Space.0}"
-                      IsHitTestVisible="False">
-
-                    <TextBox x:Name="DatabaseDownloadUrlTextBox"
-                             Text="{Binding RedumpDatabaseDownloadUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
-                             FlowDirection="LeftToRight"
-                             Language="en-US"
-                             TextAlignment="Left" />
-
-                    <Button x:Name="DownloadDatabaseButton"
-                            Click="DownloadDatabaseButton_Click" />
-
-                    <ProgressBar x:Name="DatabaseDownloadProgressBar"
-                                 Maximum="100"
-                                 FlowDirection="LeftToRight" />
-
-                    <TextBlock x:Name="DatabaseDownloadStatusTextBlock"
-                               TextAlignment="Left" />
-                </Grid>
 
                 <Border x:Name="IntegrityFeatureCard"
                         Style="{StaticResource Win11SettingsSection}">

@@ -354,6 +354,7 @@ internal static partial class Program
                 new("Helper tools follow the priority setting", TestHelperToolsFollowThePrioritySetting),
                 new("Watch folder reports a deleted folder once", TestWatchFolderReportsALostFolderOnce),
                 new("Options follow-ups are wired into the app", TestOptionsFollowUpWiring),
+                new("The hidden Redump download button is removed", TestHiddenRedumpDownloadUiIsRemoved),
                 new("Organize by region builds the region folder", TestOrganizeByRegionBuildsTheRegionFolder),
                 new("M3U lists discs in order and keeps an existing playlist", TestM3uListsDiscsInOrderAndKeepsExistingFiles),
                 new("Auto threads are shared when several files convert at once", TestAutoThreadsAreSharedAcrossConcurrentConversions),

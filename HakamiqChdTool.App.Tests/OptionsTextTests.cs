@@ -116,6 +116,20 @@ internal static partial class Program
         }
     }
 
+    // The Redump download button was collapsed, zero-sized and not clickable; it and its handler are gone.
+    // Startup auto-sync (off by default) still uses the saved URL.
+    private static void TestHiddenRedumpDownloadUiIsRemoved()
+    {
+        string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "RedumpView.xaml")));
+        string shell = File.ReadAllText(FindRepoFile(Path.Combine("Ui", "Shell", "HqOptsRed.cs")));
+        AssertFalse(view.Contains("DownloadDatabaseButton", StringComparison.Ordinal) || shell.Contains("DownloadDatabaseAsync", StringComparison.Ordinal),
+            "The hidden download button and its handler are removed.");
+
+        string autoSync = File.ReadAllText(FindRepoFile(Path.Combine("Services", "RedAutoSync.cs")));
+        AssertTrue(autoSync.Contains("settings.RedumpDatabaseDownloadUrl", StringComparison.Ordinal), "Startup auto-sync still reads the saved URL.");
+        AssertFalse(new HakamiqChdTool.App.Models.AppSettings().EnableRedumpAutoSync, "Startup auto-sync stays off by default.");
+    }
+
     // The CPU name, igir version and Windows integration hints render readably in Arabic.
     private static void TestOptionsWindowLayoutFixes()
     {
