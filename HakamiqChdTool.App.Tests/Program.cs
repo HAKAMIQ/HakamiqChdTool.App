@@ -354,6 +354,7 @@ internal static partial class Program
                 new("Explorer menu setting loads, saves and has text in both languages", TestExplorerMenuSettingInOptions),
                 new("Quick window text, bindings and startup route", TestQuickWindowTextAndBindings),
                 new("Quick window option loads, saves and sits under the Explorer menu option", TestQuickWindowSettingInOptions),
+                new("A PSP CSO uses the PSP ISO hunk size; other CSOs keep the default", TestPspCsoUsesThePspIsoHunkSize),
                 new("Quick window waits for Start, runs, and shows the result", () => TestQuickWindowViewModelFlow(workDirectory)),
                 new("Run summary shows outcome, counts, saved space and time in both languages", TestRunSummaryCardContent),
                 new("Options text has no tashkeel and no repeated or duplicate words", TestOptionsTextIsPlainAndNotRepeated),

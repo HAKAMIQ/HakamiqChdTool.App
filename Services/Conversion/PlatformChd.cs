@@ -109,7 +109,7 @@ public sealed class PlatformAwareChdProfilePolicy : IPlatformAwareChdProfilePoli
     {
         string command = ChdPlatformProfiles.ToCommandName(profile.CommandKind);
         ChdDiscProfileSettings settings = profile.CommandKind == ChdCommandKind.CreateDvd
-            ? ResolveDvdProfileSettings(request, ResolveDvdHunkIntent(profile))
+            ? ResolveDvdProfileSettings(request, ResolveDvdHunkIntent(profile, request))
             : ResolveCdProfileSettings(request, ResolveCdHunkIntent(profile));
 
         return Build(
@@ -251,16 +251,20 @@ public sealed class PlatformAwareChdProfilePolicy : IPlatformAwareChdProfilePoli
         return ChdDiscHunkIntent.CdDescriptor;
     }
 
-    private static ChdDiscHunkIntent ResolveDvdHunkIntent(ChdPlatformProfile profile)
+    private static ChdDiscHunkIntent ResolveDvdHunkIntent(ChdPlatformProfile profile, PlatformAwareChdProfileRequest request)
     {
         if (profile == ChdPlatformProfiles.PspIso)
         {
             return ChdDiscHunkIntent.PspPpssppDvd;
         }
 
+        // A CSO is expanded to an ISO first. A PSP one gets the same 2048-byte hunks as a PSP ISO; CSO is also used
+        // for PS2, so the extension alone does not decide it.
         if (profile == ChdPlatformProfiles.PspCso)
         {
-            return ChdDiscHunkIntent.GenericDvd;
+            return ChdPlatformProfiles.IsPspPlatform(BuildCanonicalPlatformHint(request))
+                ? ChdDiscHunkIntent.PspPpssppDvd
+                : ChdDiscHunkIntent.GenericDvd;
         }
 
         if (profile == ChdPlatformProfiles.Ps2Dvd)

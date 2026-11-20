@@ -300,11 +300,15 @@ public static class ChdPlatformProfiles
             _ => "createcd"
         };
 
+    /// <summary>True when the detected platform (or target emulator hint) names the PSP.</summary>
+    public static bool IsPspPlatform(string? detectedPlatform) =>
+        ContainsAny(detectedPlatform ?? string.Empty, "PlayStation Portable", "Sony PSP", "PPSSPP", "PSP");
+
     private static ChdPlatformProfile ResolveIsoProfile(string? detectedPlatform)
     {
         string platform = detectedPlatform ?? string.Empty;
 
-        if (ContainsAny(platform, "PlayStation Portable", "Sony PSP", "PPSSPP", "PSP"))
+        if (IsPspPlatform(platform))
         {
             return PspIso;
         }
