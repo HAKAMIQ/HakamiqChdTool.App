@@ -14,6 +14,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows;
 using System.Windows.Threading;
 using IoPath = System.IO.Path;
 
@@ -179,6 +180,10 @@ public partial class MainWindow
         }
     }
 
+    private DateTime? _runStartedUtc;
+    private string? _lastRunSummaryText;
+    private bool _lastRunSummaryCancelled;
+
     private void UpdateUiStateCore()
     {
         if (_shutdownStarted ||
@@ -235,6 +240,29 @@ public partial class MainWindow
 
         _loggedExecutionSignatures.Clear();
         _executionLogLines.Clear();
+        _runStartedUtc = DateTime.UtcNow;
+        QueueWorkspace.HideRunSummary();
+    }
+
+    private void QueueWorkspace_RunSummaryDetailsRequested(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_lastRunSummaryText))
+        {
+            return;
+        }
+
+        // The report is already localized and mixes in technical terms (GB, M3U), so it is shown as is
+        // instead of through ShowNoticeDialog, whose resolver replaces mixed-script text.
+        var dialog = new HakamiqChdTool.App.Views.RedumpNoticeDialog(
+            ArabicUi.Get(_lastRunSummaryCancelled
+                ? MainWindowMessages.SummaryCancelledTitle
+                : MainWindowMessages.SummaryCompletedTitle),
+            _lastRunSummaryText)
+        {
+            Owner = this
+        };
+
+        _ = dialog.ShowDialog();
     }
 
     private void BuildRunSummary(
@@ -279,6 +307,11 @@ public partial class MainWindow
         string summaryText = LocalizedSessionRunSummaryFormatter.Format(
             metrics,
             wasCancelled);
+
+        _lastRunSummaryText = summaryText;
+        _lastRunSummaryCancelled = wasCancelled;
+        TimeSpan elapsed = _runStartedUtc is DateTime started ? DateTime.UtcNow - started : TimeSpan.Zero;
+        QueueWorkspace.ShowRunSummary(RunSummaryCardBuilder.Build(metrics, wasCancelled, elapsed, ArabicUi.Get));
 
         SetFooterStatus(wasCancelled
             ? MainWindowMessages.SessionCancelledFooter

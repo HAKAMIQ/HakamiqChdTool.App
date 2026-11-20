@@ -61,6 +61,11 @@ PS3-related detection remains experimental. Recognizing an input does not mean t
 
 ## After a run
 
+When a run ends, a bar above the queue shows the result: how many items
+finished, failed, were skipped or cancelled, the space the conversions saved,
+and how long the run took. **Details** opens the full report. The bar stays
+until you close it or start the next run.
+
 Review the result of every queue item. If an item fails repeatedly at the same point, check the source file, companion files, free space, storage health, and the displayed log before retrying.
 
 See [Errors and logs](ERRORS.md) for common failures and the information to include in a report.
