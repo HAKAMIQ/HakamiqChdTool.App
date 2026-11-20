@@ -39,6 +39,16 @@ needs no administrator rights. Turn the option off before you delete or move
 the app folder; if you move it, start the app once from the new place to update
 the entries.
 
+## Recompress CHD files
+
+**Tools > Recompress CHD files** makes existing CHD files smaller, for example
+files made with fast or no compression. Add files or a folder (or drop them on
+the list), pick a compression level and either a folder for the new files or
+**Replace the original files**. For each file, CHD Tool runs `chdman copy`,
+then `chdman verify`, and compares the SHA-1 values with the original. A new
+file is kept only if it matches and saves at least 1%; otherwise it is deleted
+and the original stays as it was. Without Replace, nothing is overwritten.
+
 ## Multi-file disc images
 
 Keep descriptor files and their tracks together. For example, add the CUE file for a CUE/BIN image and keep every referenced BIN beside it. Do not rename or move only part of a disc set.

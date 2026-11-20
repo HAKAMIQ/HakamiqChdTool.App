@@ -208,6 +208,11 @@ public partial class MainWindow
             _w.OpenAboutDialog();
         }
 
+        public void OpenRecompress()
+        {
+            _w.OpenRecompressWindow();
+        }
+
         public void OpenLibraryAnalysis()
         {
             _w.OpenLibraryAnalysisDialog();

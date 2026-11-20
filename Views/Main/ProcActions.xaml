@@ -242,6 +242,7 @@
         </Style>
     </UserControl.Resources>
 
+    <StackPanel>
     <Border Style="{StaticResource FluentActionCard}"
             Padding="{DynamicResource Inset.8.All}"
             Background="{DynamicResource Brush.Transparent}"
@@ -303,4 +304,37 @@
                     Style="{StaticResource ProcessingActionsPanelActionChip}" />
         </Grid>
     </Border>
+
+    <Border x:Name="ToolsSection"
+            Style="{StaticResource FluentActionCard}"
+            Padding="{DynamicResource Inset.8.All}"
+            Background="{DynamicResource Brush.Transparent}"
+            BorderBrush="{DynamicResource Brush.Transparent}"
+            BorderThickness="{DynamicResource Inset.None}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       HorizontalAlignment="Center"
+                       Text="{DynamicResource LocRecompress_ToolsTitle}"
+                       TextAlignment="Center"
+                       Style="{StaticResource ProcessingActionsPanelHeaderTitleText}"
+                       Foreground="{DynamicResource Brush.Text.Secondary}" />
+
+            <Button x:Name="OpenRecompressButton"
+                    Grid.Row="2"
+                    Command="{Binding OpenRecompressCommand}"
+                    Tag="{StaticResource Icon.Archive}"
+                    Content="{DynamicResource LocRecompress_Title}"
+                    ToolTip="{DynamicResource LocRecompress_Intro}"
+                    AutomationProperties.AutomationId="OpenRecompressButton"
+                    AutomationProperties.Name="{DynamicResource LocRecompress_Title}"
+                    Style="{StaticResource ProcessingActionsPanelActionChip}" />
+        </Grid>
+    </Border>
+    </StackPanel>
 </UserControl>

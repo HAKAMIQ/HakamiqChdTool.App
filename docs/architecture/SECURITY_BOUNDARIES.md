@@ -76,6 +76,15 @@ The optional Explorer menu (`Services/Shell/ExplorerMenu.cs`) writes only under
 `HKCU\Software\Classes` for the current account, never needs administrator
 rights, and writes or deletes only keys whose name starts with `HakamiqChdTool`.
 
+### CHD recompression
+
+`Services/Recompress/ChdRecompress.cs` is the only caller of `chdman copy`
+(`ChdmanCliRunner` allows `copy`, still without `--force`). The source is
+leased read-only until the result is decided; the new file is written under a
+temporary name next to its final path, verified, matched by SHA-1 against the
+source when the source stores SHA-1 values, and moved without overwriting.
+Replacing the source uses `File.Replace` and only happens when the user asks.
+
 ### Network data
 
 Update metadata and Redump catalogs are untrusted remote data. Downloads require

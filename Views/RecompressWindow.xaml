@@ -1,0 +1,299 @@
+<Window x:Class="HakamiqChdTool.App.Views.RecompressWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="{DynamicResource LocRecompress_Title}"
+        Width="720"
+        Height="600"
+        MinWidth="600"
+        MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        ShowInTaskbar="False"
+        FlowDirection="{DynamicResource App.FlowDirection}"
+        Language="{DynamicResource App.XmlLanguage}"
+        Icon="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.ico"
+        Background="{DynamicResource Brush.Layer.Canvas}"
+        Foreground="{DynamicResource Brush.Text.Primary}"
+        FontFamily="{DynamicResource FontFamily.Text}"
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/OptsStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="RecompressBoolToVisibility" />
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="{DynamicResource Space.40}"
+                            CornerRadius="{DynamicResource Radius.Dialog}"
+                            GlassFrameThickness="{DynamicResource Inset.None}"
+                            ResizeBorderThickness="6"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Border Style="{StaticResource Win11.DialogRootFrame}">
+        <Grid ClipToBounds="True"
+              FlowDirection="{DynamicResource App.FlowDirection}"
+              Language="{DynamicResource App.XmlLanguage}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Style="{StaticResource Win11.DialogTopBar}"
+                    MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="{DynamicResource LocRecompress_Title}"
+                               Style="{StaticResource Win11.DialogTitleText}" />
+
+                    <Button Grid.Column="1"
+                            Width="{DynamicResource Space.32}"
+                            Height="{DynamicResource Space.32}"
+                            MinWidth="{DynamicResource Space.32}"
+                            Padding="{DynamicResource Inset.None}"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource HeaderIconButtonStyle}"
+                            IsEnabled="{Binding CanEditOptions}"
+                            ToolTip="{DynamicResource LocCommon_Close}"
+                            AutomationProperties.Name="{DynamicResource LocCommon_Close}"
+                            Click="CloseButton_Click"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Viewbox Width="{DynamicResource Space.12}"
+                                 Height="{DynamicResource Space.12}"
+                                 FlowDirection="LeftToRight">
+                            <Path Data="{StaticResource Icon.Close}"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  Stretch="Uniform" />
+                        </Viewbox>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1" Margin="{DynamicResource Inset.16.All}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="{DynamicResource LocRecompress_Intro}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <Button x:Name="RecompressAddFilesButton"
+                            Command="{Binding AddFilesCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocRecompress_AddFiles}"
+                            Content="{DynamicResource LocRecompress_AddFiles}" />
+                    <Button Margin="{DynamicResource Inset.8.0.0.0}"
+                            Command="{Binding AddFolderCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocRecompress_AddFolder}"
+                            Content="{DynamicResource LocRecompress_AddFolder}" />
+                    <Button Margin="{DynamicResource Inset.8.0.0.0}"
+                            Command="{Binding ClearCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocRecompress_Clear}"
+                            Content="{DynamicResource LocRecompress_Clear}" />
+                </StackPanel>
+
+                <Border Grid.Row="4"
+                        AllowDrop="True"
+                        DragOver="List_DragOver"
+                        Drop="List_Drop"
+                        Background="{DynamicResource Brush.Layer.Card}"
+                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                        BorderThickness="1"
+                        CornerRadius="{DynamicResource Radius.Control.Large}">
+                    <Grid>
+                        <TextBlock Text="{DynamicResource LocRecompress_Empty}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="{DynamicResource Inset.16.All}"
+                                   Foreground="{DynamicResource Brush.Text.Secondary}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Items.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <ListView x:Name="RecompressList"
+                                  ItemsSource="{Binding Items}"
+                                  Background="{DynamicResource Brush.Transparent}"
+                                  BorderThickness="0"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  AutomationProperties.Name="{DynamicResource LocRecompress_Title}">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="{DynamicResource Inset.8.4}" />
+                                    <Setter Property="AutomationProperties.Name" Value="{Binding FileName}" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Text="{Binding FileName}"
+                                                   FlowDirection="LeftToRight"
+                                                   HorizontalAlignment="Left"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding Path}" />
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding SizeText}"
+                                                   FlowDirection="LeftToRight"
+                                                   Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                        <TextBlock Grid.Row="1"
+                                                   Grid.ColumnSpan="3"
+                                                   Text="{Binding StatusText}"
+                                                   TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                        <ProgressBar Grid.Row="1"
+                                                     Grid.Column="2"
+                                                     Width="120"
+                                                     Height="4"
+                                                     VerticalAlignment="Center"
+                                                     Minimum="0"
+                                                     Maximum="100"
+                                                     Value="{Binding Progress}"
+                                                     Visibility="{Binding IsWorking, Converter={StaticResource RecompressBoolToVisibility}}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="6">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="{DynamicResource LocRecompress_Compression}"
+                               VerticalAlignment="Center" />
+                    <ComboBox x:Name="RecompressPresetComboBox"
+                              Grid.Column="2"
+                              Grid.ColumnSpan="3"
+                              ItemsSource="{Binding PresetOptions}"
+                              SelectedItem="{Binding SelectedPreset, Mode=TwoWay}"
+                              DisplayMemberPath="Label"
+                              IsEnabled="{Binding CanEditOptions}"
+                              Style="{StaticResource Win11SettingsComboBox}"
+                              AutomationProperties.Name="{DynamicResource LocRecompress_Compression}" />
+
+                    <CheckBox x:Name="RecompressReplaceCheckBox"
+                              Grid.Row="2"
+                              Grid.ColumnSpan="5"
+                              IsChecked="{Binding ReplaceOriginal, Mode=TwoWay}"
+                              IsEnabled="{Binding CanEditOptions}"
+                              ToolTip="{DynamicResource LocRecompress_ReplaceDesc}"
+                              AutomationProperties.Name="{DynamicResource LocRecompress_Replace}">
+                        <TextBlock Text="{DynamicResource LocRecompress_Replace}" TextWrapping="Wrap" />
+                    </CheckBox>
+
+                    <TextBlock Grid.Row="4"
+                               Text="{DynamicResource LocRecompress_OutputFolder}"
+                               VerticalAlignment="Center" />
+                    <TextBox x:Name="RecompressOutputTextBox"
+                             Grid.Row="4"
+                             Grid.Column="2"
+                             Text="{Binding OutputFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FlowDirection="LeftToRight"
+                             IsEnabled="{Binding IsOutputFolderEnabled}"
+                             AutomationProperties.Name="{DynamicResource LocRecompress_OutputFolder}" />
+                    <Button Grid.Row="4"
+                            Grid.Column="4"
+                            Command="{Binding BrowseOutputCommand}"
+                            IsEnabled="{Binding IsOutputFolderEnabled}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocCommon_Browse}"
+                            Content="{DynamicResource LocCommon_Browse}" />
+                </Grid>
+            </Grid>
+
+            <Border Grid.Row="2"
+                    Style="{StaticResource Win11.DialogActionBar}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="RecompressSummaryText"
+                               Text="{Binding SummaryText}"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap"
+                               AutomationProperties.LiveSetting="Polite"
+                               Foreground="{DynamicResource Brush.Text.Secondary}" />
+
+                    <Button x:Name="RecompressStartButton"
+                            Grid.Column="2"
+                            MinWidth="{DynamicResource Space.112}"
+                            Command="{Binding StartCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocRecompress_Start}"
+                            Content="{DynamicResource LocRecompress_Start}" />
+                    <Button x:Name="RecompressStopButton"
+                            Grid.Column="4"
+                            MinWidth="{DynamicResource Space.112}"
+                            Command="{Binding StopCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocRecompress_Stop}"
+                            Content="{DynamicResource LocRecompress_Stop}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
