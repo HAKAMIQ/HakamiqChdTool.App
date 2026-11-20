@@ -130,6 +130,45 @@ internal static partial class Program
         AssertFalse(new HakamiqChdTool.App.Models.AppSettings().EnableRedumpAutoSync, "Startup auto-sync stays off by default.");
     }
 
+    // The hidden Redump catalog used to rewrite the saved download URL every time Options opened. With it gone,
+    // opening and saving Options keeps the URL and the stored catalog values exactly as they were.
+    private static void TestOptionsKeepTheSavedRedumpUrl()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var saved = new HakamiqChdTool.App.Models.AppSettings
+                {
+                    RedumpDatabaseDownloadUrl = "https://github.com/example/sample-dats/archive/main.zip",
+                    RedumpPlatformMode = "Platform",
+                    RedumpPlatformKey = "psx",
+                    RedumpArtifactKind = "Cuesheets"
+                };
+                var options = new HakamiqChdTool.App.ViewModels.OptionsViewModel();
+                options.Load(saved);
+                AssertEqual(saved.RedumpDatabaseDownloadUrl, options.RedumpDatabaseDownloadUrl, "Opening Options keeps the saved URL.");
+
+                HakamiqChdTool.App.Models.AppSettings result = options.BuildResultSettings(saved);
+                AssertTrue(result.RedumpDatabaseDownloadUrl == saved.RedumpDatabaseDownloadUrl
+                    && result.RedumpPlatformMode == "Platform" && result.RedumpPlatformKey == "psx" && result.RedumpArtifactKind == "Cuesheets",
+                    "Saving Options keeps the URL and the stored catalog values.");
+            }
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null)
+        {
+            throw failure;
+        }
+    }
+
     // The CPU name, igir version and Windows integration hints render readably in Arabic.
     private static void TestOptionsWindowLayoutFixes()
     {

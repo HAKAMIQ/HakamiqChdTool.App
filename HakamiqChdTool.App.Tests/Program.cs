@@ -355,6 +355,7 @@ internal static partial class Program
                 new("Watch folder reports a deleted folder once", TestWatchFolderReportsALostFolderOnce),
                 new("Options follow-ups are wired into the app", TestOptionsFollowUpWiring),
                 new("The hidden Redump download button is removed", TestHiddenRedumpDownloadUiIsRemoved),
+                new("Options keep the saved Redump URL", TestOptionsKeepTheSavedRedumpUrl),
                 new("Organize by region builds the region folder", TestOrganizeByRegionBuildsTheRegionFolder),
                 new("Skip existing output leaves the existing CHD and the source alone", TestSkipExistingOutputLeavesTheExistingChd),
                 new("M3U lists discs in order and keeps an existing playlist", TestM3uListsDiscsInOrderAndKeepsExistingFiles),

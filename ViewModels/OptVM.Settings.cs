@@ -37,8 +37,6 @@ public sealed partial class OptionsViewModel
         RedumpDatXmlPath = settings.RedumpDatXmlPath;
         RedumpLocalLibraryRoot = settings.RedumpLocalLibraryRoot;
         RedumpSystemName = settings.RedumpSystemName;
-        SelectedRedumpPlatformOption = ResolveRedumpPlatformOption(settings.RedumpPlatformMode, settings.RedumpPlatformKey);
-        SelectedRedumpArtifactOption = ResolveRedumpArtifactOption(settings.RedumpArtifactKind);
         OrganizeByPlatform = settings.OrganizeByPlatform;
         OrganizeByRegion = settings.OrganizeByRegion;
         IncludeSubfolders = settings.IncludeSubfolders;
@@ -99,15 +97,6 @@ public sealed partial class OptionsViewModel
         result.RedumpDatXmlPath = RedumpDatXmlPath.Trim();
         result.RedumpLocalLibraryRoot = RedumpLocalLibraryRoot.Trim();
         result.RedumpSystemName = RedumpSystemName.Trim();
-        result.RedumpPlatformMode = SelectedRedumpPlatformOption is null
-            ? "Auto"
-            : string.Equals(SelectedRedumpPlatformOption.Key, "Auto", StringComparison.OrdinalIgnoreCase)
-                ? "Auto"
-                : string.Equals(SelectedRedumpPlatformOption.Key, "Unknown", StringComparison.OrdinalIgnoreCase)
-                    ? "Unknown"
-                    : "Platform";
-        result.RedumpPlatformKey = result.RedumpPlatformMode == "Platform" ? SelectedRedumpPlatformOption?.Key ?? string.Empty : string.Empty;
-        result.RedumpArtifactKind = SelectedRedumpArtifactOption?.Key ?? "Datfile";
         result.OrganizeByPlatform = OrganizeByPlatform;
         result.OrganizeByRegion = OrganizeByRegion;
         result.IncludeSubfolders = IncludeSubfolders;

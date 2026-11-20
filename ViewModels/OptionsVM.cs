@@ -3,7 +3,6 @@ using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.RedumpCatalog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -51,8 +50,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _useProgramDefaultsAsBase;
     private string? _redumpLastSyncedUtc;
     private string _databaseStatusText = ArabicUi.Get("LocAdv_DatabaseStatusUnavailable");
-    private RedumpCatalogChoiceOption? _selectedRedumpPlatformOption;
-    private RedumpCatalogChoiceOption? _selectedRedumpArtifactOption;
     private ProcessorOption? _selectedProcessorOption;
     private ProcessorOption? _selectedConcurrentConversionOption;
     private ChoiceOption? _selectedPerformanceMode;
@@ -83,10 +80,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         new("Quiet", ArabicUi.Get("LocAdv_ProcessPriorityQuietLabel"), ArabicUi.Get("LocAdv_ProcessPriorityQuietDescription")),
         new("Normal", ArabicUi.Get("LocAdv_ProcessPriorityNormalLabel"), ArabicUi.Get("LocAdv_ProcessPriorityNormalDescription"))
     };
-
-    public ObservableCollection<RedumpCatalogChoiceOption> RedumpPlatformOptions { get; } = new();
-
-    public ObservableCollection<RedumpCatalogChoiceOption> RedumpArtifactOptions { get; } = new();
 
     public ObservableCollection<ChoiceOption> CompressionPresetOptions { get; } = new()
     {
@@ -135,7 +128,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         LoadProcessorChoices();
         LoadConcurrentConversionChoices();
-        LoadRedumpCatalogChoices();
 
         _selectedProcessorOption = ProcessorOptions.FirstOrDefault();
         _selectedConcurrentConversionOption = ConcurrentConversionOptions.FirstOrDefault();
@@ -167,12 +159,9 @@ public sealed partial class OptionsViewModel : ObservableValidator
         string? targetKey = SelectedTargetEmulator?.Key;
         string? isoKey = SelectedIsoCreateOverride?.Key;
         string? profileKey = SelectedChdPlatformProfile?.Key;
-        string? redumpPlatformKey = SelectedRedumpPlatformOption?.Key;
-        string? redumpArtifactKey = SelectedRedumpArtifactOption?.Key;
 
         LoadProcessorChoices();
         LoadConcurrentConversionChoices();
-        LoadRedumpCatalogChoices();
 
         RefList(
             PerformanceModeOptions,
@@ -243,8 +232,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         SelectedTargetEmulator = SelChoice(TargetEmulatorOptions, targetKey);
         SelectedIsoCreateOverride = SelChoice(IsoCreateOverrideOptions, isoKey);
         SelectedChdPlatformProfile = SelChoice(ChdPlatformProfileOptions, profileKey);
-        SelectedRedumpPlatformOption = RedumpPlatformOptions.FirstOrDefault(x => string.Equals(x.Key, redumpPlatformKey, StringComparison.OrdinalIgnoreCase)) ?? RedumpPlatformOptions.FirstOrDefault();
-        SelectedRedumpArtifactOption = RedumpArtifactOptions.FirstOrDefault(x => string.Equals(x.Key, redumpArtifactKey, StringComparison.OrdinalIgnoreCase)) ?? RedumpArtifactOptions.FirstOrDefault();
 
         OnPropertyChanged(nameof(ProcessorName));
         OnPropertyChanged(nameof(ProcessorCounts));
@@ -260,8 +247,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         OnPropertyChanged(nameof(ProcessorSelectionDescription));
         OnPropertyChanged(nameof(PendingWorkspaceModeDisplay));
         OnPropertyChanged(nameof(DatabaseLastSyncedDisplay));
-        OnPropertyChanged(nameof(SelectedRedumpPlatformDescription));
-        OnPropertyChanged(nameof(SelectedRedumpArtifactDescription));
         OnPropertyChanged(nameof(CanSave));
     }
 
@@ -556,41 +541,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
             SetProperty(ref _applyStandardNamingBasedOnHash, normalized);
         }
     }
-
-    public RedumpCatalogChoiceOption? SelectedRedumpPlatformOption
-    {
-        get => _selectedRedumpPlatformOption;
-        set
-        {
-            if (SetProperty(ref _selectedRedumpPlatformOption, value))
-            {
-                RefreshRedumpArtifactOptions(value?.Key);
-                UpdateRedumpDownloadUrlFromSelection(overwriteExistingCatalogUrl: true);
-                OnPropertyChanged(nameof(SelectedRedumpPlatformDescription));
-                OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
-    public RedumpCatalogChoiceOption? SelectedRedumpArtifactOption
-    {
-        get => _selectedRedumpArtifactOption;
-        set
-        {
-            if (SetProperty(ref _selectedRedumpArtifactOption, value))
-            {
-                UpdateRedumpDownloadUrlFromSelection(overwriteExistingCatalogUrl: true);
-                OnPropertyChanged(nameof(SelectedRedumpArtifactDescription));
-                OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
-    public string SelectedRedumpPlatformDescription => ResolveOptionDescription(SelectedRedumpPlatformOption);
-
-    public string SelectedRedumpArtifactDescription => ResolveOptionDescription(SelectedRedumpArtifactOption);
 
     public bool CanDownloadSelectedRedumpDatabase => IsSafeDownloadUrl(RedumpDatabaseDownloadUrl);
 
