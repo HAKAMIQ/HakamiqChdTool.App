@@ -400,6 +400,7 @@ internal static partial class Program
                 new("The Redump folder scan shows its result", TestRedumpScanShowsItsResult),
                 new("Bundled tools are listed and checked against their pins", TestBundledToolsAreListedAndChecked),
                 new("Files unpacked from archives are deleted by default", TestTemporaryExtractionIsDeletedByDefault),
+                new("Incomplete output from a failed job is always removed", TestFailedOutputCleanupIsAlwaysOn),
                 new("Target emulator overrides are shown on the options they change", TestTargetEmulatorOverridesAreShown),
                 new("Options tabs use the shared rows", TestOptionsTabsUseSharedRows),
                 new("Options search filters every tab", TestOptionsSearchFiltersEveryTab),

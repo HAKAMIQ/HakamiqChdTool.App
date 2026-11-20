@@ -100,7 +100,9 @@ internal sealed class WorkflowCleanupStage(
                 return;
             }
 
-            if (!settings.DeleteFailedOutput || !File.Exists(failedOutputCandidate))
+            // Always on (no longer a setting): only this job's own incomplete output is removed; a GDI set and files
+            // the job did not create are left alone below.
+            if (!File.Exists(failedOutputCandidate))
             {
                 return;
             }

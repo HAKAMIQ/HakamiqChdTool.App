@@ -48,7 +48,7 @@ internal static partial class Program
         ["OverwriteExistingM3uPlaylists"] = new(SettingKind.Effect, "An existing M3U is replaced or kept.", nameof(TestM3uSettingsReachTheGenerator), nameof(TestM3uListsDiscsInOrderAndKeepsExistingFiles)),
         ["EnableDiskSpaceGuard"] = new(SettingKind.Gap, "The disk space preflight runs only while it is on; no test turns it off."),
         ["DeleteTemporaryExtraction"] = new(SettingKind.Gap, "Removes temporary extraction folders after a run; the boundary is tested, the setting is not."),
-        ["DeleteFailedOutput"] = new(SettingKind.Effect, "Incomplete CUE/BIN from a failed extraction is removed.", nameof(TestFailedExtractFinalizeNeverDeletesForeignCueBin)),
+        ["DeleteFailedOutput"] = new(SettingKind.Stored, "Kept for old settings files; incomplete output from a failed job is always removed.", nameof(TestFailedExtractFinalizeNeverDeletesForeignCueBin), nameof(TestFailedOutputCleanupIsAlwaysOn)),
         ["DeleteSourceAfterVerifiedConversion"] = new(SettingKind.Effect, "The source is deleted only after a verified conversion.", nameof(TestConversionSourceCleanupContractUnchanged), nameof(TestSkipExistingOutputLeavesTheExistingChd)),
         ["DeleteSourceAfterVerifiedExtraction"] = new(SettingKind.Effect, "The CHD is deleted only after a proven extraction.", nameof(TestExtractionSourceCleanupRequiresOutputProof)),
         ["ExtractGdRomAsCueBin"] = new(SettingKind.Effect, "GD-ROM extracts to CUE/BIN instead of GDI.", nameof(TestGdRomExtractionPicksGdi)),
