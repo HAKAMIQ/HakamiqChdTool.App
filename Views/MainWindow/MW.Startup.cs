@@ -40,6 +40,7 @@ public partial class MainWindow
                 .ConfigureAwait(true);
 
             QueueRestartContextWindowRestore(restartContext);
+            MarkLaunchIntakeReady();
         }
         catch (OperationCanceledException) when (_windowLifetimeCts.IsCancellationRequested)
         {

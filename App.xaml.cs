@@ -32,6 +32,8 @@ public partial class App : WpfApplication
 
     private Mutex? _singleInstanceMutex;
 
+    private InstanceChannel? _launchChannel;
+
     private bool _globalExceptionHandlersRegistered;
 
     internal bool IsIntegrationTestHost { get; set; }
@@ -57,9 +59,15 @@ public partial class App : WpfApplication
         AppPaths.SetPortableMode(AppPaths.DetectPortableModePreference());
         AppLogger.Initialize();
 
+        LaunchRequest launch = ParseLaunchRequest(e.Args);
+
         if (!TryAcquireSingleInstanceMutex())
         {
-            Log.Information("Another CHD Tool instance is already running in this Windows session. Exiting duplicate instance.");
+            Log.Information("Another CHD Tool instance is already running in this Windows session. Handing over the launch request and exiting.");
+            _ = InstanceChannel.TrySend(
+                InstanceChannel.DefaultPipeName,
+                launch,
+                launch.HasPaths ? TimeSpan.FromSeconds(15) : TimeSpan.FromSeconds(2));
             AppLogger.Shutdown();
             Shutdown(0);
             return;
@@ -85,11 +93,48 @@ public partial class App : WpfApplication
         MainWindow = mainWindow;
         mainWindow.Show();
 
+        StartLaunchChannel(mainWindow);
+        if (launch.HasPaths)
+        {
+            mainWindow.HandleLaunchRequest(launch);
+        }
+
+        if (Settings.ExplorerMenuEnabled)
+        {
+            // Keeps the entries pointing at this copy of the app and in the current language.
+            _ = HakamiqChdTool.App.MainWindow.SyncExplorerMenu(enabled: true);
+        }
+
         QueueAdministratorWarningIfNeeded();
 
 #if DEBUG
         Log.Debug("Startup diagnostics (Debug build).");
 #endif
+    }
+
+    private static LaunchRequest ParseLaunchRequest(string[] args)
+    {
+        if (LaunchArgs.TryParse(args, out LaunchRequest request, out string? error))
+        {
+            return request;
+        }
+
+        Log.Warning("Ignoring launch arguments: {Error}", error);
+        return LaunchRequest.Empty;
+    }
+
+    private void StartLaunchChannel(MainWindow mainWindow)
+    {
+        try
+        {
+            _launchChannel = InstanceChannel.Start(
+                InstanceChannel.DefaultPipeName,
+                request => Dispatcher.BeginInvoke(new Action(() => mainWindow.HandleLaunchRequest(request))));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            Log.Warning(ex, "Launch channel could not start.");
+        }
     }
 
     private bool TryAcquireSingleInstanceMutex()
@@ -175,6 +220,9 @@ public partial class App : WpfApplication
         {
             Log.Debug(ex, "Settings flush on application exit failed.");
         }
+
+        _launchChannel?.Dispose();
+        _launchChannel = null;
 
         ReleaseSingleInstanceMutex();
 

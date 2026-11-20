@@ -8,6 +8,22 @@ Each version starts with a short `### Release notes` list written for users.
 Only that list is published as the GitHub Release text; the subsections after
 it are the detailed record.
 
+## v1.7.0 - Unreleased
+
+### Release notes
+
+- Optional Explorer right-click menu: Convert to CHD on disc images and
+  archives, Extract and Verify on CHD files, and a CHD Tool submenu on folders.
+- Opening files while CHD Tool is already open adds them to the open window.
+
+### Details
+
+- `HakamiqChdTool.exe --mode convert|extract|verify --add <path>...` starts the
+  app with files in a mode; a second launch hands them to the running window
+  over a current-user-only named pipe.
+- The Explorer menu is written under `HKCU\Software\Classes` only and is off
+  by default.
+
 ## v1.6.0 - 2026-11-19
 
 Adds five input formats and updates the bundled tools. Existing CD/DVD

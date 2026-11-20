@@ -45,6 +45,7 @@ public partial class MainWindow
             string requestedLanguage = AppLanguageService.NormalizeLanguageName(settings.UiLanguage);
             bool languageChanged = !string.Equals(previousLanguage, requestedLanguage, StringComparison.OrdinalIgnoreCase);
 
+            bool previousExplorerMenu = _settings.ExplorerMenuEnabled;
             _settings.CopyFrom(settings);
             _queue.UpdateMaxConcurrentItems(_settings.MaxConcurrentConversions);
             _settings.UiLanguage = requestedLanguage;
@@ -73,6 +74,7 @@ public partial class MainWindow
                 PersistSettings();
             }
 
+            ApplyExplorerMenuSetting(previousExplorerMenu, languageChanged);
             appliedDuringDialog = true;
         }
 

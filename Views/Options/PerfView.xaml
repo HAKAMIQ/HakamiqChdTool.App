@@ -215,6 +215,53 @@
                     </Grid>
                 </Border>
 
+                <Border x:Name="WindowsIntegrationSection"
+                        Style="{StaticResource Win11SettingsSection}" Margin="{DynamicResource Inset.0.0.0.8}">
+                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
+                          Language="{DynamicResource App.XmlLanguage}"
+                          SnapsToDevicePixels="True">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0"
+                              Style="{StaticResource Win11SettingsSectionHeader}" MinHeight="{DynamicResource Space.32}">
+
+                            <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
+                                       Text="{DynamicResource LocOptions_WindowsSection}"
+                                       TextAlignment="Center" Margin="{DynamicResource Inset.8.4}"/>
+                        </Grid>
+
+                        <Border Grid.Row="1"
+                                Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
+                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <CheckBox x:Name="ExplorerMenuCheckBox"
+                                          Grid.Column="0"
+                                          IsChecked="{Binding ExplorerMenuEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Style="{StaticResource Win11SettingsCheckBox}"
+                                          ToolTip="{DynamicResource LocOptions_ExplorerMenuDesc}"
+                                          AutomationProperties.Name="{DynamicResource LocOptions_ExplorerMenu}" />
+
+                                <Grid Grid.Column="2"
+                                      Style="{StaticResource Win11SettingsRowTextArea}">
+                                    <TextBlock Text="{DynamicResource LocOptions_ExplorerMenu}"
+                                               ToolTip="{DynamicResource LocOptions_ExplorerMenuDesc}"
+                                               Style="{StaticResource Win11SettingsRowTitleText}"
+                                               TextAlignment="Left" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
             </StackPanel>
         </ScrollViewer>
     </Border>
