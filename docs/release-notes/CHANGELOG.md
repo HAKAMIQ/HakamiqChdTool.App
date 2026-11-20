@@ -8,7 +8,7 @@ Each version starts with a short `### Release notes` list written for users.
 Only that list is published as the GitHub Release text; the subsections after
 it are the detailed record.
 
-## v1.7.0 - Unreleased
+## v2.0.0 - Unreleased
 
 ### Release notes
 
