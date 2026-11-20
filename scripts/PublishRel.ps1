@@ -240,10 +240,13 @@ function Invoke-ReleaseComplianceChecks {
         Assert-FileExists $required
     }
 
-    if (Test-Path -LiteralPath (Join-Path $ProjectRoot 'Tools\igir\win-x64\igir.exe') -PathType Leaf) {
-        foreach ($required in @('docs\legal\IGIR_NOTICE.md', 'docs\legal\IGIR_GPL-3.0.txt', 'scripts\FetchIgir.ps1', 'scripts\FetchIgirSource.ps1')) {
-            Assert-FileExists $required
-        }
+    # igir.exe is git-ignored (over GitHub's 100 MiB file limit) but every release bundles it.
+    if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot 'Tools\igir\win-x64\igir.exe') -PathType Leaf)) {
+        throw "igir.exe is missing: Tools\igir\win-x64\igir.exe. Every release bundles it. Run: pwsh -File .\scripts\FetchIgir.ps1"
+    }
+
+    foreach ($required in @('docs\legal\IGIR_NOTICE.md', 'docs\legal\IGIR_GPL-3.0.txt', 'scripts\FetchIgir.ps1', 'scripts\FetchIgirSource.ps1')) {
+        Assert-FileExists $required
     }
 
     Assert-NoStaleSourceArtifacts
@@ -376,11 +379,9 @@ try {
     New-Item -ItemType Directory -Path $csoKitToolsPath -Force | Out-Null
 
     $igirSource = Join-Path $ProjectRoot 'Tools\igir\win-x64\igir.exe'
-    if (Test-Path -LiteralPath $igirSource -PathType Leaf) {
-        $igirDestination = Join-Path $OutputPath 'Tools\igir\win-x64\igir.exe'
-        New-Item -ItemType Directory -Path (Split-Path -Parent $igirDestination) -Force | Out-Null
-        Copy-Item -LiteralPath $igirSource -Destination $igirDestination -Force
-    }
+    $igirDestination = Join-Path $OutputPath 'Tools\igir\win-x64\igir.exe'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $igirDestination) -Force | Out-Null
+    Copy-Item -LiteralPath $igirSource -Destination $igirDestination -Force
 
     foreach ($tool in @(
         @{ Source = "Tools\hakamiq-cso\win-x64\csokit.exe"; Destination = "Tools\hakamiq-cso\win-x64\csokit.exe" },

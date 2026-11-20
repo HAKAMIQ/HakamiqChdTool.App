@@ -1,6 +1,6 @@
 # igir integration — implementation brief
 
-Status: optional read-only report integration implemented in source; release packaging and manual UI operation remain unverified.
+Status: optional read-only report integration implemented in source; every release bundles igir (verified 2026-11-20); manual UI operation with v5.8.1 remains unverified.
 Related design: [Library Organizer](LIB_ORGANIZER.md).
 Audience: the developer or coding agent implementing the change.
 
@@ -294,7 +294,14 @@ Each stage is one patch with its own tests. Do not merge stages.
   was unchanged.
 - A bounded RFC-style CSV parser preserves `ROM Files` as emitted and rejects
   unknown statuses. The Library window includes an optional report command.
-- End-to-end igir execution from the WPF app and release ZIP packaging remain
-  unverified; the 121 MB executable must be fetched separately before runtime
-  use. DAT match evidence is shown in the report and is not wired as an
-  automatic move authorization.
+- End-to-end igir v5.8.1 execution from the WPF app remains unverified. DAT
+  match evidence is shown in the report and is not wired as an automatic move
+  authorization.
+- Release packaging (2026-11-20): `igir.exe` is over GitHub's 100 MiB file
+  limit, so it stays out of Git. `ci.yml` and `secure-release.yml` run
+  `FetchIgir.ps1` and `FetchIgirSource.ps1` before publishing, and
+  `secure-release.yml` attaches `igir-5.8.1-source.tar.gz` to the release.
+  `PublishRel.ps1`, `VerifyRelease.ps1` and `PackRel.ps1` fail when `igir.exe`
+  is missing; `VerifyRepo.ps1` checks all of this. A fresh fetch matched the
+  pinned digests, and a local `RelOutGate.ps1` + `PackRel.ps1` run produced a
+  ZIP containing `Tools/igir/win-x64/igir.exe` plus the source archive.

@@ -1657,7 +1657,9 @@ function Test-ReleaseTrustGates {
         '-DeploymentMode self-contained',
         'HakamiqChdTool-v\$\{env:RELEASE_VERSION\}-win-x64-runtime-required\.zip',
         'HakamiqChdTool-v\$\{env:RELEASE_VERSION\}-win-x64-self-contained\.zip',
-        'PreserveExistingPackages')) {
+        'PreserveExistingPackages',
+        'scripts\\FetchIgir\.ps1',
+        'scripts\\FetchIgirSource\.ps1')) {
 
         if ($workflowText -notmatch $required) {
             Add-Failure "Secure release workflow is missing a ref/SBOM integrity control: $required"
@@ -1683,6 +1685,9 @@ function Test-ReleaseTrustGates {
     elseif ($releaseCreate.Value -match '\.sha256') {
         Add-Failure 'Secure release workflow must not upload .sha256 files to the release; GitHub shows each asset SHA-256.'
     }
+    elseif ($releaseCreate.Value -notmatch '\$igirSourcePackage#') {
+        Add-Failure 'Secure release workflow must upload the igir Corresponding Source next to the ZIPs (GPL-3.0).'
+    }
 
     foreach ($fixedSection in @('## Highlights', '## Download options', '## Verification', '## Changes')) {
         if ($workflowText -match [regex]::Escape($fixedSection)) {
@@ -1697,6 +1702,7 @@ function Test-ReleaseTrustGates {
         'Setup .NET',
         'Require signing secrets',
         'Set deterministic source epoch',
+        'Fetch pinned igir',
         'Restore locked dependencies',
         'Verify SBOM matches locked release inputs',
         'Build and test',
@@ -3296,6 +3302,15 @@ function Test-SecurityHardeningRegressionGates {
         }
     }
 
+    # igir.exe is git-ignored (over GitHub's 100 MiB file limit); CI must fetch it before publishing.
+    $ciFetchIgir = $ci.IndexOf('.\scripts\FetchIgir.ps1', [System.StringComparison]::Ordinal)
+    $ciFetchIgirSource = $ci.IndexOf('.\scripts\FetchIgirSource.ps1', [System.StringComparison]::Ordinal)
+    $ciPublish = $ci.IndexOf('RelOutGate.ps1', [System.StringComparison]::Ordinal)
+    if ($ciFetchIgir -lt 0 -or $ciFetchIgirSource -lt 0 -or $ciPublish -lt 0 -or
+        $ciFetchIgir -gt $ciPublish -or $ciFetchIgirSource -gt $ciPublish) {
+        Add-Failure 'CI must run FetchIgir.ps1 and FetchIgirSource.ps1 before RelOutGate.ps1 so the release output bundles igir.'
+    }
+
     $sbomPath =
         Join-Path $root 'docs\sbom.cdx.json'
 
@@ -3321,6 +3336,22 @@ function Test-SecurityHardeningRegressionGates {
             $verifyReleaseText = Get-Content -LiteralPath (Join-Path $root 'scripts\VerifyRelease.ps1') -Raw -Encoding UTF8
             if ($verifyReleaseText -notmatch '(?m)^Assert-IgirReleaseCompliance\s*$') {
                 Add-Failure 'VerifyRelease.ps1 must reject packages that bundle igir without a complete SBOM and GPL-3.0 notices.'
+            }
+
+            # Every release bundles igir; a missing igir.exe must fail, not be skipped.
+            if ($verifyReleaseText -notmatch 'throw "Release must bundle igir') {
+                Add-Failure 'VerifyRelease.ps1 must fail when the release output does not bundle igir.exe.'
+            }
+
+            $publishText = Get-Content -LiteralPath (Join-Path $root 'scripts\PublishRel.ps1') -Raw -Encoding UTF8
+            if ($publishText -notmatch 'throw "igir\.exe is missing' -or
+                $publishText -match 'if \(Test-Path -LiteralPath \$igirSource') {
+                Add-Failure 'PublishRel.ps1 must fail when igir.exe is missing instead of publishing without it.'
+            }
+
+            $packText = Get-Content -LiteralPath (Join-Path $root 'scripts\PackRel.ps1') -Raw -Encoding UTF8
+            if ($packText -notmatch 'throw "Release output does not bundle igir') {
+                Add-Failure 'PackRel.ps1 must refuse to package a release output without igir.exe.'
             }
         }
         catch {

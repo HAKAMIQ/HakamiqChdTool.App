@@ -63,6 +63,12 @@ jobs:
       - name: Build Release win-x64
         run: dotnet build .\HakamiqChdTool.App.csproj -c Release -r win-x64 --no-restore --nologo -p:NuGetAudit=false
 
+      - name: Fetch pinned igir
+        shell: pwsh
+        run: |
+          .\scripts\FetchIgir.ps1
+          .\scripts\FetchIgirSource.ps1
+
       - name: Publish and verify end-user release
         shell: pwsh
         run: .\scripts\RelOutGate.ps1 -Output .\Release\ci-output -KeepOutput

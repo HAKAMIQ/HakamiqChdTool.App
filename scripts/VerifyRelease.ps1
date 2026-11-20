@@ -411,15 +411,13 @@ function Assert-RequiredReleaseFiles {
         Assert-FileIsNotEmpty $required
     }
 
-    if (Test-Path -LiteralPath (Join-Path $ProjectRoot "Tools\igir\win-x64\igir.exe") -PathType Leaf) {
-        foreach ($required in @(
-            "Tools\igir\win-x64\igir.exe",
-            "docs\legal\IGIR_NOTICE.md",
-            "docs\legal\IGIR_GPL-3.0.txt"
-        )) {
-            Assert-FileExists $required
-            Assert-FileIsNotEmpty $required
-        }
+    foreach ($required in @(
+        "Tools\igir\win-x64\igir.exe",
+        "docs\legal\IGIR_NOTICE.md",
+        "docs\legal\IGIR_GPL-3.0.txt"
+    )) {
+        Assert-FileExists $required
+        Assert-FileIsNotEmpty $required
     }
 }
 
@@ -867,15 +865,11 @@ function Assert-BundledToolHashes {
         }
     }
 
-    $sourceIgir = Join-Path $ProjectRoot "Tools\igir\win-x64\igir.exe"
-    if ((Test-Path -LiteralPath $sourceIgir -PathType Leaf) -or
-        (Test-Path -LiteralPath (Join-Path $OutputPath "Tools\igir\win-x64\igir.exe") -PathType Leaf)) {
-        $relativePath = "Tools\igir\win-x64\igir.exe"
-        $actualHash = (Get-FileHash -LiteralPath (Join-Path $OutputPath $relativePath) -Algorithm SHA256).Hash
-        $expectedHash = "F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1"
-        if (-not $actualHash.Equals($expectedHash, [System.StringComparison]::OrdinalIgnoreCase)) {
-            throw "Bundled tool SHA-256 mismatch for ${relativePath}. Expected=$expectedHash Actual=$actualHash"
-        }
+    $relativePath = "Tools\igir\win-x64\igir.exe"
+    $actualHash = (Get-FileHash -LiteralPath (Join-Path $OutputPath $relativePath) -Algorithm SHA256).Hash
+    $expectedHash = "F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1"
+    if (-not $actualHash.Equals($expectedHash, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Bundled tool SHA-256 mismatch for ${relativePath}. Expected=$expectedHash Actual=$actualHash"
     }
 }
 
@@ -883,7 +877,7 @@ function Assert-IgirReleaseCompliance {
     $igirRelativePath = "Tools\igir\win-x64\igir.exe"
     $igirPath = Join-Path $OutputPath $igirRelativePath
     if (-not (Test-Path -LiteralPath $igirPath -PathType Leaf)) {
-        return
+        throw "Release must bundle igir: $igirRelativePath is missing."
     }
 
     $igirVersion = "5.8.1"

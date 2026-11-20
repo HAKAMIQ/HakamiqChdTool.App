@@ -121,6 +121,13 @@ it are the detailed record.
 - Explorer menu entries now start `HakamiqChdTool.exe --quick --mode <mode>
   --add "%1"`; entries made by an earlier version are rewritten the next time
   the app starts. `--quick` is never sent to a window that is already open.
+- Every release now bundles igir. The CI and secure-release workflows run
+  `scripts/FetchIgir.ps1` and `scripts/FetchIgirSource.ps1` (pinned SHA-256)
+  before publishing, and the release attaches the igir source archive.
+  `PublishRel.ps1`, `VerifyRelease.ps1` and `PackRel.ps1` now fail when
+  `igir.exe` is missing instead of packaging without it. Before this, the
+  workflow build of v1.6.0 had no `igir.exe`; the published v1.6.0 ZIPs were
+  built locally.
 
 ## v1.6.0 - 2026-11-19
 

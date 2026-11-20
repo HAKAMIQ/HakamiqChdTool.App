@@ -4,7 +4,7 @@ Last reviewed: 2026-11-19.
 
 ## igir
 
-- Version: 5.8.1 (optional; fetched by `scripts/FetchIgir.ps1` because the executable exceeds the 50 MB repository binary limit)
+- Version: 5.8.1 (bundled in every release; not in Git because the executable exceeds GitHub's 100 MiB file limit, so `scripts/FetchIgir.ps1` fetches it and CI runs that script before publishing)
 - Upstream release: <https://github.com/emmercm/igir/releases/tag/v5.8.1>
 - ZIP SHA-256: `48025BACCB4EE564B6DDA4B3AA65C9B90AB01340C2A43773FA506DC880D013F2`
 - `Tools/igir/win-x64/igir.exe` SHA-256: `F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1`
