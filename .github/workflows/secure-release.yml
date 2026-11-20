@@ -396,20 +396,20 @@ jobs:
           }
           $changelogNotes = & .\scripts\GetReleaseNotes.ps1 -Version $env:RELEASE_VERSION
           @"
+          ## Download
+
+          - **HakamiqChdTool-$tag-win-x64-self-contained.zip**: recommended, includes .NET 10.
+          - HakamiqChdTool-$tag-win-x64-runtime-required.zip: smaller, needs .NET 10 Desktop Runtime x64.
+
+          GitHub shows each file's SHA-256 next to it, and each ZIP has a GitHub build attestation. $authenticodeNote
+
+          ## What's new
+
           $changelogNotes
-
-          ## Downloads
-
-          - Self-contained: recommended, includes .NET 10.
-          - Runtime-required: smaller, needs .NET 10 Desktop Runtime x64.
-
-          Each ZIP has a .sha256 file and a GitHub build attestation. $authenticodeNote
           "@ | Set-Content -LiteralPath $notesPath -Encoding UTF8
           gh release create $tag `
             $runtimePackage `
-            "$runtimePackage.sha256" `
             $selfContainedPackage `
-            "$selfContainedPackage.sha256" `
             --verify-tag `
             --title "CHD Tool $tag" `
             --notes-file $notesPath
