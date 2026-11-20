@@ -29,15 +29,30 @@ available in Arabic and English, with light and dark themes.
 
 ## Download
 
-Get the latest version from the
-[Releases page](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/latest).
+**Latest: v1.6.0.** If you are not sure which file to pick, download the first one.
 
-| Package | When to use it |
+| File | When to use it |
 | --- | --- |
-| `HakamiqChdTool-vX.Y.Z-win-x64-self-contained.zip` | **Recommended.** Includes the .NET 10 runtime; nothing else to install. |
-| `HakamiqChdTool-vX.Y.Z-win-x64-runtime-required.zip` | Smaller. Needs the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/download/dotnet/10.0). |
+| [`HakamiqChdTool-v1.6.0-win-x64-self-contained.zip`](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/download/v1.6.0/HakamiqChdTool-v1.6.0-win-x64-self-contained.zip) | **Recommended.** Includes the .NET 10 runtime; nothing else to install. |
+| [`HakamiqChdTool-v1.6.0-win-x64-runtime-required.zip`](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/download/v1.6.0/HakamiqChdTool-v1.6.0-win-x64-runtime-required.zip) | Smaller. Needs the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/download/dotnet/10.0). |
 
-Each package has a SHA-256 file next to it so you can check the download.
+The release page also lists `igir-5.8.1-source.tar.gz`, the GPL-3.0 source of
+the bundled igir; you do not need it to use the app. GitHub shows the SHA-256
+of each file next to it. All versions are on the
+[Releases page](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases).
+
+### What's new in v1.6.0
+
+- New inputs: hard-disk images (`.img`, `.hdd`), ZSO, CloneCD, Alcohol 120%
+  and ECM, also from inside ZIP, 7Z and RAR.
+- Dreamcast GD-ROM CHDs extract to GDI again; a setting keeps CUE/BIN.
+- A source file can no longer be swapped between its checks and the
+  conversion.
+- Danger buttons follow the light and dark themes, and the Add files dialogs
+  list every supported format.
+- Bundled CsoKit 0.6.6, 7-Zip 26.06 and igir 5.8.1.
+
+Full list: [changelog](docs/release-notes/CHANGELOG.md).
 
 ## Quick start
 
@@ -100,9 +115,11 @@ sources: [Tools/VERSIONS.md](Tools/VERSIONS.md).
 
 ## Security
 
-Dependencies are locked and bundled tool hashes are pinned. Each release
-includes a CycloneDX SBOM, SHA-256 hashes and GitHub build provenance
-attestations. To report a vulnerability, see [SECURITY.md](SECURITY.md).
+Dependencies are locked and bundled tool hashes are pinned. The CycloneDX SBOM
+is in [docs/sbom.cdx.json](docs/sbom.cdx.json). GitHub shows the SHA-256 of
+every release file, and packages built by the release workflow also have GitHub
+build provenance attestations. To report a vulnerability, see
+[SECURITY.md](SECURITY.md).
 
 ## Legal
 
