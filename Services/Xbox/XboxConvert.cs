@@ -52,7 +52,7 @@ internal sealed record XboxConvertResult(
 /// <summary>
 /// Converts Xbox games to XISO (xdvdfs) and Xbox 360 games to Games on Demand (iso2god) or ZAR (zarchive). Every
 /// result is checked before it is kept: XISO by content checksum (or by unpacking and comparing every file), GOD by its
-/// container header, ZAR by unpacking it again and comparing every file. Work happens in a temporary file or folder in
+/// container header, ZAR by reading it with the app's own reader and comparing every file. Work happens in a temporary file or folder in
 /// the output folder; the source is never written to or deleted, and an existing output is never replaced.
 /// </summary>
 internal sealed class XboxConvertService
@@ -244,9 +244,9 @@ internal sealed class XboxConvertService
             return new XboxConvertResult(XboxConvertOutcome.Failed, ToolFailedKey);
         }
 
-        string check = Temporary(outputFolder, string.Empty, temporary);
-        if (await RunAsync(XboxTool.ZArchive, [archive, check], ct).ConfigureAwait(false) is { ExitCode: not 0 }
-            || !SameFiles(folder, check, ct))
+        // The archive is read by the app's own reader (ZarVerifier), not by zarchive.exe, whose extraction stops early
+        // on large archives.
+        if (!await Task.Run(() => ZarVerifier.MatchesFolder(archive, folder, ct), ct).ConfigureAwait(false))
         {
             return new XboxConvertResult(XboxConvertOutcome.Failed, CheckFailedKey);
         }

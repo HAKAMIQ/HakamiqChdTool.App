@@ -145,4 +145,45 @@ internal static partial class Program
         AssertEqual("zar", XboxFormats.ToSetting(Xbox360Format.Zar), "ZAR is saved as zar.");
         AssertEqual("god", XboxFormats.ToSetting(Xbox360Format.God), "Games on Demand is saved as god.");
     }
+
+    // The app's own ZAR reader accepts an archive made by zarchive.exe and refuses one whose content no longer matches:
+    // a changed source byte, a corrupted block, a missing file or a truncated archive.
+    private static void TestZarVerifierChecksEveryFile(string workDirectory)
+    {
+        string root = Path.Combine(workDirectory, "zar-verify-" + Guid.NewGuid().ToString("N"));
+        string game = MakeXboxGameFolder(root, "Game", "default.xex", 7, extraBytes: 3 * 1024 * 1024 + 123);
+        File.WriteAllBytes(Path.Combine(game, "media", "empty.bin"), []);
+        File.WriteAllBytes(Path.Combine(game, "media", "zeros.bin"), new byte[200 * 1024]);
+        AssertTrue(XboxToolLocator.TryLocate(XboxTool.ZArchive, out string zarchive), "The bundled zarchive is present.");
+
+        string archive = Path.Combine(root, "game.zar");
+        ExternalToolProcessResult packed = new ExternalToolProcessRunner().RunAsync(zarchive, [game, archive], CancellationToken.None, 65536,
+                candidate => XboxToolLocator.TryValidate(XboxTool.ZArchive, candidate, out string normalized) ? normalized : null)
+            .GetAwaiter().GetResult();
+        AssertEqual(0, packed.ExitCode, "zarchive packs the folder.");
+        AssertTrue(ZarVerifier.MatchesFolder(archive, game, CancellationToken.None), "The archive matches its folder.");
+
+        string level = Path.Combine(game, "media", "level1.dat");
+        byte[] original = File.ReadAllBytes(level);
+        byte[] changed = (byte[])original.Clone();
+        changed[changed.Length / 2] ^= 0xFF;
+        File.WriteAllBytes(level, changed);
+        AssertFalse(ZarVerifier.MatchesFolder(archive, game, CancellationToken.None), "A changed source byte is noticed.");
+        File.WriteAllBytes(level, original);
+
+        string corrupt = Path.Combine(root, "corrupt.zar");
+        byte[] bytes = File.ReadAllBytes(archive);
+        bytes[bytes.Length / 3] ^= 0x5A;
+        File.WriteAllBytes(corrupt, bytes);
+        AssertFalse(ZarVerifier.MatchesFolder(corrupt, game, CancellationToken.None), "A corrupted block is noticed.");
+
+        string truncated = Path.Combine(root, "truncated.zar");
+        File.WriteAllBytes(truncated, File.ReadAllBytes(archive)[..^200]);
+        AssertFalse(ZarVerifier.MatchesFolder(truncated, game, CancellationToken.None), "A truncated archive is refused.");
+
+        File.Move(Path.Combine(game, "media", "sound", "theme.wav"), Path.Combine(root, "theme.wav"));
+        AssertFalse(ZarVerifier.MatchesFolder(archive, game, CancellationToken.None), "A file missing from the folder is noticed.");
+        File.Move(Path.Combine(root, "theme.wav"), Path.Combine(game, "media", "sound", "theme.wav"));
+        AssertTrue(ZarVerifier.MatchesFolder(archive, game, CancellationToken.None), "The archive matches again once the folder is restored.");
+    }
 }

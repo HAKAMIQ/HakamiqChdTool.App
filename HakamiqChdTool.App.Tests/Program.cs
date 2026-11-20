@@ -209,6 +209,7 @@ internal static partial class Program
                 new("Xbox games convert to XISO and are checked before they are kept", () => TestXboxGameConvertsToXiso(workDirectory)),
                 new("Xbox 360 games convert to ZAR and a stopped run leaves nothing", () => TestXbox360GameConvertsToZar(workDirectory)),
                 new("Games on Demand output is checked", () => TestXboxGodOutputCheck(workDirectory)),
+                new("The app's ZAR reader checks every file against the source", () => TestZarVerifierChecksEveryFile(workDirectory)),
                 new("The Xbox 360 format setting defaults to Games on Demand and is kept", TestXbox360FormatSetting),
                 new("Xbox window adds games, runs supported ones, retries failures and saves the format", () => TestXboxViewModel(workDirectory)),
                 new("Xbox window text, accessible names and sidebar button", TestXboxStringsAndWindow),
