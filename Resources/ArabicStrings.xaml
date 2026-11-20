@@ -728,6 +728,7 @@
     <sys:String x:Key="LocWorkflow_CcdScrambled">تخزن صورة CloneCD هذه مسارات بيانات مشفرة الترتيب، ولا يمكن تحويلها إلى CHD كما هي.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdImageMissing">لم يعثر على ملف ‎.img‎ الخاص بملف ‎.ccd‎ هذا بجانبه وبنفس الاسم.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdStagingFailed">تعذر تجهيز ملف ‎.img‎ الخاص بـ CloneCD في المجلد المؤقت. تحقق من المساحة الفارغة في قرص النظام ومن إمكانية قراءة الصورة.</sys:String>
+    <sys:String x:Key="LocWorkflow_GdRomCueStagingFailed">تعذر تجهيز مسارات قرص Dreamcast في المجلد المؤقت. تأكد من المساحة الفارغة في قرص النظام وأن الملفات قابلة للقراءة.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdImageNotAligned">حجم ملف ‎.img‎ الخاص بـ CloneCD ليس من مضاعفات 2352 بايت، لذلك فالصورة ناقصة أو ليست صورة قرص CD خاما.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateMds">تم التعرف على صورة Alcohol 120% ‏(‎.mds‎). سينشأ ملف CUE مؤقت ويحول القرص باستخدام createcd. لن تحفظ بيانات القناة الفرعية إن وجدت في ملف ‎.mdf‎.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateMdsDvd">تم التعرف على صورة DVD من Alcohol 120% ‏(‎.mds‎). سيحول ملف ‎.mdf‎ باستخدام createdvd.</sys:String>

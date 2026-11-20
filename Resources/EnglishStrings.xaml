@@ -734,6 +734,7 @@ Path:
     <sys:String x:Key="LocWorkflow_CcdScrambled">This CloneCD image stores scrambled data tracks. It cannot be converted to CHD as-is.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdImageMissing">The .img file that belongs to this .ccd was not found next to it with the same name.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdStagingFailed">The CloneCD .img could not be prepared in the temporary folder. Check free space on the system drive and that the image is readable.</sys:String>
+    <sys:String x:Key="LocWorkflow_GdRomCueStagingFailed">The Dreamcast disc tracks could not be prepared in the temporary folder. Check free space on the system drive and that the files are readable.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdImageNotAligned">The CloneCD .img size is not a multiple of 2352 bytes, so the image is incomplete or not a raw CD image.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateMds">Alcohol 120% image (.mds) detected. A temporary CUE is generated and the disc is converted with createcd. Subchannel data in the .mdf, if any, is not kept.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateMdsDvd">Alcohol 120% DVD image (.mds) detected. The .mdf is converted with createdvd.</sys:String>

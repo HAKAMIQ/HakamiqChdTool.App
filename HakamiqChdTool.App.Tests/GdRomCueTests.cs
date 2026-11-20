@@ -44,6 +44,10 @@ internal static partial class Program
         AssertTrue(tracks[1].IsAudio && !tracks[0].IsAudio && !tracks[2].IsAudio, "Track types are kept.");
 
         string gdi = GdRomCueGdi.BuildGdi(tracks, GdRomCueGdi.StagedFileName);
+        Dictionary<string, string> arabic = LoadStrings("ArabicStrings.xaml");
+        Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");
+        AssertTrue(arabic.ContainsKey(GdRomCueGdi.StagingFailedMessageKey) && english.ContainsKey(GdRomCueGdi.StagingFailedMessageKey), "The staging failure has text in both languages.");
+
         AssertEqual("3\r\n1 0 4 2352 track01.bin 0\r\n2 450 0 2352 track02.raw 0\r\n3 45000 4 2352 track03.bin 0\r\n", gdi, "The GDI lines match the layout chdman expects.");
 
         string[] Without(string removed) => [.. TosecStyleGdRomCue.Where(line => line != removed)];
