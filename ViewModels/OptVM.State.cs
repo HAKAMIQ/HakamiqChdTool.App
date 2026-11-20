@@ -90,6 +90,8 @@ public sealed partial class OptionsViewModel
             && ExplorerOpensQuickWindow == snapshot.ExplorerOpensQuickWindow
             && WatchFolderEnabled == snapshot.WatchFolderEnabled
             && StringEquals(WatchFolderPath.Trim(), snapshot.WatchFolderPath)
+            && StringEquals(ExternalCsoKitPath, snapshot.ExternalCsoKitPath?.Trim() ?? string.Empty)
+            && StringEquals(ExternalIgirPath, snapshot.ExternalIgirPath?.Trim() ?? string.Empty)
             && EnableDeepIntegrityCheck == snapshot.EnableDeepIntegrityCheck
             && ApplyStandardNamingBasedOnHash == snapshot.ApplyStandardNamingBasedOnHash
             && StringEquals(RedumpDatabaseDownloadUrl.Trim(), snapshot.RedumpDatabaseDownloadUrl)

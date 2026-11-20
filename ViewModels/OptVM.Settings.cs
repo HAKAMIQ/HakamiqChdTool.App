@@ -28,6 +28,8 @@ public sealed partial class OptionsViewModel
         defaults.Theme = current.Theme;
         defaults.UiLanguage = current.UiLanguage;
         defaults.PortableMode = current.PortableMode;
+        defaults.ExternalCsoKitPath = ExternalCsoKitPath;
+        defaults.ExternalIgirPath = ExternalIgirPath;
         defaults.RedumpDatabaseDownloadUrl = current.RedumpDatabaseDownloadUrl;
         defaults.EnableRedumpAutoSync = current.EnableRedumpAutoSync;
         defaults.RedumpLastSyncedUtc = current.RedumpLastSyncedUtc;
@@ -70,6 +72,8 @@ public sealed partial class OptionsViewModel
         ExplorerOpensQuickWindow = settings.ExplorerOpensQuickWindow;
         WatchFolderEnabled = settings.WatchFolderEnabled;
         WatchFolderPath = settings.WatchFolderPath ?? string.Empty;
+        ExternalCsoKitPath = settings.ExternalCsoKitPath ?? string.Empty;
+        ExternalIgirPath = settings.ExternalIgirPath ?? string.Empty;
         RedumpDatabaseDownloadUrl = settings.RedumpDatabaseDownloadUrl?.Trim() ?? string.Empty;
         EnableRedumpAutoSync = settings.EnableRedumpAutoSync;
         _redumpLastSyncedUtc = NormalizeStoredTimestamp(settings.RedumpLastSyncedUtc);
@@ -130,6 +134,8 @@ public sealed partial class OptionsViewModel
         result.ExplorerOpensQuickWindow = ExplorerOpensQuickWindow;
         result.WatchFolderEnabled = WatchFolderEnabled;
         result.WatchFolderPath = WatchFolderPath.Trim();
+        result.ExternalCsoKitPath = ExternalCsoKitPath;
+        result.ExternalIgirPath = ExternalIgirPath;
         result.EnableDeepIntegrityCheck = EnableDeepIntegrityCheck;
         result.ApplyStandardNamingBasedOnHash = ApplyStandardNamingBasedOnHash;
         result.RedumpDatabaseDownloadUrl = RedumpDatabaseDownloadUrl.Trim();

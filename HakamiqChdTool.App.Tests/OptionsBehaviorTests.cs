@@ -213,4 +213,51 @@ internal static partial class Program
             throw failure;
         }
     }
+
+    // A CsoKit or igir path chosen in the Add-ons tab waits for Apply or OK like every other option; Cancel drops it.
+    private static void TestChosenToolPathsWaitForApply()
+    {
+        string tools = File.ReadAllText(FindRepoFile(Path.Combine("Ui", "Shell", "HqOptsTools.cs")));
+        AssertFalse(tools.Contains("AppSettingsService", StringComparison.Ordinal) || tools.Contains("_currentSettings.External", StringComparison.Ordinal),
+            "Browse in the Add-ons tab no longer saves settings or changes them in place.");
+
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var source = new AppSettings { ExternalCsoKitPath = @"C:\Old\csokit.exe" };
+                var options = new HakamiqChdTool.App.ViewModels.OptionsViewModel();
+                options.Load(source);
+                AssertFalse(options.HasPendingChanges, "Nothing is pending after opening.");
+
+                options.ExternalCsoKitPath = @"C:\New\csokit.exe";
+                options.ExternalIgirPath = @"C:\New\igir.exe";
+                AssertTrue(options.HasPendingChanges, "A chosen tool path turns Apply on.");
+                AssertEqual(@"C:\Old\csokit.exe", source.ExternalCsoKitPath, "The current settings are untouched until Apply.");
+
+                AppSettings result = options.BuildResultSettings(source);
+                AssertEqual(@"C:\New\csokit.exe", result.ExternalCsoKitPath, "Apply saves the chosen CsoKit path.");
+                AssertEqual(@"C:\New\igir.exe", result.ExternalIgirPath, "Apply saves the chosen igir path.");
+            }
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null)
+        {
+            throw failure;
+        }
+    }
+
+    // Scanning or preparing the Redump DAT folder shows its result under the buttons.
+    private static void TestRedumpScanShowsItsResult()
+    {
+        string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "RedumpView.xaml")));
+        AssertTrue(view.Contains("Text=\"{Binding RedumpLocalLibraryScanSummary}\"", StringComparison.Ordinal), "The scan result is shown in the Redump tab.");
+    }
 }

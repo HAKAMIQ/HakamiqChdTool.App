@@ -43,6 +43,8 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _explorerOpensQuickWindow = true;
     private bool _watchFolderEnabled;
     private string _watchFolderPath = string.Empty;
+    private string _externalCsoKitPath = string.Empty;
+    private string _externalIgirPath = string.Empty;
     private bool _enableDeepIntegrityCheck;
     private bool _applyStandardNamingBasedOnHash;
     private bool _isDatabaseAvailable;
@@ -524,6 +526,32 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         get => _watchFolderPath;
         set => SetProperty(ref _watchFolderPath, value ?? string.Empty);
+    }
+
+    /// <summary>CsoKit chosen in the Add-ons tab; saved with Apply or OK like every other option, empty = bundled.</summary>
+    public string ExternalCsoKitPath
+    {
+        get => _externalCsoKitPath;
+        set
+        {
+            if (SetProperty(ref _externalCsoKitPath, value?.Trim() ?? string.Empty))
+            {
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
+    }
+
+    /// <summary>igir chosen in the Add-ons tab; saved with Apply or OK, empty = bundled.</summary>
+    public string ExternalIgirPath
+    {
+        get => _externalIgirPath;
+        set
+        {
+            if (SetProperty(ref _externalIgirPath, value?.Trim() ?? string.Empty))
+            {
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
     }
 
     public bool EnableDeepIntegrityCheck

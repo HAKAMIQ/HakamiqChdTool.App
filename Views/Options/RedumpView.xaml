@@ -400,6 +400,7 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="{DynamicResource Grid.Space.6}" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
                                 <!-- المجلد -->
@@ -569,6 +570,29 @@
                                                    TextWrapping="NoWrap" />
                                     </Button>
                                 </Grid>
+
+                                <!-- نتيجة الفحص أو التجهيز -->
+                                <TextBlock x:Name="RedumpLocalScanSummaryTextBlock"
+                                           Grid.Row="5"
+                                           Margin="{DynamicResource Inset.0.8.0.0}"
+                                           Text="{Binding RedumpLocalLibraryScanSummary}"
+                                           FontSize="{DynamicResource FontSize.Caption}"
+                                           Foreground="{DynamicResource Brush.Text.Secondary}"
+                                           TextWrapping="Wrap"
+                                           AutomationProperties.LiveSetting="Polite">
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Style.Triggers>
+                                                <Trigger Property="Text" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </Trigger>
+                                                <Trigger Property="Text" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
                         </Border>
                     </Grid>

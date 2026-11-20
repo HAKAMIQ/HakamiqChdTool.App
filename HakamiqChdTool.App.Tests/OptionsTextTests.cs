@@ -219,4 +219,12 @@ internal static partial class Program
             "The igir version is hidden when igir is unavailable, so 'unavailable' is not shown twice.");
         AssertFalse(tools.Contains("<Grid Grid.Row=\"2\" FlowDirection=\"LeftToRight\">", StringComparison.Ordinal), "The igir status row follows the app direction.");
     }
+
+    // Numbers in Options text ("Windows 11", counts, sizes) use Latin digits in Arabic, like the rest of the app.
+    private static void TestOptionsWindowUsesLatinDigits()
+    {
+        string window = File.ReadAllText(FindRepoFile(Path.Combine("Views", "OptionsWindow.xaml")));
+        string header = window[..window.IndexOf("<Window.Resources>", StringComparison.Ordinal)];
+        AssertTrue(header.Contains("NumberSubstitution.Substitution=\"European\"", StringComparison.Ordinal), "The Options window shows Latin digits.");
+    }
 }
