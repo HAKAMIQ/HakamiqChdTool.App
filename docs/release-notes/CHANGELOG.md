@@ -15,6 +15,8 @@ it are the detailed record.
 - Optional Explorer right-click menu: Convert to CHD on disc images and
   archives, Extract and Verify on CHD files, and a CHD Tool submenu on folders.
 - Opening files while CHD Tool is already open adds them to the open window.
+- Command line: `--start` processes the added items and `--exit-when-done`
+  closes the app afterwards with an exit code for scripts.
 - After a run, a bar above the queue shows how many items finished, failed or
   were skipped, the space saved and the time taken, with a Details button for
   the full report.

@@ -28,6 +28,10 @@ public partial class MainWindow
     private readonly Queue<LaunchRequest> _pendingLaunches = new();
     private bool _launchIntakeReady;
     private bool _drainingLaunches;
+    private bool _launchStartPending;
+
+    /// <summary>Set for a launch with --exit-when-done: the app closes after the next full run.</summary>
+    internal bool ExitWhenDone { get; set; }
 
     internal void HandleLaunchRequest(LaunchRequest request)
     {
@@ -82,11 +86,14 @@ public partial class MainWindow
             {
                 LaunchRequest first = _pendingLaunches.Dequeue();
                 var paths = new List<string>(first.Paths);
+                _launchStartPending |= first.Start;
 
                 // Explorer starts one process per selected file; requests for the same mode are added together.
                 while (_pendingLaunches.TryPeek(out LaunchRequest? next) && next.Mode == first.Mode)
                 {
-                    paths.AddRange(_pendingLaunches.Dequeue().Paths);
+                    LaunchRequest merged = _pendingLaunches.Dequeue();
+                    _launchStartPending |= merged.Start;
+                    paths.AddRange(merged.Paths);
                 }
 
                 string[] normalized = NormalizeLaunchPaths(paths);
@@ -103,7 +110,48 @@ public partial class MainWindow
         {
             _drainingLaunches = false;
         }
+
+        if (_pendingLaunches.Count == 0)
+        {
+            StartLaunchedRunIfRequested();
+        }
     }
+
+    /// <summary>--start: runs the queue once the launched items are in. With --exit-when-done and nothing
+    /// to run, the app closes with exit code 3.</summary>
+    private void StartLaunchedRunIfRequested()
+    {
+        if (!_launchStartPending || IsQueueInteractionLocked || _shutdownStarted || _shutdownCompleted)
+        {
+            return;
+        }
+
+        _launchStartPending = false;
+        if (CountQueuedRowsForSelectedOperationMode() > 0 && _viewModel.StartProcessingCommand.CanExecute(null))
+        {
+            _ = _viewModel.StartProcessingCommand.ExecuteAsync(null);
+            return;
+        }
+
+        if (ExitWhenDone)
+        {
+            Log.Information("Launch asked to start, but nothing could run. Exiting with code {ExitCode}.", LaunchArgs.ExitNothingToDo);
+            RequestLaunchExit(LaunchArgs.ExitNothingToDo);
+        }
+    }
+
+    private void RequestLaunchExit(int exitCode)
+    {
+        _ = Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+        {
+            if (!_shutdownStarted && !_shutdownCompleted)
+            {
+                System.Windows.Application.Current?.Shutdown(exitCode);
+            }
+        }));
+    }
+
+    internal void ShowLaunchUsage(string error) => App.ShowLaunchUsageMessage(IsVisible ? this : null, error);
 
     private static string[] NormalizeLaunchPaths(IEnumerable<string> paths)
     {
