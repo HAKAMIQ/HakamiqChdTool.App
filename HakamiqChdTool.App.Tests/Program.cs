@@ -350,6 +350,8 @@ internal static partial class Program
                 new("Run summary shows outcome, counts, saved space and time in both languages", TestRunSummaryCardContent),
                 new("Recompress picks codecs by media type and never targets the source folder or an existing file", TestRecompressPlanning),
                 new("Recompress with real chdman keeps the data, saves space and leaves no temporary files", TestRecompressWithRealChdman),
+                new("Recompress window list, start rules, results, summary and retry", TestRecompressViewModel),
+                new("Recompress texts exist in both languages and controls have names", TestRecompressStringsAndWindow),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),
