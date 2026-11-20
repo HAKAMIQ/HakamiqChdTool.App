@@ -75,6 +75,8 @@ it are the detailed record.
 - Option texts say what the options do: Redump checks read each source in
   full first, the suggested name is written to the log, and archives are
   always unpacked in the Windows Temp folder.
+- Files unpacked from archives are now deleted from the Temp folder when the
+  task ends by default. A choice already saved in your settings is kept.
 - Arabic messages across the app use plain wording: direct instructions
   instead of "يرجى", simple verbs instead of "سيتم + verbal noun", and no
   English word repeated in brackets.
