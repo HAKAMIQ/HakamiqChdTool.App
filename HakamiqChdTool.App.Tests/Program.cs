@@ -398,6 +398,7 @@ internal static partial class Program
                 new("The Options window uses Latin digits", TestOptionsWindowUsesLatinDigits),
                 new("Chosen tool paths wait for Apply", TestChosenToolPathsWaitForApply),
                 new("The Redump folder scan shows its result", TestRedumpScanShowsItsResult),
+                new("Bundled tools are listed and checked against their pins", TestBundledToolsAreListedAndChecked),
                 new("Options window shows the CPU name, igir version and Windows hints readably", TestOptionsWindowLayoutFixes),
                 new("Tray balloon after a run shows the run summary with the space saved", TestTrayBalloonUsesRunSummary),
                 new("Recompress picks codecs by media type and never targets the source folder or an existing file", TestRecompressPlanning),
