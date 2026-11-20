@@ -356,6 +356,7 @@ internal static partial class Program
                 new("Quick window option loads, saves and sits under the Explorer menu option", TestQuickWindowSettingInOptions),
                 new("A PSP CSO uses the PSP ISO hunk size; other CSOs keep the default", TestPspCsoUsesThePspIsoHunkSize),
                 new("Xbox and Xbox 360 ISOs are refused with their own reason", () => TestXboxDiscIsoIsRefused(workDirectory)),
+                new("An added Xbox ISO shows why it is not converted", () => TestXboxDiscRowExplainsWhy(workDirectory)),
                 new("Quick window waits for Start, runs, and shows the result", () => TestQuickWindowViewModelFlow(workDirectory)),
                 new("Run summary shows outcome, counts, saved space and time in both languages", TestRunSummaryCardContent),
                 new("Options text has no tashkeel and no repeated or duplicate words", TestOptionsTextIsPlainAndNotRepeated),

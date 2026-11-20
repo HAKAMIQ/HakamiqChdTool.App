@@ -437,6 +437,7 @@
     <sys:String x:Key="LocIntake_DiscImageCandidate">A convertible disc image was detected. BIN/CUE files will be prepared when conversion starts.</sys:String>
     <sys:String x:Key="LocIntake_ChdInputDetected">CHD file detected. Use the operation selected in the task queue.</sys:String>
     <sys:String x:Key="LocIntake_UnknownOrUnsupported">File type is unknown or unsupported.</sys:String>
+    <sys:String x:Key="LocIntake_XboxDisc">This is an Xbox or Xbox 360 disc. It is not converted to CHD because Xbox emulators do not read that format.</sys:String>
 
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Label">Automatic — use local rules</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Description">Checks against imported local DAT databases without forcing a specific platform.</sys:String>

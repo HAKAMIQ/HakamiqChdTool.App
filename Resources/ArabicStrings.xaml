@@ -437,6 +437,7 @@
     <sys:String x:Key="LocIntake_DiscImageCandidate">تم اكتشاف صورة قرص قابلة للتحويل. ستجهز ملفات BIN/CUE عند بدء التحويل.</sys:String>
     <sys:String x:Key="LocIntake_ChdInputDetected">تم اكتشاف ملف CHD. ستطبق عليه العملية المختارة في القائمة.</sys:String>
     <sys:String x:Key="LocIntake_UnknownOrUnsupported">نوع الملف غير معروف أو غير مدعوم.</sys:String>
+    <sys:String x:Key="LocIntake_XboxDisc">هذا قرص Xbox أو Xbox 360، ولا يحول إلى CHD لأن محاكيات Xbox لا تقرأ هذه الصيغة.</sys:String>
 
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Label">تلقائي (حسب القواعد المحلية)</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Description">الفحص مقابل كافة قواعد DAT المحلية دون تحديد منصة معينة.</sys:String>

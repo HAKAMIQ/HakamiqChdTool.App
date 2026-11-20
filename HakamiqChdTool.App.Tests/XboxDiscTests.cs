@@ -57,4 +57,58 @@ internal static partial class Program
             AssertEqual(QueueInputRole.ConvertibleDiscImage, MediaInputPipeline.Decide(descriptor).QueueRole, $"{Path.GetFileName(path)} is still a convertible disc image.");
         }
     }
+
+    // An added Xbox ISO shows a row that says why it is not converted, in both languages.
+    private static void TestXboxDiscRowExplainsWhy(string workDirectory)
+    {
+        Dictionary<string, string> arabic = LoadStrings("ArabicStrings.xaml");
+        Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");
+        AssertTrue(arabic.TryGetValue(MediaInputPipeline.XboxDiscMessageKey, out string? ar) && ar.Contains("Xbox", StringComparison.Ordinal), "The Arabic reason names Xbox.");
+        AssertTrue(english.TryGetValue(MediaInputPipeline.XboxDiscMessageKey, out string? en) && en.Contains("Xbox", StringComparison.Ordinal), "The English reason names Xbox.");
+
+        string root = Path.Combine(workDirectory, "xbox-row-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        string xiso = Path.Combine(root, "Game (Xbox).iso");
+        using (var stream = new FileStream(xiso, FileMode.CreateNew, FileAccess.Write))
+        {
+            stream.SetLength(0x20000);
+            stream.Position = 0x10000;
+            stream.Write(Encoding.ASCII.GetBytes("MICROSOFT*XBOX*MEDIA"));
+        }
+
+        string? detail = null;
+        string? state = null;
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            System.Windows.Threading.Dispatcher dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+            _ = dispatcher.InvokeAsync(async () =>
+            {
+                try
+                {
+                    var queue = new HakamiqChdTool.App.Core.Queue.QueueManager(new QuickTestOrchestrator(), HakamiqChdTool.App.Models.AppSettings.CreateSafeDefaults, static () => string.Empty, 1);
+                    await using var host = new HakamiqChdTool.App.QueueRun.QuickRunHost(queue, HakamiqChdTool.App.Models.AppSettings.CreateSafeDefaults, new HakamiqChdTool.App.Services.PostProcessing.PostConversionArtifactService(), dispatcher, static () => null, autoStart: false);
+                    await host.AddAsync(HakamiqChdTool.App.Models.QueueExecutionProfile.QuickConvert, [xiso]);
+                    detail = host.Items.FirstOrDefault()?.StatusDetail;
+                    state = host.Items.FirstOrDefault()?.CurrentState;
+                }
+                catch (Exception ex)
+                {
+                    failure = ex;
+                }
+                finally
+                {
+                    dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Background);
+                }
+            });
+            System.Windows.Threading.Dispatcher.Run();
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
+        thread.Start();
+        AssertTrue(thread.Join(TimeSpan.FromSeconds(60)), "The intake thread finished.");
+        AssertTrue(failure is null, "Intake did not throw: " + failure);
+        AssertEqual(MediaInputPipeline.XboxDiscMessageKey, detail, "The row says the file is an Xbox disc.");
+        AssertTrue(state is not null, "The Xbox ISO gets a row instead of disappearing.");
+    }
 }
