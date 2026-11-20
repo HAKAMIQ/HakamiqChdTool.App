@@ -213,6 +213,11 @@ public partial class MainWindow
             _w.OpenRecompressWindow();
         }
 
+        public void OpenXbox()
+        {
+            _w.OpenXboxWindow();
+        }
+
         public void OpenLibraryAnalysis()
         {
             _w.OpenLibraryAnalysisDialog();

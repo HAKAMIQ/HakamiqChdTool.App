@@ -195,4 +195,47 @@ public partial class MainWindow
         _recompressWindow = window;
         window.Show();
     }
+
+    private XboxWindow? _xboxWindow;
+
+    // Non-modal; one window at a time. Runs the pinned Xbox tools on its own, outside the queue and CHD.
+    internal void OpenXboxWindow()
+    {
+        if (_xboxWindow is not null)
+        {
+            _xboxWindow.Activate();
+            return;
+        }
+
+        XboxWindow window;
+        try
+        {
+            var service = new HakamiqChdTool.App.Services.Xbox.XboxConvertService(new ExternalToolProcessRunner());
+            window = new XboxWindow { Owner = this };
+            var viewModel = new XboxViewModel(
+                service.DetectAsync,
+                service.ConvertAsync,
+                window,
+                ArabicUi.Get,
+                HakamiqChdTool.App.Services.Xbox.XboxFormats.Parse(_settings.Xbox360Format),
+                format =>
+                {
+                    _settings.Xbox360Format = HakamiqChdTool.App.Services.Xbox.XboxFormats.ToSetting(format);
+                    PersistSettings();
+                });
+            window.Attach(viewModel);
+        }
+        catch (Exception ex)
+        {
+            global::Serilog.Log.Error(ex, "Xbox window construction failed.");
+            ShowNoticeDialog(
+                MainWindowMessages.StartupRuntimeErrorTitle,
+                MainWindowMessages.StartupRuntimeErrorBody(RuntimeDiagnosticFormatter.SummarizeException(ex)));
+            return;
+        }
+
+        window.Closed += (_, _) => _xboxWindow = null;
+        _xboxWindow = window;
+        window.Show();
+    }
 }

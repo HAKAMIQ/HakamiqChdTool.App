@@ -336,5 +336,37 @@
                     Style="{StaticResource ProcessingActionsPanelActionChip}" />
         </Grid>
     </Border>
+
+    <Border x:Name="XboxSection"
+            Style="{StaticResource FluentActionCard}"
+            Padding="{DynamicResource Inset.8.All}"
+            Background="{DynamicResource Brush.Transparent}"
+            BorderBrush="{DynamicResource Brush.Transparent}"
+            BorderThickness="{DynamicResource Inset.None}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       HorizontalAlignment="Center"
+                       Text="{DynamicResource LocXbox_SectionTitle}"
+                       TextAlignment="Center"
+                       Style="{StaticResource ProcessingActionsPanelHeaderTitleText}"
+                       Foreground="{DynamicResource Brush.Text.Secondary}" />
+
+            <Button x:Name="OpenXboxButton"
+                    Grid.Row="2"
+                    Command="{Binding OpenXboxCommand}"
+                    Tag="{StaticResource Icon.Games}"
+                    Content="{DynamicResource LocXbox_Open}"
+                    ToolTip="{DynamicResource LocXbox_Intro}"
+                    AutomationProperties.AutomationId="OpenXboxButton"
+                    AutomationProperties.Name="{DynamicResource LocXbox_Open}"
+                    Style="{StaticResource ProcessingActionsPanelActionChip}" />
+        </Grid>
+    </Border>
     </StackPanel>
 </UserControl>

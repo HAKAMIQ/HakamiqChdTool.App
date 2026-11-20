@@ -580,5 +580,9 @@ internal sealed class QuickRunHost : IAsyncDisposable
         public void OpenRecompress()
         {
         }
+
+        public void OpenXbox()
+        {
+        }
     }
 }

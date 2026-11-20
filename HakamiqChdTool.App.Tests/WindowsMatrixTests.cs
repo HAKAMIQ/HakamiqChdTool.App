@@ -54,7 +54,8 @@ internal static partial class Program
                         new ChdProbeReportView("CHD report", [new ChdLogicalProbeReportMetric("Logical size", "700 MiB"), new ChdLogicalProbeReportMetric("Compression", "cdlz, cdzl, cdfl")])))),
                     ("RedumpDetails", () => new RedumpDetailsDialog(new RedumpDetailsDialogViewModel(
                         new TaskQueueItemViewModel(NamedQueueRow("Some Game (Europe) (En,Fr,De,Es,It).chd")), true, new NoCopy(), new NoTimer()))),
-                    ("QuickRun", () => CreateQuickRunMatrixWindow(workDirectory))
+                    ("QuickRun", () => CreateQuickRunMatrixWindow(workDirectory)),
+                    ("Xbox", CreateXboxMatrixWindow)
                 };
 
                 (double Scale, double W, double H)[] displays =
