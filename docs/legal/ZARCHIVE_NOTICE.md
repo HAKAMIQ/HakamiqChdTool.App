@@ -16,7 +16,8 @@ file, which Xenia Canary can load.
 ## What it is used for
 
 - pack an unpacked Xbox 360 game folder into a .zar file
-- unpack that file again to check every file is unchanged
+
+The app checks each .zar with its own reader, not with this tool's extraction.
 
 It never writes to or deletes the source. The app checks the SHA-256 above
 before every run.

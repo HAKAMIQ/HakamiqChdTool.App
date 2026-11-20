@@ -112,7 +112,12 @@ Last reviewed: 2026-11-19.
   (the release publishes no digest; recorded at download on 2026-11-20)
 - Command verification: an unpacked Xbox 360 game packed to `.zar` and
   unpacked again with every file's SHA-1 unchanged.
-- Used for: Xbox 360 game folder to ZAR for Xenia Canary.
+- Used for: Xbox 360 game folder to ZAR for Xenia Canary (packing only).
+- Known issue: its extraction stops early on large archives (a 7 GB Xbox 360
+  game lost its last two files) while the archive itself is correct; Xenia
+  Canary extracted the same archive completely. The app therefore checks each
+  .zar with its own reader (`Services/Xbox/ZarVerify.cs`), never with this
+  tool's extraction.
 
 ## Verification policy
 

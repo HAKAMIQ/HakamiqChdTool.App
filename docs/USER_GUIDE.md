@@ -75,8 +75,8 @@ not use CHD:
 
 Add files or folders (a folder with several games adds all of them), choose an
 output folder and select **Start**. Each new file is checked before it is kept:
-the XISO must hold the same files as the source, and a ZAR is unpacked again and
-compared file by file. The originals are never changed or deleted, and an
+the XISO must hold the same files as the source, and a ZAR is read again by the
+app and compared file by file. The originals are never changed or deleted, and an
 existing output is skipped. **Stop** stops the current game and removes its
 temporary files.
 
