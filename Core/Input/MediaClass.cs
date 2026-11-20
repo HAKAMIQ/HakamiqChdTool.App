@@ -250,6 +250,18 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
                         cancellationToken)
                     .ConfigureAwait(false),
 
+            MediaInputKind.ISO when await IsXboxDiscAsync(fullPath, sizeBytes, cancellationToken).ConfigureAwait(false) =>
+                new MediaInputDescriptor(
+                    originalPath,
+                    fullPath,
+                    kind,
+                    Exists: true,
+                    IsDirectory: false,
+                    sizeBytes,
+                    extension,
+                    "magic-xdvdfs",
+                    MediaInputProbeStatus.XboxDisc),
+
             MediaInputKind.PKG =>
                 await ClassifyWithMagicAsync(
                         originalPath,
@@ -450,6 +462,58 @@ public sealed class MediaInputClassifier : IMediaInputClassifier
             _ =>
                 $"header-{format}-not-confirmed"
         };
+
+    // XDVDFS volume descriptor ("MICROSOFT*XBOX*MEDIA") offsets: a plain XISO, then the game partition of a full
+    // Xbox (XGD1), Xbox 360 XGD2 and XGD3 disc image (the same offsets extract-xiso and xemu check).
+    private static readonly byte[] XboxMediaMagic = "MICROSOFT*XBOX*MEDIA"u8.ToArray();
+
+    internal static readonly long[] XboxMediaOffsets = [0x10000, 0x18310000, 0xFDA0000, 0x2090000];
+
+    private static async ValueTask<bool> IsXboxDiscAsync(string? path, long? sizeBytes, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(path) || sizeBytes is not long size)
+        {
+            return false;
+        }
+
+        try
+        {
+            await using FileStream stream = new(
+                path,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete,
+                bufferSize: 1,
+                options: FileOptions.Asynchronous | FileOptions.RandomAccess);
+
+            if (!HandleIdentity.IsHandleAtPath(stream.SafeFileHandle, path))
+            {
+                return false;
+            }
+
+            byte[] buffer = new byte[XboxMediaMagic.Length];
+            foreach (long offset in XboxMediaOffsets)
+            {
+                if (offset + buffer.Length > size)
+                {
+                    continue;
+                }
+
+                stream.Position = offset;
+                int read = await stream.ReadAtLeastAsync(buffer, buffer.Length, throwOnEndOfStream: false, cancellationToken).ConfigureAwait(false);
+                if (read == buffer.Length && buffer.AsSpan().SequenceEqual(XboxMediaMagic))
+                {
+                    return true;
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Not readable here; the normal ISO path reports it later.
+        }
+
+        return false;
+    }
 
     private static async ValueTask<byte[]> ReadHeaderAtMostAsync(
         string path,
