@@ -40,6 +40,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _deleteSourceAfterVerifiedConversion;
     private bool _deleteSourceAfterVerifiedExtraction;
     private bool _extractGdRomAsCueBin;
+    private bool _explorerMenuEnabled;
     private bool _enableDeepIntegrityCheck;
     private bool _applyStandardNamingBasedOnHash;
     private bool _isDatabaseAvailable;
@@ -500,6 +501,12 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         get => _extractGdRomAsCueBin;
         set => SetProperty(ref _extractGdRomAsCueBin, value);
+    }
+
+    public bool ExplorerMenuEnabled
+    {
+        get => _explorerMenuEnabled;
+        set => SetProperty(ref _explorerMenuEnabled, value);
     }
 
     public bool EnableDeepIntegrityCheck

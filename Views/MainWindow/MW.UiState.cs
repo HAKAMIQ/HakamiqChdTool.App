@@ -204,6 +204,7 @@ public partial class MainWindow
 
         FooterProgressState footerProgress = UpdateFooterProgress(aggregate);
         UpdateTaskbarProgress(aggregate, hasTasks, footerProgress);
+        ScheduleLaunchDrain();
     }
 
     private void ResetRunSummary()

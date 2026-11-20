@@ -346,6 +346,7 @@ internal static partial class Program
                 new("Launch requests reach the running instance and bad messages are ignored", TestInstanceChannelRoundTrip),
                 new("Launch messages decode strictly and large requests split", TestInstanceChannelDecodingIsStrict),
                 new("Explorer menu registers and removes only its own keys", TestExplorerMenuRegistersAndRemovesOnlyItsOwnKeys),
+                new("Explorer menu setting loads, saves and has text in both languages", TestExplorerMenuSettingInOptions),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),

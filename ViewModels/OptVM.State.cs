@@ -101,6 +101,7 @@ public sealed partial class OptionsViewModel
             && DeleteSourceAfterVerifiedConversion == snapshot.DeleteSourceAfterVerifiedConversion
             && DeleteSourceAfterVerifiedExtraction == snapshot.DeleteSourceAfterVerifiedExtraction
             && ExtractGdRomAsCueBin == snapshot.ExtractGdRomAsCueBin
+            && ExplorerMenuEnabled == snapshot.ExplorerMenuEnabled
             && EnableDeepIntegrityCheck == snapshot.EnableDeepIntegrityCheck
             && ApplyStandardNamingBasedOnHash == snapshot.ApplyStandardNamingBasedOnHash
             && StringEquals(RedumpDatabaseDownloadUrl.Trim(), snapshot.RedumpDatabaseDownloadUrl)

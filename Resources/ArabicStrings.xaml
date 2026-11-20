@@ -528,6 +528,16 @@
     <sys:String x:Key="LocWorkflow_StatusExtractGdi">تم التعرف على ملف CHD كقرص Dreamcast من نوع GD-ROM. سيُستخرج إلى GDI مع ملف لكل مسار.</sys:String>
     <sys:String x:Key="LocConversion_ExtractGdRomAsCueBin">استخراج أقراص Dreamcast ‏(GD-ROM) إلى CUE/BIN</sys:String>
     <sys:String x:Key="LocConversion_ExtractGdRomAsCueBinDesc">تُستخرج ملفات CHD الخاصة بأقراص GD-ROM إلى GDI، وهي الصيغة التي تستخدمها أدوات Dreamcast وجهاز GDEMU. فعّل هذا الخيار للحصول على CUE/BIN بدلًا منها.</sys:String>
+    <sys:String x:Key="LocOptions_WindowsSection">التكامل مع ويندوز</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerMenu">إضافة CHD Tool إلى قائمة الزر الأيمن في المستكشف</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerMenuDesc">يضيف «تحويل إلى CHD» لصور الأقراص والأرشيفات، و«استخراج CHD» و«تحقق من CHD» لملفات CHD، وقائمة CHD Tool للمجلدات، لحسابك في ويندوز فقط. في ويندوز 11 تجدها تحت «إظهار المزيد من الخيارات». أوقف هذا الخيار قبل حذف مجلد البرنامج.</sys:String>
+    <sys:String x:Key="LocShell_ConvertToChd">تحويل إلى CHD</sys:String>
+    <sys:String x:Key="LocShell_ExtractChd">استخراج CHD</sys:String>
+    <sys:String x:Key="LocShell_VerifyChd">تحقق من CHD</sys:String>
+    <sys:String x:Key="LocShell_FolderMenu">CHD Tool</sys:String>
+    <sys:String x:Key="LocLaunch_WaitingFooter">ستُضاف الملفات المرسلة من المستكشف بعد انتهاء العمل الحالي.</sys:String>
+    <sys:String x:Key="LocLaunch_AddFailedFooter">تعذّرت إضافة الملفات المرسلة من المستكشف. راجع السجل.</sys:String>
+    <sys:String x:Key="LocLaunch_ExplorerMenuFailedFooter">تعذّر تحديث قائمة المستكشف. راجع السجل.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractDvd">تم التعرف على CHD كقرص DVD. سيتم الاستخراج إلى ISO.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractHd">تم التعرف على CHD كصورة قرص ثابت. سيتم الاستخراج إلى IMG.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractRaw">تم التعرف على CHD كصورة RAW. سيتم الاستخراج إلى ملف RAW.</sys:String>
