@@ -24,6 +24,7 @@ internal sealed class QueueTransitionService
     internal static AppSettings BuildEffectiveSettings(AppSettings source, QueueExecutionProfile executionProfile)
     {
         AppSettings result = source.Clone();
+        HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Apply(result);
 
         if (executionProfile is QueueExecutionProfile.QuickConvert or QueueExecutionProfile.QuickExtract)
         {
