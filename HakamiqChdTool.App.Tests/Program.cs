@@ -350,6 +350,7 @@ internal static partial class Program
                 new("Explorer menu setting loads, saves and has text in both languages", TestExplorerMenuSettingInOptions),
                 new("Run summary shows outcome, counts, saved space and time in both languages", TestRunSummaryCardContent),
                 new("Options text has no tashkeel and no repeated or duplicate words", TestOptionsTextIsPlainAndNotRepeated),
+                new("Options offer only choices that work", TestOptionsOfferOnlyWorkingChoices),
                 new("Auto threads are shared when several files convert at once", TestAutoThreadsAreSharedAcrossConcurrentConversions),
                 new("A disc platform profile lets other disc types use Auto", TestPlatformProfileFallsBackToAutoForOtherInputs),
                 new("A chosen igir that is not the pinned build keeps the bundled igir", TestChosenIgirDoesNotDisableBundledIgir),
@@ -367,7 +368,8 @@ internal static partial class Program
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),
-                new("Main window lays out and virtualizes 5,000 queue rows", () => TestMainWindowLayoutAndVirtualization(workDirectory))
+                new("Main window lays out and virtualizes 5,000 queue rows", () => TestMainWindowLayoutAndVirtualization(workDirectory)),
+                new("Tray menu rows follow the theme colours", TestTrayMenuRowsFollowTheTheme)
             ];
 
             // Optional: run only the tests whose name contains this text (single-test red/green checks).

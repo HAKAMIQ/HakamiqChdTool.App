@@ -33,6 +33,15 @@ it are the detailed record.
   between them instead of each chdman taking the full Auto count.
 - Choosing an igir.exe that is not the pinned build no longer switches off
   the bundled igir, and an unusable external chdman is written to the log.
+- The tray icon menu no longer shows a light block behind the text in the
+  dark theme.
+- Options that could not work are gone: the "Manual" performance mode (it
+  behaved like Safe) and "Force CD" for ISO files (always refused). Saved
+  values load as Safe and Auto.
+- The delete-source options are available only while "Verify after
+  conversion" is on, the Redump option says it reads each source before
+  converting, and "Delete incomplete output" says it applies to failed
+  CUE/BIN extractions.
 - "When done" next to the queue buttons: sleep or shut down the computer
   after the run, with a 60-second countdown you can cancel. It applies to one
   run, is never saved, and does nothing after a stopped run.

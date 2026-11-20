@@ -861,6 +861,7 @@
 
                                                                 <CheckBox Grid.Column="0"
                                                                           IsChecked="{Binding DeleteSourceAfterVerifiedConversion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              IsEnabled="{Binding VerifyAfterConversion}"
                                                                           Style="{StaticResource Win11SettingsCheckBox}"
                                                                           ToolTip="{StaticResource AppTip.PathsView.12}"
                                                                           AutomationProperties.Name="{DynamicResource LocPaths_DeleteSourceAfterVerifiedConversion}" />
@@ -884,6 +885,7 @@
 
                                                                 <CheckBox Grid.Column="0"
                                                                           IsChecked="{Binding DeleteSourceAfterVerifiedExtraction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              IsEnabled="{Binding VerifyAfterConversion}"
                                                                           Style="{StaticResource Win11SettingsCheckBox}"
                                                                           ToolTip="{StaticResource AppTip.PathsView.13}"
                                                                           AutomationProperties.Name="{DynamicResource LocPaths_DeleteSourceAfterVerifiedExtraction}" />

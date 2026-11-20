@@ -1053,10 +1053,8 @@ Path:
     <sys:String x:Key="LocAdv_PerformanceModeBalancedDescription">Automatically adjusts compression threads based on available resources while keeping the system stable.</sys:String>
 
     <sys:String x:Key="LocAdv_PerformanceModeFastLabel">Fast</sys:String>
-    <sys:String x:Key="LocAdv_PerformanceModeFastDescription">Uses all available resources to speed up conversion. Best with SSD storage when no other heavy tasks are running.</sys:String>
+    <sys:String x:Key="LocAdv_PerformanceModeFastDescription">Uses all processors but one when compression threads are Auto. Best with SSD storage when no other heavy tasks are running.</sys:String>
 
-    <sys:String x:Key="LocAdv_PerformanceModeManualLabel">Manual</sys:String>
-    <sys:String x:Key="LocAdv_PerformanceModeManualDescription">Lets you set the compression thread count manually in the next option.</sys:String>
 
     <sys:String x:Key="LocAdv_ProcessPriorityQuietLabel">Quiet</sys:String>
     <sys:String x:Key="LocAdv_ProcessPriorityQuietDescription">Runs chdman at a lower priority so the system stays more responsive.</sys:String>
@@ -1079,8 +1077,6 @@ Path:
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoLabel">Auto by media type</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoDescription">The app automatically selects the CD path for CUE/GDI, and checks ISO files to determine CD or DVD using available evidence.</sys:String>
 
-    <sys:String x:Key="LocAdv_IsoCreateOverrideCreateCdLabel">Force CD creation</sys:String>
-    <sys:String x:Key="LocAdv_IsoCreateOverrideCreateCdDescription">Uses the CD path for all files. Useful when you know the source is a CD and do not want automatic inspection.</sys:String>
 
     <sys:String x:Key="LocAdv_IsoCreateOverrideCreateDvdLabel">Force DVD creation</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideCreateDvdDescription">Uses the DVD path for all files. Useful when you know the source is a DVD and do not want automatic inspection.</sys:String>
@@ -1273,14 +1269,14 @@ Path:
     <sys:String x:Key="LocProcessing_DeleteTemporaryExtractionDesc">Automatically deletes temporary files after the operation completes, while keeping the original source files.</sys:String>
 
     <sys:String x:Key="LocProcessing_DeleteFailedOutput">Delete incomplete output file</sys:String>
-    <sys:String x:Key="LocProcessing_DeleteFailedOutputDesc">Automatically removes damaged or incomplete output files when an operation fails.</sys:String>
+    <sys:String x:Key="LocProcessing_DeleteFailedOutputDesc">When an extraction to CUE/BIN fails, deletes the incomplete CUE/BIN files it made. Incomplete files in the work folder are always removed.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_Description">Use Redump for manual verification from the main UI. It does not start automatically when you add files or during processing.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_ManualScanSection">Manual verification</sys:String>
     <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">Show Redump in the main UI</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">Shows the verification button and match result for the selected file. Verification starts only when you run it manually.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainTooltip">Shows the verification button and match result in the main UI.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">Shows the verification button and match result for the selected file. While this is on, each conversion first reads the whole source and stops if the file cannot be read.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainTooltip">Shows Redump tools in the main UI and reads each source in full before converting it.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_SuggestNameTitle">Show suggested name when a match exists</sys:String>
     <sys:String x:Key="LocRedumpSettings_SuggestNameDesc">Shows the standard name from the local database when a match is found. The file is renamed only after you approve.</sys:String>

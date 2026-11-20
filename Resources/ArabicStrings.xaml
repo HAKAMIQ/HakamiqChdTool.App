@@ -1047,10 +1047,8 @@
     <sys:String x:Key="LocAdv_PerformanceModeBalancedDescription">يعدل عدد مسارات الضغط تلقائيا وفقا للموارد المتاحة، مع الحفاظ على استقرار النظام.</sys:String>
 
     <sys:String x:Key="LocAdv_PerformanceModeFastLabel">سريع</sys:String>
-    <sys:String x:Key="LocAdv_PerformanceModeFastDescription">يستغل كامل الموارد المتاحة لتسريع التحويل. يفضل استخدامه مع أقراص SSD وعند عدم وجود مهام ثقيلة أخرى.</sys:String>
+    <sys:String x:Key="LocAdv_PerformanceModeFastDescription">يستخدم كل المعالجات ما عدا واحدا عندما يكون عدد مسارات الضغط تلقائيا. الأفضل مع أقراص SSD وعند عدم وجود مهام ثقيلة أخرى.</sys:String>
 
-    <sys:String x:Key="LocAdv_PerformanceModeManualLabel">يدوي</sys:String>
-    <sys:String x:Key="LocAdv_PerformanceModeManualDescription">يتيح لك تحديد عدد مسارات الضغط يدويا في الخيار التالي.</sys:String>
 
     <sys:String x:Key="LocAdv_ProcessPriorityQuietLabel">منخفضة (توفير الموارد)</sys:String>
     <sys:String x:Key="LocAdv_ProcessPriorityQuietDescription">تقليل استهلاك موارد المعالج للسماح للنظام بالعمل بسلاسة أثناء التحويل.</sys:String>
@@ -1073,8 +1071,6 @@
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoLabel">تلقائي حسب نوع القرص</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoDescription">يقوم التطبيق باكتشاف نوع الملف والقرص وتحديد الوضع المناسب تلقائيا.</sys:String>
 
-    <sys:String x:Key="LocAdv_IsoCreateOverrideCreateCdLabel">فرض وضع أقراص CD</sys:String>
-    <sys:String x:Key="LocAdv_IsoCreateOverrideCreateCdDescription">تنبيه: لا تستخدم هذا الخيار إلا إذا كنت متأكدا تماما أن المصدر عبارة عن قرص CD.</sys:String>
 
     <sys:String x:Key="LocAdv_IsoCreateOverrideCreateDvdLabel">فرض وضع أقراص DVD</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideCreateDvdDescription">تنبيه: لا تستخدم هذا الخيار إلا إذا كنت متأكدا تماما أن المصدر عبارة عن قرص DVD.</sys:String>
@@ -1267,14 +1263,14 @@
     <sys:String x:Key="LocProcessing_DeleteTemporaryExtractionDesc">حذف الملفات المؤقتة تلقائيا بعد اكتمال العملية (مع الحفاظ على ملفات المصدر الأصلية).</sys:String>
 
     <sys:String x:Key="LocProcessing_DeleteFailedOutput">حذف ملف الإخراج التالف</sys:String>
-    <sys:String x:Key="LocProcessing_DeleteFailedOutputDesc">إزالة ملف الإخراج التالف أو غير المكتمل تلقائيا في حال فشل العملية.</sys:String>
+    <sys:String x:Key="LocProcessing_DeleteFailedOutputDesc">إذا فشل استخراج CUE/BIN، يحذف ملفات CUE/BIN الناقصة التي أنشأها. الملفات الناقصة في مجلد العمل تحذف دائما.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_Description">إجراء فحص Redump يدويا من الواجهة الرئيسية. ملاحظة: الفحص لا يبدأ تلقائيا عند إضافة الملفات أو أثناء معالجتها.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_ManualScanSection">إعدادات الفحص اليدوي (Redump)</sys:String>
     <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">تفعيل أدوات Redump في الواجهة الرئيسية</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">إضافة زر الفحص وحالة المطابقة للملف المختار. ملاحظة: عملية الفحص تتم يدويا فقط.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainTooltip">تفعيل أدوات فحص Redump وعرض نتائج المطابقة في الواجهة الرئيسية.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">يضيف زر الفحص ونتيجة المطابقة للملف المختار. وأثناء تفعيله يقرأ البرنامج ملف المصدر كاملا قبل كل تحويل، ويوقف التحويل إذا تعذرت قراءته.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainTooltip">يعرض أدوات Redump في الواجهة الرئيسية، ويقرأ كل ملف مصدر كاملا قبل تحويله.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_SuggestNameTitle">اقتراح اسم ملف عند المطابقة</sys:String>
     <sys:String x:Key="LocRedumpSettings_SuggestNameDesc">عرض الاسم القياسي (من قاعدة البيانات المحلية) عند العثور على مطابقة. لن يتم تعديل اسم الملف إلا بعد تأكيد منك.</sys:String>

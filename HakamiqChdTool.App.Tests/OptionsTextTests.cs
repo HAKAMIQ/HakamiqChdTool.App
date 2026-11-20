@@ -31,6 +31,56 @@ internal static partial class Program
         }
     }
 
+    // Options that could not work are gone: "Manual" behaved exactly like Safe, and "Force CD" for an ISO was
+    // always refused by the planner. Saved values load as Safe and Auto, and the delete-source boxes follow
+    // "Verify after conversion" because they never delete without it.
+    private static void TestOptionsOfferOnlyWorkingChoices()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var options = new HakamiqChdTool.App.ViewModels.OptionsViewModel();
+                AssertFalse(options.PerformanceModeOptions.Any(o => o.Key == "Manual"), "There is no Manual performance mode.");
+                AssertFalse(options.IsoCreateOverrideOptions.Any(o => o.Key == "CreateCd"), "There is no Force CD choice for ISO.");
+
+                options.Load(new HakamiqChdTool.App.Models.AppSettings
+                {
+                    PerformanceMode = HakamiqChdTool.App.Models.Chd.ConversionPerformanceMode.Manual,
+                    IsoCreateCommandOverride = HakamiqChdTool.App.Models.Chd.IsoCreateCommandOverride.CreateCd
+                });
+                AssertEqual("Safe", options.SelectedPerformanceMode?.Key, "A saved Manual mode loads as Safe.");
+                AssertEqual("Auto", options.SelectedIsoCreateOverride?.Key, "A saved Force CD loads as Auto.");
+            }
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null)
+        {
+            throw failure;
+        }
+
+        string paths = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PathsView.xaml")));
+        AssertEqual(2, Regex.Matches(paths, @"IsChecked=""\{Binding DeleteSourceAfterVerified\w+, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged\}""\s+IsEnabled=""\{Binding VerifyAfterConversion\}""").Count,
+            "Both delete-source boxes are enabled only while Verify after conversion is on.");
+
+        Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");
+        AssertTrue(english["LocRedumpSettings_ShowInMainDesc"].Contains("reads the whole source", StringComparison.Ordinal),
+            "The Redump option says it reads each source before converting.");
+        AssertTrue(english["LocProcessing_DeleteFailedOutputDesc"].Contains("CUE/BIN", StringComparison.Ordinal),
+            "The failed-output option says what it really deletes.");
+
+        string tools = File.ReadAllText(FindRepoFile(Path.Combine("Ui", "Shell", "HqOptsTools.cs")));
+        AssertTrue(tools.Contains("|| !await IsPinnedIgirAsync(selectedPath))", StringComparison.Ordinal),
+            "Browsing to an igir.exe that is not the pinned build is refused with a message, not saved.");
+    }
+
     // The CPU name, igir version and Windows integration hints render readably in Arabic.
     private static void TestOptionsWindowLayoutFixes()
     {

@@ -75,8 +75,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         new("Safe", ArabicUi.Get("LocAdv_PerformanceModeSafeLabel"), ArabicUi.Get("LocAdv_PerformanceModeSafeDescription")),
         new("Balanced", ArabicUi.Get("LocAdv_PerformanceModeBalancedLabel"), ArabicUi.Get("LocAdv_PerformanceModeBalancedDescription")),
-        new("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription")),
-        new("Manual", ArabicUi.Get("LocAdv_PerformanceModeManualLabel"), ArabicUi.Get("LocAdv_PerformanceModeManualDescription"))
+        new("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription"))
     };
 
     public ObservableCollection<ChoiceOption> PriorityModeOptions { get; } = new()
@@ -117,7 +116,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     public ObservableCollection<ChoiceOption> IsoCreateOverrideOptions { get; } = new()
     {
         new("Auto", ArabicUi.Get("LocAdv_IsoCreateOverrideAutoLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideAutoDescription")),
-        new("CreateCd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdDescription")),
         new("CreateDvd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdDescription"))
     };
 
@@ -182,8 +180,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
             {
                 new ChoiceOption("Safe", ArabicUi.Get("LocAdv_PerformanceModeSafeLabel"), ArabicUi.Get("LocAdv_PerformanceModeSafeDescription")),
                 new ChoiceOption("Balanced", ArabicUi.Get("LocAdv_PerformanceModeBalancedLabel"), ArabicUi.Get("LocAdv_PerformanceModeBalancedDescription")),
-                new ChoiceOption("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription")),
-                new ChoiceOption("Manual", ArabicUi.Get("LocAdv_PerformanceModeManualLabel"), ArabicUi.Get("LocAdv_PerformanceModeManualDescription"))
+                new ChoiceOption("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription"))
             });
 
         RefList(
@@ -219,7 +216,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
             new[]
             {
                 new ChoiceOption("Auto", ArabicUi.Get("LocAdv_IsoCreateOverrideAutoLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideAutoDescription")),
-                new ChoiceOption("CreateCd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdDescription")),
                 new ChoiceOption("CreateDvd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdDescription"))
             });
 

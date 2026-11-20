@@ -127,13 +127,15 @@ internal sealed partial class HqOptionsShell
         QueueExternalToolsRefresh(showCheckingState: false);
     }
 
-    public void BrowseIgirTool(object? sender, EventArgs e)
+    public async void BrowseIgirTool(object? sender, EventArgs e)
     {
         OpenFileDialog dialog = new() { Title = ResolveUiText("LocExternalTools_IgirSelect"), Filter = ResolveUiText(IgirToolFilterKey),
             CheckFileExists = true, CheckPathExists = true, Multiselect = false, FileName = "igir.exe" };
         bool? result = dialog.ShowDialog(_owner);
         if (result != true) return;
-        if (!ExternalToolPathValidator.TryValidateCandidate(dialog.FileName, "igir.exe", out string selectedPath))
+        // Only the pinned build is ever run, so say so now instead of saving a path that is then refused.
+        if (!ExternalToolPathValidator.TryValidateCandidate(dialog.FileName, "igir.exe", out string selectedPath)
+            || !await IsPinnedIgirAsync(selectedPath))
         {
             ShowNoticeDialog(OperationErrorTitleKey, "LocExternalTools_IgirInvalid");
             return;
@@ -152,6 +154,19 @@ internal sealed partial class HqOptionsShell
             return;
         }
         QueueExternalToolsRefresh(showCheckingState: true);
+    }
+
+    private static async Task<bool> IsPinnedIgirAsync(string path)
+    {
+        try
+        {
+            return await new IgirToolLocator().IsPinnedBuildAsync(path).ConfigureAwait(true);
+        }
+        catch (Exception ex) when (IsExpectedPathException(ex))
+        {
+            Logger.Warning(ex, "Could not read the selected igir.exe.");
+            return false;
+        }
     }
 
     private void QueueExternalToolsRefresh() => QueueExternalToolsRefresh(showCheckingState: false);
