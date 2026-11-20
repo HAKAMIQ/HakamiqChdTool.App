@@ -69,6 +69,15 @@ it are the detailed record.
 - Target emulator setting: PCSX2 and PPSSPP (DVD CHDs with 2048-byte hunks)
   or RetroArch and older emulators (no zstd). Automatic, the default, keeps
   the current behavior.
+- An Xbox section in the sidebar converts Xbox games to XISO for xemu (a full
+  Redump image becomes about half the size) and Xbox 360 games to Games on
+  Demand (Xenia and an Xbox 360) or ZAR (Xenia Canary). Each result is checked
+  against the source before it is kept, and the originals are never changed.
+- Xbox and Xbox 360 ISOs added to the CHD queue are no longer converted to a
+  CHD that no Xbox emulator reads; the row says why.
+- A Dreamcast GD-ROM CUE (TOSEC style) converts with its tracks in place: the
+  pregap before track 2 no longer ends up at the end of track 1.
+- A PSP CSO gets the same 2048-byte CHD hunks as a PSP ISO.
 - Recompress CHD files (Tools in the sidebar): makes existing CHDs smaller with
   stronger compression. Each new file is verified and matched against the
   original, and kept only if it saves at least 1%. New files go to another
@@ -81,6 +90,9 @@ it are the detailed record.
   over a current-user-only named pipe.
 - The Explorer menu is written under `HKCU\Software\Classes` only and is off
   by default.
+- New bundled tools for the Xbox section, each pinned by SHA-256 and checked
+  again right before it runs: xdvdfs 0.8.3 (MIT), iso2god-rs 1.8.1 (MIT) and
+  ZArchive 0.1.2 (MIT-0). See `Tools/VERSIONS.md` and `docs/legal`.
 - Explorer menu entries now start `HakamiqChdTool.exe --quick --mode <mode>
   --add "%1"`; entries made by an earlier version are rewritten the next time
   the app starts. `--quick` is never sent to a window that is already open.

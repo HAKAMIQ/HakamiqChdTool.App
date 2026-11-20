@@ -60,6 +60,26 @@ then `chdman verify`, and compares the SHA-1 values with the original. A new
 file is kept only if it matches and saves at least 1%; otherwise it is deleted
 and the original stays as it was. Without Replace, nothing is overwritten.
 
+## Xbox and Xbox 360
+
+**Xbox > Convert Xbox games** in the sidebar opens a window for games that do
+not use CHD:
+
+- Xbox games (an ISO, including a full Redump image, or a game folder with
+  `default.xbe`) become an XISO that xemu reads. A Redump image loses its video
+  partition, so it is about half the size.
+- Xbox 360 games (an ISO or a game folder with `default.xex`) become Games on
+  Demand (GOD), which Xenia and an Xbox 360 load, or ZAR, which is much smaller
+  and loads in Xenia Canary only. Choose the format in the window; the choice is
+  saved.
+
+Add files or folders (a folder with several games adds all of them), choose an
+output folder and select **Start**. Each new file is checked before it is kept:
+the XISO must hold the same files as the source, and a ZAR is unpacked again and
+compared file by file. The originals are never changed or deleted, and an
+existing output is skipped. **Stop** stops the current game and removes its
+temporary files.
+
 ## Watch folder
 
 Turn on **Settings > Performance > Watch a folder and convert new files to
