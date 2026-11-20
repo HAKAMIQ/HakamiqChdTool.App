@@ -45,6 +45,7 @@ internal static partial class Program
         }
 
         AssertTrue(view.Contains("Visibility=\"{Binding ShowDeleteWarning", StringComparison.Ordinal), "The delete warning is shown when it applies.");
+        AssertTrue(view.Contains("NumberSubstitution.Substitution=\"European\"", StringComparison.Ordinal), "Sizes and times in the result use Latin digits in Arabic.");
         AssertTrue(view.Contains("Text=\"{Binding FileName}\"", StringComparison.Ordinal) && view.Contains("FlowDirection=\"LeftToRight\"", StringComparison.Ordinal),
             "File names read left to right in Arabic.");
 
