@@ -538,6 +538,8 @@
     <sys:String x:Key="LocLaunch_WaitingFooter">ستُضاف الملفات المرسلة من المستكشف بعد انتهاء العمل الحالي.</sys:String>
     <sys:String x:Key="LocLaunch_AddFailedFooter">تعذّرت إضافة الملفات المرسلة من المستكشف. راجع السجل.</sys:String>
     <sys:String x:Key="LocLaunch_ExplorerMenuFailedFooter">تعذّر تحديث قائمة المستكشف. راجع السجل.</sys:String>
+    <sys:String x:Key="LocLaunch_UsageTitle">سطر الأوامر</sys:String>
+    <sys:String x:Key="LocLaunch_UsageBody">لم يُفهم سطر الأوامر، لذلك لم يُضف شيء. الخيارات المقبولة ورموز الخروج أدناه.</sys:String>
     <sys:String x:Key="LocRunSummary_TitleDone">اكتملت المعالجة</sys:String>
     <sys:String x:Key="LocRunSummary_TitleWithProblems">اكتملت المعالجة مع مشكلات</sys:String>
     <sys:String x:Key="LocRunSummary_TitleStopped">توقفت المعالجة</sys:String>

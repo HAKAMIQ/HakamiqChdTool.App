@@ -338,6 +338,12 @@ public partial class MainWindow
             QueueWorkspace.ResetAfterRunAction();
             _ = Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => RunAfterRunAction(afterRun)));
         }
+        else if (ExitWhenDone && !processedSelectionOnly)
+        {
+            int exitCode = HakamiqChdTool.App.Startup.LaunchArgs.ExitCodeFor(wasCancelled, metrics.Failed);
+            Log.Information("Run finished for a launch with --exit-when-done. Exiting with code {ExitCode}.", exitCode);
+            RequestLaunchExit(exitCode);
+        }
 
         SetFooterStatus(wasCancelled
             ? MainWindowMessages.SessionCancelledFooter
