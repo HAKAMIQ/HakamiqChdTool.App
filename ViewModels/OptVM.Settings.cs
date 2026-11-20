@@ -12,15 +12,28 @@ public sealed partial class OptionsViewModel
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        _useProgramDefaultsAsBase = false;
         ApplySettingsValues(settings);
         AcceptAppliedSettings(BuildResultSettings(settings));
     }
 
+    /// <summary>
+    /// Puts the options shown in this window back to their defaults. Everything else keeps its current value: the
+    /// language and theme (header buttons), chosen CsoKit and igir paths, the Xbox 360 format, Redump sync data and
+    /// settings with no control here.
+    /// </summary>
     public void ApplyProgramDefaults()
     {
-        _useProgramDefaultsAsBase = true;
-        ApplySettingsValues(AppSettings.CreateSafeDefaults());
+        AppSettings current = _appliedSnapshot?.Clone() ?? AppSettings.CreateSafeDefaults();
+        AppSettings defaults = AppSettings.CreateSafeDefaults();
+        defaults.Theme = current.Theme;
+        defaults.UiLanguage = current.UiLanguage;
+        defaults.PortableMode = current.PortableMode;
+        defaults.RedumpDatabaseDownloadUrl = current.RedumpDatabaseDownloadUrl;
+        defaults.EnableRedumpAutoSync = current.EnableRedumpAutoSync;
+        defaults.RedumpLastSyncedUtc = current.RedumpLastSyncedUtc;
+        defaults.RedumpSystemName = current.RedumpSystemName;
+        defaults.OverwriteExistingM3uPlaylists = current.OverwriteExistingM3uPlaylists;
+        ApplySettingsValues(defaults);
         NotifySaveStateChanged();
     }
 
@@ -87,9 +100,8 @@ public sealed partial class OptionsViewModel
         ValidateAllProperties();
         ValidateForSave();
 
-        AppSettings result = _useProgramDefaultsAsBase
-            ? AppSettings.CreateSafeDefaults()
-            : source.Clone();
+        // Built on the current settings, so values this window does not show are kept.
+        AppSettings result = source.Clone();
         result.UseCustomOutputRoot = UseCustomOutputRoot;
         result.CustomOutputRoot = CustomOutputRoot.Trim();
         result.PendingWorkspaceMode = UseCustomPendingWorkspace ? PendingWorkspaceMode.Custom : PendingWorkspaceMode.Automatic;
@@ -163,7 +175,6 @@ public sealed partial class OptionsViewModel
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        _useProgramDefaultsAsBase = false;
         _appliedSnapshot = settings.Clone();
         NotifySaveStateChanged();
     }

@@ -48,7 +48,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _isDatabaseAvailable;
     private bool _enableRedumpAutoSync;
     private AppSettings? _appliedSnapshot;
-    private bool _useProgramDefaultsAsBase;
     private string? _redumpLastSyncedUtc;
     private string _databaseStatusText = ArabicUi.Get("LocAdv_DatabaseStatusUnavailable");
     private ProcessorOption? _selectedProcessorOption;
