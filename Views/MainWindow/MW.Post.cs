@@ -22,7 +22,7 @@ public partial class MainWindow
             return Task.FromResult(PostConversionArtifactResult.Empty);
         }
 
-        string[] completedChdOutputs = GetCompletedChdOutputsForM3u(outputPaths);
+        string[] completedChdOutputs = HakamiqChdTool.App.QueueRun.RunSummaryItems.CompletedChdOutputsForM3u(outputPaths);
 
         if (completedChdOutputs.Length == 0)
         {
@@ -66,72 +66,5 @@ public partial class MainWindow
                 "M3U",
                 "LocPostProcessing_M3uGenerationFailed"));
         }
-    }
-
-    private static string[] GetCompletedChdOutputsForM3u(IReadOnlyList<string> outputPaths)
-    {
-        var completedChdOutputs = new List<string>();
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (string outputPath in outputPaths)
-        {
-            if (!TryNormalizeCompletedChdOutputForM3u(outputPath, out string normalizedPath))
-            {
-                continue;
-            }
-
-            if (seen.Add(normalizedPath))
-            {
-                completedChdOutputs.Add(normalizedPath);
-            }
-        }
-
-        return [.. completedChdOutputs];
-    }
-
-    private static bool TryNormalizeCompletedChdOutputForM3u(
-        string? path,
-        out string normalizedPath)
-    {
-        normalizedPath = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            return false;
-        }
-
-        try
-        {
-            string fullPath = Path.GetFullPath(path.Trim());
-
-            if (!string.Equals(Path.GetExtension(fullPath), ".chd", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            ConversionPathValidator.ThrowIfUnsafeForChdman(fullPath, nameof(path));
-
-            FileAttributes attributes = File.GetAttributes(fullPath);
-            if ((attributes & FileAttributes.Directory) != 0 ||
-                (attributes & FileAttributes.ReparsePoint) != 0)
-            {
-                return false;
-            }
-
-            normalizedPath = fullPath;
-            return true;
-        }
-        catch (Exception ex) when (IsExpectedM3uOutputPathException(ex))
-        {
-            return false;
-        }
-    }
-
-    private static bool IsExpectedM3uOutputPathException(Exception ex)
-    {
-        return ex is IOException
-            or UnauthorizedAccessException
-            or ArgumentException
-            or NotSupportedException;
     }
 }
