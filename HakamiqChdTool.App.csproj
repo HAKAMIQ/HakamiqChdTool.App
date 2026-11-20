@@ -138,6 +138,21 @@
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
+		<Content Include="docs\legal\XDVDFS_NOTICE.md">
+			<TargetPath>XDVDFS_NOTICE.md</TargetPath>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>
+		<Content Include="docs\legal\ISO2GOD_NOTICE.md">
+			<TargetPath>ISO2GOD_NOTICE.md</TargetPath>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>
+		<Content Include="docs\legal\ZARCHIVE_NOTICE.md">
+			<TargetPath>ZARCHIVE_NOTICE.md</TargetPath>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>
 		<Content Include="docs\sbom.cdx.json">
 			<TargetPath>docs\sbom.cdx.json</TargetPath>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -206,6 +221,37 @@
 		</Content>
 
 		<Content Include="Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md" Condition="Exists('Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<!-- Xbox tools (Tools/VERSIONS.md): each executable is pinned by SHA-256 in Services/Xbox/XboxToolLocator.cs. -->
+		<Content Include="Tools\xdvdfs\win-x64\xdvdfs.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\xdvdfs\win-x64\LICENSE.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\iso2god\win-x64\iso2god.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\iso2god\win-x64\LICENSE.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\zarchive\win-x64\zarchive.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\zarchive\win-x64\LICENSE.txt">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>

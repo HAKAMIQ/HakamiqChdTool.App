@@ -58,6 +58,13 @@ check and the process start are separate steps, so a process that can write to
 the application directory could still replace the file between them; the install
 directory is therefore expected to be writable only by administrators.
 
+The Xbox tools (`xdvdfs`, `iso2god`, `zarchive` under `Tools\<tool>\win-x64`) have
+no user override. `XboxToolLocator` accepts only the exact bundled path, refuses
+reparse points, and compares the pinned SHA-256; `ExternalToolProcessRunner`
+repeats that check immediately before the process starts. They read the
+selected source, write only to a temporary folder in the chosen output folder,
+and never write to or delete the source.
+
 The bundled MAME 0.289 `chdman` requires x86-64-v2. Runtime initialization checks
 the required CPUID feature bits before extracting or returning the executable.
 

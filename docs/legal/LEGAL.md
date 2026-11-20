@@ -18,6 +18,11 @@ required 7-Zip license notice.
 If CsoKit is included, the release package must keep `csokit.exe` and
 `CsoKit.Native.dll` together with the CsoKit notice and required release files.
 
+If the Xbox tools are included (xdvdfs, iso2god-rs, ZArchive), each must keep its
+upstream `LICENSE.txt` next to the executable, the release package must include
+`XDVDFS_NOTICE.md`, `ISO2GOD_NOTICE.md` and `ZARCHIVE_NOTICE.md`, and the SBOM must
+list each with its version, license and SHA-256.
+
 If igir is included, the release package must include `IGIR_NOTICE.md` and the
 full `IGIR_GPL-3.0.txt` license text next to the other legal notices, the
 SBOM must list igir 5.8.1 with its license, hashes and source, and

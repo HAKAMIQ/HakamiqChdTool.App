@@ -204,6 +204,8 @@ internal static partial class Program
                 new("Descriptor read does not expand wildcard entries", () => TestDescriptorReadDoesNotExpandWildcardEntry(workDirectory)),
                 new("Redump sync holds an active lease until cancelled", () => TestRedumpSyncHoldsAnActiveLeaseUntilCancelled(workDirectory)),
                 new("Bundled 7-Zip matches its pinned digests and release", TestBundledSevenZipMatchesPinnedDigests),
+                new("Bundled Xbox tools match their pinned digests and identify themselves", TestBundledXboxToolsMatchPinnedDigests),
+                new("Xbox tool locator fails closed for missing and tampered executables", () => TestXboxToolLocatorRejectsMissingAndTampered(workDirectory)),
                 new("Real extraction does not expand wildcard references", () => TestRealExtractionDoesNotExpandWildcardReferences(workDirectory)),
                 new("Real extraction honours cancellation", () => TestRealExtractionHonoursCancellation(workDirectory)),
                 new("Queue batch respects the operation-mode filter", () => TestQueueBatchRespectsOperationModeFilter(workDirectory)),

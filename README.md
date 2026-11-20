@@ -52,7 +52,7 @@ of each file next to it. All versions are on the
   conversion.
 - Danger buttons follow the light and dark themes, and the Add files dialogs
   list every supported format.
-- Bundled CsoKit 0.6.6, 7-Zip 26.06 and igir 5.8.1.
+- Bundled CsoKit 0.6.6, 7-Zip 26.06, igir 5.8.1, xdvdfs 0.8.3, iso2god-rs 1.8.1 and ZArchive 0.1.2.
 
 Full list: [changelog](docs/release-notes/CHANGELOG.md).
 
@@ -102,6 +102,9 @@ Full details: [Supported formats](docs/FORMATS.md).
 | 7-Zip | 26.06 | Reading ZIP, 7Z and RAR |
 | CsoKit | 0.6.6 | Expanding CSO and ZSO |
 | igir (optional) | 5.8.1 | Read-only DAT reports for the library organizer |
+| xdvdfs | 0.8.3 | Xbox games to XISO; unpacking Xbox 360 games |
+| iso2god-rs | 1.8.1 | Xbox 360 games to Games on Demand |
+| ZArchive | 0.1.2 | Xbox 360 games to ZAR |
 
 Every bundled tool is pinned by SHA-256 and checked before use. Versions and
 sources: [Tools/VERSIONS.md](Tools/VERSIONS.md).

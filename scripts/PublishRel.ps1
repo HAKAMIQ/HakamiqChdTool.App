@@ -210,6 +210,15 @@ function Invoke-ReleaseComplianceChecks {
         "docs\legal\MAME_GPL-2.0.txt",
         "docs\legal\7ZIP.md",
         "docs\legal\CSOKIT_NOTICE.md",
+        "docs\legal\XDVDFS_NOTICE.md",
+        "docs\legal\ISO2GOD_NOTICE.md",
+        "docs\legal\ZARCHIVE_NOTICE.md",
+        "Tools\xdvdfs\win-x64\xdvdfs.exe",
+        "Tools\xdvdfs\win-x64\LICENSE.txt",
+        "Tools\iso2god\win-x64\iso2god.exe",
+        "Tools\iso2god\win-x64\LICENSE.txt",
+        "Tools\zarchive\win-x64\zarchive.exe",
+        "Tools\zarchive\win-x64\LICENSE.txt",
         "Tools\chdman.exe",
         "Tools\hakamiq-cso\win-x64\csokit.exe",
         "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll",
@@ -380,7 +389,13 @@ try {
         @{ Source = "Tools\hakamiq-cso\win-x64\README.md"; Destination = "Tools\hakamiq-cso\win-x64\README.md" },
         @{ Source = "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md"; Destination = "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md" },
         @{ Source = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt"; Destination = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt" },
-        @{ Source = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md"; Destination = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md" }
+        @{ Source = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md"; Destination = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md" },
+        @{ Source = "Tools\xdvdfs\win-x64\xdvdfs.exe"; Destination = "Tools\xdvdfs\win-x64\xdvdfs.exe" },
+        @{ Source = "Tools\xdvdfs\win-x64\LICENSE.txt"; Destination = "Tools\xdvdfs\win-x64\LICENSE.txt" },
+        @{ Source = "Tools\iso2god\win-x64\iso2god.exe"; Destination = "Tools\iso2god\win-x64\iso2god.exe" },
+        @{ Source = "Tools\iso2god\win-x64\LICENSE.txt"; Destination = "Tools\iso2god\win-x64\LICENSE.txt" },
+        @{ Source = "Tools\zarchive\win-x64\zarchive.exe"; Destination = "Tools\zarchive\win-x64\zarchive.exe" },
+        @{ Source = "Tools\zarchive\win-x64\LICENSE.txt"; Destination = "Tools\zarchive\win-x64\LICENSE.txt" }
     )) {
         $sourcePath = Join-Path $ProjectRoot $tool.Source
         if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {
@@ -404,6 +419,9 @@ try {
         @{ Source = "docs\legal\MAME_GPL-2.0.txt"; Destination = "docs\legal\MAME_GPL-2.0.txt" },
         @{ Source = "docs\legal\7ZIP.md"; Destination = "docs\legal\7ZIP.md" },
         @{ Source = "docs\legal\CSOKIT_NOTICE.md"; Destination = "docs\legal\CSOKIT_NOTICE.md" },
+        @{ Source = "docs\legal\XDVDFS_NOTICE.md"; Destination = "docs\legal\XDVDFS_NOTICE.md" },
+        @{ Source = "docs\legal\ISO2GOD_NOTICE.md"; Destination = "docs\legal\ISO2GOD_NOTICE.md" },
+        @{ Source = "docs\legal\ZARCHIVE_NOTICE.md"; Destination = "docs\legal\ZARCHIVE_NOTICE.md" },
         @{ Source = "docs\legal\IGIR_NOTICE.md"; Destination = "docs\legal\IGIR_NOTICE.md" },
         @{ Source = "docs\legal\IGIR_GPL-3.0.txt"; Destination = "docs\legal\IGIR_GPL-3.0.txt" }
     )) {

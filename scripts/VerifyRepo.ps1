@@ -1816,6 +1816,15 @@ function Test-BundledToolIntegrityManifest {
 
         'Tools\hakamiq-cso\win-x64\CsoKit.Native.dll' =
             'F37AED7918AA1CFFE68BEDF04128292EFF6607F0E4E0386801C700707F2F388E'
+
+        'Tools\xdvdfs\win-x64\xdvdfs.exe' =
+            'DF5F19954EF706C130C256546BF67CF7725611BDB30D1815577187007A6F907A'
+
+        'Tools\iso2god\win-x64\iso2god.exe' =
+            '1459FCF8FF5A89E039B02C68C06B006B7A036F3B1CA237C2D7E03D61BD211D47'
+
+        'Tools\zarchive\win-x64\zarchive.exe' =
+            'F9BBA11DF7EE120186E013214C14C210690F72AB2940ECC158FC40BF36E78B6C'
     }
 
     foreach ($relativePath in $expectedDigests.Keys) {
@@ -1897,6 +1906,32 @@ function Test-BundledToolIntegrityManifest {
 
         if ($content -notmatch 'CsoToolLocator\.TryValidateCandidate') {
             Add-Failure 'ExternalToolProcessRunner must revalidate CsoKit immediately before process start.'
+        }
+
+        if ($content -notmatch 'validateBeforeStart\(executablePath\)') {
+            Add-Failure 'ExternalToolProcessRunner must run the pinned-tool check immediately before process start.'
+        }
+    }
+
+    $xboxToolLocator =
+        Join-Path $root 'Services\Xbox\XboxToolLocator.cs'
+
+    if (-not (Test-Path -LiteralPath $xboxToolLocator -PathType Leaf)) {
+        Add-Failure 'XboxToolLocator must pin the bundled Xbox tools.'
+    }
+    else {
+        $content =
+            Get-Content -LiteralPath $xboxToolLocator -Raw -Encoding UTF8
+
+        foreach ($required in @(
+            'DF5F19954EF706C130C256546BF67CF7725611BDB30D1815577187007A6F907A',
+            '1459FCF8FF5A89E039B02C68C06B006B7A036F3B1CA237C2D7E03D61BD211D47',
+            'F9BBA11DF7EE120186E013214C14C210690F72AB2940ECC158FC40BF36E78B6C',
+            'CryptographicOperations\.FixedTimeEquals')) {
+
+            if ($content -notmatch $required) {
+                Add-Failure "XboxToolLocator must pin bundled Xbox tool integrity: $required"
+            }
         }
     }
 }
@@ -3419,7 +3454,9 @@ function Test-SecurityHardeningRegressionGates {
         'TestRedumpRedirectValidation',
         'TestRedumpRollback',
         'TestShutdownTimeout',
-        'TestBundledCsoKitRoundTrip')) {
+        'TestBundledCsoKitRoundTrip',
+        'TestXboxToolLocatorRejectsMissingAndTampered',
+        'TestBundledXboxToolsMatchPinnedDigests')) {
 
         if ($securityTests -notmatch $required) {
             Add-Failure "Runtime security regression test is missing: $required"
