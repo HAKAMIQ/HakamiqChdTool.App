@@ -60,7 +60,7 @@ internal static partial class Program
 
         AssertTrue(arabic["LocShell_ConvertToChd"].Any(c => c is >= '؀' and <= 'ۿ'), "The Arabic menu entry is in Arabic.");
 
-        string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PerfView.xaml")));
+        string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "WinView.xaml")));
         AssertTrue(view.Contains("IsChecked=\"{Binding ExplorerMenuEnabled, Mode=TwoWay", StringComparison.Ordinal), "The Options checkbox is bound to the setting.");
         AssertTrue(view.Contains("AutomationProperties.Name=\"{DynamicResource LocOptions_ExplorerMenu}\"", StringComparison.Ordinal), "The checkbox has an accessible name.");
     }

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.IO;
 using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Models;
@@ -259,5 +260,130 @@ internal static partial class Program
     {
         string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "RedumpView.xaml")));
         AssertTrue(view.Contains("Text=\"{Binding RedumpLocalLibraryScanSummary}\"", StringComparison.Ordinal), "The scan result is shown in the Redump tab.");
+    }
+
+    // A target emulator that overrides an option says so on that option, and the hunk size cannot be chosen while
+    // it is fixed.
+    private static void TestTargetEmulatorOverridesAreShown()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var options = new HakamiqChdTool.App.ViewModels.OptionsViewModel();
+                options.Load(new AppSettings());
+                AssertTrue(options.CanChooseHunkSize, "With no target the hunk size can be chosen.");
+
+                // Outside the app the texts are not loaded, so the test checks that both rows are told to refresh.
+                var changed = new List<string>();
+                options.PropertyChanged += (_, e) => changed.Add(e.PropertyName ?? string.Empty);
+
+                options.SelectedTargetEmulator = options.TargetEmulatorOptions.Single(o => o.Key == HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Dvd2048);
+                AssertFalse(options.CanChooseHunkSize, "DVD 2048 fixes the hunk size.");
+                AssertTrue(changed.Contains(nameof(options.HunkPresetDescription)) && changed.Contains(nameof(options.CanChooseHunkSize)), "The hunk row refreshes its note.");
+
+                changed.Clear();
+                options.SelectedTargetEmulator = options.TargetEmulatorOptions.Single(o => o.Key == HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.NoZstd);
+                AssertTrue(options.CanChooseHunkSize, "No zstd leaves the hunk size alone.");
+                AssertTrue(changed.Contains(nameof(options.CompressionPresetDescription)), "The compression row refreshes its note.");
+
+                string vm = File.ReadAllText(FindRepoFile(Path.Combine("ViewModels", "OptionsVM.cs")));
+                AssertTrue(vm.Contains("ArabicUi.Get(\"LocAdv_HunkSetByTarget\")", StringComparison.Ordinal)
+                    && vm.Contains("ArabicUi.Format(\"LocAdv_CompressionNoZstdByTarget\"", StringComparison.Ordinal), "The notes come from the string files.");
+            }            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null)
+        {
+            throw failure;
+        }
+    }
+
+    // Options rows: every tab uses the shared row, M3U replacement has a box, and a chosen tool can go back to the
+    // bundled copy.
+    private static void TestOptionsTabsUseSharedRows()
+    {
+        foreach (string view in new[] { "ProcView.xaml", "PathsView.xaml", "PerfView.xaml", "WinView.xaml", "RedumpView.xaml", "ExtTools.xaml" })
+        {
+            string text = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", view)));
+            AssertTrue(text.Contains("<opt:OptSection", StringComparison.Ordinal) && text.Contains("<opt:OptRow", StringComparison.Ordinal), $"{view} uses the shared section and row.");
+            AssertFalse(text.Contains("Win11SettingsSectionHeader", StringComparison.Ordinal), $"{view} has no full-width header band.");
+        }
+
+        string paths = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PathsView.xaml")));
+        AssertTrue(paths.Contains("IsChecked=\"{Binding OverwriteExistingM3uPlaylists, Mode=TwoWay", StringComparison.Ordinal)
+            && paths.Contains("IsEnabled=\"{Binding EnableAutoM3uGeneration}\"", StringComparison.Ordinal), "Replacing M3U playlists has its own box, available while playlists are made.");
+
+        string shell = File.ReadAllText(FindRepoFile(Path.Combine("Ui", "Shell", "HqOptsTools.cs")));
+        AssertTrue(shell.Contains("_owner.ViewModel.ExternalCsoKitPath = string.Empty;", StringComparison.Ordinal)
+            && shell.Contains("_owner.ViewModel.ExternalIgirPath = string.Empty;", StringComparison.Ordinal), "Use bundled clears the chosen path.");
+    }
+
+    // The search ignores case and Arabic letter forms, and is wired to the box in the window header. Filtering itself
+    // is checked in the window matrix, where the real window has the app's resources.
+    private static void TestOptionsSearchFiltersEveryTab()
+    {
+        AssertEqual("اعداد الملف", HakamiqChdTool.App.Ui.Shell.HqOptionsShell.NormalizeSearchText("إعداد الملف"), "Alef forms match.");
+        AssertEqual("مجلد مخصصه", HakamiqChdTool.App.Ui.Shell.HqOptionsShell.NormalizeSearchText("مجلد مخصصة"), "Ta marbuta matches ha.");
+        AssertEqual("xbox 360", HakamiqChdTool.App.Ui.Shell.HqOptionsShell.NormalizeSearchText("‎Xbox‎ ‎360‎"), "Direction marks and case do not matter.");
+
+        string window = File.ReadAllText(FindRepoFile(Path.Combine("Views", "OptionsWindow.xaml")));
+        AssertTrue(window.Contains("TextChanged=\"OptionsSearchBox_TextChanged\"", StringComparison.Ordinal)
+            && window.Contains("AutomationProperties.Name=\"{DynamicResource LocOptions_Search}\"", StringComparison.Ordinal), "The search box filters as you type and has an accessible name.");
+        string matrix = File.ReadAllText(FindRepoFile(Path.Combine("HakamiqChdTool.App.Tests", "WindowsMatrixTests.cs")));
+        AssertTrue(matrix.Contains("CheckOptionsSearch(searchWindow", StringComparison.Ordinal), "The window matrix runs the search in the real window.");
+    }
+    // A watch folder that is on needs an existing folder; the error shows under the box and blocks OK.
+    private static void TestWatchFolderNeedsAnExistingFolder()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var options = new HakamiqChdTool.App.ViewModels.OptionsViewModel();
+                options.Load(new AppSettings());
+                AssertTrue(options.CanConfirm && options.WatchFolderError.Length == 0, "Off, the folder is not checked.");
+
+                options.WatchFolderEnabled = true;
+                AssertFalse(options.CanConfirm, "On with no folder blocks OK.");
+                AssertTrue(options.WatchFolderError.Length > 0, "The error is shown under the box.");
+
+                options.WatchFolderPath = Path.Combine(Path.GetTempPath(), "hq-missing-" + Guid.NewGuid().ToString("N"));
+                AssertFalse(options.CanConfirm, "A folder that does not exist blocks OK.");
+
+                string existing = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "hq-watch-" + Guid.NewGuid().ToString("N"))).FullName;
+                try
+                {
+                    options.WatchFolderPath = existing;
+                    AssertTrue(options.CanConfirm && options.WatchFolderError.Length == 0, "An existing folder is accepted.");
+                }
+                finally
+                {
+                    Directory.Delete(existing);
+                }
+
+                options.CustomOutputRoot = string.Empty;
+                options.UseCustomOutputRoot = true;
+                AssertTrue(options.CustomOutputRootError.Length > 0, "The output folder error is shown under its box.");
+            }
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null)
+        {
+            throw failure;
+        }
     }
 }

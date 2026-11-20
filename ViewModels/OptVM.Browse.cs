@@ -14,7 +14,6 @@ public sealed partial class OptionsViewModel
     private IOptionsPickerService? _optionsPickerService;
     private IRelayCommand? _browseOutputFolderCommand;
     private IRelayCommand? _browseExternalChdmanCommand;
-    private IRelayCommand? _browseRedumpDatCommand;
     private IRelayCommand? _browseRedumpLocalLibraryCommand;
     private AsyncRelayCommand? _scanRedumpLocalLibraryCommand;
     private AsyncRelayCommand? _importRedumpLocalLibraryCommand;
@@ -32,9 +31,6 @@ public sealed partial class OptionsViewModel
 
     public IRelayCommand BrowseExternalChdmanCommand =>
         _browseExternalChdmanCommand ??= new RelayCommand(BrowseExternalChdman);
-
-    public IRelayCommand BrowseRedumpDatCommand =>
-        _browseRedumpDatCommand ??= new RelayCommand(BrowseRedumpDat);
 
     public IRelayCommand BrowseRedumpLocalLibraryCommand =>
         _browseRedumpLocalLibraryCommand ??= new RelayCommand(BrowseRedumpLocalLibrary);
@@ -114,22 +110,6 @@ public sealed partial class OptionsViewModel
         {
             PendingWorkspaceCustomRoot = selected;
             UseCustomPendingWorkspace = true;
-        }
-    }
-
-    private void BrowseRedumpDat()
-    {
-        string current = RedumpDatXmlPath?.Trim() ?? string.Empty;
-        string fallback = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        string? selected = OptionsPickerService.PickFile(
-            "LocAdv_Picker_SelectRedumpDatTitle",
-            "LocFilter_RedumpDatXmlFiles",
-            TryGetSafeOptionsFile(current, out string safeCurrent) ? safeCurrent : null,
-            fallback);
-
-        if (!string.IsNullOrWhiteSpace(selected))
-        {
-            RedumpDatXmlPath = selected;
         }
     }
 

@@ -167,11 +167,11 @@ internal static partial class Program
             AssertTrue(english.TryGetValue(key, out string? en) && en.Trim().Length > 0, $"{key} has English text.");
         }
 
-        string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PerfView.xaml")));
+        string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "WinView.xaml")));
         AssertTrue(view.Contains("IsChecked=\"{Binding ExplorerOpensQuickWindow, Mode=TwoWay", StringComparison.Ordinal), "The checkbox is bound to the setting.");
         AssertTrue(view.Contains("AutomationProperties.Name=\"{DynamicResource LocOptions_ExplorerQuickWindow}\"", StringComparison.Ordinal), "The checkbox has an accessible name.");
         AssertTrue(view.Contains("IsEnabled=\"{Binding ExplorerMenuEnabled}\"", StringComparison.Ordinal), "The option is available only while the Explorer menu is on.");
-        AssertTrue(view.IndexOf("ExplorerMenuDescriptionText", StringComparison.Ordinal) < view.IndexOf("ExplorerQuickWindowCheckBox", StringComparison.Ordinal),
+        AssertTrue(view.IndexOf("ExplorerMenuCheckBox", StringComparison.Ordinal) < view.IndexOf("ExplorerQuickWindowCheckBox", StringComparison.Ordinal),
             "The option sits under the Explorer menu option.");
     }
 

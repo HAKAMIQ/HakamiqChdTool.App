@@ -65,8 +65,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _useCustomPendingWorkspace;
     private string _pendingWorkspaceCustomRoot = string.Empty;
 
-    public IReadOnlyList<string> ThemeOptions { get; } = new[] { "Light", "Dark", "Hakamiq" };
-
     public ObservableCollection<ProcessorOption> ProcessorOptions { get; } = new();
 
     public ObservableCollection<ProcessorOption> ConcurrentConversionOptions { get; } = new();
@@ -141,7 +139,11 @@ public sealed partial class OptionsViewModel : ObservableValidator
         _selectedIsoCreateOverride = IsoCreateOverrideOptions.FirstOrDefault();
         _selectedChdPlatformProfile = ChdPlatformProfileOptions.FirstOrDefault();
 
-        ErrorsChanged += (_, _) => NotifySaveStateChanged();
+        ErrorsChanged += (_, e) =>
+        {
+            NotifySaveStateChanged();
+            NotifyFieldError(e.PropertyName);
+        };
         PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is not nameof(CanSave) and not nameof(CanConfirm) and not nameof(HasPendingChanges))
@@ -238,7 +240,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
         OnPropertyChanged(nameof(ProcessorName));
         OnPropertyChanged(nameof(ProcessorCounts));
-        OnPropertyChanged(nameof(ProcessorHint));
         OnPropertyChanged(nameof(ConcurrentConversionDescription));
         OnPropertyChanged(nameof(PerformanceModeDescription));
         OnPropertyChanged(nameof(PriorityModeDescription));
@@ -248,7 +249,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         OnPropertyChanged(nameof(IsoCreateOverrideDescription));
         OnPropertyChanged(nameof(ChdPlatformProfileDescription));
         OnPropertyChanged(nameof(ProcessorSelectionDescription));
-        OnPropertyChanged(nameof(PendingWorkspaceModeDisplay));
         OnPropertyChanged(nameof(DatabaseLastSyncedDisplay));
         OnPropertyChanged(nameof(CanSave));
     }
@@ -519,13 +519,25 @@ public sealed partial class OptionsViewModel : ObservableValidator
     public bool WatchFolderEnabled
     {
         get => _watchFolderEnabled;
-        set => SetProperty(ref _watchFolderEnabled, value);
+        set
+        {
+            if (SetProperty(ref _watchFolderEnabled, value))
+            {
+                ValidateProperty(WatchFolderPathValidationProxy, nameof(WatchFolderPathValidationProxy));
+            }
+        }
     }
 
     public string WatchFolderPath
     {
         get => _watchFolderPath;
-        set => SetProperty(ref _watchFolderPath, value ?? string.Empty);
+        set
+        {
+            if (SetProperty(ref _watchFolderPath, value ?? string.Empty))
+            {
+                ValidateProperty(WatchFolderPathValidationProxy, nameof(WatchFolderPathValidationProxy));
+            }
+        }
     }
 
     /// <summary>CsoKit chosen in the Add-ons tab; saved with Apply or OK like every other option, empty = bundled.</summary>
@@ -580,8 +592,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         }
     }
 
-    public bool CanDownloadSelectedRedumpDatabase => IsSafeDownloadUrl(RedumpDatabaseDownloadUrl);
-
     public string RedumpDatabaseDownloadUrl
     {
         get => _redumpDatabaseDownloadUrl;
@@ -589,7 +599,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         {
             if (SetProperty(ref _redumpDatabaseDownloadUrl, value))
             {
-                OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
                 OnPropertyChanged(nameof(CanSave));
             }
         }
@@ -615,8 +624,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         {
             if (SetProperty(ref _isDatabaseAvailable, value))
             {
-                OnPropertyChanged(nameof(IntegrityFeatureOpacity));
-                OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
                 OnPropertyChanged(nameof(CanSave));
             }
         }
@@ -647,8 +654,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         }
     }
 
-    public double IntegrityFeatureOpacity => IsDatabaseAvailable ? 1.0 : 0.55;
-
     public bool HasPendingChanges => _appliedSnapshot is not null && !CurrentValuesEqual(_appliedSnapshot);
 
     public bool CanConfirm => !HasErrors;
@@ -659,17 +664,26 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
     public string ProcessorCounts => BuildProcessorCounts();
 
-    public string ProcessorHint => ArabicUi.Get("LocAdv_ProcessorHint");
-
     public string ConcurrentConversionDescription => BuildConcurrentConversionDescription();
 
     public string PerformanceModeDescription => SelectedPerformanceMode?.Description ?? string.Empty;
 
     public string PriorityModeDescription => SelectedPriorityMode?.Description ?? string.Empty;
 
-    public string CompressionPresetDescription => SelectedCompressionPreset?.Description ?? string.Empty;
+    // The target emulator can override these two: DVD 2048 fixes the hunk size, "no zstd" drops zstd from the codecs.
+    public bool IsHunkSetByTarget => HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Normalize(SelectedTargetEmulator?.Key) == HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Dvd2048;
 
-    public string HunkPresetDescription => SelectedHunkPreset?.Description ?? string.Empty;
+    public bool CanChooseHunkSize => !IsHunkSetByTarget;
+
+    private bool IsZstdRemovedByTarget => HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Normalize(SelectedTargetEmulator?.Key) == HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.NoZstd;
+
+    public string CompressionPresetDescription => IsZstdRemovedByTarget
+        ? ArabicUi.Format("LocAdv_CompressionNoZstdByTarget", SelectedCompressionPreset?.Description ?? string.Empty)
+        : SelectedCompressionPreset?.Description ?? string.Empty;
+
+    public string HunkPresetDescription => IsHunkSetByTarget
+        ? ArabicUi.Get("LocAdv_HunkSetByTarget")
+        : SelectedHunkPreset?.Description ?? string.Empty;
 
     public string IsoCreateOverrideDescription => SelectedIsoCreateOverride?.Description ?? string.Empty;
 
@@ -774,6 +788,10 @@ public sealed partial class OptionsViewModel : ObservableValidator
             if (SetProperty(ref _selectedTargetEmulator, value))
             {
                 OnPropertyChanged(nameof(TargetEmulatorDescription));
+                OnPropertyChanged(nameof(IsHunkSetByTarget));
+                OnPropertyChanged(nameof(CanChooseHunkSize));
+                OnPropertyChanged(nameof(HunkPresetDescription));
+                OnPropertyChanged(nameof(CompressionPresetDescription));
             }
         }
     }
@@ -827,7 +845,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
             _useCustomPendingWorkspace = value;
             OnPropertyChanged(nameof(UseCustomPendingWorkspace));
-            OnPropertyChanged(nameof(PendingWorkspaceModeDisplay));
             ValidateProperty(PendingWorkspaceCustomRootValidationProxy, nameof(PendingWorkspaceCustomRootValidationProxy));
             OnPropertyChanged(nameof(CanSave));
         }
@@ -850,11 +867,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
             OnPropertyChanged(nameof(CanSave));
         }
     }
-
-    public string PendingWorkspaceModeDisplay =>
-        UseCustomPendingWorkspace
-            ? ArabicUi.Get("LocAdv_PendingWorkspaceModeCustom")
-            : ArabicUi.Get("LocAdv_PendingWorkspaceModeAutomatic");
 
     [CustomValidation(typeof(OptionsViewModel), nameof(ValidateCustomOutputRoot))]
     public string CustomOutputRootValidationProxy => CustomOutputRoot;

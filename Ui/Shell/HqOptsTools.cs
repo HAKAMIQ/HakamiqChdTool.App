@@ -1,7 +1,9 @@
 using HakamiqChdTool.App.Services;
+using HakamiqChdTool.App.Services.ExternalTools;
 using HakamiqChdTool.App.Services.ExternalTools.Igir;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -116,6 +118,19 @@ internal sealed partial class HqOptionsShell
         QueueExternalToolsRefresh(showCheckingState: false);
     }
 
+    // Clears a chosen path so the bundled copy is used again; saved with Apply or OK like the rest.
+    public void UseBundledCsoKit(object? sender, EventArgs e)
+    {
+        _owner.ViewModel.ExternalCsoKitPath = string.Empty;
+        QueueExternalToolsRefresh(showCheckingState: true);
+    }
+
+    public void UseBundledIgir(object? sender, EventArgs e)
+    {
+        _owner.ViewModel.ExternalIgirPath = string.Empty;
+        QueueExternalToolsRefresh(showCheckingState: true);
+    }
+
     public async void BrowseIgirTool(object? sender, EventArgs e)
     {
         OpenFileDialog dialog = new() { Title = ResolveUiText("LocExternalTools_IgirSelect"), Filter = ResolveUiText(IgirToolFilterKey),
@@ -184,8 +199,10 @@ internal sealed partial class HqOptionsShell
             {
                 CsoToolProbeResult result;
                 IgirToolProbeResult igirResult;
+                IReadOnlyList<BundledToolStatus> bundled = [];
                 try
                 {
+                    bundled = BundledToolsCheck.Check(cancellationToken: token);
                     result = await new CsoToolProbe(csoKitPath).CheckAsync(token).ConfigureAwait(false);
                     igirResult = await new IgirToolProbe().CheckAsync(AppContext.BaseDirectory, igirPath, token).ConfigureAwait(false);
                 }
@@ -223,6 +240,7 @@ internal sealed partial class HqOptionsShell
 
                         ApplyCsoKitProbeResult(result);
                         ApplyIgirProbeResult(igirResult);
+                        _owner.ViewModel.SetBundledTools(bundled);
                     });
             },
             token);

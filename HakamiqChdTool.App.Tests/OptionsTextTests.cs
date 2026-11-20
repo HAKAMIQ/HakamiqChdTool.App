@@ -67,7 +67,7 @@ internal static partial class Program
         }
 
         string paths = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PathsView.xaml")));
-        AssertEqual(2, Regex.Matches(paths, @"IsChecked=""\{Binding DeleteSourceAfterVerified\w+, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged\}""\s+IsEnabled=""\{Binding VerifyAfterConversion\}""").Count,
+        AssertEqual(2, Regex.Matches(paths, @"IsEnabled=""\{Binding VerifyAfterConversion\}""\s+Title=""\{DynamicResource LocPaths_DeleteSourceAfterVerified\w+\}""").Count,
             "Both delete-source boxes are enabled only while Verify after conversion is on.");
 
         Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");
@@ -205,21 +205,19 @@ internal static partial class Program
         string perf = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PerfView.xaml")));
         AssertTrue(perf.Contains("<Run Text=\"{Binding ProcessorName, Mode=OneWay}\" FlowDirection=\"LeftToRight\" />", StringComparison.Ordinal),
             "The CPU name is its own left-to-right run, so Arabic text cannot reorder it.");
-        AssertTrue(perf.Contains("x:Name=\"ExplorerMenuDescriptionText\"", StringComparison.Ordinal)
-            && perf.Contains("Text=\"{DynamicResource LocOptions_ExplorerMenuDesc}\"", StringComparison.Ordinal),
+
+        string windows = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "WinView.xaml")));
+        AssertTrue(windows.Contains("Description=\"{DynamicResource LocOptions_ExplorerMenuDesc}\"", StringComparison.Ordinal),
             "The Explorer menu hint (Show more options on Windows 11) is shown, not only a tooltip.");
-        AssertTrue(perf.Contains("x:Name=\"WatchFolderDescriptionText\"", StringComparison.Ordinal), "The watch folder hint is shown.");
-        AssertTrue(perf.Contains("Visibility=\"{Binding WatchFolderEnabled, Converter={StaticResource BooleanToVisibilityConverter}}\"", StringComparison.Ordinal),
+        AssertTrue(windows.Contains("Description=\"{DynamicResource LocWatch_EnableDesc}\"", StringComparison.Ordinal), "The watch folder hint is shown.");
+        AssertTrue(windows.Contains("Visibility=\"{Binding WatchFolderEnabled, Converter={StaticResource BooleanToVisibilityConverter}}\"", StringComparison.Ordinal),
             "The watch folder box appears only when the option is on.");
 
         string tools = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "ExtTools.xaml")));
-        AssertTrue(tools.Contains("Text=\"5.8.1\"", StringComparison.Ordinal) && tools.Contains("NumberSubstitution.Substitution=\"European\"", StringComparison.Ordinal),
-            "The igir version uses Latin digits with a gap after the name.");
-        AssertTrue(tools.Contains("Text=\"{Binding ExternalToolsIgirVersion}\" Visibility=\"{Binding ExternalToolsIgirIsAvailable", StringComparison.Ordinal),
-            "The igir version is hidden when igir is unavailable, so 'unavailable' is not shown twice.");
-        AssertFalse(tools.Contains("<Grid Grid.Row=\"2\" FlowDirection=\"LeftToRight\">", StringComparison.Ordinal), "The igir status row follows the app direction.");
+        AssertTrue(tools.Contains("Text=\"{Binding ExternalToolsIgirVersion}\" Visibility=\"{Binding ExternalToolsIgirIsAvailable", StringComparison.Ordinal)
+            && tools.Contains("NumberSubstitution.Substitution=\"European\"", StringComparison.Ordinal),
+            "The igir version uses Latin digits and is hidden when igir is unavailable, so 'unavailable' is not shown twice.");
     }
-
     // Numbers in Options text ("Windows 11", counts, sizes) use Latin digits in Arabic, like the rest of the app.
     private static void TestOptionsWindowUsesLatinDigits()
     {

@@ -301,9 +301,6 @@
     <sys:String x:Key="LocSettings_PlatformFlat">بدون تنظيم إضافي</sys:String>
     <sys:String x:Key="LocSettings_VerifyAfter">مفعل</sys:String>
     <sys:String x:Key="LocSettings_VerifyOff">غير مفعل</sys:String>
-    <sys:String x:Key="LocAdv_Label_VerifyAfterProcessing">التحقق بعد المعالجة</sys:String>
-    <sys:String x:Key="LocAdv_OptionsExpand">عرض الخيارات المتقدمة ▼</sys:String>
-    <sys:String x:Key="LocAdv_OptionsCollapse">إخفاء الخيارات المتقدمة ▲</sys:String>
 
     <sys:String x:Key="LocFooter_NothingNewAdded">لم تتم إضافة أي عنصر جديد.</sys:String>
     <sys:String x:Key="LocFooter_NoSupportedFiles">لا توجد ملفات مدعومة.</sys:String>
@@ -411,9 +408,6 @@
     <sys:String x:Key="LocUi_Hub_RedumpVerify_Tooltip">حساب قيم MD5/SHA1 ومطابقتها مع قاعدة بيانات Redump المحلية دون تعديل الملفات.</sys:String>
     <sys:String x:Key="LocUi_Redump_VerifyButton">التحقق عبر Redump</sys:String>
     <sys:String x:Key="LocUi_Redump_VerifyTooltip">فحص قيم MD5/SHA1 ومطابقتها مع قاعدة Redump. الزر معطل في حال عدم تفعيل الميزة أو عدم جاهزية القاعدة.</sys:String>
-    <sys:String x:Key="LocAdv_Redump_EnableTitle">تفعيل تحقق Redump</sys:String>
-    <sys:String x:Key="LocAdv_Redump_EnableDescription">فحص قيم MD5/SHA1 ومطابقتها مع قاعدة Redump المحلية (لا يتم تعديل الملفات).</sys:String>
-    <sys:String x:Key="LocAdv_Redump_EnableUnavailableTooltip">يجب استيراد أو تحميل قاعدة Redump أولا لتفعيل هذه الميزة.</sys:String>
 
     <sys:String x:Key="LocUi_Redump_RightPanelTitle">Redump</sys:String>
     <sys:String x:Key="LocUi_Redump_RightPanelSubtitle">فحص ومطابقة الملف المحدد مع قاعدة بيانات Redump المحلية.</sys:String>
@@ -527,8 +521,9 @@
     <sys:String x:Key="LocConversion_ExtractGdRomAsCueBin">استخراج أقراص Dreamcast ‏(GD-ROM) إلى CUE/BIN</sys:String>
     <sys:String x:Key="LocConversion_ExtractGdRomAsCueBinDesc">تستخرج ملفات CHD الخاصة بأقراص GD-ROM إلى GDI، وهي الصيغة التي تستخدمها أدوات Dreamcast وجهاز GDEMU. فعل هذا الخيار للحصول على CUE/BIN بدلا منها.</sys:String>
     <sys:String x:Key="LocOptions_WindowsSection">التكامل مع ويندوز</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerSection">قائمة المستكشف</sys:String>
     <sys:String x:Key="LocOptions_ExplorerMenu">إضافة CHD Tool إلى قائمة الزر الأيمن في المستكشف</sys:String>
-    <sys:String x:Key="LocOptions_ExplorerMenuDesc">يضيف «تحويل إلى CHD» لصور الأقراص والأرشيفات، و«استخراج CHD» و«تحقق من CHD» لملفات CHD، وقائمة CHD Tool للمجلدات، لحسابك في ويندوز فقط. في ويندوز 11 تجدها تحت «إظهار المزيد من الخيارات». أوقف هذا الخيار قبل حذف مجلد البرنامج.</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerMenuDesc">يضيف «تحويل إلى CHD» و«استخراج CHD» و«تحقق من CHD» لحسابك فقط. في ويندوز 11 تجدها تحت «إظهار المزيد من الخيارات». أوقفه قبل حذف مجلد البرنامج.</sys:String>
     <sys:String x:Key="LocOptions_ExplorerQuickWindow">فتح نافذة صغيرة عند الاختيار من المستكشف</sys:String>
     <sys:String x:Key="LocOptions_ExplorerQuickWindowDesc">إذا كان البرنامج مغلقا، تفتح نافذة صغيرة تعالج الملفات مباشرة بإعداداتك المحفوظة. إذا كان مفتوحا، تضاف الملفات إليه كالمعتاد.</sys:String>
     <sys:String x:Key="LocShell_ConvertToChd">تحويل إلى CHD</sys:String>
@@ -551,9 +546,12 @@
     <sys:String x:Key="LocQuick_Start">ابدأ</sys:String>
     <sys:String x:Key="LocQuick_Stop">إيقاف</sys:String>
     <sys:String x:Key="LocWatch_Enable">مراقبة مجلد وتحويل الملفات الجديدة إلى CHD</sys:String>
-    <sys:String x:Key="LocWatch_EnableDesc">يحول البرنامج صور الأقراص والأرشيفات الجديدة في المجلد أدناه إلى CHD بعد اكتمال نسخها، ما دام البرنامج مفتوحا. لا يتعامل مع المجلدات الفرعية أو ملفات CHD أو الملفات الموجودة مسبقا، ويحفظ الناتج حسب إعدادات الإخراج.</sys:String>
+    <sys:String x:Key="LocWatch_EnableDesc">ما دام البرنامج مفتوحا، تحول صور الأقراص والأرشيفات الجديدة في المجلد بعد اكتمال نسخها. المجلدات الفرعية والملفات الموجودة مسبقا لا تمس.</sys:String>
     <sys:String x:Key="LocWatch_Folder">المجلد المراقب</sys:String>
+    <sys:String x:Key="LocWatch_Section">مراقبة مجلد</sys:String>
     <sys:String x:Key="LocWatch_PickFolder">اختر المجلد المراد مراقبته</sys:String>
+    <sys:String x:Key="LocWatch_ErrorFolderRequired">اختر المجلد المراد مراقبته.</sys:String>
+    <sys:String x:Key="LocWatch_ErrorFolderMissing">المجلد غير موجود. اختر مجلدا موجودا.</sys:String>
     <sys:String x:Key="LocWatch_UnavailableFooter">تعذرت مراقبة المجلد. تحقق منه في الإعدادات.</sys:String>
     <sys:String x:Key="LocWatch_AddedFooter">أضيفت ملفات جديدة من المجلد المراقب.</sys:String>
     <sys:String x:Key="LocRunSummary_TitleDone">اكتملت المعالجة</sys:String>
@@ -1010,12 +1008,6 @@
     <sys:String x:Key="LocOptions_OperationErrorTitle">خطأ أثناء تنفيذ العملية</sys:String>
     <sys:String x:Key="LocOptions_MissingDataTitle">بيانات ناقصة</sys:String>
 
-    <sys:String x:Key="LocOptions_RedumpDownloadUrlRequired">أدخل رابط تحميل صالحا أولا، أو استورد ملف DAT/XML من جهازك.</sys:String>
-    <sys:String x:Key="LocOptions_RedumpDownloadInvalidUrl">أدخل رابط تحميل صالحا لقاعدة البيانات.</sys:String>
-    <sys:String x:Key="LocOptions_RedumpDownloadRunning">جار التحميل...</sys:String>
-    <sys:String x:Key="LocOptions_RedumpSyncFailedTitle">فشلت المزامنة</sys:String>
-    <sys:String x:Key="LocOptions_RedumpDownloadFailed">تعذر تحميل قاعدة البيانات.</sys:String>
-    <sys:String x:Key="LocOptions_RedumpDownloadErrorTitle">خطأ أثناء التحميل</sys:String>
 
     <sys:String x:Key="LocOptions_DatabaseChecking">الحالة: جار التحقق من قاعدة البيانات.</sys:String>
     <sys:String x:Key="LocOptions_DatabaseAvailable">متوفرة ومفعلة</sys:String>
@@ -1064,7 +1056,6 @@
 
     <sys:String x:Key="LocAdv_Picker_SelectOutputFolderTitle">تحديد مجلد الإخراج</sys:String>
     <sys:String x:Key="LocAdv_Picker_SelectExternalChdmanTitle">تحديد ملف chdman.exe الخارجي</sys:String>
-    <sys:String x:Key="LocAdv_Picker_SelectRedumpDatTitle">تحديد ملف Redump DAT</sys:String>
     <sys:String x:Key="LocAdv_Picker_SelectRedumpLocalFolderTitle">تحديد مجلد Redump المحلي</sys:String>
 
     <sys:String x:Key="LocFilter_ExecutableFiles">ملفات تنفيذية (*.exe)|*.exe|كل الملفات (*.*)|*.*</sys:String>
@@ -1121,7 +1112,6 @@
     <sys:String x:Key="LocAdv_IsoCreateOverrideCreateDvdLabel">فرض وضع أقراص DVD</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideCreateDvdDescription">تنبيه: لا تستخدم هذا الخيار إلا إذا كنت متأكدا تماما أن المصدر عبارة عن قرص DVD.</sys:String>
 
-    <sys:String x:Key="LocAdv_ProcessorHint">يتحكم هذا الخيار في عدد مسارات المعالجة المستخدمة أثناء التحويل. القيم الأعلى تسرع العملية، لكنها قد تؤثر على استجابة النظام أو ترفع حرارة المعالج.</sys:String>
 
     <sys:String x:Key="LocAdv_ProcessorSelectionAutoLimited">تلقائي (محدود): سيستخدم البرنامج {0} من إجمالي {1} مسار معالجة متاح. إعداد متوازن يترك موارد كافية لنظام التشغيل والتطبيقات الأخرى.</sys:String>
     <sys:String x:Key="LocAdv_ProcessorSelectionAutoDefault">تلقائي: سيستخدم البرنامج الإعداد الافتراضي الأمثل لعملية التحويل.</sys:String>
@@ -1132,15 +1122,14 @@
     <sys:String x:Key="LocAdv_ProcessorSelectionManualHigh">مرتفع: يستخدم {0} من {1} مسار معالجة. يسرع عملية التحويل، لكنه يستهلك المزيد من موارد النظام.</sys:String>
     <sys:String x:Key="LocAdv_ProcessorSelectionManualMaximum">الأقصى: يستخدم {0} من {1} مسار معالجة. مخصص للتحويل السريع عند عدم استخدام الجهاز، قد يرفع حرارة المعالج ويؤثر مؤقتا على استجابة النظام.</sys:String>
 
-    <sys:String x:Key="LocAdv_PendingWorkspaceModeCustom">مجلد مؤقت مخصص</sys:String>
-    <sys:String x:Key="LocAdv_PendingWorkspaceModeAutomatic">تلقائي (بجانب ملف المصدر أو الإخراج)</sys:String>
 
-    <sys:String x:Key="LocAdv_RedumpPlatformAutoLabel">تلقائي</sys:String>
-    <sys:String x:Key="LocAdv_RedumpArtifactDatfileLabel">ملف DAT</sys:String>
 
     <sys:String x:Key="LocAdv_ProcessorAutoRecommendedLabel">تلقائي</sys:String>
     <sys:String x:Key="LocAdv_ProcessorUnknownCoreCount">غير معروف</sys:String>
     <sys:String x:Key="LocAdv_ProcessorLabel">المعالج:</sys:String>
+    <sys:String x:Key="LocAdv_ProcessorTitle">المعالج</sys:String>
+    <sys:String x:Key="LocAdv_HunkSetByTarget">يحدده المحاكي المستهدف: 2048 بايت لصور DVD، والقيمة الافتراضية لغيرها.</sys:String>
+    <sys:String x:Key="LocAdv_CompressionNoZstdByTarget">المحاكي المستهدف لا يقرأ zstd، لذلك يستخدم السريع والمتوازن ضغط LZMA بدلا منه. {0}</sys:String>
     <sys:String x:Key="LocAdv_ProcessorCounts">• الأنوية: {0} • المسارات المتاحة: {1}</sys:String>
 
     <sys:String x:Key="LocAdv_ConcurrentConversionsSingle">تحويل فردي: تنفيذ عملية واحدة في كل مرة. (الخيار الأكثر أمانا للأقراص الصلبة والأجهزة المحمولة).</sys:String>
@@ -1201,10 +1190,7 @@
     <sys:String x:Key="LocRedump_NoSuggestedName">لا يوجد اسم مقترح</sys:String>
     <sys:String x:Key="LocRedump_NoDetails">لا توجد تفاصيل</sys:String>
 
-    <sys:String x:Key="LocPaths_Title">إعدادات المسارات والمدخلات</sys:String>
-    <sys:String x:Key="LocPaths_Description">تحديد مسار أداة chdman، ومجلد الإخراج، والمجلد المؤقت لضمان سير العمليات.</sys:String>
 
-    <sys:String x:Key="LocPaths_ChdmanSection">أداة التحويل (chdman)</sys:String>
 
     <sys:String x:Key="LocPaths_UseBundledChdman">استخدام النسخة المدمجة</sys:String>
     <sys:String x:Key="LocPaths_UseBundledChdmanDesc">استخدام الإصدار المرفق مع التطبيق. (الخيار الموصى به)</sys:String>
@@ -1213,21 +1199,17 @@
     <sys:String x:Key="LocPaths_UseExternalChdmanDesc">تحديد ملف chdman.exe من مسار مخصص على جهازك.</sys:String>
 
     <sys:String x:Key="LocPaths_ExternalChdmanPath">مسار ملف chdman</sys:String>
-    <sys:String x:Key="LocPaths_ExternalChdmanPathDesc">يستخدم هذا المسار فقط عند اختيار النسخة الخارجية.</sys:String>
 
-    <sys:String x:Key="LocPaths_SaveAndTempSection">إعدادات الإخراج والمجلدات المؤقتة</sys:String>
 
     <sys:String x:Key="LocPaths_CustomOutput">الحفظ في مجلد إخراج مخصص</sys:String>
     <sys:String x:Key="LocPaths_CustomOutputDesc">تخزين الملفات الناتجة في مسار تختاره بدلا من حفظها بجانب ملف المصدر.</sys:String>
 
     <sys:String x:Key="LocPaths_OutputFolder">مجلد الإخراج</sys:String>
-    <sys:String x:Key="LocPaths_OutputFolderDesc">يفعل هذا المسار فقط عند تفعيل خيار الحفظ في مجلد مخصص.</sys:String>
 
     <sys:String x:Key="LocPaths_CustomTempFolder">استخدام مجلد عمل مؤقت مخصص</sys:String>
-    <sys:String x:Key="LocPaths_CustomTempFolderDesc">في حال إيقافه، يستخدم التطبيق مسارا مؤقتا آمنا بجانب ملف المصدر أو الإخراج.</sys:String>
+    <sys:String x:Key="LocPaths_CustomTempFolderDesc">مجلد لملفات العمل المؤقتة أثناء التحويل. عند إيقافه يستخدم البرنامج مجلدا مؤقتا بجانب المصدر أو الناتج. فك الأرشيفات يتم دائما في مجلد Temp في ويندوز.</sys:String>
 
     <sys:String x:Key="LocPaths_TempFolder">مجلد العمل المؤقت</sys:String>
-    <sys:String x:Key="LocPaths_TempFolderDesc">مساحة مخصصة للملفات المؤقتة أثناء عمليات التحويل. لا تستخدم هذا المجلد لتخزين ملفاتك الدائمة.</sys:String>
 
     <sys:String x:Key="LocPaths_DeleteSourceAfterVerifiedConversion">حذف ملفات المصدر بعد نجاح التحويل والتحقق</sys:String>
     <sys:String x:Key="LocPaths_DeleteSourceAfterVerifiedConversionDesc">يحذف ملفات المصدر تلقائيا بعد إنشاء ملف CHD بنجاح والتحقق من سلامته. فعل هذا الخيار فقط إذا كنت لا تحتاج للاحتفاظ بالنسخة الأصلية.</sys:String>
@@ -1237,7 +1219,6 @@
 
     <sys:String x:Key="LocAdv_Picker_SelectPendingWorkspaceTitle">تحديد مجلد العمل المؤقت</sys:String>
 
-    <sys:String x:Key="LocPaths_OrganizeSection">تنظيم المخرجات</sys:String>
 
     <sys:String x:Key="LocPaths_OrganizeByPlatform">التنظيم حسب المنصة</sys:String>
     <sys:String x:Key="LocPaths_OrganizeByPlatformDesc">إنشاء مجلدات فرعية تلقائية لكل منصة داخل مجلد الإخراج.</sys:String>
@@ -1245,24 +1226,15 @@
     <sys:String x:Key="LocPaths_OrganizeByRegion">التنظيم حسب المنطقة</sys:String>
     <sys:String x:Key="LocPaths_OrganizeByRegionDesc">ترتيب الملفات الناتجة في مجلدات فرعية حسب المنطقة (عند توفر البيانات).</sys:String>
 
-    <sys:String x:Key="LocPaths_PortableMode">الوضع المحمول</sys:String>
-    <sys:String x:Key="LocPaths_PortableModeDesc">حفظ الإعدادات وسجلات التشغيل في مجلد '.portable' بجوار ملف البرنامج، بدلا من حفظها في النظام.</sys:String>
 
-    <sys:String x:Key="LocPaths_FolderInputSection">المجلدات المدخلة</sys:String>
 
     <sys:String x:Key="LocPaths_IncludeSubfolders">تضمين المجلدات الفرعية</sys:String>
     <sys:String x:Key="LocPaths_IncludeSubfoldersDesc">يبحث البرنامج عن الملفات المدعومة في المجلد المختار وكل مجلداته الفرعية.</sys:String>
 
     <sys:String x:Key="LocCommon_Browse">استعراض</sys:String>
 
-    <sys:String x:Key="LocPerformance_Title">الأداء والضغط</sys:String>
-    <sys:String x:Key="LocPerformance_Description">تتحكم هذه الإعدادات في سرعة التحويل ومستوى استهلاك موارد الجهاز أثناء إنشاء ملفات CHD.</sys:String>
 
-    <sys:String x:Key="LocPerformance_ProcessorInfoSection">معلومات المعالج</sys:String>
-    <sys:String x:Key="LocPerformance_ProcessorInfoDesc">يعرض ملخصا لمواصفات المعالج لمساعدتك في ضبط إعدادات الأداء بشكل مثالي.</sys:String>
 
-    <sys:String x:Key="LocPerformance_ChdmanOptionsSection">إعدادات التحويل المتقدمة (chdman)</sys:String>
-    <sys:String x:Key="LocPerformance_ChdmanOptionsDesc">تخصيص وضع الأداء، وعدد مسارات المعالجة، وإعدادات الضغط. لاحظ أن رفع الإعدادات يسرع عملية التحويل ولكنه يستهلك المزيد من موارد المعالج وذاكرة النظام.</sys:String>
 
     <sys:String x:Key="LocPerformance_ProcessorCount">عدد مسارات الضغط</sys:String>
     <sys:String x:Key="LocPerformance_ConcurrentConversions">عدد الملفات التي يتم تحويلها في نفس الوقت</sys:String>
@@ -1285,11 +1257,7 @@
     <sys:String x:Key="LocStorageTemperature_AccessDenied">تعذر الوصول لبيانات الحرارة: يرفض النظام الوصول. (تلميح: تشغيل البرنامج بصلاحيات المسؤول قد يحل هذه المشكلة).</sys:String>
     <sys:String x:Key="LocConversionReport_PoorCompressionPs3">ملاحظة: نسبة الضغط منخفضة. هذا طبيعي لألعاب PS3 لأن بياناتها مضغوطة مسبقا؛ لا يعني هذا وجود فشل في عملية التحويل.</sys:String>
 
-    <sys:String x:Key="LocProcessing_Title">إعدادات المعالجة</sys:String>
-    <sys:String x:Key="LocProcessing_Description">تخصيص إعدادات التحقق من البيانات، وتنسيق المخرجات، وسياسات التنظيف التلقائي للملفات.</sys:String>
 
-    <sys:String x:Key="LocProcessing_VerifyOutputSection">التحقق والمخرجات</sys:String>
-    <sys:String x:Key="LocProcessing_VerifyOutputDesc">إعدادات التحقق من ملفات CHD الناتجة، وتحديد سياسة التعامل مع الملفات الموجودة مسبقا.</sys:String>
 
     <sys:String x:Key="LocProcessing_VerifyAfterConversion">التحقق بعد التحويل</sys:String>
     <sys:String x:Key="LocProcessing_VerifyAfterConversionDesc">التحقق تلقائيا من سلامة ملف CHD الناتج فور اكتمال عملية الإنشاء.</sys:String>
@@ -1300,54 +1268,32 @@
     <sys:String x:Key="LocProcessing_CopyMatchingSbi">نسخ ملفات SBI المرتبطة</sys:String>
     <sys:String x:Key="LocProcessing_CopyMatchingSbiDesc">ينسخ ملفات SBI المرتبطة تلقائيا بجانب ملف CHD عند توفرها.</sys:String>
 
-    <sys:String x:Key="LocProcessing_CleanupSection">التنظيف</sys:String>
-    <sys:String x:Key="LocProcessing_CleanupDesc">إدارة الملفات المؤقتة ومخلفات العمليات غير المكتملة.</sys:String>
 
-    <sys:String x:Key="LocProcessing_DeleteTemporaryExtraction">حذف الملفات المؤقتة</sys:String>
-    <sys:String x:Key="LocProcessing_DeleteTemporaryExtractionDesc">حذف الملفات المؤقتة تلقائيا بعد اكتمال العملية (مع الحفاظ على ملفات المصدر الأصلية).</sys:String>
+    <sys:String x:Key="LocProcessing_DeleteTemporaryExtraction">حذف ما فك من الأرشيفات بعد الانتهاء</sys:String>
+    <sys:String x:Key="LocProcessing_DeleteTemporaryExtractionDesc">بعد انتهاء العمل على الأرشيف يحذف الملفات التي فكها في مجلد Temp في ويندوز. ملفات المصدر لا تمس.</sys:String>
 
     <sys:String x:Key="LocProcessing_DeleteFailedOutput">حذف ملف الإخراج التالف</sys:String>
     <sys:String x:Key="LocProcessing_DeleteFailedOutputDesc">إذا فشل استخراج CUE/BIN، يحذف ملفات CUE/BIN الناقصة التي أنشأها. الملفات الناقصة في مجلد العمل تحذف دائما.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_Description">إجراء فحص Redump يدويا من الواجهة الرئيسية. ملاحظة: الفحص لا يبدأ تلقائيا عند إضافة الملفات أو أثناء معالجتها.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_ManualScanSection">إعدادات الفحص اليدوي (Redump)</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">تفعيل أدوات Redump في الواجهة الرئيسية</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">يضيف زر الفحص ونتيجة المطابقة للملف المختار. وأثناء تفعيله يقرأ البرنامج ملف المصدر كاملا قبل كل تحويل، ويوقف التحويل إذا تعذرت قراءته.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainTooltip">يعرض أدوات Redump في الواجهة الرئيسية، ويقرأ كل ملف مصدر كاملا قبل تحويله.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">تفعيل فحص Redump</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">يضيف زر الفحص ونتيجة المطابقة في الواجهة الرئيسية، ويظهر إعداد قاعدة البيانات أدناه. أثناء تفعيله يقرأ البرنامج ملف المصدر كاملا قبل كل تحويل، فيطول التحويل، ويوقفه إذا تعذرت قراءته.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_SuggestNameTitle">اقتراح اسم ملف عند المطابقة</sys:String>
-    <sys:String x:Key="LocRedumpSettings_SuggestNameDesc">عرض الاسم القياسي (من قاعدة البيانات المحلية) عند العثور على مطابقة. لن يتم تعديل اسم الملف إلا بعد تأكيد منك.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_SuggestNameTooltip">عرض الاسم المقترح للملف دون إعادة تسمية تلقائية.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_SuggestNameTitle">كتابة الاسم المقترح في السجل</sys:String>
+    <sys:String x:Key="LocRedumpSettings_SuggestNameDesc">عند المطابقة يكتب في السجل الاسم القياسي من قاعدة البيانات إذا اختلف عن اسم الملف. لا يغير اسم أي ملف.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_ScopeSection">نطاق الفحص</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PlatformTitle">المنصة</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PlatformDesc">اختر "تلقائي" لعدم حصر الفحص بمنصة محددة والسماح للتطبيق بالتعرف على المنصة تلقائيا.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_DownloadSection">إعدادات تحميل قاعدة البيانات</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ArtifactTitle">نوع قاعدة البيانات</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ArtifactDesc">تحديد نوع قاعدة البيانات المراد تحميلها عبر الإنترنت أو استيرادها من ملف محلي.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_DownloadUrlTitle">رابط التحميل المباشر</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DownloadUrlDesc">أدخل الرابط المباشر لملف قاعدة البيانات ليقوم التطبيق بتنزيله واستيراده تلقائيا.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DownloadUrlPlaceholder">أدخل رابط تحميل قاعدة البيانات هنا...</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DownloadUrlTooltip">أدخل الرابط المباشر لملف قاعدة بيانات Redump.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_DownloadButton">تنزيل قاعدة البيانات</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DownloadButtonTooltip">تنزيل قاعدة البيانات المختارة واستيرادها إلى قاعدة Redump المحلية.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">مجلد Redump المحلي</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">اختر مجلدا من جهازك يحتوي على ملفات DAT/XML. لا يتم تضمين أي قاعدة بيانات مع البرنامج.</sys:String>
     <sys:String x:Key="LocRedumpSettings_ComplianceNotice">لا يحتوي البرنامج على ملفات Redump أو ألعاب. يجب على المستخدم توفير ملفات DAT بنفسه واستخدامها فقط للتحقق من نسخه القانونية.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">اختر مجلد Redump</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">استعراض...</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">اختر مجلد Redump من جهازك.</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">فحص المجلد</sys:String>
     <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">يعرض أعداد DAT/XML و CUE قبل تجهيز القاعدة.</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">تجهيز قاعدة المطابقة</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">يستورد ملفات DAT/XML المختارة إلى SQLite لتفعيل فحص الألعاب.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalActionsTitle">الإجراءات</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">معاينة المجلد</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">اختر مجلد Redump المحلي ثم اضغط فحص.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">تم اختيار المجلد: {0}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">جار فحص Redump المحلي...</sys:String>
@@ -1359,10 +1305,6 @@
     <sys:String x:Key="LocRedumpSettings_LocalFolderIndexErrorAppendFormat">{0}&#x0A;تعذر إنشاء الفهرس المختصر: {1}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">قاعدة Redump المحلية</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">حالة القاعدة</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">جاهزية SQLite للمطابقة وآخر مزامنة.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_SystemNameTooltip">حقل اختياري: اتركه فارغا ليتم اعتماد اسم ملف الـ DAT الأصلي.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseDatButton">استعراض...</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseDatTooltip">اختيار ملف DAT أو XML الخاص بقاعدة بيانات Redump.</sys:String>
     <sys:String x:Key="LocRedumpSettings_ImportButton">استيراد</sys:String>
     <sys:String x:Key="LocRedumpSettings_ImportButtonTooltip">قراءة الملف المحدد وتحديث قاعدة بيانات Redump المحلية.</sys:String>
     <sys:String x:Key="LocRedumpSettings_DatFileTitle">ملف DAT/XML منفرد</sys:String>
@@ -1387,21 +1329,20 @@
     <sys:String x:Key="LocCommon_Apply">تطبيق</sys:String>
 
     <sys:String x:Key="LocOptions_WindowTitle">الخيارات المتقدمة</sys:String>
-    <sys:String x:Key="LocOptions_HeaderDescription">&#x2067;إدارة التحويل والملفات وRedump والأداء والإضافات.&#x2069;</sys:String>
-    <sys:String x:Key="LocOptions_SectionsTitle">الأقسام</sys:String>
-    <sys:String x:Key="LocOptions_SectionsDescription">اختيار القسم المراد تعديله.</sys:String>
-    <sys:String x:Key="LocOptions_TabGeneral">عام</sys:String>
     <sys:String x:Key="LocOptions_TabPaths">&#x2067;الملفات&#x2069;</sys:String>
     <sys:String x:Key="LocOptions_TabRedump">Redump</sys:String>
     <sys:String x:Key="LocOptions_TabProcessing">&#x2067;التحويل&#x2069;</sys:String>
     <sys:String x:Key="LocOptions_TabPerformance">&#x2067;الأداء&#x2069;</sys:String>
-    <sys:String x:Key="LocOptions_TabAddons">&#x2067;الإضافات&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabWindows">&#x2067;ويندوز&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_Search">ابحث في الخيارات</sys:String>
+    <sys:String x:Key="LocOptions_SearchNoResults">لا توجد نتائج</sys:String>
+    <sys:String x:Key="LocOptions_TabAddons">&#x2067;الأدوات&#x2069;</sys:String>
     <sys:String x:Key="LocConversion_EngineSection">&#x2067;محرك التحويل&#x2069;</sys:String>
     <sys:String x:Key="LocConversion_ChdSection">&#x2067;إعدادات CHD&#x2069;</sys:String>
-    <sys:String x:Key="LocFiles_OrganizeSection">&#x2067;إدارة الملفات&#x2069;</sys:String>
-    <sys:String x:Key="LocFiles_OutputSection">&#x2067;الإخراج ومساحة العمل&#x2069;</sys:String>
-    <sys:String x:Key="LocFiles_ResultsSection">&#x2067;إدارة النتائج&#x2069;</sys:String>
+    <sys:String x:Key="LocConversion_ExtractSection">&#x2067;الاستخراج&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_OutputSection">&#x2067;الإخراج&#x2069;</sys:String>
     <sys:String x:Key="LocFiles_CleanupSection">&#x2067;التنظيف&#x2069;</sys:String>
+    <sys:String x:Key="LocFiles_WorkSection">&#x2067;أثناء المعالجة&#x2069;</sys:String>
     <sys:String x:Key="LocPerformance_RuntimeSection">&#x2067;الموارد والتنفيذ&#x2069;</sys:String>
     <sys:String x:Key="LocExternalTools_Title">Hakamiq-CsoKit</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">الأداة متصلة بنجاح</sys:String>
@@ -1409,11 +1350,7 @@
     <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">تعذر الاتصال بالأداة في المسار:</sys:String>
     <sys:String x:Key="LocExternalTools_OpenFolder">فتح مجلد الأدوات</sys:String>
     <sys:String x:Key="LocExternalTools_Recheck">إعادة الفحص</sys:String>
-    <sys:String x:Key="LocExternalTools_CopySetupInstructions">نسخ تعليمات الإعداد</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitTitle">CsoKit</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitDescription">فحص وفك CSO إلى ISO مؤقت قبل تحويله إلى CHD.</sys:String>
-    <sys:String x:Key="LocExternalTools_StatusLabel">الحالة</sys:String>
-    <sys:String x:Key="LocExternalTools_VersionLabel">الإصدار</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">المسار</sys:String>
     <sys:String x:Key="LocExternalTools_SetupInstructions">إذا ظهرت الأداة غير موجودة، افتح مجلد الأدوات وتأكد من وجود csokit.exe وCsoKit.Native.dll أو أعد تثبيت الحزمة الرسمية.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">استعادة الإعدادات الافتراضية</sys:String>
@@ -1586,7 +1523,6 @@
     <sys:String x:Key="LocAppPaths_UnsafeSystemTempRoot">تعذر إنشاء مجلد مؤقت في مسار غير آمن.</sys:String>
     <sys:String x:Key="LocAppPaths_OutsideProcessTempRoot">تعذر استخدام مسار خارج مجلد التطبيق المؤقت.</sys:String>
 
-    <sys:String x:Key="LocPaths_GeneralSection">عام</sys:String>
     <sys:String x:Key="LocLanguage_Arabic">العربية</sys:String>
     <sys:String x:Key="LocLanguage_English">الإنجليزية</sys:String>
 
@@ -1740,16 +1676,15 @@
     <sys:String x:Key="LocInputSafety_WarningFooterFormat">توجد {0} ملاحظة قبل الإضافة.</sys:String>
 
 
-    <sys:String x:Key="LocRedumpSettings_AutoSyncTitle">تحديث قاعدة Redump تلقائيا عند التشغيل</sys:String>
-    <sys:String x:Key="LocRedumpSettings_AutoSyncDesc">عند تفعيل هذا الخيار، سيتحقق التطبيق من وجود تحديثات لقاعدة Redump مرة واحدة أسبوعيا ويقوم بتثبيتها في الخلفية دون مقاطعة عملك.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_AutoSyncTooltip">تحديث قاعدة Redump تلقائيا عند التشغيل في حال مر أكثر من أسبوع على آخر تحديث ناجح.</sys:String>
     <sys:String x:Key="LocRedumpAutoSync_StartedFooter">جار تحديث قاعدة Redump في الخلفية…</sys:String>
     <sys:String x:Key="LocRedumpAutoSync_CompletedFooter">اكتمل تحديث قاعدة Redump في الخلفية. تم استيراد {0} نظام.</sys:String>
     <sys:String x:Key="LocRedumpAutoSync_FailedFooter">تعذر تحديث قاعدة Redump في الخلفية. يمكنك تحديثها يدويا عبر الإعدادات المتقدمة.</sys:String>
     <sys:String x:Key="LocRedumpAutoSync_SkippedRecentFooter">تم تخطي التحديث لأن قاعدة Redump محدثة بالفعل.</sys:String>
 
     <sys:String x:Key="LocProcessing_AutoM3uGeneration">إنشاء قوائم M3U للألعاب متعددة الأقراص</sys:String>
-    <sys:String x:Key="LocProcessing_AutoM3uGenerationDesc">بعد تحويل أقراص اللعبة الواحدة إلى صيغة CHD، سينشئ التطبيق قائمة M3U لتسهيل تشغيلها في المحاكيات. ملاحظة: هذه الميزة مخصصة لتحويلات CHD فقط.</sys:String>
+    <sys:String x:Key="LocProcessing_AutoM3uGenerationDesc">بعد تحويل أقراص اللعبة الواحدة إلى CHD، ينشئ قائمة M3U تسهل تشغيلها في المحاكيات.</sys:String>
+    <sys:String x:Key="LocProcessing_OverwriteM3u">استبدال قوائم M3U الموجودة</sys:String>
+    <sys:String x:Key="LocProcessing_OverwriteM3uDesc">إذا وجدت قائمة M3U بنفس الاسم تكتب من جديد. عند إيقافه تبقى القائمة الموجودة كما هي.</sys:String>
     <sys:String x:Key="LocFmt_M3uGeneratedFooter">تم إنشاء {0} قائمة M3U للألعاب متعددة الأقراص.</sys:String>
     <sys:String x:Key="LocPostProcessing_SbiCopyFailed">تعذر نسخ ملف SBI المساعد.</sys:String>
     <sys:String x:Key="LocPostProcessing_M3uGenerationFailed">تعذر إنشاء قائمة M3U.</sys:String>
@@ -1875,7 +1810,6 @@
     <sys:String x:Key="LocChdPolicy_UnknownIsoMediaKindRequired">لا يمكن اختيار أمر chdman لملف ISO مجهول النوع بالاعتماد على الامتداد فقط. تم إيقاف العملية حتى يعرف هل الوسيط CD أو DVD.</sys:String>
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">تم منع إعادة ضغط ملف CHD إلى CHD مباشرة. المسار الآمن هو استخراج ملف الوسائط الأصلي أولا، ثم إعادة بناء ملف CHD وفقا لسياسة المنصة.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">ملخص سريع للملفات قبل تجهيز قاعدة المطابقة.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">جار التحقق من الأداة...</sys:String>
     <sys:String x:Key="LocExternalTools_IgirStatusAvailable">متصل</sys:String>
     <sys:String x:Key="LocExternalTools_IgirStatusMissing">غير متوفر</sys:String>
@@ -1884,7 +1818,6 @@
     <sys:String x:Key="LocExternalTools_IgirSelect">اختيار igir.exe</sys:String>
     <sys:String x:Key="LocExternalTools_IgirToolFilter">igir (igir.exe)|igir.exe|ملفات تنفيذية (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_IgirInvalid">اختر igir.exe الرسمي إصدار 5.8.1 المطابق لبصمة SHA-256 المعتمدة.</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupNoteTitle">ملاحظة</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">تعذر التحقق من سلامة ملف CHD.&#x0A;قد يكون الملف تالفا، غير مكتمل، أو بصيغة غير مدعومة.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">تنبيه</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultDetailsTitle">التفاصيل</sys:String>
@@ -1897,6 +1830,18 @@
     <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">اختر ملف csokit.exe فقط وأبق CsoKit.Native.dll بجانبه.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitToolFilter">CsoKit (csokit.exe)|csokit.exe|ملفات تنفيذية (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_Browse">استعراض</sys:String>
+    <sys:String x:Key="LocExternalTools_IgirDescription">يطابق مجلدات الألعاب مع ملفات DAT ويكتب تقريرا فقط، دون نقل أو حذف أي ملف.</sys:String>
+    <sys:String x:Key="LocTools_BundledSection">الأدوات المرفقة</sys:String>
+    <sys:String x:Key="LocTools_ReplaceableSection">أدوات يمكن استبدالها</sys:String>
+    <sys:String x:Key="LocTools_UseBundled">استخدام المرفقة</sys:String>
+    <sys:String x:Key="LocTools_StateVerified">سليمة</sys:String>
+    <sys:String x:Key="LocTools_StateMissing">غير موجودة</sys:String>
+    <sys:String x:Key="LocTools_StateChanged">تغيرت بصمتها</sys:String>
+    <sys:String x:Key="LocTools_ChdmanPurpose">إنشاء ملفات CHD واستخراجها والتحقق منها.</sys:String>
+    <sys:String x:Key="LocTools_SevenZipPurpose">فك الأرشيفات قبل التحويل.</sys:String>
+    <sys:String x:Key="LocTools_XdvdfsPurpose">تحويل صور Xbox إلى XISO، وفك صور &#x200E;Xbox&#x200E; &#x200E;360&#x200E;.</sys:String>
+    <sys:String x:Key="LocTools_Iso2GodPurpose">تحويل صور &#x200E;Xbox&#x200E; &#x200E;360&#x200E; إلى Games on Demand.</sys:String>
+    <sys:String x:Key="LocTools_ZArchivePurpose">تحويل ألعاب &#x200E;Xbox&#x200E; &#x200E;360&#x200E; إلى ZAR لمحاكي Xenia.</sys:String>
 
     <sys:String x:Key="LocDeepHash_CsoStageTool">فحص أداة CSO...</sys:String>
     <sys:String x:Key="LocDeepHash_CsoStageInfo">قراءة معلومات CSO...</sys:String>

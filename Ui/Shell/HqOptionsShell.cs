@@ -45,6 +45,7 @@ internal sealed partial class HqOptionsShell : IDisposable
     private static readonly string ProcessingTabKey = OptionsWindow.ProcessingTabKey;
     private static readonly string ExternalToolsTabKey = OptionsWindow.ExternalToolsTabKey;
     private static readonly string PerformanceTabKey = OptionsWindow.PerformanceTabKey;
+    private static readonly string WindowsTabKey = OptionsWindow.WindowsTabKey;
 
     private static readonly ILogger Logger = Log.ForContext<HqOptionsShell>();
 

@@ -12,31 +12,14 @@ public partial class RedumpSettingsView : UserControl
 
     public event RoutedEventHandler? ImportRedumpDatabaseRequested;
 
-    public TextBlock DatabaseLastSyncedTextBlockView => DatabaseLastSyncedTextBlock;
-
-    public TextBlock DatabaseStatusTextBlockView => DatabaseStatusTextBlock;
-
-    public TextBox RedumpSystemNameTextBoxView => RedumpSystemNameTextBox;
-
-    public Button BrowseRedumpDatButtonView => BrowseRedumpDatButton;
-
-    public TextBox RedumpDatPathTextBoxView => RedumpDatPathTextBox;
-
     public Button ImportRedumpDatabaseButtonView => ImportRedumpDatabaseButton;
 
     public ProgressBar RedumpImportProgressBarView => RedumpImportProgressBar;
 
     public TextBlock RedumpImportStatusTextBlockView => RedumpImportStatusTextBlock;
 
-    public Border IntegrityFeatureCardView => IntegrityFeatureCard;
-
-    public CheckBox EnableDeepIntegrityCheckCheckBoxView => EnableDeepIntegrityCheckCheckBox;
-
-    public CheckBox ApplyStandardNamingBasedOnHashCheckBoxView => ApplyStandardNamingBasedOnHashCheckBox;
-
     private void ImportRedumpDatabaseButton_Click(object sender, RoutedEventArgs e)
     {
         ImportRedumpDatabaseRequested?.Invoke(sender, e);
     }
-
 }

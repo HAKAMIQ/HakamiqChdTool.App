@@ -51,6 +51,8 @@ internal static partial class Program
                     ("Options-Paths", () => CreateOptionsMatrixWindow(OptionsWindow.PathsTabKey)),
                     ("Options-Redump", () => CreateOptionsMatrixWindow(OptionsWindow.RedumpTabKey)),
                     ("Options-Performance", () => CreateOptionsMatrixWindow(OptionsWindow.PerformanceTabKey)),
+                    ("Options-Windows", () => CreateOptionsMatrixWindow(OptionsWindow.WindowsTabKey)),
+                    ("Options-Tools", () => CreateOptionsMatrixWindow(OptionsWindow.ExternalToolsTabKey)),
                     ("VerificationResult", () => new VerificationResultDialog(new QueueVerifyView(
                         "Verification result", "The file was verified.", "File", "Some Game (Europe) (En,Fr,De,Es,It).chd",
                         "Status", "Verified", "Details", "All hunks match. SHA-1 matches the CHD header.",
@@ -98,6 +100,10 @@ internal static partial class Program
                             window.FlowDirection = language == "ar-SA" ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
                             window.Show();
                             PumpDispatcher(window.Dispatcher, TimeSpan.FromMilliseconds(80));
+                            if (name == "Options-Performance" && window is OptionsWindow searchWindow)
+                            {
+                                CheckOptionsSearch(searchWindow, $"{name}/{language}/{theme}", findings);
+                            }
 
                             foreach ((double scale, double w, double h) in displays)
                             {
@@ -143,6 +149,54 @@ internal static partial class Program
         AssertEqual(0, findings.Distinct().Count(), "The dialogs have no clipped, unreachable or unnamed controls.");
     }
 
+    // The Options search, in the real window with the app's resources: it shows only matching rows in every tab, opens
+    // a tab that has a match, reports no matches, and shows everything again when cleared.
+    private static void CheckOptionsSearch(OptionsWindow window, string context, List<string> findings)
+    {
+        static IEnumerable<HakamiqChdTool.App.Views.Options.OptRow> Rows(DependencyObject parent)
+        {
+            foreach (object child in LogicalTreeHelper.GetChildren(parent))
+            {
+                if (child is DependencyObject node)
+                {
+                    if (node is HakamiqChdTool.App.Views.Options.OptRow row)
+                    {
+                        yield return row;
+                    }
+
+                    foreach (var nested in Rows(node))
+                    {
+                        yield return nested;
+                    }
+                }
+            }
+        }
+
+        var rows = Rows(window).ToList();
+        int matches = window.FilterOptions("M3U");
+        if (matches < 2 || window.ActiveTabKey != OptionsWindow.PathsTabKey)
+        {
+            findings.Add($"{context}: search 'M3U' found {matches} rows and opened {window.ActiveTabKey}, expected the two M3U rows in the Files tab.");
+        }
+
+        if (!rows.Any(r => r.IsFilteredOut) || rows.Count(r => !r.IsFilteredOut) != matches)
+        {
+            findings.Add($"{context}: search did not hide the rows that do not match.");
+        }
+
+        if (window.FilterOptions("zzzz-no-such-option") != 0 || !window.ViewModel.SearchHasNoResults)
+        {
+            findings.Add($"{context}: a search with no match did not report it.");
+        }
+
+        window.FilterOptions(string.Empty);
+        if (rows.Any(r => r.IsFilteredOut) || window.ViewModel.SearchHasNoResults)
+        {
+            findings.Add($"{context}: clearing the search did not show every row again.");
+        }
+
+        window.SelectTab(OptionsWindow.PerformanceTabKey);
+    }
     // Options with every optional row visible (custom folders, external chdman, watch folder, Redump sections), so the
     // matrix measures the path boxes and the rows that only appear when an option is on.
     private static Window CreateOptionsMatrixWindow(string tabKey)

@@ -244,19 +244,6 @@ public sealed partial class OptionsViewModel
             0);
     }
 
-    private static string FirstNonEmpty(params string?[] values)
-    {
-        foreach (string? value in values)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                return value.Trim();
-            }
-        }
-
-        return "Redump";
-    }
-
     private readonly record struct RedumpLocalLibraryImportSummary(
         int ImportedFileCount,
         int ImportedRows,

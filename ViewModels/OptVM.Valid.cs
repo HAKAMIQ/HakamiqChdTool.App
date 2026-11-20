@@ -22,6 +22,7 @@ public sealed partial class OptionsViewModel
         ValidateProperty(ExternalChdmanPathValidationProxy, nameof(ExternalChdmanPathValidationProxy));
         ValidateProperty(SelectedProcessorValueValidationProxy, nameof(SelectedProcessorValueValidationProxy));
         ValidateProperty(SelectedConcurrentConversionValueValidationProxy, nameof(SelectedConcurrentConversionValueValidationProxy));
+        ValidateProperty(WatchFolderPathValidationProxy, nameof(WatchFolderPathValidationProxy));
     }
 
     public string? GetFirstErrorMessage()
@@ -47,7 +48,8 @@ public sealed partial class OptionsViewModel
             nameof(RedumpLocalLibraryRootValidationProxy),
             nameof(ExternalChdmanPathValidationProxy),
             nameof(SelectedProcessorValueValidationProxy),
-            nameof(SelectedConcurrentConversionValueValidationProxy)
+            nameof(SelectedConcurrentConversionValueValidationProxy),
+            nameof(WatchFolderPathValidationProxy)
         ];
 
         foreach (string propertyName in propertyNames)
@@ -210,5 +212,59 @@ public sealed partial class OptionsViewModel
     private static ValidationResult Error(string key, params string[] memberNames)
     {
         return new ValidationResult(ArabicUi.Get(key), memberNames);
+    }
+
+    [CustomValidation(typeof(OptionsViewModel), nameof(ValidateWatchFolderPath))]
+    public string WatchFolderPathValidationProxy => WatchFolderPath;
+
+    // A watch folder that is on must name an existing folder, or the main window cannot watch it.
+    public static ValidationResult? ValidateWatchFolderPath(string _, ValidationContext context)
+    {
+        if (context.ObjectInstance is not OptionsViewModel vm || !vm.WatchFolderEnabled)
+        {
+            return ValidationResult.Success;
+        }
+
+        if (string.IsNullOrWhiteSpace(vm.WatchFolderPath))
+        {
+            return Error("LocWatch_ErrorFolderRequired", nameof(WatchFolderPath));
+        }
+
+        return TryGetSafeOptionsDirectory(vm.WatchFolderPath.Trim(), out _)
+            ? ValidationResult.Success
+            : Error("LocWatch_ErrorFolderMissing", nameof(WatchFolderPath));
+    }
+
+    // The first error of each path field, shown in red under the field itself.
+    public string CustomOutputRootError => FirstError(nameof(CustomOutputRootValidationProxy));
+
+    public string PendingWorkspaceError => FirstError(nameof(PendingWorkspaceCustomRootValidationProxy));
+
+    public string ExternalChdmanPathError => FirstError(nameof(ExternalChdmanPathValidationProxy));
+
+    public string RedumpLocalFolderError => FirstError(nameof(RedumpLocalLibraryRootValidationProxy));
+
+    public string WatchFolderError => FirstError(nameof(WatchFolderPathValidationProxy));
+
+    private string FirstError(string proxyName) => GetErrors(proxyName)
+        .Select(static result => result.ErrorMessage)
+        .FirstOrDefault(static message => !string.IsNullOrWhiteSpace(message)) ?? string.Empty;
+
+    private void NotifyFieldError(string? proxyName)
+    {
+        string? errorProperty = proxyName switch
+        {
+            nameof(CustomOutputRootValidationProxy) => nameof(CustomOutputRootError),
+            nameof(PendingWorkspaceCustomRootValidationProxy) => nameof(PendingWorkspaceError),
+            nameof(ExternalChdmanPathValidationProxy) => nameof(ExternalChdmanPathError),
+            nameof(RedumpLocalLibraryRootValidationProxy) => nameof(RedumpLocalFolderError),
+            nameof(WatchFolderPathValidationProxy) => nameof(WatchFolderError),
+            _ => null
+        };
+
+        if (errorProperty is not null)
+        {
+            OnPropertyChanged(errorProperty);
+        }
     }
 }
