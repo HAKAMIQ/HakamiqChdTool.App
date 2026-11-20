@@ -72,4 +72,69 @@ internal static partial class Program
             Directory.Delete(root, recursive: true);
         }
     }
+
+    // Restore defaults resets the options shown in the window and nothing else: language, theme, chosen tool paths,
+    // the Xbox 360 format, Redump sync data and settings with no control keep their values.
+    private static void TestRestoreDefaultsKeepsSettingsOutsideTheWindow()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var source = new AppSettings
+                {
+                    UiLanguage = "en-US",
+                    Theme = "Light",
+                    ExternalCsoKitPath = @"C:\Tools\csokit.exe",
+                    ExternalIgirPath = @"C:\Tools\igir.exe",
+                    Xbox360Format = "zar",
+                    RedumpLastSyncedUtc = "2026-11-01T10:00:00Z",
+                    EnableDiskSpaceGuard = false,
+                    ReservedLogicalCores = 4,
+                    VerifyAfterConversion = false,
+                    IncludeSubfolders = true,
+                    MaxConcurrentConversions = 3
+                };
+
+                var options = new HakamiqChdTool.App.ViewModels.OptionsViewModel();
+                options.Load(source);
+                options.ApplyProgramDefaults();
+                AppSettings result = options.BuildResultSettings(source);
+
+                AssertTrue(result.VerifyAfterConversion, "A visible option goes back to its default.");
+                AssertFalse(result.IncludeSubfolders, "Another visible option goes back to its default.");
+                AssertEqual(AppSettings.DefaultMaxConcurrentConversions, result.MaxConcurrentConversions, "Performance options go back to their defaults.");
+                AssertEqual("en-US", result.UiLanguage, "The language is kept.");
+                AssertEqual("Light", result.Theme, "The theme is kept.");
+                AssertEqual(@"C:\Tools\csokit.exe", result.ExternalCsoKitPath, "The chosen CsoKit path is kept.");
+                AssertEqual(@"C:\Tools\igir.exe", result.ExternalIgirPath, "The chosen igir path is kept.");
+                AssertEqual("zar", result.Xbox360Format, "The Xbox 360 format is kept.");
+                AssertEqual("2026-11-01T10:00:00Z", result.RedumpLastSyncedUtc, "Redump sync data is kept.");
+                AssertFalse(result.EnableDiskSpaceGuard, "A setting with no control is kept.");
+                AssertEqual(4, result.ReservedLogicalCores, "Another setting with no control is kept.");
+            }
+            catch (Exception ex)
+            {
+                failure = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null)
+        {
+            throw failure;
+        }
+    }
+
+    // Only one Options window is open at a time; a second request (tray menu, automation) brings it forward.
+    private static void TestOnlyOneOptionsWindowOpens()
+    {
+        string modals = File.ReadAllText(FindRepoFile(Path.Combine("Views", "MainWindow", "MW.Modals.cs")));
+        AssertTrue(modals.Contains("if (_openOptionsDialog is not null)", StringComparison.Ordinal)
+            && modals.Contains("_openOptionsDialog.Activate();", StringComparison.Ordinal), "An open Options window is brought forward instead of opening another.");
+        AssertTrue(modals.Contains("_openOptionsDialog = dialog;", StringComparison.Ordinal)
+            && modals.Contains("_openOptionsDialog = null;", StringComparison.Ordinal), "The open window is tracked while it is shown and released when it closes.");
+    }
 }

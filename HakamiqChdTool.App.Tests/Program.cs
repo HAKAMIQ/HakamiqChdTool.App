@@ -391,6 +391,8 @@ internal static partial class Program
                 new("Auto threads are shared when several files convert at once", TestAutoThreadsAreSharedAcrossConcurrentConversions),
                 new("A disc platform profile lets other disc types use Auto", TestPlatformProfileFallsBackToAutoForOtherInputs),
                 new("A chosen igir that is not the pinned build keeps the bundled igir", TestChosenIgirDoesNotDisableBundledIgir),
+                new("Restore defaults resets only the options in the window", TestRestoreDefaultsKeepsSettingsOutsideTheWindow),
+                new("Only one Options window opens at a time", TestOnlyOneOptionsWindowOpens),
                 new("Options window shows the CPU name, igir version and Windows hints readably", TestOptionsWindowLayoutFixes),
                 new("Tray balloon after a run shows the run summary with the space saved", TestTrayBalloonUsesRunSummary),
                 new("Recompress picks codecs by media type and never targets the source folder or an existing file", TestRecompressPlanning),

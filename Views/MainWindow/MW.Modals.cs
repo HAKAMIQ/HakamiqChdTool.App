@@ -12,8 +12,17 @@ namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
+    private OptionsWindow? _openOptionsDialog;
+
+    // One Options window at a time: a second request (tray menu, automation) brings the open one forward.
     internal void OpenOptionsDialog(string? initialTabKey = null)
     {
+        if (_openOptionsDialog is not null)
+        {
+            _openOptionsDialog.Activate();
+            return;
+        }
+
         OptionsWindow dialog;
         try
         {
@@ -91,12 +100,14 @@ public partial class MainWindow
         dialog.SettingsApplied += Dialog_SettingsApplied;
 
         bool? result;
+        _openOptionsDialog = dialog;
         try
         {
             result = dialog.ShowDialog();
         }
         finally
         {
+            _openOptionsDialog = null;
             dialog.SettingsApplied -= Dialog_SettingsApplied;
         }
 
