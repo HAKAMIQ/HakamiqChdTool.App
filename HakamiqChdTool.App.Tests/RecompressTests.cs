@@ -15,6 +15,10 @@ internal static partial class Program
         AssertTrue(ChdRecompressService.TryResolveCodecs("DVD-ROM", "preset:default", out string dvd) && dvd == "lzma,zlib,huff,flac", "The default for DVD is chdman's createdvd default.");
         AssertTrue(ChdRecompressService.TryResolveCodecs("HD-ROM", "preset:fast", out string hd) && hd == "zstd,flac", "Hard-disk CHDs use the general codecs.");
         AssertFalse(ChdRecompressService.TryResolveCodecs("Unknown", "preset:max", out _), "An unknown media type is refused.");
+        AssertTrue(ChdRecompressService.IsWorthKeeping(1000, 990), "Saving 1% keeps the copy.");
+        AssertFalse(ChdRecompressService.IsWorthKeeping(46_751_401, 46_747_231), "A few kilobytes on a large file is not worth keeping.");
+        AssertFalse(ChdRecompressService.IsWorthKeeping(1000, 1000), "The same size is not kept.");
+        AssertFalse(ChdRecompressService.IsWorthKeeping(1000, 0), "An empty result is not kept.");
 
         string root = Path.Combine(Path.GetTempPath(), "hct-recompress-plan-" + Guid.NewGuid().ToString("N"));
         try

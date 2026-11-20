@@ -33,7 +33,7 @@ public sealed record RecompressResult(
 /// <summary>
 /// Recompresses an existing CHD with <c>chdman copy</c>. The new file is written beside its final path under
 /// a temporary name, checked with <c>chdman verify</c>, and compared with the source by the SHA-1 values
-/// chdman reports (overall and data). It is kept only if it is smaller. The source is replaced only when the
+/// chdman reports (overall and data). It is kept only if it saves at least 1%. The source is replaced only when the
 /// caller asks for it; otherwise the new file goes to another folder and never overwrites an existing file.
 /// The source stays open for reading (no writers, no rename or delete) until the result is decided.
 /// </summary>
@@ -234,7 +234,7 @@ internal sealed class ChdRecompressService
             }
 
             long newBytes = TryGetLength(pendingPath);
-            if (newBytes <= 0 || newBytes >= originalBytes)
+            if (!IsWorthKeeping(originalBytes, newBytes))
             {
                 return Result(RecompressOutcome.NoGain, NoGainKey, newBytes: newBytes);
             }
@@ -273,6 +273,11 @@ internal sealed class ChdRecompressService
             }
         }
     }
+
+    /// <summary>A copy is kept only when it saves at least 1%; files already made with strong compression
+    /// usually gain a few kilobytes, which is not worth a second file or a replacement.</summary>
+    public static bool IsWorthKeeping(long originalBytes, long newBytes) =>
+        newBytes > 0 && originalBytes > 0 && newBytes <= originalBytes - Math.Max(1, originalBytes / 100);
 
     private static long TryGetLength(string path)
     {
