@@ -3,6 +3,7 @@ using System.Windows;
 
 using HakamiqChdTool.App.Services;
 using Hardcodet.Wpf.TaskbarNotification;
+using Serilog;
 
 namespace HakamiqChdTool.App;
 
@@ -75,14 +76,18 @@ public partial class MainWindow
     {
         if (processedSelectionOnly || _shutdownStarted || _shutdownCompleted)
         {
+            Log.Debug("Tray run notification skipped. SelectionOnly={SelectionOnly} Shutdown={Shutdown}", processedSelectionOnly, _shutdownStarted || _shutdownCompleted);
             return;
         }
 
         if (IsVisible && WindowState != WindowState.Minimized && IsActive)
         {
+            Log.Debug("Tray run notification skipped because the window is in front.");
             return;
         }
 
+        bool iconReady = TrayNotifyIcon.IsTaskbarIconCreated;
         TrayNotifyIcon.ShowBalloonTip(runSummary.Title, runSummary.Message, BalloonIcon.Info);
+        Log.Information("Tray run notification sent. TrayIconCreated={TrayIconCreated} WindowState={WindowState}", iconReady, WindowState);
     }
 }
