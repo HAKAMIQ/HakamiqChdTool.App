@@ -18,6 +18,9 @@ it are the detailed record.
 - After a run, a bar above the queue shows how many items finished, failed or
   were skipped, the space saved and the time taken, with a Details button for
   the full report.
+- Target emulator setting: PCSX2 and PPSSPP (DVD CHDs with 2048-byte hunks)
+  or RetroArch and older emulators (no zstd). Automatic, the default, keeps
+  the current behavior.
 - Recompress CHD files (Tools in the sidebar): makes existing CHDs smaller with
   stronger compression. Each new file is verified and matched against the
   original, and kept only if it saves at least 1%. New files go to another
