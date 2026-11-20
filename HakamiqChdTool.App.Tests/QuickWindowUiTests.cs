@@ -126,6 +126,54 @@ internal static partial class Program
         }
     }
 
+    // The quick window option loads, saves and marks unsaved changes, sits under the Explorer menu option, and is
+    // available only while that option is on.
+    private static void TestQuickWindowSettingInOptions()
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var options = new OptionsViewModel();
+                options.Load(new AppSettings { ExplorerOpensQuickWindow = false });
+                AssertFalse(options.ExplorerOpensQuickWindow, "The saved setting is loaded into Options.");
+
+                options.ExplorerOpensQuickWindow = true;
+                AssertTrue(options.BuildResultSettings(new AppSettings { ExplorerOpensQuickWindow = false }).ExplorerOpensQuickWindow, "Options saves the new value.");
+
+                System.Reflection.MethodInfo equal = typeof(OptionsViewModel).GetMethod("CurrentValuesEqual", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+                AssertFalse((bool)equal.Invoke(options, [new AppSettings { ExplorerOpensQuickWindow = false }])!, "A changed value counts as an unsaved change.");
+            }
+            catch (Exception ex)
+            {
+                failure = ex is System.Reflection.TargetInvocationException { InnerException: { } inner } ? inner : ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure is not null)
+        {
+            throw failure;
+        }
+
+        Dictionary<string, string> arabic = LoadStrings("ArabicStrings.xaml");
+        Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");
+        foreach (string key in new[] { "LocOptions_ExplorerQuickWindow", "LocOptions_ExplorerQuickWindowDesc" })
+        {
+            AssertTrue(arabic.TryGetValue(key, out string? ar) && ar.Trim().Length > 0, $"{key} has Arabic text.");
+            AssertTrue(english.TryGetValue(key, out string? en) && en.Trim().Length > 0, $"{key} has English text.");
+        }
+
+        string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PerfView.xaml")));
+        AssertTrue(view.Contains("IsChecked=\"{Binding ExplorerOpensQuickWindow, Mode=TwoWay", StringComparison.Ordinal), "The checkbox is bound to the setting.");
+        AssertTrue(view.Contains("AutomationProperties.Name=\"{DynamicResource LocOptions_ExplorerQuickWindow}\"", StringComparison.Ordinal), "The checkbox has an accessible name.");
+        AssertTrue(view.Contains("IsEnabled=\"{Binding ExplorerMenuEnabled}\"", StringComparison.Ordinal), "The option is available only while the Explorer menu is on.");
+        AssertTrue(view.IndexOf("ExplorerMenuDescriptionText", StringComparison.Ordinal) < view.IndexOf("ExplorerQuickWindowCheckBox", StringComparison.Ordinal),
+            "The option sits under the Explorer menu option.");
+    }
+
     // A quick window with two waiting files and the delete warning, for the window layout matrix.
     private static Window CreateQuickRunMatrixWindow(string workDirectory)
     {

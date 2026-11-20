@@ -269,7 +269,33 @@
                                                    Text="{DynamicResource LocOptions_ExplorerMenuDesc}"
                                                    Style="{StaticResource Win11SettingsRowDescriptionText}"
                                                    TextAlignment="Left"
-                                                   TextTrimming="None" />
+                                                   TextTrimming="None" />                                        <Grid Margin="{DynamicResource Inset.0.8.0.0}"
+                                              IsEnabled="{Binding ExplorerMenuEnabled}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <CheckBox x:Name="ExplorerQuickWindowCheckBox"
+                                                      Grid.Column="0"
+                                                      VerticalAlignment="Top"
+                                                      IsChecked="{Binding ExplorerOpensQuickWindow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                      Style="{StaticResource Win11SettingsCheckBox}"
+                                                      ToolTip="{DynamicResource LocOptions_ExplorerQuickWindowDesc}"
+                                                      AutomationProperties.Name="{DynamicResource LocOptions_ExplorerQuickWindow}" />
+
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="{DynamicResource LocOptions_ExplorerQuickWindow}"
+                                                           Style="{StaticResource Win11SettingsRowTitleText}"
+                                                           TextAlignment="Left" />
+                                                <TextBlock x:Name="ExplorerQuickWindowDescriptionText"
+                                                           Text="{DynamicResource LocOptions_ExplorerQuickWindowDesc}"
+                                                           Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                           TextAlignment="Left"
+                                                           TextTrimming="None" />
+                                            </StackPanel>
+                                        </Grid>
                                     </StackPanel>
                                 </Grid>
                             </Grid>

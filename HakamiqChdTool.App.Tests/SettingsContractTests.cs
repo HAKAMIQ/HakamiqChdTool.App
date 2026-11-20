@@ -53,7 +53,7 @@ internal static partial class Program
         ["DeleteSourceAfterVerifiedExtraction"] = new(SettingKind.Effect, "The CHD is deleted only after a proven extraction.", nameof(TestExtractionSourceCleanupRequiresOutputProof)),
         ["ExtractGdRomAsCueBin"] = new(SettingKind.Effect, "GD-ROM extracts to CUE/BIN instead of GDI.", nameof(TestGdRomExtractionPicksGdi)),
         ["ExplorerMenuEnabled"] = new(SettingKind.Effect, "Adds or removes the Explorer menu entries.", nameof(TestExplorerMenuRegistersAndRemovesOnlyItsOwnKeys)),
-        ["ExplorerOpensQuickWindow"] = new(SettingKind.Effect, "An Explorer menu launch opens the quick window or the main window.", nameof(TestQuickWindowFollowsTheSetting)),
+        ["ExplorerOpensQuickWindow"] = new(SettingKind.Effect, "An Explorer menu launch opens the quick window or the main window.", nameof(TestQuickWindowFollowsTheSetting), nameof(TestQuickWindowSettingInOptions)),
         ["WatchFolderEnabled"] = new(SettingKind.Effect, "Starts or stops watching the folder.", nameof(TestWatchFolderSettingInOptions), nameof(TestWatchFolderReportsALostFolderOnce)),
         ["WatchFolderPath"] = new(SettingKind.Effect, "The folder that is watched.", nameof(TestWatchFolderSettingInOptions), nameof(TestWatchFolderReportsALostFolderOnce)),
         ["EnableDeepIntegrityCheck"] = new(SettingKind.Gap, "Adds the full read of each source before converting; no test runs a conversion with it on."),

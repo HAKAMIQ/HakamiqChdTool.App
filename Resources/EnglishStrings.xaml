@@ -528,6 +528,8 @@
     <sys:String x:Key="LocOptions_WindowsSection">Windows integration</sys:String>
     <sys:String x:Key="LocOptions_ExplorerMenu">Add CHD Tool to the Explorer right-click menu</sys:String>
     <sys:String x:Key="LocOptions_ExplorerMenuDesc">Adds Convert to CHD to disc images and archives, Extract CHD and Verify CHD to CHD files, and a CHD Tool menu to folders, for your Windows account only. On Windows 11 the entries are under Show more options. Turn this off before you delete the app folder.</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerQuickWindow">Open a small window when you choose from Explorer</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerQuickWindowDesc">If CHD Tool is closed, a small window processes the files right away with your saved settings. If it is open, the files are added to it as usual.</sys:String>
     <sys:String x:Key="LocShell_ConvertToChd">Convert to CHD</sys:String>
     <sys:String x:Key="LocShell_ExtractChd">Extract CHD</sys:String>
     <sys:String x:Key="LocShell_VerifyChd">Verify CHD</sys:String>

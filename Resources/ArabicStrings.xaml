@@ -528,6 +528,8 @@
     <sys:String x:Key="LocOptions_WindowsSection">التكامل مع ويندوز</sys:String>
     <sys:String x:Key="LocOptions_ExplorerMenu">إضافة CHD Tool إلى قائمة الزر الأيمن في المستكشف</sys:String>
     <sys:String x:Key="LocOptions_ExplorerMenuDesc">يضيف «تحويل إلى CHD» لصور الأقراص والأرشيفات، و«استخراج CHD» و«تحقق من CHD» لملفات CHD، وقائمة CHD Tool للمجلدات، لحسابك في ويندوز فقط. في ويندوز 11 تجدها تحت «إظهار المزيد من الخيارات». أوقف هذا الخيار قبل حذف مجلد البرنامج.</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerQuickWindow">فتح نافذة صغيرة عند الاختيار من المستكشف</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerQuickWindowDesc">إذا كان البرنامج مغلقا، تفتح نافذة صغيرة تعالج الملفات مباشرة بإعداداتك المحفوظة. إذا كان مفتوحا، تضاف الملفات إليه كالمعتاد.</sys:String>
     <sys:String x:Key="LocShell_ConvertToChd">تحويل إلى CHD</sys:String>
     <sys:String x:Key="LocShell_ExtractChd">استخراج CHD</sys:String>
     <sys:String x:Key="LocShell_VerifyChd">تحقق من CHD</sys:String>

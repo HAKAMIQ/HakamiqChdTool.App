@@ -87,6 +87,7 @@ public sealed partial class OptionsViewModel
             && DeleteSourceAfterVerifiedExtraction == snapshot.DeleteSourceAfterVerifiedExtraction
             && ExtractGdRomAsCueBin == snapshot.ExtractGdRomAsCueBin
             && ExplorerMenuEnabled == snapshot.ExplorerMenuEnabled
+            && ExplorerOpensQuickWindow == snapshot.ExplorerOpensQuickWindow
             && WatchFolderEnabled == snapshot.WatchFolderEnabled
             && StringEquals(WatchFolderPath.Trim(), snapshot.WatchFolderPath)
             && EnableDeepIntegrityCheck == snapshot.EnableDeepIntegrityCheck

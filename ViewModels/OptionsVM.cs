@@ -40,6 +40,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _deleteSourceAfterVerifiedExtraction;
     private bool _extractGdRomAsCueBin;
     private bool _explorerMenuEnabled;
+    private bool _explorerOpensQuickWindow = true;
     private bool _watchFolderEnabled;
     private string _watchFolderPath = string.Empty;
     private bool _enableDeepIntegrityCheck;
@@ -505,6 +506,12 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         get => _explorerMenuEnabled;
         set => SetProperty(ref _explorerMenuEnabled, value);
+    }
+
+    public bool ExplorerOpensQuickWindow
+    {
+        get => _explorerOpensQuickWindow;
+        set => SetProperty(ref _explorerOpensQuickWindow, value);
     }
 
     public bool WatchFolderEnabled
