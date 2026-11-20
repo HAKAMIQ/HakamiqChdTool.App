@@ -185,6 +185,20 @@ internal static partial class Program
         AssertEqual(0, repeated.Length, "No English duplicate in brackets: " + string.Join(", ", repeated));
     }
 
+    // The header language button switches the language live, so no "restart to apply the language" text is kept.
+    private static void TestLanguageSwitchesWithoutRestart()
+    {
+        string header = File.ReadAllText(FindRepoFile(Path.Combine("Views", "MainWindow", "MW.Header.cs")));
+        AssertTrue(header.Contains("AppLanguageService.Instance.ToggleLanguage()", StringComparison.Ordinal),
+            "The language button switches the language in the running app.");
+
+        string restartPrefix = "Loc" + "LanguageRestart_";
+        Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");
+        Dictionary<string, string> arabic = LoadStrings("ArabicStrings.xaml");
+        AssertFalse(english.Keys.Concat(arabic.Keys).Any(key => key.StartsWith(restartPrefix, StringComparison.Ordinal)),
+            "No leftover text tells the user to restart for a language change.");
+    }
+
     // The CPU name, igir version and Windows integration hints render readably in Arabic.
     private static void TestOptionsWindowLayoutFixes()
     {

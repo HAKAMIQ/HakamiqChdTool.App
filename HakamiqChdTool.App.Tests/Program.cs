@@ -357,6 +357,7 @@ internal static partial class Program
                 new("The hidden Redump download button is removed", TestHiddenRedumpDownloadUiIsRemoved),
                 new("Options keep the saved Redump URL", TestOptionsKeepTheSavedRedumpUrl),
                 new("Arabic text stays plain", TestArabicTextStaysPlain),
+                new("Language switches without a restart", TestLanguageSwitchesWithoutRestart),
                 new("Organize by region builds the region folder", TestOrganizeByRegionBuildsTheRegionFolder),
                 new("Skip existing output leaves the existing CHD and the source alone", TestSkipExistingOutputLeavesTheExistingChd),
                 new("M3U lists discs in order and keeps an existing playlist", TestM3uListsDiscsInOrderAndKeepsExistingFiles),

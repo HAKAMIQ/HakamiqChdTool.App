@@ -1374,7 +1374,6 @@
     <sys:String x:Key="LocGeneralSettings_Description">ضبط الإعدادات العامة التي تنطبق على واجهة التطبيق بالكامل.</sys:String>
     <sys:String x:Key="LocGeneralSettings_AppearanceSection">اللغة والمظهر</sys:String>
     <sys:String x:Key="LocGeneralSettings_LanguageTitle">لغة الواجهة</sys:String>
-    <sys:String x:Key="LocGeneralSettings_LanguageDescription">تحديد لغة واجهة البرنامج. يتم حفظ التغيير فورا، وقد تحتاج بعض النوافذ المفتوحة إلى إعادة فتحها لتحديث كامل النصوص.</sys:String>
 
     <sys:String x:Key="LocGeneralSettings_ThemeTitle">المظهر</sys:String>
     <sys:String x:Key="LocGeneralSettings_ThemeDescription">تحديد المظهر العام للتطبيق. (يطبق التغيير فور الضغط على 'تطبيق' أو 'موافق').</sys:String>
@@ -1541,8 +1540,6 @@
     <sys:String x:Key="LocAppPaths_OutsideProcessTempRoot">تعذر استخدام مسار خارج مجلد التطبيق المؤقت.</sys:String>
 
     <sys:String x:Key="LocPaths_GeneralSection">عام</sys:String>
-    <sys:String x:Key="LocPaths_UiLanguage">لغة الواجهة</sys:String>
-    <sys:String x:Key="LocPaths_UiLanguageDesc">تحديد لغة واجهة التطبيق. (يتم حفظ التغيير عند الضغط على 'تطبيق').</sys:String>
     <sys:String x:Key="LocLanguage_Arabic">العربية</sys:String>
     <sys:String x:Key="LocLanguage_English">الإنجليزية</sys:String>
 
@@ -1559,10 +1556,6 @@
     <sys:String x:Key="LocQueue_RedumpVerifyButton">التحقق عبر Redump</sys:String>
     <sys:String x:Key="LocQueue_RedumpVerifyTooltip">إجراء فحص Redump يدويا لهذا الملف.</sys:String>
 
-    <sys:String x:Key="LocLanguageRestart_Title">تغيير اللغة</sys:String>
-    <sys:String x:Key="LocLanguageRestart_Body">يتطلب تغيير اللغة إعادة تشغيل التطبيق. هل تريد إعادة التشغيل الآن؟</sys:String>
-    <sys:String x:Key="LocLanguageRestart_BlockedBody">تم حفظ اللغة الجديدة. أعد تشغيل التطبيق بعد انتهاء المعالجة لتطبيقها كاملة.</sys:String>
-    <sys:String x:Key="LocLanguageRestart_FailedBody">تم حفظ اللغة الجديدة، لكن تعذرت إعادة التشغيل تلقائيا. أغلق التطبيق وافتحه من جديد.</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_ReportOnly">معلومة فقط</sys:String>
 
     <sys:String x:Key="LocUi_Header_Minimize">تصغير</sys:String>

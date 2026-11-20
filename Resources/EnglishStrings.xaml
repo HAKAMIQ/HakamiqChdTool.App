@@ -1380,7 +1380,6 @@ Path:
     <sys:String x:Key="LocGeneralSettings_Description">Settings that apply to the whole app.</sys:String>
     <sys:String x:Key="LocGeneralSettings_AppearanceSection">Language and appearance</sys:String>
     <sys:String x:Key="LocGeneralSettings_LanguageTitle">Display language</sys:String>
-    <sys:String x:Key="LocGeneralSettings_LanguageDescription">Choose the app display language. The change is saved immediately; some open windows may need to be reopened to refresh all text.</sys:String>
 
     <sys:String x:Key="LocGeneralSettings_ThemeTitle">Appearance</sys:String>
     <sys:String x:Key="LocGeneralSettings_ThemeDescription">Choose the app appearance. The change is applied when you select Apply or OK.</sys:String>
@@ -1547,8 +1546,6 @@ Path:
     <sys:String x:Key="LocAppPaths_OutsideProcessTempRoot">Cannot use a path outside the app temporary folder.</sys:String>
 
     <sys:String x:Key="LocPaths_GeneralSection">General</sys:String>
-    <sys:String x:Key="LocPaths_UiLanguage">Display language</sys:String>
-    <sys:String x:Key="LocPaths_UiLanguageDesc">Choose the app display language. The change is saved when you select Apply.</sys:String>
     <sys:String x:Key="LocLanguage_Arabic">Arabic</sys:String>
     <sys:String x:Key="LocLanguage_English">English</sys:String>
 
@@ -1565,10 +1562,6 @@ Path:
     <sys:String x:Key="LocQueue_RedumpVerifyButton">Check with Redump</sys:String>
     <sys:String x:Key="LocQueue_RedumpVerifyTooltip">Run a manual Redump check for this file.</sys:String>
 
-    <sys:String x:Key="LocLanguageRestart_Title">Display language</sys:String>
-    <sys:String x:Key="LocLanguageRestart_Body">Changing the display language requires restarting the app. Restart now?</sys:String>
-    <sys:String x:Key="LocLanguageRestart_BlockedBody">The new language was saved. Restart the app after processing finishes to apply it fully.</sys:String>
-    <sys:String x:Key="LocLanguageRestart_FailedBody">The new language was saved, but automatic restart could not start. Close and open the app again.</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_ReportOnly">Guidance only</sys:String>
 
     <sys:String x:Key="LocUi_Header_Minimize">Minimize</sys:String>
