@@ -22,6 +22,11 @@ it are the detailed record.
 - After a run, a bar above the queue shows how many items finished, failed or
   were skipped, the space saved and the time taken, with a Details button for
   the full report.
+- Advanced options read more clearly: Arabic text has no diacritics, labels
+  drop repeated "(recommended)" marks and English duplicates, the CPU name and
+  igir version show in the right order, and the Explorer menu and watch folder
+  options explain themselves on screen (on Windows 11 the menu entries are
+  under Show more options).
 - "When done" next to the queue buttons: sleep or shut down the computer
   after the run, with a 60-second countdown you can cancel. It applies to one
   run, is never saved, and does nothing after a stopped run.

@@ -594,7 +594,7 @@
     <sys:String x:Key="LocRecompress_Replaced">Replaced with a smaller, verified copy.</sys:String>
     <sys:String x:Key="LocRecompress_Cancelled">Stopped. The original was not changed.</sys:String>
     <sys:String x:Key="LocPerformance_TargetEmulator">Target emulator</sys:String>
-    <sys:String x:Key="LocAdv_TargetEmulatorAutoLabel">Automatic (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_TargetEmulatorAutoLabel">Automatic</sys:String>
     <sys:String x:Key="LocAdv_TargetEmulatorAutoDescription">Uses the settings above. PSP ISOs already get 2048-byte hunks for PPSSPP.</sys:String>
     <sys:String x:Key="LocAdv_TargetEmulatorDvd2048Label">PCSX2 and PPSSPP</sys:String>
     <sys:String x:Key="LocAdv_TargetEmulatorDvd2048Description">DVD CHDs (PS2, PSP) are made with 2048-byte hunks, which PPSSPP needs and is advised for PCSX2. This replaces the hunk size above; CD CHDs are not affected.</sys:String>
@@ -1034,7 +1034,7 @@ Path:
     <sys:String x:Key="LocAdv_DatabaseLastSyncedEmpty">—</sys:String>
     <sys:String x:Key="LocAdv_DatabaseLastSyncedValue">{0}</sys:String>
 
-    <sys:String x:Key="LocAdv_CompressionPresetDefaultLabel">MAME default (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_CompressionPresetDefaultLabel">MAME default</sys:String>
     <sys:String x:Key="LocAdv_CompressionPresetDefaultDescription">Lets MAME choose by media type. For CD, this usually already uses CD LZMA, matching the LZMA option.</sys:String>
 
     <sys:String x:Key="LocAdv_CompressionPresetFastLabel">Fast – lighter compression</sys:String>
@@ -1064,7 +1064,7 @@ Path:
     <sys:String x:Key="LocAdv_ProcessPriorityNormalLabel">Normal</sys:String>
     <sys:String x:Key="LocAdv_ProcessPriorityNormalDescription">Runs chdman at normal priority. This may improve speed but can reduce system responsiveness during conversion.</sys:String>
 
-    <sys:String x:Key="LocAdv_HunkPresetDefaultLabel">MAME default (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetDefaultLabel">MAME default</sys:String>
     <sys:String x:Key="LocAdv_HunkPresetDefaultDescription">Does not customize hunk size and lets MAME use the suitable setting.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetSmallLabel">Advanced – small</sys:String>
@@ -1076,7 +1076,7 @@ Path:
     <sys:String x:Key="LocAdv_HunkPresetLargeLabel">Advanced – large</sys:String>
     <sys:String x:Key="LocAdv_HunkPresetLargeDescription">Larger hunk size may improve compression, but may slow small reads.</sys:String>
 
-    <sys:String x:Key="LocAdv_IsoCreateOverrideAutoLabel">Auto by media type (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_IsoCreateOverrideAutoLabel">Auto by media type</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoDescription">The app automatically selects the CD path for CUE/GDI, and checks ISO files to determine CD or DVD using available evidence.</sys:String>
 
     <sys:String x:Key="LocAdv_IsoCreateOverrideCreateCdLabel">Force CD creation</sys:String>
@@ -1102,9 +1102,10 @@ Path:
     <sys:String x:Key="LocAdv_RedumpPlatformAutoLabel">Auto</sys:String>
     <sys:String x:Key="LocAdv_RedumpArtifactDatfileLabel">DAT file</sys:String>
 
-    <sys:String x:Key="LocAdv_ProcessorAutoRecommendedLabel">Auto (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_ProcessorAutoRecommendedLabel">Auto</sys:String>
     <sys:String x:Key="LocAdv_ProcessorUnknownCoreCount">Unknown</sys:String>
-    <sys:String x:Key="LocAdv_ProcessorSummary">Current CPU: {0}&#x0a;Cores: {1} • Logical processors available to the app: {2}</sys:String>
+    <sys:String x:Key="LocAdv_ProcessorLabel">CPU:</sys:String>
+    <sys:String x:Key="LocAdv_ProcessorCounts">• Cores: {0} • Logical processors: {1}</sys:String>
 
     <sys:String x:Key="LocAdv_ConcurrentConversionsSingle">Single conversion: run one operation at a time. This is the safest option for HDD storage and laptops.</sys:String>
     <sys:String x:Key="LocAdv_ConcurrentConversionsBalanced">Dual conversion: run two operations at the same time. Good balance for mid-range devices.</sys:String>

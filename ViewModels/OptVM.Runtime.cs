@@ -74,18 +74,18 @@ public sealed partial class OptionsViewModel
         yield return logicalCount;
     }
 
-    private static string BuildProcessorSummary()
+    // The CPU name is shown in its own left-to-right run (see PerfView.xaml): WPF reorders a name
+    // such as "i5-12600KF" when it sits inside Arabic text, even with direction marks.
+    private static string BuildProcessorName() => ProcessorTopologyService.ReadCurrent().Name;
+
+    private static string BuildProcessorCounts()
     {
         ProcessorTopologyInfo info = ProcessorTopologyService.ReadCurrent();
         string coreText = info.PhysicalCores > 0
-            ? info.PhysicalCores.ToString()
+            ? info.PhysicalCores.ToString(System.Globalization.CultureInfo.InvariantCulture)
             : ArabicUi.Get("LocAdv_ProcessorUnknownCoreCount");
 
-        return ArabicUi.Format(
-            "LocAdv_ProcessorSummary",
-            info.Name,
-            coreText,
-            info.AvailableLogicalProcessors);
+        return ArabicUi.Format("LocAdv_ProcessorCounts", coreText, info.AvailableLogicalProcessors);
     }
 
     private ChoiceOption? ResolveCompressionPreset(string? compressionValue)

@@ -264,6 +264,7 @@
                 <TextBlock x:Name="RedumpComplianceNoticeTextBlock"
                            Text="{DynamicResource LocRedumpSettings_ComplianceNotice}"
                            Style="{StaticResource Win11SettingsRowDescriptionText}"
+                           Margin="{DynamicResource Inset.8.4}"
                            TextWrapping="Wrap"
                            TextTrimming="None" />
 

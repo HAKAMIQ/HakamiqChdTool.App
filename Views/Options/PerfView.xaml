@@ -56,12 +56,16 @@
 
                                 <TextBlock x:Name="ProcessorSummaryText"
                                            Grid.Column="2"
-                                           Text="{Binding ProcessorSummary}"
                                            Style="{StaticResource Win11SettingsRowDescriptionText}"
                                            Foreground="{DynamicResource Brush.Text.Primary}"
+                                           NumberSubstitution.Substitution="European"
                                            TextAlignment="Left"
                                            TextWrapping="NoWrap"
-                                           TextTrimming="CharacterEllipsis" Margin="{DynamicResource Inset.None}"/>
+                                           TextTrimming="CharacterEllipsis" Margin="{DynamicResource Inset.None}">
+                                    <Run Text="{DynamicResource LocAdv_ProcessorLabel}" />
+                                    <Run Text="{Binding ProcessorName, Mode=OneWay}" FlowDirection="LeftToRight" />
+                                    <Run Text="{Binding ProcessorCounts, Mode=OneWay}" />
+                                </TextBlock>
                             </Grid>
                         </Border>
                     </Grid>
@@ -254,10 +258,17 @@
 
                                 <Grid Grid.Column="2"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Text="{DynamicResource LocOptions_ExplorerMenu}"
-                                               ToolTip="{DynamicResource LocOptions_ExplorerMenuDesc}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               TextAlignment="Left" />
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource LocOptions_ExplorerMenu}"
+                                                   Style="{StaticResource Win11SettingsRowTitleText}"
+                                                   TextAlignment="Left" />
+                                        <!-- Shown, not only a tooltip: on Windows 11 the entries sit under Show more options. -->
+                                        <TextBlock x:Name="ExplorerMenuDescriptionText"
+                                                   Text="{DynamicResource LocOptions_ExplorerMenuDesc}"
+                                                   Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                   TextAlignment="Left"
+                                                   TextTrimming="None" />
+                                    </StackPanel>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -279,15 +290,24 @@
 
                                 <Grid Grid.Column="2"
                                       Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Text="{DynamicResource LocWatch_Enable}"
-                                               ToolTip="{DynamicResource LocWatch_EnableDesc}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               TextAlignment="Left" />
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource LocWatch_Enable}"
+                                                   Style="{StaticResource Win11SettingsRowTitleText}"
+                                                   TextAlignment="Left" />
+                                        <TextBlock x:Name="WatchFolderDescriptionText"
+                                                   Text="{DynamicResource LocWatch_EnableDesc}"
+                                                   Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                                   TextAlignment="Left"
+                                                   TextTrimming="None" />
+                                    </StackPanel>
                                 </Grid>
                             </Grid>
                         </Border>
 
-                        <Border Grid.Row="3"
+                        <!-- The folder box appears once the watch folder is turned on, not as an empty disabled box. -->
+                        <Border x:Name="WatchFolderPathRow"
+                                Grid.Row="3"
+                                Visibility="{Binding WatchFolderEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
                                 Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
                             <Grid>
                                 <Grid.ColumnDefinitions>

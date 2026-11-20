@@ -336,8 +336,9 @@
                         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                         <Grid Grid.Row="0" Height="{DynamicResource Space.32}" Style="{StaticResource Win11SettingsSectionHeader}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight">
-                                <TextBlock Text="igir" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource FontWeight.SemiBold}" Foreground="{DynamicResource Brush.Text.Primary}" />
-                                <TextBlock Text=" 5.8.1" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource Brush.Text.Secondary}" Language="en-US" />
+                                <TextBlock Text="igir" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource FontWeight.SemiBold}" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" />
+                                <TextBlock Width="{DynamicResource Space.6}" />
+                                <TextBlock Text="5.8.1" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource FontWeight.SemiBold}" Foreground="{DynamicResource Brush.Text.Secondary}" FlowDirection="LeftToRight" Language="en-US" NumberSubstitution.Substitution="European" VerticalAlignment="Center" />
                             </StackPanel>
                         </Grid>
                         <Border Grid.Row="1" Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.6.All}">
@@ -353,13 +354,13 @@
                                         <TextBlock Text="{DynamicResource LocExternalTools_Browse}" FontSize="{DynamicResource FontSize.BodySmall}" TextWrapping="NoWrap" />
                                     </Button>
                                 </Grid>
-                                <Grid Grid.Row="2" FlowDirection="LeftToRight">
+                                <Grid Grid.Row="2" FlowDirection="{DynamicResource App.FlowDirection}">
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="{DynamicResource Grid.Space.6}" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="{DynamicResource Grid.Space.6}" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                                         <Ellipse Width="{DynamicResource Space.8}" Height="{DynamicResource Space.8}" VerticalAlignment="Center">
                                         <Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Fill" Value="{DynamicResource Brush.Text.Secondary}" /><Style.Triggers><DataTrigger Binding="{Binding ExternalToolsIgirIsAvailable}" Value="True"><Setter Property="Fill" Value="{DynamicResource IgirSuccessBrush}" /></DataTrigger></Style.Triggers></Style></Ellipse.Style>
                                     </Ellipse>
                                     <TextBlock Grid.Column="2" Text="{Binding ExternalToolsIgirStatusText}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource FontWeight.SemiBold}" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="4" Text="{Binding ExternalToolsIgirVersion}" FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource Brush.Text.Secondary}" Language="en-US" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="4" Text="{Binding ExternalToolsIgirVersion}" Visibility="{Binding ExternalToolsIgirIsAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource Brush.Text.Secondary}" FlowDirection="LeftToRight" Language="en-US" NumberSubstitution.Substitution="European" HorizontalAlignment="Left" VerticalAlignment="Center" />
                                 </Grid>
                             </Grid>
                         </Border>

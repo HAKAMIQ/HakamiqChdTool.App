@@ -34,7 +34,7 @@ internal static partial class Program
 
         RunSummaryCard arabicCard = RunSummaryCardBuilder.Build(Metrics(5, savedBytes: 300 * 1024 * 1024), false, TimeSpan.FromSeconds(42), key => arabic[key]);
         AssertEqual("اكتملت المعالجة", arabicCard.Title, "The Arabic title is used.");
-        AssertEqual("5 ناجح · وفّرت 300.0 MB · استغرقت 0:42", Plain(arabicCard.Message), "The Arabic line is built from Arabic text.");
+        AssertEqual("5 ناجح · وفرت 300.0 MB · استغرقت 0:42", Plain(arabicCard.Message), "The Arabic line is built from Arabic text.");
         AssertTrue(arabicCard.Message.Contains("‎300.0 MB‎", StringComparison.Ordinal), "Sizes are kept left-to-right inside Arabic text.");
 
         foreach (string key in new[]

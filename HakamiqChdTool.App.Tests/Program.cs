@@ -349,6 +349,8 @@ internal static partial class Program
                 new("Explorer menu registers and removes only its own keys", TestExplorerMenuRegistersAndRemovesOnlyItsOwnKeys),
                 new("Explorer menu setting loads, saves and has text in both languages", TestExplorerMenuSettingInOptions),
                 new("Run summary shows outcome, counts, saved space and time in both languages", TestRunSummaryCardContent),
+                new("Options text has no tashkeel and no repeated or duplicate words", TestOptionsTextIsPlainAndNotRepeated),
+                new("Options window shows the CPU name, igir version and Windows hints readably", TestOptionsWindowLayoutFixes),
                 new("Recompress picks codecs by media type and never targets the source folder or an existing file", TestRecompressPlanning),
                 new("Recompress with real chdman keeps the data, saves space and leaves no temporary files", TestRecompressWithRealChdman),
                 new("Recompress window list, start rules, results, summary and retry", TestRecompressViewModel),

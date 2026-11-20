@@ -250,7 +250,8 @@ public sealed partial class OptionsViewModel : ObservableValidator
         SelectedRedumpPlatformOption = RedumpPlatformOptions.FirstOrDefault(x => string.Equals(x.Key, redumpPlatformKey, StringComparison.OrdinalIgnoreCase)) ?? RedumpPlatformOptions.FirstOrDefault();
         SelectedRedumpArtifactOption = RedumpArtifactOptions.FirstOrDefault(x => string.Equals(x.Key, redumpArtifactKey, StringComparison.OrdinalIgnoreCase)) ?? RedumpArtifactOptions.FirstOrDefault();
 
-        OnPropertyChanged(nameof(ProcessorSummary));
+        OnPropertyChanged(nameof(ProcessorName));
+        OnPropertyChanged(nameof(ProcessorCounts));
         OnPropertyChanged(nameof(ProcessorHint));
         OnPropertyChanged(nameof(ConcurrentConversionDescription));
         OnPropertyChanged(nameof(PerformanceModeDescription));
@@ -670,7 +671,9 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
     public bool CanSave => CanConfirm && HasPendingChanges;
 
-    public string ProcessorSummary => BuildProcessorSummary();
+    public string ProcessorName => BuildProcessorName();
+
+    public string ProcessorCounts => BuildProcessorCounts();
 
     public string ProcessorHint => ArabicUi.Get("LocAdv_ProcessorHint");
 
