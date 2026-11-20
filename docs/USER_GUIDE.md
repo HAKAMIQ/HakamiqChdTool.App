@@ -21,6 +21,24 @@ The runtime-required package needs the Microsoft .NET 10 Desktop Runtime for Win
 
 Start with one file before processing a large batch. It is easier to confirm the output location and behavior with a small first run.
 
+## Explorer right-click menu
+
+Turn on **Settings > Performance > Add CHD Tool to the Explorer right-click menu**
+to get:
+
+- **Convert to CHD** on ISO, CSO, ZSO, CUE, GDI, TOC, NRG, CCD, MDS, ECM, ZIP,
+  7Z and RAR files.
+- **Extract CHD** and **Verify CHD** on CHD files.
+- A **CHD Tool** submenu with all three on folders.
+
+The entries open CHD Tool, or the window that is already open, switch to that
+mode and add the selected items to the queue. While the queue is running, the
+items are added when it finishes. On Windows 11 the entries are under
+**Show more options**. The menu is added for your Windows account only and
+needs no administrator rights. Turn the option off before you delete or move
+the app folder; if you move it, start the app once from the new place to update
+the entries.
+
 ## Multi-file disc images
 
 Keep descriptor files and their tracks together. For example, add the CUE file for a CUE/BIN image and keep every referenced BIN beside it. Do not rename or move only part of a disc set.

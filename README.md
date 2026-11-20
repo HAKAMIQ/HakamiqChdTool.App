@@ -24,6 +24,8 @@ available in Arabic and English, with light and dark themes.
 - **Checks before work starts**: unreadable files, unsafe CUE paths, missing
   tracks, unsupported layouts and invalid output paths stop the job before any
   tool runs.
+- **Explorer right-click menu** (optional): Convert to CHD, Extract and Verify
+  straight from File Explorer.
 - **Library organizer** (optional): plans moves from DAT matches, never deletes
   files, and keeps a journal so every move can be undone.
 

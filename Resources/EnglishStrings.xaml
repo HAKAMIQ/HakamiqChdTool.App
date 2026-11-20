@@ -528,6 +528,16 @@
     <sys:String x:Key="LocWorkflow_StatusExtractGdi">CHD was detected as a Dreamcast GD-ROM. It will be extracted to GDI with one file per track.</sys:String>
     <sys:String x:Key="LocConversion_ExtractGdRomAsCueBin">Extract Dreamcast GD-ROM to CUE/BIN</sys:String>
     <sys:String x:Key="LocConversion_ExtractGdRomAsCueBinDesc">GD-ROM CHDs are extracted to GDI, the format Dreamcast tools and GDEMU use. Turn this on to get CUE/BIN instead.</sys:String>
+    <sys:String x:Key="LocOptions_WindowsSection">Windows integration</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerMenu">Add CHD Tool to the Explorer right-click menu</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerMenuDesc">Adds Convert to CHD to disc images and archives, Extract CHD and Verify CHD to CHD files, and a CHD Tool menu to folders, for your Windows account only. On Windows 11 the entries are under Show more options. Turn this off before you delete the app folder.</sys:String>
+    <sys:String x:Key="LocShell_ConvertToChd">Convert to CHD</sys:String>
+    <sys:String x:Key="LocShell_ExtractChd">Extract CHD</sys:String>
+    <sys:String x:Key="LocShell_VerifyChd">Verify CHD</sys:String>
+    <sys:String x:Key="LocShell_FolderMenu">CHD Tool</sys:String>
+    <sys:String x:Key="LocLaunch_WaitingFooter">Files from Explorer will be added when the current work finishes.</sys:String>
+    <sys:String x:Key="LocLaunch_AddFailedFooter">Could not add the files sent from Explorer. See the log.</sys:String>
+    <sys:String x:Key="LocLaunch_ExplorerMenuFailedFooter">Could not update the Explorer menu. See the log.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractDvd">CHD was detected as a DVD. It will be extracted to ISO.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractHd">CHD was detected as a hard disk image. It will be extracted to IMG.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractRaw">CHD was detected as a RAW image. It will be extracted to RAW.</sys:String>

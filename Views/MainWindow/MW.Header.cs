@@ -39,6 +39,7 @@ public partial class MainWindow
         UpdateHeaderModeText();
         UpdateUiState();
         PersistSettings();
+        ApplyExplorerMenuSetting(_settings.ExplorerMenuEnabled, languageChanged: true);
 
         MainHeader.RefreshLanguageToggleButton();
     }
