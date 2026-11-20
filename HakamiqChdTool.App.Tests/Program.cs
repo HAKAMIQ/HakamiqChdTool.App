@@ -354,6 +354,7 @@ internal static partial class Program
                 new("Recompress texts exist in both languages and controls have names", TestRecompressStringsAndWindow),
                 new("Target emulator adjusts hunk size and codecs and Automatic changes nothing", TestTargetEmulatorPolicy),
                 new("Target emulator option loads, saves and has text in both languages", TestTargetEmulatorOption),
+                new("After-run sleep or shutdown only for finished runs, with a safe command", TestAfterRunPolicy),
                 // Runs last: it owns a WPF Application on its own thread, and that process-wide state must not precede other window tests.
                 new("Library window lays out without clipping in both languages and themes", () => TestLibraryWindowRealLayout(workDirectory)),
                 new("Dialogs lay out without clipping across languages, themes and display sizes", () => TestWindowsMatrixLayout(workDirectory)),

@@ -71,6 +71,12 @@ PS3-related detection remains experimental. Recognizing an input does not mean t
 
 ## After a run
 
+To leave a long batch running, pick **When done: sleep** or **When done: shut
+down** next to the queue buttons before you start. When the run finishes, a
+60-second countdown appears; **Cancel** (the default button) stops it. The
+choice applies to that run only and is not saved; a stopped run never sleeps
+or shuts down. Shutdown does not force other programs to close.
+
 When a run ends, a bar above the queue shows the result: how many items
 finished, failed, were skipped or cancelled, the space the conversions saved,
 and how long the run took. **Details** opens the full report. The bar stays
