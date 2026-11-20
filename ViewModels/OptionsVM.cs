@@ -57,6 +57,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private ChoiceOption? _selectedPriorityMode;
     private ChoiceOption? _selectedCompressionPreset;
     private ChoiceOption? _selectedHunkPreset;
+    private ChoiceOption? _selectedTargetEmulator;
     private ChoiceOption? _selectedIsoCreateOverride;
     private ChoiceOption? _selectedChdPlatformProfile;
     private bool _useCustomPendingWorkspace;
@@ -93,6 +94,15 @@ public sealed partial class OptionsViewModel : ObservableValidator
         new("balanced", ArabicUi.Get("LocAdv_CompressionPresetBalancedLabel"), ArabicUi.Get("LocAdv_CompressionPresetBalancedDescription")),
         new("max", ArabicUi.Get("LocAdv_CompressionPresetMaxLabel"), ArabicUi.Get("LocAdv_CompressionPresetMaxDescription"))
     };
+
+    public ObservableCollection<ChoiceOption> TargetEmulatorOptions { get; } = new(BuildTargetEmulatorOptions());
+
+    private static ChoiceOption[] BuildTargetEmulatorOptions() =>
+    [
+        new("auto", ArabicUi.Get("LocAdv_TargetEmulatorAutoLabel"), ArabicUi.Get("LocAdv_TargetEmulatorAutoDescription")),
+        new("dvd2048", ArabicUi.Get("LocAdv_TargetEmulatorDvd2048Label"), ArabicUi.Get("LocAdv_TargetEmulatorDvd2048Description")),
+        new("nozstd", ArabicUi.Get("LocAdv_TargetEmulatorNoZstdLabel"), ArabicUi.Get("LocAdv_TargetEmulatorNoZstdDescription"))
+    ];
 
     public ObservableCollection<ChoiceOption> HunkPresetOptions { get; } = new()
     {
@@ -154,6 +164,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         string? priorityKey = SelectedPriorityMode?.Key;
         string? compressionKey = SelectedCompressionPreset?.Key;
         string? hunkKey = SelectedHunkPreset?.Key;
+        string? targetKey = SelectedTargetEmulator?.Key;
         string? isoKey = SelectedIsoCreateOverride?.Key;
         string? profileKey = SelectedChdPlatformProfile?.Key;
         string? redumpPlatformKey = SelectedRedumpPlatformOption?.Key;
@@ -230,6 +241,8 @@ public sealed partial class OptionsViewModel : ObservableValidator
         SelectedPriorityMode = SelChoice(PriorityModeOptions, priorityKey);
         SelectedCompressionPreset = SelChoice(CompressionPresetOptions, compressionKey);
         SelectedHunkPreset = SelChoice(HunkPresetOptions, hunkKey);
+        RefList(TargetEmulatorOptions, BuildTargetEmulatorOptions());
+        SelectedTargetEmulator = SelChoice(TargetEmulatorOptions, targetKey);
         SelectedIsoCreateOverride = SelChoice(IsoCreateOverrideOptions, isoKey);
         SelectedChdPlatformProfile = SelChoice(ChdPlatformProfileOptions, profileKey);
         SelectedRedumpPlatformOption = RedumpPlatformOptions.FirstOrDefault(x => string.Equals(x.Key, redumpPlatformKey, StringComparison.OrdinalIgnoreCase)) ?? RedumpPlatformOptions.FirstOrDefault();
@@ -242,6 +255,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         OnPropertyChanged(nameof(PriorityModeDescription));
         OnPropertyChanged(nameof(CompressionPresetDescription));
         OnPropertyChanged(nameof(HunkPresetDescription));
+        OnPropertyChanged(nameof(TargetEmulatorDescription));
         OnPropertyChanged(nameof(IsoCreateOverrideDescription));
         OnPropertyChanged(nameof(ChdPlatformProfileDescription));
         OnPropertyChanged(nameof(ProcessorSelectionDescription));
@@ -745,6 +759,20 @@ public sealed partial class OptionsViewModel : ObservableValidator
             if (SetProperty(ref _selectedCompressionPreset, value))
             {
                 OnPropertyChanged(nameof(CompressionPresetDescription));
+            }
+        }
+    }
+
+    public string TargetEmulatorDescription => SelectedTargetEmulator?.Description ?? string.Empty;
+
+    public ChoiceOption? SelectedTargetEmulator
+    {
+        get => _selectedTargetEmulator;
+        set
+        {
+            if (SetProperty(ref _selectedTargetEmulator, value))
+            {
+                OnPropertyChanged(nameof(TargetEmulatorDescription));
             }
         }
     }

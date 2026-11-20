@@ -68,6 +68,8 @@ public sealed partial class OptionsViewModel
         SelectedPriorityMode = ResolvePriorityMode(settings.ChdmanPriorityMode);
         SelectedCompressionPreset = ResolveCompressionPreset(settings.CompressionCodecs);
         SelectedHunkPreset = ResolveHunkPreset(settings.HunkSizeBytes);
+        SelectedTargetEmulator = TargetEmulatorOptions.FirstOrDefault(x => x.Key == HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Normalize(settings.TargetEmulator))
+            ?? TargetEmulatorOptions.FirstOrDefault();
         SelectedIsoCreateOverride = ResolveIsoCreateOverride(settings.IsoCreateCommandOverride);
         SelectedChdPlatformProfile = ResolveChdPlatformProfile(settings.ChdPlatformProfileId);
         EnableDeepIntegrityCheck = settings.EnableDeepIntegrityCheck;
@@ -152,6 +154,7 @@ public sealed partial class OptionsViewModel
         result.IsoCreateCommandOverride = Enum.TryParse<IsoCreateCommandOverride>(SelectedIsoCreateOverride?.Key, true, out var iso)
             ? iso
             : IsoCreateCommandOverride.Auto;
+        result.TargetEmulator = HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Normalize(SelectedTargetEmulator?.Key);
         result.ChdPlatformProfileId = string.IsNullOrWhiteSpace(SelectedChdPlatformProfile?.Key)
             ? "auto"
             : SelectedChdPlatformProfile.Key;
