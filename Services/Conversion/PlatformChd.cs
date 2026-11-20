@@ -258,7 +258,7 @@ public sealed class PlatformAwareChdProfilePolicy : IPlatformAwareChdProfilePoli
             return ChdDiscHunkIntent.PspPpssppDvd;
         }
 
-        // A CSO is expanded to an ISO first. A PSP one gets the same 2048-byte hunks as a PSP ISO; CSO is also used
+        // A CSO is expanded to an ISO first. A PSP one gets the same PPSSPP hunk size as a PSP ISO; CSO is also used
         // for PS2, so the extension alone does not decide it.
         if (profile == ChdPlatformProfiles.PspCso)
         {
