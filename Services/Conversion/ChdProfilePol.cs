@@ -84,6 +84,12 @@ internal static class ChdPlatformProfileExecutionPolicy
             return new ChdRequestedCreateProfileSelection(command, requestedProfile, null);
         }
 
+        // Another disc type in the same queue converts with Auto instead of failing.
+        if (!ChdPlatformProfiles.AppliesToInput(requestedProfile, inputExtension))
+        {
+            return new ChdRequestedCreateProfileSelection(command, null, null);
+        }
+
         if (!ChdPlatformProfiles.SupportsExtension(requestedProfile, inputExtension))
         {
             return Failure(command, requestedProfile, inputPath, outputPath, ChdWorkflowProfilePlanner.UnsupportedMessageKey);

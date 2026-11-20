@@ -18,15 +18,21 @@ public sealed class ChdmanPathResolver
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        if (!settings.UseBundledChdman && TryResolveExternal(settings.ExternalChdmanPath, out string? externalPath))
+        if (!settings.UseBundledChdman)
         {
-            return externalPath;
+            if (TryResolveExternal(settings.ExternalChdmanPath, out string? externalPath))
+            {
+                return externalPath;
+            }
+
+            // The user chose their own chdman; say so when it cannot be used rather than switching silently.
+            Serilog.Log.Warning(
+                "External chdman is not usable; the bundled chdman is used instead. ExternalPath={ExternalPath}",
+                settings.ExternalChdmanPath);
         }
 
         return _runtimeTools.GetChdmanPath();
     }
-
-    public bool IsExternalPathValid(string? path) => TryResolveExternal(path, out _);
 
     public static bool TryResolveExternal(string? path, [NotNullWhen(true)] out string? resolvedPath)
     {

@@ -27,6 +27,12 @@ it are the detailed record.
   igir version show in the right order, and the Explorer menu and watch folder
   options explain themselves on screen (on Windows 11 the menu entries are
   under Show more options).
+- A CHD platform profile no longer marks the other disc types in the queue as
+  unsupported; they convert with Auto. The hard-disk profile is unchanged.
+- With more than one file converting at once, Auto threads are shared
+  between them instead of each chdman taking the full Auto count.
+- Choosing an igir.exe that is not the pinned build no longer switches off
+  the bundled igir, and an unusable external chdman is written to the log.
 - "When done" next to the queue buttons: sleep or shut down the computer
   after the run, with a 60-second countdown you can cancel. It applies to one
   run, is never saved, and does nothing after a stopped run.

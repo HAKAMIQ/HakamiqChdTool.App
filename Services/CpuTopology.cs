@@ -57,6 +57,26 @@ public static class ProcessorTopologyService
         };
     }
 
+    /// <summary>
+    /// When several files convert at once, Auto splits the processors between them instead of giving
+    /// every chdman the full Auto count. An explicit thread count is kept as the user chose it.
+    /// </summary>
+    public static int ShareAutoProcessorCount(
+        int maxProcessorCount,
+        bool enableAutoResourceLimiter,
+        int reservedLogicalCores,
+        ConversionPerformanceMode performanceMode,
+        int concurrentConversions)
+    {
+        if (maxProcessorCount > 0 || concurrentConversions <= 1)
+        {
+            return maxProcessorCount;
+        }
+
+        int autoCount = ResolveChdmanProcessorCount(0, enableAutoResourceLimiter, reservedLogicalCores, performanceMode);
+        return autoCount <= 0 ? maxProcessorCount : Math.Max(1, autoCount / concurrentConversions);
+    }
+
     private static int ResolveBalancedAutoProcessorCount(
         int availableLogical,
         int configuredReservedLogicalCores)

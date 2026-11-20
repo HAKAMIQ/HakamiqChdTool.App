@@ -281,6 +281,13 @@ public static class ChdPlatformProfiles
         return null;
     }
 
+    /// <summary>
+    /// A selected disc profile applies only to the inputs it lists; other inputs in the queue fall back to
+    /// Auto instead of being refused. The hard-disk profile is an explicit mode and still refuses other inputs.
+    /// </summary>
+    public static bool AppliesToInput(ChdPlatformProfile profile, string extension) =>
+        profile.CommandKind == ChdCommandKind.CreateHd || SupportsExtension(profile, extension);
+
     public static bool SupportsExtension(ChdPlatformProfile profile, string extension) =>
         profile.InputExtensions.Any(candidate =>
             string.Equals(candidate, extension, StringComparison.OrdinalIgnoreCase));
