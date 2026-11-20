@@ -127,6 +127,7 @@ public sealed class ExternalToolProcessRunner
             return new ExternalToolProcessResult(1, false, string.Empty, ex.Message);
         }
 
+        HelperToolPriority.TryApply(process);
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 

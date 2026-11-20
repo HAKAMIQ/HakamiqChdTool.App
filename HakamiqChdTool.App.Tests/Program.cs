@@ -351,6 +351,8 @@ internal static partial class Program
                 new("Run summary shows outcome, counts, saved space and time in both languages", TestRunSummaryCardContent),
                 new("Options text has no tashkeel and no repeated or duplicate words", TestOptionsTextIsPlainAndNotRepeated),
                 new("Options offer only choices that work", TestOptionsOfferOnlyWorkingChoices),
+                new("Helper tools follow the priority setting", TestHelperToolsFollowThePrioritySetting),
+                new("Watch folder reports a deleted folder once", TestWatchFolderReportsALostFolderOnce),
                 new("Auto threads are shared when several files convert at once", TestAutoThreadsAreSharedAcrossConcurrentConversions),
                 new("A disc platform profile lets other disc types use Auto", TestPlatformProfileFallsBackToAutoForOtherInputs),
                 new("A chosen igir that is not the pinned build keeps the bundled igir", TestChosenIgirDoesNotDisableBundledIgir),
