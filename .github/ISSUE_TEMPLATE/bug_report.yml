@@ -1,0 +1,85 @@
+name: Bug report
+description: Something failed, crashed, or gave a wrong result.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You can write in Arabic or English. تقدر تكتب بالعربي أو الإنجليزي.
+
+        Security problems: do not open a public issue. See [SECURITY.md](https://github.com/HAKAMIQ/HakamiqChdTool.App/blob/main/SECURITY.md).
+
+        Do not attach games, ROMs, BIOS files, disc images, CHD files, Redump files, keys or firmware.
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Shown in the app's About page, or the release you downloaded.
+      placeholder: v2.0.0
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 24H2
+    validations:
+      required: true
+  - type: dropdown
+    id: action
+    attributes:
+      label: What were you doing?
+      options:
+        - Convert to CHD
+        - Verify
+        - Extract
+        - Recompress
+        - Xbox / Xbox 360 conversion
+        - Library organizer
+        - Watch folder
+        - Command line
+        - Settings or interface
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: input
+    attributes:
+      label: Input type
+      description: File extension and system. Do not share the game name if you prefer not to.
+      placeholder: ".cue/.bin, PS1"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Add D:\CHDWork\Sample.cue
+        2. Press Convert
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected and what happened
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: |
+        The relevant part of the log. Logs are in `%LOCALAPPDATA%\HakamiqChdTool\Logs`, or `.portable\Logs` next to the app in portable mode.
+        Remove usernames and private paths first.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I am using the latest release, or I said above which version I use.
+          required: true
+        - label: I removed private paths and personal data from this report.
+          required: true

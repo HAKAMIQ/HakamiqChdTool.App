@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest a new feature or a change to an existing one.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You can write in Arabic or English. تقدر تكتب بالعربي أو الإنجليزي.
+
+        Requests for games, ROMs, BIOS files, keys or Redump data will be closed.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What do you want to do?
+      description: Describe the task or the problem, not only the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How should it work?
+  - type: input
+    id: formats
+    attributes:
+      label: Systems or file types involved
+      placeholder: "PS2 .iso, Xbox 360 .iso"
+  - type: textarea
+    id: other
+    attributes:
+      label: Anything else
+      description: Other tools that already do this, screenshots with private data removed, and so on.
