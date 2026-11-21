@@ -31,28 +31,32 @@ available in Arabic and English, with light and dark themes.
 
 ## Download
 
-**Latest: v1.6.0.** If you are not sure which file to pick, download the first one.
+**Latest: v2.0.0.** If you are not sure which file to pick, download the first one.
 
 | File | When to use it |
 | --- | --- |
-| [`HakamiqChdTool-v1.6.0-win-x64-self-contained.zip`](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/download/v1.6.0/HakamiqChdTool-v1.6.0-win-x64-self-contained.zip) | **Recommended.** Includes the .NET 10 runtime; nothing else to install. |
-| [`HakamiqChdTool-v1.6.0-win-x64-runtime-required.zip`](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/download/v1.6.0/HakamiqChdTool-v1.6.0-win-x64-runtime-required.zip) | Smaller. Needs the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/download/dotnet/10.0). |
+| [`HakamiqChdTool-v2.0.0-win-x64-self-contained.zip`](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/download/v2.0.0/HakamiqChdTool-v2.0.0-win-x64-self-contained.zip) | **Recommended.** Includes the .NET 10 runtime; nothing else to install. |
+| [`HakamiqChdTool-v2.0.0-win-x64-runtime-required.zip`](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases/download/v2.0.0/HakamiqChdTool-v2.0.0-win-x64-runtime-required.zip) | Smaller. Needs the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/download/dotnet/10.0). |
 
 The release page also lists `igir-5.8.1-source.tar.gz`, the GPL-3.0 source of
 the bundled igir; you do not need it to use the app. GitHub shows the SHA-256
 of each file next to it. All versions are on the
 [Releases page](https://github.com/HAKAMIQ/HakamiqChdTool.App/releases).
 
-### What's new in v1.6.0
+### What's new in v2.0.0
 
-- New inputs: hard-disk images (`.img`, `.hdd`), ZSO, CloneCD, Alcohol 120%
-  and ECM, also from inside ZIP, 7Z and RAR.
-- Dreamcast GD-ROM CHDs extract to GDI again; a setting keeps CUE/BIN.
-- A source file can no longer be swapped between its checks and the
-  conversion.
-- Danger buttons follow the light and dark themes, and the Add files dialogs
-  list every supported format.
-- Bundled CsoKit 0.6.6, 7-Zip 26.06, igir 5.8.1, xdvdfs 0.8.3, iso2god-rs 1.8.1 and ZArchive 0.1.2.
+- Xbox section: converts Xbox games to XISO and Xbox 360 games to Games on
+  Demand or ZAR, checked against the source before they are kept.
+- Recompress CHD files: makes existing CHDs smaller, verified, and kept only
+  when they save at least 1%.
+- Optional Explorer right-click menu with a small quick window, a watch folder,
+  and command-line options for scripts (`--start`, `--exit-when-done`).
+- A result bar after each run with counts, space saved and time, and "When
+  done" to sleep or shut down after the run.
+- Target emulator setting (PCSX2/PPSSPP or RetroArch), a rebuilt Options window
+  with search, and plain Arabic wording across the app.
+- Dreamcast GD-ROM CUE files convert with their tracks in place, and PSP CSO
+  files get the same hunks as PSP ISO files.
 
 Full list: [changelog](docs/release-notes/CHANGELOG.md).
 
