@@ -70,6 +70,33 @@ Corresponding Source: igir-5.8.1-source.tar.gz, published next to the release
 ZIP (SHA-256 18742ACA59AAD2D562B25645EC6DAE728A9BF234AE597E2BD162ABCC992BEF46).
 
 --------------------------------------------------------------------------------
+xdvdfs
+--------------------------------------------------------------------------------
+
+CHD Tool includes xdvdfs 0.8.3 to convert Xbox games to XISO and to unpack
+Xbox 360 games before ZAR packing.
+
+License: MIT. See XDVDFS_NOTICE.md and Tools\xdvdfs\win-x64\LICENSE.txt.
+Upstream: https://github.com/antangelo/xdvdfs
+
+--------------------------------------------------------------------------------
+iso2god-rs
+--------------------------------------------------------------------------------
+
+CHD Tool includes iso2god-rs 1.8.1 to convert Xbox 360 ISOs to Games on Demand.
+
+License: MIT. See ISO2GOD_NOTICE.md and Tools\iso2god\win-x64\LICENSE.txt.
+Upstream: https://github.com/iliazeus/iso2god-rs
+
+--------------------------------------------------------------------------------
+ZArchive
+--------------------------------------------------------------------------------
+
+CHD Tool includes ZArchive 0.1.2 to pack Xbox 360 games into ZAR files.
+
+License: MIT-0. See ZARCHIVE_NOTICE.md and Tools\zarchive\win-x64\LICENSE.txt.
+Upstream: https://github.com/Exzap/ZArchive
+--------------------------------------------------------------------------------
 Microsoft Fluent UI System Icons
 --------------------------------------------------------------------------------
 

@@ -848,7 +848,12 @@ internal sealed class WorkflowConversionStage(
                                 ctx.GetChdmanPath(),
                                 conversionInputPath,
                                 pendingOutputPath,
-                                settings.MaxProcessorCount,
+                                ProcessorTopologyService.ShareAutoProcessorCount(
+                                    settings.MaxProcessorCount,
+                                    settings.EnableAutoResourceLimiter,
+                                    settings.ReservedLogicalCores,
+                                    settings.PerformanceMode,
+                                    settings.MaxConcurrentConversions),
                                 settings.EnableAutoResourceLimiter,
                                 settings.ReservedLogicalCores,
                                 settings.CompressionCodecs,

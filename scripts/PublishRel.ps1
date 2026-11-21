@@ -210,6 +210,15 @@ function Invoke-ReleaseComplianceChecks {
         "docs\legal\MAME_GPL-2.0.txt",
         "docs\legal\7ZIP.md",
         "docs\legal\CSOKIT_NOTICE.md",
+        "docs\legal\XDVDFS_NOTICE.md",
+        "docs\legal\ISO2GOD_NOTICE.md",
+        "docs\legal\ZARCHIVE_NOTICE.md",
+        "Tools\xdvdfs\win-x64\xdvdfs.exe",
+        "Tools\xdvdfs\win-x64\LICENSE.txt",
+        "Tools\iso2god\win-x64\iso2god.exe",
+        "Tools\iso2god\win-x64\LICENSE.txt",
+        "Tools\zarchive\win-x64\zarchive.exe",
+        "Tools\zarchive\win-x64\LICENSE.txt",
         "Tools\chdman.exe",
         "Tools\hakamiq-cso\win-x64\csokit.exe",
         "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll",
@@ -231,10 +240,13 @@ function Invoke-ReleaseComplianceChecks {
         Assert-FileExists $required
     }
 
-    if (Test-Path -LiteralPath (Join-Path $ProjectRoot 'Tools\igir\win-x64\igir.exe') -PathType Leaf) {
-        foreach ($required in @('docs\legal\IGIR_NOTICE.md', 'docs\legal\IGIR_GPL-3.0.txt', 'scripts\FetchIgir.ps1', 'scripts\FetchIgirSource.ps1')) {
-            Assert-FileExists $required
-        }
+    # igir.exe is git-ignored (over GitHub's 100 MiB file limit) but every release bundles it.
+    if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot 'Tools\igir\win-x64\igir.exe') -PathType Leaf)) {
+        throw "igir.exe is missing: Tools\igir\win-x64\igir.exe. Every release bundles it. Run: pwsh -File .\scripts\FetchIgir.ps1"
+    }
+
+    foreach ($required in @('docs\legal\IGIR_NOTICE.md', 'docs\legal\IGIR_GPL-3.0.txt', 'scripts\FetchIgir.ps1', 'scripts\FetchIgirSource.ps1')) {
+        Assert-FileExists $required
     }
 
     Assert-NoStaleSourceArtifacts
@@ -367,11 +379,9 @@ try {
     New-Item -ItemType Directory -Path $csoKitToolsPath -Force | Out-Null
 
     $igirSource = Join-Path $ProjectRoot 'Tools\igir\win-x64\igir.exe'
-    if (Test-Path -LiteralPath $igirSource -PathType Leaf) {
-        $igirDestination = Join-Path $OutputPath 'Tools\igir\win-x64\igir.exe'
-        New-Item -ItemType Directory -Path (Split-Path -Parent $igirDestination) -Force | Out-Null
-        Copy-Item -LiteralPath $igirSource -Destination $igirDestination -Force
-    }
+    $igirDestination = Join-Path $OutputPath 'Tools\igir\win-x64\igir.exe'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $igirDestination) -Force | Out-Null
+    Copy-Item -LiteralPath $igirSource -Destination $igirDestination -Force
 
     foreach ($tool in @(
         @{ Source = "Tools\hakamiq-cso\win-x64\csokit.exe"; Destination = "Tools\hakamiq-cso\win-x64\csokit.exe" },
@@ -380,7 +390,13 @@ try {
         @{ Source = "Tools\hakamiq-cso\win-x64\README.md"; Destination = "Tools\hakamiq-cso\win-x64\README.md" },
         @{ Source = "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md"; Destination = "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md" },
         @{ Source = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt"; Destination = "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt" },
-        @{ Source = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md"; Destination = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md" }
+        @{ Source = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md"; Destination = "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md" },
+        @{ Source = "Tools\xdvdfs\win-x64\xdvdfs.exe"; Destination = "Tools\xdvdfs\win-x64\xdvdfs.exe" },
+        @{ Source = "Tools\xdvdfs\win-x64\LICENSE.txt"; Destination = "Tools\xdvdfs\win-x64\LICENSE.txt" },
+        @{ Source = "Tools\iso2god\win-x64\iso2god.exe"; Destination = "Tools\iso2god\win-x64\iso2god.exe" },
+        @{ Source = "Tools\iso2god\win-x64\LICENSE.txt"; Destination = "Tools\iso2god\win-x64\LICENSE.txt" },
+        @{ Source = "Tools\zarchive\win-x64\zarchive.exe"; Destination = "Tools\zarchive\win-x64\zarchive.exe" },
+        @{ Source = "Tools\zarchive\win-x64\LICENSE.txt"; Destination = "Tools\zarchive\win-x64\LICENSE.txt" }
     )) {
         $sourcePath = Join-Path $ProjectRoot $tool.Source
         if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {
@@ -404,6 +420,9 @@ try {
         @{ Source = "docs\legal\MAME_GPL-2.0.txt"; Destination = "docs\legal\MAME_GPL-2.0.txt" },
         @{ Source = "docs\legal\7ZIP.md"; Destination = "docs\legal\7ZIP.md" },
         @{ Source = "docs\legal\CSOKIT_NOTICE.md"; Destination = "docs\legal\CSOKIT_NOTICE.md" },
+        @{ Source = "docs\legal\XDVDFS_NOTICE.md"; Destination = "docs\legal\XDVDFS_NOTICE.md" },
+        @{ Source = "docs\legal\ISO2GOD_NOTICE.md"; Destination = "docs\legal\ISO2GOD_NOTICE.md" },
+        @{ Source = "docs\legal\ZARCHIVE_NOTICE.md"; Destination = "docs\legal\ZARCHIVE_NOTICE.md" },
         @{ Source = "docs\legal\IGIR_NOTICE.md"; Destination = "docs\legal\IGIR_NOTICE.md" },
         @{ Source = "docs\legal\IGIR_GPL-3.0.txt"; Destination = "docs\legal\IGIR_GPL-3.0.txt" }
     )) {

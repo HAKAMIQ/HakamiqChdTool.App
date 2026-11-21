@@ -344,6 +344,12 @@ function Assert-RequiredReleaseFiles {
         "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md",
         "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
         "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md",
+        "Tools\xdvdfs\win-x64\xdvdfs.exe",
+        "Tools\xdvdfs\win-x64\LICENSE.txt",
+        "Tools\iso2god\win-x64\iso2god.exe",
+        "Tools\iso2god\win-x64\LICENSE.txt",
+        "Tools\zarchive\win-x64\zarchive.exe",
+        "Tools\zarchive\win-x64\LICENSE.txt",
         "docs\README.md",
         "docs\CHANGELOG.md",
         "docs\SECURITY.md",
@@ -355,7 +361,10 @@ function Assert-RequiredReleaseFiles {
         "docs\legal\MAME_COPYING.txt",
         "docs\legal\MAME_GPL-2.0.txt",
         "docs\legal\7ZIP.md",
-        "docs\legal\CSOKIT_NOTICE.md"
+        "docs\legal\CSOKIT_NOTICE.md",
+        "docs\legal\XDVDFS_NOTICE.md",
+        "docs\legal\ISO2GOD_NOTICE.md",
+        "docs\legal\ZARCHIVE_NOTICE.md"
     )) {
         Assert-FileExists $required
     }
@@ -377,6 +386,12 @@ function Assert-RequiredReleaseFiles {
         "Tools\hakamiq-cso\win-x64\RELEASE_NOTES.md",
         "Tools\hakamiq-cso\win-x64\SHA256SUMS.txt",
         "Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md",
+        "Tools\xdvdfs\win-x64\xdvdfs.exe",
+        "Tools\xdvdfs\win-x64\LICENSE.txt",
+        "Tools\iso2god\win-x64\iso2god.exe",
+        "Tools\iso2god\win-x64\LICENSE.txt",
+        "Tools\zarchive\win-x64\zarchive.exe",
+        "Tools\zarchive\win-x64\LICENSE.txt",
         "docs\README.md",
         "docs\CHANGELOG.md",
         "docs\SECURITY.md",
@@ -388,20 +403,21 @@ function Assert-RequiredReleaseFiles {
         "docs\legal\MAME_COPYING.txt",
         "docs\legal\MAME_GPL-2.0.txt",
         "docs\legal\7ZIP.md",
-        "docs\legal\CSOKIT_NOTICE.md"
+        "docs\legal\CSOKIT_NOTICE.md",
+        "docs\legal\XDVDFS_NOTICE.md",
+        "docs\legal\ISO2GOD_NOTICE.md",
+        "docs\legal\ZARCHIVE_NOTICE.md"
     )) {
         Assert-FileIsNotEmpty $required
     }
 
-    if (Test-Path -LiteralPath (Join-Path $ProjectRoot "Tools\igir\win-x64\igir.exe") -PathType Leaf) {
-        foreach ($required in @(
-            "Tools\igir\win-x64\igir.exe",
-            "docs\legal\IGIR_NOTICE.md",
-            "docs\legal\IGIR_GPL-3.0.txt"
-        )) {
-            Assert-FileExists $required
-            Assert-FileIsNotEmpty $required
-        }
+    foreach ($required in @(
+        "Tools\igir\win-x64\igir.exe",
+        "docs\legal\IGIR_NOTICE.md",
+        "docs\legal\IGIR_GPL-3.0.txt"
+    )) {
+        Assert-FileExists $required
+        Assert-FileIsNotEmpty $required
     }
 }
 
@@ -546,6 +562,12 @@ function Assert-OnlyApprovedToolFiles {
         "hakamiq-cso\win-x64\release_notes.md",
         "hakamiq-cso\win-x64\sha256sums.txt",
         "hakamiq-cso\win-x64\third_party_notices.md",
+        "xdvdfs\win-x64\xdvdfs.exe",
+        "xdvdfs\win-x64\license.txt",
+        "iso2god\win-x64\iso2god.exe",
+        "iso2god\win-x64\license.txt",
+        "zarchive\win-x64\zarchive.exe",
+        "zarchive\win-x64\license.txt",
         "igir\win-x64\igir.exe"
     )
 
@@ -576,7 +598,13 @@ function Assert-OnlyApprovedToolDirectories {
         "hakamiq-cso",
         "hakamiq-cso\win-x64",
         "igir",
-        "igir\win-x64"
+        "igir\win-x64",
+        "xdvdfs",
+        "xdvdfs\win-x64",
+        "iso2god",
+        "iso2god\win-x64",
+        "zarchive",
+        "zarchive\win-x64"
     )
 
     $matches = Get-ChildItem -LiteralPath $toolsRoot -Directory -Recurse -Force -ErrorAction SilentlyContinue |
@@ -676,6 +704,14 @@ function Assert-NoForbiddenExternalArtifacts {
         Where-Object {
             $fileName = $_.Name
             $isBlocked = $false
+            # The pinned ZArchive tool for Xbox 360 ZAR output (hash checked in Assert-BundledToolHashes) and its notice are
+            # allowed; any other ZArchive file is not.
+            foreach ($allowed in @("Tools\zarchive\win-x64\zarchive.exe", "docs\legal\ZARCHIVE_NOTICE.md")) {
+                if ($_.FullName.Equals((Join-Path $OutputPath $allowed), [System.StringComparison]::OrdinalIgnoreCase)) {
+                    return $false
+                }
+            }
+
             foreach ($pattern in $blockedNames) {
                 if ($fileName -like $pattern) {
                     $isBlocked = $true
@@ -814,6 +850,9 @@ function Assert-BundledToolHashes {
         "Tools\7zip\7z.dll" = "500DB9EB17F3C21B729BA41DD02ECFE1823DA05028C7E4BA129084CC74CC364E"
         "Tools\hakamiq-cso\win-x64\csokit.exe" = "AE8404614FC44B4917F0662FB7FABEC603351086F4BB2FF89FD4B53E589A0F36"
         "Tools\hakamiq-cso\win-x64\CsoKit.Native.dll" = "F37AED7918AA1CFFE68BEDF04128292EFF6607F0E4E0386801C700707F2F388E"
+        "Tools\xdvdfs\win-x64\xdvdfs.exe" = "DF5F19954EF706C130C256546BF67CF7725611BDB30D1815577187007A6F907A"
+        "Tools\iso2god\win-x64\iso2god.exe" = "1459FCF8FF5A89E039B02C68C06B006B7A036F3B1CA237C2D7E03D61BD211D47"
+        "Tools\zarchive\win-x64\zarchive.exe" = "F9BBA11DF7EE120186E013214C14C210690F72AB2940ECC158FC40BF36E78B6C"
     }
 
     foreach ($relativePath in $expectedHashes.Keys) {
@@ -826,15 +865,11 @@ function Assert-BundledToolHashes {
         }
     }
 
-    $sourceIgir = Join-Path $ProjectRoot "Tools\igir\win-x64\igir.exe"
-    if ((Test-Path -LiteralPath $sourceIgir -PathType Leaf) -or
-        (Test-Path -LiteralPath (Join-Path $OutputPath "Tools\igir\win-x64\igir.exe") -PathType Leaf)) {
-        $relativePath = "Tools\igir\win-x64\igir.exe"
-        $actualHash = (Get-FileHash -LiteralPath (Join-Path $OutputPath $relativePath) -Algorithm SHA256).Hash
-        $expectedHash = "F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1"
-        if (-not $actualHash.Equals($expectedHash, [System.StringComparison]::OrdinalIgnoreCase)) {
-            throw "Bundled tool SHA-256 mismatch for ${relativePath}. Expected=$expectedHash Actual=$actualHash"
-        }
+    $relativePath = "Tools\igir\win-x64\igir.exe"
+    $actualHash = (Get-FileHash -LiteralPath (Join-Path $OutputPath $relativePath) -Algorithm SHA256).Hash
+    $expectedHash = "F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1"
+    if (-not $actualHash.Equals($expectedHash, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Bundled tool SHA-256 mismatch for ${relativePath}. Expected=$expectedHash Actual=$actualHash"
     }
 }
 
@@ -842,7 +877,7 @@ function Assert-IgirReleaseCompliance {
     $igirRelativePath = "Tools\igir\win-x64\igir.exe"
     $igirPath = Join-Path $OutputPath $igirRelativePath
     if (-not (Test-Path -LiteralPath $igirPath -PathType Leaf)) {
-        return
+        throw "Release must bundle igir: $igirRelativePath is missing."
     }
 
     $igirVersion = "5.8.1"

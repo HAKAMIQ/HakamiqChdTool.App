@@ -280,10 +280,16 @@ public partial class MainWindowViewModel
                     unsupportedFileCount++;
                     progress.SkippedUnsupportedOrDuplicate = true;
 
+                    // An Xbox disc gets its own reason; other refused files keep the general one.
+                    string unsupportedReasonKey = effectiveDecision.Reason == MediaInputPipelineDecisionReasons.XboxDisc
+                        && !string.IsNullOrWhiteSpace(effectiveDecision.MessageKey)
+                        ? effectiveDecision.MessageKey
+                        : ChdWorkflowProfilePlanner.UnsupportedMessageKey;
+
                     if (ShouldCreateFailedIntakeRow(effectiveDiscoveredPath, directRawFilePaths)
                         && TryAddUnsupportedIntakeCandidate(
                             effectiveDiscoveredPath,
-                            ChdWorkflowProfilePlanner.UnsupportedMessageKey,
+                            unsupportedReasonKey,
                             existingPaths,
                             seenImportedPaths,
                             preparedCandidates,

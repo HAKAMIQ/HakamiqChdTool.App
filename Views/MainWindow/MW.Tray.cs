@@ -1,9 +1,9 @@
 using System;
 using System.Windows;
 
-using HakamiqChdTool.App.Core.Session;
-using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Services;
 using Hardcodet.Wpf.TaskbarNotification;
+using Serilog;
 
 namespace HakamiqChdTool.App;
 
@@ -66,36 +66,28 @@ public partial class MainWindow
         Activate();
     }
 
+    /// <summary>
+    /// Shows the run result from the tray when the window is not in front. It uses the same title and
+    /// line as the bar above the queue, so the balloon also carries the space saved and the run time.
+    /// </summary>
     private void TryNotifyTrayForBatchCompletion(
-        bool wasCancelled,
         bool processedSelectionOnly,
-        SessionRunMetrics metrics)
+        RunSummaryCard runSummary)
     {
         if (processedSelectionOnly || _shutdownStarted || _shutdownCompleted)
         {
+            Log.Debug("Tray run notification skipped. SelectionOnly={SelectionOnly} Shutdown={Shutdown}", processedSelectionOnly, _shutdownStarted || _shutdownCompleted);
             return;
         }
 
         if (IsVisible && WindowState != WindowState.Minimized && IsActive)
         {
+            Log.Debug("Tray run notification skipped because the window is in front.");
             return;
         }
 
-        string title = ArabicUi.Get(
-            wasCancelled
-                ? MainWindowMessages.TraySessionCancelledTitle
-                : MainWindowMessages.TraySessionCompletedTitle);
-
-        string message = ArabicUi.Format(
-            MainWindowMessages.Fmt_TraySessionBalloon,
-            metrics.Completed,
-            metrics.Failed);
-
-        if (_shutdownStarted || _shutdownCompleted)
-        {
-            return;
-        }
-
-        TrayNotifyIcon.ShowBalloonTip(title, message, BalloonIcon.Info);
+        bool iconReady = TrayNotifyIcon.IsTaskbarIconCreated;
+        TrayNotifyIcon.ShowBalloonTip(runSummary.Title, runSummary.Message, BalloonIcon.Info);
+        Log.Information("Tray run notification sent. TrayIconCreated={TrayIconCreated} WindowState={WindowState}", iconReady, WindowState);
     }
 }

@@ -2,6 +2,7 @@
              x:Name="PerformanceSettingsRoot"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:opt="clr-namespace:HakamiqChdTool.App.Views.Options"
              FlowDirection="{DynamicResource App.FlowDirection}"
              Language="{DynamicResource App.XmlLanguage}"
              HorizontalAlignment="Stretch"
@@ -22,299 +23,106 @@
             <StackPanel x:Name="PerformancePanel"
                         Style="{StaticResource Win11SettingsContentStack}">
 
-                <Border Style="{StaticResource Win11SettingsSection}" Margin="{DynamicResource Inset.0.0.0.8}">
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          SnapsToDevicePixels="True">
+                <opt:OptSection Header="{DynamicResource LocOpt_SpeedSection}">
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                    <!-- The processor this runs on, so the counts below make sense. -->
+                    <opt:OptRow Title="{DynamicResource LocAdv_ProcessorTitle}">
+                        <TextBlock x:Name="ProcessorSummaryText"
+                                   Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                   Margin="{DynamicResource Inset.None}"
+                                   NumberSubstitution.Substitution="European"
+                                   FlowDirection="LeftToRight"
+                                   TextAlignment="Left"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxWidth="420">
+                            <Run Text="{Binding ProcessorName, Mode=OneWay}" FlowDirection="LeftToRight" />
+                            <Run Text="{Binding ProcessorCounts, Mode=OneWay}" />
+                        </TextBlock>
+                    </opt:OptRow>
 
-                        <Border Grid.Row="0"
-                                Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
+                    <!-- One list for the performance mode and the thread count: a fixed count replaces the mode. -->
+                    <opt:OptRow Title="{DynamicResource LocOpt_SpeedTitle}"
+                                Description="{Binding SpeedDescription}">
+                        <ComboBox x:Name="SpeedComboBox"
+                                  NumberSubstitution.Substitution="European"
+                                  ItemsSource="{Binding SpeedOptions}"
+                                  SelectedItem="{Binding SelectedSpeed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocOpt_SpeedTitle}" />
+                    </opt:OptRow>
+
+                    <opt:OptRow Title="{DynamicResource LocPerformance_ConcurrentConversions}"
+                                Description="{Binding ConcurrentConversionDescription}">
+                        <ComboBox x:Name="ConcurrentConversionCountComboBox"
+                                  NumberSubstitution.Substitution="European"
+                                  ItemsSource="{Binding ConcurrentConversionOptions}"
+                                  SelectedItem="{Binding SelectedConcurrentConversionOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ProcessorOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPerformance_ConcurrentConversions}" />
+                    </opt:OptRow>
+
+                    <opt:OptRow Title="{DynamicResource LocPerformance_ProcessPriority}"
+                                Description="{Binding PriorityModeDescription}">
+                        <ComboBox x:Name="PriorityModeComboBox"
+                                  ItemsSource="{Binding PriorityModeOptions}"
+                                  SelectedItem="{Binding SelectedPriorityMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
+                                  Style="{StaticResource Win11SettingsComboBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPerformance_ProcessPriority}" />
+                    </opt:OptRow>
+                </opt:OptSection>
+
+                <!-- Where work files go while converting, and what is cleaned up after. -->
+                <opt:OptSection Header="{DynamicResource LocOpt_TempFilesSection}">
+                    <opt:OptRow Placement="Leading"
+                                Title="{DynamicResource LocPaths_CustomTempFolder}"
+                                Description="{DynamicResource LocPaths_CustomTempFolderDesc}">
+                        <CheckBox x:Name="UseCustomPendingWorkspaceCheckBox"
+                                  IsChecked="{Binding UseCustomPendingWorkspace, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Style="{StaticResource Win11SettingsCheckBox}"
+                                  AutomationProperties.Name="{DynamicResource LocPaths_CustomTempFolder}" />
+                        <opt:OptRow.Extra>
+                            <Grid Visibility="{Binding UseCustomPendingWorkspace, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-
-                                <Viewbox Grid.Column="0"
-                                         Width="{DynamicResource Space.18}"
-                                         Height="{DynamicResource Space.18}"
-                                         VerticalAlignment="Center"
+                                <TextBox x:Name="PendingWorkspaceCustomRootTextBox"
+                                         Height="{DynamicResource Space.32}"
+                                         Text="{Binding PendingWorkspaceCustomRoot, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
                                          FlowDirection="LeftToRight"
-                                         Stretch="Uniform"
-                                         SnapsToDevicePixels="True">
-
-                                    <Path Data="{StaticResource Icon.Info}"
-                                          Fill="{DynamicResource Brush.Accent.Text}"
-                                          Stretch="Uniform"
-                                          SnapsToDevicePixels="True" />
-                                </Viewbox>
-
-                                <TextBlock x:Name="ProcessorSummaryText"
-                                           Grid.Column="2"
-                                           Text="{Binding ProcessorSummary}"
-                                           Style="{StaticResource Win11SettingsRowDescriptionText}"
-                                           Foreground="{DynamicResource Brush.Text.Primary}"
-                                           TextAlignment="Left"
-                                           TextWrapping="NoWrap"
-                                           TextTrimming="CharacterEllipsis" Margin="{DynamicResource Inset.None}"/>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </Border>
-
-                <Border Style="{StaticResource Win11SettingsSection}" Margin="{DynamicResource Inset.0.0.0.8}">
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          SnapsToDevicePixels="True">
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <Grid Grid.Row="0"
-                              Style="{StaticResource Win11SettingsSectionHeader}" MinHeight="{DynamicResource Space.32}">
-
-                            <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
-                                       Text="{DynamicResource LocPerformance_RuntimeSection}"
-                                       TextAlignment="Center" Margin="{DynamicResource Inset.8.4}"/>
-                        </Grid>
-
-                        <Border Grid.Row="1"
-                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-
-                                    <TextBlock Text="{DynamicResource LocPerformance_PerformanceMode}"
-                                               ToolTip="{Binding PerformanceModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               TextAlignment="Left" />
-                                </Grid>
-
-                                <ComboBox x:Name="PerformanceModeComboBox"
-                                          Grid.Column="2"
-                                          ItemsSource="{Binding PerformanceModeOptions}"
-                                          SelectedItem="{Binding SelectedPerformanceMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
-                                          IsTextSearchEnabled="True"
-                                          TextSearch.TextPath="Label"
-                                          Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding PerformanceModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                          AutomationProperties.Name="{DynamicResource LocPerformance_PerformanceMode}" Height="{DynamicResource Space.36}"/>
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="2"
-                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-
-                                    <TextBlock Text="{DynamicResource LocPerformance_ProcessorCount}"
-                                               ToolTip="{Binding ProcessorSelectionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               TextAlignment="Left" />
-                                </Grid>
-
-                                <ComboBox x:Name="ProcessorCountComboBox"
-                                          Grid.Column="2"
-                                          ItemsSource="{Binding ProcessorOptions}"
-                                          SelectedItem="{Binding SelectedProcessorOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          ItemTemplate="{StaticResource ProcessorOptionLabelTemplate}"
-                                          IsTextSearchEnabled="True"
-                                          TextSearch.TextPath="Label"
-                                          Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding ProcessorSelectionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                          AutomationProperties.Name="{DynamicResource LocPerformance_ProcessorCount}" Height="{DynamicResource Space.36}"/>
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="3"
-                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-
-                                    <TextBlock Text="{DynamicResource LocPerformance_ConcurrentConversions}"
-                                               ToolTip="{Binding ConcurrentConversionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               TextAlignment="Left" />
-                                </Grid>
-
-                                <ComboBox x:Name="ConcurrentConversionCountComboBox"
-                                          Grid.Column="2"
-                                          ItemsSource="{Binding ConcurrentConversionOptions}"
-                                          SelectedItem="{Binding SelectedConcurrentConversionOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          ItemTemplate="{StaticResource ProcessorOptionLabelTemplate}"
-                                          IsTextSearchEnabled="True"
-                                          TextSearch.TextPath="Label"
-                                          Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding ConcurrentConversionDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                          AutomationProperties.Name="{DynamicResource LocPerformance_ConcurrentConversions}" Height="{DynamicResource Space.36}"/>
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="4"
-                                Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-
-                                    <TextBlock Text="{DynamicResource LocPerformance_ProcessPriority}"
-                                               ToolTip="{Binding PriorityModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               TextAlignment="Left" />
-                                </Grid>
-
-                                <ComboBox x:Name="PriorityModeComboBox"
-                                          Grid.Column="2"
-                                          ItemsSource="{Binding PriorityModeOptions}"
-                                          SelectedItem="{Binding SelectedPriorityMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          ItemTemplate="{StaticResource ChoiceOptionLabelTemplate}"
-                                          IsTextSearchEnabled="True"
-                                          TextSearch.TextPath="Label"
-                                          Style="{StaticResource Win11SettingsComboBox}"
-                                          ToolTip="{Binding PriorityModeDescription, Converter={StaticResource BidiTextConverter}, ConverterParameter=Ui}"
-                                          AutomationProperties.Name="{DynamicResource LocPerformance_ProcessPriority}" Height="{DynamicResource Space.36}"/>
-                            </Grid>
-                        </Border>
-
-                    </Grid>
-                </Border>
-
-                <Border x:Name="WindowsIntegrationSection"
-                        Style="{StaticResource Win11SettingsSection}" Margin="{DynamicResource Inset.0.0.0.8}">
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          SnapsToDevicePixels="True">
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <Grid Grid.Row="0"
-                              Style="{StaticResource Win11SettingsSectionHeader}" MinHeight="{DynamicResource Space.32}">
-
-                            <TextBlock Style="{StaticResource Win11SettingsSectionTitleText}"
-                                       Text="{DynamicResource LocOptions_WindowsSection}"
-                                       TextAlignment="Center" Margin="{DynamicResource Inset.8.4}"/>
-                        </Grid>
-
-                        <Border Grid.Row="1"
-                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <CheckBox x:Name="ExplorerMenuCheckBox"
-                                          Grid.Column="0"
-                                          IsChecked="{Binding ExplorerMenuEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocOptions_ExplorerMenuDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocOptions_ExplorerMenu}" />
-
-                                <Grid Grid.Column="2"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Text="{DynamicResource LocOptions_ExplorerMenu}"
-                                               ToolTip="{DynamicResource LocOptions_ExplorerMenuDesc}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               TextAlignment="Left" />
-                                </Grid>
-                            </Grid>
-                        </Border>
-                        <Border Grid.Row="2"
-                                Style="{StaticResource Win11SettingsRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
-                            <Grid Style="{StaticResource Win11SettingsRowGrid}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <CheckBox x:Name="WatchFolderCheckBox"
-                                          Grid.Column="0"
-                                          IsChecked="{Binding WatchFolderEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource Win11SettingsCheckBox}"
-                                          ToolTip="{DynamicResource LocWatch_EnableDesc}"
-                                          AutomationProperties.Name="{DynamicResource LocWatch_Enable}" />
-
-                                <Grid Grid.Column="2"
-                                      Style="{StaticResource Win11SettingsRowTextArea}">
-                                    <TextBlock Text="{DynamicResource LocWatch_Enable}"
-                                               ToolTip="{DynamicResource LocWatch_EnableDesc}"
-                                               Style="{StaticResource Win11SettingsRowTitleText}"
-                                               TextAlignment="Left" />
-                                </Grid>
-                            </Grid>
-                        </Border>
-
-                        <Border Grid.Row="3"
-                                Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.8.4}" MinHeight="{DynamicResource Space.36}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <TextBox x:Name="WatchFolderTextBox"
-                                         Grid.Column="0"
-                                         Text="{Binding WatchFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         IsEnabled="{Binding WatchFolderEnabled}"
-                                         FlowDirection="LeftToRight"
-                                         VerticalContentAlignment="Center"
-                                         MinHeight="{DynamicResource Space.32}"
-                                         AutomationProperties.Name="{DynamicResource LocWatch_Folder}" />
-
-                                <Button Grid.Column="2"
-                                        Command="{Binding BrowseWatchFolderCommand}"
-                                        IsEnabled="{Binding WatchFolderEnabled}"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        AutomationProperties.Name="{DynamicResource LocCommon_Browse}"
+                                         Language="en-US"
+                                         TextAlignment="Left"
+                                         Style="{StaticResource Win11SettingsTechnicalTextBox}"
+                                         ToolTip="{Binding PendingWorkspaceCustomRoot}"
+                                         AutomationProperties.Name="{DynamicResource LocPaths_TempFolder}" />
+                                <Button x:Name="BrowsePendingWorkspaceButton"
+                                        Grid.Column="1"
+                                        Command="{Binding BrowsePendingWorkspaceCommand}"
+                                        Style="{StaticResource OptPathButton}"
+                                        AutomationProperties.Name="{DynamicResource LocPaths_TempFolder}"
                                         Content="{DynamicResource LocCommon_Browse}" />
+                                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource OptFieldError}" Text="{Binding PendingWorkspaceError}" />
                             </Grid>
-                        </Border>
-                    </Grid>
-                </Border>
+                        </opt:OptRow.Extra>
+                    </opt:OptRow>
+
+                    <opt:OptRow Placement="Leading"
+                                Title="{DynamicResource LocProcessing_DeleteTemporaryExtraction}"
+                                Description="{DynamicResource LocProcessing_DeleteTemporaryExtractionDesc}">
+                        <CheckBox x:Name="DeleteTemporaryExtractionCheckBox"
+                                  IsChecked="{Binding DeleteTemporaryExtraction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Style="{StaticResource Win11SettingsCheckBox}"
+                                  AutomationProperties.Name="{DynamicResource LocProcessing_DeleteTemporaryExtraction}" />
+                    </opt:OptRow>
+                </opt:OptSection>
 
             </StackPanel>
         </ScrollViewer>

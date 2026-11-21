@@ -96,6 +96,13 @@ internal sealed class ChdCsoInputPreparationCoordinator
             return await PrepareAlcoholMdsAsync(inputPath, outputPath, resolvedInputPath, preparationKind, compressionResolution, resolvedHunkSizeBytes, executionReportContext, cancellationToken).ConfigureAwait(false);
         }
 
+        if (preparationKind == ChdInputPreparationKind.None
+            && string.Equals(Path.GetExtension(resolvedInputPath), ".cue", StringComparison.OrdinalIgnoreCase)
+            && GdRomCueGdi.TryRead(resolvedInputPath) is { } gdRomTracks)
+        {
+            return await PrepareGdRomGdiAsync(gdRomTracks, inputPath, outputPath, compressionResolution, resolvedHunkSizeBytes, executionReportContext, cancellationToken).ConfigureAwait(false);
+        }
+
         if (preparationKind is not (ChdInputPreparationKind.ExpandCsoToIso or ChdInputPreparationKind.ExpandZsoToIso))
         {
             return ChdCsoInputPreparationOutcome.NotRequired;
@@ -165,6 +172,78 @@ internal sealed class ChdCsoInputPreparationCoordinator
         finally
         {
             tempWorkspace?.Dispose();
+        }
+    }
+
+    // A GD-ROM CUE becomes a GDI next to the staged (hard-linked, or copied) track files, so chdman keeps each track's
+    // pregap where the dump has it. Nothing is written to the source folder.
+    private static async Task<ChdCsoInputPreparationOutcome> PrepareGdRomGdiAsync(
+        IReadOnlyList<GdRomCueTrack> tracks,
+        string inputPath,
+        string outputPath,
+        ChdCompressionResolution compressionResolution,
+        int resolvedHunkSizeBytes,
+        ChdConversionServiceSupport.ChdExecutionReportContext executionReportContext,
+        CancellationToken cancellationToken)
+    {
+        ChdCsoInputPreparationOutcome Fail() => new(
+            null,
+            ChdConversionServiceSupport.BuildPreExecutionFailureResult(
+                inputPath,
+                outputPath,
+                GdRomCueGdi.StagingFailedMessageKey,
+                compressionResolution,
+                resolvedHunkSizeBytes,
+                executionReportContext));
+
+        CsoTempWorkspace? workspace = CsoTempWorkspace.Create();
+        try
+        {
+            long stagedBytes = 0;
+            foreach (GdRomCueTrack track in tracks)
+            {
+                ConversionPathValidator.ThrowIfUnsafeForChdman(track.FilePath, nameof(inputPath));
+                string staged = Path.Combine(workspace.DirectoryPath, GdRomCueGdi.StagedFileName(track));
+                if (!await CloneCdImageStager.TryStageAsync(track.FilePath, staged, cancellationToken).ConfigureAwait(false))
+                {
+                    return Fail();
+                }
+
+                stagedBytes += new FileInfo(staged).Length;
+            }
+
+            string gdiPath = Path.Combine(workspace.DirectoryPath, "tmp.gdi");
+            File.WriteAllText(gdiPath, GdRomCueGdi.BuildGdi(tracks, GdRomCueGdi.StagedFileName), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+            var report = new ChdConversionServiceSupport.ChdInputPreparationReport(
+                OriginalInputPath: inputPath,
+                PreparedInputPath: gdiPath,
+                PreparationTool: "GD-ROM CUE to GDI",
+                PreparationToolVersion: string.Empty,
+                PreparationCommand: "generate tmp.gdi from the GD-ROM .cue (track pregaps kept in place)",
+                PreparationExitCode: 0,
+                PreparedOutputBytes: stagedBytes,
+                TemporaryIsoDeleted: false,
+                SourcePreserved: true);
+
+            // Ownership transfers to the returned lease, which the conversion caller disposes.
+#pragma warning disable CA2000
+            var lease = new ChdCsoPreparedInputLease(workspace, report, gdiPath);
+#pragma warning restore CA2000
+            workspace = null;
+            return new ChdCsoInputPreparationOutcome(lease, null);
+        }
+        catch (Exception ex) when (ex is IOException
+                                  or UnauthorizedAccessException
+                                  or ArgumentException
+                                  or InvalidOperationException
+                                  or NotSupportedException)
+        {
+            return Fail();
+        }
+        finally
+        {
+            workspace?.Dispose();
         }
     }
 

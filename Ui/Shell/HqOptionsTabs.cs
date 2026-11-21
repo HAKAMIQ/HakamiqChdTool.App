@@ -17,6 +17,7 @@ internal sealed partial class HqOptionsShell
         _owner.ProcessingTabButtonView.IsChecked = string.Equals(normalizedTabKey, ProcessingTabKey, StringComparison.Ordinal);
         _owner.ExternalToolsTabButtonView.IsChecked = string.Equals(normalizedTabKey, ExternalToolsTabKey, StringComparison.Ordinal);
         _owner.PerformanceTabButtonView.IsChecked = string.Equals(normalizedTabKey, PerformanceTabKey, StringComparison.Ordinal);
+        _owner.WindowsTabButtonView.IsChecked = string.Equals(normalizedTabKey, WindowsTabKey, StringComparison.Ordinal);
 
         UpdateVisiblePanel();
     }
@@ -48,21 +49,26 @@ internal sealed partial class HqOptionsShell
             return PerformanceTabKey;
         }
 
-        return ProcessingTabKey;
+        if (_owner.WindowsTabButtonView?.IsChecked == true)
+        {
+            return WindowsTabKey;
+        }
+
+        return PathsTabKey;
     }
 
     private static string NormalizeTabKey(string? tabKey)
     {
         if (string.IsNullOrWhiteSpace(tabKey))
         {
-            return ProcessingTabKey;
+            return PathsTabKey;
         }
 
         string value = tabKey.Trim();
 
         if (value.Equals(GeneralTabKey, StringComparison.OrdinalIgnoreCase))
         {
-            return ProcessingTabKey;
+            return PathsTabKey;
         }
 
         if (value.Equals(PathsTabKey, StringComparison.OrdinalIgnoreCase))
@@ -90,7 +96,12 @@ internal sealed partial class HqOptionsShell
             return PerformanceTabKey;
         }
 
-        return ProcessingTabKey;
+        if (value.Equals(WindowsTabKey, StringComparison.OrdinalIgnoreCase))
+        {
+            return WindowsTabKey;
+        }
+
+        return PathsTabKey;
     }
 
     public void OnTabButtonChecked(object sender, RoutedEventArgs e)
@@ -107,7 +118,8 @@ internal sealed partial class HqOptionsShell
             || _owner.RedumpPanelView is null
             || _owner.ProcessingPanelView is null
             || _owner.ExternalToolsPanelView is null
-            || _owner.PerformancePanelView is null)
+            || _owner.PerformancePanelView is null
+            || _owner.WindowsPanelView is null)
         {
             return;
         }
@@ -118,6 +130,7 @@ internal sealed partial class HqOptionsShell
         SetPanelVisibilityIfAvailable(_owner.ProcessingPanelView, _owner.ProcessingTabButtonView.IsChecked == true ? Visibility.Visible : Visibility.Collapsed);
         SetPanelVisibilityIfAvailable(_owner.ExternalToolsPanelView, _owner.ExternalToolsTabButtonView.IsChecked == true ? Visibility.Visible : Visibility.Collapsed);
         SetPanelVisibilityIfAvailable(_owner.PerformancePanelView, _owner.PerformanceTabButtonView.IsChecked == true ? Visibility.Visible : Visibility.Collapsed);
+        SetPanelVisibilityIfAvailable(_owner.WindowsPanelView, _owner.WindowsTabButtonView.IsChecked == true ? Visibility.Visible : Visibility.Collapsed);
     }
 
     private static void SetPanelVisibilityIfAvailable(FrameworkElement? panel, Visibility visibility)

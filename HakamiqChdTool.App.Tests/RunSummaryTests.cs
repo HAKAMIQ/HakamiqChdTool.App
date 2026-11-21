@@ -34,7 +34,7 @@ internal static partial class Program
 
         RunSummaryCard arabicCard = RunSummaryCardBuilder.Build(Metrics(5, savedBytes: 300 * 1024 * 1024), false, TimeSpan.FromSeconds(42), key => arabic[key]);
         AssertEqual("اكتملت المعالجة", arabicCard.Title, "The Arabic title is used.");
-        AssertEqual("5 ناجح · وفّرت 300.0 MB · استغرقت 0:42", Plain(arabicCard.Message), "The Arabic line is built from Arabic text.");
+        AssertEqual("5 ناجح · وفرت 300.0 MB · استغرقت 0:42", Plain(arabicCard.Message), "The Arabic line is built from Arabic text.");
         AssertTrue(arabicCard.Message.Contains("‎300.0 MB‎", StringComparison.Ordinal), "Sizes are kept left-to-right inside Arabic text.");
 
         foreach (string key in new[]
@@ -56,5 +56,27 @@ internal static partial class Program
         AssertTrue(view.Contains("AutomationProperties.LiveSetting=\"Polite\"", StringComparison.Ordinal), "Screen readers announce the summary.");
         AssertTrue(view.Contains("AutomationProperties.Name=\"{DynamicResource LocRunSummary_Details}\"", StringComparison.Ordinal)
             && view.Contains("AutomationProperties.Name=\"{DynamicResource LocRunSummary_Close}\"", StringComparison.Ordinal), "The bar's buttons have accessible names.");
+    }
+
+    // The tray balloon after a run shows the same title and line as the bar, so it includes the space saved.
+    private static void TestTrayBalloonUsesRunSummary()
+    {
+        string tray = File.ReadAllText(FindRepoFile(Path.Combine("Views", "MainWindow", "MW.Tray.cs")));
+        AssertTrue(tray.Contains("ShowBalloonTip(runSummary.Title, runSummary.Message, BalloonIcon.Info)", StringComparison.Ordinal),
+            "The balloon shows the run summary title and line.");
+        AssertTrue(tray.Contains("if (processedSelectionOnly || _shutdownStarted || _shutdownCompleted)", StringComparison.Ordinal)
+            && tray.Contains("if (IsVisible && WindowState != WindowState.Minimized && IsActive)", StringComparison.Ordinal),
+            "The balloon still stays quiet for selection-only runs, during shutdown and while the window is in front.");
+
+        string uiState = File.ReadAllText(FindRepoFile(Path.Combine("Views", "MainWindow", "MW.UiState.cs")));
+        int build = uiState.IndexOf("RunSummaryCard runSummaryCard = RunSummaryCardBuilder.Build(", StringComparison.Ordinal);
+        AssertTrue(build >= 0
+            && uiState.IndexOf("QueueWorkspace.ShowRunSummary(runSummaryCard);", build, StringComparison.Ordinal) > build
+            && uiState.IndexOf("runSummaryCard);", uiState.IndexOf("TryNotifyTrayForBatchCompletion(", build, StringComparison.Ordinal), StringComparison.Ordinal) > build,
+            "The bar and the balloon get the same summary.");
+
+        Dictionary<string, string> english = LoadStrings("EnglishStrings.xaml");
+        string saved = RunSummaryCardBuilder.Build(Metrics(2, savedBytes: 2L * 1024 * 1024 * 1024), false, TimeSpan.FromSeconds(30), key => english[key]).Message;
+        AssertTrue(saved.Contains("2.00 GB", StringComparison.Ordinal), "The line given to the balloon carries the space saved.");
     }
 }

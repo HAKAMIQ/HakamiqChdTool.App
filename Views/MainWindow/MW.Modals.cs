@@ -12,8 +12,17 @@ namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
+    private OptionsWindow? _openOptionsDialog;
+
+    // One Options window at a time: a second request (tray menu, automation) brings the open one forward.
     internal void OpenOptionsDialog(string? initialTabKey = null)
     {
+        if (_openOptionsDialog is not null)
+        {
+            _openOptionsDialog.Activate();
+            return;
+        }
+
         OptionsWindow dialog;
         try
         {
@@ -48,6 +57,7 @@ public partial class MainWindow
             bool previousExplorerMenu = _settings.ExplorerMenuEnabled;
             _settings.CopyFrom(settings);
             _queue.UpdateMaxConcurrentItems(_settings.MaxConcurrentConversions);
+            HakamiqChdTool.App.Services.HelperToolPriority.Mode = _settings.ChdmanPriorityMode;
             _settings.UiLanguage = requestedLanguage;
 
             if (languageChanged)
@@ -90,12 +100,14 @@ public partial class MainWindow
         dialog.SettingsApplied += Dialog_SettingsApplied;
 
         bool? result;
+        _openOptionsDialog = dialog;
         try
         {
             result = dialog.ShowDialog();
         }
         finally
         {
+            _openOptionsDialog = null;
             dialog.SettingsApplied -= Dialog_SettingsApplied;
         }
 
@@ -192,6 +204,49 @@ public partial class MainWindow
 
         window.Closed += (_, _) => _recompressWindow = null;
         _recompressWindow = window;
+        window.Show();
+    }
+
+    private XboxWindow? _xboxWindow;
+
+    // Non-modal; one window at a time. Runs the pinned Xbox tools on its own, outside the queue and CHD.
+    internal void OpenXboxWindow()
+    {
+        if (_xboxWindow is not null)
+        {
+            _xboxWindow.Activate();
+            return;
+        }
+
+        XboxWindow window;
+        try
+        {
+            var service = new HakamiqChdTool.App.Services.Xbox.XboxConvertService(new ExternalToolProcessRunner());
+            window = new XboxWindow { Owner = this };
+            var viewModel = new XboxViewModel(
+                service.DetectAsync,
+                service.ConvertAsync,
+                window,
+                ArabicUi.Get,
+                HakamiqChdTool.App.Services.Xbox.XboxFormats.Parse(_settings.Xbox360Format),
+                format =>
+                {
+                    _settings.Xbox360Format = HakamiqChdTool.App.Services.Xbox.XboxFormats.ToSetting(format);
+                    PersistSettings();
+                });
+            window.Attach(viewModel);
+        }
+        catch (Exception ex)
+        {
+            global::Serilog.Log.Error(ex, "Xbox window construction failed.");
+            ShowNoticeDialog(
+                MainWindowMessages.StartupRuntimeErrorTitle,
+                MainWindowMessages.StartupRuntimeErrorBody(RuntimeDiagnosticFormatter.SummarizeException(ex)));
+            return;
+        }
+
+        window.Closed += (_, _) => _xboxWindow = null;
+        _xboxWindow = window;
         window.Show();
     }
 }

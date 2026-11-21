@@ -8,13 +8,19 @@ Each version starts with a short `### Release notes` list written for users.
 Only that list is published as the GitHub Release text; the subsections after
 it are the detailed record.
 
-## v1.7.0 - Unreleased
+## v2.0.0 - 2026-11-21
 
 ### Release notes
 
 - Optional Explorer right-click menu: Convert to CHD on disc images and
   archives, Extract and Verify on CHD files, and a CHD Tool submenu on folders.
 - Opening files while CHD Tool is already open adds them to the open window.
+- Choosing an Explorer menu entry while CHD Tool is closed opens a small
+  window instead of the full app. It processes the selected files right away
+  with your saved settings and shows the result with the space saved. It waits
+  for Start when your settings delete the source, Open in app hands the files
+  that did not finish to the full app, and an option under the Explorer menu
+  option turns it off.
 - Watch folder (optional): new disc images and archives copied into a chosen
   folder are converted once fully written, while the app is open.
 - Command line: `--start` processes the added items and `--exit-when-done`
@@ -22,12 +28,81 @@ it are the detailed record.
 - After a run, a bar above the queue shows how many items finished, failed or
   were skipped, the space saved and the time taken, with a Details button for
   the full report.
+- The tray notification after a run, shown when the window is not in front,
+  now has the same result line, including the space saved and the time taken.
+- Advanced options read more clearly: Arabic text has no diacritics, labels
+  drop repeated "(recommended)" marks and English duplicates, the CPU name and
+  igir version show in the right order, and the Explorer menu and watch folder
+  options explain themselves on screen (on Windows 11 the menu entries are
+  under Show more options).
+- A CHD platform profile no longer marks the other disc types in the queue as
+  unsupported; they convert with Auto. The hard-disk profile is unchanged.
+- With more than one file converting at once, Auto threads are shared
+  between them instead of each chdman taking the full Auto count.
+- Choosing an igir.exe that is not the pinned build no longer switches off
+  the bundled igir, and an unusable external chdman is written to the log.
+- The tray icon menu no longer shows a light block behind the text in the
+  dark theme.
+- Options that could not work are gone: the "Manual" performance mode (it
+  behaved like Safe) and "Force CD" for ISO files (always refused). Saved
+  values load as Safe and Auto.
+- The delete-source options are available only while "Verify after
+  conversion" is on, the Redump option says it reads each source before
+  converting, and "Delete incomplete output" says it applies to failed
+  CUE/BIN extractions.
+- The Quiet priority setting now also covers 7-Zip, csokit and igir, not only
+  chdman.
+- If the watch folder is deleted while the app is open, watching stops and
+  the status bar says so.
+- Importing a Redump DAT names it after the chosen file; a hidden system name
+  left in old settings no longer re-labels it.
+- Number lists in Advanced options use Latin digits, and the hunk-size presets
+  say they are not applied to PS2 DVD and PSP images.
+- Advanced options are rebuilt: one row style in every tab with the
+  description on screen, a larger window, a Windows tab for the Explorer menu
+  and watch folder, a Tools tab that lists every bundled tool with its version
+  and digest check, and a search box that filters every tab.
+- Fewer, clearer options: General comes first; pairs of options are one list
+  each (output folders, deleting the original, M3U playlists, and the
+  performance mode with the thread count); technical CHD choices and the
+  chdman copy sit in a folded Advanced section; Redump has one Prepare button.
+- The hunk size and compression options say when the target emulator
+  overrides them, and replacing existing M3U playlists can be chosen.
+- Incomplete output from a failed job is always removed; the option is gone.
+- The option that wrote the suggested Redump name to the log is gone; the
+  suggested name still shows with the check result.
+- Folder errors show under the folder box, and a watch folder that is on needs
+  an existing folder.
+- Restore defaults resets only the options in the window; it no longer
+  switches the language and theme or clears chosen tools and Redump data.
+- Only one Options window opens at a time; opening Options with a Redump
+  database no longer turns on Apply; hidden Redump fields no longer block OK;
+  Scan DAT folder shows its result; a chosen CsoKit or igir waits for Apply
+  and Cancel drops it.
+- Option texts say what the options do: Redump checks read each source in
+  full first, and archives are always unpacked in the Windows Temp folder.
+- Files unpacked from archives are now deleted from the Temp folder when the
+  task ends by default. A choice already saved in your settings is kept.
+- Arabic messages across the app use plain wording: direct instructions
+  instead of "يرجى", simple verbs instead of "سيتم + verbal noun", and no
+  English word repeated in brackets.
+- Opening Advanced options no longer replaces the saved Redump download
+  address.
 - "When done" next to the queue buttons: sleep or shut down the computer
   after the run, with a 60-second countdown you can cancel. It applies to one
   run, is never saved, and does nothing after a stopped run.
 - Target emulator setting: PCSX2 and PPSSPP (DVD CHDs with 2048-byte hunks)
   or RetroArch and older emulators (no zstd). Automatic, the default, keeps
   the current behavior.
+- An Xbox section in the sidebar converts Xbox games to XISO for xemu (a full
+  Redump image becomes about half the size) and Xbox 360 games to Games on
+  Demand (Xenia and an Xbox 360) or ZAR (Xenia Canary). Each result is checked
+  against the source before it is kept, and the originals are never changed.
+- Xbox and Xbox 360 ISOs added to the CHD queue are no longer converted to a
+  CHD that no Xbox emulator reads; the row says why.
+- A Dreamcast GD-ROM CUE (TOSEC style) converts with its tracks in place: the
+  pregap before track 2 no longer ends up at the end of track 1.
+- A PSP CSO gets the same 2048-byte CHD hunks as a PSP ISO.
 - Recompress CHD files (Tools in the sidebar): makes existing CHDs smaller with
   stronger compression. Each new file is verified and matched against the
   original, and kept only if it saves at least 1%. New files go to another
@@ -40,6 +115,19 @@ it are the detailed record.
   over a current-user-only named pipe.
 - The Explorer menu is written under `HKCU\Software\Classes` only and is off
   by default.
+- New bundled tools for the Xbox section, each pinned by SHA-256 and checked
+  again right before it runs: xdvdfs 0.8.3 (MIT), iso2god-rs 1.8.1 (MIT) and
+  ZArchive 0.1.2 (MIT-0). See `Tools/VERSIONS.md` and `docs/legal`.
+- Explorer menu entries now start `HakamiqChdTool.exe --quick --mode <mode>
+  --add "%1"`; entries made by an earlier version are rewritten the next time
+  the app starts. `--quick` is never sent to a window that is already open.
+- Every release now bundles igir. The CI and secure-release workflows run
+  `scripts/FetchIgir.ps1` and `scripts/FetchIgirSource.ps1` (pinned SHA-256)
+  before publishing, and the release attaches the igir source archive.
+  `PublishRel.ps1`, `VerifyRelease.ps1` and `PackRel.ps1` now fail when
+  `igir.exe` is missing instead of packaging without it. Before this, the
+  workflow build of v1.6.0 had no `igir.exe`; the published v1.6.0 ZIPs were
+  built locally.
 
 ## v1.6.0 - 2026-11-19
 

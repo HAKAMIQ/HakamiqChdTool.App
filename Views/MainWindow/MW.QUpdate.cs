@@ -148,26 +148,8 @@ public partial class MainWindow
         }
     }
 
-    private void ApplyTerminalQueueStatusToRow(ChdQueueItem item)
-    {
-        _queueRowStore.Mutate(item.Id, row =>
-        {
-            if (string.Equals(item.Status, TaskQueueStateCodes.Cancelled, StringComparison.OrdinalIgnoreCase))
-            {
-                row.CurrentState = TaskQueueStateCodes.Cancelled;
-                row.FinalResult = TaskFinalResultCodes.Cancelled;
-                row.StatusDetail = string.IsNullOrWhiteSpace(item.Error)
-                    ? "LocQueue_OperationCancelled"
-                    : item.Error;
-
-                row.IsProgressActive = false;
-                row.IsIndeterminate = false;
-                row.RuntimeProgressKind = QueueRuntimeProgressKind.None;
-                row.RuntimeProgressPrimaryMessageKey = string.Empty;
-                row.RuntimeProgressShowActivitySpinner = false;
-            }
-        });
-    }
+    private void ApplyTerminalQueueStatusToRow(ChdQueueItem item) =>
+        HakamiqChdTool.App.QueueRun.QueueRowTerminal.ApplyCancelled(_queueRowStore, item);
 
     private TaskQueueItemViewModel? TryResolveTaskByQueueItemId(Guid id)
     {

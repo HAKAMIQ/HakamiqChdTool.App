@@ -39,20 +39,45 @@ public sealed class ExternalToolProcessRunner
         string expectedFileName) =>
         RunCoreAsync(executablePath, arguments, cancellationToken, outputCharacterLimit, expectedFileName);
 
+    /// <summary>
+    /// Runs a pinned tool. <paramref name="validateBeforeStart"/> is called immediately before the process starts and
+    /// returns the normalized path, or null to refuse (for example when the file no longer matches its digest).
+    /// </summary>
+    public Task<ExternalToolProcessResult> RunAsync(
+        string executablePath,
+        IReadOnlyList<string> arguments,
+        CancellationToken cancellationToken,
+        int outputCharacterLimit,
+        Func<string, string?> validateBeforeStart)
+    {
+        ArgumentNullException.ThrowIfNull(validateBeforeStart);
+        return RunCoreAsync(executablePath, arguments, cancellationToken, outputCharacterLimit, expectedFileName: null, validateBeforeStart);
+    }
+
     private async Task<ExternalToolProcessResult> RunCoreAsync(
         string executablePath,
         IReadOnlyList<string> arguments,
         CancellationToken cancellationToken,
         int outputCharacterLimit,
-        string? expectedFileName)
+        string? expectedFileName,
+        Func<string, string?>? validateBeforeStart = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(executablePath);
         ArgumentNullException.ThrowIfNull(arguments);
 
         string normalizedExecutablePath;
-        bool executableIsValid = expectedFileName is null
-            ? CsoToolLocator.TryValidateCandidate(executablePath, out normalizedExecutablePath)
-            : ExternalToolPathValidator.TryValidateCandidate(executablePath, expectedFileName, out normalizedExecutablePath);
+        bool executableIsValid;
+        if (validateBeforeStart is not null)
+        {
+            normalizedExecutablePath = validateBeforeStart(executablePath) ?? string.Empty;
+            executableIsValid = normalizedExecutablePath.Length > 0;
+        }
+        else
+        {
+            executableIsValid = expectedFileName is null
+                ? CsoToolLocator.TryValidateCandidate(executablePath, out normalizedExecutablePath)
+                : ExternalToolPathValidator.TryValidateCandidate(executablePath, expectedFileName, out normalizedExecutablePath);
+        }
         if (!executableIsValid)
         {
             Log.Warning("External tool path failed validation before process start. Tool={ToolPath}", executablePath);
@@ -127,6 +152,7 @@ public sealed class ExternalToolProcessRunner
             return new ExternalToolProcessResult(1, false, string.Empty, ex.Message);
         }
 
+        HelperToolPriority.TryApply(process);
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 

@@ -172,6 +172,14 @@ jobs:
           $epoch = (git show -s --format=%ct HEAD).Trim()
           "SOURCE_DATE_EPOCH=$epoch" >> $env:GITHUB_ENV
 
+      - name: Fetch pinned igir
+        shell: pwsh
+        run: |
+          # igir.exe is over GitHub's 100 MiB file limit, so it is not in Git.
+          # Both scripts verify the pinned SHA-256 and fail on any mismatch.
+          .\scripts\FetchIgir.ps1
+          .\scripts\FetchIgirSource.ps1
+
       - name: Restore locked dependencies
         shell: powershell
         run: dotnet restore .\HakamiqChdTool.App.sln --locked-mode
@@ -387,6 +395,10 @@ jobs:
           $tag = "v$env:RELEASE_VERSION"
           $runtimePackage = ".\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-runtime-required.zip"
           $selfContainedPackage = ".\Release\packages\HakamiqChdTool-v${env:RELEASE_VERSION}-win-x64-self-contained.zip"
+          $igirSourcePackage = ".\Release\packages\igir-5.8.1-source.tar.gz"
+          if (-not (Test-Path -LiteralPath $igirSourcePackage -PathType Leaf)) {
+            throw "igir Corresponding Source is missing: $igirSourcePackage"
+          }
           $notesPath = Join-Path $env:RUNNER_TEMP 'release-notes.md'
           $authenticodeNote = if ($env:AUTHENTICODE_POLICY -eq 'not-used') {
             "Not code-signed, so Windows SmartScreen may show a warning."
@@ -410,6 +422,7 @@ jobs:
           gh release create $tag `
             "$selfContainedPackage#CHD Tool $tag for Windows - download this one (includes .NET 10)" `
             "$runtimePackage#CHD Tool $tag for Windows - smaller, needs .NET 10 Desktop Runtime" `
+            "$igirSourcePackage#igir 5.8.1 source code (GPL-3.0) - not needed to use the app" `
             --verify-tag `
             --title "CHD Tool $tag" `
             --notes-file $notesPath

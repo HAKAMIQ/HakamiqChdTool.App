@@ -87,6 +87,9 @@ External tools used by the app:
   together, pinned independently by SHA-256, and revalidated immediately before
   every execution.
 - CHD reader/helper tooling for CHD information paths
+- xdvdfs 0.8.3, iso2god-rs 1.8.1 and ZArchive 0.1.2 for the Xbox section (Xbox to
+  XISO, Xbox 360 to GOD or ZAR). Each is pinned by SHA-256 and revalidated
+  immediately before every execution. They do not take part in CHD conversion.
 
 Reviewed upstream versions and file digests are recorded in
 [Bundled tool versions](../Tools/VERSIONS.md).

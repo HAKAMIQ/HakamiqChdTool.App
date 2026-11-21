@@ -142,9 +142,6 @@ public static class MainWindowMessages
     public const string SummaryCancelledTitle = "LocDialog_SummaryCancelledTitle";
     public const string SummaryCompletedTitle = "LocDialog_SummaryCompletedTitle";
 
-    public const string TraySessionCancelledTitle = "LocTray_SessionCancelledTitle";
-    public const string TraySessionCompletedTitle = "LocTray_SessionCompletedTitle";
-    public const string Fmt_TraySessionBalloon = "LocFmt_TraySessionBalloon";
 
     public const string CloseWhileProcessingPrompt = "LocDialog_CloseWhileProcessingBody";
     public const string CloseWhileProcessingTitle = "LocDialog_CloseWhileProcessingTitle";

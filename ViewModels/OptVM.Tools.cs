@@ -1,4 +1,7 @@
 using HakamiqChdTool.App.Localization;
+using HakamiqChdTool.App.Services.ExternalTools;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace HakamiqChdTool.App.ViewModels;
 
@@ -79,4 +82,36 @@ public sealed partial class OptionsViewModel
         ExternalToolsCsoKitIsAvailable = isAvailable;
         ExternalToolsCsoKitShowSetupNote = showSetupNote;
     }
+    private bool _searchHasNoResults;
+
+    /// <summary>True while the Options search text matches no option.</summary>
+    public bool SearchHasNoResults
+    {
+        get => _searchHasNoResults;
+        set => SetProperty(ref _searchHasNoResults, value);
+    }
+
+    /// <summary>The bundled tools (chdman, 7-Zip, Xbox tools) with their version and whether each file matches its pin.</summary>
+    public ObservableCollection<BundledToolRow> BundledTools { get; } = [];
+
+    public void SetBundledTools(IEnumerable<BundledToolStatus> tools)
+    {
+        BundledTools.Clear();
+        foreach (BundledToolStatus tool in tools)
+        {
+            BundledTools.Add(new BundledToolRow(
+                XboxViewModel.Ltr(tool.Name + " " + tool.Version),
+                ArabicUi.Get(tool.PurposeKey),
+                ArabicUi.Get(tool.State switch
+                {
+                    BundledToolState.Verified => "LocTools_StateVerified",
+                    BundledToolState.Missing => "LocTools_StateMissing",
+                    _ => "LocTools_StateChanged"
+                }),
+                tool.State == BundledToolState.Verified));
+        }
+    }
 }
+
+/// <summary>A row of the bundled tools list; the title is LTR text (name and version).</summary>
+public sealed record BundledToolRow(string Title, string Purpose, string StateText, bool IsVerified);

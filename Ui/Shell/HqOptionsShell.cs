@@ -34,12 +34,6 @@ internal sealed partial class HqOptionsShell : IDisposable
     private const string RedumpImportErrorTitleKey = "LocOptions_RedumpImportErrorTitle";
     private const string OperationErrorTitleKey = "LocOptions_OperationErrorTitle";
     private const string MissingDataTitleKey = "LocOptions_MissingDataTitle";
-    private const string RedumpDownloadUrlRequiredKey = "LocOptions_RedumpDownloadUrlRequired";
-    private const string RedumpDownloadInvalidUrlKey = "LocOptions_RedumpDownloadInvalidUrl";
-    private const string RedumpDownloadRunningKey = "LocOptions_RedumpDownloadRunning";
-    private const string RedumpSyncFailedTitleKey = "LocOptions_RedumpSyncFailedTitle";
-    private const string RedumpDownloadFailedKey = "LocOptions_RedumpDownloadFailed";
-    private const string RedumpDownloadErrorTitleKey = "LocOptions_RedumpDownloadErrorTitle";
     private const string DatabaseCheckingKey = "LocOptions_DatabaseChecking";
     private const string DatabaseAvailableKey = "LocOptions_DatabaseAvailable";
     private const string DatabaseMissingKey = "LocOptions_DatabaseMissing";
@@ -51,12 +45,12 @@ internal sealed partial class HqOptionsShell : IDisposable
     private static readonly string ProcessingTabKey = OptionsWindow.ProcessingTabKey;
     private static readonly string ExternalToolsTabKey = OptionsWindow.ExternalToolsTabKey;
     private static readonly string PerformanceTabKey = OptionsWindow.PerformanceTabKey;
+    private static readonly string WindowsTabKey = OptionsWindow.WindowsTabKey;
 
     private static readonly ILogger Logger = Log.ForContext<HqOptionsShell>();
 
     private readonly OptionsWindow _owner;
     private readonly AppSettings _currentSettings;
-    private readonly RedumpGitHubSyncManager _syncManager = new();
     private readonly CancellationTokenSource _windowLifetimeCts = new();
     private readonly ToolTipEventHandler _toolTipOpeningHandler;
 
@@ -108,7 +102,7 @@ internal sealed partial class HqOptionsShell : IDisposable
                 string databasePath = HakamiqChdTool.App.Services.RedumpSqliteManager.Default.DatabasePath;
                 if (System.IO.File.Exists(databasePath))
                 {
-                    _owner.ViewModel.SetDatabaseLastSyncedUtc(System.IO.File.GetLastWriteTimeUtc(databasePath).ToString(
+                    _owner.ViewModel.ShowDatabaseFileTime(System.IO.File.GetLastWriteTimeUtc(databasePath).ToString(
                         "O",
                         System.Globalization.CultureInfo.InvariantCulture));
                 }
@@ -140,7 +134,6 @@ internal sealed partial class HqOptionsShell : IDisposable
     {
         _isClosed = true;
 
-        _owner.RedumpPanelView.DownloadDatabaseRequested -= DownloadDatabase;
         _owner.RedumpPanelView.ImportRedumpDatabaseRequested -= ImportRedumpDatabase;
         _owner.ExternalToolsPanelView.RecheckRequested -= RecheckExternalTools;
         _owner.ExternalToolsPanelView.OpenToolsFolderRequested -= OpenExternalToolsFolder;
@@ -161,7 +154,6 @@ internal sealed partial class HqOptionsShell : IDisposable
         _windowLifetimeCts.Cancel();
         _windowLifetimeCts.Dispose();
 
-        _syncManager.Dispose();
     }
 
     public void OnHeaderMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

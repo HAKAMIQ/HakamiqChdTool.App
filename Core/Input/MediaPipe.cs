@@ -6,6 +6,8 @@ namespace HakamiqChdTool.App.Core.Input;
 
 public sealed class MediaInputPipeline : IMediaInputPipeline
 {
+    public const string XboxDiscMessageKey = "LocIntake_XboxDisc";
+
     private readonly IMediaInputClassifier _classifier;
 
     public MediaInputPipeline(IMediaInputClassifier classifier)
@@ -64,6 +66,18 @@ public sealed class MediaInputPipeline : IMediaInputPipeline
             return Block(
                 descriptor,
                 MediaInputPipelineDecisionReasons.HeaderEvidenceRejected);
+        }
+
+        // Xbox and Xbox 360 discs use XDVDFS; Xbox emulators do not read CHD, so they are not converted.
+        if (descriptor.Kind == MediaInputKind.ISO && descriptor.ProbeStatus == MediaInputProbeStatus.XboxDisc)
+        {
+            return new MediaInputPipelineDecision(
+                descriptor,
+                MediaInputPipelineAction.Block,
+                QueueInputRole.Unsupported,
+                descriptor.FullPath,
+                MediaInputPipelineDecisionReasons.XboxDisc,
+                XboxDiscMessageKey);
         }
 
         if (descriptor.Kind == MediaInputKind.PKG

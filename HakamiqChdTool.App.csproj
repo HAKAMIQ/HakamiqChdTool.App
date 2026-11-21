@@ -18,10 +18,10 @@
 		<DefaultItemExcludesInProjectFolder>$(DefaultItemExcludesInProjectFolder);artifacts\**</DefaultItemExcludesInProjectFolder>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Resources\HakamiqLogo.ico</ApplicationIcon>
-		<Version>1.6.0</Version>
-		<AssemblyVersion>1.6.0.0</AssemblyVersion>
-		<FileVersion>1.6.0.0</FileVersion>
-		<InformationalVersion>v1.6.0</InformationalVersion>
+		<Version>2.0.0</Version>
+		<AssemblyVersion>2.0.0.0</AssemblyVersion>
+		<FileVersion>2.0.0.0</FileVersion>
+		<InformationalVersion>v2.0.0</InformationalVersion>
 		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 		<Product>CHD Tool</Product>
 		<Company>Hakamiq</Company>
@@ -138,6 +138,21 @@
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
+		<Content Include="docs\legal\XDVDFS_NOTICE.md">
+			<TargetPath>XDVDFS_NOTICE.md</TargetPath>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>
+		<Content Include="docs\legal\ISO2GOD_NOTICE.md">
+			<TargetPath>ISO2GOD_NOTICE.md</TargetPath>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>
+		<Content Include="docs\legal\ZARCHIVE_NOTICE.md">
+			<TargetPath>ZARCHIVE_NOTICE.md</TargetPath>
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>
 		<Content Include="docs\sbom.cdx.json">
 			<TargetPath>docs\sbom.cdx.json</TargetPath>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -208,6 +223,44 @@
 		<Content Include="Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md" Condition="Exists('Tools\hakamiq-cso\win-x64\THIRD_PARTY_NOTICES.md')">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<!-- Xbox tools (Tools/VERSIONS.md): each executable is pinned by SHA-256 in Services/Xbox/XboxToolLocator.cs. -->
+		<Content Include="Tools\xdvdfs\win-x64\xdvdfs.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\xdvdfs\win-x64\LICENSE.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\iso2god\win-x64\iso2god.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\iso2god\win-x64\LICENSE.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\zarchive\win-x64\zarchive.exe">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Include="Tools\zarchive\win-x64\LICENSE.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<!-- igir.exe is git-ignored (over GitHub's 100 MiB limit); fetch it with scripts/FetchIgir.ps1.
+		     Copied to the build output so a local build finds it; scripts/PublishRel.ps1 copies it into releases. -->
+		<Content Include="Tools\igir\win-x64\igir.exe" Condition="Exists('Tools\igir\win-x64\igir.exe')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 	</ItemGroup>
 

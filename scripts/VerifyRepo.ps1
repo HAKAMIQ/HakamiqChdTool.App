@@ -1657,7 +1657,9 @@ function Test-ReleaseTrustGates {
         '-DeploymentMode self-contained',
         'HakamiqChdTool-v\$\{env:RELEASE_VERSION\}-win-x64-runtime-required\.zip',
         'HakamiqChdTool-v\$\{env:RELEASE_VERSION\}-win-x64-self-contained\.zip',
-        'PreserveExistingPackages')) {
+        'PreserveExistingPackages',
+        'scripts\\FetchIgir\.ps1',
+        'scripts\\FetchIgirSource\.ps1')) {
 
         if ($workflowText -notmatch $required) {
             Add-Failure "Secure release workflow is missing a ref/SBOM integrity control: $required"
@@ -1683,6 +1685,9 @@ function Test-ReleaseTrustGates {
     elseif ($releaseCreate.Value -match '\.sha256') {
         Add-Failure 'Secure release workflow must not upload .sha256 files to the release; GitHub shows each asset SHA-256.'
     }
+    elseif ($releaseCreate.Value -notmatch '\$igirSourcePackage#') {
+        Add-Failure 'Secure release workflow must upload the igir Corresponding Source next to the ZIPs (GPL-3.0).'
+    }
 
     foreach ($fixedSection in @('## Highlights', '## Download options', '## Verification', '## Changes')) {
         if ($workflowText -match [regex]::Escape($fixedSection)) {
@@ -1697,6 +1702,7 @@ function Test-ReleaseTrustGates {
         'Setup .NET',
         'Require signing secrets',
         'Set deterministic source epoch',
+        'Fetch pinned igir',
         'Restore locked dependencies',
         'Verify SBOM matches locked release inputs',
         'Build and test',
@@ -1816,6 +1822,15 @@ function Test-BundledToolIntegrityManifest {
 
         'Tools\hakamiq-cso\win-x64\CsoKit.Native.dll' =
             'F37AED7918AA1CFFE68BEDF04128292EFF6607F0E4E0386801C700707F2F388E'
+
+        'Tools\xdvdfs\win-x64\xdvdfs.exe' =
+            'DF5F19954EF706C130C256546BF67CF7725611BDB30D1815577187007A6F907A'
+
+        'Tools\iso2god\win-x64\iso2god.exe' =
+            '1459FCF8FF5A89E039B02C68C06B006B7A036F3B1CA237C2D7E03D61BD211D47'
+
+        'Tools\zarchive\win-x64\zarchive.exe' =
+            'F9BBA11DF7EE120186E013214C14C210690F72AB2940ECC158FC40BF36E78B6C'
     }
 
     foreach ($relativePath in $expectedDigests.Keys) {
@@ -1897,6 +1912,32 @@ function Test-BundledToolIntegrityManifest {
 
         if ($content -notmatch 'CsoToolLocator\.TryValidateCandidate') {
             Add-Failure 'ExternalToolProcessRunner must revalidate CsoKit immediately before process start.'
+        }
+
+        if ($content -notmatch 'validateBeforeStart\(executablePath\)') {
+            Add-Failure 'ExternalToolProcessRunner must run the pinned-tool check immediately before process start.'
+        }
+    }
+
+    $xboxToolLocator =
+        Join-Path $root 'Services\Xbox\XboxToolLocator.cs'
+
+    if (-not (Test-Path -LiteralPath $xboxToolLocator -PathType Leaf)) {
+        Add-Failure 'XboxToolLocator must pin the bundled Xbox tools.'
+    }
+    else {
+        $content =
+            Get-Content -LiteralPath $xboxToolLocator -Raw -Encoding UTF8
+
+        foreach ($required in @(
+            'DF5F19954EF706C130C256546BF67CF7725611BDB30D1815577187007A6F907A',
+            '1459FCF8FF5A89E039B02C68C06B006B7A036F3B1CA237C2D7E03D61BD211D47',
+            'F9BBA11DF7EE120186E013214C14C210690F72AB2940ECC158FC40BF36E78B6C',
+            'CryptographicOperations\.FixedTimeEquals')) {
+
+            if ($content -notmatch $required) {
+                Add-Failure "XboxToolLocator must pin bundled Xbox tool integrity: $required"
+            }
         }
     }
 }
@@ -3261,6 +3302,15 @@ function Test-SecurityHardeningRegressionGates {
         }
     }
 
+    # igir.exe is git-ignored (over GitHub's 100 MiB file limit); CI must fetch it before publishing.
+    $ciFetchIgir = $ci.IndexOf('.\scripts\FetchIgir.ps1', [System.StringComparison]::Ordinal)
+    $ciFetchIgirSource = $ci.IndexOf('.\scripts\FetchIgirSource.ps1', [System.StringComparison]::Ordinal)
+    $ciPublish = $ci.IndexOf('RelOutGate.ps1', [System.StringComparison]::Ordinal)
+    if ($ciFetchIgir -lt 0 -or $ciFetchIgirSource -lt 0 -or $ciPublish -lt 0 -or
+        $ciFetchIgir -gt $ciPublish -or $ciFetchIgirSource -gt $ciPublish) {
+        Add-Failure 'CI must run FetchIgir.ps1 and FetchIgirSource.ps1 before RelOutGate.ps1 so the release output bundles igir.'
+    }
+
     $sbomPath =
         Join-Path $root 'docs\sbom.cdx.json'
 
@@ -3286,6 +3336,22 @@ function Test-SecurityHardeningRegressionGates {
             $verifyReleaseText = Get-Content -LiteralPath (Join-Path $root 'scripts\VerifyRelease.ps1') -Raw -Encoding UTF8
             if ($verifyReleaseText -notmatch '(?m)^Assert-IgirReleaseCompliance\s*$') {
                 Add-Failure 'VerifyRelease.ps1 must reject packages that bundle igir without a complete SBOM and GPL-3.0 notices.'
+            }
+
+            # Every release bundles igir; a missing igir.exe must fail, not be skipped.
+            if ($verifyReleaseText -notmatch 'throw "Release must bundle igir') {
+                Add-Failure 'VerifyRelease.ps1 must fail when the release output does not bundle igir.exe.'
+            }
+
+            $publishText = Get-Content -LiteralPath (Join-Path $root 'scripts\PublishRel.ps1') -Raw -Encoding UTF8
+            if ($publishText -notmatch 'throw "igir\.exe is missing' -or
+                $publishText -match 'if \(Test-Path -LiteralPath \$igirSource') {
+                Add-Failure 'PublishRel.ps1 must fail when igir.exe is missing instead of publishing without it.'
+            }
+
+            $packText = Get-Content -LiteralPath (Join-Path $root 'scripts\PackRel.ps1') -Raw -Encoding UTF8
+            if ($packText -notmatch 'throw "Release output does not bundle igir') {
+                Add-Failure 'PackRel.ps1 must refuse to package a release output without igir.exe.'
             }
         }
         catch {
@@ -3419,7 +3485,9 @@ function Test-SecurityHardeningRegressionGates {
         'TestRedumpRedirectValidation',
         'TestRedumpRollback',
         'TestShutdownTimeout',
-        'TestBundledCsoKitRoundTrip')) {
+        'TestBundledCsoKitRoundTrip',
+        'TestXboxToolLocatorRejectsMissingAndTampered',
+        'TestBundledXboxToolsMatchPinnedDigests')) {
 
         if ($securityTests -notmatch $required) {
             Add-Failure "Runtime security regression test is missing: $required"

@@ -217,6 +217,64 @@ $bundledTools = @(
             [ordered]@{ type = 'license'; url = 'https://github.com/emmercm/igir/blob/v5.8.1/LICENSE' },
             [ordered]@{ type = 'website'; url = 'https://igir.io/' }
         )
+    },
+    [ordered]@{
+        type = 'application'
+        'bom-ref' = 'pkg:generic/xdvdfs@0.8.3'
+        authors = @([ordered]@{ name = 'antangelo' })
+        name = 'xdvdfs'
+        version = '0.8.3'
+        licenses = @([ordered]@{ license = [ordered]@{ id = 'MIT' } })
+        hashes = @([ordered]@{ alg = 'SHA-256'; content = 'DF5F19954EF706C130C256546BF67CF7725611BDB30D1815577187007A6F907A' })
+        purl = 'pkg:github/antangelo/xdvdfs@v0.8.3'
+        properties = @(
+            [ordered]@{ name = 'hakamiq:modified'; value = 'false' },
+            [ordered]@{ name = 'hakamiq:runtime-file'; value = 'Tools/xdvdfs/win-x64/xdvdfs.exe' }
+        )
+        externalReferences = @(
+            [ordered]@{
+                type = 'distribution'
+                url = 'https://github.com/antangelo/xdvdfs/releases/download/v0.8.3/xdvdfs-windows-1cc850bf1b3487fad7ec7c9eed01d83e8fc75ba4.zip'
+                hashes = @([ordered]@{ alg = 'SHA-256'; content = '008B1B3A63F1ECB00D1ED51AB154053FD0F7C41C68E973455BBE77AB989A7CC5' })
+            },
+            [ordered]@{ type = 'vcs'; url = 'https://github.com/antangelo/xdvdfs/tree/v0.8.3' }
+        )
+    },
+    [ordered]@{
+        type = 'application'
+        'bom-ref' = 'pkg:generic/iso2god-rs@1.8.1'
+        authors = @([ordered]@{ name = 'Ilia Pozdnyakov' })
+        name = 'iso2god-rs'
+        version = '1.8.1'
+        licenses = @([ordered]@{ license = [ordered]@{ id = 'MIT' } })
+        hashes = @([ordered]@{ alg = 'SHA-256'; content = '1459FCF8FF5A89E039B02C68C06B006B7A036F3B1CA237C2D7E03D61BD211D47' })
+        purl = 'pkg:github/iliazeus/iso2god-rs@v1.8.1'
+        properties = @(
+            [ordered]@{ name = 'hakamiq:modified'; value = 'false' },
+            [ordered]@{ name = 'hakamiq:runtime-file'; value = 'Tools/iso2god/win-x64/iso2god.exe' }
+        )
+        externalReferences = @(
+            [ordered]@{ type = 'distribution'; url = 'https://github.com/iliazeus/iso2god-rs/releases/download/v1.8.1/iso2god-x86_64-windows.exe' },
+            [ordered]@{ type = 'vcs'; url = 'https://github.com/iliazeus/iso2god-rs/tree/v1.8.1' }
+        )
+    },
+    [ordered]@{
+        type = 'application'
+        'bom-ref' = 'pkg:generic/zarchive@0.1.2'
+        authors = @([ordered]@{ name = 'Exzap' })
+        name = 'ZArchive'
+        version = '0.1.2'
+        licenses = @([ordered]@{ license = [ordered]@{ id = 'MIT-0' } })
+        hashes = @([ordered]@{ alg = 'SHA-256'; content = 'F9BBA11DF7EE120186E013214C14C210690F72AB2940ECC158FC40BF36E78B6C' })
+        purl = 'pkg:github/Exzap/ZArchive@v0.1.2'
+        properties = @(
+            [ordered]@{ name = 'hakamiq:modified'; value = 'false' },
+            [ordered]@{ name = 'hakamiq:runtime-file'; value = 'Tools/zarchive/win-x64/zarchive.exe' }
+        )
+        externalReferences = @(
+            [ordered]@{ type = 'distribution'; url = 'https://github.com/Exzap/ZArchive/releases/download/v0.1.2/zarchive.exe' },
+            [ordered]@{ type = 'vcs'; url = 'https://github.com/Exzap/ZArchive/tree/v0.1.2' }
+        )
     }
 )
 

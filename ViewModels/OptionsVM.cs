@@ -3,7 +3,6 @@ using HakamiqChdTool.App.Core.Chd.Profiles;
 using HakamiqChdTool.App.Localization;
 using HakamiqChdTool.App.Models;
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.RedumpCatalog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -41,18 +40,18 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _deleteSourceAfterVerifiedExtraction;
     private bool _extractGdRomAsCueBin;
     private bool _explorerMenuEnabled;
+    private bool _explorerOpensQuickWindow = true;
     private bool _watchFolderEnabled;
     private string _watchFolderPath = string.Empty;
+    private string _externalCsoKitPath = string.Empty;
+    private string _externalIgirPath = string.Empty;
     private bool _enableDeepIntegrityCheck;
-    private bool _applyStandardNamingBasedOnHash;
     private bool _isDatabaseAvailable;
     private bool _enableRedumpAutoSync;
     private AppSettings? _appliedSnapshot;
-    private bool _useProgramDefaultsAsBase;
     private string? _redumpLastSyncedUtc;
+    private string? _databaseFileTimeUtc;
     private string _databaseStatusText = ArabicUi.Get("LocAdv_DatabaseStatusUnavailable");
-    private RedumpCatalogChoiceOption? _selectedRedumpPlatformOption;
-    private RedumpCatalogChoiceOption? _selectedRedumpArtifactOption;
     private ProcessorOption? _selectedProcessorOption;
     private ProcessorOption? _selectedConcurrentConversionOption;
     private ChoiceOption? _selectedPerformanceMode;
@@ -65,8 +64,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     private bool _useCustomPendingWorkspace;
     private string _pendingWorkspaceCustomRoot = string.Empty;
 
-    public IReadOnlyList<string> ThemeOptions { get; } = new[] { "Light", "Dark", "Hakamiq" };
-
     public ObservableCollection<ProcessorOption> ProcessorOptions { get; } = new();
 
     public ObservableCollection<ProcessorOption> ConcurrentConversionOptions { get; } = new();
@@ -75,8 +72,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         new("Safe", ArabicUi.Get("LocAdv_PerformanceModeSafeLabel"), ArabicUi.Get("LocAdv_PerformanceModeSafeDescription")),
         new("Balanced", ArabicUi.Get("LocAdv_PerformanceModeBalancedLabel"), ArabicUi.Get("LocAdv_PerformanceModeBalancedDescription")),
-        new("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription")),
-        new("Manual", ArabicUi.Get("LocAdv_PerformanceModeManualLabel"), ArabicUi.Get("LocAdv_PerformanceModeManualDescription"))
+        new("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription"))
     };
 
     public ObservableCollection<ChoiceOption> PriorityModeOptions { get; } = new()
@@ -84,10 +80,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         new("Quiet", ArabicUi.Get("LocAdv_ProcessPriorityQuietLabel"), ArabicUi.Get("LocAdv_ProcessPriorityQuietDescription")),
         new("Normal", ArabicUi.Get("LocAdv_ProcessPriorityNormalLabel"), ArabicUi.Get("LocAdv_ProcessPriorityNormalDescription"))
     };
-
-    public ObservableCollection<RedumpCatalogChoiceOption> RedumpPlatformOptions { get; } = new();
-
-    public ObservableCollection<RedumpCatalogChoiceOption> RedumpArtifactOptions { get; } = new();
 
     public ObservableCollection<ChoiceOption> CompressionPresetOptions { get; } = new()
     {
@@ -117,7 +109,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     public ObservableCollection<ChoiceOption> IsoCreateOverrideOptions { get; } = new()
     {
         new("Auto", ArabicUi.Get("LocAdv_IsoCreateOverrideAutoLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideAutoDescription")),
-        new("CreateCd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdDescription")),
         new("CreateDvd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdDescription"))
     };
 
@@ -137,7 +128,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         LoadProcessorChoices();
         LoadConcurrentConversionChoices();
-        LoadRedumpCatalogChoices();
 
         _selectedProcessorOption = ProcessorOptions.FirstOrDefault();
         _selectedConcurrentConversionOption = ConcurrentConversionOptions.FirstOrDefault();
@@ -147,8 +137,14 @@ public sealed partial class OptionsViewModel : ObservableValidator
         _selectedHunkPreset = HunkPresetOptions.FirstOrDefault();
         _selectedIsoCreateOverride = IsoCreateOverrideOptions.FirstOrDefault();
         _selectedChdPlatformProfile = ChdPlatformProfileOptions.FirstOrDefault();
+        BuildCompositeChoices();
+        PropertyChanged += (_, e) => NotifyComposites(e.PropertyName);
 
-        ErrorsChanged += (_, _) => NotifySaveStateChanged();
+        ErrorsChanged += (_, e) =>
+        {
+            NotifySaveStateChanged();
+            NotifyFieldError(e.PropertyName);
+        };
         PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is not nameof(CanSave) and not nameof(CanConfirm) and not nameof(HasPendingChanges))
@@ -169,12 +165,9 @@ public sealed partial class OptionsViewModel : ObservableValidator
         string? targetKey = SelectedTargetEmulator?.Key;
         string? isoKey = SelectedIsoCreateOverride?.Key;
         string? profileKey = SelectedChdPlatformProfile?.Key;
-        string? redumpPlatformKey = SelectedRedumpPlatformOption?.Key;
-        string? redumpArtifactKey = SelectedRedumpArtifactOption?.Key;
 
         LoadProcessorChoices();
         LoadConcurrentConversionChoices();
-        LoadRedumpCatalogChoices();
 
         RefList(
             PerformanceModeOptions,
@@ -182,8 +175,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
             {
                 new ChoiceOption("Safe", ArabicUi.Get("LocAdv_PerformanceModeSafeLabel"), ArabicUi.Get("LocAdv_PerformanceModeSafeDescription")),
                 new ChoiceOption("Balanced", ArabicUi.Get("LocAdv_PerformanceModeBalancedLabel"), ArabicUi.Get("LocAdv_PerformanceModeBalancedDescription")),
-                new ChoiceOption("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription")),
-                new ChoiceOption("Manual", ArabicUi.Get("LocAdv_PerformanceModeManualLabel"), ArabicUi.Get("LocAdv_PerformanceModeManualDescription"))
+                new ChoiceOption("Fast", ArabicUi.Get("LocAdv_PerformanceModeFastLabel"), ArabicUi.Get("LocAdv_PerformanceModeFastDescription"))
             });
 
         RefList(
@@ -219,7 +211,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
             new[]
             {
                 new ChoiceOption("Auto", ArabicUi.Get("LocAdv_IsoCreateOverrideAutoLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideAutoDescription")),
-                new ChoiceOption("CreateCd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateCdDescription")),
                 new ChoiceOption("CreateDvd", ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdLabel"), ArabicUi.Get("LocAdv_IsoCreateOverrideCreateDvdDescription"))
             });
 
@@ -247,11 +238,10 @@ public sealed partial class OptionsViewModel : ObservableValidator
         SelectedTargetEmulator = SelChoice(TargetEmulatorOptions, targetKey);
         SelectedIsoCreateOverride = SelChoice(IsoCreateOverrideOptions, isoKey);
         SelectedChdPlatformProfile = SelChoice(ChdPlatformProfileOptions, profileKey);
-        SelectedRedumpPlatformOption = RedumpPlatformOptions.FirstOrDefault(x => string.Equals(x.Key, redumpPlatformKey, StringComparison.OrdinalIgnoreCase)) ?? RedumpPlatformOptions.FirstOrDefault();
-        SelectedRedumpArtifactOption = RedumpArtifactOptions.FirstOrDefault(x => string.Equals(x.Key, redumpArtifactKey, StringComparison.OrdinalIgnoreCase)) ?? RedumpArtifactOptions.FirstOrDefault();
+        BuildCompositeChoices();
 
-        OnPropertyChanged(nameof(ProcessorSummary));
-        OnPropertyChanged(nameof(ProcessorHint));
+        OnPropertyChanged(nameof(ProcessorName));
+        OnPropertyChanged(nameof(ProcessorCounts));
         OnPropertyChanged(nameof(ConcurrentConversionDescription));
         OnPropertyChanged(nameof(PerformanceModeDescription));
         OnPropertyChanged(nameof(PriorityModeDescription));
@@ -261,10 +251,7 @@ public sealed partial class OptionsViewModel : ObservableValidator
         OnPropertyChanged(nameof(IsoCreateOverrideDescription));
         OnPropertyChanged(nameof(ChdPlatformProfileDescription));
         OnPropertyChanged(nameof(ProcessorSelectionDescription));
-        OnPropertyChanged(nameof(PendingWorkspaceModeDisplay));
         OnPropertyChanged(nameof(DatabaseLastSyncedDisplay));
-        OnPropertyChanged(nameof(SelectedRedumpPlatformDescription));
-        OnPropertyChanged(nameof(SelectedRedumpArtifactDescription));
         OnPropertyChanged(nameof(CanSave));
     }
 
@@ -525,16 +512,60 @@ public sealed partial class OptionsViewModel : ObservableValidator
         set => SetProperty(ref _explorerMenuEnabled, value);
     }
 
+    public bool ExplorerOpensQuickWindow
+    {
+        get => _explorerOpensQuickWindow;
+        set => SetProperty(ref _explorerOpensQuickWindow, value);
+    }
+
     public bool WatchFolderEnabled
     {
         get => _watchFolderEnabled;
-        set => SetProperty(ref _watchFolderEnabled, value);
+        set
+        {
+            if (SetProperty(ref _watchFolderEnabled, value))
+            {
+                ValidateProperty(WatchFolderPathValidationProxy, nameof(WatchFolderPathValidationProxy));
+            }
+        }
     }
 
     public string WatchFolderPath
     {
         get => _watchFolderPath;
-        set => SetProperty(ref _watchFolderPath, value ?? string.Empty);
+        set
+        {
+            if (SetProperty(ref _watchFolderPath, value ?? string.Empty))
+            {
+                ValidateProperty(WatchFolderPathValidationProxy, nameof(WatchFolderPathValidationProxy));
+            }
+        }
+    }
+
+    /// <summary>CsoKit chosen in the Add-ons tab; saved with Apply or OK like every other option, empty = bundled.</summary>
+    public string ExternalCsoKitPath
+    {
+        get => _externalCsoKitPath;
+        set
+        {
+            if (SetProperty(ref _externalCsoKitPath, value?.Trim() ?? string.Empty))
+            {
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
+    }
+
+    /// <summary>igir chosen in the Add-ons tab; saved with Apply or OK, empty = bundled.</summary>
+    public string ExternalIgirPath
+    {
+        get => _externalIgirPath;
+        set
+        {
+            if (SetProperty(ref _externalIgirPath, value?.Trim() ?? string.Empty))
+            {
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
     }
 
     public bool EnableDeepIntegrityCheck
@@ -545,57 +576,13 @@ public sealed partial class OptionsViewModel : ObservableValidator
             bool normalized = value;
             if (SetProperty(ref _enableDeepIntegrityCheck, normalized))
             {
+                // The DAT file and local folder rows show only while this is on, so they are checked only then.
+                ValidateProperty(RedumpDatXmlPathValidationProxy, nameof(RedumpDatXmlPathValidationProxy));
+                ValidateProperty(RedumpLocalLibraryRootValidationProxy, nameof(RedumpLocalLibraryRootValidationProxy));
                 OnPropertyChanged(nameof(CanSave));
             }
         }
     }
-
-    public bool ApplyStandardNamingBasedOnHash
-    {
-        get => _applyStandardNamingBasedOnHash;
-        set
-        {
-            bool normalized = value;
-            SetProperty(ref _applyStandardNamingBasedOnHash, normalized);
-        }
-    }
-
-    public RedumpCatalogChoiceOption? SelectedRedumpPlatformOption
-    {
-        get => _selectedRedumpPlatformOption;
-        set
-        {
-            if (SetProperty(ref _selectedRedumpPlatformOption, value))
-            {
-                RefreshRedumpArtifactOptions(value?.Key);
-                UpdateRedumpDownloadUrlFromSelection(overwriteExistingCatalogUrl: true);
-                OnPropertyChanged(nameof(SelectedRedumpPlatformDescription));
-                OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
-    public RedumpCatalogChoiceOption? SelectedRedumpArtifactOption
-    {
-        get => _selectedRedumpArtifactOption;
-        set
-        {
-            if (SetProperty(ref _selectedRedumpArtifactOption, value))
-            {
-                UpdateRedumpDownloadUrlFromSelection(overwriteExistingCatalogUrl: true);
-                OnPropertyChanged(nameof(SelectedRedumpArtifactDescription));
-                OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
-                OnPropertyChanged(nameof(CanSave));
-            }
-        }
-    }
-
-    public string SelectedRedumpPlatformDescription => ResolveOptionDescription(SelectedRedumpPlatformOption);
-
-    public string SelectedRedumpArtifactDescription => ResolveOptionDescription(SelectedRedumpArtifactOption);
-
-    public bool CanDownloadSelectedRedumpDatabase => IsSafeDownloadUrl(RedumpDatabaseDownloadUrl);
 
     public string RedumpDatabaseDownloadUrl
     {
@@ -604,8 +591,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         {
             if (SetProperty(ref _redumpDatabaseDownloadUrl, value))
             {
-                ValidateProperty(RedumpDatabaseDownloadUrlValidationProxy, nameof(RedumpDatabaseDownloadUrlValidationProxy));
-                OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
                 OnPropertyChanged(nameof(CanSave));
             }
         }
@@ -631,8 +616,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         {
             if (SetProperty(ref _isDatabaseAvailable, value))
             {
-                OnPropertyChanged(nameof(IntegrityFeatureOpacity));
-                OnPropertyChanged(nameof(CanDownloadSelectedRedumpDatabase));
                 OnPropertyChanged(nameof(CanSave));
             }
         }
@@ -648,21 +631,20 @@ public sealed partial class OptionsViewModel : ObservableValidator
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(_redumpLastSyncedUtc))
+            string? shown = _databaseFileTimeUtc ?? _redumpLastSyncedUtc;
+            if (string.IsNullOrWhiteSpace(shown))
             {
                 return ArabicUi.Get("LocAdv_DatabaseLastSyncedEmpty");
             }
 
-            if (DateTimeOffset.TryParse(_redumpLastSyncedUtc, out DateTimeOffset parsed))
+            if (DateTimeOffset.TryParse(shown, out DateTimeOffset parsed))
             {
                 return ArabicUi.Format("LocAdv_DatabaseLastSyncedValue", parsed.ToLocalTime().ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture));
             }
 
-            return ArabicUi.Format("LocAdv_DatabaseLastSyncedValue", _redumpLastSyncedUtc);
+            return ArabicUi.Format("LocAdv_DatabaseLastSyncedValue", shown);
         }
     }
-
-    public double IntegrityFeatureOpacity => IsDatabaseAvailable ? 1.0 : 0.55;
 
     public bool HasPendingChanges => _appliedSnapshot is not null && !CurrentValuesEqual(_appliedSnapshot);
 
@@ -670,9 +652,9 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
     public bool CanSave => CanConfirm && HasPendingChanges;
 
-    public string ProcessorSummary => BuildProcessorSummary();
+    public string ProcessorName => BuildProcessorName();
 
-    public string ProcessorHint => ArabicUi.Get("LocAdv_ProcessorHint");
+    public string ProcessorCounts => BuildProcessorCounts();
 
     public string ConcurrentConversionDescription => BuildConcurrentConversionDescription();
 
@@ -680,9 +662,20 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
     public string PriorityModeDescription => SelectedPriorityMode?.Description ?? string.Empty;
 
-    public string CompressionPresetDescription => SelectedCompressionPreset?.Description ?? string.Empty;
+    // The target emulator can override these two: DVD 2048 fixes the hunk size, "no zstd" drops zstd from the codecs.
+    public bool IsHunkSetByTarget => HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Normalize(SelectedTargetEmulator?.Key) == HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Dvd2048;
 
-    public string HunkPresetDescription => SelectedHunkPreset?.Description ?? string.Empty;
+    public bool CanChooseHunkSize => !IsHunkSetByTarget;
+
+    private bool IsZstdRemovedByTarget => HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.Normalize(SelectedTargetEmulator?.Key) == HakamiqChdTool.App.Core.Chd.TargetEmulatorPolicy.NoZstd;
+
+    public string CompressionPresetDescription => IsZstdRemovedByTarget
+        ? ArabicUi.Format("LocAdv_CompressionNoZstdByTarget", SelectedCompressionPreset?.Description ?? string.Empty)
+        : SelectedCompressionPreset?.Description ?? string.Empty;
+
+    public string HunkPresetDescription => IsHunkSetByTarget
+        ? ArabicUi.Get("LocAdv_HunkSetByTarget")
+        : SelectedHunkPreset?.Description ?? string.Empty;
 
     public string IsoCreateOverrideDescription => SelectedIsoCreateOverride?.Description ?? string.Empty;
 
@@ -787,6 +780,10 @@ public sealed partial class OptionsViewModel : ObservableValidator
             if (SetProperty(ref _selectedTargetEmulator, value))
             {
                 OnPropertyChanged(nameof(TargetEmulatorDescription));
+                OnPropertyChanged(nameof(IsHunkSetByTarget));
+                OnPropertyChanged(nameof(CanChooseHunkSize));
+                OnPropertyChanged(nameof(HunkPresetDescription));
+                OnPropertyChanged(nameof(CompressionPresetDescription));
             }
         }
     }
@@ -840,7 +837,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
             _useCustomPendingWorkspace = value;
             OnPropertyChanged(nameof(UseCustomPendingWorkspace));
-            OnPropertyChanged(nameof(PendingWorkspaceModeDisplay));
             ValidateProperty(PendingWorkspaceCustomRootValidationProxy, nameof(PendingWorkspaceCustomRootValidationProxy));
             OnPropertyChanged(nameof(CanSave));
         }
@@ -864,11 +860,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
         }
     }
 
-    public string PendingWorkspaceModeDisplay =>
-        UseCustomPendingWorkspace
-            ? ArabicUi.Get("LocAdv_PendingWorkspaceModeCustom")
-            : ArabicUi.Get("LocAdv_PendingWorkspaceModeAutomatic");
-
     [CustomValidation(typeof(OptionsViewModel), nameof(ValidateCustomOutputRoot))]
     public string CustomOutputRootValidationProxy => CustomOutputRoot;
 
@@ -877,9 +868,6 @@ public sealed partial class OptionsViewModel : ObservableValidator
 
     [CustomValidation(typeof(OptionsViewModel), nameof(ValidateRedumpLocalLibraryRoot))]
     public string RedumpLocalLibraryRootValidationProxy => RedumpLocalLibraryRoot;
-
-    [CustomValidation(typeof(OptionsViewModel), nameof(ValidateRedumpDatabaseDownloadUrl))]
-    public string RedumpDatabaseDownloadUrlValidationProxy => RedumpDatabaseDownloadUrl;
 
     [CustomValidation(typeof(OptionsViewModel), nameof(ValidateExternalChdmanPath))]
     public string ExternalChdmanPathValidationProxy => ExternalChdmanPath;

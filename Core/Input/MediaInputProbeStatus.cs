@@ -9,5 +9,7 @@ public enum MediaInputProbeStatus
     HeaderTruncated = 4,
     UnsupportedVersion = 5,
     InvalidHeaderLength = 6,
-    ProbeUnavailable = 7
+    ProbeUnavailable = 7,
+    // An Xbox or Xbox 360 game disc (XDVDFS). CHD is not a format Xbox emulators read.
+    XboxDisc = 8
 }

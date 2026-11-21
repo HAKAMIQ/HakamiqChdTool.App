@@ -35,6 +35,7 @@ public partial class OptionsWindow : Window
     public const string ProcessingTabKey = "Processing";
     public const string ExternalToolsTabKey = "ExternalTools";
     public const string PerformanceTabKey = "Performance";
+    public const string WindowsTabKey = "Windows";
 
     private static readonly ILogger Logger = Log.ForContext<OptionsWindow>();
     private HqOptionsShell? _coordinator;
@@ -56,12 +57,13 @@ public partial class OptionsWindow : Window
             currentSettings);
 
         _coordinator.Attach();
-        RedumpPanel.DownloadDatabaseRequested += _coordinator.DownloadDatabase;
         RedumpPanel.ImportRedumpDatabaseRequested += _coordinator.ImportRedumpDatabase;
         ExternalToolsPanel.RecheckRequested += _coordinator.RecheckExternalTools;
         ExternalToolsPanel.OpenToolsFolderRequested += _coordinator.OpenExternalToolsFolder;
         ExternalToolsPanel.BrowseCsoKitToolRequested += _coordinator.BrowseCsoKitTool;
         ExternalToolsPanel.BrowseIgirToolRequested += _coordinator.BrowseIgirTool;
+        ExternalToolsPanel.UseBundledCsoKitRequested += _coordinator.UseBundledCsoKit;
+        ExternalToolsPanel.UseBundledIgirRequested += _coordinator.UseBundledIgir;
         Loaded += OptionsWindow_Loaded;
         Closed += OptionsWindow_Closed;
 
@@ -72,29 +74,22 @@ public partial class OptionsWindow : Window
 
     public AppSettings ResultSettings { get; internal set; }
 
-    public string ActiveTabKey => _coordinator?.ActiveTabKey ?? ProcessingTabKey;
+    public string ActiveTabKey => _coordinator?.ActiveTabKey ?? PathsTabKey;
 
     public event EventHandler<OptionsAppliedEventArgs>? SettingsApplied;
 
     internal RadioButton PathsTabButtonView => PathsTabButton;
-
     internal RadioButton RedumpTabButtonView => RedumpTabButton;
-
     internal RadioButton ProcessingTabButtonView => ProcessingTabButton;
-
     internal RadioButton ExternalToolsTabButtonView => ExternalToolsTabButton;
-
     internal RadioButton PerformanceTabButtonView => PerformanceTabButton;
-
+    internal RadioButton WindowsTabButtonView => WindowsTabButton;
     internal PathsSettingsView PathsPanelView => PathsPanel;
-
     internal RedumpSettingsView RedumpPanelView => RedumpPanel;
-
     internal ProcessingSettingsView ProcessingPanelView => ProcessingPanel;
-
     internal ExternalToolsSettingsView ExternalToolsPanelView => ExternalToolsPanel;
-
     internal PerformanceSettingsView PerformancePanelView => PerformancePanel;
+    internal WindowsSettingsView WindowsPanelView => WindowsPanel;
 
     internal void NotifySettingsApplied(AppSettings settings)
     {
@@ -103,6 +98,11 @@ public partial class OptionsWindow : Window
     }
 
     public void SelectTab(string? tabKey) => _coordinator?.SelectTab(tabKey);
+
+    /// <summary>Shows only the options matching the text, in every tab; returns how many match.</summary>
+    public int FilterOptions(string? query) => _coordinator?.FilterOptions(query) ?? 0;
+
+    private void OptionsSearchBox_TextChanged(object sender, TextChangedEventArgs e) => FilterOptions(OptionsSearchBox.Text);
 
     private void OptionsWindow_Loaded(object sender, RoutedEventArgs e) => _coordinator?.OnLoaded();
 
@@ -116,12 +116,13 @@ public partial class OptionsWindow : Window
             return;
         }
 
-        RedumpPanel.DownloadDatabaseRequested -= _coordinator.DownloadDatabase;
         RedumpPanel.ImportRedumpDatabaseRequested -= _coordinator.ImportRedumpDatabase;
         ExternalToolsPanel.RecheckRequested -= _coordinator.RecheckExternalTools;
         ExternalToolsPanel.OpenToolsFolderRequested -= _coordinator.OpenExternalToolsFolder;
         ExternalToolsPanel.BrowseCsoKitToolRequested -= _coordinator.BrowseCsoKitTool;
         ExternalToolsPanel.BrowseIgirToolRequested -= _coordinator.BrowseIgirTool;
+        ExternalToolsPanel.UseBundledCsoKitRequested -= _coordinator.UseBundledCsoKit;
+        ExternalToolsPanel.UseBundledIgirRequested -= _coordinator.UseBundledIgir;
         _coordinator.Dispose();
         _coordinator = null;
     }

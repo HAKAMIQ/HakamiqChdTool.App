@@ -18,18 +18,6 @@ public sealed partial class OptionsViewModel
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        string redumpPlatformMode = SelectedRedumpPlatformOption is null
-            ? "Auto"
-            : string.Equals(SelectedRedumpPlatformOption.Key, "Auto", StringComparison.OrdinalIgnoreCase)
-                ? "Auto"
-                : string.Equals(SelectedRedumpPlatformOption.Key, "Unknown", StringComparison.OrdinalIgnoreCase)
-                    ? "Unknown"
-                    : "Platform";
-
-        string redumpPlatformKey = redumpPlatformMode == "Platform"
-            ? SelectedRedumpPlatformOption?.Key ?? string.Empty
-            : string.Empty;
-
         string compressionCodecs = SelectedCompressionPreset?.Key switch
         {
             "fast" => "preset:fast",
@@ -82,9 +70,6 @@ public sealed partial class OptionsViewModel
             && StringEquals(RedumpDatXmlPath.Trim(), snapshot.RedumpDatXmlPath)
             && StringEquals(RedumpLocalLibraryRoot.Trim(), snapshot.RedumpLocalLibraryRoot)
             && StringEquals(RedumpSystemName.Trim(), snapshot.RedumpSystemName)
-            && StringEquals(redumpPlatformMode, snapshot.RedumpPlatformMode)
-            && StringEquals(redumpPlatformKey, snapshot.RedumpPlatformKey)
-            && StringEquals(SelectedRedumpArtifactOption?.Key ?? "Datfile", snapshot.RedumpArtifactKind)
             && OrganizeByPlatform == snapshot.OrganizeByPlatform
             && OrganizeByRegion == snapshot.OrganizeByRegion
             && IncludeSubfolders == snapshot.IncludeSubfolders
@@ -102,10 +87,12 @@ public sealed partial class OptionsViewModel
             && DeleteSourceAfterVerifiedExtraction == snapshot.DeleteSourceAfterVerifiedExtraction
             && ExtractGdRomAsCueBin == snapshot.ExtractGdRomAsCueBin
             && ExplorerMenuEnabled == snapshot.ExplorerMenuEnabled
+            && ExplorerOpensQuickWindow == snapshot.ExplorerOpensQuickWindow
             && WatchFolderEnabled == snapshot.WatchFolderEnabled
             && StringEquals(WatchFolderPath.Trim(), snapshot.WatchFolderPath)
+            && StringEquals(ExternalCsoKitPath, snapshot.ExternalCsoKitPath?.Trim() ?? string.Empty)
+            && StringEquals(ExternalIgirPath, snapshot.ExternalIgirPath?.Trim() ?? string.Empty)
             && EnableDeepIntegrityCheck == snapshot.EnableDeepIntegrityCheck
-            && ApplyStandardNamingBasedOnHash == snapshot.ApplyStandardNamingBasedOnHash
             && StringEquals(RedumpDatabaseDownloadUrl.Trim(), snapshot.RedumpDatabaseDownloadUrl)
             && EnableRedumpAutoSync == snapshot.EnableRedumpAutoSync
             && StringEquals(_redumpLastSyncedUtc ?? string.Empty, snapshot.RedumpLastSyncedUtc)

@@ -158,9 +158,6 @@
     <sys:String x:Key="Loc_Button_Cancel">Cancel</sys:String>
     <sys:String x:Key="LocDialog_SummaryCancelledTitle">Session canceled</sys:String>
     <sys:String x:Key="LocDialog_SummaryCompletedTitle">Session summary</sys:String>
-    <sys:String x:Key="LocTray_SessionCancelledTitle">Session canceled</sys:String>
-    <sys:String x:Key="LocTray_SessionCompletedTitle">Session completed</sys:String>
-    <sys:String x:Key="LocFmt_TraySessionBalloon">Completed: {0} — Needs review: {1}</sys:String>
     <sys:String x:Key="LocDialog_CloseWhileProcessingBody">A task is running. Do you want to stop processing and close the app?</sys:String>
     <sys:String x:Key="LocDialog_CloseWhileProcessingTitle">Stop processing and close?</sys:String>
 
@@ -304,9 +301,6 @@
     <sys:String x:Key="LocSettings_PlatformFlat">No additional organization</sys:String>
     <sys:String x:Key="LocSettings_VerifyAfter">On</sys:String>
     <sys:String x:Key="LocSettings_VerifyOff">Off</sys:String>
-    <sys:String x:Key="LocAdv_Label_VerifyAfterProcessing">Verify after processing</sys:String>
-    <sys:String x:Key="LocAdv_OptionsExpand">Show advanced options ▼</sys:String>
-    <sys:String x:Key="LocAdv_OptionsCollapse">Hide advanced options ▲</sys:String>
 
     <sys:String x:Key="LocFooter_NothingNewAdded">No new items added</sys:String>
     <sys:String x:Key="LocFooter_NoSupportedFiles">No supported files</sys:String>
@@ -414,9 +408,6 @@
     <sys:String x:Key="LocUi_Hub_RedumpVerify_Tooltip">Calculates MD5/SHA1 for the selected item and compares it with the local Redump database without changing files.</sys:String>
     <sys:String x:Key="LocUi_Redump_VerifyButton">Verify with Redump</sys:String>
     <sys:String x:Key="LocUi_Redump_VerifyTooltip">Checks MD5/SHA1 for the selected item and compares it with the local Redump database. The button is disabled if Redump is not enabled or the database is not ready.</sys:String>
-    <sys:String x:Key="LocAdv_Redump_EnableTitle">Enable Redump verification</sys:String>
-    <sys:String x:Key="LocAdv_Redump_EnableDescription">Checks MD5/SHA1 and compares it with the local Redump database. Files are not changed or renamed.</sys:String>
-    <sys:String x:Key="LocAdv_Redump_EnableUnavailableTooltip">Import or download a Redump database first, then enable Redump verification.</sys:String>
 
     <sys:String x:Key="LocUi_Redump_RightPanelTitle">Redump</sys:String>
     <sys:String x:Key="LocUi_Redump_RightPanelSubtitle">Check and match the selected file with the local Redump database.</sys:String>
@@ -440,6 +431,7 @@
     <sys:String x:Key="LocIntake_DiscImageCandidate">A convertible disc image was detected. BIN/CUE files will be prepared when conversion starts.</sys:String>
     <sys:String x:Key="LocIntake_ChdInputDetected">CHD file detected. Use the operation selected in the task queue.</sys:String>
     <sys:String x:Key="LocIntake_UnknownOrUnsupported">File type is unknown or unsupported.</sys:String>
+    <sys:String x:Key="LocIntake_XboxDisc">This is an Xbox or Xbox 360 disc. It is not converted to CHD because Xbox emulators do not read that format.</sys:String>
 
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Label">Automatic — use local rules</sys:String>
     <sys:String x:Key="LocRedumpCatalog_Platform_Auto_Description">Checks against imported local DAT databases without forcing a specific platform.</sys:String>
@@ -526,11 +518,11 @@
     <sys:String x:Key="LocWorkflow_StatusVerifyChd">Verification plan is active (without changing the original file).</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractCd">CHD was detected as a CD. It will be extracted to CUE and BIN.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusExtractGdi">CHD was detected as a Dreamcast GD-ROM. It will be extracted to GDI with one file per track.</sys:String>
-    <sys:String x:Key="LocConversion_ExtractGdRomAsCueBin">Extract Dreamcast GD-ROM to CUE/BIN</sys:String>
-    <sys:String x:Key="LocConversion_ExtractGdRomAsCueBinDesc">GD-ROM CHDs are extracted to GDI, the format Dreamcast tools and GDEMU use. Turn this on to get CUE/BIN instead.</sys:String>
-    <sys:String x:Key="LocOptions_WindowsSection">Windows integration</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerSection">Explorer menu</sys:String>
     <sys:String x:Key="LocOptions_ExplorerMenu">Add CHD Tool to the Explorer right-click menu</sys:String>
-    <sys:String x:Key="LocOptions_ExplorerMenuDesc">Adds Convert to CHD to disc images and archives, Extract CHD and Verify CHD to CHD files, and a CHD Tool menu to folders, for your Windows account only. On Windows 11 the entries are under Show more options. Turn this off before you delete the app folder.</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerMenuDesc">Adds Convert to CHD, Extract CHD and Verify CHD for your account only. On Windows 11 they are under Show more options. Turn this off before you delete the app folder.</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerQuickWindow">Open a small window when you choose from Explorer</sys:String>
+    <sys:String x:Key="LocOptions_ExplorerQuickWindowDesc">If CHD Tool is closed, a small window processes the files right away with your saved settings. If it is open, the files are added to it as usual.</sys:String>
     <sys:String x:Key="LocShell_ConvertToChd">Convert to CHD</sys:String>
     <sys:String x:Key="LocShell_ExtractChd">Extract CHD</sys:String>
     <sys:String x:Key="LocShell_VerifyChd">Verify CHD</sys:String>
@@ -540,10 +532,23 @@
     <sys:String x:Key="LocLaunch_ExplorerMenuFailedFooter">Could not update the Explorer menu. See the log.</sys:String>
     <sys:String x:Key="LocLaunch_UsageTitle">Command line</sys:String>
     <sys:String x:Key="LocLaunch_UsageBody">The command line was not understood, so nothing was added. The accepted options and exit codes are below.</sys:String>
+    <sys:String x:Key="LocQuick_TitleConvert">Convert to CHD</sys:String>
+    <sys:String x:Key="LocQuick_TitleExtract">Extract CHD</sys:String>
+    <sys:String x:Key="LocQuick_TitleVerify">Verify CHD</sys:String>
+    <sys:String x:Key="LocQuick_DeleteWarningConvert">Your settings delete the source file after it is converted and the CHD is verified. Select Start to continue.</sys:String>
+    <sys:String x:Key="LocQuick_DeleteWarningExtract">Your settings delete the CHD file after it is extracted and the output is verified. Select Start to continue.</sys:String>
+    <sys:String x:Key="LocQuick_WaitingForStart">The files are ready. Select Start.</sys:String>
+    <sys:String x:Key="LocQuick_OpenInApp">Open in app</sys:String>
+    <sys:String x:Key="LocQuick_OpenInAppDesc">Opens the full app and adds the files that did not finish.</sys:String>
+    <sys:String x:Key="LocQuick_Start">Start</sys:String>
+    <sys:String x:Key="LocQuick_Stop">Stop</sys:String>
     <sys:String x:Key="LocWatch_Enable">Watch a folder and convert new files to CHD</sys:String>
-    <sys:String x:Key="LocWatch_EnableDesc">While CHD Tool is open, new disc images and archives copied into the folder below are converted once they are fully written. Subfolders, CHD files and files that were already there are not touched. Output goes where your output settings say.</sys:String>
+    <sys:String x:Key="LocWatch_EnableDesc">While CHD Tool is open, new disc images and archives in the folder are converted once fully copied. Subfolders and files already there are not touched.</sys:String>
     <sys:String x:Key="LocWatch_Folder">Folder to watch</sys:String>
+    <sys:String x:Key="LocWatch_Section">Watch folder</sys:String>
     <sys:String x:Key="LocWatch_PickFolder">Choose the folder to watch</sys:String>
+    <sys:String x:Key="LocWatch_ErrorFolderRequired">Choose the folder to watch.</sys:String>
+    <sys:String x:Key="LocWatch_ErrorFolderMissing">The folder does not exist. Choose an existing folder.</sys:String>
     <sys:String x:Key="LocWatch_UnavailableFooter">The watch folder could not be watched. Check the folder in Settings.</sys:String>
     <sys:String x:Key="LocWatch_AddedFooter">New files from the watch folder were added.</sys:String>
     <sys:String x:Key="LocRunSummary_TitleDone">Finished</sys:String>
@@ -593,8 +598,43 @@
     <sys:String x:Key="LocRecompress_Saved">Smaller copy saved and verified.</sys:String>
     <sys:String x:Key="LocRecompress_Replaced">Replaced with a smaller, verified copy.</sys:String>
     <sys:String x:Key="LocRecompress_Cancelled">Stopped. The original was not changed.</sys:String>
+    <sys:String x:Key="LocXbox_SectionTitle">Xbox</sys:String>
+    <sys:String x:Key="LocXbox_Open">Convert Xbox games</sys:String>
+    <sys:String x:Key="LocXbox_Title">Convert Xbox and Xbox 360 games</sys:String>
+    <sys:String x:Key="LocXbox_Intro">Converts Xbox games to XISO for xemu, and Xbox 360 games to GOD or ZAR for Xenia. Each new file is checked before it is saved, and the original files are not changed.</sys:String>
+    <sys:String x:Key="LocXbox_AddFiles">Add ISO files</sys:String>
+    <sys:String x:Key="LocXbox_AddFolder">Add folder</sys:String>
+    <sys:String x:Key="LocXbox_Clear">Clear list</sys:String>
+    <sys:String x:Key="LocXbox_Empty">Add ISO files or game folders, or drop them here. A folder that holds several games adds all of them.</sys:String>
+    <sys:String x:Key="LocXbox_FileFilter">ISO images (*.iso;*.xiso)|*.iso;*.xiso</sys:String>
+    <sys:String x:Key="LocXbox_PickGameFolder">Choose a game folder or a folder with games</sys:String>
+    <sys:String x:Key="LocXbox_PickOutputFolder">Choose the output folder</sys:String>
+    <sys:String x:Key="LocXbox_Format360">Xbox 360 format</sys:String>
+    <sys:String x:Key="LocXbox_FormatGod">GOD: runs on Xenia and an Xbox 360</sys:String>
+    <sys:String x:Key="LocXbox_FormatZar">ZAR: smallest, runs on Xenia Canary only</sys:String>
+    <sys:String x:Key="LocXbox_XboxNote">Xbox games always become XISO for xemu.</sys:String>
+    <sys:String x:Key="LocXbox_OutputFolder">Save files in</sys:String>
+    <sys:String x:Key="LocXbox_Start">Start</sys:String>
+    <sys:String x:Key="LocXbox_Stop">Stop</sys:String>
+    <sys:String x:Key="LocXbox_KindXboxIso">Xbox: ISO file</sys:String>
+    <sys:String x:Key="LocXbox_KindXboxFolder">Xbox: game folder</sys:String>
+    <sys:String x:Key="LocXbox_Kind360Iso">Xbox 360: ISO file</sys:String>
+    <sys:String x:Key="LocXbox_Kind360Folder">Xbox 360: game folder</sys:String>
+    <sys:String x:Key="LocXbox_KindUnsupported">Not supported</sys:String>
+    <sys:String x:Key="LocXbox_Waiting">Waiting</sys:String>
+    <sys:String x:Key="LocXbox_Working">Converting and checking…</sys:String>
+    <sys:String x:Key="LocXbox_Done">Done and checked</sys:String>
+    <sys:String x:Key="LocXbox_OutputExists">The output already exists, so it was skipped</sys:String>
+    <sys:String x:Key="LocXbox_NotXbox">Not an Xbox or Xbox 360 game</sys:String>
+    <sys:String x:Key="LocXbox_OutputFolderInvalid">The output folder does not exist or is inside the game folder</sys:String>
+    <sys:String x:Key="LocXbox_ToolMissing">The conversion tool is missing or changed. Reinstall the app.</sys:String>
+    <sys:String x:Key="LocXbox_ToolFailed">The conversion tool failed. See the log.</sys:String>
+    <sys:String x:Key="LocXbox_CheckFailed">The output does not match the original, so it was not saved.</sys:String>
+    <sys:String x:Key="LocXbox_Cancelled">Stopped</sys:String>
+    <sys:String x:Key="LocXbox_Failed">The conversion failed. See the log.</sys:String>
+    <sys:String x:Key="LocXbox_Summary">{0} done · {1} skipped · {2} failed · {3} saved</sys:String>
     <sys:String x:Key="LocPerformance_TargetEmulator">Target emulator</sys:String>
-    <sys:String x:Key="LocAdv_TargetEmulatorAutoLabel">Automatic (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_TargetEmulatorAutoLabel">Automatic</sys:String>
     <sys:String x:Key="LocAdv_TargetEmulatorAutoDescription">Uses the settings above. PSP ISOs already get 2048-byte hunks for PPSSPP.</sys:String>
     <sys:String x:Key="LocAdv_TargetEmulatorDvd2048Label">PCSX2 and PPSSPP</sys:String>
     <sys:String x:Key="LocAdv_TargetEmulatorDvd2048Description">DVD CHDs (PS2, PSP) are made with 2048-byte hunks, which PPSSPP needs and is advised for PCSX2. This replaces the hunk size above; CD CHDs are not affected.</sys:String>
@@ -724,6 +764,7 @@ Path:
     <sys:String x:Key="LocWorkflow_CcdScrambled">This CloneCD image stores scrambled data tracks. It cannot be converted to CHD as-is.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdImageMissing">The .img file that belongs to this .ccd was not found next to it with the same name.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdStagingFailed">The CloneCD .img could not be prepared in the temporary folder. Check free space on the system drive and that the image is readable.</sys:String>
+    <sys:String x:Key="LocWorkflow_GdRomCueStagingFailed">The Dreamcast disc tracks could not be prepared in the temporary folder. Check free space on the system drive and that the files are readable.</sys:String>
     <sys:String x:Key="LocWorkflow_CcdImageNotAligned">The CloneCD .img size is not a multiple of 2352 bytes, so the image is incomplete or not a raw CD image.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateMds">Alcohol 120% image (.mds) detected. A temporary CUE is generated and the disc is converted with createcd. Subchannel data in the .mdf, if any, is not kept.</sys:String>
     <sys:String x:Key="LocWorkflow_StatusCreateMdsDvd">Alcohol 120% DVD image (.mds) detected. The .mdf is converted with createdvd.</sys:String>
@@ -970,12 +1011,6 @@ Path:
     <sys:String x:Key="LocOptions_OperationErrorTitle">Operation error</sys:String>
     <sys:String x:Key="LocOptions_MissingDataTitle">Missing data</sys:String>
 
-    <sys:String x:Key="LocOptions_RedumpDownloadUrlRequired">Enter a valid download URL, or import a local DAT/XML file.</sys:String>
-    <sys:String x:Key="LocOptions_RedumpDownloadInvalidUrl">Enter a valid database download URL.</sys:String>
-    <sys:String x:Key="LocOptions_RedumpDownloadRunning">Downloading...</sys:String>
-    <sys:String x:Key="LocOptions_RedumpSyncFailedTitle">Sync failed</sys:String>
-    <sys:String x:Key="LocOptions_RedumpDownloadFailed">Database download failed.</sys:String>
-    <sys:String x:Key="LocOptions_RedumpDownloadErrorTitle">Download error</sys:String>
 
     <sys:String x:Key="LocOptions_DatabaseChecking">Status: Checking database...</sys:String>
     <sys:String x:Key="LocOptions_DatabaseAvailable">Available and enabled</sys:String>
@@ -1024,7 +1059,6 @@ Path:
 
     <sys:String x:Key="LocAdv_Picker_SelectOutputFolderTitle">Choose output folder</sys:String>
     <sys:String x:Key="LocAdv_Picker_SelectExternalChdmanTitle">Choose chdman.exe</sys:String>
-    <sys:String x:Key="LocAdv_Picker_SelectRedumpDatTitle">Choose Redump DAT file</sys:String>
     <sys:String x:Key="LocAdv_Picker_SelectRedumpLocalFolderTitle">Choose local Redump folder</sys:String>
 
     <sys:String x:Key="LocFilter_ExecutableFiles">Executable files (*.exe)|*.exe|All files (*.*)|*.*</sys:String>
@@ -1034,7 +1068,7 @@ Path:
     <sys:String x:Key="LocAdv_DatabaseLastSyncedEmpty">—</sys:String>
     <sys:String x:Key="LocAdv_DatabaseLastSyncedValue">{0}</sys:String>
 
-    <sys:String x:Key="LocAdv_CompressionPresetDefaultLabel">MAME default (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_CompressionPresetDefaultLabel">MAME default</sys:String>
     <sys:String x:Key="LocAdv_CompressionPresetDefaultDescription">Lets MAME choose by media type. For CD, this usually already uses CD LZMA, matching the LZMA option.</sys:String>
 
     <sys:String x:Key="LocAdv_CompressionPresetFastLabel">Fast – lighter compression</sys:String>
@@ -1053,10 +1087,8 @@ Path:
     <sys:String x:Key="LocAdv_PerformanceModeBalancedDescription">Automatically adjusts compression threads based on available resources while keeping the system stable.</sys:String>
 
     <sys:String x:Key="LocAdv_PerformanceModeFastLabel">Fast</sys:String>
-    <sys:String x:Key="LocAdv_PerformanceModeFastDescription">Uses all available resources to speed up conversion. Best with SSD storage when no other heavy tasks are running.</sys:String>
+    <sys:String x:Key="LocAdv_PerformanceModeFastDescription">Uses all processors but one when compression threads are Auto. Best with SSD storage when no other heavy tasks are running.</sys:String>
 
-    <sys:String x:Key="LocAdv_PerformanceModeManualLabel">Manual</sys:String>
-    <sys:String x:Key="LocAdv_PerformanceModeManualDescription">Lets you set the compression thread count manually in the next option.</sys:String>
 
     <sys:String x:Key="LocAdv_ProcessPriorityQuietLabel">Quiet</sys:String>
     <sys:String x:Key="LocAdv_ProcessPriorityQuietDescription">Runs chdman at a lower priority so the system stays more responsive.</sys:String>
@@ -1064,28 +1096,25 @@ Path:
     <sys:String x:Key="LocAdv_ProcessPriorityNormalLabel">Normal</sys:String>
     <sys:String x:Key="LocAdv_ProcessPriorityNormalDescription">Runs chdman at normal priority. This may improve speed but can reduce system responsiveness during conversion.</sys:String>
 
-    <sys:String x:Key="LocAdv_HunkPresetDefaultLabel">MAME default (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetDefaultLabel">MAME default</sys:String>
     <sys:String x:Key="LocAdv_HunkPresetDefaultDescription">Does not customize hunk size and lets MAME use the suitable setting.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetSmallLabel">Advanced – small</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetSmallDescription">Smaller hunk size may improve random reads, but may reduce compression ratio.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetSmallDescription">Smaller hunk size may improve random reads, but may reduce compression ratio. Not applied to PS2 DVD and PSP images, which keep the size they need.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetBalancedLabel">Advanced – balanced</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetBalancedDescription">Medium hunk size for manual testing when needed.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetBalancedDescription">Medium hunk size for manual testing when needed. Not applied to PS2 DVD and PSP images, which keep the size they need.</sys:String>
 
     <sys:String x:Key="LocAdv_HunkPresetLargeLabel">Advanced – large</sys:String>
-    <sys:String x:Key="LocAdv_HunkPresetLargeDescription">Larger hunk size may improve compression, but may slow small reads.</sys:String>
+    <sys:String x:Key="LocAdv_HunkPresetLargeDescription">Larger hunk size may improve compression, but may slow small reads. Not applied to PS2 DVD and PSP images, which keep the size they need.</sys:String>
 
-    <sys:String x:Key="LocAdv_IsoCreateOverrideAutoLabel">Auto by media type (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_IsoCreateOverrideAutoLabel">Auto by media type</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideAutoDescription">The app automatically selects the CD path for CUE/GDI, and checks ISO files to determine CD or DVD using available evidence.</sys:String>
 
-    <sys:String x:Key="LocAdv_IsoCreateOverrideCreateCdLabel">Force CD creation</sys:String>
-    <sys:String x:Key="LocAdv_IsoCreateOverrideCreateCdDescription">Uses the CD path for all files. Useful when you know the source is a CD and do not want automatic inspection.</sys:String>
 
     <sys:String x:Key="LocAdv_IsoCreateOverrideCreateDvdLabel">Force DVD creation</sys:String>
     <sys:String x:Key="LocAdv_IsoCreateOverrideCreateDvdDescription">Uses the DVD path for all files. Useful when you know the source is a DVD and do not want automatic inspection.</sys:String>
 
-    <sys:String x:Key="LocAdv_ProcessorHint">Sets the maximum number of compression threads chdman may request while creating CHD files. Windows schedules the actual work based on CPU topology and current system load, so higher numbers do not always scale linearly.</sys:String>
 
     <sys:String x:Key="LocAdv_ProcessorSelectionAutoLimited">Auto: the app will use {0} of {1} available logical processors. This balanced value leaves room for Windows and other apps.</sys:String>
     <sys:String x:Key="LocAdv_ProcessorSelectionAutoDefault">chdman will use its default setting without a custom compression thread limit.</sys:String>
@@ -1096,15 +1125,14 @@ Path:
     <sys:String x:Key="LocAdv_ProcessorSelectionManualHigh">High: uses {0} of {1} processing threads. Speeds up conversion, but uses more system resources.</sys:String>
     <sys:String x:Key="LocAdv_ProcessorSelectionManualMaximum">Maximum: uses {0} of {1} processing threads. Intended for fast conversion while the device is not in use; CPU temperature may rise and system responsiveness may drop temporarily.</sys:String>
 
-    <sys:String x:Key="LocAdv_PendingWorkspaceModeCustom">Custom temporary folder</sys:String>
-    <sys:String x:Key="LocAdv_PendingWorkspaceModeAutomatic">Automatic — beside source or output</sys:String>
 
-    <sys:String x:Key="LocAdv_RedumpPlatformAutoLabel">Auto</sys:String>
-    <sys:String x:Key="LocAdv_RedumpArtifactDatfileLabel">DAT file</sys:String>
 
-    <sys:String x:Key="LocAdv_ProcessorAutoRecommendedLabel">Auto (recommended)</sys:String>
+    <sys:String x:Key="LocAdv_ProcessorAutoRecommendedLabel">Auto</sys:String>
     <sys:String x:Key="LocAdv_ProcessorUnknownCoreCount">Unknown</sys:String>
-    <sys:String x:Key="LocAdv_ProcessorSummary">Current CPU: {0}&#x0a;Cores: {1} • Logical processors available to the app: {2}</sys:String>
+    <sys:String x:Key="LocAdv_ProcessorTitle">Processor</sys:String>
+    <sys:String x:Key="LocAdv_HunkSetByTarget">Set by the target emulator: 2048 bytes for DVD images, the default for others.</sys:String>
+    <sys:String x:Key="LocAdv_CompressionNoZstdByTarget">The target emulator cannot read zstd, so Fast and Balanced use LZMA instead. {0}</sys:String>
+    <sys:String x:Key="LocAdv_ProcessorCounts">• Cores: {0} • Logical processors: {1}</sys:String>
 
     <sys:String x:Key="LocAdv_ConcurrentConversionsSingle">Single conversion: run one operation at a time. This is the safest option for HDD storage and laptops.</sys:String>
     <sys:String x:Key="LocAdv_ConcurrentConversionsBalanced">Dual conversion: run two operations at the same time. Good balance for mid-range devices.</sys:String>
@@ -1127,8 +1155,6 @@ Path:
     <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderValidationFailed">Could not validate the local Redump folder.</sys:String>
     <sys:String x:Key="LocAdv_ErrorRedumpLocalFolderInvalid">Choose a valid local Redump folder.</sys:String>
 
-    <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlValidationFailed">Could not validate the Redump URL.</sys:String>
-    <sys:String x:Key="LocAdv_ErrorRedumpDownloadUrlInvalid">Enter a URL that starts with HTTP or HTTPS.</sys:String>
 
     <sys:String x:Key="LocAdv_ErrorExternalChdmanValidationFailed">Could not validate chdman.</sys:String>
     <sys:String x:Key="LocAdv_ErrorExternalChdmanRequired">Select chdman, or use the bundled copy.</sys:String>
@@ -1166,10 +1192,7 @@ Path:
     <sys:String x:Key="LocRedump_NoSuggestedName">No suggested name.</sys:String>
     <sys:String x:Key="LocRedump_NoDetails">No details.</sys:String>
 
-    <sys:String x:Key="LocPaths_Title">Path and input settings</sys:String>
-    <sys:String x:Key="LocPaths_Description">Set the chdman path, output folder, and temporary folder to keep operations running properly.</sys:String>
 
-    <sys:String x:Key="LocPaths_ChdmanSection">chdman tool</sys:String>
 
     <sys:String x:Key="LocPaths_UseBundledChdman">Use bundled chdman</sys:String>
     <sys:String x:Key="LocPaths_UseBundledChdmanDesc">Uses the version included with the app. Recommended for most cases.</sys:String>
@@ -1178,60 +1201,36 @@ Path:
     <sys:String x:Key="LocPaths_UseExternalChdmanDesc">Use a chdman.exe file from a path you choose.</sys:String>
 
     <sys:String x:Key="LocPaths_ExternalChdmanPath">chdman file path</sys:String>
-    <sys:String x:Key="LocPaths_ExternalChdmanPathDesc">Used only when external chdman is enabled.</sys:String>
 
-    <sys:String x:Key="LocPaths_SaveAndTempSection">Output and temporary folder settings</sys:String>
 
     <sys:String x:Key="LocPaths_CustomOutput">Save to custom folder</sys:String>
     <sys:String x:Key="LocPaths_CustomOutputDesc">Save output files to a folder you choose instead of saving them next to the source file.</sys:String>
 
     <sys:String x:Key="LocPaths_OutputFolder">Output folder</sys:String>
-    <sys:String x:Key="LocPaths_OutputFolderDesc">This path is used only when saving to a custom folder is enabled.</sys:String>
 
     <sys:String x:Key="LocPaths_CustomTempFolder">Use a custom temporary work folder</sys:String>
-    <sys:String x:Key="LocPaths_CustomTempFolderDesc">When this is off, the app uses a safe temporary path beside the source or output file.</sys:String>
+    <sys:String x:Key="LocPaths_CustomTempFolderDesc">A folder for temporary work files during conversion. When off, a temporary folder beside the source or output is used. Archives are always unpacked in the Windows Temp folder.</sys:String>
 
     <sys:String x:Key="LocPaths_TempFolder">Temporary work folder</sys:String>
-    <sys:String x:Key="LocPaths_TempFolderDesc">Stores temporary work files during heavy operations. Do not use it for permanent files.</sys:String>
 
-    <sys:String x:Key="LocPaths_DeleteSourceAfterVerifiedConversion">Delete source files after successful conversion and verification</sys:String>
-    <sys:String x:Key="LocPaths_DeleteSourceAfterVerifiedConversionDesc">Automatically deletes source files after the CHD file is created and verified successfully. Enable this only if you do not need to keep the original copy.</sys:String>
 
-    <sys:String x:Key="LocPaths_DeleteSourceAfterVerifiedExtraction">Delete CHD after extraction</sys:String>
-    <sys:String x:Key="LocPaths_DeleteSourceAfterVerifiedExtractionDesc">Deletes the original CHD file after extraction succeeds and the extracted data is verified. Enable this only if you are sure.</sys:String>
 
     <sys:String x:Key="LocAdv_Picker_SelectPendingWorkspaceTitle">Choose temporary work folder</sys:String>
 
-    <sys:String x:Key="LocPaths_OrganizeSection">Organize output files</sys:String>
 
-    <sys:String x:Key="LocPaths_OrganizeByPlatform">Organize by platform</sys:String>
-    <sys:String x:Key="LocPaths_OrganizeByPlatformDesc">Creates automatic subfolders for each platform inside the output folder.</sys:String>
 
-    <sys:String x:Key="LocPaths_OrganizeByRegion">Organize by region</sys:String>
-    <sys:String x:Key="LocPaths_OrganizeByRegionDesc">Sorts output files into region subfolders when data is available.</sys:String>
 
-    <sys:String x:Key="LocPaths_PortableMode">Portable mode</sys:String>
-    <sys:String x:Key="LocPaths_PortableModeDesc">Saves settings and run logs in a .portable folder next to the app file instead of saving them in the system.</sys:String>
 
-    <sys:String x:Key="LocPaths_FolderInputSection">Folder input</sys:String>
 
     <sys:String x:Key="LocPaths_IncludeSubfolders">Include subfolders</sys:String>
     <sys:String x:Key="LocPaths_IncludeSubfoldersDesc">When adding a folder, the app adds supported files from that folder and its subfolders.</sys:String>
 
     <sys:String x:Key="LocCommon_Browse">Browse...</sys:String>
 
-    <sys:String x:Key="LocPerformance_Title">Performance and compression</sys:String>
-    <sys:String x:Key="LocPerformance_Description">Performance settings control CHD creation speed and how much of the device resources the app uses during conversion.</sys:String>
 
-    <sys:String x:Key="LocPerformance_ProcessorInfoSection">Processor information</sys:String>
-    <sys:String x:Key="LocPerformance_ProcessorInfoDesc">Shows a summary of the current processor to help you choose suitable performance settings.</sys:String>
 
-    <sys:String x:Key="LocPerformance_ChdmanOptionsSection">Advanced conversion settings (chdman)</sys:String>
-    <sys:String x:Key="LocPerformance_ChdmanOptionsDesc">Customize performance mode, processing thread count, and compression settings. Higher settings can speed up conversion but use more CPU and memory.</sys:String>
 
-    <sys:String x:Key="LocPerformance_ProcessorCount">Compression threads</sys:String>
     <sys:String x:Key="LocPerformance_ConcurrentConversions">Number of files converted at the same time</sys:String>
-    <sys:String x:Key="LocPerformance_PerformanceMode">Performance mode</sys:String>
     <sys:String x:Key="LocPerformance_ProcessPriority">Process priority</sys:String>
     <sys:String x:Key="LocPerformance_IsoCreateMode">CHD creation mode</sys:String>
     <sys:String x:Key="LocPerformance_CompressionPreset">Compression mode</sys:String>
@@ -1250,11 +1249,7 @@ Path:
     <sys:String x:Key="LocStorageTemperature_AccessDenied">Could not access temperature data: Windows denied access. Tip: running the app as administrator may solve this issue.</sys:String>
     <sys:String x:Key="LocConversionReport_PoorCompressionPs3">Note: compression ratio is low. This is normal for PS3 games because their data is already compressed; it does not mean conversion failed.</sys:String>
 
-    <sys:String x:Key="LocProcessing_Title">Processing settings</sys:String>
-    <sys:String x:Key="LocProcessing_Description">Choose verification, output handling, and cleanup behavior.</sys:String>
 
-    <sys:String x:Key="LocProcessing_VerifyOutputSection">Verification and output</sys:String>
-    <sys:String x:Key="LocProcessing_VerifyOutputDesc">Choose whether to verify generated CHD files and how to handle existing output files.</sys:String>
 
     <sys:String x:Key="LocProcessing_VerifyAfterConversion">Verify after conversion</sys:String>
     <sys:String x:Key="LocProcessing_VerifyAfterConversionDesc">Automatically verifies the generated CHD file as soon as creation finishes.</sys:String>
@@ -1265,54 +1260,26 @@ Path:
     <sys:String x:Key="LocProcessing_CopyMatchingSbi">Copy matching SBI files</sys:String>
     <sys:String x:Key="LocProcessing_CopyMatchingSbiDesc">Automatically copies matching SBI files next to the CHD file when available.</sys:String>
 
-    <sys:String x:Key="LocProcessing_CleanupSection">Cleanup</sys:String>
-    <sys:String x:Key="LocProcessing_CleanupDesc">Manage temporary files and leftovers from incomplete operations.</sys:String>
 
-    <sys:String x:Key="LocProcessing_DeleteTemporaryExtraction">Delete temporary files</sys:String>
-    <sys:String x:Key="LocProcessing_DeleteTemporaryExtractionDesc">Automatically deletes temporary files after the operation completes, while keeping the original source files.</sys:String>
+    <sys:String x:Key="LocProcessing_DeleteTemporaryExtraction">Delete files unpacked from archives when done</sys:String>
+    <sys:String x:Key="LocProcessing_DeleteTemporaryExtractionDesc">When work on an archive ends, deletes the files it unpacked into the Windows Temp folder. Source files are not touched.</sys:String>
 
-    <sys:String x:Key="LocProcessing_DeleteFailedOutput">Delete incomplete output file</sys:String>
-    <sys:String x:Key="LocProcessing_DeleteFailedOutputDesc">Automatically removes damaged or incomplete output files when an operation fails.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_Description">Use Redump for manual verification from the main UI. It does not start automatically when you add files or during processing.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_ManualScanSection">Manual verification</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">Show Redump in the main UI</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">Shows the verification button and match result for the selected file. Verification starts only when you run it manually.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ShowInMainTooltip">Shows the verification button and match result in the main UI.</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainTitle">Turn on Redump checks</sys:String>
+    <sys:String x:Key="LocRedumpSettings_ShowInMainDesc">Adds the check button and match result to the main window and shows the database settings below. While this is on, each conversion first reads the whole source, which takes longer, and stops if the file cannot be read.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_SuggestNameTitle">Show suggested name when a match exists</sys:String>
-    <sys:String x:Key="LocRedumpSettings_SuggestNameDesc">Shows the standard name from the local database when a match is found. The file is renamed only after you approve.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_SuggestNameTooltip">Shows the suggested name and does not rename files automatically.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_ScopeSection">Verification scope</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PlatformTitle">Platform</sys:String>
-    <sys:String x:Key="LocRedumpSettings_PlatformDesc">Choose “Auto” to avoid limiting the scan to one platform and let the app detect the platform automatically.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_DownloadSection">Download database</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ArtifactTitle">Database type</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ArtifactDesc">Choose the database type to download online or import from a local file.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_DownloadUrlTitle">Download URL</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DownloadUrlDesc">Enter the direct database file link so the app can download and import it automatically.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DownloadUrlPlaceholder">Enter the database download link here...</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DownloadUrlTooltip">Enter the Redump download URL.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_DownloadButton">Download database</sys:String>
-    <sys:String x:Key="LocRedumpSettings_DownloadButtonTooltip">Downloads the selected database and imports it into the local Redump database.</sys:String>
 
     <sys:String x:Key="LocRedumpSettings_LocalFolderTitle">Local Redump folder</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderDesc">Choose a folder on this device that contains DAT/XML files. No database is bundled with the app.</sys:String>
     <sys:String x:Key="LocRedumpSettings_ComplianceNotice">The app does not contain Redump files or games. Users must provide DAT files themselves and use them only to verify their legal copies.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderPlaceholder">Choose a Redump folder</sys:String>
     <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderButton">Browse...</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseLocalFolderTooltip">Choose the local Redump folder.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderButton">Scan Redump DAT folder</sys:String>
-    <sys:String x:Key="LocRedumpSettings_ScanLocalFolderTooltip">Shows DAT/XML and CUE counts before preparing the database.</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryButton">Prepare matching database</sys:String>
     <sys:String x:Key="LocRedumpSettings_PrepareLocalLibraryTooltip">Imports selected DAT/XML files into SQLite so game verification can match against Redump.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalActionsTitle">Actions</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanTitle">Folder preview</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanEmpty">Choose a local Redump folder, then scan it.</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderSelectedFormat">Selected folder: {0}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalFolderScanRunning">Scanning local Redump folder...</sys:String>
@@ -1324,10 +1291,6 @@ Path:
     <sys:String x:Key="LocRedumpSettings_LocalFolderIndexErrorAppendFormat">{0}&#x0A;Compact index failed: {1}</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalImportSection">Local Redump database</sys:String>
     <sys:String x:Key="LocRedumpSettings_LocalStatusTitle">Database status</sys:String>
-    <sys:String x:Key="LocRedumpSettings_LocalStatusDesc">SQLite readiness for matching and the last sync time.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_SystemNameTooltip">Optional. Leave empty to use the DAT file name.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseDatButton">Browse...</sys:String>
-    <sys:String x:Key="LocRedumpSettings_BrowseDatTooltip">Choose a DAT or XML file from Redump.</sys:String>
     <sys:String x:Key="LocRedumpSettings_ImportButton">Import</sys:String>
     <sys:String x:Key="LocRedumpSettings_ImportButtonTooltip">Reads the selected DAT/XML file and updates the local Redump database.</sys:String>
     <sys:String x:Key="LocRedumpSettings_DatFileTitle">Single DAT/XML file</sys:String>
@@ -1352,33 +1315,62 @@ Path:
     <sys:String x:Key="LocCommon_Apply">Apply</sys:String>
 
     <sys:String x:Key="LocOptions_WindowTitle">Advanced options</sys:String>
-    <sys:String x:Key="LocOptions_HeaderDescription">&#x2066;Manage conversion, files, Redump, performance, and add-ons.&#x2069;</sys:String>
-    <sys:String x:Key="LocOptions_SectionsTitle">Sections</sys:String>
-    <sys:String x:Key="LocOptions_SectionsDescription">Choose the section you want to edit.</sys:String>
-    <sys:String x:Key="LocOptions_TabGeneral">General</sys:String>
-    <sys:String x:Key="LocOptions_TabPaths">&#x2066;Files&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabPaths">&#x2066;General&#x2069;</sys:String>
     <sys:String x:Key="LocOptions_TabRedump">&#x2066;Redump&#x2069;</sys:String>
     <sys:String x:Key="LocOptions_TabProcessing">&#x2066;Conversion&#x2069;</sys:String>
     <sys:String x:Key="LocOptions_TabPerformance">&#x2066;Performance&#x2069;</sys:String>
-    <sys:String x:Key="LocOptions_TabAddons">&#x2066;Add-ons&#x2069;</sys:String>
-    <sys:String x:Key="LocConversion_EngineSection">&#x2066;Conversion engine&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_TabWindows">&#x2066;Windows&#x2069;</sys:String>
+    <sys:String x:Key="LocOptions_Search">Search options</sys:String>
+    <sys:String x:Key="LocOptions_SearchNoResults">No matches</sys:String>
+    <sys:String x:Key="LocOpt_AddAndSaveSection">&#x2066;Adding and saving&#x2069;</sys:String>
+    <sys:String x:Key="LocOpt_AfterConversionSection">&#x2066;After conversion&#x2069;</sys:String>
+    <sys:String x:Key="LocOpt_AdvancedSection">&#x2066;Advanced&#x2069;</sys:String>
+    <sys:String x:Key="LocOpt_SpeedSection">&#x2066;Speed&#x2069;</sys:String>
+    <sys:String x:Key="LocOpt_TempFilesSection">&#x2066;Temporary files&#x2069;</sys:String>
+    <sys:String x:Key="LocOpt_OrganizeTitle">Sort output into folders</sys:String>
+    <sys:String x:Key="LocOpt_OrganizeNoneLabel">No folders</sys:String>
+    <sys:String x:Key="LocOpt_OrganizeNoneDescription">Output goes straight into the save folder.</sys:String>
+    <sys:String x:Key="LocOpt_OrganizePlatformLabel">By platform</sys:String>
+    <sys:String x:Key="LocOpt_OrganizePlatformDescription">A folder per platform inside the save folder, such as PS2 or PSP.</sys:String>
+    <sys:String x:Key="LocOpt_OrganizeRegionLabel">By region</sys:String>
+    <sys:String x:Key="LocOpt_OrganizeRegionDescription">A folder per region when the file name shows it, such as USA or Europe.</sys:String>
+    <sys:String x:Key="LocOpt_OrganizeBothLabel">Platform, then region</sys:String>
+    <sys:String x:Key="LocOpt_OrganizeBothDescription">A platform folder with region folders inside it.</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceTitle">Delete the original after success</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceDescription">The original is deleted only after the task succeeds and the output is verified. Use it only if you do not need the original.</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceNeedsVerify">Needs "Verify after conversion" above.</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceNoneLabel">No</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceNoneDescription">The original is kept.</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceConversionLabel">After converting to CHD</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceConversionDescription">Deletes the disc image after the CHD is made and verified.</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceExtractionLabel">After extracting a CHD</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceExtractionDescription">Deletes the CHD after it is extracted and the result verified.</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceBothLabel">After both</sys:String>
+    <sys:String x:Key="LocOpt_DeleteSourceBothDescription">Deletes the original in both cases after verification.</sys:String>
+    <sys:String x:Key="LocOpt_M3uTitle">M3U playlists for multi-disc games</sys:String>
+    <sys:String x:Key="LocOpt_M3uOffLabel">Do not create</sys:String>
+    <sys:String x:Key="LocOpt_M3uOffDescription">No M3U playlists are made.</sys:String>
+    <sys:String x:Key="LocOpt_M3uKeepLabel">Create, keep existing</sys:String>
+    <sys:String x:Key="LocOpt_M3uKeepDescription">After the discs of one game are converted, creates an M3U playlist and leaves one with the same name alone.</sys:String>
+    <sys:String x:Key="LocOpt_M3uReplaceLabel">Create, replace existing</sys:String>
+    <sys:String x:Key="LocOpt_M3uReplaceDescription">Creates an M3U playlist and rewrites one with the same name.</sys:String>
+    <sys:String x:Key="LocOpt_DreamcastTitle">Dreamcast extraction format</sys:String>
+    <sys:String x:Key="LocOpt_DreamcastGdiLabel">GDI</sys:String>
+    <sys:String x:Key="LocOpt_DreamcastGdiDescription">The format Dreamcast tools and GDEMU use.</sys:String>
+    <sys:String x:Key="LocOpt_DreamcastCueBinLabel">CUE/BIN</sys:String>
+    <sys:String x:Key="LocOpt_DreamcastCueBinDescription">For programs and emulators that need CUE/BIN.</sys:String>
+    <sys:String x:Key="LocOpt_SpeedTitle">Conversion speed</sys:String>
+    <sys:String x:Key="LocOpt_SpeedThreadsLabel">Fixed: {0} threads</sys:String>
+    <sys:String x:Key="LocOpt_SpeedThreadsDescription">Uses this many processor threads ({0}) for each file, whatever the load on the computer.</sys:String>
+    <sys:String x:Key="LocOptions_TabAddons">&#x2066;Tools&#x2069;</sys:String>
     <sys:String x:Key="LocConversion_ChdSection">&#x2066;CHD settings&#x2069;</sys:String>
-    <sys:String x:Key="LocFiles_OrganizeSection">&#x2066;File management&#x2069;</sys:String>
-    <sys:String x:Key="LocFiles_OutputSection">&#x2066;Output and workspace&#x2069;</sys:String>
-    <sys:String x:Key="LocFiles_ResultsSection">&#x2066;Result handling&#x2069;</sys:String>
-    <sys:String x:Key="LocFiles_CleanupSection">&#x2066;Cleanup&#x2069;</sys:String>
-    <sys:String x:Key="LocPerformance_RuntimeSection">&#x2066;Resources and execution&#x2069;</sys:String>
     <sys:String x:Key="LocExternalTools_Title">Hakamiq-CsoKit</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusAvailable">Tool connected successfully</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusMissing">Tool is not available at the configured path:</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusFailed">Could not connect to the tool at:</sys:String>
     <sys:String x:Key="LocExternalTools_OpenFolder">Open Tools Folder</sys:String>
     <sys:String x:Key="LocExternalTools_Recheck">Recheck</sys:String>
-    <sys:String x:Key="LocExternalTools_CopySetupInstructions">Copy Setup Instructions</sys:String>
-    <sys:String x:Key="LocExternalTools_CsoKitTitle">CsoKit</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitDescription">Checks PSP CSO files and extracts them to a temporary ISO before CHD conversion.</sys:String>
-    <sys:String x:Key="LocExternalTools_StatusLabel">Status</sys:String>
-    <sys:String x:Key="LocExternalTools_VersionLabel">Version</sys:String>
     <sys:String x:Key="LocExternalTools_PathLabel">Path</sys:String>
     <sys:String x:Key="LocExternalTools_SetupInstructions">If the tool appears as missing, open the tools folder and make sure csokit.exe and CsoKit.Native.dll exist, or reinstall the official package.</sys:String>
     <sys:String x:Key="LocOptions_RestoreDefaults">Restore defaults</sys:String>
@@ -1386,7 +1378,6 @@ Path:
     <sys:String x:Key="LocGeneralSettings_Description">Settings that apply to the whole app.</sys:String>
     <sys:String x:Key="LocGeneralSettings_AppearanceSection">Language and appearance</sys:String>
     <sys:String x:Key="LocGeneralSettings_LanguageTitle">Display language</sys:String>
-    <sys:String x:Key="LocGeneralSettings_LanguageDescription">Choose the app display language. The change is saved immediately; some open windows may need to be reopened to refresh all text.</sys:String>
 
     <sys:String x:Key="LocGeneralSettings_ThemeTitle">Appearance</sys:String>
     <sys:String x:Key="LocGeneralSettings_ThemeDescription">Choose the app appearance. The change is applied when you select Apply or OK.</sys:String>
@@ -1483,7 +1474,6 @@ Path:
     <sys:String x:Key="LocFolderDialog_Description_VerifyFormat">Choose {0} to add CHD files and prepare them for verification.</sys:String>
     <sys:String x:Key="LocFolderDialog_Description_ConvertFormat">Choose {0} to add ISO, CUE, GDI, BIN, and supported archive files and prepare them for conversion.</sys:String>
 
-    <sys:String x:Key="LocRedump_NamingSuggestionLogFormat">{0}: Redump name suggestion — {1}</sys:String>
     <sys:String x:Key="LocQueue_CancellationTokenMissing">Could not prepare queue task.</sys:String>
     <sys:String x:Key="LocQueue_AlreadyScheduled">This task is already scheduled to run.</sys:String>
     <sys:String x:Key="LocQueue_OperationCancelled">Operation canceled.</sys:String>
@@ -1552,9 +1542,6 @@ Path:
     <sys:String x:Key="LocAppPaths_UnsafeSystemTempRoot">Cannot create a temporary folder outside the system temporary folder.</sys:String>
     <sys:String x:Key="LocAppPaths_OutsideProcessTempRoot">Cannot use a path outside the app temporary folder.</sys:String>
 
-    <sys:String x:Key="LocPaths_GeneralSection">General</sys:String>
-    <sys:String x:Key="LocPaths_UiLanguage">Display language</sys:String>
-    <sys:String x:Key="LocPaths_UiLanguageDesc">Choose the app display language. The change is saved when you select Apply.</sys:String>
     <sys:String x:Key="LocLanguage_Arabic">Arabic</sys:String>
     <sys:String x:Key="LocLanguage_English">English</sys:String>
 
@@ -1571,10 +1558,6 @@ Path:
     <sys:String x:Key="LocQueue_RedumpVerifyButton">Check with Redump</sys:String>
     <sys:String x:Key="LocQueue_RedumpVerifyTooltip">Run a manual Redump check for this file.</sys:String>
 
-    <sys:String x:Key="LocLanguageRestart_Title">Display language</sys:String>
-    <sys:String x:Key="LocLanguageRestart_Body">Changing the display language requires restarting the app. Restart now?</sys:String>
-    <sys:String x:Key="LocLanguageRestart_BlockedBody">The new language was saved. Restart the app after processing finishes to apply it fully.</sys:String>
-    <sys:String x:Key="LocLanguageRestart_FailedBody">The new language was saved, but automatic restart could not start. Close and open the app again.</sys:String>
     <sys:String x:Key="LocIntakeAdvisoryAction_ReportOnly">Guidance only</sys:String>
 
     <sys:String x:Key="LocUi_Header_Minimize">Minimize</sys:String>
@@ -1712,16 +1695,11 @@ Path:
     <sys:String x:Key="LocInputSafety_WarningFooterFormat">{0} note before adding.</sys:String>
 
 
-    <sys:String x:Key="LocRedumpSettings_AutoSyncTitle">Sync Redump automatically on startup</sys:String>
-    <sys:String x:Key="LocRedumpSettings_AutoSyncDesc">When enabled, the app checks for Redump database updates once a week and installs them in the background without interrupting your work.</sys:String>
-    <sys:String x:Key="LocRedumpSettings_AutoSyncTooltip">Automatically updates the Redump database at startup if more than a week has passed since the last successful update.</sys:String>
     <sys:String x:Key="LocRedumpAutoSync_StartedFooter">Updating the Redump database in the background...</sys:String>
     <sys:String x:Key="LocRedumpAutoSync_CompletedFooter">Redump database updated in the background. Imported systems: {0}.</sys:String>
     <sys:String x:Key="LocRedumpAutoSync_FailedFooter">Could not update the Redump database in the background. You can update it manually from Advanced options.</sys:String>
     <sys:String x:Key="LocRedumpAutoSync_SkippedRecentFooter">Redump update was skipped because the database was synced recently.</sys:String>
 
-    <sys:String x:Key="LocProcessing_AutoM3uGeneration">Create M3U playlists for multi-disc games</sys:String>
-    <sys:String x:Key="LocProcessing_AutoM3uGenerationDesc">After the discs from one game are converted to CHD, the app creates an M3U playlist to make them easier to run in emulators. Note: this feature is for CHD conversions only.</sys:String>
     <sys:String x:Key="LocFmt_M3uGeneratedFooter">Created {0} M3U playlist(s) for multi-disc games.</sys:String>
     <sys:String x:Key="LocPostProcessing_SbiCopyFailed">Could not copy the SBI helper file.</sys:String>
     <sys:String x:Key="LocPostProcessing_M3uGenerationFailed">Could not create the M3U playlist.</sys:String>
@@ -1847,7 +1825,6 @@ Path:
     <sys:String x:Key="LocChdPolicy_UnknownIsoMediaKindRequired">The chdman command for an unknown ISO file cannot be selected from the extension alone. The operation was stopped until the media type is identified as CD or DVD.</sys:String>
     <sys:String x:Key="LocChdPolicy_DirectChdRecompressBlocked">Direct CHD-to-CHD recompression was blocked. The safe path is to extract the original media file first, then rebuild the CHD according to the platform policy.</sys:String>
 
-    <sys:String x:Key="LocRedumpSettings_LocalFolderScanDesc">Quick file summary before preparing the matching database.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitStatusChecking">Checking tool...</sys:String>
     <sys:String x:Key="LocExternalTools_IgirStatusAvailable">Connected</sys:String>
     <sys:String x:Key="LocExternalTools_IgirStatusMissing">Unavailable</sys:String>
@@ -1856,7 +1833,6 @@ Path:
     <sys:String x:Key="LocExternalTools_IgirSelect">Select igir.exe</sys:String>
     <sys:String x:Key="LocExternalTools_IgirToolFilter">igir (igir.exe)|igir.exe|Executable files (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_IgirInvalid">Select the official igir.exe v5.8.1 with the approved SHA-256 digest.</sys:String>
-    <sys:String x:Key="LocExternalTools_SetupNoteTitle">Note</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultFailureDetails">The CHD file could not be verified.&#x0A;It may be damaged, incomplete, or in an unsupported format.</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultWarningTitle">Note</sys:String>
     <sys:String x:Key="LocQueue_VerificationResultDetailsTitle">Details</sys:String>
@@ -1869,6 +1845,18 @@ Path:
     <sys:String x:Key="LocExternalTools_InvalidCsoKitToolSelection">Select csokit.exe only and keep CsoKit.Native.dll beside it.</sys:String>
     <sys:String x:Key="LocExternalTools_CsoKitToolFilter">CsoKit (csokit.exe)|csokit.exe|Executable files (*.exe)|*.exe</sys:String>
     <sys:String x:Key="LocExternalTools_Browse">Browse</sys:String>
+    <sys:String x:Key="LocExternalTools_IgirDescription">Matches game folders against DAT files and writes a report only; no file is moved or deleted.</sys:String>
+    <sys:String x:Key="LocTools_BundledSection">Bundled tools</sys:String>
+    <sys:String x:Key="LocTools_ReplaceableSection">Tools you can replace</sys:String>
+    <sys:String x:Key="LocTools_UseBundled">Use bundled</sys:String>
+    <sys:String x:Key="LocTools_StateVerified">Verified</sys:String>
+    <sys:String x:Key="LocTools_StateMissing">Missing</sys:String>
+    <sys:String x:Key="LocTools_StateChanged">Changed</sys:String>
+    <sys:String x:Key="LocTools_ChdmanPurpose">Creates, extracts and verifies CHD files.</sys:String>
+    <sys:String x:Key="LocTools_SevenZipPurpose">Unpacks archives before conversion.</sys:String>
+    <sys:String x:Key="LocTools_XdvdfsPurpose">Xbox images to XISO, and unpacks Xbox 360 images.</sys:String>
+    <sys:String x:Key="LocTools_Iso2GodPurpose">Xbox 360 images to Games on Demand.</sys:String>
+    <sys:String x:Key="LocTools_ZArchivePurpose">Xbox 360 games to ZAR for Xenia.</sys:String>
 
     <sys:String x:Key="LocDeepHash_CsoStageTool">Checking CSO tool...</sys:String>
     <sys:String x:Key="LocDeepHash_CsoStageInfo">Reading CSO information...</sys:String>

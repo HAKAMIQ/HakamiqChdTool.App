@@ -24,7 +24,7 @@ Include:
 - what you expected to happen
 - what actually happened
 - relevant logs with private data removed
-- whether chdman, 7-Zip, or CsoKit is involved
+- whether chdman, 7-Zip, CsoKit, xdvdfs, iso2god or ZArchive is involved
 
 Remove usernames, private paths, tokens, file names, and unrelated logs before
 sending a report.

@@ -4,7 +4,7 @@ Last reviewed: 2026-11-19.
 
 ## igir
 
-- Version: 5.8.1 (optional; fetched by `scripts/FetchIgir.ps1` because the executable exceeds the 50 MB repository binary limit)
+- Version: 5.8.1 (bundled in every release; not in Git because the executable exceeds GitHub's 100 MiB file limit, so `scripts/FetchIgir.ps1` fetches it and CI runs that script before publishing)
 - Upstream release: <https://github.com/emmercm/igir/releases/tag/v5.8.1>
 - ZIP SHA-256: `48025BACCB4EE564B6DDA4B3AA65C9B90AB01340C2A43773FA506DC880D013F2`
 - `Tools/igir/win-x64/igir.exe` SHA-256: `F3BCD0173C5E79A3DCEC8CC65707007035849920AB362B51F09E133BDBB63DD1`
@@ -73,6 +73,51 @@ Last reviewed: 2026-11-19.
 - Integration policy: the application accepts CsoKit 0.6.1 or newer for CSO
   and requires 0.6.4 or newer for ZSO. Both bundled runtime files are pinned
   before every execution.
+
+## xdvdfs
+
+- Version: 0.8.3 (MIT)
+- Upstream release: <https://github.com/antangelo/xdvdfs/releases/tag/v0.8.3>
+- Downloaded package: `xdvdfs-windows-1cc850bf1b3487fad7ec7c9eed01d83e8fc75ba4.zip`
+- Package SHA-256:
+  `008B1B3A63F1ECB00D1ED51AB154053FD0F7C41C68E973455BBE77AB989A7CC5`
+  (the release publishes no digest; recorded at download on 2026-11-20)
+- `Tools/xdvdfs/win-x64/xdvdfs.exe` SHA-256:
+  `DF5F19954EF706C130C256546BF67CF7725611BDB30D1815577187007A6F907A`
+- Command verification: `--version` reported `xdvdfs-cli 0.8.3`. A Redump Xbox
+  ISO packed to an XISO with the same `checksum` and per-file MD5s, and an
+  Xbox 360 XGD2 image unpacked with every file matching `md5`.
+- Used for: Xbox ISO or game folder to XISO, and unpacking Xbox 360 images
+  before ZAR packing.
+
+## iso2god-rs
+
+- Version: 1.8.1 (MIT); the executable reports `iso2god 1.8.0`
+- Upstream release: <https://github.com/iliazeus/iso2god-rs/releases/tag/v1.8.1>
+- Downloaded file: `iso2god-x86_64-windows.exe`
+- `Tools/iso2god/win-x64/iso2god.exe` SHA-256:
+  `1459FCF8FF5A89E039B02C68C06B006B7A036F3B1CA237C2D7E03D61BD211D47`
+  (matches the `digest` field of the GitHub Releases API)
+- Command verification: an Xbox 360 ISO converted to Games on Demand with a
+  `LIVE` header, its title ID and name read by `--dry-run`.
+- Used for: Xbox 360 ISO to GOD.
+
+## ZArchive
+
+- Version: 0.1.2 (MIT-0)
+- Upstream release: <https://github.com/Exzap/ZArchive/releases/tag/v0.1.2>
+- Downloaded file: `zarchive.exe`
+- `Tools/zarchive/win-x64/zarchive.exe` SHA-256:
+  `F9BBA11DF7EE120186E013214C14C210690F72AB2940ECC158FC40BF36E78B6C`
+  (the release publishes no digest; recorded at download on 2026-11-20)
+- Command verification: an unpacked Xbox 360 game packed to `.zar` and
+  unpacked again with every file's SHA-1 unchanged.
+- Used for: Xbox 360 game folder to ZAR for Xenia Canary (packing only).
+- Known issue: its extraction stops early on large archives (a 7 GB Xbox 360
+  game lost its last two files) while the archive itself is correct; Xenia
+  Canary extracted the same archive completely. The app therefore checks each
+  .zar with its own reader (`Services/Xbox/ZarVerify.cs`), never with this
+  tool's extraction.
 
 ## Verification policy
 

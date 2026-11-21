@@ -23,7 +23,7 @@ Start with one file before processing a large batch. It is easier to confirm the
 
 ## Explorer right-click menu
 
-Turn on **Settings > Performance > Add CHD Tool to the Explorer right-click menu**
+Turn on **Settings > Windows > Add CHD Tool to the Explorer right-click menu**
 to get:
 
 - **Convert to CHD** on ISO, CSO, ZSO, CUE, GDI, TOC, NRG, CCD, MDS, ECM, ZIP,
@@ -31,9 +31,20 @@ to get:
 - **Extract CHD** and **Verify CHD** on CHD files.
 - A **CHD Tool** submenu with all three on folders.
 
-The entries open CHD Tool, or the window that is already open, switch to that
-mode and add the selected items to the queue. While the queue is running, the
-items are added when it finishes. On Windows 11 the entries are under
+When CHD Tool is closed, an entry opens a small window instead of the full
+app. It lists the selected items and starts right away with your saved
+settings, then shows the result: how many finished, the space saved and the
+time taken, with **Details** for the full report. Items you choose in Explorer
+while it runs are added and start after the current ones. If your settings
+delete the source after a verified run, the window says so and waits for
+**Start**. **Stop** stops the run, and closing the window while it runs stops
+it first. **Open in app** opens the full app with the items that did not
+finish. To get the full app instead, turn off **Open a small window when you
+choose from Explorer** under the menu option.
+
+When CHD Tool is already open, the entries switch it to that mode and add the
+selected items to its queue. While the queue is running, the items are added
+when it finishes. On Windows 11 the entries are under
 **Show more options**. The menu is added for your Windows account only and
 needs no administrator rights. Turn the option off before you delete or move
 the app folder; if you move it, start the app once from the new place to update
@@ -49,15 +60,64 @@ then `chdman verify`, and compares the SHA-1 values with the original. A new
 file is kept only if it matches and saves at least 1%; otherwise it is deleted
 and the original stays as it was. Without Replace, nothing is overwritten.
 
+## Xbox and Xbox 360
+
+**Xbox > Convert Xbox games** in the sidebar opens a window for games that do
+not use CHD:
+
+- Xbox games (an ISO, including a full Redump image, or a game folder with
+  `default.xbe`) become an XISO that xemu reads. A Redump image loses its video
+  partition, so it is about half the size.
+- Xbox 360 games (an ISO or a game folder with `default.xex`) become Games on
+  Demand (GOD), which Xenia and an Xbox 360 load, or ZAR, which is much smaller
+  and loads in Xenia Canary only. Choose the format in the window; the choice is
+  saved.
+
+Add files or folders (a folder with several games adds all of them), choose an
+output folder and select **Start**. Each new file is checked before it is kept:
+the XISO must hold the same files as the source, and a ZAR is read again by the
+app and compared file by file. The originals are never changed or deleted, and an
+existing output is skipped. **Stop** stops the current game and removes its
+temporary files.
+
 ## Watch folder
 
-Turn on **Settings > Performance > Watch a folder and convert new files to
-CHD** and pick a folder. While CHD Tool is open, each new disc image or
+Turn on **Settings > Windows > Watch a folder and convert new files to CHD**
+and pick an existing folder (Options will not save without one). While CHD Tool is open, each new disc image or
 archive copied into that folder is converted once it is fully written (its
 size has stayed the same for a few seconds and no program is still writing
 it). Files that were already there, subfolders, CHD files, hidden files and
 partial downloads are left alone. Output goes where your output settings say.
 If the queue is busy, new files wait and start when it is free.
+
+## Options window
+
+Options has six tabs: General, Conversion, Performance, Windows, Redump and
+Tools. Each option shows what it does under its name. The search box at the top
+shows only the options that contain the text, in every tab, and opens a tab
+that has a match. A problem with a folder (missing, not a full path) is shown
+in red under its box, and OK stays off until it is fixed.
+
+- **General**: subfolders, where results are saved and how they are sorted
+  into folders, skipping existing output, verification, deleting the original
+  after a verified result, M3U playlists and SBI files.
+- **Conversion**: the target emulator, the compression and the Dreamcast
+  extraction format. **Advanced** (folded; it opens by itself when one of its
+  values is not the default, or when a search matches it) holds the hunk size,
+  the ISO creation mode, the CHD platform profile and the chdman copy. When the
+  target emulator fixes the hunk size or leaves out zstd, the option it
+  overrides says so.
+- **Performance**: conversion speed (Safe, Balanced, Fast, or a fixed number of
+  threads), files at once, process priority, the work folder and cleanup of
+  files unpacked from archives.
+- **Tools**: every bundled tool with its version and whether its files still
+  match the digest the app checks before running it, and CsoKit and igir with
+  **Use bundled** to drop a copy you chose.
+
+**Restore defaults** resets the options in the window only; the language,
+theme, chosen tools and Redump data are kept. A chosen CsoKit or igir is saved
+with Apply or OK like the other options. Incomplete output from a failed job is
+always removed.
 
 ## Command line
 

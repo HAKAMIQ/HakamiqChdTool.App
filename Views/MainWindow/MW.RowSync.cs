@@ -18,7 +18,6 @@ namespace HakamiqChdTool.App;
 
 public partial class MainWindow
 {
-    private const string RedumpNamingSuggestionLogFormatKey = "LocRedump_NamingSuggestionLogFormat";
 
     private void OnQueueRowStoreCollectionChanged(QueueRowStoreCollectionDelta delta)
     {
@@ -136,17 +135,6 @@ public partial class MainWindow
         });
 
         _viewModel.NotifyQueueCommandsCanExecuteChanged();
-    }
-
-    private void ApplyNamingAnalysisAndSync(TaskQueueItemViewModel item)
-    {
-        QueueNamingAnalysis.Apply(item, _settings);
-
-        _queueRowStore.Mutate(item.QueueItemId, row =>
-        {
-            row.IsNamingCompliant = item.IsNamingCompliant;
-            row.SuggestedStandardName = item.SuggestedStandardName;
-        });
     }
 
     private void SetHasActiveQueueBindingAndSync(Guid rowId, bool value)
@@ -302,28 +290,9 @@ public partial class MainWindow
         }
     }
 
-    private Task ApplyAutoStandardizedNameIfEnabled(TaskQueueItemViewModel item)
-    {
-        if (item.UsesQuickProfile ||
-            !_settings.EnableDeepIntegrityCheck ||
-            !_settings.ApplyStandardNamingBasedOnHash)
-        {
-            return Task.CompletedTask;
-        }
-
-        ApplyNamingAnalysisAndSync(item);
-
-        if (!item.IsNamingCompliant &&
-            !string.IsNullOrWhiteSpace(item.SuggestedStandardName))
-        {
-            AppendExecutionLog(ArabicUi.Format(
-                RedumpNamingSuggestionLogFormatKey,
-                item.FileName,
-                item.SuggestedStandardName));
-        }
-
-        return Task.CompletedTask;
-    }
+    // The suggested Redump name is shown with the check result; the old option that also wrote it to the log is gone,
+    // so a value left in a settings file does nothing. The queue still calls this hook.
+    private Task ApplyAutoStandardizedNameIfEnabled(TaskQueueItemViewModel item) => Task.CompletedTask;
 
     private static string GetSafeNamingComparisonFileName(string? path)
     {

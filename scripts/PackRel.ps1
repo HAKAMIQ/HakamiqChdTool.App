@@ -58,6 +58,9 @@ $IgirSourceArchiveName = "igir-5.8.1-source.tar.gz"
 $IgirSourceArchiveHash = "18742ACA59AAD2D562B25645EC6DAE728A9BF234AE597E2BD162ABCC992BEF46"
 $IgirSourcePath = Join-Path $PackageDirectoryPath $IgirSourceArchiveName
 $IncludesIgir = Test-Path -LiteralPath (Join-Path $ReleaseOutputPath "Tools\igir\win-x64\igir.exe") -PathType Leaf
+if (-not $IncludesIgir) {
+    throw "Release output does not bundle igir: $ReleaseOutputPath\Tools\igir\win-x64\igir.exe. Run scripts\FetchIgir.ps1, then publish again."
+}
 
 function Write-Info {
     param(

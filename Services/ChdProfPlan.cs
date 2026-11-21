@@ -155,7 +155,9 @@ public static class ChdWorkflowProfilePlanner
 
         string extension = Path.GetExtension(inputPath).ToLowerInvariant();
         ChdPlatformProfile? requestedProfile = ChdPlatformProfiles.FindById(platformProfileId);
-        if (requestedProfile is not null)
+        // An .mds or .ecm is planned from its descriptor whatever profile is selected.
+        if (requestedProfile is not null
+            && (ChdPlatformProfiles.AppliesToInput(requestedProfile, extension) || extension is ".mds" or ".ecm"))
         {
             return PlanRequestedPlatformProfile(inputPath, extension, requestedProfile, containerKind);
         }

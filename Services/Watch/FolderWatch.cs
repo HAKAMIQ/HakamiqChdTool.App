@@ -100,12 +100,15 @@ internal sealed class WatchFolderService : IDisposable
     private readonly FileSystemWatcher _watcher;
     private readonly FileStabilityTracker _tracker;
     private readonly Action<IReadOnlyList<string>> _onReady;
+    private readonly Action? _onLost;
     private readonly Timer _timer;
+    private int _lostReported;
 
-    private WatchFolderService(string folder, Action<IReadOnlyList<string>> onReady, TimeSpan quietPeriod, TimeSpan pollInterval)
+    private WatchFolderService(string folder, Action<IReadOnlyList<string>> onReady, Action? onLost, TimeSpan quietPeriod, TimeSpan pollInterval)
     {
         Folder = folder;
         _onReady = onReady;
+        _onLost = onLost;
         _tracker = new FileStabilityTracker(quietPeriod);
         _watcher = new FileSystemWatcher(folder)
         {
@@ -120,7 +123,11 @@ internal sealed class WatchFolderService : IDisposable
             Observe(e.FullPath);
         };
         _watcher.Deleted += (_, e) => _tracker.Forget(e.FullPath);
-        _watcher.Error += (_, e) => Log.Warning(e.GetException(), "Watch folder events were lost for {Folder}.", folder);
+        _watcher.Error += (_, e) =>
+        {
+            Log.Warning(e.GetException(), "Watch folder events were lost for {Folder}.", folder);
+            ReportLost();
+        };
         _timer = new Timer(_ => Poll(), null, pollInterval, pollInterval);
         _watcher.EnableRaisingEvents = true;
     }
@@ -128,7 +135,8 @@ internal sealed class WatchFolderService : IDisposable
     public string Folder { get; }
 
     /// <summary>Starts watching, or returns null when the folder is missing or not a plain folder.</summary>
-    public static WatchFolderService? TryStart(string? folder, Action<IReadOnlyList<string>> onReady, TimeSpan? quietPeriod = null, TimeSpan? pollInterval = null)
+    /// <param name="onLost">Called once when the folder disappears or events are lost, so the user can be told watching stopped.</param>
+    public static WatchFolderService? TryStart(string? folder, Action<IReadOnlyList<string>> onReady, TimeSpan? quietPeriod = null, TimeSpan? pollInterval = null, Action? onLost = null)
     {
         ArgumentNullException.ThrowIfNull(onReady);
         try
@@ -145,7 +153,7 @@ internal sealed class WatchFolderService : IDisposable
                 return null;
             }
 
-            return new WatchFolderService(full, onReady, quietPeriod ?? QuietPeriod, pollInterval ?? PollInterval);
+            return new WatchFolderService(full, onReady, onLost, quietPeriod ?? QuietPeriod, pollInterval ?? PollInterval);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or System.Security.SecurityException)
         {
@@ -200,11 +208,26 @@ internal sealed class WatchFolderService : IDisposable
 
     private void Poll()
     {
+        if (!Directory.Exists(Folder))
+        {
+            Log.Warning("Watch folder is gone: {Folder}.", Folder);
+            ReportLost();
+            return;
+        }
+
         IReadOnlyList<string> ready = _tracker.TakeReady(DateTime.UtcNow, SizeOf, CanOpenExclusively);
         if (ready.Count > 0)
         {
             Log.Information("Watch folder found {Count} new file(s) in {Folder}.", ready.Count, Folder);
             _onReady(ready);
+        }
+    }
+
+    private void ReportLost()
+    {
+        if (Interlocked.Exchange(ref _lostReported, 1) == 0)
+        {
+            _onLost?.Invoke();
         }
     }
 

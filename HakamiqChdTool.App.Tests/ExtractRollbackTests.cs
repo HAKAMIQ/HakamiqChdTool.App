@@ -73,7 +73,8 @@ internal static partial class Program
             OrganizeByPlatform = false,
             OrganizeByRegion = false,
             SkipExistingOutput = false,
-            DeleteFailedOutput = true,
+            // The old setting is off, yet cleanup always runs now; the user's own set must still survive.
+            DeleteFailedOutput = false,
             DeleteSourceAfterVerifiedExtraction = false
         };
 

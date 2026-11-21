@@ -82,6 +82,8 @@ public static class SevenZipProcessRunner
             throw new InvalidOperationException(ProcessStartFailedMessageKey, ex);
         }
 
+        HelperToolPriority.TryApply(process);
+
         progress?.Report(0);
 
         Task stdoutPump = PumpStreamAsync(

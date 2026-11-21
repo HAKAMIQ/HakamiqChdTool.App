@@ -1,0 +1,293 @@
+<Window x:Class="HakamiqChdTool.App.Views.XboxWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="{DynamicResource LocXbox_Title}"
+        Width="760"
+        Height="620"
+        MinWidth="600"
+        MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResize"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        ShowInTaskbar="False"
+        FlowDirection="{DynamicResource App.FlowDirection}"
+        Language="{DynamicResource App.XmlLanguage}"
+        NumberSubstitution.Substitution="European"
+        Icon="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.ico"
+        Background="{DynamicResource Brush.Layer.Canvas}"
+        Foreground="{DynamicResource Brush.Text.Primary}"
+        FontFamily="{DynamicResource FontFamily.Text}"
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/OptsStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="XboxBoolToVisibility" />
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="{DynamicResource Space.40}"
+                            CornerRadius="{DynamicResource Radius.Dialog}"
+                            GlassFrameThickness="{DynamicResource Inset.None}"
+                            ResizeBorderThickness="6"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Border Style="{StaticResource Win11.DialogRootFrame}">
+        <Grid ClipToBounds="True"
+              FlowDirection="{DynamicResource App.FlowDirection}"
+              Language="{DynamicResource App.XmlLanguage}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Style="{StaticResource Win11.DialogTopBar}"
+                    MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="{DynamicResource LocXbox_Title}"
+                               Style="{StaticResource Win11.DialogTitleText}" />
+
+                    <Button Grid.Column="1"
+                            Width="{DynamicResource Space.32}"
+                            Height="{DynamicResource Space.32}"
+                            MinWidth="{DynamicResource Space.32}"
+                            Padding="{DynamicResource Inset.None}"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource HeaderIconButtonStyle}"
+                            ToolTip="{DynamicResource LocCommon_Close}"
+                            AutomationProperties.Name="{DynamicResource LocCommon_Close}"
+                            Click="CloseButton_Click"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Viewbox Width="{DynamicResource Space.12}"
+                                 Height="{DynamicResource Space.12}"
+                                 FlowDirection="LeftToRight">
+                            <Path Data="{StaticResource Icon.Close}"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  Stretch="Uniform" />
+                        </Viewbox>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1" Margin="{DynamicResource Inset.16.All}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="{DynamicResource Grid.Space.12}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="{DynamicResource LocXbox_Intro}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <Button x:Name="XboxAddFilesButton"
+                            Command="{Binding AddFilesCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocXbox_AddFiles}"
+                            Content="{DynamicResource LocXbox_AddFiles}" />
+                    <Button Margin="{DynamicResource Inset.8.0.0.0}"
+                            Command="{Binding AddFolderCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocXbox_AddFolder}"
+                            Content="{DynamicResource LocXbox_AddFolder}" />
+                    <Button Margin="{DynamicResource Inset.8.0.0.0}"
+                            Command="{Binding ClearCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocXbox_Clear}"
+                            Content="{DynamicResource LocXbox_Clear}" />
+                </StackPanel>
+
+                <Border Grid.Row="4"
+                        AllowDrop="True"
+                        DragOver="List_DragOver"
+                        Drop="List_Drop"
+                        Background="{DynamicResource Brush.Layer.Card}"
+                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                        BorderThickness="1"
+                        CornerRadius="{DynamicResource Radius.Control.Large}">
+                    <Grid>
+                        <TextBlock Text="{DynamicResource LocXbox_Empty}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="{DynamicResource Inset.16.All}"
+                                   Foreground="{DynamicResource Brush.Text.Secondary}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Items.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <ListView x:Name="XboxList"
+                                  ItemsSource="{Binding Items}"
+                                  Background="{DynamicResource Brush.Transparent}"
+                                  BorderThickness="0"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  AutomationProperties.Name="{DynamicResource LocXbox_Title}">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="{DynamicResource Inset.8.4}" />
+                                    <Setter Property="AutomationProperties.Name" Value="{Binding Name}" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Text="{Binding Name}"
+                                                   FlowDirection="LeftToRight"
+                                                   HorizontalAlignment="Left"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding Path}" />
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding KindText}"
+                                                   Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                        <TextBlock Grid.Row="1"
+                                                   Grid.ColumnSpan="3"
+                                                   Text="{Binding StatusText}"
+                                                   TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource Brush.Text.Secondary}" />
+                                        <ProgressBar Grid.Row="1"
+                                                     Grid.Column="2"
+                                                     Width="120"
+                                                     Height="4"
+                                                     VerticalAlignment="Center"
+                                                     IsIndeterminate="True"
+                                                     Visibility="{Binding IsWorking, Converter={StaticResource XboxBoolToVisibility}}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="6">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{DynamicResource Grid.Space.8}" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="{DynamicResource LocXbox_Format360}"
+                               VerticalAlignment="Center" />
+                    <ComboBox x:Name="XboxFormatComboBox"
+                              Grid.Column="2"
+                              Grid.ColumnSpan="3"
+                              ItemsSource="{Binding FormatOptions}"
+                              SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
+                              DisplayMemberPath="Label"
+                              IsEnabled="{Binding CanEditOptions}"
+                              Style="{StaticResource Win11SettingsComboBox}"
+                              Width="Auto"
+                              HorizontalAlignment="Stretch"
+                              AutomationProperties.Name="{DynamicResource LocXbox_Format360}" />
+
+                    <TextBlock Grid.Row="2"
+                               Grid.ColumnSpan="5"
+                               Text="{DynamicResource LocXbox_XboxNote}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource Brush.Text.Secondary}" />
+
+                    <TextBlock Grid.Row="4"
+                               Text="{DynamicResource LocXbox_OutputFolder}"
+                               VerticalAlignment="Center" />
+                    <TextBox x:Name="XboxOutputTextBox"
+                             Grid.Row="4"
+                             Grid.Column="2"
+                             Text="{Binding OutputFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FlowDirection="LeftToRight"
+                             IsEnabled="{Binding CanEditOptions}"
+                             AutomationProperties.Name="{DynamicResource LocXbox_OutputFolder}" />
+                    <Button Grid.Row="4"
+                            Grid.Column="4"
+                            Command="{Binding BrowseOutputCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocCommon_Browse}"
+                            Content="{DynamicResource LocCommon_Browse}" />
+                </Grid>
+            </Grid>
+
+            <Border Grid.Row="2"
+                    Style="{StaticResource Win11.DialogActionBar}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="XboxSummaryText"
+                               Text="{Binding SummaryText}"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap"
+                               AutomationProperties.LiveSetting="Polite"
+                               Foreground="{DynamicResource Brush.Text.Secondary}" />
+
+                    <Button x:Name="XboxStartButton"
+                            Grid.Column="2"
+                            MinWidth="{DynamicResource Space.112}"
+                            Command="{Binding StartCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocXbox_Start}"
+                            Content="{DynamicResource LocXbox_Start}" />
+                    <Button x:Name="XboxStopButton"
+                            Grid.Column="4"
+                            MinWidth="{DynamicResource Space.112}"
+                            Command="{Binding StopCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            AutomationProperties.Name="{DynamicResource LocXbox_Stop}"
+                            Content="{DynamicResource LocXbox_Stop}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

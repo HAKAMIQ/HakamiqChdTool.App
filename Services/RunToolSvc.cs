@@ -9,8 +9,8 @@ namespace HakamiqChdTool.App.Services;
 
 public sealed class RuntimeToolService
 {
-    private const string BundledChdmanRelativePath = @"Tools\chdman.exe";
-    private const string BundledChdmanSha256Hex = "8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F";
+    internal const string BundledChdmanRelativePath = @"Tools\chdman.exe";
+    internal const string BundledChdmanSha256Hex = "8A74468E3B0879698835B57C3B58E88E5A51E4DE73BEE6EF755C28530B5B040F";
 
     private const string BundledToolUnsafeMessageKey = "LocRuntimeTools_BundledToolUnsafe";
     private const string BundledToolMissingMessageKey = "LocRuntimeTools_BundledToolMissing";

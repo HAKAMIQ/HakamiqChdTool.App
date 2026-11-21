@@ -14,9 +14,7 @@ public sealed partial class OptionsViewModel
     private IOptionsPickerService? _optionsPickerService;
     private IRelayCommand? _browseOutputFolderCommand;
     private IRelayCommand? _browseExternalChdmanCommand;
-    private IRelayCommand? _browseRedumpDatCommand;
     private IRelayCommand? _browseRedumpLocalLibraryCommand;
-    private AsyncRelayCommand? _scanRedumpLocalLibraryCommand;
     private AsyncRelayCommand? _importRedumpLocalLibraryCommand;
     private IRelayCommand? _browsePendingWorkspaceCommand;
     private readonly RedumpLocalLibraryScanner _redumpLocalLibraryScanner = new();
@@ -33,16 +31,8 @@ public sealed partial class OptionsViewModel
     public IRelayCommand BrowseExternalChdmanCommand =>
         _browseExternalChdmanCommand ??= new RelayCommand(BrowseExternalChdman);
 
-    public IRelayCommand BrowseRedumpDatCommand =>
-        _browseRedumpDatCommand ??= new RelayCommand(BrowseRedumpDat);
-
     public IRelayCommand BrowseRedumpLocalLibraryCommand =>
         _browseRedumpLocalLibraryCommand ??= new RelayCommand(BrowseRedumpLocalLibrary);
-
-    public IAsyncRelayCommand ScanRedumpLocalLibraryCommand =>
-        _scanRedumpLocalLibraryCommand ??= new AsyncRelayCommand(
-            ScanAndIndexRedumpLocalLibraryAsync,
-            CanScanRedumpLocalLibrary);
 
     public IAsyncRelayCommand ImportRedumpLocalLibraryCommand =>
         _importRedumpLocalLibraryCommand ??= new AsyncRelayCommand(
@@ -117,22 +107,6 @@ public sealed partial class OptionsViewModel
         }
     }
 
-    private void BrowseRedumpDat()
-    {
-        string current = RedumpDatXmlPath?.Trim() ?? string.Empty;
-        string fallback = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        string? selected = OptionsPickerService.PickFile(
-            "LocAdv_Picker_SelectRedumpDatTitle",
-            "LocFilter_RedumpDatXmlFiles",
-            TryGetSafeOptionsFile(current, out string safeCurrent) ? safeCurrent : null,
-            fallback);
-
-        if (!string.IsNullOrWhiteSpace(selected))
-        {
-            RedumpDatXmlPath = selected;
-        }
-    }
-
     private void BrowseRedumpLocalLibrary()
     {
         string current = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
@@ -163,58 +137,8 @@ public sealed partial class OptionsViewModel
             && TryGetSafeOptionsDirectory(root, out _);
     }
 
-    private async Task ScanRedumpLocalLibraryAsync()
-    {
-        string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
-
-        if (!TryGetSafeOptionsDirectory(root, out string safeRoot))
-        {
-            RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
-            return;
-        }
-
-        IsRedumpLocalLibraryScanRunning = true;
-        RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanRunning");
-
-        try
-        {
-            RedumpLocalLibraryScanResult result = await _redumpLocalLibraryScanner
-                .ScanAsync(safeRoot, CancellationToken.None)
-                .ConfigureAwait(true);
-
-            if (!result.HasImportableDatFiles)
-            {
-                RedumpLocalLibraryScanSummary = ArabicUi.Get("LocRedumpSettings_LocalFolderScanInvalid");
-                return;
-            }
-
-            string newest = result.NewestModifiedLocal.HasValue
-                ? result.NewestModifiedLocal.Value.ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture)
-                : "—";
-
-            RedumpLocalLibraryScanSummary = ArabicUi.Format(
-                "LocRedumpSettings_LocalFolderScanReadyFormat",
-                FormatInvariantNumber(result.DatXmlFileCount),
-                FormatInvariantNumber(result.CueFileCount),
-                FormatInvariantNumber(result.GdiFileCount),
-                FormatInvariantNumber(result.SubchannelFileCount),
-                FormatInvariantNumber(result.DiscKeyFileCount),
-                FormatInvariantNumber(result.TopLevelFolderCount),
-                newest);
-        }
-        catch (Exception ex)
-        {
-            RedumpLocalLibraryScanSummary = RuntimeDiagnosticFormatter.SummarizeException(ex);
-        }
-        finally
-        {
-            IsRedumpLocalLibraryScanRunning = false;
-        }
-    }
-
     partial void NotifyRedumpLocalLibraryScanCommandState()
     {
-        _scanRedumpLocalLibraryCommand?.NotifyCanExecuteChanged();
         _importRedumpLocalLibraryCommand?.NotifyCanExecuteChanged();
     }
 

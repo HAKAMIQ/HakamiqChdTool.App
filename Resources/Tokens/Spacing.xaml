@@ -256,9 +256,9 @@
     <sys:Double x:Key="Window.About.Height">600</sys:Double>
     <sys:Double x:Key="Window.About.MinWidth">600</sys:Double>
     <sys:Double x:Key="Window.About.MinHeight">560</sys:Double>
-    <sys:Double x:Key="Window.Options.Width">700</sys:Double>
-    <sys:Double x:Key="Window.Options.Height">600</sys:Double>
-    <sys:Double x:Key="Window.Options.MinWidth">680</sys:Double>
+    <sys:Double x:Key="Window.Options.Width">840</sys:Double>
+    <sys:Double x:Key="Window.Options.Height">660</sys:Double>
+    <sys:Double x:Key="Window.Options.MinWidth">720</sys:Double>
     <sys:Double x:Key="Window.Options.MinHeight">440</sys:Double>
     <sys:Double x:Key="Window.Library.Width">1040</sys:Double>
     <sys:Double x:Key="Window.Library.Height">780</sys:Double>

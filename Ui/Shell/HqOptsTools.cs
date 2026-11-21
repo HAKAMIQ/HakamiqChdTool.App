@@ -1,8 +1,9 @@
 using HakamiqChdTool.App.Services;
-using HakamiqChdTool.App.Services.Configuration;
+using HakamiqChdTool.App.Services.ExternalTools;
 using HakamiqChdTool.App.Services.ExternalTools.Igir;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,7 +64,7 @@ internal sealed partial class HqOptionsShell
             FileName = CsoToolLocator.ToolExecutableName
         };
 
-        string currentPath = _currentSettings.ExternalCsoKitPath;
+        string currentPath = _owner.ViewModel.ExternalCsoKitPath;
         if (!string.IsNullOrWhiteSpace(currentPath))
         {
             try
@@ -83,7 +84,7 @@ internal sealed partial class HqOptionsShell
 
         if (string.IsNullOrWhiteSpace(dialog.InitialDirectory))
         {
-            string bundledFolder = new CsoToolLocator(_currentSettings.ExternalCsoKitPath).BundledToolsFolderPath;
+            string bundledFolder = new CsoToolLocator(_owner.ViewModel.ExternalCsoKitPath).BundledToolsFolderPath;
             if (TryGetSafeExistingDirectory(bundledFolder, out string safeBundledFolder))
             {
                 dialog.InitialDirectory = safeBundledFolder;
@@ -103,18 +104,8 @@ internal sealed partial class HqOptionsShell
             return;
         }
 
-        _currentSettings.ExternalCsoKitPath = selectedPath;
-        _owner.ResultSettings.ExternalCsoKitPath = selectedPath;
-
-        try
-        {
-            using AppSettingsService settingsService = new();
-            settingsService.Save(_currentSettings);
-        }
-        catch (Exception ex) when (IsExpectedPathException(ex))
-        {
-            Logger.Warning(ex, "Failed to persist CsoKit selected path. Path={Path}", selectedPath);
-        }
+        // Saved with Apply or OK like every other option, so Cancel drops it.
+        _owner.ViewModel.ExternalCsoKitPath = selectedPath;
 
         string unavailableText = ResolveUiText(ValueUnavailableKey);
         _owner.ViewModel.SetCsoKitExternalToolStatus(
@@ -127,31 +118,48 @@ internal sealed partial class HqOptionsShell
         QueueExternalToolsRefresh(showCheckingState: false);
     }
 
-    public void BrowseIgirTool(object? sender, EventArgs e)
+    // Clears a chosen path so the bundled copy is used again; saved with Apply or OK like the rest.
+    public void UseBundledCsoKit(object? sender, EventArgs e)
+    {
+        _owner.ViewModel.ExternalCsoKitPath = string.Empty;
+        QueueExternalToolsRefresh(showCheckingState: true);
+    }
+
+    public void UseBundledIgir(object? sender, EventArgs e)
+    {
+        _owner.ViewModel.ExternalIgirPath = string.Empty;
+        QueueExternalToolsRefresh(showCheckingState: true);
+    }
+
+    public async void BrowseIgirTool(object? sender, EventArgs e)
     {
         OpenFileDialog dialog = new() { Title = ResolveUiText("LocExternalTools_IgirSelect"), Filter = ResolveUiText(IgirToolFilterKey),
             CheckFileExists = true, CheckPathExists = true, Multiselect = false, FileName = "igir.exe" };
         bool? result = dialog.ShowDialog(_owner);
         if (result != true) return;
-        if (!ExternalToolPathValidator.TryValidateCandidate(dialog.FileName, "igir.exe", out string selectedPath))
+        // Only the pinned build is ever run, so say so now instead of saving a path that is then refused.
+        if (!ExternalToolPathValidator.TryValidateCandidate(dialog.FileName, "igir.exe", out string selectedPath)
+            || !await IsPinnedIgirAsync(selectedPath))
         {
             ShowNoticeDialog(OperationErrorTitleKey, "LocExternalTools_IgirInvalid");
             return;
         }
-        string previousPath = _currentSettings.ExternalIgirPath;
-        _currentSettings.ExternalIgirPath = selectedPath;
-        _owner.ResultSettings.ExternalIgirPath = selectedPath;
-        try { using AppSettingsService settings = new(); settings.Save(_currentSettings); }
+        // Saved with Apply or OK like every other option, so Cancel drops it.
+        _owner.ViewModel.ExternalIgirPath = selectedPath;
+        QueueExternalToolsRefresh(showCheckingState: true);
+    }
+
+    private static async Task<bool> IsPinnedIgirAsync(string path)
+    {
+        try
+        {
+            return await new IgirToolLocator().IsPinnedBuildAsync(path).ConfigureAwait(true);
+        }
         catch (Exception ex) when (IsExpectedPathException(ex))
         {
-            Logger.Warning(ex, "Failed to persist igir selected path.");
-            _currentSettings.ExternalIgirPath = previousPath;
-            _owner.ResultSettings.ExternalIgirPath = previousPath;
-            _owner.ViewModel.SetIgirExternalToolStatus(ResolveUiText("LocExternalTools_IgirStatusFailed"),
-                ResolveUiText(ValueUnavailableKey), selectedPath, false);
-            return;
+            Logger.Warning(ex, "Could not read the selected igir.exe.");
+            return false;
         }
-        QueueExternalToolsRefresh(showCheckingState: true);
     }
 
     private void QueueExternalToolsRefresh() => QueueExternalToolsRefresh(showCheckingState: false);
@@ -180,18 +188,23 @@ internal sealed partial class HqOptionsShell
                 isAvailable: false,
                 showSetupNote: false);
             _owner.ViewModel.SetIgirExternalToolStatus(ResolveUiText("LocExternalTools_IgirStatusChecking"), unavailableText,
-                string.IsNullOrWhiteSpace(_currentSettings.ExternalIgirPath) ? unavailableText : _currentSettings.ExternalIgirPath, false);
+                string.IsNullOrWhiteSpace(_owner.ViewModel.ExternalIgirPath) ? unavailableText : _owner.ViewModel.ExternalIgirPath, false);
         }
 
+        // Read on the UI thread; the probe runs in the background.
+        string csoKitPath = _owner.ViewModel.ExternalCsoKitPath;
+        string igirPath = _owner.ViewModel.ExternalIgirPath;
         _ = Task.Run(
             async () =>
             {
                 CsoToolProbeResult result;
                 IgirToolProbeResult igirResult;
+                IReadOnlyList<BundledToolStatus> bundled = [];
                 try
                 {
-                    result = await new CsoToolProbe(_currentSettings.ExternalCsoKitPath).CheckAsync(token).ConfigureAwait(false);
-                    igirResult = await new IgirToolProbe().CheckAsync(AppContext.BaseDirectory, _currentSettings.ExternalIgirPath, token).ConfigureAwait(false);
+                    bundled = BundledToolsCheck.Check(cancellationToken: token);
+                    result = await new CsoToolProbe(csoKitPath).CheckAsync(token).ConfigureAwait(false);
+                    igirResult = await new IgirToolProbe().CheckAsync(AppContext.BaseDirectory, igirPath, token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested)
                 {
@@ -214,7 +227,7 @@ internal sealed partial class HqOptionsShell
                         CsoToolProbe.ToolFailedMessageKey,
                         1,
                         ex.Message);
-                    igirResult = new IgirToolProbeResult(_currentSettings.ExternalIgirPath, string.Empty, false, false);
+                    igirResult = new IgirToolProbeResult(igirPath, string.Empty, false, false);
                 }
 
                 await _owner.Dispatcher.InvokeAsync(
@@ -227,6 +240,7 @@ internal sealed partial class HqOptionsShell
 
                         ApplyCsoKitProbeResult(result);
                         ApplyIgirProbeResult(igirResult);
+                        _owner.ViewModel.SetBundledTools(bundled);
                     });
             },
             token);
@@ -299,7 +313,7 @@ internal sealed partial class HqOptionsShell
 
     private string ResolvePreferredToolsFolder()
     {
-        string preferredPath = _currentSettings.ExternalCsoKitPath;
+        string preferredPath = _owner.ViewModel.ExternalCsoKitPath;
         if (!string.IsNullOrWhiteSpace(preferredPath))
         {
             try

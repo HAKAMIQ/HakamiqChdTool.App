@@ -83,4 +83,6 @@ public interface IMainWindowSession
     void OpenLibraryAnalysis();
 
     void OpenRecompress();
+
+    void OpenXbox();
 }

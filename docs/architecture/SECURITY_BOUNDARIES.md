@@ -58,15 +58,27 @@ check and the process start are separate steps, so a process that can write to
 the application directory could still replace the file between them; the install
 directory is therefore expected to be writable only by administrators.
 
+The Xbox tools (`xdvdfs`, `iso2god`, `zarchive` under `Tools\<tool>\win-x64`) have
+no user override. `XboxToolLocator` accepts only the exact bundled path, refuses
+reparse points, and compares the pinned SHA-256; `ExternalToolProcessRunner`
+repeats that check immediately before the process starts. They read the
+selected source, write only to a temporary folder in the chosen output folder,
+and never write to or delete the source.
+
 The bundled MAME 0.289 `chdman` requires x86-64-v2. Runtime initialization checks
 the required CPUID feature bits before extracting or returning the executable.
 
 ### Launch requests and the Explorer menu
 
 Command-line arguments and requests from a second launch are untrusted.
-`Startup/LaunchArgs.cs` accepts only `--mode convert|extract|verify` and
-`--add <path>...`; paths must be absolute after resolving and free of control
-characters and wildcards. A second launch hands its request to the running
+`Startup/LaunchArgs.cs` accepts only `--mode convert|extract|verify`,
+`--start`, `--exit-when-done`, `--quick` and `--add <path>...`; paths must be
+absolute after resolving and free of control characters and wildcards.
+`--quick` (written by the Explorer menu) only chooses the small quick window in
+the first instance; it needs a mode and paths, cannot be combined with
+`--start` or `--exit-when-done`, and is never sent over the pipe. The quick
+window runs the paths through the same intake, queue and workflow as the main
+window. A second launch hands its request to the running
 instance over a named pipe (`Startup/InstanceChannel.cs`) opened with
 `PipeOptions.CurrentUserOnly` and named with the user SID and session; messages
 are size-bounded, versioned and validated, and a bad message is dropped. The

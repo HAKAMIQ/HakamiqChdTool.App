@@ -49,9 +49,9 @@ internal sealed partial class HqOptionsShell
 
             _owner.ViewModel.RedumpDatXmlPath = dialog.FileName;
 
-            string systemName = string.IsNullOrWhiteSpace(_owner.ViewModel.RedumpSystemName)
-                ? Path.GetFileNameWithoutExtension(dialog.FileName)
-                : _owner.ViewModel.RedumpSystemName.Trim();
+            // The system name box is hidden, so a value left in an old settings file must not silently
+            // re-label every import; the DAT file name is what the user picked and can see.
+            string systemName = Path.GetFileNameWithoutExtension(dialog.FileName);
 
             _owner.RedumpPanelView.ImportRedumpDatabaseButtonView.IsEnabled = false;
             _owner.RedumpPanelView.RedumpImportProgressBarView.Visibility = Visibility.Visible;
@@ -112,105 +112,6 @@ internal sealed partial class HqOptionsShell
                     _owner.RedumpPanelView.RedumpImportProgressBarView.IsIndeterminate = false;
                     _owner.RedumpPanelView.RedumpImportProgressBarView.Visibility = Visibility.Collapsed;
                     _owner.RedumpPanelView.RedumpImportStatusTextBlockView.Visibility = Visibility.Collapsed;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            ShowNoticeDialog(
-                OperationErrorTitleKey,
-                RuntimeDiagnosticFormatter.SummarizeException(ex));
-        }
-    }
-
-    public void DownloadDatabase(object sender, RoutedEventArgs e)
-    {
-        _ = DownloadDatabaseAsync();
-    }
-
-    private async Task DownloadDatabaseAsync()
-    {
-        try
-        {
-            _owner.ViewModel.ValidateForSave();
-
-            if (!_owner.ViewModel.CanDownloadSelectedRedumpDatabase)
-            {
-                ShowNoticeDialog(MissingDataTitleKey, RedumpDownloadUrlRequiredKey);
-                return;
-            }
-
-            if (_owner.ViewModel.GetErrors(nameof(OptionsViewModel.RedumpDatabaseDownloadUrl)).Cast<object>().Any())
-            {
-                ShowNoticeDialog(MissingDataTitleKey, RedumpDownloadInvalidUrlKey);
-                return;
-            }
-
-            _owner.RedumpPanelView.DownloadDatabaseButtonView.IsEnabled = false;
-            _owner.RedumpPanelView.DatabaseDownloadProgressBarView.Visibility = Visibility.Visible;
-            _owner.RedumpPanelView.DatabaseDownloadStatusTextBlockView.Visibility = Visibility.Visible;
-            _owner.RedumpPanelView.DatabaseDownloadProgressBarView.Value = 0;
-            _owner.RedumpPanelView.DatabaseDownloadStatusTextBlockView.Text = ResolveUiText(RedumpDownloadRunningKey);
-
-            CancellationToken operationToken = _windowLifetimeCts.Token;
-
-            try
-            {
-                var progress = new Progress<RedumpGitHubSyncProgress>(progressValue =>
-                {
-                    if (_isClosed || operationToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
-                    _owner.RedumpPanelView.DatabaseDownloadProgressBarView.Value = progressValue.Percent;
-                    _owner.RedumpPanelView.DatabaseDownloadStatusTextBlockView.Text =
-                        ResolveUiText(progressValue.MessageKey, progressValue.MessageArgs);
-                });
-
-                RedumpGitHubSyncResult sync = await _syncManager
-                    .SyncFromGitHubAsync(_owner.ViewModel.RedumpDatabaseDownloadUrl.Trim(), progress, operationToken)
-                    .ConfigureAwait(true);
-
-                if (_isClosed || operationToken.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                string syncMessage = ResolveUiText(sync.MessageKey, sync.MessageArgs);
-
-                if (!sync.Success)
-                {
-                    _owner.RedumpPanelView.DatabaseDownloadStatusTextBlockView.Text = syncMessage;
-                    ShowNoticeDialog(RedumpSyncFailedTitleKey, syncMessage);
-                    return;
-                }
-
-                _owner.ViewModel.SetDatabaseLastSyncedUtc(sync.SyncedAtUtc.ToString("O", CultureInfo.InvariantCulture));
-                QueueDatabaseStateRefresh();
-
-                _owner.RedumpPanelView.DatabaseDownloadStatusTextBlockView.Text = syncMessage;
-            }
-            catch (OperationCanceledException) when (operationToken.IsCancellationRequested)
-            {
-            }
-            catch (Exception ex)
-            {
-                if (!_isClosed)
-                {
-                    _owner.RedumpPanelView.DatabaseDownloadStatusTextBlockView.Text = ResolveUiText(RedumpDownloadFailedKey);
-
-                    ShowNoticeDialog(
-                        RedumpDownloadErrorTitleKey,
-                        RuntimeDiagnosticFormatter.SummarizeException(ex));
-                }
-            }
-            finally
-            {
-                if (!_isClosed)
-                {
-                    _owner.RedumpPanelView.DownloadDatabaseButtonView.ClearValue(UIElement.IsEnabledProperty);
-                    _owner.RedumpPanelView.DatabaseDownloadProgressBarView.Visibility = Visibility.Collapsed;
                 }
             }
         }

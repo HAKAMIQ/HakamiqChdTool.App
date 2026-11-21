@@ -60,7 +60,8 @@ public sealed class AppSettings
 
     public bool EnableDiskSpaceGuard { get; set; } = true;
 
-    public bool DeleteTemporaryExtraction { get; set; } = false;
+    // On by default so files unpacked from archives do not pile up in %TEMP%; a saved value is kept.
+    public bool DeleteTemporaryExtraction { get; set; } = true;
 
     public bool DeleteFailedOutput { get; set; } = false;
 
@@ -73,6 +74,9 @@ public sealed class AppSettings
 
     /// <summary>Adds CHD Tool to the Explorer right-click menu for this Windows account.</summary>
     public bool ExplorerMenuEnabled { get; set; } = false;
+
+    /// <summary>The Explorer menu opens the small quick window instead of the main window (when the app is not already open).</summary>
+    public bool ExplorerOpensQuickWindow { get; set; } = true;
 
     /// <summary>Converts new disc images and archives that appear in WatchFolderPath while the app is open.</summary>
     public bool WatchFolderEnabled { get; set; } = false;
@@ -125,6 +129,9 @@ public sealed class AppSettings
 
     /// <summary>auto, dvd2048 (PCSX2 and PPSSPP) or nozstd (RetroArch and older emulators); see TargetEmulatorPolicy.</summary>
     public string TargetEmulator { get; set; } = "auto";
+
+    /// <summary>god (Games on Demand, Xenia and an Xbox 360) or zar (Xenia Canary); see XboxFormats.</summary>
+    public string Xbox360Format { get; set; } = "god";
 
     public IsoCreateCommandOverride IsoCreateCommandOverride { get; set; } = IsoCreateCommandOverride.Auto;
 
@@ -186,6 +193,7 @@ public sealed class AppSettings
         DeleteSourceAfterVerifiedExtraction = other.DeleteSourceAfterVerifiedExtraction;
         ExtractGdRomAsCueBin = other.ExtractGdRomAsCueBin;
         ExplorerMenuEnabled = other.ExplorerMenuEnabled;
+        ExplorerOpensQuickWindow = other.ExplorerOpensQuickWindow;
         WatchFolderEnabled = other.WatchFolderEnabled;
         WatchFolderPath = other.WatchFolderPath;
         EnableDeepIntegrityCheck = other.EnableDeepIntegrityCheck;
@@ -211,6 +219,7 @@ public sealed class AppSettings
         CompressionCodecs = other.CompressionCodecs;
         HunkSizeBytes = other.HunkSizeBytes;
         TargetEmulator = other.TargetEmulator;
+        Xbox360Format = other.Xbox360Format;
         IsoCreateCommandOverride = other.IsoCreateCommandOverride;
         ChdPlatformProfileId = other.ChdPlatformProfileId;
         ExtensionData = other.ExtensionData is null
@@ -250,6 +259,7 @@ public sealed class AppSettings
             DeleteSourceAfterVerifiedExtraction = DeleteSourceAfterVerifiedExtraction,
             ExtractGdRomAsCueBin = ExtractGdRomAsCueBin,
             ExplorerMenuEnabled = ExplorerMenuEnabled,
+            ExplorerOpensQuickWindow = ExplorerOpensQuickWindow,
             WatchFolderEnabled = WatchFolderEnabled,
             WatchFolderPath = WatchFolderPath,
             EnableDeepIntegrityCheck = EnableDeepIntegrityCheck,
@@ -275,6 +285,7 @@ public sealed class AppSettings
             CompressionCodecs = CompressionCodecs,
             HunkSizeBytes = HunkSizeBytes,
             TargetEmulator = TargetEmulator,
+            Xbox360Format = Xbox360Format,
             IsoCreateCommandOverride = IsoCreateCommandOverride,
             ChdPlatformProfileId = ChdPlatformProfileId,
             ExtensionData = ExtensionData is null

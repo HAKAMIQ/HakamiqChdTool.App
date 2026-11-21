@@ -158,6 +158,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         OpenRecompressCommand = new RelayCommand(
             () => _session.OpenRecompress());
 
+        OpenXboxCommand = new RelayCommand(
+            () => _session.OpenXbox());
+
         RetryQueueItemCommand = new RelayCommand<TaskQueueItemViewModel?>(
             item => _session.RetryQueueItem(item),
             item => item is not null && !_session.IsQueueInteractionLocked);
@@ -211,6 +214,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     public IRelayCommand OpenLibraryAnalysisCommand { get; }
 
     public IRelayCommand OpenRecompressCommand { get; }
+
+    public IRelayCommand OpenXboxCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> RetryQueueItemCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> RemoveQueueItemCommand { get; }
     public IRelayCommand<TaskQueueItemViewModel?> CancelQueueJobCommand { get; }

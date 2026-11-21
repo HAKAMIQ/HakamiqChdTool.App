@@ -47,13 +47,21 @@ internal static partial class Program
                     ("RedumpNotice", () => new RedumpNoticeDialog("Notice", "A fairly long notice message that has to wrap inside the dialog without being clipped at any size.")),
                     ("Rename", () => new RenameConfirmationDialog(new RenameConfirmationViewModel("Some Game (Europe) (En,Fr,De,Es,It).chd"))),
                     ("Options", () => new OptionsWindow(AppSettings.CreateSafeDefaults())),
+                    ("Options-Processing", () => CreateOptionsMatrixWindow(OptionsWindow.ProcessingTabKey)),
+                    ("Options-Paths", () => CreateOptionsMatrixWindow(OptionsWindow.PathsTabKey)),
+                    ("Options-Redump", () => CreateOptionsMatrixWindow(OptionsWindow.RedumpTabKey)),
+                    ("Options-Performance", () => CreateOptionsMatrixWindow(OptionsWindow.PerformanceTabKey)),
+                    ("Options-Windows", () => CreateOptionsMatrixWindow(OptionsWindow.WindowsTabKey)),
+                    ("Options-Tools", () => CreateOptionsMatrixWindow(OptionsWindow.ExternalToolsTabKey)),
                     ("VerificationResult", () => new VerificationResultDialog(new QueueVerifyView(
                         "Verification result", "The file was verified.", "File", "Some Game (Europe) (En,Fr,De,Es,It).chd",
                         "Status", "Verified", "Details", "All hunks match. SHA-1 matches the CHD header.",
                         "Note", "This does not prove the image equals the original disc.", "Next step", "No action needed.",
                         new ChdProbeReportView("CHD report", [new ChdLogicalProbeReportMetric("Logical size", "700 MiB"), new ChdLogicalProbeReportMetric("Compression", "cdlz, cdzl, cdfl")])))),
                     ("RedumpDetails", () => new RedumpDetailsDialog(new RedumpDetailsDialogViewModel(
-                        new TaskQueueItemViewModel(NamedQueueRow("Some Game (Europe) (En,Fr,De,Es,It).chd")), true, new NoCopy(), new NoTimer())))
+                        new TaskQueueItemViewModel(NamedQueueRow("Some Game (Europe) (En,Fr,De,Es,It).chd")), true, new NoCopy(), new NoTimer()))),
+                    ("QuickRun", () => CreateQuickRunMatrixWindow(workDirectory)),
+                    ("Xbox", CreateXboxMatrixWindow)
                 };
 
                 (double Scale, double W, double H)[] displays =
@@ -75,7 +83,7 @@ internal static partial class Program
                             try
                             {
                                 window = create();
-                                if (window is OptionsWindow optionsWindow)
+                                if (name == "Options" && window is OptionsWindow optionsWindow)
                                 {
                                     optionsWindow.SelectTab(OptionsWindow.ExternalToolsTabKey);
                                 }
@@ -92,6 +100,10 @@ internal static partial class Program
                             window.FlowDirection = language == "ar-SA" ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
                             window.Show();
                             PumpDispatcher(window.Dispatcher, TimeSpan.FromMilliseconds(80));
+                            if (name == "Options-Performance" && window is OptionsWindow searchWindow)
+                            {
+                                CheckOptionsSearch(searchWindow, $"{name}/{language}/{theme}", findings);
+                            }
 
                             foreach ((double scale, double w, double h) in displays)
                             {
@@ -135,6 +147,82 @@ internal static partial class Program
         }
 
         AssertEqual(0, findings.Distinct().Count(), "The dialogs have no clipped, unreachable or unnamed controls.");
+    }
+
+    // The Options search, in the real window with the app's resources: it shows only matching rows in every tab, opens
+    // a tab that has a match, reports no matches, and shows everything again when cleared.
+    private static void CheckOptionsSearch(OptionsWindow window, string context, List<string> findings)
+    {
+        static IEnumerable<HakamiqChdTool.App.Views.Options.OptRow> Rows(DependencyObject parent)
+        {
+            foreach (object child in LogicalTreeHelper.GetChildren(parent))
+            {
+                if (child is DependencyObject node)
+                {
+                    if (node is HakamiqChdTool.App.Views.Options.OptRow row)
+                    {
+                        yield return row;
+                    }
+
+                    foreach (var nested in Rows(node))
+                    {
+                        yield return nested;
+                    }
+                }
+            }
+        }
+
+        var rows = Rows(window).ToList();
+        int matches = window.FilterOptions("M3U");
+        if (matches < 1 || window.ActiveTabKey != OptionsWindow.PathsTabKey)
+        {
+            findings.Add($"{context}: search 'M3U' found {matches} rows and opened {window.ActiveTabKey}, expected the M3U row in the General tab.");
+        }
+
+        if (!rows.Any(r => r.IsFilteredOut) || rows.Count(r => !r.IsFilteredOut) != matches)
+        {
+            findings.Add($"{context}: search did not hide the rows that do not match.");
+        }
+
+        if (window.FilterOptions("zzzz-no-such-option") != 0 || !window.ViewModel.SearchHasNoResults)
+        {
+            findings.Add($"{context}: a search with no match did not report it.");
+        }
+
+        // A match inside the folded Advanced section opens it.
+        window.ViewModel.IsConversionAdvancedExpanded = false;
+        window.SelectTab(OptionsWindow.PathsTabKey);
+        if (window.FilterOptions("chdman.exe") < 1 || window.ActiveTabKey != OptionsWindow.ProcessingTabKey || !window.ViewModel.IsConversionAdvancedExpanded)
+        {
+            findings.Add($"{context}: a search matching the Advanced section did not open it (tab {window.ActiveTabKey}).");
+        }
+
+        window.FilterOptions(string.Empty);
+        if (rows.Any(r => r.IsFilteredOut) || window.ViewModel.SearchHasNoResults)
+        {
+            findings.Add($"{context}: clearing the search did not show every row again.");
+        }
+
+        window.SelectTab(OptionsWindow.PerformanceTabKey);
+    }
+    // Options with every optional row visible (custom folders, external chdman, watch folder, Redump sections), so the
+    // matrix measures the path boxes and the rows that only appear when an option is on.
+    private static Window CreateOptionsMatrixWindow(string tabKey)
+    {
+        var settings = AppSettings.CreateSafeDefaults();
+        settings.UseBundledChdman = false;
+        settings.ExternalChdmanPath = @"C:\Tools\MAME\chdman.exe";
+        settings.UseCustomOutputRoot = true;
+        settings.CustomOutputRoot = @"D:\Converted Games\CHD";
+        settings.UseCustomPendingWorkspace = true;
+        settings.PendingWorkspaceCustomRoot = @"D:\Work";
+        settings.ExplorerMenuEnabled = true;
+        settings.WatchFolderEnabled = true;
+        settings.WatchFolderPath = @"D:\Incoming";
+        settings.EnableDeepIntegrityCheck = true;
+        var window = new OptionsWindow(settings);
+        window.SelectTab(tabKey);
+        return window;
     }
 
     private static void CollectAccessibilityFindings(Window window, string context, List<string> findings)

@@ -106,7 +106,6 @@ public sealed partial class ChdWorkflowOrchestrator : IChdWorkflowOrchestrator
         string? failedOutputCandidate = null;
         string? lastOutputPath = string.Empty;
         double lastProgressPercent = 0;
-        bool alwaysCleanupTempDirectory = false;
         CancellationTokenSource? stressCts = null;
         Task? stressTask = null;
         WorkflowExecutionResult? result = null;
@@ -166,7 +165,6 @@ public sealed partial class ChdWorkflowOrchestrator : IChdWorkflowOrchestrator
             WorkflowPreparedInput prepared = preparation.PreparedInput!;
 
             tempDirectoryToCleanup = prepared.TempDirectoryToCleanup;
-            alwaysCleanupTempDirectory = prepared.AlwaysCleanupTempDirectory;
             lastProgressPercent = prepared.LastProgressPercent;
 
             if (cancellationToken.IsCancellationRequested)
@@ -228,7 +226,6 @@ public sealed partial class ChdWorkflowOrchestrator : IChdWorkflowOrchestrator
                 settings,
                 failedOutputCandidate,
                 tempDirectoryToCleanup,
-                alwaysCleanupTempDirectory,
                 result,
                 cancelled,
                 ResolveSourceCleanupVerifiedFlag(snap.OriginalPath, result, request.Verify, settings),

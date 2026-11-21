@@ -11,56 +11,6 @@ public sealed partial class OptionsViewModel
 {
     private readonly RedumpLocalLibraryIndexer _redumpLocalLibraryIndexer = new();
 
-    private async Task ScanAndIndexRedumpLocalLibraryAsync()
-    {
-        await ScanRedumpLocalLibraryAsync().ConfigureAwait(true);
-        await AppendRedumpLocalLibraryIndexReportAsync().ConfigureAwait(true);
-    }
-
-    private async Task AppendRedumpLocalLibraryIndexReportAsync()
-    {
-        string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
-        if (!TryGetSafeOptionsDirectory(root, out string safeRoot))
-        {
-            return;
-        }
-
-        string scanSummary = RedumpLocalLibraryScanSummary;
-        if (string.IsNullOrWhiteSpace(scanSummary))
-        {
-            return;
-        }
-
-        try
-        {
-            RedumpLocalLibraryIndexResult indexResult = await _redumpLocalLibraryIndexer
-                .IndexAsync(safeRoot, CancellationToken.None)
-                .ConfigureAwait(true);
-
-            if (indexResult.TotalDatXmlFiles <= 0)
-            {
-                return;
-            }
-
-            RedumpLocalLibraryScanSummary = ArabicUi.Format(
-                "LocRedumpSettings_LocalFolderIndexAppendFormat",
-                scanSummary,
-                FormatInvariantNumber(indexResult.PlatformCount),
-                FormatInvariantNumber(indexResult.SelectedCount),
-                FormatInvariantNumber(indexResult.OlderCount),
-                FormatInvariantNumber(indexResult.DuplicateCount),
-                FormatInvariantNumber(indexResult.VariantCount),
-                indexResult.ReadErrorCount);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            RedumpLocalLibraryScanSummary = ArabicUi.Format(
-                "LocRedumpSettings_LocalFolderIndexErrorAppendFormat",
-                scanSummary,
-                RuntimeDiagnosticFormatter.SummarizeException(ex));
-        }
-    }
-
     private async Task PrepareRedumpLocalLibraryDatabaseAsync()
     {
         string root = RedumpLocalLibraryRoot?.Trim() ?? string.Empty;
@@ -242,19 +192,6 @@ public sealed partial class OptionsViewModel
             selectedEntries.Length,
             Math.Max(0, result.RowsImported),
             0);
-    }
-
-    private static string FirstNonEmpty(params string?[] values)
-    {
-        foreach (string? value in values)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                return value.Trim();
-            }
-        }
-
-        return "Redump";
     }
 
     private readonly record struct RedumpLocalLibraryImportSummary(

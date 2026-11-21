@@ -281,6 +281,13 @@ public static class ChdPlatformProfiles
         return null;
     }
 
+    /// <summary>
+    /// A selected disc profile applies only to the inputs it lists; other inputs in the queue fall back to
+    /// Auto instead of being refused. The hard-disk profile is an explicit mode and still refuses other inputs.
+    /// </summary>
+    public static bool AppliesToInput(ChdPlatformProfile profile, string extension) =>
+        profile.CommandKind == ChdCommandKind.CreateHd || SupportsExtension(profile, extension);
+
     public static bool SupportsExtension(ChdPlatformProfile profile, string extension) =>
         profile.InputExtensions.Any(candidate =>
             string.Equals(candidate, extension, StringComparison.OrdinalIgnoreCase));
@@ -293,11 +300,15 @@ public static class ChdPlatformProfiles
             _ => "createcd"
         };
 
+    /// <summary>True when the detected platform (or target emulator hint) names the PSP.</summary>
+    public static bool IsPspPlatform(string? detectedPlatform) =>
+        ContainsAny(detectedPlatform ?? string.Empty, "PlayStation Portable", "Sony PSP", "PPSSPP", "PSP");
+
     private static ChdPlatformProfile ResolveIsoProfile(string? detectedPlatform)
     {
         string platform = detectedPlatform ?? string.Empty;
 
-        if (ContainsAny(platform, "PlayStation Portable", "Sony PSP", "PPSSPP", "PSP"))
+        if (IsPspPlatform(platform))
         {
             return PspIso;
         }

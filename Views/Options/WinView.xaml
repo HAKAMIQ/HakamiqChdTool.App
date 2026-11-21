@@ -1,0 +1,91 @@
+<UserControl x:Class="HakamiqChdTool.App.Views.Options.WindowsSettingsView"
+             x:Name="WindowsSettingsRoot"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:opt="clr-namespace:HakamiqChdTool.App.Views.Options"
+             FlowDirection="{DynamicResource App.FlowDirection}"
+             Language="{DynamicResource App.XmlLanguage}"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/Style/OptsStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource Win11SettingsPageRoot}">
+        <ScrollViewer Style="{StaticResource Win11SettingsScrollViewer}">
+            <StackPanel x:Name="WindowsIntegrationSection"
+                        Style="{StaticResource Win11SettingsContentStack}">
+
+                <opt:OptSection Header="{DynamicResource LocOptions_ExplorerSection}">
+                    <opt:OptRow x:Name="ExplorerMenuDescriptionText"
+                                Placement="Leading"
+                                Title="{DynamicResource LocOptions_ExplorerMenu}"
+                                Description="{DynamicResource LocOptions_ExplorerMenuDesc}">
+                        <CheckBox x:Name="ExplorerMenuCheckBox"
+                                  IsChecked="{Binding ExplorerMenuEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Style="{StaticResource Win11SettingsCheckBox}"
+                                  AutomationProperties.Name="{DynamicResource LocOptions_ExplorerMenu}" />
+                    </opt:OptRow>
+
+                    <!-- Only means something while the Explorer menu is on. -->
+                    <opt:OptRow Placement="Leading"
+                                IsEnabled="{Binding ExplorerMenuEnabled}"
+                                Title="{DynamicResource LocOptions_ExplorerQuickWindow}"
+                                Description="{DynamicResource LocOptions_ExplorerQuickWindowDesc}">
+                        <CheckBox x:Name="ExplorerQuickWindowCheckBox"
+                                  IsChecked="{Binding ExplorerOpensQuickWindow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Style="{StaticResource Win11SettingsCheckBox}"
+                                  AutomationProperties.Name="{DynamicResource LocOptions_ExplorerQuickWindow}" />
+                    </opt:OptRow>
+                </opt:OptSection>
+
+                <opt:OptSection Header="{DynamicResource LocWatch_Section}">
+                    <opt:OptRow x:Name="WatchFolderDescriptionText"
+                                Placement="Leading"
+                                Title="{DynamicResource LocWatch_Enable}"
+                                Description="{DynamicResource LocWatch_EnableDesc}">
+                        <CheckBox x:Name="WatchFolderCheckBox"
+                                  IsChecked="{Binding WatchFolderEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Style="{StaticResource Win11SettingsCheckBox}"
+                                  AutomationProperties.Name="{DynamicResource LocWatch_Enable}" />
+                        <opt:OptRow.Extra>
+                            <!-- The folder box appears once the watch folder is turned on, not as an empty disabled box. -->
+                            <Grid x:Name="WatchFolderPathRow"
+                                  Visibility="{Binding WatchFolderEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="WatchFolderTextBox"
+                                         Height="{DynamicResource Space.32}"
+                                         Text="{Binding WatchFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource Win11SettingsTechnicalTextBox}"
+                                         FlowDirection="LeftToRight"
+                                         TextAlignment="Left"
+                                         AutomationProperties.Name="{DynamicResource LocWatch_Folder}" />
+                                <Button Grid.Column="1"
+                                        Command="{Binding BrowseWatchFolderCommand}"
+                                        Style="{StaticResource OptPathButton}"
+                                        AutomationProperties.Name="{DynamicResource LocWatch_PickFolder}"
+                                        Content="{DynamicResource LocCommon_Browse}" />
+                                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Style="{StaticResource OptFieldError}" Text="{Binding WatchFolderError}" />
+                            </Grid>
+                        </opt:OptRow.Extra>
+                    </opt:OptRow>
+                </opt:OptSection>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

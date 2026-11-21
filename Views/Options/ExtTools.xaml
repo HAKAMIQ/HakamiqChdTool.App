@@ -1,6 +1,7 @@
 <UserControl x:Class="HakamiqChdTool.App.Views.Options.ExternalToolsSettingsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:opt="clr-namespace:HakamiqChdTool.App.Views.Options"
              FlowDirection="{DynamicResource App.FlowDirection}"
              Language="{DynamicResource App.XmlLanguage}"
              HorizontalAlignment="Stretch"
@@ -13,6 +14,16 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../../Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <SolidColorBrush x:Key="ToolSuccessBrush" Color="{DynamicResource Fluent.Status.Success.Foreground1}" />
+            <SolidColorBrush x:Key="ToolDangerBrush" Color="{DynamicResource Fluent.Status.Danger.Foreground1}" />
+
+            <!-- Green when the tool is ready, red when it needs attention, grey while checking. -->
+            <Style x:Key="ToolStateText" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}" />
+                <Setter Property="FontWeight" Value="{DynamicResource FontWeight.SemiBold}" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -20,351 +31,193 @@
         <ScrollViewer Style="{StaticResource Win11SettingsScrollViewer}">
             <StackPanel Style="{StaticResource Win11SettingsContentStack}">
 
-                <Border Style="{StaticResource Win11SettingsSection}">
-                    <Grid FlowDirection="{DynamicResource App.FlowDirection}"
-                          Language="{DynamicResource App.XmlLanguage}"
-                          SnapsToDevicePixels="True">
+                <!-- Shipped with the app and checked against their pinned SHA-256 before every run. -->
+                <opt:OptSection x:Name="BundledToolsSection"
+                                Header="{DynamicResource LocTools_BundledSection}"
+                                ItemsSource="{Binding BundledTools}">
+                    <opt:OptSection.ItemTemplate>
+                        <DataTemplate>
+                            <opt:OptRow Title="{Binding Title}"
+                                        Description="{Binding Purpose}">
+                                <TextBlock Text="{Binding StateText}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource ToolStateText}">
+                                            <Setter Property="Foreground" Value="{DynamicResource ToolDangerBrush}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsVerified}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource ToolSuccessBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </opt:OptRow>
+                        </DataTemplate>
+                    </opt:OptSection.ItemTemplate>
+                </opt:OptSection>
 
-                        <Grid.Resources>
-                            <SolidColorBrush x:Key="CsoSuccessBrush"
-                                             Color="{DynamicResource Fluent.Status.Success.Foreground1}" />
-
-                            <SolidColorBrush x:Key="CsoDangerBrush"
-                                             Color="{DynamicResource Fluent.Status.Danger.Foreground1}" />
-                        </Grid.Resources>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <!-- Hakamiq-CsoKit 0.6.3 -->
-                        <Grid Grid.Row="0"
-                              Height="{DynamicResource Space.32}"
-                              Style="{StaticResource Win11SettingsSectionHeader}">
-
-                            <StackPanel Orientation="Horizontal"
-                                        FlowDirection="LeftToRight"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center">
-
-                                <TextBlock Text="{DynamicResource LocExternalTools_Title}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           FontWeight="{DynamicResource FontWeight.SemiBold}"
-                                           Foreground="{DynamicResource Brush.Text.Primary}"
-                                           VerticalAlignment="Center"
-                                           TextWrapping="NoWrap" />
-
-                                <TextBlock Width="{DynamicResource Space.6}"
-                                           Visibility="{Binding ExternalToolsCsoKitIsAvailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                                <TextBlock Text="{Binding ExternalToolsCsoKitVersion}"
-                                           Visibility="{Binding ExternalToolsCsoKitIsAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                           FontWeight="{DynamicResource FontWeight.SemiBold}"
-                                           Foreground="{DynamicResource Brush.Text.Secondary}"
-                                           FlowDirection="LeftToRight"
-                                           Language="en-US"
-                                           VerticalAlignment="Center"
-                                           TextWrapping="NoWrap" />
-                            </StackPanel>
-                        </Grid>
-
-                        <Border Grid.Row="1"
-                                Style="{StaticResource Win11SettingsLastRow}"
-                                Padding="{DynamicResource Inset.6.All}">
-
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="{DynamicResource Grid.Space.6}" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <!-- المسار -->
-                                <Grid Grid.Row="0">
-
+                <!-- Tools that can be replaced by a copy you choose. -->
+                <opt:OptSection Header="{DynamicResource LocTools_ReplaceableSection}">
+                    <opt:OptRow Title="{DynamicResource LocExternalTools_Title}"
+                                Description="{DynamicResource LocExternalTools_CsoKitDescription}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding ExternalToolsCsoKitStatusText}">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource ToolStateText}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ExternalToolsCsoKitIsAvailable}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource ToolSuccessBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ExternalToolsCsoKitShowSetupNote}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource ToolDangerBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding ExternalToolsCsoKitVersion}"
+                                       Visibility="{Binding ExternalToolsCsoKitIsAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                       Margin="{DynamicResource Inset.8.0.0.0}"
+                                       FontSize="{DynamicResource FontSize.Caption}"
+                                       Foreground="{DynamicResource Brush.Text.Secondary}"
+                                       FlowDirection="LeftToRight"
+                                       Language="en-US"
+                                       NumberSubstitution.Substitution="European"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <opt:OptRow.Extra>
+                            <StackPanel>
+                                <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
+                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0"
-                                               Text="{DynamicResource LocExternalTools_PathLabel}"
-                                               FontSize="{DynamicResource FontSize.BodySmall}"
-                                               FontWeight="{DynamicResource FontWeight.SemiBold}"
-                                               Foreground="{DynamicResource Brush.Text.Primary}"
-                                               VerticalAlignment="Center"
-                                               TextWrapping="NoWrap" />
-
-                                    <Border Grid.Column="2"
-                                            Height="{DynamicResource Space.32}"
-                                            Background="{DynamicResource Brush.Layer.Surface}"
-                                            BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                                            BorderThickness="{DynamicResource Inset.1.All}"
-                                            CornerRadius="{DynamicResource Radius.Control}"
-                                            Padding="{DynamicResource Inset.8.4}">
-
-                                        <TextBlock Text="{Binding ExternalToolsCsoKitPath}"
-                                                   ToolTip="{Binding ExternalToolsCsoKitPath}"
-                                                   FontSize="{DynamicResource FontSize.Caption}"
-                                                   Foreground="{DynamicResource Brush.Text.Secondary}"
-                                                   FlowDirection="LeftToRight"
-                                                   Language="en-US"
-                                                   TextAlignment="Left"
-                                                   VerticalAlignment="Center"
-                                                   TextWrapping="NoWrap"
-                                                   TextTrimming="CharacterEllipsis" />
-                                    </Border>
-
+                                    <TextBox Height="{DynamicResource Space.32}"
+                                             IsReadOnly="True"
+                                             Text="{Binding ExternalToolsCsoKitPath, Mode=OneWay}"
+                                             ToolTip="{Binding ExternalToolsCsoKitPath}"
+                                             FlowDirection="LeftToRight"
+                                             TextAlignment="Left"
+                                             Style="{StaticResource Win11SettingsTechnicalTextBox}"
+                                             AutomationProperties.Name="{DynamicResource LocExternalTools_PathLabel}" />
                                     <Button x:Name="BrowseCsoKitToolButton"
-                                            Grid.Column="4"
-                                            Width="{DynamicResource Space.80}"
-                                            Height="{DynamicResource Space.32}"
+                                            Grid.Column="1"
                                             Click="BrowseCsoKitToolButton_Click"
+                                            Style="{StaticResource OptPathButton}"
                                             AutomationProperties.Name="{DynamicResource LocExternalTools_Browse}"
-                                            Style="{StaticResource SecondaryButtonStyle}">
-
-                                        <TextBlock Text="{DynamicResource LocExternalTools_Browse}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   TextAlignment="Center"
-                                                   TextWrapping="NoWrap" />
-                                    </Button>
+                                            Content="{DynamicResource LocExternalTools_Browse}" />
+                                    <!-- Shown only while a chosen copy replaces the bundled one. -->
+                                    <Button x:Name="UseBundledCsoKitButton"
+                                            Grid.Column="2"
+                                            Click="UseBundledCsoKitButton_Click"
+                                            Visibility="{Binding ExternalCsoKitPath, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                                            Style="{StaticResource OptPathButton}"
+                                            AutomationProperties.Name="{DynamicResource LocTools_UseBundled}"
+                                            Content="{DynamicResource LocTools_UseBundled}" />
                                 </Grid>
-
-                                <!-- تعليمات تظهر فقط عند فقد الأداة -->
-                                <Grid Grid.Row="2"
-                                      Visibility="{Binding ExternalToolsCsoKitShowSetupNote, Converter={StaticResource BooleanToVisibilityConverter}}">
-
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0"
-                                               Text="{DynamicResource LocExternalTools_SetupNoteTitle}"
-                                               FontSize="{DynamicResource FontSize.BodySmall}"
-                                               FontWeight="{DynamicResource FontWeight.SemiBold}"
-                                               Foreground="{DynamicResource Brush.Text.Primary}"
-                                               VerticalAlignment="Center"
-                                               TextWrapping="NoWrap" />
-
-                                    <TextBlock Grid.Column="2"
-                                               Text="{DynamicResource LocExternalTools_SetupInstructions}"
-                                               FontSize="{DynamicResource FontSize.Caption}"
-                                               Foreground="{DynamicResource Brush.Text.Secondary}"
-                                               VerticalAlignment="Center"
-                                               TextAlignment="Left"
-                                               TextWrapping="Wrap" />
-                                </Grid>
-
-                                <!-- الحالة يمين + الأزرار يسار -->
-                                <Grid Grid.Row="4"
-                                      FlowDirection="LeftToRight">
-
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="{DynamicResource Grid.Space.12}" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- الأزرار في اليسار -->
-                                    <Grid Grid.Column="0"
-                                          HorizontalAlignment="Left">
-
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="{DynamicResource Grid.Space.128}" />
-                                            <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
-                                            <ColumnDefinition Width="{DynamicResource Grid.Space.128}" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <Button x:Name="RecheckButton"
-                                                Grid.Column="0"
-                                                Width="{DynamicResource Space.128}"
-                                                Height="{DynamicResource Space.32}"
-                                                Click="RecheckButton_Click"
-                                                AutomationProperties.Name="{DynamicResource LocExternalTools_Recheck}"
-                                                Style="{StaticResource SecondaryButtonStyle}">
-
-                                            <StackPanel Orientation="Horizontal"
-                                                        HorizontalAlignment="Center">
-
-                                                <Path Width="{DynamicResource Space.12}"
-                                                      Height="{DynamicResource Space.12}"
-                                                      Margin="{DynamicResource Inset.0.0.6.0}"
-                                                      Data="{StaticResource Icon.Queue.Retry}"
-                                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                                      Stretch="Uniform" />
-
-                                                <TextBlock Text="{DynamicResource LocExternalTools_Recheck}"
-                                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           TextWrapping="NoWrap" />
-                                            </StackPanel>
-                                        </Button>
-
-                                        <Button x:Name="OpenToolsFolderButton"
-                                                Grid.Column="2"
-                                                Width="{DynamicResource Space.128}"
-                                                Height="{DynamicResource Space.32}"
-                                                Click="OpenToolsFolderButton_Click"
-                                                AutomationProperties.Name="{DynamicResource LocExternalTools_OpenFolder}"
-                                                Style="{StaticResource SecondaryButtonStyle}">
-
-                                            <StackPanel Orientation="Horizontal"
-                                                        HorizontalAlignment="Center">
-
-                                                <Path Width="{DynamicResource Space.12}"
-                                                      Height="{DynamicResource Space.12}"
-                                                      Margin="{DynamicResource Inset.0.0.6.0}"
-                                                      Data="{StaticResource Icon.FolderOpen}"
-                                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                                      Stretch="Uniform" />
-
-                                                <TextBlock Text="{DynamicResource LocExternalTools_OpenFolder}"
-                                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           TextWrapping="NoWrap" />
-                                            </StackPanel>
-                                        </Button>
-                                    </Grid>
-
-                                    <!-- الحالة في أقصى اليمين -->
-                                    <Grid Grid.Column="2"
-                                          FlowDirection="{DynamicResource App.FlowDirection}"
-                                          HorizontalAlignment="Right"
-                                          VerticalAlignment="Center">
-
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="{DynamicResource Grid.Space.6}" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <Ellipse Grid.Column="0"
-                                                 Width="{DynamicResource Space.8}"
-                                                 Height="{DynamicResource Space.8}"
-                                                 VerticalAlignment="Center">
-
-                                            <Ellipse.Style>
-                                                <Style TargetType="{x:Type Ellipse}">
-                                                    <Setter Property="Fill"
-                                                            Value="{DynamicResource Brush.Text.Secondary}" />
-
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding ExternalToolsCsoKitIsAvailable}"
-                                                                     Value="True">
-
-                                                            <Setter Property="Fill"
-                                                                    Value="{DynamicResource CsoSuccessBrush}" />
-                                                        </DataTrigger>
-
-                                                        <DataTrigger Binding="{Binding ExternalToolsCsoKitShowSetupNote}"
-                                                                     Value="True">
-
-                                                            <Setter Property="Fill"
-                                                                    Value="{DynamicResource CsoDangerBrush}" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Ellipse.Style>
-                                        </Ellipse>
-
-                                        <TextBlock Grid.Column="2"
-                                                   Text="{Binding ExternalToolsCsoKitStatusText}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource FontWeight.SemiBold}"
-                                                   VerticalAlignment="Center"
-                                                   TextWrapping="NoWrap">
-
-                                            <TextBlock.Style>
-                                                <Style TargetType="{x:Type TextBlock}">
-                                                    <Setter Property="Foreground"
-                                                            Value="{DynamicResource Brush.Text.Secondary}" />
-
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding ExternalToolsCsoKitIsAvailable}"
-                                                                     Value="True">
-
-                                                            <Setter Property="Foreground"
-                                                                    Value="{DynamicResource CsoSuccessBrush}" />
-                                                        </DataTrigger>
-
-                                                        <DataTrigger Binding="{Binding ExternalToolsCsoKitShowSetupNote}"
-                                                                     Value="True">
-
-                                                            <Setter Property="Foreground"
-                                                                    Value="{DynamicResource CsoDangerBrush}" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-
-                                        <!-- عند الخطأ يظهر المسار بعد الحالة -->
-                                        <TextBlock Grid.Column="4"
-                                                   Text="{Binding ExternalToolsCsoKitPath}"
-                                                   ToolTip="{Binding ExternalToolsCsoKitPath}"
-                                                   Visibility="{Binding ExternalToolsCsoKitShowSetupNote, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                   MaxWidth="260"
-                                                   FontSize="{DynamicResource FontSize.Caption}"
-                                                   Foreground="{DynamicResource CsoDangerBrush}"
-                                                   FlowDirection="LeftToRight"
-                                                   Language="en-US"
-                                                   TextAlignment="Left"
-                                                   VerticalAlignment="Center"
-                                                   TextWrapping="NoWrap"
-                                                   TextTrimming="CharacterEllipsis" />
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </Border>
-
-                <Border Style="{StaticResource Win11SettingsSection}" Margin="{DynamicResource Inset.0.12.0.0}">
-                    <Grid>
-                        <Grid.Resources>
-                            <SolidColorBrush x:Key="IgirSuccessBrush" Color="{DynamicResource Fluent.Status.Success.Foreground1}" />
-                        </Grid.Resources>
-                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                        <Grid Grid.Row="0" Height="{DynamicResource Space.32}" Style="{StaticResource Win11SettingsSectionHeader}">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight">
-                                <TextBlock Text="igir" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource FontWeight.SemiBold}" Foreground="{DynamicResource Brush.Text.Primary}" />
-                                <TextBlock Text=" 5.8.1" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource Brush.Text.Secondary}" Language="en-US" />
+                                <TextBlock Text="{DynamicResource LocExternalTools_SetupInstructions}"
+                                           Visibility="{Binding ExternalToolsCsoKitShowSetupNote, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                           Margin="{DynamicResource Inset.0.8.0.0}"
+                                           Style="{StaticResource Win11SettingsRowDescriptionText}"
+                                           TextTrimming="None" />
                             </StackPanel>
-                        </Grid>
-                        <Border Grid.Row="1" Style="{StaticResource Win11SettingsLastRow}" Padding="{DynamicResource Inset.6.All}">
+                        </opt:OptRow.Extra>
+                    </opt:OptRow>
+
+                    <opt:OptRow Title="igir"
+                                Description="{DynamicResource LocExternalTools_IgirDescription}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding ExternalToolsIgirStatusText}">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource ToolStateText}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ExternalToolsIgirIsAvailable}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource ToolSuccessBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <!-- The version is hidden when igir is unavailable, so "unavailable" is not shown twice. -->
+                            <TextBlock Text="{Binding ExternalToolsIgirVersion}" Visibility="{Binding ExternalToolsIgirIsAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                       Margin="{DynamicResource Inset.8.0.0.0}"
+                                       FontSize="{DynamicResource FontSize.Caption}"
+                                       Foreground="{DynamicResource Brush.Text.Secondary}"
+                                       FlowDirection="LeftToRight"
+                                       Language="en-US"
+                                       NumberSubstitution.Substitution="European"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <opt:OptRow.Extra>
                             <Grid>
-                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="{DynamicResource Grid.Space.8}" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="{DynamicResource Grid.Space.8}" /><ColumnDefinition Width="*" /><ColumnDefinition Width="{DynamicResource Grid.Space.6}" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock Text="{DynamicResource LocExternalTools_PathLabel}" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource FontWeight.SemiBold}" Foreground="{DynamicResource Brush.Text.Primary}" />
-                                    <Border Grid.Column="2" Height="{DynamicResource Space.32}" Background="{DynamicResource Brush.Layer.Surface}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="{DynamicResource Inset.1.All}" CornerRadius="{DynamicResource Radius.Control}" Padding="{DynamicResource Inset.8.4}">
-                                        <TextBlock Text="{Binding ExternalToolsIgirPath}" ToolTip="{Binding ExternalToolsIgirPath}" FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource Brush.Text.Secondary}" FlowDirection="LeftToRight" Language="en-US" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                                    </Border>
-                                    <Button x:Name="BrowseIgirToolButton" Grid.Column="4" Width="{DynamicResource Space.80}" Height="{DynamicResource Space.32}" Click="BrowseIgirToolButton_Click" Style="{StaticResource SecondaryButtonStyle}" AutomationProperties.Name="{DynamicResource LocExternalTools_Browse}">
-                                        <TextBlock Text="{DynamicResource LocExternalTools_Browse}" FontSize="{DynamicResource FontSize.BodySmall}" TextWrapping="NoWrap" />
-                                    </Button>
-                                </Grid>
-                                <Grid Grid.Row="2" FlowDirection="LeftToRight">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="{DynamicResource Grid.Space.6}" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="{DynamicResource Grid.Space.6}" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <Ellipse Width="{DynamicResource Space.8}" Height="{DynamicResource Space.8}" VerticalAlignment="Center">
-                                        <Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Fill" Value="{DynamicResource Brush.Text.Secondary}" /><Style.Triggers><DataTrigger Binding="{Binding ExternalToolsIgirIsAvailable}" Value="True"><Setter Property="Fill" Value="{DynamicResource IgirSuccessBrush}" /></DataTrigger></Style.Triggers></Style></Ellipse.Style>
-                                    </Ellipse>
-                                    <TextBlock Grid.Column="2" Text="{Binding ExternalToolsIgirStatusText}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource FontWeight.SemiBold}" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="4" Text="{Binding ExternalToolsIgirVersion}" FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource Brush.Text.Secondary}" Language="en-US" VerticalAlignment="Center" />
-                                </Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Height="{DynamicResource Space.32}"
+                                         IsReadOnly="True"
+                                         Text="{Binding ExternalToolsIgirPath, Mode=OneWay}"
+                                         ToolTip="{Binding ExternalToolsIgirPath}"
+                                         FlowDirection="LeftToRight"
+                                         TextAlignment="Left"
+                                         Style="{StaticResource Win11SettingsTechnicalTextBox}"
+                                         AutomationProperties.Name="{DynamicResource LocExternalTools_PathLabel}" />
+                                <Button x:Name="BrowseIgirToolButton"
+                                        Grid.Column="1"
+                                        Click="BrowseIgirToolButton_Click"
+                                        Style="{StaticResource OptPathButton}"
+                                        AutomationProperties.Name="{DynamicResource LocExternalTools_Browse}"
+                                        Content="{DynamicResource LocExternalTools_Browse}" />
+                                <Button x:Name="UseBundledIgirButton"
+                                        Grid.Column="2"
+                                        Click="UseBundledIgirButton_Click"
+                                        Visibility="{Binding ExternalIgirPath, Converter={StaticResource NullOrEmptyToVisibilityConverter}}"
+                                        Style="{StaticResource OptPathButton}"
+                                        AutomationProperties.Name="{DynamicResource LocTools_UseBundled}"
+                                        Content="{DynamicResource LocTools_UseBundled}" />
                             </Grid>
-                        </Border>
-                    </Grid>
-                </Border>
+                        </opt:OptRow.Extra>
+                    </opt:OptRow>
+                </opt:OptSection>
+
+                <StackPanel Orientation="Horizontal" Margin="{DynamicResource Inset.0.0.0.8}">
+                    <Button x:Name="RecheckButton"
+                            MinWidth="{DynamicResource Space.128}"
+                            Height="{DynamicResource Space.32}"
+                            Click="RecheckButton_Click"
+                            AutomationProperties.Name="{DynamicResource LocExternalTools_Recheck}"
+                            Style="{StaticResource SecondaryButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="{DynamicResource Space.12}"
+                                  Height="{DynamicResource Space.12}"
+                                  Margin="{DynamicResource Inset.0.0.6.0}"
+                                  Data="{StaticResource Icon.Queue.Retry}"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  Stretch="Uniform" />
+                            <TextBlock Text="{DynamicResource LocExternalTools_Recheck}" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="OpenToolsFolderButton"
+                            MinWidth="{DynamicResource Space.128}"
+                            Height="{DynamicResource Space.32}"
+                            Margin="{DynamicResource Inset.8.0.0.0}"
+                            Click="OpenToolsFolderButton_Click"
+                            AutomationProperties.Name="{DynamicResource LocExternalTools_OpenFolder}"
+                            Style="{StaticResource SecondaryButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="{DynamicResource Space.12}"
+                                  Height="{DynamicResource Space.12}"
+                                  Margin="{DynamicResource Inset.0.0.6.0}"
+                                  Data="{StaticResource Icon.FolderOpen}"
+                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  Stretch="Uniform" />
+                            <TextBlock Text="{DynamicResource LocExternalTools_OpenFolder}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
             </StackPanel>
         </ScrollViewer>
     </Border>

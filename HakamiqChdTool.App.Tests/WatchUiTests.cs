@@ -48,7 +48,7 @@ internal static partial class Program
             AssertTrue(english.ContainsKey(key) && arabic.ContainsKey(key), $"{key} exists in both languages.");
         }
 
-        string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "PerfView.xaml")));
+        string view = File.ReadAllText(FindRepoFile(Path.Combine("Views", "Options", "WinView.xaml")));
         AssertTrue(view.Contains("IsChecked=\"{Binding WatchFolderEnabled", StringComparison.Ordinal), "The checkbox is bound.");
         AssertTrue(view.Contains("AutomationProperties.Name=\"{DynamicResource LocWatch_Folder}\"", StringComparison.Ordinal), "The folder box has an accessible name.");
         AssertTrue(view.Contains("Command=\"{Binding BrowseWatchFolderCommand}\"", StringComparison.Ordinal), "The folder can be browsed.");

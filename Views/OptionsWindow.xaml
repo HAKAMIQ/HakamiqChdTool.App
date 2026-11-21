@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:options="clr-namespace:HakamiqChdTool.App.Views.Options"
+        xmlns:conv="clr-namespace:HakamiqChdTool.App.Converters"
         Title="{DynamicResource LocOptions_WindowTitle}"
         Width="{DynamicResource Window.Options.Width}"
         Height="{DynamicResource Window.Options.Height}"
@@ -14,6 +15,7 @@
         WindowStartupLocation="CenterOwner"
         FlowDirection="{DynamicResource App.FlowDirection}"
         Language="{DynamicResource App.XmlLanguage}"
+        NumberSubstitution.Substitution="European"
         Icon="pack://application:,,,/HakamiqChdTool;component/Resources/HakamiqLogo.ico"
         Background="{DynamicResource Brush.Layer.Canvas}"
         Foreground="{DynamicResource Brush.Text.Primary}"
@@ -26,6 +28,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/HakamiqChdTool;component/Resources/Style/OptsStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <conv:NullOrEmptyToVisibilityConverter x:Key="EmptyShowsConverter" Invert="True" />
             <ToolTip x:Key="AppTip.OptionsWindow.1"
                      x:Shared="False"
                      FlowDirection="{DynamicResource App.FlowDirection}"
@@ -294,6 +297,7 @@
                     MouseLeftButtonDown="Header_MouseLeftButtonDown">
                 <Grid FlowDirection="{DynamicResource App.FlowDirection}">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="{DynamicResource Grid.Space.8}" />
                         <ColumnDefinition Width="Auto" />
@@ -308,7 +312,36 @@
 
                     </StackPanel>
 
-                    <Button Grid.Column="2"
+                    <!-- Search: shows only the matching options, in every tab. -->
+                    <Grid Grid.Column="1"
+                          Width="280"
+                          Margin="{DynamicResource Inset.16.0}"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Center"
+                          shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <TextBox x:Name="OptionsSearchBox"
+                                 Height="{DynamicResource Space.32}"
+                                 Padding="{DynamicResource Inset.10.0.10.0}"
+                                 VerticalContentAlignment="Center"
+                                 TextChanged="OptionsSearchBox_TextChanged"
+                                 AutomationProperties.Name="{DynamicResource LocOptions_Search}" />
+                        <TextBlock Text="{DynamicResource LocOptions_Search}"
+                                   Margin="{DynamicResource Inset.12.0}"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource Brush.Text.Secondary}"
+                                   Visibility="{Binding Text, ElementName=OptionsSearchBox, Converter={StaticResource EmptyShowsConverter}}" />
+                        <TextBlock Text="{DynamicResource LocOptions_SearchNoResults}"
+                                   Margin="{DynamicResource Inset.0.0.12.0}"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   Foreground="{DynamicResource Brush.Error.Foreground}"
+                                   Visibility="{Binding SearchHasNoResults, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </Grid>
+                    <Button Grid.Column="3"
                             Width="{DynamicResource Space.32}"
                             Height="{DynamicResource Space.32}"
                             MinWidth="{DynamicResource Space.32}"
@@ -359,13 +392,13 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
                         <RadioButton x:Name="ProcessingTabButton"
-                                     Grid.Column="0"
+                                     Grid.Column="1"
                                      GroupName="OptionsTabs"
-                                     IsChecked="True"
-                                     Tag="{StaticResource Icon.Settings}"
+                                     Tag="{StaticResource Icon.Operation.Convert}"
                                      Style="{StaticResource OptionsWindow.TopTab}"
                                      Checked="OnTabButtonChecked">
                             <TextBlock Text="{DynamicResource LocOptions_TabProcessing}"
@@ -375,9 +408,10 @@
                         </RadioButton>
 
                         <RadioButton x:Name="PathsTabButton"
-                                     Grid.Column="1"
+                                     Grid.Column="0"
                                      GroupName="OptionsTabs"
-                                     Tag="{StaticResource Icon.Folder}"
+                                     IsChecked="True"
+                                     Tag="{StaticResource Icon.Settings}"
                                      Style="{StaticResource OptionsWindow.TopTab}"
                                      Checked="OnTabButtonChecked">
                             <TextBlock Text="{DynamicResource LocOptions_TabPaths}"
@@ -387,7 +421,7 @@
                         </RadioButton>
 
                         <RadioButton x:Name="RedumpTabButton"
-                                     Grid.Column="2"
+                                     Grid.Column="4"
                                      GroupName="OptionsTabs"
                                      Tag="{StaticResource Icon.DatabaseSearch}"
                                      Style="{StaticResource OptionsWindow.TopTab}"
@@ -399,7 +433,7 @@
                         </RadioButton>
 
                         <RadioButton x:Name="PerformanceTabButton"
-                                     Grid.Column="3"
+                                     Grid.Column="2"
                                      GroupName="OptionsTabs"
                                      Tag="{StaticResource Icon.Games}"
                                      Style="{StaticResource OptionsWindow.TopTab}"
@@ -410,8 +444,20 @@
                                        TextAlignment="Center" />
                         </RadioButton>
 
+                        <RadioButton x:Name="WindowsTabButton"
+                                     Grid.Column="3"
+                                     GroupName="OptionsTabs"
+                                     Tag="{StaticResource Icon.Maximize}"
+                                     Style="{StaticResource OptionsWindow.TopTab}"
+                                     Checked="OnTabButtonChecked">
+                            <TextBlock Text="{DynamicResource LocOptions_TabWindows}"
+                                       Style="{StaticResource OptionsWindow.TabText}"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                       TextAlignment="Center" />
+                        </RadioButton>
+
                         <RadioButton x:Name="ExternalToolsTabButton"
-                                     Grid.Column="4"
+                                     Grid.Column="5"
                                      GroupName="OptionsTabs"
                                      Tag="{StaticResource OptionsWindow.Icon.Extensions}"
                                      Style="{StaticResource OptionsWindow.TopTab}"
@@ -435,8 +481,7 @@
 
                         <options:PathsSettingsView x:Name="PathsPanel"
                                                    HorizontalAlignment="Stretch"
-                                                   VerticalAlignment="Stretch"
-                                                   Visibility="Collapsed" />
+                                                   VerticalAlignment="Stretch" />
 
                         <options:RedumpSettingsView x:Name="RedumpPanel"
                                                     HorizontalAlignment="Stretch"
@@ -445,12 +490,18 @@
 
                         <options:ProcessingSettingsView x:Name="ProcessingPanel"
                                                         HorizontalAlignment="Stretch"
-                                                        VerticalAlignment="Stretch" />
+                                                        VerticalAlignment="Stretch"
+                                                        Visibility="Collapsed" />
 
                         <options:ExternalToolsSettingsView x:Name="ExternalToolsPanel"
                                                           HorizontalAlignment="Stretch"
                                                           VerticalAlignment="Stretch"
                                                           Visibility="Collapsed" />
+
+                        <options:WindowsSettingsView x:Name="WindowsPanel"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Stretch"
+                                                     Visibility="Collapsed" />
 
                         <options:PerformanceSettingsView x:Name="PerformancePanel"
                                                         HorizontalAlignment="Stretch"

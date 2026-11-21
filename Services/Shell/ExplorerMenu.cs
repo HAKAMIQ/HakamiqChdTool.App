@@ -132,7 +132,7 @@ internal sealed class ExplorerMenuRegistration
         }
     }
 
-    internal static string BuildCommand(string exePath, string mode) => $"\"{exePath}\" --mode {mode} --add \"%1\"";
+    internal static string BuildCommand(string exePath, string mode) => $"\"{exePath}\" --quick --mode {mode} --add \"%1\"";
 
     private static void WriteVerb(RegistryKey classes, string verbPath, string text, string exePath, string mode)
     {

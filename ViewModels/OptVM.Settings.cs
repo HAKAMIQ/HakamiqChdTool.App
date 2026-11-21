@@ -12,15 +12,30 @@ public sealed partial class OptionsViewModel
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        _useProgramDefaultsAsBase = false;
         ApplySettingsValues(settings);
         AcceptAppliedSettings(BuildResultSettings(settings));
     }
 
+    /// <summary>
+    /// Puts the options shown in this window back to their defaults. Everything else keeps its current value: the
+    /// language and theme (header buttons), chosen CsoKit and igir paths, the Xbox 360 format, Redump sync data and
+    /// settings with no control here.
+    /// </summary>
     public void ApplyProgramDefaults()
     {
-        _useProgramDefaultsAsBase = true;
-        ApplySettingsValues(AppSettings.CreateSafeDefaults());
+        AppSettings current = _appliedSnapshot?.Clone() ?? AppSettings.CreateSafeDefaults();
+        AppSettings defaults = AppSettings.CreateSafeDefaults();
+        defaults.Theme = current.Theme;
+        defaults.UiLanguage = current.UiLanguage;
+        defaults.PortableMode = current.PortableMode;
+        defaults.ExternalCsoKitPath = ExternalCsoKitPath;
+        defaults.ExternalIgirPath = ExternalIgirPath;
+        defaults.RedumpDatabaseDownloadUrl = current.RedumpDatabaseDownloadUrl;
+        defaults.EnableRedumpAutoSync = current.EnableRedumpAutoSync;
+        defaults.RedumpLastSyncedUtc = current.RedumpLastSyncedUtc;
+        defaults.RedumpSystemName = current.RedumpSystemName;
+        defaults.OverwriteExistingM3uPlaylists = current.OverwriteExistingM3uPlaylists;
+        ApplySettingsValues(defaults);
         NotifySaveStateChanged();
     }
 
@@ -37,8 +52,6 @@ public sealed partial class OptionsViewModel
         RedumpDatXmlPath = settings.RedumpDatXmlPath;
         RedumpLocalLibraryRoot = settings.RedumpLocalLibraryRoot;
         RedumpSystemName = settings.RedumpSystemName;
-        SelectedRedumpPlatformOption = ResolveRedumpPlatformOption(settings.RedumpPlatformMode, settings.RedumpPlatformKey);
-        SelectedRedumpArtifactOption = ResolveRedumpArtifactOption(settings.RedumpArtifactKind);
         OrganizeByPlatform = settings.OrganizeByPlatform;
         OrganizeByRegion = settings.OrganizeByRegion;
         IncludeSubfolders = settings.IncludeSubfolders;
@@ -56,8 +69,11 @@ public sealed partial class OptionsViewModel
         DeleteSourceAfterVerifiedExtraction = settings.DeleteSourceAfterVerifiedExtraction;
         ExtractGdRomAsCueBin = settings.ExtractGdRomAsCueBin;
         ExplorerMenuEnabled = settings.ExplorerMenuEnabled;
+        ExplorerOpensQuickWindow = settings.ExplorerOpensQuickWindow;
         WatchFolderEnabled = settings.WatchFolderEnabled;
         WatchFolderPath = settings.WatchFolderPath ?? string.Empty;
+        ExternalCsoKitPath = settings.ExternalCsoKitPath ?? string.Empty;
+        ExternalIgirPath = settings.ExternalIgirPath ?? string.Empty;
         RedumpDatabaseDownloadUrl = settings.RedumpDatabaseDownloadUrl?.Trim() ?? string.Empty;
         EnableRedumpAutoSync = settings.EnableRedumpAutoSync;
         _redumpLastSyncedUtc = NormalizeStoredTimestamp(settings.RedumpLastSyncedUtc);
@@ -75,8 +91,8 @@ public sealed partial class OptionsViewModel
         SelectedIsoCreateOverride = ResolveIsoCreateOverride(settings.IsoCreateCommandOverride);
         SelectedChdPlatformProfile = ResolveChdPlatformProfile(settings.ChdPlatformProfileId);
         EnableDeepIntegrityCheck = settings.EnableDeepIntegrityCheck;
-        ApplyStandardNamingBasedOnHash = settings.ApplyStandardNamingBasedOnHash;
 
+        ExpandAdvancedWhenChanged();
         ValidateAllProperties();
         ValidateForSave();
     }
@@ -88,9 +104,8 @@ public sealed partial class OptionsViewModel
         ValidateAllProperties();
         ValidateForSave();
 
-        AppSettings result = _useProgramDefaultsAsBase
-            ? AppSettings.CreateSafeDefaults()
-            : source.Clone();
+        // Built on the current settings, so values this window does not show are kept.
+        AppSettings result = source.Clone();
         result.UseCustomOutputRoot = UseCustomOutputRoot;
         result.CustomOutputRoot = CustomOutputRoot.Trim();
         result.PendingWorkspaceMode = UseCustomPendingWorkspace ? PendingWorkspaceMode.Custom : PendingWorkspaceMode.Automatic;
@@ -99,15 +114,6 @@ public sealed partial class OptionsViewModel
         result.RedumpDatXmlPath = RedumpDatXmlPath.Trim();
         result.RedumpLocalLibraryRoot = RedumpLocalLibraryRoot.Trim();
         result.RedumpSystemName = RedumpSystemName.Trim();
-        result.RedumpPlatformMode = SelectedRedumpPlatformOption is null
-            ? "Auto"
-            : string.Equals(SelectedRedumpPlatformOption.Key, "Auto", StringComparison.OrdinalIgnoreCase)
-                ? "Auto"
-                : string.Equals(SelectedRedumpPlatformOption.Key, "Unknown", StringComparison.OrdinalIgnoreCase)
-                    ? "Unknown"
-                    : "Platform";
-        result.RedumpPlatformKey = result.RedumpPlatformMode == "Platform" ? SelectedRedumpPlatformOption?.Key ?? string.Empty : string.Empty;
-        result.RedumpArtifactKind = SelectedRedumpArtifactOption?.Key ?? "Datfile";
         result.OrganizeByPlatform = OrganizeByPlatform;
         result.OrganizeByRegion = OrganizeByRegion;
         result.IncludeSubfolders = IncludeSubfolders;
@@ -125,10 +131,12 @@ public sealed partial class OptionsViewModel
         result.DeleteSourceAfterVerifiedExtraction = DeleteSourceAfterVerifiedExtraction;
         result.ExtractGdRomAsCueBin = ExtractGdRomAsCueBin;
         result.ExplorerMenuEnabled = ExplorerMenuEnabled;
+        result.ExplorerOpensQuickWindow = ExplorerOpensQuickWindow;
         result.WatchFolderEnabled = WatchFolderEnabled;
         result.WatchFolderPath = WatchFolderPath.Trim();
+        result.ExternalCsoKitPath = ExternalCsoKitPath;
+        result.ExternalIgirPath = ExternalIgirPath;
         result.EnableDeepIntegrityCheck = EnableDeepIntegrityCheck;
-        result.ApplyStandardNamingBasedOnHash = ApplyStandardNamingBasedOnHash;
         result.RedumpDatabaseDownloadUrl = RedumpDatabaseDownloadUrl.Trim();
         result.EnableRedumpAutoSync = EnableRedumpAutoSync;
         result.RedumpLastSyncedUtc = _redumpLastSyncedUtc ?? string.Empty;
@@ -172,13 +180,23 @@ public sealed partial class OptionsViewModel
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        _useProgramDefaultsAsBase = false;
         _appliedSnapshot = settings.Clone();
         NotifySaveStateChanged();
     }
 
+    /// <summary>
+    /// Shows when the Redump database file was last written, without changing the stored sync time, so opening
+    /// Options does not count as a change.
+    /// </summary>
+    public void ShowDatabaseFileTime(string? value)
+    {
+        _databaseFileTimeUtc = NormalizeStoredTimestamp(value);
+        OnPropertyChanged(nameof(DatabaseLastSyncedDisplay));
+    }
+
     public void SetDatabaseLastSyncedUtc(string? value)
     {
+        _databaseFileTimeUtc = null;
         _redumpLastSyncedUtc = NormalizeStoredTimestamp(value);
         OnPropertyChanged(nameof(DatabaseLastSyncedDisplay));
     }

@@ -18,6 +18,14 @@ public partial class ExternalToolsSettingsView : UserControl
     public event EventHandler? BrowseCsoKitToolRequested;
     public event EventHandler? BrowseIgirToolRequested;
 
+    public event EventHandler? UseBundledCsoKitRequested;
+
+    public event EventHandler? UseBundledIgirRequested;
+
+    private void UseBundledCsoKitButton_Click(object sender, RoutedEventArgs e) => UseBundledCsoKitRequested?.Invoke(this, EventArgs.Empty);
+
+    private void UseBundledIgirButton_Click(object sender, RoutedEventArgs e) => UseBundledIgirRequested?.Invoke(this, EventArgs.Empty);
+
     private void RecheckButton_Click(object sender, RoutedEventArgs e)
     {
         RecheckRequested?.Invoke(this, EventArgs.Empty);
