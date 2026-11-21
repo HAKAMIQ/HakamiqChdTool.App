@@ -399,6 +399,7 @@ internal static partial class Program
                 new("Chosen tool paths wait for Apply", TestChosenToolPathsWaitForApply),
                 new("The Redump folder scan shows its result", TestRedumpScanShowsItsResult),
                 new("Bundled tools are listed and checked against their pins", TestBundledToolsAreListedAndChecked),
+                new("A local build copies igir.exe next to the app", TestLocalBuildCopiesIgir),
                 new("Files unpacked from archives are deleted by default", TestTemporaryExtractionIsDeletedByDefault),
                 new("Incomplete output from a failed job is always removed", TestFailedOutputCleanupIsAlwaysOn),
                 new("Target emulator overrides are shown on the options they change", TestTargetEmulatorOverridesAreShown),

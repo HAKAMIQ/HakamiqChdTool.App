@@ -40,4 +40,18 @@ internal static partial class Program
             Directory.Delete(work, recursive: true);
         }
     }
+
+    // igir.exe is git-ignored, so only the project file can make a local build carry it; without it Options shows igir as unavailable.
+    private static void TestLocalBuildCopiesIgir()
+    {
+        string project = FindRepoFile("HakamiqChdTool.App.csproj");
+        var document = System.Xml.Linq.XDocument.Load(project);
+        var igir = document.Descendants("Content")
+            .SingleOrDefault(e => string.Equals((string?)e.Attribute("Include"), @"Tools\igir\win-x64\igir.exe", StringComparison.OrdinalIgnoreCase));
+        AssertTrue(igir is not null, "The project lists Tools\\igir\\win-x64\\igir.exe as content.");
+        AssertEqual("PreserveNewest", igir!.Element("CopyToOutputDirectory")?.Value, "igir.exe is copied to the build output, where IgirToolLocator looks for it.");
+        AssertEqual("Never", igir.Element("CopyToPublishDirectory")?.Value, "PublishRel.ps1 stays the only step that puts igir.exe into a release.");
+        AssertTrue(((string?)igir.Attribute("Condition") ?? string.Empty).Contains("Exists(", StringComparison.Ordinal),
+            "A clone without igir.exe still builds.");
+    }
 }

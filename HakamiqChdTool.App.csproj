@@ -255,6 +255,13 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
+
+		<!-- igir.exe is git-ignored (over GitHub's 100 MiB limit); fetch it with scripts/FetchIgir.ps1.
+		     Copied to the build output so a local build finds it; scripts/PublishRel.ps1 copies it into releases. -->
+		<Content Include="Tools\igir\win-x64\igir.exe" Condition="Exists('Tools\igir\win-x64\igir.exe')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
