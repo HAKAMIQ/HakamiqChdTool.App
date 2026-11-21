@@ -14,8 +14,10 @@ supported.
 
 Do not open a public GitHub issue for security problems.
 
-Use GitHub Security Advisories if available, or contact the maintainer
-privately before sharing details in public.
+Report it privately here:
+<https://github.com/HAKAMIQ/HakamiqChdTool.App/security/advisories/new>
+
+Only you and the maintainer can see the report until a fix is published.
 
 Include:
 
