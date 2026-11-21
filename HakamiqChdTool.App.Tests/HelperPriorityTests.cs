@@ -22,12 +22,16 @@ internal static partial class Program
                 quiet.Kill();
             }
 
+            // A child starts with its parent's priority, and CI runners may run below normal,
+            // so "left alone" means the helper keeps the priority it inherited from this process.
             HelperToolPriority.Mode = ChdmanProcessPriorityMode.Normal;
+            using Process self = Process.GetCurrentProcess();
+            ProcessPriorityClass inherited = self.PriorityClass;
             using (Process normal = StartIdleProcess())
             {
                 AssertFalse(HelperToolPriority.TryApply(normal), "Normal mode leaves a helper's priority alone.");
                 normal.Refresh();
-                AssertEqual(ProcessPriorityClass.Normal, normal.PriorityClass, "Normal mode keeps normal priority.");
+                AssertEqual(inherited, normal.PriorityClass, "Normal mode keeps the priority the helper inherited.");
                 normal.Kill();
             }
         }
